@@ -1,0 +1,106 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <relativePath>../spice-parent/</relativePath>
+    <artifactId>spice-parent</artifactId>
+    <groupId>org.sonatype.spice</groupId>
+    <version>15-SNAPSHOT</version>
+  </parent>
+
+  <packaging>pom</packaging>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>spice-inject</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <name>Spice - Dependency Injection</name>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <modules>
+    <module>guice-bean-reflect</module>
+    <module>guice-bean-inject</module>
+    <module>guice-plexus-metadata</module>
+    <module>guice-plexus-scanners</module>
+    <module>guice-plexus-converters</module>
+    <module>guice-plexus-binders</module>
+    <module>guice-plexus-shim</module>
+    <module>guice-plexus-tck</module>
+  </modules>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <version>2.0.1</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <_nouses>true</_nouses>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.ops4j.peaberry.dependencies</groupId>
+        <artifactId>aopalliance</artifactId>
+        <version>1.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ops4j.peaberry.dependencies</groupId>
+        <artifactId>javax.inject</artifactId>
+        <version>1.0-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ops4j.peaberry.dependencies</groupId>
+        <artifactId>guice</artifactId>
+        <version>2.1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-component-annotations</artifactId>
+        <version>1.5.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-utils</artifactId>
+        <version>2.0.1</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-classworlds</artifactId>
+        <version>2.2.2</version>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>3.8.2</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+</project>

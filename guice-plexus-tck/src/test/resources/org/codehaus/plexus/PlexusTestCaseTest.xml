@@ -1,0 +1,14 @@
+<plexus>
+  <load-on-start>
+    <component>
+      <role>org.codehaus.plexus.test.LoadOnStartService</role>
+    </component>
+  </load-on-start>
+
+  <components>
+    <component>
+      <role>org.codehaus.plexus.test.LoadOnStartService</role>
+      <implementation>org.codehaus.plexus.test.DefaultLoadOnStartService</implementation>
+    </component>
+  </components>
+</plexus>

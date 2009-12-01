@@ -1,0 +1,50 @@
+<plexus>
+
+  <load-on-start>
+    <component>
+      <role>
+        org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$DefaultBean
+      </role>
+    </component>
+    <component>
+      <role>
+        org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$Bean
+      </role>
+      <role-hint>
+        debug
+      </role-hint>
+      <extra-bits/>
+    </component>
+  </load-on-start>
+
+  <components>
+    <component>
+      <implementation>
+        org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$DefaultBean
+      </implementation>
+      <instantiation-strategy>
+        per-lookup
+      </instantiation-strategy>
+    </component>
+    <component>
+      <role>
+        org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$Bean
+      </role>
+      <role-hint>
+        debug
+      </role-hint>
+      <implementation>
+        org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$DebugBean
+      </implementation>
+    </component>
+  </components>
+
+  <dependencies>
+    <dependency>
+      <group-id>foo</group-id>
+      <artifact-id>bar</artifact-id>
+      <version>1.0</version>
+    </dependency>
+  </dependencies>
+
+</plexus>
