@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.codehaus.plexus.logging.LogEnabled;
-import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
@@ -63,10 +62,10 @@ final class PlexusLifecycleManager
 
     public void afterInjection( final Object injectee )
     {
-        // ensure all members are initialized
+        // ensure all members are initialized beforehand
         PlexusGuice.resumeInjections( container.injector );
+        final String name = injectee.getClass().getName();
 
-        final Logger logger = container.loggerManager.getLogger( injectee.getClass().getName() );
         try
         {
             /*
@@ -74,7 +73,7 @@ final class PlexusLifecycleManager
              */
             if ( injectee instanceof LogEnabled )
             {
-                ( (LogEnabled) injectee ).enableLogging( logger );
+                ( (LogEnabled) injectee ).enableLogging( container.loggerManager.getLogger( name ) );
             }
             if ( injectee instanceof Contextualizable )
             {
@@ -96,7 +95,7 @@ final class PlexusLifecycleManager
         }
         catch ( final Exception e )
         {
-            logger.error( "Problem starting: " + injectee, e );
+            container.loggerManager.getLogger( name ).error( "Problem starting: " + injectee, e );
         }
     }
 
@@ -105,7 +104,8 @@ final class PlexusLifecycleManager
         while ( !activeComponents.isEmpty() )
         {
             final Object injectee = activeComponents.remove( 0 );
-            final Logger logger = container.loggerManager.getLogger( injectee.getClass().getName() );
+            final String name = injectee.getClass().getName();
+
             try
             {
                 /*
@@ -122,7 +122,11 @@ final class PlexusLifecycleManager
             }
             catch ( final Throwable e )
             {
-                logger.error( "Problem stopping: " + injectee, e );
+                container.loggerManager.getLogger( name ).error( "Problem stopping: " + injectee, e );
+            }
+            finally
+            {
+                container.loggerManager.returnLogger( name );
             }
         }
     }

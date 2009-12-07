@@ -110,7 +110,11 @@ public final class Roles
      */
     public static <T> Key<T> componentKey( final Class<T> role, final String hint )
     {
-        return componentKey( TypeLiteral.get( role ), hint );
+        if ( Hints.isDefaultHint( hint ) )
+        {
+            return Key.get( role );
+        }
+        return Key.get( role, Names.named( Hints.canonicalHint( hint ) ) );
     }
 
     /**
@@ -120,13 +124,10 @@ public final class Roles
      * @param hint The Plexus hint
      * @return Component binding key denoting the given role-hint
      */
+    @SuppressWarnings( "unchecked" )
     public static <T> Key<T> componentKey( final TypeLiteral<T> role, final String hint )
     {
-        if ( Hints.isDefaultHint( hint ) )
-        {
-            return Key.get( role );
-        }
-        return Key.get( role, Names.named( Hints.canonicalHint( hint ) ) );
+        return (Key) componentKey( role.getRawType(), hint );
     }
 
     /**

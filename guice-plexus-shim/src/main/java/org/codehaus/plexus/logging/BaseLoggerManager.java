@@ -24,11 +24,11 @@ public abstract class BaseLoggerManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    private final Map<String, Logger> activeLoggers = new HashMap<String, Logger>();
+
     private String threshold;
 
     private int currentThreshold;
-
-    private final Map<String, Logger> activeLoggers = new HashMap<String, Logger>();
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -65,7 +65,7 @@ public abstract class BaseLoggerManager
         }
     }
 
-    public int getThreshold()
+    public final int getThreshold()
     {
         return currentThreshold;
     }
@@ -103,6 +103,6 @@ public abstract class BaseLoggerManager
             return Logger.LEVEL_FATAL;
         }
 
-        return Logger.LEVEL_DEBUG;
+        return Logger.LEVEL_DISABLED;
     }
 }

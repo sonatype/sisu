@@ -16,27 +16,23 @@ public final class ComponentRequirement
     // Public methods
     // ----------------------------------------------------------------------
 
+    @SuppressWarnings( "unused" )
     public void setRole( final String role )
     {
-        // TODO: do we need to do anything here?
-        System.out.println( "TODO ComponentRequirement.setRole(" + role + ")" );
     }
 
+    @SuppressWarnings( "unused" )
     public void setRoleHint( final String hint )
     {
-        // TODO: do we need to do anything here?
-        System.out.println( "TODO ComponentRequirement.setRoleHint(" + hint + ")" );
     }
 
+    @SuppressWarnings( "unused" )
     public void setFieldName( final String name )
     {
-        // TODO: do we need to do anything here?
-        System.out.println( "TODO ComponentRequirement.setFieldName(" + name + ")" );
     }
 
+    @SuppressWarnings( "unused" )
     public void setFieldMappingType( final String mappingType )
     {
-        // TODO: do we need to do anything here?
-        System.out.println( "TODO ComponentRequirement.setFieldMappingType(" + mappingType + ")" );
     }
 }

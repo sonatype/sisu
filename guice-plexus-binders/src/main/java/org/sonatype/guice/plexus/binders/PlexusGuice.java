@@ -86,6 +86,6 @@ public final class PlexusGuice
     @SuppressWarnings( "unchecked" )
     public static <T> Key<PlexusBeanRegistry<T>> registryKey( final TypeLiteral<T> role )
     {
-        return (Key) Key.get( Types.newParameterizedType( GuicePlexusBeanRegistry.class, role.getType() ) );
+        return (Key) Key.get( Types.newParameterizedType( GuicePlexusBeanRegistry.class, role.getRawType() ) );
     }
 }

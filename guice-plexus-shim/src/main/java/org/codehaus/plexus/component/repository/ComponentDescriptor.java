@@ -40,7 +40,7 @@ public final class ComponentDescriptor<T>
 
     public String getDescription()
     {
-        return "TODO"; // TODO: do we need to do anything here?
+        return null;
     }
 
     public void setRole( final String role )
@@ -117,22 +117,19 @@ public final class ComponentDescriptor<T>
         return null == implementationClass ? (Class) Object.class : implementationClass;
     }
 
+    @SuppressWarnings( "unused" )
     public void addRequirement( final ComponentRequirement requirement )
     {
-        // TODO: do we need to do anything here?
-        System.out.println( "TODO ComponentDescriptor.addRequirement(" + requirement + ")" );
     }
 
+    @SuppressWarnings( "unused" )
     public void setConfiguration( final PlexusConfiguration configuration )
     {
-        // TODO: do we need to do anything here?
-        System.out.println( "TODO ComponentDescriptor.setConfiguration(" + configuration + ")" );
     }
 
+    @SuppressWarnings( "unused" )
     public void setComponentSetDescriptor( final ComponentSetDescriptor setDescriptor )
     {
-        // TODO: do we need to do anything here?
-        System.out.println( "TODO ComponentDescriptor.setComponentSetDescriptor(" + setDescriptor + ")" );
     }
 
     public void setRealm( final ClassRealm classRealm )

@@ -20,18 +20,17 @@ public class ComponentSetDescriptor
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private String source;
-
     private final List<ComponentDescriptor<?>> components = new ArrayList<ComponentDescriptor<?>>();
+
+    private String source;
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
+    @SuppressWarnings( "unused" )
     public final void setId( final String id )
     {
-        // TODO: do we need to do anything here?
-        System.out.println( "TODO ComponentSetDescriptor.setId(" + id + ")" );
     }
 
     public final void setSource( final String source )
@@ -49,10 +48,9 @@ public class ComponentSetDescriptor
         components.add( component );
     }
 
+    @SuppressWarnings( "unused" )
     public final void addDependency( final ComponentDependency dependency )
     {
-        // TODO: do we need to do anything here?
-        System.out.println( "TODO ComponentSetDescriptor.addDependency(" + dependency + ")" );
     }
 
     public final List<ComponentDescriptor<?>> getComponents()

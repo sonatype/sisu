@@ -16,21 +16,18 @@ public final class ComponentDependency
     // Public methods
     // ----------------------------------------------------------------------
 
+    @SuppressWarnings( "unused" )
     public void setGroupId( final String groupId )
     {
-        // TODO: do we need to do anything here?
-        System.out.println( "TODO ComponentDependency.setGroupId(" + groupId + ")" );
     }
 
+    @SuppressWarnings( "unused" )
     public void setArtifactId( final String artifactId )
     {
-        // TODO: do we need to do anything here?
-        System.out.println( "TODO ComponentDependency.setArtifactId(" + artifactId + ")" );
     }
 
+    @SuppressWarnings( "unused" )
     public void setVersion( final String version )
     {
-        // TODO: do we need to do anything here?
-        System.out.println( "TODO ComponentDependency.setVersion(" + version + ")" );
     }
 }

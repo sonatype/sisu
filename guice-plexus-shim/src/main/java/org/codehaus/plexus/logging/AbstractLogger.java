@@ -42,62 +42,62 @@ public abstract class AbstractLogger
     // Public methods
     // ----------------------------------------------------------------------
 
-    public void setThreshold( final int threshold )
+    public final void setThreshold( final int threshold )
     {
         this.threshold = threshold;
     }
 
-    public String getName()
+    public final String getName()
     {
         return name;
     }
 
-    public void debug( final String message )
+    public final void debug( final String message )
     {
         debug( message, null );
     }
 
-    public boolean isDebugEnabled()
+    public final boolean isDebugEnabled()
     {
         return threshold <= LEVEL_DEBUG;
     }
 
-    public void info( final String message )
+    public final void info( final String message )
     {
         info( message, null );
     }
 
-    public boolean isInfoEnabled()
+    public final boolean isInfoEnabled()
     {
         return threshold <= LEVEL_INFO;
     }
 
-    public void warn( final String message )
+    public final void warn( final String message )
     {
         warn( message, null );
     }
 
-    public boolean isWarnEnabled()
+    public final boolean isWarnEnabled()
     {
         return threshold <= LEVEL_WARN;
     }
 
-    public void error( final String message )
+    public final void error( final String message )
     {
         error( message, null );
     }
 
-    public boolean isErrorEnabled()
+    public final boolean isErrorEnabled()
     {
         return threshold <= LEVEL_ERROR;
     }
 
-    public void fatalError( final String message )
+    public final void fatalError( final String message )
     {
         fatalError( message, null );
     }
 
-    public boolean isFatalErrorEnabled()
+    public final boolean isFatalErrorEnabled()
     {
         return threshold <= LEVEL_FATAL;
     }

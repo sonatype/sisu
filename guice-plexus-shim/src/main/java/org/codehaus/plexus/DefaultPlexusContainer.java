@@ -15,6 +15,7 @@ package org.codehaus.plexus;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -26,7 +27,6 @@ import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
 import org.codehaus.plexus.component.composition.CycleDetectedInComponentGraphException;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
-import org.codehaus.plexus.component.repository.ComponentRepository;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.context.ContextMapAdapter;
@@ -71,8 +71,6 @@ public final class DefaultPlexusContainer
 
     final PlexusLifecycleManager lifecycleManager = new PlexusLifecycleManager( this );
 
-    private final ComponentRepository repository;
-
     private final ClassRealm containerRealm;
 
     private final URL configurationUrl;
@@ -92,7 +90,6 @@ public final class DefaultPlexusContainer
     public DefaultPlexusContainer( final ContainerConfiguration configuration )
         throws PlexusContainerException
     {
-        repository = configuration.getComponentRepository();
         containerRealm = lookupContainerRealm( configuration );
         configurationUrl = lookupConfigurationUrl( configuration );
         context = new DefaultContext( configuration.getContext() );
@@ -118,7 +115,7 @@ public final class DefaultPlexusContainer
                 @SuppressWarnings( "unused" )
                 private Logger logger()
                 {
-                    return loggerManager.getLogger( PlexusContainer.class.getName() ); // TODO: per-component name?
+                    return loggerManager.getLogger( PlexusContainer.class.getName() );
                 }
             }, new PlexusBindingModule( lifecycleManager, xmlSource, annSource ) );
         }
@@ -164,7 +161,7 @@ public final class DefaultPlexusContainer
     {
         try
         {
-            final T instance = injector.getInstance( Roles.componentKey( type, Hints.canonicalHint( hint ) ) );
+            final T instance = injector.getInstance( Roles.componentKey( type, hint ) );
             PlexusGuice.resumeInjections( injector );
             return instance;
         }
@@ -237,7 +234,10 @@ public final class DefaultPlexusContainer
 
     public <T> ComponentDescriptor<T> getComponentDescriptor( final Class<T> type, final String role, final String hint )
     {
-        return repository.getComponentDescriptor( type, role, hint );
+        final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
+        descriptor.setRole( role );
+        descriptor.setRoleHint( hint );
+        return descriptor;
     }
 
     @SuppressWarnings( "unchecked" )
@@ -248,13 +248,25 @@ public final class DefaultPlexusContainer
 
     public <T> List<ComponentDescriptor<T>> getComponentDescriptorList( final Class<T> type, final String role )
     {
-        return repository.getComponentDescriptorList( type, role );
+        final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
+
+        final PlexusBeanRegistry<T> registry = injector.getInstance( PlexusGuice.registryKey( type ) );
+        for ( final String hint : registry.availableHints() )
+        {
+            final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
+            descriptor.setRole( role );
+            descriptor.setRoleHint( hint );
+            tempList.add( descriptor );
+        }
+
+        return tempList;
     }
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
         throws CycleDetectedInComponentGraphException
     {
-        repository.addComponentDescriptor( descriptor );
+        // TODO: do we need to do anything here?
+        getLogger().warn( "TODO DefaultPlexusContainer.addComponentDescriptor(" + descriptor + ")" );
     }
 
     public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm classRealm )
@@ -287,7 +299,8 @@ public final class DefaultPlexusContainer
 
     public void removeComponentRealm( final ClassRealm classRealm )
     {
-        repository.removeComponentRealm( classRealm );
+        // TODO: do we need to do anything here?
+        getLogger().warn( "TODO DefaultPlexusContainer.removeComponentRealm(" + classRealm + ")" );
     }
 
     // ----------------------------------------------------------------------
