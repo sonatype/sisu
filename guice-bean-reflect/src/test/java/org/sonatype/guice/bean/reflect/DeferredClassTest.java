@@ -27,6 +27,59 @@ public class DeferredClassTest
     {
     }
 
+    public void testStrongDeferredClass()
+        throws IOException
+    {
+        ClassLoader loader = new URLClassLoader( new URL[] { new File( "target/test-classes" ).toURL() }, null );
+
+        final String clazzName = Dummy.class.getName();
+        final ClassSpace space = new StrongClassSpace( loader );
+        final DeferredClass<?> clazz = new StrongDeferredClass<Object>( space, clazzName );
+
+        assertEquals( clazzName, clazz.get().getName() );
+        assertFalse( Dummy.class.equals( clazz.get() ) );
+
+        final String resourceName = clazzName.replace( '.', '/' ) + ".class";
+        Enumeration<URL> resources = space.getResources( resourceName );
+        assertEquals( resourceName, resources.nextElement().getPath().replaceFirst( ".*/test-classes/", "" ) );
+        assertFalse( resources.hasMoreElements() );
+
+        // clear refs
+        resources = null;
+        loader = null;
+
+        System.gc();
+        new StringBuilder( 1024 );
+        System.gc();
+        new StringBuilder( 1024 );
+        System.gc();
+        new StringBuilder( 1024 );
+        System.gc();
+        new StringBuilder( 1024 );
+        System.gc();
+
+        // still there
+        clazz.get();
+
+        // still there
+        space.getResources( resourceName );
+
+        assertEquals( clazzName, clazz.getName() );
+    }
+
+    public void testMissingStrongDeferredClass()
+    {
+        try
+        {
+            final ClassSpace space = new StrongClassSpace( getClass().getClassLoader() );
+            new StrongDeferredClass<Object>( space, "unknown-class" ).get();
+            fail( "Expected TypeNotPresentException" );
+        }
+        catch ( final TypeNotPresentException e )
+        {
+        }
+    }
+
     public void testWeakDeferredClass()
         throws IOException
     {
@@ -60,6 +113,7 @@ public class DeferredClassTest
 
         try
         {
+            // now gone
             clazz.get();
             fail( "Expected TypeNotPresentException" );
         }
@@ -70,6 +124,7 @@ public class DeferredClassTest
 
         try
         {
+            // now gone
             space.getResources( resourceName );
             fail( "Expected IOException" );
         }
@@ -79,5 +134,18 @@ public class DeferredClassTest
         }
 
         assertEquals( clazzName, clazz.getName() );
+    }
+
+    public void testMissingWeakDeferredClass()
+    {
+        try
+        {
+            final ClassSpace space = new WeakClassSpace( getClass().getClassLoader() );
+            new WeakDeferredClass<Object>( space, "unknown-class" ).get();
+            fail( "Expected TypeNotPresentException" );
+        }
+        catch ( final TypeNotPresentException e )
+        {
+        }
     }
 }
