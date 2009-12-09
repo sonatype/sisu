@@ -32,6 +32,15 @@ public interface ClassSpace
         throws ClassNotFoundException;
 
     /**
+     * Defer loading the named class from the surrounding class space.
+     * 
+     * @param name The class name
+     * @return Deferred class
+     * @see ClassLoader#loadClass(String)
+     */
+    DeferredClass<?> deferLoadClass( String name );
+
+    /**
      * Queries the class space for resources matching the given name.
      * 
      * @param name The resource name

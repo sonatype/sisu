@@ -34,7 +34,7 @@ public class DeferredClassTest
 
         final String clazzName = Dummy.class.getName();
         final ClassSpace space = new StrongClassSpace( loader );
-        final DeferredClass<?> clazz = new StrongDeferredClass<Object>( space, clazzName );
+        final DeferredClass<?> clazz = space.deferLoadClass( clazzName );
 
         assertEquals( clazzName, clazz.get().getName() );
         assertFalse( Dummy.class.equals( clazz.get() ) );
@@ -87,7 +87,7 @@ public class DeferredClassTest
 
         final String clazzName = Dummy.class.getName();
         final ClassSpace space = new WeakClassSpace( loader );
-        final DeferredClass<?> clazz = new WeakDeferredClass<Object>( space, clazzName );
+        final DeferredClass<?> clazz = space.deferLoadClass( clazzName );
 
         assertEquals( clazzName, clazz.get().getName() );
         assertFalse( Dummy.class.equals( clazz.get() ) );

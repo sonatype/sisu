@@ -60,6 +60,11 @@ public final class WeakClassSpace
         throw new ClassNotFoundException( CLASS_SPACE_UNLOADED );
     }
 
+    public DeferredClass<?> deferLoadClass( final String name )
+    {
+        return new WeakDeferredClass<Object>( this, name );
+    }
+
     public Enumeration<URL> getResources( final String name )
         throws IOException
     {

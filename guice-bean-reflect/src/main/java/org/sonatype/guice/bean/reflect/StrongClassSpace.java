@@ -47,6 +47,11 @@ public final class StrongClassSpace
         return classLoader.loadClass( name );
     }
 
+    public DeferredClass<?> deferLoadClass( final String name )
+    {
+        return new StrongDeferredClass<Object>( this, name );
+    }
+
     public Enumeration<URL> getResources( final String name )
         throws IOException
     {
