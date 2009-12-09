@@ -22,6 +22,11 @@ import org.sonatype.guice.bean.reflect.BeanProperty;
 public interface PlexusBeanMetadata
 {
     /**
+     * @return {@code true} if there is no more metadata; otherwise {@code false}
+     */
+    boolean isEmpty();
+
+    /**
      * Returns @{@link Configuration} metadata for the given property of the Plexus bean.
      * 
      * @param property The bean property

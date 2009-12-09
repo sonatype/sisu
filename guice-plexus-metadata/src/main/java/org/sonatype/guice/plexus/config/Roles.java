@@ -18,10 +18,7 @@ import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.Generics;
-import org.sonatype.guice.bean.reflect.WeakDeferredClass;
 
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
@@ -128,39 +125,5 @@ public final class Roles
     public static <T> Key<T> componentKey( final TypeLiteral<T> role, final String hint )
     {
         return (Key) componentKey( role.getRawType(), hint );
-    }
-
-    /**
-     * Returns degenerate {@link DeferredClass} for the given Plexus role.
-     * 
-     * @param role The Plexus role
-     * @return Deferred class
-     */
-    public static <T> DeferredClass<T> defer( final Class<T> role )
-    {
-        return new DeferredClass<T>()
-        {
-            public Class<T> get()
-            {
-                return role;
-            }
-
-            public String getName()
-            {
-                return role.getName();
-            }
-        };
-    }
-
-    /**
-     * Returns {@link DeferredClass} for the named role from the given {@link ClassSpace}.
-     * 
-     * @param space The class space
-     * @param role The Plexus role
-     * @return Deferred class
-     */
-    public static DeferredClass<?> defer( final ClassSpace space, final String role )
-    {
-        return new WeakDeferredClass<Object>( space, role );
     }
 }

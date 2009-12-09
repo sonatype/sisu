@@ -51,7 +51,12 @@ public final class RequirementImpl
         this.role = role;
         this.optional = optional;
 
-        if ( hints.length == 1 )
+        if ( hints.length == 0 )
+        {
+            hint = "";
+            this.hints = Hints.NO_HINTS;
+        }
+        else if ( hints.length == 1 )
         {
             hint = hints[0];
             this.hints = Hints.NO_HINTS;

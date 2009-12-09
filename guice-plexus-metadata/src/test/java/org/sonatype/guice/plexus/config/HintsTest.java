@@ -17,6 +17,8 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.StrongClassSpace;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 
 public class HintsTest
@@ -32,6 +34,7 @@ public class HintsTest
 
     public void testCanonicalHints()
     {
+        assertArrayEquals( new String[0], Hints.canonicalHints() );
         assertArrayEquals( new String[0], Hints.canonicalHints( requirement() ) );
         assertArrayEquals( new String[0], Hints.canonicalHints( requirement( "" ) ) );
         assertArrayEquals( new String[] { "default" }, Hints.canonicalHints( requirement( "default" ) ) );
@@ -66,6 +69,11 @@ public class HintsTest
 
     private static Requirement requirement( final String... hints )
     {
-        return new RequirementImpl( Roles.defer( Object.class ), true, hints );
+        return new RequirementImpl( defer( Object.class ), true, hints );
+    }
+
+    private static DeferredClass<?> defer( final Class<?> clazz )
+    {
+        return new StrongClassSpace( TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
     }
 }

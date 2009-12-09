@@ -18,7 +18,8 @@ import java.util.HashSet;
 import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.sonatype.guice.plexus.config.Roles;
+import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.StrongClassSpace;
 
 public class ComponentAnnotationTest
     extends TestCase
@@ -110,7 +111,7 @@ public class ComponentAnnotationTest
 
     private static Component replicate( final Component orig )
     {
-        return new ComponentImpl( Roles.defer( orig.role() ), orig.hint(), orig.instantiationStrategy() );
+        return new ComponentImpl( defer( orig.role() ), orig.hint(), orig.instantiationStrategy() );
     }
 
     public void testNullChecks()
@@ -124,11 +125,16 @@ public class ComponentAnnotationTest
     {
         try
         {
-            new ComponentImpl( role != null ? Roles.defer( role ) : null, hint, instantationStrategy );
+            new ComponentImpl( role != null ? defer( role ) : null, hint, instantationStrategy );
             fail( "Expected IllegalArgumentException" );
         }
         catch ( final IllegalArgumentException e )
         {
         }
+    }
+
+    private static DeferredClass<?> defer( final Class<?> clazz )
+    {
+        return new StrongClassSpace( TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
     }
 }

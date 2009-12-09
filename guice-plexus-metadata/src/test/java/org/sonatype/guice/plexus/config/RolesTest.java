@@ -12,17 +12,12 @@
  */
 package org.sonatype.guice.plexus.config;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Enumeration;
-import java.util.List;
-
 import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.StrongClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 
@@ -53,7 +48,7 @@ public class RolesTest
     public void testDefaultComponentKeys()
     {
         assertEquals( OBJECT_COMPONENT_KEY, Roles.componentKey( Object.class, null ) );
-        assertEquals( OBJECT_COMPONENT_KEY, Roles.componentKey( Object.class, "" ) );
+        assertEquals( OBJECT_COMPONENT_KEY, Roles.componentKey( OBJECT_LITERAL, "" ) );
         assertEquals( OBJECT_COMPONENT_KEY, Roles.componentKey( Object.class, "default" ) );
         assertEquals( OBJECT_COMPONENT_KEY, Roles.componentKey( component( "" ) ) );
         assertEquals( OBJECT_COMPONENT_KEY, Roles.componentKey( component( "default" ) ) );
@@ -79,72 +74,16 @@ public class RolesTest
 
     private static Component component( final String hint )
     {
-        return new ComponentImpl( Roles.defer( Object.class ), hint, "per-lookup" );
+        return new ComponentImpl( defer( Object.class ), hint, "per-lookup" );
     }
 
     private static Requirement requirement( final Class<?> role )
     {
-        return new RequirementImpl( Roles.defer( role ), true );
+        return new RequirementImpl( defer( role ), true );
     }
 
-    static class ClassicSpace
-        implements ClassSpace
+    private static DeferredClass<?> defer( final Class<?> clazz )
     {
-        public Class<?> loadClass( final String name )
-            throws ClassNotFoundException
-        {
-            return getClass().getClassLoader().loadClass( name );
-        }
-
-        public Enumeration<URL> getResources( final String name )
-            throws IOException
-        {
-            return getClass().getClassLoader().getResources( name );
-        }
-    }
-
-    static class BrokenSpace
-        implements ClassSpace
-    {
-        public Class<?> loadClass( final String name )
-            throws ClassNotFoundException
-        {
-            throw new ClassNotFoundException();
-        }
-
-        public Enumeration<URL> getResources( final String name )
-            throws IOException
-        {
-            throw new IOException();
-        }
-    }
-
-    public void testClassicDeferredClass()
-    {
-        final DeferredClass<?> clazz1 = Roles.defer( List.class );
-        final DeferredClass<?> clazz2 = Roles.defer( new ClassicSpace(), "java.util.List" );
-
-        assertEquals( List.class, clazz1.get() );
-        assertEquals( List.class, clazz2.get() );
-        assertEquals( clazz1.get(), clazz2.get() );
-
-        assertEquals( "java.util.List", clazz1.getName() );
-        assertEquals( "java.util.List", clazz2.getName() );
-    }
-
-    public void testBrokenDeferredClass()
-    {
-        final DeferredClass<?> clazz = Roles.defer( new BrokenSpace(), "java.util.List" );
-
-        try
-        {
-            clazz.get();
-            fail( "Expected TypeNotPresentException" );
-        }
-        catch ( final TypeNotPresentException e )
-        {
-        }
-
-        assertEquals( "java.util.List", clazz.getName() );
+        return new StrongClassSpace( TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
     }
 }
