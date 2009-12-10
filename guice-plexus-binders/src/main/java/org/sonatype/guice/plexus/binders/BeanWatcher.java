@@ -16,7 +16,7 @@ import com.google.inject.matcher.Matcher;
 import com.google.inject.spi.InjectionListener;
 
 /**
- * {@link #matches(Class)} selects types whose instances should be sent to {@link #afterInjection(Object)}.
+ * When {@link #matches(Class)} is true, send instances of that type to {@link #afterInjection(Object)}.
  */
 public interface BeanWatcher
     extends Matcher<Class<?>>, InjectionListener<Object>

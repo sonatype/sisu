@@ -81,7 +81,7 @@ public final class PlexusBindingModule
         {
             for ( final Entry<Component, DeferredClass<?>> e : source.findPlexusComponentBeans().entrySet() )
             {
-                bindPlexusBean( e.getKey(), e.getValue() );
+                registerPlexusBean( e.getKey(), e.getValue() );
             }
         }
 
@@ -117,7 +117,7 @@ public final class PlexusBindingModule
     // ----------------------------------------------------------------------
 
     @SuppressWarnings( "unchecked" )
-    private void bindPlexusBean( final Component component, final DeferredClass<?> clazz )
+    private void registerPlexusBean( final Component component, final DeferredClass<?> clazz )
     {
         final Key<?> roleKey = Roles.componentKey( component );
         final ScopedBindingBuilder sbb;

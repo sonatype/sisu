@@ -15,6 +15,7 @@ package org.sonatype.guice.plexus.binders;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -101,9 +102,17 @@ final class GuicePlexusBeanRegistry<T>
             }
         }
 
-        // ordering is recorded in hint array, so can use simpler hash map
-        allHints = tempMap.keySet().toArray( new String[tempMap.size()] );
-        roleHintMap = new HashMap<String, Provider<T>>( tempMap );
+        if ( !tempMap.isEmpty() )
+        {
+            // ordering is recorded in hint array, so can use simpler hash map
+            allHints = tempMap.keySet().toArray( new String[tempMap.size()] );
+            roleHintMap = new HashMap<String, Provider<T>>( tempMap );
+        }
+        else
+        {
+            allHints = Hints.NO_HINTS;
+            roleHintMap = Collections.emptyMap();
+        }
     }
 
     // ----------------------------------------------------------------------

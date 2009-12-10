@@ -60,6 +60,7 @@ final class DeferredInjector
     {
         while ( !deferredInjectees.isEmpty() )
         {
+            // this might eventually add more entries to the list
             injector.injectMembers( deferredInjectees.remove( 0 ) );
         }
         return injector;

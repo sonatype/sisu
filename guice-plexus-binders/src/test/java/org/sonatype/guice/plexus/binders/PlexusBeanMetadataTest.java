@@ -23,12 +23,12 @@ import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.StrongClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.config.Roles;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -88,6 +88,8 @@ public class PlexusBeanMetadataTest
     static class DefaultBean2
     {
         String extraMetadata;
+
+        String leftovers;
     }
 
     static class CustomizedBeanSource
@@ -97,10 +99,8 @@ public class PlexusBeanMetadataTest
         {
             final Map<Component, DeferredClass<?>> componentMap = new HashMap<Component, DeferredClass<?>>();
 
-            componentMap.put( new ComponentImpl( Roles.defer( Bean.class ), "2", "singleton" ),
-                              Roles.defer( DefaultBean1.class ) );
-            componentMap.put( new ComponentImpl( Roles.defer( DefaultBean2.class ), "", "per-lookup" ),
-                              Roles.defer( DefaultBean2.class ) );
+            componentMap.put( new ComponentImpl( Bean.class, "2", "singleton" ), defer( DefaultBean1.class ) );
+            componentMap.put( new ComponentImpl( DefaultBean2.class, "", "per-lookup" ), defer( DefaultBean2.class ) );
 
             return componentMap;
         }
@@ -111,11 +111,16 @@ public class PlexusBeanMetadataTest
             {
                 return new PlexusBeanMetadata()
                 {
+                    public boolean isEmpty()
+                    {
+                        return false;
+                    }
+
                     public Requirement getRequirement( final BeanProperty<?> property )
                     {
                         if ( "extraMetadata".equals( property.getName() ) )
                         {
-                            return new RequirementImpl( Roles.defer( String.class ), false, "KEY1" );
+                            return new RequirementImpl( String.class, false, "KEY1" );
                         }
                         return null;
                     }
@@ -130,6 +135,13 @@ public class PlexusBeanMetadataTest
             {
                 return new PlexusBeanMetadata()
                 {
+                    private boolean used = false;
+
+                    public boolean isEmpty()
+                    {
+                        return used;
+                    }
+
                     public Requirement getRequirement( final BeanProperty<?> property )
                     {
                         return null;
@@ -139,6 +151,8 @@ public class PlexusBeanMetadataTest
                     {
                         if ( "extraMetadata".equals( property.getName() ) )
                         {
+                            used = true;
+
                             return new ConfigurationImpl( "KEY2", "CONFIGURATION" );
                         }
                         return null;
@@ -157,5 +171,10 @@ public class PlexusBeanMetadataTest
 
         assertEquals( Collections.singletonList( "2" ),
                       injector.getInstance( PlexusGuice.registryKey( Bean.class ) ).availableHints() );
+    }
+
+    static DeferredClass<?> defer( final Class<?> clazz )
+    {
+        return new StrongClassSpace( TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
     }
 }

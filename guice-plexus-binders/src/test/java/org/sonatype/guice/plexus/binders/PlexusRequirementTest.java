@@ -21,12 +21,12 @@ import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.reflect.WeakClassSpace;
+import org.sonatype.guice.bean.reflect.StrongClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.config.Roles;
 import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
@@ -35,6 +35,7 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.ProvisionException;
+import com.google.inject.Scopes;
 import com.google.inject.name.Names;
 
 public class PlexusRequirementTest
@@ -56,7 +57,7 @@ public class PlexusRequirementTest
             {
                 bind( A.class ).annotatedWith( Names.named( "AA" ) ).to( AAImpl.class );
                 bind( A.class ).annotatedWith( Names.named( "AB" ) ).to( ABImpl.class );
-                bind( A.class ).to( AImpl.class );
+                bind( A.class ).to( AImpl.class ).in( Scopes.SINGLETON );
                 bind( A.class ).annotatedWith( Names.named( "AC" ) ).to( ACImpl.class );
 
                 bind( B.class ).annotatedWith( Names.named( "B" ) ).to( BImpl.class );
@@ -70,14 +71,14 @@ public class PlexusRequirementTest
                         final Map<Component, DeferredClass<?>> componentMap =
                             new HashMap<Component, DeferredClass<?>>();
 
-                        componentMap.put( new ComponentImpl( Roles.defer( Alpha.class ), "", "load-on-start" ),
-                                          Roles.defer( AlphaImpl.class ) );
-                        componentMap.put( new ComponentImpl( Roles.defer( Omega.class ), "", "load-on-start" ),
-                                          Roles.defer( OmegaImpl.class ) );
+                        componentMap.put( new ComponentImpl( Alpha.class, "", "load-on-start" ),
+                                          defer( AlphaImpl.class ) );
+                        componentMap.put( new ComponentImpl( Omega.class, "", "load-on-start" ),
+                                          defer( OmegaImpl.class ) );
 
-                        componentMap.put( new ComponentImpl( Roles.defer( Gamma.class ), "", "" ),
-                                          Roles.defer( new WeakClassSpace( getClass().getClassLoader() ),
-                                                       "some-broken-class" ) );
+                        final ClassSpace space = new StrongClassSpace( TestCase.class.getClassLoader() );
+                        componentMap.put( new ComponentImpl( Gamma.class, "", "" ),
+                                          space.deferLoadClass( "some-broken-class" ) );
 
                         return componentMap;
                     }
@@ -140,7 +141,7 @@ public class PlexusRequirementTest
     {
     }
 
-    @Component( role = Component1.class )
+    @Component( role = Component1.class, instantiationStrategy = "per-lookup" )
     static class Component1
     {
         @Requirement
@@ -243,6 +244,14 @@ public class PlexusRequirementTest
     {
         @Requirement( hint = "default" )
         B testNoDefault;
+    }
+
+    public void testRepeatInjection()
+    {
+        final Component1 duplicate = injector.getInstance( Component1.class );
+        assertSame( component.testField, duplicate.testField );
+        assertSame( component.testSetter, duplicate.testSetter );
+        assertSame( component.testRole, duplicate.testRole );
     }
 
     public void testSingleRequirement()
@@ -454,5 +463,10 @@ public class PlexusRequirementTest
         {
             System.out.println( e );
         }
+    }
+
+    static DeferredClass<?> defer( final Class<?> clazz )
+    {
+        return new StrongClassSpace( TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
     }
 }

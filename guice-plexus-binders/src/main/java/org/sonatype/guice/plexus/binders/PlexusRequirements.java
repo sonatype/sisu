@@ -68,36 +68,15 @@ final class PlexusRequirements
 
         if ( Map.class == rawType )
         {
-            final Provider<PlexusBeanRegistry<T>> registry = getRoleRegistry( roleType );
-            return new Provider()
-            {
-                public Map<String, T> get()
-                {
-                    return registry.get().lookupMap( hints );
-                }
-            };
+            return new RequirementMapProvider( getRoleRegistry( roleType ), hints );
         }
         else if ( List.class == rawType )
         {
-            final Provider<PlexusBeanRegistry<T>> registry = getRoleRegistry( roleType );
-            return new Provider()
-            {
-                public List<T> get()
-                {
-                    return registry.get().lookupList( hints );
-                }
-            };
+            return new RequirementListProvider( getRoleRegistry( roleType ), hints );
         }
         else if ( hints.length == 0 )
         {
-            final Provider<PlexusBeanRegistry<T>> registry = getRoleRegistry( roleType );
-            return new Provider()
-            {
-                public Object get()
-                {
-                    return registry.get().lookupWildcard();
-                }
-            };
+            return new RequirementWildcardProvider( getRoleRegistry( roleType ) );
         }
 
         return encounter.getProvider( Roles.componentKey( roleType, hints[0] ) );
@@ -116,5 +95,83 @@ final class PlexusRequirements
     private <T> Provider<PlexusBeanRegistry<T>> getRoleRegistry( final TypeLiteral<T> role )
     {
         return encounter.getProvider( PlexusGuice.registryKey( role ) );
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation classes
+    // ----------------------------------------------------------------------
+
+    private static abstract class AbstractRequirementProvider<T>
+    {
+        private Provider<PlexusBeanRegistry<T>> provider;
+
+        private PlexusBeanRegistry<T> registry;
+
+        AbstractRequirementProvider( final Provider<PlexusBeanRegistry<T>> provider )
+        {
+            this.provider = provider;
+        }
+
+        final synchronized PlexusBeanRegistry<T> registry()
+        {
+            if ( null == registry )
+            {
+                // avoid dangling reference
+                registry = provider.get();
+                provider = null;
+            }
+            return registry;
+        }
+    }
+
+    private static final class RequirementMapProvider<T>
+        extends AbstractRequirementProvider<T>
+        implements Provider<Map<String, T>>
+    {
+        private final String[] hints;
+
+        RequirementMapProvider( final Provider<PlexusBeanRegistry<T>> registry, final String[] hints )
+        {
+            super( registry );
+            this.hints = hints;
+        }
+
+        public Map<String, T> get()
+        {
+            return registry().lookupMap( hints );
+        }
+    }
+
+    private static final class RequirementListProvider<T>
+        extends AbstractRequirementProvider<T>
+        implements Provider<List<T>>
+    {
+        private final String[] hints;
+
+        RequirementListProvider( final Provider<PlexusBeanRegistry<T>> registry, final String[] hints )
+        {
+            super( registry );
+            this.hints = hints;
+        }
+
+        public List<T> get()
+        {
+            return registry().lookupList( hints );
+        }
+    }
+
+    private static final class RequirementWildcardProvider<T>
+        extends AbstractRequirementProvider<T>
+        implements Provider<T>
+    {
+        RequirementWildcardProvider( final Provider<PlexusBeanRegistry<T>> registry )
+        {
+            super( registry );
+        }
+
+        public T get()
+        {
+            return registry().lookupWildcard();
+        }
     }
 }

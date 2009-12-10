@@ -17,6 +17,7 @@ import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.plexus.config.PlexusConfigurator;
 
 import com.google.inject.Provider;
+import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeEncounter;
 
 /**
@@ -52,12 +53,41 @@ final class PlexusConfigurations
      */
     public <T> Provider<T> lookup( final Configuration configuration, final BeanProperty<T> property )
     {
-        return new Provider<T>()
+        return new ConfigurationProvider<T>( configurator, configuration, property.getType() );
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation classes
+    // ----------------------------------------------------------------------
+
+    private static final class ConfigurationProvider<T>
+        implements Provider<T>
+    {
+        private Provider<PlexusConfigurator> provider;
+
+        private PlexusConfigurator configurator;
+
+        private final Configuration config;
+
+        private final TypeLiteral<T> asType;
+
+        ConfigurationProvider( final Provider<PlexusConfigurator> provider, final Configuration config,
+                               final TypeLiteral<T> asType )
         {
-            public T get()
+            this.provider = provider;
+            this.config = config;
+            this.asType = asType;
+        }
+
+        public synchronized T get()
+        {
+            if ( null == configurator )
             {
-                return configurator.get().configure( configuration, property.getType() );
+                // avoid dangling reference
+                configurator = provider.get();
+                provider = null;
             }
-        };
+            return configurator.configure( config, asType );
+        }
     }
 }

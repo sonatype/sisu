@@ -61,7 +61,12 @@ final class PlexusPropertyBinder
 
     public <T> PropertyBinding bindProperty( final BeanProperty<T> property )
     {
-        // try to avoid double injections
+        if ( metadata.isEmpty() )
+        {
+            return PropertyBinder.LAST_BINDING;
+        }
+
+        // ignore hidden/shadowed properties
         final String name = property.getName();
         if ( visited.contains( name ) )
         {
