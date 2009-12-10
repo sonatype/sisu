@@ -19,8 +19,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.reflect.StrongClassSpace;
 
 public class RequirementAnnotationTest
     extends TestCase
@@ -92,8 +90,7 @@ public class RequirementAnnotationTest
     {
         final String h = orig.hint();
 
-        return new RequirementImpl( defer( orig.role() ), orig.optional(), h.length() > 0 ? new String[] { h }
-                        : orig.hints() );
+        return new RequirementImpl( orig.role(), orig.optional(), h.length() > 0 ? new String[] { h } : orig.hints() );
     }
 
     public void testNullChecks()
@@ -107,16 +104,11 @@ public class RequirementAnnotationTest
     {
         try
         {
-            new RequirementImpl( role != null ? defer( role ) : null, false, hints );
+            new RequirementImpl( role, false, hints );
             fail( "Expected IllegalArgumentException" );
         }
         catch ( final IllegalArgumentException e )
         {
         }
-    }
-
-    private static DeferredClass<?> defer( final Class<?> clazz )
-    {
-        return new StrongClassSpace( TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
     }
 }

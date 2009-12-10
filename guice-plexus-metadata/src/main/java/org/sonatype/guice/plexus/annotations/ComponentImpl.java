@@ -15,7 +15,6 @@ package org.sonatype.guice.plexus.annotations;
 import java.lang.annotation.Annotation;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.sonatype.guice.bean.reflect.DeferredClass;
 
 /**
  * Partial runtime implementation of Plexus @{@link Component} annotation, supporting the most common attributes.
@@ -34,7 +33,7 @@ public final class ComponentImpl
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final DeferredClass<?> role;
+    private final Class<?> role;
 
     private final String hint;
 
@@ -44,7 +43,7 @@ public final class ComponentImpl
     // Constructors
     // ----------------------------------------------------------------------
 
-    public ComponentImpl( final DeferredClass<?> role, final String hint, final String instantiationStrategy )
+    public ComponentImpl( final Class<?> role, final String hint, final String instantiationStrategy )
     {
         if ( null == role || null == hint || null == instantiationStrategy )
         {
@@ -62,7 +61,7 @@ public final class ComponentImpl
 
     public Class<?> role()
     {
-        return role.get();
+        return role;
     }
 
     public String hint()
@@ -141,7 +140,7 @@ public final class ComponentImpl
         {
             final Component cmp = (Component) rhs;
 
-            if ( role().equals( cmp.role() ) && hint.equals( cmp.hint() )
+            if ( role.equals( cmp.role() ) && hint.equals( cmp.hint() )
                 && instantiationStrategy.equals( cmp.instantiationStrategy() ) )
             {
                 // optimization: we hard-code all these attributes to be empty
@@ -159,7 +158,7 @@ public final class ComponentImpl
     @Override
     public int hashCode()
     {
-        return HASH_CODE_OFFSET + ( 127 * "role".hashCode() ^ role().hashCode() )
+        return HASH_CODE_OFFSET + ( 127 * "role".hashCode() ^ role.hashCode() )
             + ( 127 * "hint".hashCode() ^ hint.hashCode() )
             + ( 127 * "instantiationStrategy".hashCode() ^ instantiationStrategy.hashCode() );
     }
@@ -169,7 +168,7 @@ public final class ComponentImpl
     {
         return String.format( "@%s(isolatedRealm=false, composer=, configurator=, alias=, description=, "
             + "instantiationStrategy=%s, factory=, hint=%s, type=, lifecycleHandler=, version=, "
-            + "profile=, role=%s)", Component.class.getName(), instantiationStrategy, hint, role() );
+            + "profile=, role=%s)", Component.class.getName(), instantiationStrategy, hint, role );
     }
 
     public Class<? extends Annotation> annotationType()

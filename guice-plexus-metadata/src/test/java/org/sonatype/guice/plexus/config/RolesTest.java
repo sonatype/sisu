@@ -16,8 +16,6 @@ import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.reflect.StrongClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 
@@ -74,16 +72,11 @@ public class RolesTest
 
     private static Component component( final String hint )
     {
-        return new ComponentImpl( defer( Object.class ), hint, "per-lookup" );
+        return new ComponentImpl( Object.class, hint, "per-lookup" );
     }
 
     private static Requirement requirement( final Class<?> role )
     {
-        return new RequirementImpl( defer( role ), true );
-    }
-
-    private static DeferredClass<?> defer( final Class<?> clazz )
-    {
-        return new StrongClassSpace( TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
+        return new RequirementImpl( role, true );
     }
 }
