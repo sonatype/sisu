@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.plexus.scanners;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.URL;
@@ -22,17 +23,17 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.StrongDeferredClass;
 import org.sonatype.guice.bean.reflect.WeakClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
+import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.config.Roles;
 
 import com.google.inject.TypeLiteral;
 
@@ -81,21 +82,29 @@ public class XmlPlexusBeanSourceTest
     {
     }
 
+    static class AnotherBean
+    {
+    }
+
     public void testLoadOnStart()
-        throws XmlPullParserException, IOException
     {
         final ClassSpace space = new ClassSpace()
         {
-            public Enumeration<URL> getResources( final String name )
-            {
-                // hide components.xml so we can just test plexus.xml parsing
-                return Collections.enumeration( Collections.<URL> emptyList() );
-            }
-
             public Class<?> loadClass( final String name )
                 throws ClassNotFoundException
             {
                 return Class.forName( name );
+            }
+
+            public DeferredClass<?> deferLoadClass( final String name )
+            {
+                return new StrongDeferredClass<Object>( this, name );
+            }
+
+            public Enumeration<URL> getResources( final String name )
+            {
+                // hide components.xml so we can just test plexus.xml parsing
+                return Collections.enumeration( Collections.<URL> emptyList() );
             }
         };
 
@@ -105,56 +114,107 @@ public class XmlPlexusBeanSourceTest
 
         assertEquals( 2, componentMap.size() );
 
-        final Component component1 = new ComponentImpl( Roles.defer( DefaultBean.class ), "default", "load-on-start" );
+        final Component component1 = new ComponentImpl( DefaultBean.class, Hints.DEFAULT_HINT, "load-on-start" );
         assertEquals( DefaultBean.class, componentMap.get( component1 ).get() );
 
-        final Component component2 = new ComponentImpl( Roles.defer( Bean.class ), "debug", "load-on-start" );
+        final Component component2 = new ComponentImpl( Bean.class, "debug", "load-on-start" );
         assertEquals( DebugBean.class, componentMap.get( component2 ).get() );
     }
 
     public void testBadPlexusDotXml()
-        throws IOException
     {
         final ClassSpace space = new WeakClassSpace( XmlPlexusBeanSourceTest.class.getClassLoader() );
 
         try
         {
-            new XmlPlexusBeanSource( getClass().getResource( "/META-INF/plexus/bad_plexus_1.xml" ), space, null );
-            fail( "Expected XmlPullParserException" );
+            new XmlPlexusBeanSource( getClass().getResource( "/META-INF/plexus/bad_plexus_1.xml" ), space, null ).findPlexusComponentBeans();
+            fail( "Expected RuntimeException" );
         }
-        catch ( final XmlPullParserException e )
+        catch ( final RuntimeException e )
+        {
+            System.out.println( e );
+        }
+    }
+
+    public void testBadIO()
+    {
+        final ClassSpace space = new ClassSpace()
+        {
+            public Class<?> loadClass( final String name )
+                throws ClassNotFoundException
+            {
+                return Class.forName( name );
+            }
+
+            public Enumeration<URL> getResources( final String name )
+                throws IOException
+            {
+                throw new FileNotFoundException( "UNKNOWN" );
+            }
+
+            public DeferredClass<?> deferLoadClass( final String name )
+            {
+                return new StrongDeferredClass<Object>( this, name );
+            }
+        };
+
+        try
+        {
+            new XmlPlexusBeanSource( null, space, null ).findPlexusComponentBeans();
+            fail( "Expected RuntimeException" );
+        }
+        catch ( final RuntimeException e )
         {
             System.out.println( e );
         }
     }
 
     public void testComponents()
-        throws XmlPullParserException, IOException
     {
         final ClassSpace space = new WeakClassSpace( XmlPlexusBeanSourceTest.class.getClassLoader() );
         final PlexusBeanSource source = new XmlPlexusBeanSource( null, space, null );
         final Map<Component, DeferredClass<?>> componentMap = source.findPlexusComponentBeans();
 
-        assertEquals( 2, componentMap.size() );
+        assertEquals( 3, componentMap.size() );
 
-        final Component component1 = new ComponentImpl( Roles.defer( DefaultBean.class ), "default", "per-lookup" );
+        final Component component1 = new ComponentImpl( DefaultBean.class, Hints.DEFAULT_HINT, "per-lookup" );
         assertEquals( DefaultBean.class, componentMap.get( component1 ).get() );
 
-        final Component component2 = new ComponentImpl( Roles.defer( Bean.class ), "debug", "singleton" );
+        final Component component2 = new ComponentImpl( Bean.class, "debug", "singleton" );
         assertEquals( DebugBean.class, componentMap.get( component2 ).get() );
 
+        final Component component3 = new ComponentImpl( Bean.class, Hints.DEFAULT_HINT, "singleton" );
+        assertEquals( AnotherBean.class, componentMap.get( component3 ).get() );
+
         final PlexusBeanMetadata metadata1 = source.getBeanMetadata( DefaultBean.class );
+
+        assertFalse( metadata1.isEmpty() );
 
         assertEquals(
                       new ConfigurationImpl( "someFieldName", "<some-field.name><item>PRIMARY</item></some-field.name>" ),
                       metadata1.getConfiguration( new NamedProperty( "someFieldName" ) ) );
 
-        assertEquals( new RequirementImpl( Roles.defer( Bean.class ), true, "debug" ),
+        assertFalse( metadata1.isEmpty() );
+
+        assertEquals( new RequirementImpl( Bean.class, true, "debug" ),
                       metadata1.getRequirement( new NamedProperty( "bean" ) ) );
 
-        assertEquals( new RequirementImpl( Roles.defer( Bean.class ), false, "default", "debug" ),
+        assertFalse( metadata1.isEmpty() );
+
+        assertEquals( new RequirementImpl( Bean.class, false, Hints.DEFAULT_HINT, "debug" ),
                       metadata1.getRequirement( new NamedProperty( "beanMap" ) ) );
 
+        assertFalse( metadata1.isEmpty() );
+
+        assertEquals( new RequirementImpl( Bean.class, false ),
+                      metadata1.getRequirement( new NamedProperty( "beanField" ) ) );
+
+        assertTrue( metadata1.isEmpty() );
+
+        assertNull( source.getBeanMetadata( DebugBean.class ) );
+        assertNotNull( source.getBeanMetadata( AnotherBean.class ) );
+        assertNull( source.getBeanMetadata( AnotherBean.class ) );
+        assertNull( source.getBeanMetadata( DefaultBean.class ) );
     }
 
     static class FixedClassSpace
@@ -167,28 +227,32 @@ public class XmlPlexusBeanSourceTest
             this.fixedResourceName = fixedResourceName;
         }
 
-        public Enumeration<URL> getResources( final String name )
-        {
-            return Collections.enumeration( Collections.singleton( getClass().getResource( fixedResourceName ) ) );
-        }
-
         public Class<?> loadClass( final String name )
             throws ClassNotFoundException
         {
             return Class.forName( name );
         }
+
+        public DeferredClass<?> deferLoadClass( final String name )
+        {
+            return new StrongDeferredClass<Object>( this, name );
+        }
+
+        public Enumeration<URL> getResources( final String name )
+        {
+            return Collections.enumeration( Collections.singleton( getClass().getResource( fixedResourceName ) ) );
+        }
     }
 
     public void testBadComponentsDotXml()
-        throws IOException
     {
         try
         {
             final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_1.xml" );
-            new XmlPlexusBeanSource( null, space, null );
-            fail( "Expected XmlPullParserException" );
+            new XmlPlexusBeanSource( null, space, null ).findPlexusComponentBeans();
+            fail( "Expected RuntimeException" );
         }
-        catch ( final XmlPullParserException e )
+        catch ( final RuntimeException e )
         {
             System.out.println( e );
         }
@@ -196,10 +260,10 @@ public class XmlPlexusBeanSourceTest
         try
         {
             final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_2.xml" );
-            new XmlPlexusBeanSource( null, space, null );
-            fail( "Expected XmlPullParserException" );
+            new XmlPlexusBeanSource( null, space, null ).findPlexusComponentBeans();
+            fail( "Expected RuntimeException" );
         }
-        catch ( final XmlPullParserException e )
+        catch ( final RuntimeException e )
         {
             System.out.println( e );
         }
@@ -207,21 +271,43 @@ public class XmlPlexusBeanSourceTest
         try
         {
             final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_3.xml" );
-            new XmlPlexusBeanSource( null, space, null );
-            fail( "Expected XmlPullParserException" );
+            new XmlPlexusBeanSource( null, space, null ).findPlexusComponentBeans();
+            fail( "Expected RuntimeException" );
         }
-        catch ( final XmlPullParserException e )
+        catch ( final RuntimeException e )
+        {
+            System.out.println( e );
+        }
+
+        try
+        {
+            final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_4.xml" );
+            new XmlPlexusBeanSource( null, space, null ).findPlexusComponentBeans();
+            fail( "Expected TypeNotPresentException" );
+        }
+        catch ( final TypeNotPresentException e )
+        {
+            System.out.println( e );
+        }
+
+        try
+        {
+            final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_5.xml" );
+            new XmlPlexusBeanSource( null, space, null ).findPlexusComponentBeans();
+            fail( "Expected TypeNotPresentException" );
+        }
+        catch ( final TypeNotPresentException e )
         {
             System.out.println( e );
         }
     }
 
     public void testInterpolatedComponentsDotXml()
-        throws XmlPullParserException, IOException
     {
         final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/variable_components.xml" );
 
         final PlexusBeanSource uninterpolatedSource = new XmlPlexusBeanSource( null, space, null );
+        uninterpolatedSource.findPlexusComponentBeans();
         final PlexusBeanMetadata metadata1 = uninterpolatedSource.getBeanMetadata( DefaultBean.class );
         assertEquals( "<variable>${some.value}</variable>",
                       metadata1.getConfiguration( new NamedProperty( "variable" ) ).value() );
@@ -229,6 +315,7 @@ public class XmlPlexusBeanSourceTest
         final Map<?, ?> variables = Collections.singletonMap( "some.value", "INTERPOLATED" );
 
         final PlexusBeanSource interpolatedSource = new XmlPlexusBeanSource( null, space, variables );
+        interpolatedSource.findPlexusComponentBeans();
         final PlexusBeanMetadata metadata2 = interpolatedSource.getBeanMetadata( DefaultBean.class );
         assertEquals( "<variable>INTERPOLATED</variable>",
                       metadata2.getConfiguration( new NamedProperty( "variable" ) ).value() );

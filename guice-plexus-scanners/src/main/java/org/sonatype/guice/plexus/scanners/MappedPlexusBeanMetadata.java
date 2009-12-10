@@ -1,7 +1,8 @@
 package org.sonatype.guice.plexus.scanners;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -9,7 +10,7 @@ import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 
 /**
- * {@link PlexusBeanMetadata} backed by maps that use the {@link BeanProperty} name as the key.
+ * Consumable {@link PlexusBeanMetadata} backed by maps with {@link BeanProperty} names as keys.
  */
 final class MappedPlexusBeanMetadata
     implements PlexusBeanMetadata
@@ -18,33 +19,37 @@ final class MappedPlexusBeanMetadata
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<String, Configuration> configuration;
+    private Map<String, Configuration> configurationMap = Collections.emptyMap();
 
-    private final Map<String, Requirement> requirements;
+    private Map<String, Requirement> requirementMap = Collections.emptyMap();
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    MappedPlexusBeanMetadata( final Map<String, Configuration> configuration,
-                              final Map<String, Requirement> requirements )
+    MappedPlexusBeanMetadata( final Map<String, Configuration> configurationMap,
+                              final Map<String, Requirement> requirementMap )
     {
-        this.configuration = configuration;
-        this.requirements = requirements;
+        merge( configurationMap, requirementMap );
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
+    public boolean isEmpty()
+    {
+        return configurationMap.isEmpty() && requirementMap.isEmpty();
+    }
+
     public Configuration getConfiguration( final BeanProperty<?> property )
     {
-        return configuration.get( property.getName() );
+        return configurationMap.remove( property.getName() );
     }
 
     public Requirement getRequirement( final BeanProperty<?> property )
     {
-        return requirements.get( property.getName() );
+        return requirementMap.remove( property.getName() );
     }
 
     // ----------------------------------------------------------------------
@@ -59,8 +64,8 @@ final class MappedPlexusBeanMetadata
      */
     void merge( final Map<String, Configuration> extraConfiguration, final Map<String, Requirement> extraRequirements )
     {
-        addIfMissing( configuration, extraConfiguration );
-        addIfMissing( requirements, extraRequirements );
+        configurationMap = addIfMissing( configurationMap, extraConfiguration );
+        requirementMap = addIfMissing( requirementMap, extraRequirements );
     }
 
     // ----------------------------------------------------------------------
@@ -73,15 +78,23 @@ final class MappedPlexusBeanMetadata
      * @param primary The primary map
      * @param secondary The secondary map
      */
-    private static <K, V> void addIfMissing( final Map<K, V> primary, final Map<K, V> secondary )
+    private static <K, V> Map<K, V> addIfMissing( final Map<K, V> primary, final Map<K, V> secondary )
     {
-        for ( final Entry<K, V> e : secondary.entrySet() )
+        // nothing to add?
+        if ( secondary.isEmpty() )
         {
-            final K key = e.getKey();
-            if ( !primary.containsKey( key ) )
-            {
-                primary.put( key, e.getValue() );
-            }
+            return primary;
         }
+
+        // nothing to merge?
+        if ( primary.isEmpty() )
+        {
+            return secondary;
+        }
+
+        // primary mappings always override secondary mappings
+        final Map<K, V> tempMap = new HashMap<K, V>( secondary );
+        tempMap.putAll( primary );
+        return tempMap;
     }
 }

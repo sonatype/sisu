@@ -62,9 +62,13 @@ public final class XmlPlexusBeanSource
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<Component, DeferredClass<?>> componentMap = new HashMap<Component, DeferredClass<?>>();
+    private final URL plexusDotXml;
 
-    private final Map<String, MappedPlexusBeanMetadata> metadataMap = new HashMap<String, MappedPlexusBeanMetadata>();
+    private final ClassSpace space;
+
+    private final Map<?, ?> variables;
+
+    private Map<String, MappedPlexusBeanMetadata> metadataMap = Collections.emptyMap();
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -78,35 +82,10 @@ public final class XmlPlexusBeanSource
      * @param variables The filter variables
      */
     public XmlPlexusBeanSource( final URL plexusDotXml, final ClassSpace space, final Map<?, ?> variables )
-        throws XmlPullParserException, IOException
     {
-        final Map<String, String> strategies = new HashMap<String, String>();
-
-        if ( null != plexusDotXml )
-        {
-            final InputStream in = plexusDotXml.openStream();
-            try
-            {
-                parsePlexusDotXml( filteredXmlReader( in, variables ), space, strategies );
-            }
-            finally
-            {
-                IOUtil.close( in );
-            }
-        }
-
-        for ( final Enumeration<URL> i = space.getResources( COMPONENTS_XML_PATH ); i.hasMoreElements(); )
-        {
-            final InputStream in = i.nextElement().openStream();
-            try
-            {
-                parseComponentsDotXml( filteredXmlReader( in, variables ), space, strategies );
-            }
-            finally
-            {
-                IOUtil.close( in );
-            }
-        }
+        this.plexusDotXml = plexusDotXml;
+        this.space = space;
+        this.variables = variables;
     }
 
     // ----------------------------------------------------------------------
@@ -115,12 +94,63 @@ public final class XmlPlexusBeanSource
 
     public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
     {
-        return Collections.unmodifiableMap( componentMap );
+        // rebuild metadata as we scan the XML for Plexus components
+        metadataMap = new HashMap<String, MappedPlexusBeanMetadata>();
+
+        final Map<Component, DeferredClass<?>> components = new HashMap<Component, DeferredClass<?>>();
+        final Map<String, String> strategies = new HashMap<String, String>();
+
+        URL url = plexusDotXml;
+
+        try
+        {
+            if ( null != url )
+            {
+                final InputStream in = url.openStream();
+                try
+                {
+                    parsePlexusDotXml( filteredXmlReader( in, variables ), components, strategies );
+                }
+                finally
+                {
+                    IOUtil.close( in );
+                }
+            }
+
+            for ( final Enumeration<URL> i = space.getResources( COMPONENTS_XML_PATH ); i.hasMoreElements(); )
+            {
+                url = i.nextElement();
+                final InputStream in = url.openStream();
+                try
+                {
+                    parseComponentsDotXml( filteredXmlReader( in, variables ), components, strategies );
+                }
+                finally
+                {
+                    IOUtil.close( in );
+                }
+            }
+        }
+        catch ( final XmlPullParserException e )
+        {
+            throw new RuntimeException( "Problem parsing: " + url + " reason: " + e );
+        }
+        catch ( final IOException e )
+        {
+            throw new RuntimeException( "Problem reading: " + url + " reason: " + e );
+        }
+
+        return components;
     }
 
     public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
     {
-        return metadataMap.get( implementation.getName() );
+        final PlexusBeanMetadata metadata = metadataMap.remove( implementation.getName() );
+        if ( metadataMap.isEmpty() )
+        {
+            metadataMap = Collections.emptyMap();
+        }
+        return metadata;
     }
 
     // ----------------------------------------------------------------------
@@ -145,10 +175,11 @@ public final class XmlPlexusBeanSource
      * Parses a {@code plexus.xml} resource into load-on-start settings and Plexus bean metadata.
      * 
      * @param reader The XML resource reader
-     * @param space The containing class space
+     * @param components The parsed component implementations
      * @param strategies The role instantiation strategies
      */
-    private void parsePlexusDotXml( final Reader reader, final ClassSpace space, final Map<String, String> strategies )
+    private void parsePlexusDotXml( final Reader reader, final Map<Component, DeferredClass<?>> components,
+                                    final Map<String, String> strategies )
         throws XmlPullParserException, IOException
     {
         final MXParser parser = new MXParser();
@@ -171,7 +202,7 @@ public final class XmlPlexusBeanSource
             {
                 while ( parser.nextTag() == XmlPullParser.START_TAG )
                 {
-                    parseComponent( parser, space, strategies );
+                    parseComponent( parser, components, strategies );
                 }
             }
             else
@@ -185,10 +216,10 @@ public final class XmlPlexusBeanSource
      * Parses a {@code components.xml} resource into a series of Plexus bean metadata.
      * 
      * @param reader The XML resource reader
-     * @param space The containing class space
+     * @param components The parsed component implementations
      * @param strategies The role instantiation strategies
      */
-    private void parseComponentsDotXml( final Reader reader, final ClassSpace space,
+    private void parseComponentsDotXml( final Reader reader, final Map<Component, DeferredClass<?>> components,
                                         final Map<String, String> strategies )
         throws XmlPullParserException, IOException
     {
@@ -202,7 +233,7 @@ public final class XmlPlexusBeanSource
 
         while ( parser.nextTag() == XmlPullParser.START_TAG )
         {
-            parseComponent( parser, space, strategies );
+            parseComponent( parser, components, strategies );
         }
     }
 
@@ -248,10 +279,11 @@ public final class XmlPlexusBeanSource
      * Parses a &lt;component&gt; XML stanza into a deferred implementation, configuration, and requirements.
      * 
      * @param parser The XML parser
-     * @param space The containing class space
+     * @param components The parsed component implementations
      * @param strategies The role instantiation strategies
      */
-    private void parseComponent( final MXParser parser, final ClassSpace space, final Map<String, String> strategies )
+    private void parseComponent( final MXParser parser, final Map<Component, DeferredClass<?>> components,
+                                 final Map<String, String> strategies )
         throws XmlPullParserException, IOException
     {
         String role = null;
@@ -260,8 +292,8 @@ public final class XmlPlexusBeanSource
         String instantiationStrategy = SINGLETON;
         String implementation = null;
 
-        final Map<String, Requirement> requirements = new HashMap<String, Requirement>();
-        final Map<String, Configuration> configuration = new HashMap<String, Configuration>();
+        final Map<String, Requirement> requirementMap = new HashMap<String, Requirement>();
+        final Map<String, Configuration> configurationMap = new HashMap<String, Configuration>();
 
         parser.require( XmlPullParser.START_TAG, null, "component" );
 
@@ -272,14 +304,14 @@ public final class XmlPlexusBeanSource
             {
                 while ( parser.nextTag() == XmlPullParser.START_TAG )
                 {
-                    parseRequirement( parser, space, requirements );
+                    parseRequirement( parser, requirementMap );
                 }
             }
             else if ( "configuration".equals( name ) )
             {
                 while ( parser.nextTag() == XmlPullParser.START_TAG )
                 {
-                    parseConfiguration( parser, configuration );
+                    parseConfiguration( parser, configurationMap );
                 }
             }
             else if ( "role".equals( name ) )
@@ -314,14 +346,17 @@ public final class XmlPlexusBeanSource
             role = implementation;
         }
 
-        final MappedPlexusBeanMetadata beanMetadata = metadataMap.get( implementation );
-        if ( beanMetadata != null )
+        if ( !configurationMap.isEmpty() || !requirementMap.isEmpty() )
         {
-            beanMetadata.merge( configuration, requirements );
-        }
-        else
-        {
-            metadataMap.put( implementation, new MappedPlexusBeanMetadata( configuration, requirements ) );
+            final MappedPlexusBeanMetadata beanMetadata = metadataMap.get( implementation );
+            if ( beanMetadata != null )
+            {
+                beanMetadata.merge( configurationMap, requirementMap );
+            }
+            else
+            {
+                metadataMap.put( implementation, new MappedPlexusBeanMetadata( configurationMap, requirementMap ) );
+            }
         }
 
         final String roleHintKey = Roles.canonicalRoleHint( role, hint );
@@ -335,20 +370,25 @@ public final class XmlPlexusBeanSource
             strategies.put( roleHintKey, instantiationStrategy );
         }
 
-        hint = Hints.canonicalHint( hint );
-        final Component component = new ComponentImpl( Roles.defer( space, role ), hint, instantiationStrategy );
-        componentMap.put( component, Roles.defer( space, implementation ) );
+        try
+        {
+            hint = Hints.canonicalHint( hint );
+            final Component component = new ComponentImpl( space.loadClass( role ), hint, instantiationStrategy );
+            components.put( component, space.deferLoadClass( implementation ) );
+        }
+        catch ( final ClassNotFoundException e )
+        {
+            throw new TypeNotPresentException( role, e );
+        }
     }
 
     /**
      * Parses a &lt;requirement&gt; XML stanza into a mapping from a field name to a @{@link Requirement}.
      * 
      * @param parser The XML parser
-     * @param space The containing class space
      * @param requirementMap The field -> @{@link Requirement} map
      */
-    private static void parseRequirement( final MXParser parser, final ClassSpace space,
-                                          final Map<String, Requirement> requirementMap )
+    private void parseRequirement( final MXParser parser, final Map<String, Requirement> requirementMap )
         throws XmlPullParserException, IOException
     {
         String role = null;
@@ -409,8 +449,15 @@ public final class XmlPlexusBeanSource
             }
         }
 
-        final String[] hints = Hints.canonicalHints( hintList.toArray( new String[hintList.size()] ) );
-        requirementMap.put( fieldName, new RequirementImpl( Roles.defer( space, role ), optional, hints ) );
+        try
+        {
+            final String[] hints = Hints.canonicalHints( hintList.toArray( new String[hintList.size()] ) );
+            requirementMap.put( fieldName, new RequirementImpl( space.loadClass( role ), optional, hints ) );
+        }
+        catch ( final ClassNotFoundException e )
+        {
+            throw new TypeNotPresentException( role, e );
+        }
     }
 
     /**

@@ -50,6 +50,11 @@ public final class AnnotatedPlexusBeanSource
     // Public methods
     // ----------------------------------------------------------------------
 
+    public boolean isEmpty()
+    {
+        return false; // metadata comes from the properties themselves
+    }
+
     public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
     {
         return Collections.emptyMap();

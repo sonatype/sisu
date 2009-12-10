@@ -81,6 +81,21 @@
         </requirement>
       </requirements>
     </component>
+    <component>
+      <role>
+        org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$Bean
+      </role>
+      <implementation>
+        org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$AnotherBean
+      </implementation>
+      <requirements>
+        <requirement>
+          <role>
+            org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$Bean
+          </role>
+        </requirement>
+      </requirements>
+    </component>
   </components>
 
   <dependencies>

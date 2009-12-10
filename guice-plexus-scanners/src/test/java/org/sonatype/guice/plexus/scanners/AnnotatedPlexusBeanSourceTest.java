@@ -27,7 +27,6 @@ import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.config.Roles;
 
 public class AnnotatedPlexusBeanSourceTest
     extends TestCase
@@ -54,6 +53,8 @@ public class AnnotatedPlexusBeanSourceTest
         final PlexusBeanSource source = new AnnotatedPlexusBeanSource( null );
         assertTrue( source.findPlexusComponentBeans().isEmpty() );
         assertNull( source.getBeanMetadata( String.class ) );
+        assertNotNull( source.getBeanMetadata( Bean.class ) );
+        assertFalse( source.getBeanMetadata( Bean.class ).isEmpty() );
     }
 
     public void testInterpolatedAnnotations()
@@ -76,7 +77,7 @@ public class AnnotatedPlexusBeanSourceTest
         assertFalse( configuration12 instanceof ConfigurationImpl );
         assertEquals( new ConfigurationImpl( "2", "${some.value}" ), configuration12 );
         assertNull( configuration13 );
-        assertEquals( new RequirementImpl( Roles.defer( Bean.class ), true, "mock" ), requirement11 );
+        assertEquals( new RequirementImpl( Bean.class, true, "mock" ), requirement11 );
         assertNull( requirement12 );
 
         final Map<?, ?> variables = Collections.singletonMap( "some.value", "INTERPOLATED" );
@@ -97,7 +98,7 @@ public class AnnotatedPlexusBeanSourceTest
         assertTrue( configuration22 instanceof ConfigurationImpl );
         assertEquals( new ConfigurationImpl( "2", "INTERPOLATED" ), configuration22 );
         assertNull( configuration23 );
-        assertEquals( new RequirementImpl( Roles.defer( Bean.class ), true, "mock" ), requirement21 );
+        assertEquals( new RequirementImpl( Bean.class, true, "mock" ), requirement21 );
         assertNull( requirement22 );
     }
 }
