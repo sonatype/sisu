@@ -70,22 +70,34 @@ public final class PlexusGuice
      * Returns the Guice {@link PlexusBeanRegistry} binding {@link Key} for the given Plexus role.
      * 
      * @param role The Plexus role
-     * @return Registry binding key for the given role
+     * @return Bean registry binding key for the given role
      */
-    public static <T> Key<PlexusBeanRegistry<T>> registryKey( final Class<T> role )
+    public static <T> Key<PlexusBeanRegistry<T>> beanRegistryKey( final Class<T> role )
     {
-        return registryKey( TypeLiteral.get( role ) );
+        return beanRegistryKey( TypeLiteral.get( role ) );
     }
 
     /**
-     * Returns the Guice {@link PlexusComponentRegistry} binding {@link Key} for the given Plexus role.
+     * Returns the Guice {@link PlexusBeanRegistry} binding {@link Key} for the given Plexus role.
      * 
      * @param role The Plexus role
-     * @return Registry binding key for the given role
+     * @return Bean registry binding key for the given role
      */
     @SuppressWarnings( "unchecked" )
-    public static <T> Key<PlexusBeanRegistry<T>> registryKey( final TypeLiteral<T> role )
+    public static <T> Key<PlexusBeanRegistry<T>> beanRegistryKey( final TypeLiteral<T> role )
     {
         return (Key) Key.get( Types.newParameterizedType( GuicePlexusBeanRegistry.class, role.getRawType() ) );
+    }
+
+    /**
+     * Returns the Guice {@link PlexusBeanRegistry} for the given Plexus role.
+     * 
+     * @param injector The Guice injector
+     * @param role The Plexus role
+     * @return Bean registry for the given role
+     */
+    public static <T> PlexusBeanRegistry<T> beanRegistry( final Injector injector, final Class<T> role )
+    {
+        return injector.getInstance( beanRegistryKey( role ) );
     }
 }

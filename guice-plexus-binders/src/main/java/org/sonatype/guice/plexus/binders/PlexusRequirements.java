@@ -94,7 +94,7 @@ final class PlexusRequirements
      */
     private <T> Provider<PlexusBeanRegistry<T>> getRoleRegistry( final TypeLiteral<T> role )
     {
-        return encounter.getProvider( PlexusGuice.registryKey( role ) );
+        return encounter.getProvider( PlexusGuice.beanRegistryKey( role ) );
     }
 
     // ----------------------------------------------------------------------

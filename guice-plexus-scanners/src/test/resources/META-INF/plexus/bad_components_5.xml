@@ -3,8 +3,15 @@
   <components>
     <component>
       <implementation>
-        no.such.class
+        org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$DefaultBean
       </implementation>
+      <requirements>
+        <requirement>
+          <role>
+            no.such.class
+          </role>
+        </requirement>
+      </requirements>
     </component>
   </components>
 

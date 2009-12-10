@@ -170,7 +170,7 @@ public class PlexusBeanMetadataTest
         assertSame( bean, injector.getInstance( Key.get( Bean.class, Names.named( "2" ) ) ) );
 
         assertEquals( Collections.singletonList( "2" ),
-                      injector.getInstance( PlexusGuice.registryKey( Bean.class ) ).availableHints() );
+                      PlexusGuice.beanRegistry( injector, Bean.class ).availableHints() );
     }
 
     static DeferredClass<?> defer( final Class<?> clazz )

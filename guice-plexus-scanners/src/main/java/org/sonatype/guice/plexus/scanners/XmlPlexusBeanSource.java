@@ -148,6 +148,7 @@ public final class XmlPlexusBeanSource
         final PlexusBeanMetadata metadata = metadataMap.remove( implementation.getName() );
         if ( metadataMap.isEmpty() )
         {
+            // avoid leaving sparse maps around
             metadataMap = Collections.emptyMap();
         }
         return metadata;
@@ -449,15 +450,8 @@ public final class XmlPlexusBeanSource
             }
         }
 
-        try
-        {
-            final String[] hints = Hints.canonicalHints( hintList.toArray( new String[hintList.size()] ) );
-            requirementMap.put( fieldName, new RequirementImpl( space.loadClass( role ), optional, hints ) );
-        }
-        catch ( final ClassNotFoundException e )
-        {
-            throw new TypeNotPresentException( role, e );
-        }
+        final String[] hints = Hints.canonicalHints( hintList.toArray( new String[hintList.size()] ) );
+        requirementMap.put( fieldName, new RequirementImpl( space.deferLoadClass( role ), optional, hints ) );
     }
 
     /**

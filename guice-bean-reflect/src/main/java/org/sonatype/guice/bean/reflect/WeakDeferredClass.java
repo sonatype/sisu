@@ -46,7 +46,7 @@ public final class WeakDeferredClass<T>
     // ----------------------------------------------------------------------
 
     @SuppressWarnings( "unchecked" )
-    public synchronized Class<T> get()
+    public Class<T> get()
     {
         Class clazz = null != clazzRef ? clazzRef.get() : null;
         if ( null == clazz )

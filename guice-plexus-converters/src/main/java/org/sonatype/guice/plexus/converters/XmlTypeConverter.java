@@ -68,6 +68,7 @@ public final class XmlTypeConverter
     {
         // we're both matcher and converter
         binder.convertToTypes( this, this );
+
         binder.bind( PlexusConfigurator.class ).toInstance( this );
     }
 

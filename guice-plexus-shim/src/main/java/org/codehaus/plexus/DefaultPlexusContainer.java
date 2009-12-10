@@ -37,11 +37,10 @@ import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 import org.codehaus.plexus.util.StringUtils;
 import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.reflect.WeakClassSpace;
+import org.sonatype.guice.bean.reflect.StrongClassSpace;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.binders.PlexusGuice;
 import org.sonatype.guice.plexus.config.Hints;
-import org.sonatype.guice.plexus.config.PlexusBeanRegistry;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.config.Roles;
 import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
@@ -96,33 +95,26 @@ public final class DefaultPlexusContainer
         context.put( PlexusConstants.PLEXUS_KEY, this );
 
         final Map<?, ?> contextMap = new ContextMapAdapter( context );
-        final ClassSpace space = new WeakClassSpace( containerRealm );
+        final ClassSpace space = new StrongClassSpace( containerRealm );
 
-        try
+        final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( configurationUrl, space, contextMap );
+        final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( contextMap );
+
+        PlexusGuice.createInjector( new AbstractModule()
         {
-            final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( configurationUrl, space, contextMap );
-            final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( contextMap );
-
-            PlexusGuice.createInjector( new AbstractModule()
+            @Override
+            protected void configure()
             {
-                @Override
-                protected void configure()
-                {
-                    bind( PlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
-                }
+                bind( PlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
+            }
 
-                @Provides
-                @SuppressWarnings( "unused" )
-                private Logger logger()
-                {
-                    return loggerManager.getLogger( PlexusContainer.class.getName() );
-                }
-            }, new PlexusBindingModule( lifecycleManager, xmlSource, annSource ) );
-        }
-        catch ( final Exception e )
-        {
-            throw new PlexusContainerException( "Unable to create Plexus container", e );
-        }
+            @Provides
+            @SuppressWarnings( "unused" )
+            private Logger logger()
+            {
+                return loggerManager.getLogger( PlexusContainer.class.getName() );
+            }
+        }, new PlexusBindingModule( lifecycleManager, xmlSource, annSource ) );
     }
 
     // ----------------------------------------------------------------------
@@ -161,13 +153,15 @@ public final class DefaultPlexusContainer
     {
         try
         {
-            final T instance = injector.getInstance( Roles.componentKey( type, hint ) );
-            PlexusGuice.resumeInjections( injector );
-            return instance;
+            return injector.getInstance( Roles.componentKey( type, hint ) );
         }
         catch ( final RuntimeException e )
         {
             throw new ComponentLookupException( e.toString(), type.getName(), hint );
+        }
+        finally
+        {
+            PlexusGuice.resumeInjections( injector );
         }
     }
 
@@ -185,9 +179,14 @@ public final class DefaultPlexusContainer
 
     public <T> List<T> lookupList( final Class<T> type )
     {
-        final List<T> componentList = injector.getInstance( PlexusGuice.registryKey( type ) ).lookupList();
-        PlexusGuice.resumeInjections( injector );
-        return componentList;
+        try
+        {
+            return PlexusGuice.beanRegistry( injector, type ).lookupList();
+        }
+        finally
+        {
+            PlexusGuice.resumeInjections( injector );
+        }
     }
 
     public Map<String, Object> lookupMap( final String role )
@@ -198,9 +197,14 @@ public final class DefaultPlexusContainer
 
     public <T> Map<String, T> lookupMap( final Class<T> type )
     {
-        final Map<String, T> componentMap = injector.getInstance( PlexusGuice.registryKey( type ) ).lookupMap();
-        PlexusGuice.resumeInjections( injector );
-        return componentMap;
+        try
+        {
+            return PlexusGuice.beanRegistry( injector, type ).lookupMap();
+        }
+        finally
+        {
+            PlexusGuice.resumeInjections( injector );
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -209,13 +213,12 @@ public final class DefaultPlexusContainer
 
     public boolean hasComponent( final Class<?> type )
     {
-        return !injector.getInstance( PlexusGuice.registryKey( type ) ).availableHints().isEmpty();
+        return !PlexusGuice.beanRegistry( injector, type ).availableHints().isEmpty();
     }
 
     public boolean hasComponent( final Class<?> type, final String hint )
     {
-        final PlexusBeanRegistry<?> registry = injector.getInstance( PlexusGuice.registryKey( type ) );
-        return registry.availableHints().contains( Hints.canonicalHint( hint ) );
+        return PlexusGuice.beanRegistry( injector, type ).availableHints().contains( Hints.canonicalHint( hint ) );
     }
 
     public boolean hasComponent( final Class<?> type, final String role, final String hint )
@@ -249,16 +252,13 @@ public final class DefaultPlexusContainer
     public <T> List<ComponentDescriptor<T>> getComponentDescriptorList( final Class<T> type, final String role )
     {
         final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
-
-        final PlexusBeanRegistry<T> registry = injector.getInstance( PlexusGuice.registryKey( type ) );
-        for ( final String hint : registry.availableHints() )
+        for ( final String hint : PlexusGuice.beanRegistry( injector, type ).availableHints() )
         {
             final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
             descriptor.setRole( role );
             descriptor.setRoleHint( hint );
             tempList.add( descriptor );
         }
-
         return tempList;
     }
 

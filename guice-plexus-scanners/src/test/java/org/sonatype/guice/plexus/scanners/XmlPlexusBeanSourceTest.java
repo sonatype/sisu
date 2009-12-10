@@ -23,6 +23,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
@@ -290,10 +291,15 @@ public class XmlPlexusBeanSourceTest
             System.out.println( e );
         }
 
+        final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_5.xml" );
+        final PlexusBeanSource source = new XmlPlexusBeanSource( null, space, null );
+        source.findPlexusComponentBeans();
+        final PlexusBeanMetadata metadata = source.getBeanMetadata( DefaultBean.class );
+        final Requirement badReq = metadata.getRequirement( new NamedProperty( "class" ) );
+
         try
         {
-            final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_5.xml" );
-            new XmlPlexusBeanSource( null, space, null ).findPlexusComponentBeans();
+            badReq.role();
             fail( "Expected TypeNotPresentException" );
         }
         catch ( final TypeNotPresentException e )

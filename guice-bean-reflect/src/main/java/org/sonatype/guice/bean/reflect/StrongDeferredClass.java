@@ -43,7 +43,7 @@ public final class StrongDeferredClass<T>
     // ----------------------------------------------------------------------
 
     @SuppressWarnings( "unchecked" )
-    public synchronized Class<T> get()
+    public Class<T> get()
     {
         if ( null == clazz )
         {
