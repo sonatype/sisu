@@ -315,15 +315,13 @@ public class XmlPlexusBeanSourceTest
         final PlexusBeanSource uninterpolatedSource = new XmlPlexusBeanSource( null, space, null );
         uninterpolatedSource.findPlexusComponentBeans();
         final PlexusBeanMetadata metadata1 = uninterpolatedSource.getBeanMetadata( DefaultBean.class );
-        assertEquals( "<variable>${some.value}</variable>",
-                      metadata1.getConfiguration( new NamedProperty( "variable" ) ).value() );
+        assertEquals( "${some.value}", metadata1.getConfiguration( new NamedProperty( "variable" ) ).value() );
 
         final Map<?, ?> variables = Collections.singletonMap( "some.value", "INTERPOLATED" );
 
         final PlexusBeanSource interpolatedSource = new XmlPlexusBeanSource( null, space, variables );
         interpolatedSource.findPlexusComponentBeans();
         final PlexusBeanMetadata metadata2 = interpolatedSource.getBeanMetadata( DefaultBean.class );
-        assertEquals( "<variable>INTERPOLATED</variable>",
-                      metadata2.getConfiguration( new NamedProperty( "variable" ) ).value() );
+        assertEquals( "INTERPOLATED", metadata2.getConfiguration( new NamedProperty( "variable" ) ).value() );
     }
 }

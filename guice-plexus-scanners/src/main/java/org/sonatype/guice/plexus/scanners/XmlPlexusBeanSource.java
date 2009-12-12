@@ -463,8 +463,10 @@ public final class XmlPlexusBeanSource
     private static void parseConfiguration( final MXParser parser, final Map<String, Configuration> configurationMap )
         throws XmlPullParserException, IOException
     {
-        // element name may be dashed, so must camelize it first
-        final String fieldName = camelizeName( parser.getName() );
+        final String name = parser.getName();
+
+        // make sure we have a valid Java identifier
+        final String fieldName = camelizeName( name );
         final StringBuilder buf = new StringBuilder();
 
         final int depth = parser.getDepth();
@@ -475,6 +477,16 @@ public final class XmlPlexusBeanSource
             parser.next();
         }
         while ( parser.getDepth() >= depth );
+
+        final String basicTag = '<' + name + '>';
+        final int marker = basicTag.length();
+
+        // primitive configuration values, like "<foo>bar</foo>" or "<foo></foo>" don't need their surrounding tags...
+        if ( buf.toString().startsWith( basicTag ) && ( buf.charAt( marker ) != '<' || buf.charAt( marker + 1 ) == '/' ) )
+        {
+            buf.delete( 0, marker );
+            buf.setLength( buf.length() - ( marker + 1 ) );
+        }
 
         configurationMap.put( fieldName, new ConfigurationImpl( fieldName, buf.toString() ) );
     }
