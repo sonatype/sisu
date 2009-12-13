@@ -31,10 +31,10 @@ public interface PlexusContainer
     Object lookup( String role, String hint )
         throws ComponentLookupException;
 
-    <T> T lookup( Class<T> type )
+    <T> T lookup( Class<T> role )
         throws ComponentLookupException;
 
-    <T> T lookup( Class<T> type, String hint )
+    <T> T lookup( Class<T> role, String hint )
         throws ComponentLookupException;
 
     <T> T lookup( Class<T> type, String role, String hint )
@@ -43,18 +43,18 @@ public interface PlexusContainer
     List<Object> lookupList( String role )
         throws ComponentLookupException;
 
-    <T> List<T> lookupList( Class<T> type )
+    <T> List<T> lookupList( Class<T> role )
         throws ComponentLookupException;
 
     Map<String, Object> lookupMap( String role )
         throws ComponentLookupException;
 
-    <T> Map<String, T> lookupMap( Class<T> type )
+    <T> Map<String, T> lookupMap( Class<T> role )
         throws ComponentLookupException;
 
-    boolean hasComponent( Class<?> type );
+    boolean hasComponent( Class<?> role );
 
-    boolean hasComponent( Class<?> type, String hint );
+    boolean hasComponent( Class<?> role, String hint );
 
     boolean hasComponent( Class<?> type, String role, String hint );
 

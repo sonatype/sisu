@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
@@ -42,7 +43,7 @@ import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.binders.PlexusGuice;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.config.Roles;
+import org.sonatype.guice.plexus.config.PlexusTypeLocator;
 import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 import org.sonatype.guice.plexus.scanners.XmlPlexusBeanSource;
 
@@ -50,6 +51,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
+import com.google.inject.TypeLiteral;
 
 /**
  * {@link PlexusContainer} shim that delegates to a Plexus-aware Guice {@link Injector}.
@@ -68,7 +70,7 @@ public final class DefaultPlexusContainer
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    final PlexusLifecycleManager lifecycleManager = new PlexusLifecycleManager( this );
+    private final PlexusLifecycleManager lifecycleManager = new PlexusLifecycleManager( this );
 
     private final ClassRealm containerRealm;
 
@@ -81,6 +83,9 @@ public final class DefaultPlexusContainer
 
     @Inject( optional = true )
     LoggerManager loggerManager = new ConsoleLoggerManager();
+
+    @Inject
+    private PlexusTypeLocator typeLocator;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -142,26 +147,22 @@ public final class DefaultPlexusContainer
         return lookup( loadRoleClass( role ), hint );
     }
 
-    public <T> T lookup( final Class<T> type )
+    public <T> T lookup( final Class<T> role )
         throws ComponentLookupException
     {
-        return lookup( type, Hints.DEFAULT_HINT );
+        return lookup( role, Hints.DEFAULT_HINT );
     }
 
-    public <T> T lookup( final Class<T> type, final String hint )
+    public <T> T lookup( final Class<T> role, final String hint )
         throws ComponentLookupException
     {
         try
         {
-            return injector.getInstance( Roles.componentKey( type, hint ) );
+            return locate( role, hint ).iterator().next().getValue();
         }
         catch ( final RuntimeException e )
         {
-            throw new ComponentLookupException( e.toString(), type.getName(), hint );
-        }
-        finally
-        {
-            PlexusGuice.resumeInjections( injector );
+            throw new ComponentLookupException( e.toString(), role.getName(), hint );
         }
     }
 
@@ -177,16 +178,9 @@ public final class DefaultPlexusContainer
         return lookupList( loadRoleClass( role ) );
     }
 
-    public <T> List<T> lookupList( final Class<T> type )
+    public <T> List<T> lookupList( final Class<T> role )
     {
-        try
-        {
-            return PlexusGuice.beanRegistry( injector, type ).lookupList();
-        }
-        finally
-        {
-            PlexusGuice.resumeInjections( injector );
-        }
+        return PlexusGuice.asList( locate( role ) );
     }
 
     public Map<String, Object> lookupMap( final String role )
@@ -195,30 +189,23 @@ public final class DefaultPlexusContainer
         return lookupMap( loadRoleClass( role ) );
     }
 
-    public <T> Map<String, T> lookupMap( final Class<T> type )
+    public <T> Map<String, T> lookupMap( final Class<T> role )
     {
-        try
-        {
-            return PlexusGuice.beanRegistry( injector, type ).lookupMap();
-        }
-        finally
-        {
-            PlexusGuice.resumeInjections( injector );
-        }
+        return PlexusGuice.asMap( locate( role ) );
     }
 
     // ----------------------------------------------------------------------
     // Query methods
     // ----------------------------------------------------------------------
 
-    public boolean hasComponent( final Class<?> type )
+    public boolean hasComponent( final Class<?> role )
     {
-        return !PlexusGuice.beanRegistry( injector, type ).availableHints().isEmpty();
+        return hasComponent( role, Hints.DEFAULT_HINT );
     }
 
-    public boolean hasComponent( final Class<?> type, final String hint )
+    public boolean hasComponent( final Class<?> role, final String hint )
     {
-        return PlexusGuice.beanRegistry( injector, type ).availableHints().contains( Hints.canonicalHint( hint ) );
+        return locate( role, hint ).iterator().hasNext();
     }
 
     public boolean hasComponent( final Class<?> type, final String role, final String hint )
@@ -252,11 +239,11 @@ public final class DefaultPlexusContainer
     public <T> List<ComponentDescriptor<T>> getComponentDescriptorList( final Class<T> type, final String role )
     {
         final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
-        for ( final String hint : PlexusGuice.beanRegistry( injector, type ).availableHints() )
+        for ( final Entry<String, T> entry : locate( type ) )
         {
             final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
             descriptor.setRole( role );
-            descriptor.setRoleHint( hint );
+            descriptor.setRoleHint( entry.getKey() );
             tempList.add( descriptor );
         }
         return tempList;
@@ -417,5 +404,17 @@ public final class DefaultPlexusContainer
         {
             throw new TypeNotPresentException( role, e );
         }
+    }
+
+    /**
+     * Locates instances of the given role, filtered using the given named hints.
+     * 
+     * @param role The Plexus role
+     * @param hints The Plexus hints
+     * @return Instances of the given role; ordered according to the given hints
+     */
+    private <T> Iterable<Entry<String, T>> locate( final Class<T> role, final String... hints )
+    {
+        return typeLocator.locate( TypeLiteral.get( role ), hints );
     }
 }
