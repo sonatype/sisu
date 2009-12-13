@@ -12,6 +12,8 @@
  */
 package org.sonatype.guice.plexus.annotations;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -78,6 +80,19 @@ public class RequirementAnnotationTest
                       new HashSet<String>( Arrays.asList( clone.toString().split( "[(, )]" ) ) ) );
 
         assertEquals( orig.annotationType(), clone.annotationType() );
+
+        try
+        {
+            final Field role = RequirementImpl.class.getDeclaredField( "role" );
+            final Method getName = role.getType().getMethod( "getName" );
+            role.setAccessible( true );
+
+            assertEquals( orig.role().getName(), getName.invoke( role.get( clone ) ) );
+        }
+        catch ( final Exception e )
+        {
+            fail( e.toString() );
+        }
     }
 
     private static Requirement getRequirement( final String name )

@@ -12,21 +12,21 @@
  */
 package org.sonatype.guice.plexus.config;
 
-import org.codehaus.plexus.component.annotations.Configuration;
+import java.util.Map.Entry;
 
 import com.google.inject.TypeLiteral;
 
 /**
- * Configures instances of various value-types for Plexus component beans.
+ * Locates instances of various types, using Plexus hints as a guide.
  */
-public interface PlexusConfigurator
+public interface PlexusTypeLocator
 {
     /**
-     * Returns an instance of the given type using the given configuration.
+     * Locates instances of the given type, filtered using the given named hints.
      * 
-     * @param configuration The configuration
-     * @param asType The expected type
-     * @return Instance of the given type, configured accordingly
+     * @param type The expected type
+     * @param hints The optional hints
+     * @return Instances of the given type; ordered according to the given hints
      */
-    <T> T configure( Configuration configuration, TypeLiteral<T> asType );
+    <T> Iterable<Entry<String, T>> locate( TypeLiteral<T> type, String... hints );
 }
