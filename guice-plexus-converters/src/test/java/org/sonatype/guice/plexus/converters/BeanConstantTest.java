@@ -19,8 +19,7 @@ import java.util.Date;
 
 import junit.framework.TestCase;
 
-import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
-import org.sonatype.guice.plexus.config.PlexusConfigurator;
+import org.sonatype.guice.plexus.config.PlexusTypeConverter;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
@@ -205,8 +204,8 @@ public class BeanConstantTest
     @SuppressWarnings( "boxing" )
     public void testConfigurator()
     {
-        final PlexusConfigurator configurator = injector.getInstance( PlexusConfigurator.class );
-        final float value = configurator.configure( new ConfigurationImpl( "", "4.2" ), TypeLiteral.get( float.class ) );
+        final PlexusTypeConverter configurator = injector.getInstance( PlexusTypeConverter.class );
+        final float value = configurator.convert( TypeLiteral.get( float.class ), "4.2" );
         assertEquals( 4.2f, value, 0 );
     }
 

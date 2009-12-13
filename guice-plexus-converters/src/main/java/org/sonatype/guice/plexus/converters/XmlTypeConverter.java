@@ -22,14 +22,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.util.xml.pull.MXParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.guice.bean.reflect.BeanProperties;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.Generics;
-import org.sonatype.guice.plexus.config.PlexusConfigurator;
+import org.sonatype.guice.plexus.config.PlexusTypeConverter;
 
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -46,7 +45,7 @@ import com.google.inject.spi.TypeConverterBinding;
  */
 public final class XmlTypeConverter
     extends AbstractMatcher<TypeLiteral<?>>
-    implements PlexusConfigurator, Module, TypeConverter
+    implements PlexusTypeConverter, Module, TypeConverter
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -69,7 +68,7 @@ public final class XmlTypeConverter
         // we're both matcher and converter
         binder.convertToTypes( this, this );
 
-        binder.bind( PlexusConfigurator.class ).toInstance( this );
+        binder.bind( PlexusTypeConverter.class ).toInstance( this );
     }
 
     // ----------------------------------------------------------------------
@@ -101,9 +100,9 @@ public final class XmlTypeConverter
     // ----------------------------------------------------------------------
 
     @SuppressWarnings( "unchecked" )
-    public <T> T configure( final Configuration configuration, final TypeLiteral<T> asType )
+    public <T> T convert( final TypeLiteral<T> type, final String value )
     {
-        return (T) convert( configuration.value(), asType );
+        return (T) convert( value, type );
     }
 
     public boolean matches( final TypeLiteral<?> type )
