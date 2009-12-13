@@ -14,11 +14,12 @@ package org.sonatype.guice.plexus.binders;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.plexus.config.Hints;
-import org.sonatype.guice.plexus.config.PlexusBeanRegistry;
+import org.sonatype.guice.plexus.config.PlexusTypeLocator;
 import org.sonatype.guice.plexus.config.Roles;
 
 import com.google.inject.Provider;
@@ -34,7 +35,7 @@ final class PlexusRequirements
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final TypeEncounter<?> encounter;
+    private final Provider<PlexusTypeLocator> locator;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -42,7 +43,7 @@ final class PlexusRequirements
 
     PlexusRequirements( final TypeEncounter<?> encounter )
     {
-        this.encounter = encounter;
+        locator = encounter.getProvider( PlexusTypeLocator.class );
     }
 
     // ----------------------------------------------------------------------
@@ -59,119 +60,103 @@ final class PlexusRequirements
     @SuppressWarnings( "unchecked" )
     public <T> Provider<T> lookup( final Requirement requirement, final BeanProperty<T> property )
     {
-        final String[] hints = Hints.canonicalHints( requirement );
-
         // deduce lookup from metadata + property details
         final TypeLiteral expectedType = property.getType();
-        final TypeLiteral roleType = Roles.roleType( requirement, expectedType );
+        final TypeLiteral<T> roleType = (TypeLiteral) Roles.roleType( requirement, expectedType );
         final Class rawType = expectedType.getRawType();
+
+        final String[] hints = Hints.canonicalHints( requirement );
 
         if ( Map.class == rawType )
         {
-            return new RequirementMapProvider( getRoleRegistry( roleType ), hints );
+            return new RequirementMapProvider( locator, roleType, hints );
         }
         else if ( List.class == rawType )
         {
-            return new RequirementListProvider( getRoleRegistry( roleType ), hints );
-        }
-        else if ( hints.length == 0 )
-        {
-            return new RequirementWildcardProvider( getRoleRegistry( roleType ) );
+            return new RequirementListProvider( locator, roleType, hints );
         }
 
-        return encounter.getProvider( Roles.componentKey( roleType, hints[0] ) );
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * Returns a {@link Provider} that can provide a {@link PlexusBeanRegistry} for the given role type.
-     * 
-     * @param role The reified Plexus role
-     * @return Provider that provides a bean registry for the given role
-     */
-    private <T> Provider<PlexusBeanRegistry<T>> getRoleRegistry( final TypeLiteral<T> role )
-    {
-        return encounter.getProvider( PlexusGuice.beanRegistryKey( role ) );
+        return new RequirementProvider( locator, roleType, hints );
     }
 
     // ----------------------------------------------------------------------
     // Implementation classes
     // ----------------------------------------------------------------------
 
-    private static abstract class AbstractRequirementProvider<T>
+    private static abstract class AbstractRequirementProvider<S, T>
+        implements Provider<S>
     {
-        private Provider<PlexusBeanRegistry<T>> provider;
+        private Provider<PlexusTypeLocator> provider;
 
-        private PlexusBeanRegistry<T> registry;
+        private PlexusTypeLocator locator;
 
-        AbstractRequirementProvider( final Provider<PlexusBeanRegistry<T>> provider )
+        private final TypeLiteral<T> type;
+
+        private final String[] hints;
+
+        AbstractRequirementProvider( final Provider<PlexusTypeLocator> provider, final TypeLiteral<T> type,
+                                     final String... hints )
         {
             this.provider = provider;
+            this.type = type;
+            this.hints = hints;
         }
 
-        final synchronized PlexusBeanRegistry<T> registry()
+        final synchronized Iterable<Entry<String, T>> locate()
         {
-            if ( null == registry )
+            if ( null == locator )
             {
-                // avoid dangling reference
-                registry = provider.get();
+                // avoid repeated lookup
+                locator = provider.get();
                 provider = null;
             }
-            return registry;
+            // cannot cache this, need per-lookup
+            return locator.locate( type, hints );
         }
     }
 
     private static final class RequirementMapProvider<T>
-        extends AbstractRequirementProvider<T>
-        implements Provider<Map<String, T>>
+        extends AbstractRequirementProvider<Map<String, T>, T>
     {
-        private final String[] hints;
-
-        RequirementMapProvider( final Provider<PlexusBeanRegistry<T>> registry, final String[] hints )
+        RequirementMapProvider( final Provider<PlexusTypeLocator> provider, final TypeLiteral<T> type,
+                                final String... hints )
         {
-            super( registry );
-            this.hints = hints;
+            super( provider, type, hints );
         }
 
         public Map<String, T> get()
         {
-            return registry().lookupMap( hints );
+            return new IterableMapAdapter<T>( locate() );
         }
     }
 
     private static final class RequirementListProvider<T>
-        extends AbstractRequirementProvider<T>
-        implements Provider<List<T>>
+        extends AbstractRequirementProvider<List<T>, T>
     {
-        private final String[] hints;
-
-        RequirementListProvider( final Provider<PlexusBeanRegistry<T>> registry, final String[] hints )
+        RequirementListProvider( final Provider<PlexusTypeLocator> provider, final TypeLiteral<T> type,
+                                 final String... hints )
         {
-            super( registry );
-            this.hints = hints;
+            super( provider, type, hints );
         }
 
         public List<T> get()
         {
-            return registry().lookupList( hints );
+            return new IterableListAdapter<T>( locate() );
         }
     }
 
-    private static final class RequirementWildcardProvider<T>
-        extends AbstractRequirementProvider<T>
-        implements Provider<T>
+    private static final class RequirementProvider<T>
+        extends AbstractRequirementProvider<T, T>
     {
-        RequirementWildcardProvider( final Provider<PlexusBeanRegistry<T>> registry )
+        RequirementProvider( final Provider<PlexusTypeLocator> provider, final TypeLiteral<T> type,
+                             final String... hints )
         {
-            super( registry );
+            super( provider, type, hints );
         }
 
         public T get()
         {
-            return registry().lookupWildcard();
+            return locate().iterator().next().getValue();
         }
     }
 }

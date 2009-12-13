@@ -56,7 +56,7 @@ final class DeferredInjector
     /**
      * Iterates over list of deferred injectees, injecting their members (this may cause the list to grow).
      */
-    synchronized Injector resumeInjections()
+    synchronized Injector resume()
     {
         while ( !deferredInjectees.isEmpty() )
         {

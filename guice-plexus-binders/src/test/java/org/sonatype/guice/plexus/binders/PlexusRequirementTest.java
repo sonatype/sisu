@@ -30,7 +30,6 @@ import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.ConfigurationException;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -351,7 +350,7 @@ public class PlexusRequirementTest
             injector.getInstance( Component5.class );
             fail( "Expected error for no such hint" );
         }
-        catch ( final ConfigurationException e )
+        catch ( final ProvisionException e )
         {
             System.out.println( e );
         }
@@ -361,7 +360,7 @@ public class PlexusRequirementTest
     {
         try
         {
-            injector.getInstance( Component6.class );
+            injector.getInstance( Component6.class ).testNoSuchHint.toString();
             fail( "Expected error for no such hint" );
         }
         catch ( final ProvisionException e )
@@ -374,7 +373,7 @@ public class PlexusRequirementTest
     {
         try
         {
-            injector.getInstance( Component7.class );
+            injector.getInstance( Component7.class ).testNoSuchHint.toString();
             fail( "Expected error for no such hint" );
         }
         catch ( final ProvisionException e )
@@ -387,7 +386,7 @@ public class PlexusRequirementTest
     {
         try
         {
-            injector.getInstance( Component8.class );
+            injector.getInstance( Component8.class ).testBadName.toString();
             fail( "Expected error for bad name" );
         }
         catch ( final ProvisionException e )
@@ -403,7 +402,7 @@ public class PlexusRequirementTest
             injector.getInstance( Component9.class );
             fail( "Expected error for missing default requirement" );
         }
-        catch ( final ConfigurationException e )
+        catch ( final ProvisionException e )
         {
             System.out.println( e );
         }

@@ -14,7 +14,7 @@ package org.sonatype.guice.plexus.binders;
 
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.sonatype.guice.bean.reflect.BeanProperty;
-import org.sonatype.guice.plexus.config.PlexusConfigurator;
+import org.sonatype.guice.plexus.config.PlexusTypeConverter;
 
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
@@ -29,7 +29,7 @@ final class PlexusConfigurations
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    final Provider<PlexusConfigurator> configurator;
+    private final Provider<PlexusTypeConverter> converter;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -37,7 +37,7 @@ final class PlexusConfigurations
 
     PlexusConfigurations( final TypeEncounter<?> encounter )
     {
-        configurator = encounter.getProvider( PlexusConfigurator.class );
+        converter = encounter.getProvider( PlexusTypeConverter.class );
     }
 
     // ----------------------------------------------------------------------
@@ -53,7 +53,7 @@ final class PlexusConfigurations
      */
     public <T> Provider<T> lookup( final Configuration configuration, final BeanProperty<T> property )
     {
-        return new ConfigurationProvider<T>( configurator, configuration, property.getType() );
+        return new ConfigurationProvider<T>( converter, property.getType(), configuration.value() );
     }
 
     // ----------------------------------------------------------------------
@@ -63,31 +63,32 @@ final class PlexusConfigurations
     private static final class ConfigurationProvider<T>
         implements Provider<T>
     {
-        private Provider<PlexusConfigurator> provider;
+        private Provider<PlexusTypeConverter> provider;
 
-        private PlexusConfigurator configurator;
+        private PlexusTypeConverter converter;
 
-        private final Configuration config;
+        private final TypeLiteral<T> type;
 
-        private final TypeLiteral<T> asType;
+        private final String value;
 
-        ConfigurationProvider( final Provider<PlexusConfigurator> provider, final Configuration config,
-                               final TypeLiteral<T> asType )
+        ConfigurationProvider( final Provider<PlexusTypeConverter> provider, final TypeLiteral<T> type,
+                               final String value )
         {
             this.provider = provider;
-            this.config = config;
-            this.asType = asType;
+            this.type = type;
+            this.value = value;
         }
 
         public synchronized T get()
         {
-            if ( null == configurator )
+            if ( null == converter )
             {
-                // avoid dangling reference
-                configurator = provider.get();
+                // avoid repeated lookup
+                converter = provider.get();
                 provider = null;
             }
-            return configurator.configure( config, asType );
+            // cannot cache this, need per-lookup
+            return converter.convert( type, value );
         }
     }
 }

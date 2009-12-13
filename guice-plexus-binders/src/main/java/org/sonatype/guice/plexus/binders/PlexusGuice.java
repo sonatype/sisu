@@ -12,14 +12,13 @@
  */
 package org.sonatype.guice.plexus.binders;
 
-import org.sonatype.guice.plexus.config.PlexusBeanRegistry;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.google.inject.Module;
-import com.google.inject.TypeLiteral;
-import com.google.inject.util.Types;
 
 /**
  * Utility methods that provide Plexus-style deferred injection on top of standard Guice.
@@ -63,41 +62,16 @@ public final class PlexusGuice
      */
     public static Injector resumeInjections( final Injector injector )
     {
-        return injector.getInstance( DeferredInjector.class ).resumeInjections();
+        return injector.getInstance( DeferredInjector.class ).resume();
     }
 
-    /**
-     * Returns the Guice {@link PlexusBeanRegistry} binding {@link Key} for the given Plexus role.
-     * 
-     * @param role The Plexus role
-     * @return Bean registry binding key for the given role
-     */
-    public static <T> Key<PlexusBeanRegistry<T>> beanRegistryKey( final Class<T> role )
+    public static <T> List<T> asList( final Iterable<Entry<String, T>> entries )
     {
-        return beanRegistryKey( TypeLiteral.get( role ) );
+        return new IterableListAdapter<T>( entries );
     }
 
-    /**
-     * Returns the Guice {@link PlexusBeanRegistry} binding {@link Key} for the given Plexus role.
-     * 
-     * @param role The Plexus role
-     * @return Bean registry binding key for the given role
-     */
-    @SuppressWarnings( "unchecked" )
-    public static <T> Key<PlexusBeanRegistry<T>> beanRegistryKey( final TypeLiteral<T> role )
+    public static <T> Map<String, T> asMap( final Iterable<Entry<String, T>> entries )
     {
-        return (Key) Key.get( Types.newParameterizedType( GuicePlexusBeanRegistry.class, role.getRawType() ) );
-    }
-
-    /**
-     * Returns the Guice {@link PlexusBeanRegistry} for the given Plexus role.
-     * 
-     * @param injector The Guice injector
-     * @param role The Plexus role
-     * @return Bean registry for the given role
-     */
-    public static <T> PlexusBeanRegistry<T> beanRegistry( final Injector injector, final Class<T> role )
-    {
-        return injector.getInstance( beanRegistryKey( role ) );
+        return new IterableMapAdapter<T>( entries );
     }
 }

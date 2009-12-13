@@ -13,16 +13,15 @@
 package org.sonatype.guice.plexus.binders;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.AbstractList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.sonatype.guice.plexus.config.Hints;
-import org.sonatype.guice.plexus.config.PlexusBeanRegistry;
 
 import com.google.inject.Binding;
 import com.google.inject.ConfigurationException;
@@ -36,11 +35,10 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 
 /**
- * {@link PlexusBeanRegistry} that queries the Guice {@link Injector} to find role {@link Binding}s.
+ * Registry that queries the Guice {@link Injector} to find role-hint {@link Binding}s.
  */
 @Singleton
-final class GuicePlexusBeanRegistry<T>
-    implements PlexusBeanRegistry<T>
+final class GuiceRoleHintRegistry<T>
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -55,6 +53,8 @@ final class GuicePlexusBeanRegistry<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    final DeferredInjector deferredInjector;
+
     private final String roleName;
 
     private final Map<String, Provider<T>> roleHintMap;
@@ -66,8 +66,9 @@ final class GuicePlexusBeanRegistry<T>
     // ----------------------------------------------------------------------
 
     @Inject
-    GuicePlexusBeanRegistry( final Injector injector, final TypeLiteral<T> roleType )
+    GuiceRoleHintRegistry( final Injector injector, final TypeLiteral<T> roleType )
     {
+        this.deferredInjector = injector.getInstance( DeferredInjector.class );
         this.roleName = roleType.toString();
 
         // find all known bindings for the role, note: excludes Just-In-Time bindings!
@@ -116,41 +117,91 @@ final class GuicePlexusBeanRegistry<T>
     }
 
     // ----------------------------------------------------------------------
-    // Public methods
+    // Shared methods
     // ----------------------------------------------------------------------
 
-    public List<String> availableHints()
+    Iterable<Entry<String, T>> locate( final String... canonicalHints )
     {
-        return Arrays.asList( allHints );
+        if ( canonicalHints.length == 0 )
+        {
+            if ( allHints.length == 0 )
+            {
+                return Collections.emptyList();
+            }
+            return new ProvidedEntryList( allHints );
+        }
+        return new ProvidedEntryList( canonicalHints );
     }
 
-    public List<T> lookupList( final String... canonicalHints )
+    // ----------------------------------------------------------------------
+    // Implementation classes
+    // ----------------------------------------------------------------------
+
+    private final class ProvidedEntryList
+        extends AbstractList<Entry<String, T>>
     {
-        final List<T> componentList = new ArrayList<T>();
-        for ( final String h : canonicalHints.length == 0 ? allHints : canonicalHints )
+        private static final long serialVersionUID = 1L;
+
+        private final String[] hints;
+
+        private final Entry<String, T>[] elements;
+
+        @SuppressWarnings( "unchecked" )
+        ProvidedEntryList( final String[] hints )
         {
-            componentList.add( lookupRole( h ) );
+            this.hints = hints;
+
+            elements = new Entry[hints.length];
         }
-        return componentList;
+
+        @Override
+        public synchronized Entry<String, T> get( final int index )
+        {
+            if ( null == elements[index] )
+            {
+                elements[index] = new ProvidedEntry( hints[index] );
+            }
+            return elements[index];
+        }
+
+        @Override
+        public int size()
+        {
+            return hints.length;
+        }
     }
 
-    public Map<String, T> lookupMap( final String... canonicalHints )
+    private final class ProvidedEntry
+        implements Entry<String, T>
     {
-        final Map<String, T> componentMap = new LinkedHashMap<String, T>();
-        for ( final String h : canonicalHints.length == 0 ? allHints : canonicalHints )
-        {
-            componentMap.put( h, lookupRole( h ) );
-        }
-        return componentMap;
-    }
+        private final String hint;
 
-    public T lookupWildcard()
-    {
-        if ( allHints.length == 0 )
+        private T value;
+
+        ProvidedEntry( final String hint )
         {
-            throw new ProvisionException( String.format( MISSING_ROLE_ERROR, roleName ) );
+            this.hint = hint;
         }
-        return lookupRole( allHints[0] );
+
+        public String getKey()
+        {
+            return hint;
+        }
+
+        public synchronized T getValue()
+        {
+            if ( null == value )
+            {
+                value = lookupRole( hint );
+                deferredInjector.resume();
+            }
+            return value;
+        }
+
+        public T setValue( final T value )
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -163,7 +214,7 @@ final class GuicePlexusBeanRegistry<T>
      * @param canonicalHint The Plexus hint
      * @return Component instance that matches the given hint
      */
-    private T lookupRole( final String canonicalHint )
+    T lookupRole( final String canonicalHint )
     {
         final Provider<T> provider = roleHintMap.get( canonicalHint );
         if ( null == provider )
