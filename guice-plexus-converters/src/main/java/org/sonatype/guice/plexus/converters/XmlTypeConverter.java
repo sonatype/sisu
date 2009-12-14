@@ -43,9 +43,9 @@ import com.google.inject.spi.TypeConverterBinding;
 /**
  * {@link TypeConverter} {@link Module} that converts Plexus formatted XML into the appropriate instances.
  */
-public final class XmlTypeConverter
+final class XmlTypeConverter
     extends AbstractMatcher<TypeLiteral<?>>
-    implements PlexusTypeConverter, Module, TypeConverter
+    implements Module, TypeConverter, PlexusTypeConverter
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -67,8 +67,7 @@ public final class XmlTypeConverter
     {
         // we're both matcher and converter
         binder.convertToTypes( this, this );
-
-        binder.bind( PlexusTypeConverter.class ).toInstance( this );
+        binder.requestInjection( this );
     }
 
     // ----------------------------------------------------------------------
@@ -98,12 +97,6 @@ public final class XmlTypeConverter
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
-
-    @SuppressWarnings( "unchecked" )
-    public <T> T convert( final TypeLiteral<T> type, final String value )
-    {
-        return (T) convert( value, type );
-    }
 
     public boolean matches( final TypeLiteral<?> type )
     {
@@ -137,6 +130,12 @@ public final class XmlTypeConverter
         }
 
         return convertText( value, toType );
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public <T> T convert( final TypeLiteral<T> type, final String value )
+    {
+        return (T) convert( value, type );
     }
 
     // ----------------------------------------------------------------------

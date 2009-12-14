@@ -26,7 +26,7 @@ import com.google.inject.spi.TypeConverter;
 /**
  * {@link TypeConverter} {@link Module} that converts Plexus formatted date strings into {@link Date} instances.
  */
-public final class DateTypeConverter
+final class DateTypeConverter
     extends AbstractMatcher<TypeLiteral<?>>
     implements Module, TypeConverter
 {

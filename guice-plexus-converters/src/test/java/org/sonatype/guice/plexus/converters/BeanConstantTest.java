@@ -63,8 +63,7 @@ public class BeanConstantTest
                 bindConstant().annotatedWith( Names.named( "SITE" ) ).to( "http://www.sonatype.org" );
                 bindConstant().annotatedWith( Names.named( "DATE" ) ).to( "2009-11-15 18:02:00" );
 
-                install( new XmlTypeConverter() );
-                install( new DateTypeConverter() );
+                install( new PlexusTypeConverterModule() );
             }
         } ).injectMembers( this );
     }
