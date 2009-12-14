@@ -16,6 +16,7 @@ import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
+import org.sonatype.guice.plexus.converters.XmlTypeConverter;
 import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
@@ -57,6 +58,7 @@ public class PlexusConfigurationTest
             @Override
             protected void configure()
             {
+                install( new XmlTypeConverter() );
                 install( new PlexusBindingModule( new ComponentWatcher(), new AnnotatedPlexusBeanSource( null ) ) );
                 requestInjection( PlexusConfigurationTest.this );
             }

@@ -28,6 +28,7 @@ import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
+import org.sonatype.guice.plexus.converters.XmlTypeConverter;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Inject;
@@ -54,6 +55,7 @@ public class PlexusBeanMetadataTest
             @Override
             protected void configure()
             {
+                install( new XmlTypeConverter() );
                 bindConstant().annotatedWith( Names.named( "KEY1" ) ).to( "REQUIREMENT" );
                 install( new PlexusBindingModule( null, new CustomizedBeanSource() ) );
                 requestInjection( PlexusBeanMetadataTest.this );

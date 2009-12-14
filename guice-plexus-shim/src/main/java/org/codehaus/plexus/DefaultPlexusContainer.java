@@ -372,7 +372,7 @@ public final class DefaultPlexusContainer
                         {
                             url = file.toURI().toURL();
                         }
-                        catch ( final MalformedURLException e )
+                        catch ( final MalformedURLException e ) // NOPMD
                         {
                             // drop through and recover
                         }

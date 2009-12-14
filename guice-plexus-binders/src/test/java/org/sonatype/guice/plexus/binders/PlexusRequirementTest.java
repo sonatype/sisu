@@ -27,6 +27,7 @@ import org.sonatype.guice.bean.reflect.StrongClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
+import org.sonatype.guice.plexus.converters.XmlTypeConverter;
 import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
@@ -54,6 +55,8 @@ public class PlexusRequirementTest
             @Override
             protected void configure()
             {
+                install( new XmlTypeConverter() );
+
                 bind( A.class ).annotatedWith( Names.named( "AA" ) ).to( AAImpl.class );
                 bind( A.class ).annotatedWith( Names.named( "AB" ) ).to( ABImpl.class );
                 bind( A.class ).to( AImpl.class ).in( Scopes.SINGLETON );

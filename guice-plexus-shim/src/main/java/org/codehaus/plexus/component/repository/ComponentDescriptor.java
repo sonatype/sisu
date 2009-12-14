@@ -82,7 +82,7 @@ public final class ComponentDescriptor<T>
             {
                 roleClass = classRealm.loadClass( role );
             }
-            catch ( final Throwable e )
+            catch ( final Throwable e ) // NOPMD
             {
                 // ignore
             }
@@ -109,7 +109,7 @@ public final class ComponentDescriptor<T>
             {
                 implementationClass = classRealm.loadClass( implementation );
             }
-            catch ( final Throwable e )
+            catch ( final Throwable e ) // NOPMD
             {
                 // ignore
             }
