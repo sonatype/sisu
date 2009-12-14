@@ -26,6 +26,7 @@
     <module>guice-plexus-metadata</module>
     <module>guice-plexus-scanners</module>
     <module>guice-plexus-converters</module>
+    <module>guice-plexus-locators</module>
     <module>guice-plexus-binders</module>
     <module>guice-plexus-shim</module>
     <module>guice-plexus-tck</module>
