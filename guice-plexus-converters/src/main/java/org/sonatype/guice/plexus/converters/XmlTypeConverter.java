@@ -67,7 +67,9 @@ final class XmlTypeConverter
     {
         // we're both matcher and converter
         binder.convertToTypes( this, this );
-        binder.requestInjection( this );
+
+        // used by the primary module, also bootstraps injection
+        binder.bind( XmlTypeConverter.class ).toInstance( this );
     }
 
     // ----------------------------------------------------------------------

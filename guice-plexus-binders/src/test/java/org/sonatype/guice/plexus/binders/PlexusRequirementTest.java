@@ -27,10 +27,12 @@ import org.sonatype.guice.bean.reflect.StrongClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.converters.XmlTypeConverter;
+import org.sonatype.guice.plexus.converters.PlexusTypeConverterModule;
+import org.sonatype.guice.plexus.locators.PlexusTypeLocatorModule;
 import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -50,12 +52,13 @@ public class PlexusRequirementTest
     @Override
     protected void setUp()
     {
-        PlexusGuice.createInjector( new AbstractModule()
+        Guice.createInjector( new AbstractModule()
         {
             @Override
             protected void configure()
             {
-                install( new XmlTypeConverter() );
+                install( new PlexusTypeLocatorModule() );
+                install( new PlexusTypeConverterModule() );
 
                 bind( A.class ).annotatedWith( Names.named( "AA" ) ).to( AAImpl.class );
                 bind( A.class ).annotatedWith( Names.named( "AB" ) ).to( ABImpl.class );
@@ -73,10 +76,8 @@ public class PlexusRequirementTest
                         final Map<Component, DeferredClass<?>> componentMap =
                             new HashMap<Component, DeferredClass<?>>();
 
-                        componentMap.put( new ComponentImpl( Alpha.class, "", "load-on-start" ),
-                                          defer( AlphaImpl.class ) );
-                        componentMap.put( new ComponentImpl( Omega.class, "", "load-on-start" ),
-                                          defer( OmegaImpl.class ) );
+                        componentMap.put( new ComponentImpl( Alpha.class, "", "" ), defer( AlphaImpl.class ) );
+                        componentMap.put( new ComponentImpl( Omega.class, "", "" ), defer( OmegaImpl.class ) );
 
                         final ClassSpace space = new StrongClassSpace( TestCase.class.getClassLoader() );
                         componentMap.put( new ComponentImpl( Gamma.class, "", "" ),

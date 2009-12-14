@@ -21,7 +21,6 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
 import org.sonatype.guice.plexus.binders.BeanWatcher;
-import org.sonatype.guice.plexus.binders.PlexusGuice;
 
 import com.google.inject.matcher.AbstractMatcher;
 
@@ -62,8 +61,6 @@ final class PlexusLifecycleManager
 
     public void afterInjection( final Object injectee )
     {
-        // ensure all members are initialized beforehand
-        PlexusGuice.resumeInjections( container.injector );
         final String name = injectee.getClass().getName();
 
         try

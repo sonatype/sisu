@@ -40,14 +40,16 @@ import org.codehaus.plexus.util.StringUtils;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.StrongClassSpace;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
-import org.sonatype.guice.plexus.binders.PlexusGuice;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.config.PlexusTypeLocator;
+import org.sonatype.guice.plexus.converters.PlexusTypeConverterModule;
+import org.sonatype.guice.plexus.locators.PlexusTypeLocatorModule;
 import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 import org.sonatype.guice.plexus.scanners.XmlPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
@@ -105,11 +107,14 @@ public final class DefaultPlexusContainer
         final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( configurationUrl, space, contextMap );
         final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( contextMap );
 
-        PlexusGuice.createInjector( new AbstractModule()
+        Guice.createInjector( new AbstractModule()
         {
             @Override
             protected void configure()
             {
+                install( new PlexusTypeLocatorModule() );
+                install( new PlexusTypeConverterModule() );
+
                 bind( PlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
             }
 
@@ -180,7 +185,7 @@ public final class DefaultPlexusContainer
 
     public <T> List<T> lookupList( final Class<T> role )
     {
-        return PlexusGuice.asList( locate( role ) );
+        return PlexusBindingModule.asList( locate( role ) );
     }
 
     public Map<String, Object> lookupMap( final String role )
@@ -191,7 +196,7 @@ public final class DefaultPlexusContainer
 
     public <T> Map<String, T> lookupMap( final Class<T> role )
     {
-        return PlexusGuice.asMap( locate( role ) );
+        return PlexusBindingModule.asMap( locate( role ) );
     }
 
     // ----------------------------------------------------------------------

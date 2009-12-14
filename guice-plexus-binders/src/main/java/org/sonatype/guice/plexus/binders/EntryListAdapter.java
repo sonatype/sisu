@@ -20,28 +20,28 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
-final class IterableListAdapter<T>
-    extends AbstractSequentialList<T>
+final class EntryListAdapter<K, V>
+    extends AbstractSequentialList<V>
 {
-    private final Iterable<Entry<String, T>> iterable;
+    private final Iterable<Entry<K, V>> iterable;
 
-    IterableListAdapter( final Iterable<Entry<String, T>> iterable )
+    EntryListAdapter( final Iterable<Entry<K, V>> iterable )
     {
         this.iterable = iterable;
     }
 
     @Override
-    public ListIterator<T> listIterator( final int index )
+    public ListIterator<V> listIterator( final int index )
     {
-        final List<Entry<String, T>> cache = new ArrayList<Entry<String, T>>();
-        final Iterator<Entry<String, T>> iterator = iterable.iterator();
+        final List<Entry<K, V>> cache = new ArrayList<Entry<K, V>>();
+        final Iterator<Entry<K, V>> iterator = iterable.iterator();
 
         for ( int i = 0; i < index; i++ )
         {
             cache.add( iterator.next() );
         }
 
-        return new ListIterator<T>()
+        return new ListIterator<V>()
         {
             private int cursor = index;
 
@@ -55,7 +55,7 @@ final class IterableListAdapter<T>
                 return cursor > 0;
             }
 
-            public T next()
+            public V next()
             {
                 if ( cursor >= cache.size() )
                 {
@@ -64,7 +64,7 @@ final class IterableListAdapter<T>
                 return cache.get( cursor++ ).getValue();
             }
 
-            public T previous()
+            public V previous()
             {
                 if ( cursor <= 0 )
                 {
@@ -83,7 +83,7 @@ final class IterableListAdapter<T>
                 return cursor - 1;
             }
 
-            public void add( final T o )
+            public void add( final V o )
             {
                 throw new UnsupportedOperationException();
             }
@@ -93,7 +93,7 @@ final class IterableListAdapter<T>
                 throw new UnsupportedOperationException();
             }
 
-            public void set( final T o )
+            public void set( final V o )
             {
                 throw new UnsupportedOperationException();
             }
@@ -103,7 +103,7 @@ final class IterableListAdapter<T>
     @Override
     public int size()
     {
-        final Iterator<Entry<String, T>> i = iterable.iterator();
+        final Iterator<Entry<K, V>> i = iterable.iterator();
 
         int size = 0;
         while ( i.hasNext() )

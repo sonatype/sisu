@@ -12,98 +12,35 @@
  */
 package org.sonatype.guice.plexus.binders;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.sonatype.guice.bean.reflect.DeferredClass;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.ProvisionException;
-import com.google.inject.Singleton;
 
-/**
- * Keeps track of deferred injection requests so we can process them later without worrying about cyclic dependencies.
- */
-@Singleton
-final class DeferredInjector
+final class DeferredProvider<T>
+    implements Provider<T>
 {
-    // ----------------------------------------------------------------------
-    // Implementation fields
-    // ----------------------------------------------------------------------
-
     @Inject
     private Injector injector;
 
-    private final List<Object> deferredInjectees = new ArrayList<Object>();
+    private final DeferredClass<T> clazz;
 
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * Records an injection request so it can be deferred until after the primary objects have been created.
-     * 
-     * @param injectee The bean to be injected
-     */
-    synchronized <T> T deferInjection( final T injectee )
+    DeferredProvider( final DeferredClass<T> clazz )
     {
-        deferredInjectees.add( injectee );
-        return injectee;
+        this.clazz = clazz;
     }
 
-    /**
-     * Iterates over list of deferred injectees, injecting their members (this may cause the list to grow).
-     */
-    synchronized Injector resume()
+    public T get()
     {
-        while ( !deferredInjectees.isEmpty() )
+        try
         {
-            // this might eventually add more entries to the list
-            injector.injectMembers( deferredInjectees.remove( 0 ) );
+            return injector.getInstance( clazz.get() );
         }
-        return injector;
-    }
-
-    // ----------------------------------------------------------------------
-    // Shared helpers
-    // ----------------------------------------------------------------------
-
-    /**
-     * {@link Provider} that creates instances of a {@link DeferredClass} but defers injection until later on.
-     */
-    static final class DeferredProvider<T>
-        implements Provider<T>
-    {
-        @Inject
-        private DeferredInjector injector;
-
-        private final DeferredClass<T> clazz;
-
-        /**
-         * Creates a {@link Provider} that defers member injection until a later date.
-         * 
-         * @param clazz The deferred class
-         */
-        DeferredProvider( final DeferredClass<T> clazz )
+        catch ( final RuntimeException e )
         {
-            this.clazz = clazz;
-        }
-
-        /**
-         * @return Instance of the deferred class (before member injection has occurred)
-         */
-        public T get()
-        {
-            try
-            {
-                return injector.deferInjection( clazz.get().newInstance() );
-            }
-            catch ( final Exception e )
-            {
-                throw new ProvisionException( "Cannot create instance of: " + clazz.getName(), e );
-            }
+            throw new ProvisionException( "Cannot create instance of: " + clazz.getName(), e );
         }
     }
 }

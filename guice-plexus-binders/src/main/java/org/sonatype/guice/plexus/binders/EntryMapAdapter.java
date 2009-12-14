@@ -17,17 +17,17 @@ import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.Set;
 
-final class IterableMapAdapter<T>
-    extends AbstractMap<String, T>
+final class EntryMapAdapter<K, V>
+    extends AbstractMap<K, V>
 {
-    private final Set<Entry<String, T>> entrySet;
+    private final Set<Entry<K, V>> entrySet;
 
-    IterableMapAdapter( final Iterable<Entry<String, T>> iterable )
+    EntryMapAdapter( final Iterable<Entry<K, V>> iterable )
     {
-        entrySet = new AbstractSet<Entry<String, T>>()
+        entrySet = new AbstractSet<Entry<K, V>>()
         {
             @Override
-            public Iterator<Entry<String, T>> iterator()
+            public Iterator<Entry<K, V>> iterator()
             {
                 return iterable.iterator();
             }
@@ -35,7 +35,7 @@ final class IterableMapAdapter<T>
             @Override
             public int size()
             {
-                final Iterator<Entry<String, T>> i = iterable.iterator();
+                final Iterator<Entry<K, V>> i = iterable.iterator();
 
                 int size = 0;
                 while ( i.hasNext() )
@@ -50,7 +50,7 @@ final class IterableMapAdapter<T>
     }
 
     @Override
-    public Set<Entry<String, T>> entrySet()
+    public Set<Entry<K, V>> entrySet()
     {
         return entrySet;
     }

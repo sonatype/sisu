@@ -126,7 +126,7 @@ final class PlexusRequirements
 
         public Map<String, T> get()
         {
-            return new IterableMapAdapter<T>( locate() );
+            return PlexusBindingModule.asMap( locate() );
         }
     }
 
@@ -141,7 +141,7 @@ final class PlexusRequirements
 
         public List<T> get()
         {
-            return new IterableListAdapter<T>( locate() );
+            return PlexusBindingModule.asList( locate() );
         }
     }
 

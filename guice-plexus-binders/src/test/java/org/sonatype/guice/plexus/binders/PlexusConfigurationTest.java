@@ -16,10 +16,12 @@ import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
-import org.sonatype.guice.plexus.converters.XmlTypeConverter;
+import org.sonatype.guice.plexus.converters.PlexusTypeConverterModule;
+import org.sonatype.guice.plexus.locators.PlexusTypeLocatorModule;
 import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.matcher.AbstractMatcher;
@@ -53,12 +55,13 @@ public class PlexusConfigurationTest
     @Override
     protected void setUp()
     {
-        PlexusGuice.createInjector( new AbstractModule()
+        Guice.createInjector( new AbstractModule()
         {
             @Override
             protected void configure()
             {
-                install( new XmlTypeConverter() );
+                install( new PlexusTypeLocatorModule() );
+                install( new PlexusTypeConverterModule() );
                 install( new PlexusBindingModule( new ComponentWatcher(), new AnnotatedPlexusBeanSource( null ) ) );
                 requestInjection( PlexusConfigurationTest.this );
             }

@@ -12,6 +12,8 @@
  */
 package org.sonatype.guice.plexus.binders;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -19,26 +21,19 @@ import org.sonatype.guice.bean.inject.BeanBinder;
 import org.sonatype.guice.bean.inject.BeanListener;
 import org.sonatype.guice.bean.inject.PropertyBinder;
 import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.plexus.binders.DeferredInjector.DeferredProvider;
-import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.config.PlexusTypeLocator;
 import org.sonatype.guice.plexus.config.Roles;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Inject;
-import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
-import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
-import com.google.inject.util.Types;
 
 /**
  * Guice {@link Module} that registers a custom {@link TypeListener} to auto-bind Plexus beans.
@@ -75,11 +70,19 @@ public final class PlexusBindingModule
     // Public methods
     // ----------------------------------------------------------------------
 
+    public static <T> List<T> asList( final Iterable<Entry<String, T>> entries )
+    {
+        return new EntryListAdapter<String, T>( entries );
+    }
+
+    public static <T> Map<String, T> asMap( final Iterable<Entry<String, T>> entries )
+    {
+        return new EntryMapAdapter<String, T>( entries );
+    }
+
     @Override
     protected void configure()
     {
-        bind( PlexusTypeLocator.class ).to( GuicePlexusTypeLocator.class );
-
         for ( final PlexusBeanSource source : sources )
         {
             for ( final Entry<Component, DeferredClass<?>> e : source.findPlexusComponentBeans().entrySet() )
@@ -151,23 +154,6 @@ public final class PlexusBindingModule
         {
             // default Plexus policy
             sbb.in( Scopes.SINGLETON );
-        }
-    }
-
-    @Singleton
-    private static final class GuicePlexusTypeLocator
-        implements PlexusTypeLocator
-    {
-        @Inject
-        Injector injector;
-
-        public <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> type, final String... hints )
-        {
-            @SuppressWarnings( "unchecked" )
-            final Key<GuiceRoleHintRegistry<T>> registryKey =
-                (Key) Key.get( Types.newParameterizedType( GuiceRoleHintRegistry.class, type.getRawType() ) );
-
-            return injector.getInstance( registryKey ).locate( Hints.canonicalHints( hints ) );
         }
     }
 }

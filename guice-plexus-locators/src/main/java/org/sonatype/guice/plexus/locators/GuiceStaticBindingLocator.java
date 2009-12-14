@@ -10,7 +10,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.plexus.binders;
+package org.sonatype.guice.plexus.locators;
 
 import java.lang.annotation.Annotation;
 import java.util.AbstractList;
@@ -34,11 +34,8 @@ import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 
-/**
- * Registry that queries the Guice {@link Injector} to find role-hint {@link Binding}s.
- */
 @Singleton
-final class GuiceRoleHintRegistry<T>
+final class GuiceStaticBindingLocator<T>
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -53,8 +50,6 @@ final class GuiceRoleHintRegistry<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    final DeferredInjector deferredInjector;
-
     private final String roleName;
 
     private final Map<String, Provider<T>> roleHintMap;
@@ -66,9 +61,8 @@ final class GuiceRoleHintRegistry<T>
     // ----------------------------------------------------------------------
 
     @Inject
-    GuiceRoleHintRegistry( final Injector injector, final TypeLiteral<T> roleType )
+    GuiceStaticBindingLocator( final Injector injector, final TypeLiteral<T> roleType )
     {
-        this.deferredInjector = injector.getInstance( DeferredInjector.class );
         this.roleName = roleType.toString();
 
         // find all known bindings for the role, note: excludes Just-In-Time bindings!
@@ -193,7 +187,6 @@ final class GuiceRoleHintRegistry<T>
             if ( null == value )
             {
                 value = lookupRole( hint );
-                deferredInjector.resume();
             }
             return value;
         }

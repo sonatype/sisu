@@ -10,21 +10,18 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.plexus.converters;
+package org.sonatype.guice.plexus.locators;
 
-import org.sonatype.guice.plexus.config.PlexusTypeConverter;
+import org.sonatype.guice.plexus.config.PlexusTypeLocator;
 
 import com.google.inject.AbstractModule;
 
-public final class PlexusTypeConverterModule
+public final class PlexusTypeLocatorModule
     extends AbstractModule
 {
     @Override
     protected void configure()
     {
-        install( new DateTypeConverter() );
-        install( new XmlTypeConverter() );
-
-        bind( PlexusTypeConverter.class ).to( XmlTypeConverter.class );
+        bind( PlexusTypeLocator.class ).to( AggregateTypeLocator.class );
     }
 }
