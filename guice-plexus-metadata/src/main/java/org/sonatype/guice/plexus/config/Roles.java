@@ -22,7 +22,7 @@ import org.sonatype.guice.bean.reflect.Generics;
 
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
-import com.google.inject.name.Names;
+import com.google.inject.util.Jsr330;
 
 /**
  * Constants and utility methods for dealing with Plexus roles.
@@ -111,7 +111,7 @@ public final class Roles
         {
             return Key.get( role );
         }
-        return Key.get( role, Names.named( Hints.canonicalHint( hint ) ) );
+        return Key.get( role, Jsr330.named( Hints.canonicalHint( hint ) ) );
     }
 
     /**

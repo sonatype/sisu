@@ -15,13 +15,14 @@ package org.sonatype.guice.plexus.converters;
 import java.net.URI;
 import java.util.Arrays;
 
+import javax.inject.Named;
+
 import junit.framework.TestCase;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import com.google.inject.name.Names;
+import com.google.inject.util.Jsr330;
 
 public class ArrayConstantTest
     extends TestCase
@@ -34,7 +35,7 @@ public class ArrayConstantTest
         {
             private void bind( final String name, final String value )
             {
-                bindConstant().annotatedWith( Names.named( name ) ).to( value );
+                bindConstant().annotatedWith( Jsr330.named( name ) ).to( value );
             }
 
             @Override

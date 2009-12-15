@@ -21,7 +21,7 @@ import org.sonatype.guice.plexus.annotations.RequirementImpl;
 
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
-import com.google.inject.name.Names;
+import com.google.inject.util.Jsr330;
 import com.google.inject.util.Types;
 
 public class RolesTest
@@ -33,7 +33,7 @@ public class RolesTest
 
     private static final Key<Object> OBJECT_COMPONENT_KEY = Key.get( Object.class );
 
-    private static final Key<Object> OBJECT_FOO_COMPONENT_KEY = Key.get( Object.class, Names.named( "foo" ) );
+    private static final Key<Object> OBJECT_FOO_COMPONENT_KEY = Key.get( Object.class, Jsr330.named( "foo" ) );
 
     public void testCanonicalRoleHint()
     {

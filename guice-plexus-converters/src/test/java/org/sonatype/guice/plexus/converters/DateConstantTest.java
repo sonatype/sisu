@@ -15,6 +15,8 @@ package org.sonatype.guice.plexus.converters;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.inject.Named;
+
 import junit.framework.TestCase;
 
 import com.google.inject.AbstractModule;
@@ -23,8 +25,7 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Named;
-import com.google.inject.name.Names;
+import com.google.inject.util.Jsr330;
 
 public class DateConstantTest
     extends TestCase
@@ -37,7 +38,7 @@ public class DateConstantTest
         {
             private void bind( final String name, final String value )
             {
-                bindConstant().annotatedWith( Names.named( name ) ).to( value );
+                bindConstant().annotatedWith( Jsr330.named( name ) ).to( value );
             }
 
             @Override
@@ -85,7 +86,7 @@ public class DateConstantTest
     {
         try
         {
-            injector.getInstance( Key.get( Date.class, Names.named( "BadFormat" ) ) );
+            injector.getInstance( Key.get( Date.class, Jsr330.named( "BadFormat" ) ) );
             fail( "Expected ConfigurationException" );
         }
         catch ( final ConfigurationException e )

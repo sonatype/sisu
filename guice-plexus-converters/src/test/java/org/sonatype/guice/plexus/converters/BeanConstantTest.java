@@ -28,7 +28,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
-import com.google.inject.name.Names;
+import com.google.inject.util.Jsr330;
 
 public class BeanConstantTest
     extends TestCase
@@ -42,7 +42,7 @@ public class BeanConstantTest
             private void bindBean( final String name, final String clazzName, final String content )
             {
                 final String xml = "<bean implementation='" + clazzName + "'>" + content + "</bean>";
-                bindConstant().annotatedWith( Names.named( name ) ).to( xml );
+                bindConstant().annotatedWith( Jsr330.named( name ) ).to( xml );
             }
 
             @Override
@@ -59,9 +59,9 @@ public class BeanConstantTest
                 bindBean( "MissingStringConstructor", MissingStringConstructor.class.getName(), "text" );
                 bindBean( "BrokenStringConstructor", BrokenStringConstructor.class.getName(), "text" );
 
-                bindConstant().annotatedWith( Names.named( "README" ) ).to( "some/temp/readme.txt" );
-                bindConstant().annotatedWith( Names.named( "SITE" ) ).to( "http://www.sonatype.org" );
-                bindConstant().annotatedWith( Names.named( "DATE" ) ).to( "2009-11-15 18:02:00" );
+                bindConstant().annotatedWith( Jsr330.named( "README" ) ).to( "some/temp/readme.txt" );
+                bindConstant().annotatedWith( Jsr330.named( "SITE" ) ).to( "http://www.sonatype.org" );
+                bindConstant().annotatedWith( Jsr330.named( "DATE" ) ).to( "2009-11-15 18:02:00" );
 
                 install( new PlexusTypeConverterModule() );
             }
@@ -183,18 +183,19 @@ public class BeanConstantTest
 
     public void testSimpleFileBean()
     {
-        assertEquals( "readme.txt", injector.getInstance( Key.get( File.class, Names.named( "README" ) ) ).getName() );
+        assertEquals( "readme.txt", injector.getInstance( Key.get( File.class, Jsr330.named( "README" ) ) ).getName() );
     }
 
     public void testSimpleUrlBean()
     {
-        assertEquals( "www.sonatype.org", injector.getInstance( Key.get( URL.class, Names.named( "SITE" ) ) ).getHost() );
+        assertEquals( "www.sonatype.org",
+                      injector.getInstance( Key.get( URL.class, Jsr330.named( "SITE" ) ) ).getHost() );
     }
 
     public void testNonBean()
     {
         final Calendar calendar = Calendar.getInstance();
-        calendar.setTime( injector.getInstance( Key.get( Date.class, Names.named( "DATE" ) ) ) );
+        calendar.setTime( injector.getInstance( Key.get( Date.class, Jsr330.named( "DATE" ) ) ) );
         assertEquals( 15, calendar.get( Calendar.DAY_OF_MONTH ) );
         assertEquals( Calendar.NOVEMBER, calendar.get( Calendar.MONTH ) );
         assertEquals( 2009, calendar.get( Calendar.YEAR ) );
@@ -210,7 +211,7 @@ public class BeanConstantTest
 
     private Object getBean( final String bindingName, final Class<?> clazz )
     {
-        return injector.getInstance( Key.get( clazz, Names.named( bindingName ) ) );
+        return injector.getInstance( Key.get( clazz, Jsr330.named( bindingName ) ) );
     }
 
     private void testFailedConversion( final String bindingName, final Class<?> clazz )

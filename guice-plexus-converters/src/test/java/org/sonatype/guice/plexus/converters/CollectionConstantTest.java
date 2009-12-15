@@ -20,13 +20,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Named;
+
 import junit.framework.TestCase;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
-import com.google.inject.name.Names;
+import com.google.inject.util.Jsr330;
 
 public class CollectionConstantTest
     extends TestCase
@@ -39,7 +40,7 @@ public class CollectionConstantTest
         {
             private void bind( final String name, final String value )
             {
-                bindConstant().annotatedWith( Names.named( name ) ).to( value );
+                bindConstant().annotatedWith( Jsr330.named( name ) ).to( value );
             }
 
             @Override
