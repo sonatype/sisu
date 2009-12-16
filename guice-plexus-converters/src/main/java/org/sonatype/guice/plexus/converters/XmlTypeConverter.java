@@ -35,6 +35,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.spi.TypeConverter;
@@ -43,7 +44,8 @@ import com.google.inject.spi.TypeConverterBinding;
 /**
  * {@link TypeConverter} {@link Module} that converts Plexus formatted XML into the appropriate instances.
  */
-final class XmlTypeConverter
+@Singleton
+public final class XmlTypeConverter
     extends AbstractMatcher<TypeLiteral<?>>
     implements Module, TypeConverter, PlexusTypeConverter
 {

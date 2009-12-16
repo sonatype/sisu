@@ -33,6 +33,8 @@ import com.google.inject.util.Jsr330;
 public class BeanConstantTest
     extends TestCase
 {
+    final XmlTypeConverter xmlConverter = new XmlTypeConverter();
+
     @Override
     protected void setUp()
         throws Exception
@@ -63,7 +65,10 @@ public class BeanConstantTest
                 bindConstant().annotatedWith( Jsr330.named( "SITE" ) ).to( "http://www.sonatype.org" );
                 bindConstant().annotatedWith( Jsr330.named( "DATE" ) ).to( "2009-11-15 18:02:00" );
 
-                install( new PlexusTypeConverterModule() );
+                install( new DateTypeConverter() );
+                install( xmlConverter );
+
+                bind( PlexusTypeConverter.class ).to( XmlTypeConverter.class );
             }
         } ).injectMembers( this );
     }
@@ -205,6 +210,7 @@ public class BeanConstantTest
     public void testConfigurator()
     {
         final PlexusTypeConverter configurator = injector.getInstance( PlexusTypeConverter.class );
+        assertSame( xmlConverter, configurator );
         final float value = configurator.convert( TypeLiteral.get( float.class ), "4.2" );
         assertEquals( 4.2f, value, 0 );
     }

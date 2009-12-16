@@ -19,6 +19,7 @@ import java.util.Date;
 
 import com.google.inject.Binder;
 import com.google.inject.Module;
+import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.spi.TypeConverter;
@@ -26,7 +27,8 @@ import com.google.inject.spi.TypeConverter;
 /**
  * {@link TypeConverter} {@link Module} that converts Plexus formatted date strings into {@link Date} instances.
  */
-final class DateTypeConverter
+@Singleton
+public final class DateTypeConverter
     extends AbstractMatcher<TypeLiteral<?>>
     implements Module, TypeConverter
 {
