@@ -26,7 +26,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 
 /**
- * {@link PlexusBeanSource} that provides Plexus metadata based on runtime annotations.
+ * {@link PlexusBeanSource} that provides {@link PlexusBeanMetadata} based on runtime annotations.
  */
 public final class AnnotatedPlexusBeanSource
     implements PlexusBeanSource, PlexusBeanMetadata

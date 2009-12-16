@@ -195,12 +195,26 @@ public class XmlPlexusBeanSourceTest
                       new ConfigurationImpl( "someFieldName", "<some-field.name><item>PRIMARY</item></some-field.name>" ),
                       metadata1.getConfiguration( new NamedProperty( "someFieldName" ) ) );
 
+        assertEquals( new ConfigurationImpl( "simple", "value" ),
+                      metadata1.getConfiguration( new NamedProperty( "simple" ) ) );
+
+        assertEquals( new ConfigurationImpl( "value", "<value with=\"attribute\"></value>" ),
+                      metadata1.getConfiguration( new NamedProperty( "value" ) ) );
+
+        assertEquals( new ConfigurationImpl( "emptyValue1", "<empty.value1 with=\"attribute\" />" ),
+                      metadata1.getConfiguration( new NamedProperty( "emptyValue1" ) ) );
+
+        assertEquals( new ConfigurationImpl( "emptyValue2", "" ),
+                      metadata1.getConfiguration( new NamedProperty( "emptyValue2" ) ) );
+
         assertFalse( metadata1.isEmpty() );
 
         assertEquals( new RequirementImpl( Bean.class, true, "debug" ),
                       metadata1.getRequirement( new NamedProperty( "bean" ) ) );
 
         assertFalse( metadata1.isEmpty() );
+
+        metadata1.getConfiguration( new NamedProperty( "foo" ) );
 
         assertEquals( new RequirementImpl( Bean.class, false, Hints.DEFAULT_HINT, "debug" ),
                       metadata1.getRequirement( new NamedProperty( "beanMap" ) ) );

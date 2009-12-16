@@ -43,7 +43,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.config.Roles;
 
 /**
- * {@link PlexusBeanSource} that collects Plexus metadata by scanning XML resources.
+ * {@link PlexusBeanSource} that collects {@link PlexusBeanMetadata} by scanning XML resources.
  */
 public final class XmlPlexusBeanSource
     implements PlexusBeanSource
@@ -469,23 +469,24 @@ public final class XmlPlexusBeanSource
         final String fieldName = camelizeName( name );
         final StringBuilder buf = new StringBuilder();
 
+        final String header = parser.getText().trim();
         final int depth = parser.getDepth();
-        do
+
+        while ( parser.next() != XmlPullParser.END_TAG || parser.getDepth() > depth )
         {
             // combine children into single string
             buf.append( parser.getText().trim() );
-            parser.next();
         }
-        while ( parser.getDepth() >= depth );
 
-        final String basicTag = '<' + name + '>';
-        final int marker = basicTag.length();
-
-        // primitive configuration values, like "<foo>bar</foo>" or "<foo></foo>" don't need their surrounding tags...
-        if ( buf.toString().startsWith( basicTag ) && ( buf.charAt( marker ) != '<' || buf.charAt( marker + 1 ) == '/' ) )
+        // add header+footer when there's nested XML or attributes
+        if ( buf.indexOf( "<" ) == 0 || header.indexOf( '=' ) > 0 )
         {
-            buf.delete( 0, marker );
-            buf.setLength( buf.length() - ( marker + 1 ) );
+            buf.insert( 0, header );
+            if ( !header.endsWith( "/>" ) )
+            {
+                // follow up with basic footer
+                buf.append( "</" + name + '>' );
+            }
         }
 
         configurationMap.put( fieldName, new ConfigurationImpl( fieldName, buf.toString() ) );

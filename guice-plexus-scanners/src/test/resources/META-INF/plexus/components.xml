@@ -31,6 +31,7 @@
         org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$DefaultBean
       </implementation>
       <configuration>
+        <foo/><simple >value</simple  ><value with="attribute"></value><empty.value1 with="attribute" /><empty.value2/><foo/>
         <some-field.name>
           <item>SECONDARY</item>
         </some-field.name>
