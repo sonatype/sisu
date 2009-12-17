@@ -17,6 +17,8 @@ import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.guice.bean.inject.PropertyBinder;
 import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
@@ -61,6 +63,19 @@ final class PlexusPropertyBinder
 
     public <T> PropertyBinding bindProperty( final BeanProperty<T> property )
     {
+        if ( property.getAnnotation( Requirement.class ) != null
+            && Logger.class.equals( property.getType().getRawType() ) )
+        {
+            return new PropertyBinding()
+            {
+                @SuppressWarnings( "unchecked" )
+                public <B> void injectProperty( final B bean )
+                {
+                    property.set( bean, (T) LoggerFactory.getLogger( bean.getClass() ) );
+                }
+            };
+        }
+
         if ( metadata.isEmpty() )
         {
             return PropertyBinder.LAST_BINDING;
