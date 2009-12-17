@@ -27,8 +27,11 @@ import org.sonatype.guice.bean.reflect.StrongClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.converters.PlexusTypeConverterModule;
-import org.sonatype.guice.plexus.locators.PlexusTypeLocatorModule;
+import org.sonatype.guice.plexus.config.PlexusTypeConverter;
+import org.sonatype.guice.plexus.config.PlexusTypeLocator;
+import org.sonatype.guice.plexus.converters.DateTypeConverter;
+import org.sonatype.guice.plexus.converters.XmlTypeConverter;
+import org.sonatype.guice.plexus.locators.GuiceTypeLocator;
 import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
@@ -38,7 +41,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.ProvisionException;
 import com.google.inject.Scopes;
-import com.google.inject.name.Names;
+import com.google.inject.util.Jsr330;
 
 public class PlexusRequirementTest
     extends TestCase
@@ -57,17 +60,20 @@ public class PlexusRequirementTest
             @Override
             protected void configure()
             {
-                install( new PlexusTypeLocatorModule() );
-                install( new PlexusTypeConverterModule() );
+                install( new DateTypeConverter() );
+                install( new XmlTypeConverter() );
 
-                bind( A.class ).annotatedWith( Names.named( "AA" ) ).to( AAImpl.class );
-                bind( A.class ).annotatedWith( Names.named( "AB" ) ).to( ABImpl.class );
+                bind( PlexusTypeLocator.class ).to( GuiceTypeLocator.class );
+                bind( PlexusTypeConverter.class ).to( XmlTypeConverter.class );
+
+                bind( A.class ).annotatedWith( Jsr330.named( "AA" ) ).to( AAImpl.class );
+                bind( A.class ).annotatedWith( Jsr330.named( "AB" ) ).to( ABImpl.class );
                 bind( A.class ).to( AImpl.class ).in( Scopes.SINGLETON );
-                bind( A.class ).annotatedWith( Names.named( "AC" ) ).to( ACImpl.class );
+                bind( A.class ).annotatedWith( Jsr330.named( "AC" ) ).to( ACImpl.class );
 
-                bind( B.class ).annotatedWith( Names.named( "B" ) ).to( BImpl.class );
+                bind( B.class ).annotatedWith( Jsr330.named( "B" ) ).to( BImpl.class );
 
-                bind( D.class ).annotatedWith( Names.named( "" ) ).to( DImpl.class );
+                bind( D.class ).annotatedWith( Jsr330.named( "" ) ).to( DImpl.class );
 
                 install( new PlexusBindingModule( null, new PlexusBeanSource()
                 {

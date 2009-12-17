@@ -21,6 +21,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.bean.reflect.Generics;
 
 import com.google.inject.Key;
+import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Jsr330;
 
@@ -29,6 +30,11 @@ import com.google.inject.util.Jsr330;
  */
 public final class Roles
 {
+    private static final String MISSING_COMPONENT_ERROR = "No implementation for %s was bound.";
+
+    private static final String MISSING_COMPONENT_WITH_HINT_ERROR =
+        "No implementation for %s annotated with @com.google.inject.name.Named(value=%s) was bound.";
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -125,5 +131,14 @@ public final class Roles
     public static <T> Key<T> componentKey( final TypeLiteral<T> role, final String hint )
     {
         return (Key) componentKey( role.getRawType(), hint );
+    }
+
+    public static <T> T throwMissingComponentException( final TypeLiteral<T> role, final String hint )
+    {
+        if ( Hints.isDefaultHint( hint ) )
+        {
+            throw new ProvisionException( String.format( MISSING_COMPONENT_ERROR, role ) );
+        }
+        throw new ProvisionException( String.format( MISSING_COMPONENT_WITH_HINT_ERROR, role, hint ) );
     }
 }

@@ -57,7 +57,7 @@ public abstract class AbstractLogger
         debug( message, null );
     }
 
-    public final boolean isDebugEnabled()
+    public boolean isDebugEnabled()
     {
         return threshold <= LEVEL_DEBUG;
     }
@@ -67,7 +67,7 @@ public abstract class AbstractLogger
         info( message, null );
     }
 
-    public final boolean isInfoEnabled()
+    public boolean isInfoEnabled()
     {
         return threshold <= LEVEL_INFO;
     }
@@ -77,7 +77,7 @@ public abstract class AbstractLogger
         warn( message, null );
     }
 
-    public final boolean isWarnEnabled()
+    public boolean isWarnEnabled()
     {
         return threshold <= LEVEL_WARN;
     }
@@ -87,7 +87,7 @@ public abstract class AbstractLogger
         error( message, null );
     }
 
-    public final boolean isErrorEnabled()
+    public boolean isErrorEnabled()
     {
         return threshold <= LEVEL_ERROR;
     }
@@ -97,7 +97,7 @@ public abstract class AbstractLogger
         fatalError( message, null );
     }
 
-    public final boolean isFatalErrorEnabled()
+    public boolean isFatalErrorEnabled()
     {
         return threshold <= LEVEL_FATAL;
     }

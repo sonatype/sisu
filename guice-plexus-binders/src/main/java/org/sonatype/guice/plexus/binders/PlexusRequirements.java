@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.plexus.binders;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +22,8 @@ import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusTypeLocator;
 import org.sonatype.guice.plexus.config.Roles;
+import org.sonatype.guice.plexus.locators.EntryListAdapter;
+import org.sonatype.guice.plexus.locators.EntryMapAdapter;
 
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
@@ -90,9 +93,9 @@ final class PlexusRequirements
 
         private PlexusTypeLocator locator;
 
-        private final TypeLiteral<T> type;
+        final TypeLiteral<T> type;
 
-        private final String[] hints;
+        final String[] hints;
 
         AbstractRequirementProvider( final Provider<PlexusTypeLocator> provider, final TypeLiteral<T> type,
                                      final String... hints )
@@ -126,7 +129,7 @@ final class PlexusRequirements
 
         public Map<String, T> get()
         {
-            return PlexusBindingModule.asMap( locate() );
+            return new EntryMapAdapter<String, T>( locate() );
         }
     }
 
@@ -141,7 +144,7 @@ final class PlexusRequirements
 
         public List<T> get()
         {
-            return PlexusBindingModule.asList( locate() );
+            return new EntryListAdapter<String, T>( locate() );
         }
     }
 
@@ -156,7 +159,12 @@ final class PlexusRequirements
 
         public T get()
         {
-            return locate().iterator().next().getValue();
+            final Iterator<Entry<String, T>> i = locate().iterator();
+            if ( i.hasNext() )
+            {
+                return i.next().getValue();
+            }
+            return Roles.throwMissingComponentException( type, null );
         }
     }
 }

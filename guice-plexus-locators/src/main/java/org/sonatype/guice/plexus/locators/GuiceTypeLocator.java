@@ -12,16 +12,29 @@
  */
 package org.sonatype.guice.plexus.locators;
 
+import java.util.Map.Entry;
+
 import org.sonatype.guice.plexus.config.PlexusTypeLocator;
 
-import com.google.inject.AbstractModule;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+import com.google.inject.TypeLiteral;
 
-public final class PlexusTypeLocatorModule
-    extends AbstractModule
+@Singleton
+public final class GuiceTypeLocator
+    implements PlexusTypeLocator
 {
-    @Override
-    protected void configure()
+    private PlexusTypeLocator rootLocator;
+
+    @Inject
+    public void add( final Injector injector )
     {
-        bind( PlexusTypeLocator.class ).to( AggregateTypeLocator.class );
+        rootLocator = new InjectorTypeLocator( injector );
+    }
+
+    public <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> type, final String... hints )
+    {
+        return rootLocator.locate( type, hints );
     }
 }

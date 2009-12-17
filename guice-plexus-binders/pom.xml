@@ -41,13 +41,12 @@
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-plexus-scanners</artifactId>
+      <artifactId>guice-plexus-locators</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-plexus-locators</artifactId>
+      <artifactId>guice-plexus-scanners</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

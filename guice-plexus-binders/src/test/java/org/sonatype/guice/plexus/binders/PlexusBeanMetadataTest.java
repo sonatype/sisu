@@ -15,6 +15,8 @@ package org.sonatype.guice.plexus.binders;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.inject.Named;
+
 import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -28,16 +30,18 @@ import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.converters.PlexusTypeConverterModule;
-import org.sonatype.guice.plexus.locators.PlexusTypeLocatorModule;
+import org.sonatype.guice.plexus.config.PlexusTypeConverter;
+import org.sonatype.guice.plexus.config.PlexusTypeLocator;
+import org.sonatype.guice.plexus.converters.DateTypeConverter;
+import org.sonatype.guice.plexus.converters.XmlTypeConverter;
+import org.sonatype.guice.plexus.locators.GuiceTypeLocator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.name.Named;
-import com.google.inject.name.Names;
+import com.google.inject.util.Jsr330;
 
 public class PlexusBeanMetadataTest
     extends TestCase
@@ -57,10 +61,15 @@ public class PlexusBeanMetadataTest
             @Override
             protected void configure()
             {
-                install( new PlexusTypeLocatorModule() );
-                install( new PlexusTypeConverterModule() );
-                bindConstant().annotatedWith( Names.named( "KEY1" ) ).to( "REQUIREMENT" );
+                install( new DateTypeConverter() );
+                install( new XmlTypeConverter() );
+
+                bind( PlexusTypeLocator.class ).to( GuiceTypeLocator.class );
+                bind( PlexusTypeConverter.class ).to( XmlTypeConverter.class );
+
+                bindConstant().annotatedWith( Jsr330.named( "KEY1" ) ).to( "REQUIREMENT" );
                 install( new PlexusBindingModule( null, new CustomizedBeanSource() ) );
+
                 requestInjection( PlexusBeanMetadataTest.this );
             }
         } );
@@ -171,7 +180,7 @@ public class PlexusBeanMetadataTest
     {
         assertEquals( "REQUIREMENT", bean.getExtraMetadata() );
         assertEquals( "CONFIGURATION", injector.getInstance( DefaultBean2.class ).extraMetadata );
-        assertSame( bean, injector.getInstance( Key.get( Bean.class, Names.named( "2" ) ) ) );
+        assertSame( bean, injector.getInstance( Key.get( Bean.class, Jsr330.named( "2" ) ) ) );
     }
 
     static DeferredClass<?> defer( final Class<?> clazz )

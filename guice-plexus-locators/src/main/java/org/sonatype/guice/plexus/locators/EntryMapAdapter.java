@@ -10,48 +10,55 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.plexus.binders;
+package org.sonatype.guice.plexus.locators;
 
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Iterator;
 import java.util.Set;
 
-final class EntryMapAdapter<K, V>
+public final class EntryMapAdapter<K, V>
     extends AbstractMap<K, V>
 {
     private final Set<Entry<K, V>> entrySet;
 
-    EntryMapAdapter( final Iterable<Entry<K, V>> iterable )
+    public EntryMapAdapter( final Iterable<Entry<K, V>> iterable )
     {
-        entrySet = new AbstractSet<Entry<K, V>>()
-        {
-            @Override
-            public Iterator<Entry<K, V>> iterator()
-            {
-                return iterable.iterator();
-            }
-
-            @Override
-            public int size()
-            {
-                final Iterator<Entry<K, V>> i = iterable.iterator();
-
-                int size = 0;
-                while ( i.hasNext() )
-                {
-                    i.next();
-                    size++;
-                }
-
-                return size;
-            }
-        };
+        entrySet = new EntrySet<K, V>( iterable );
     }
 
     @Override
     public Set<Entry<K, V>> entrySet()
     {
         return entrySet;
+    }
+
+    private static final class EntrySet<K, V>
+        extends AbstractSet<Entry<K, V>>
+    {
+        private final Iterable<Entry<K, V>> iterable;
+
+        EntrySet( final Iterable<Entry<K, V>> iterable )
+        {
+            this.iterable = iterable;
+        }
+
+        @Override
+        public Iterator<Entry<K, V>> iterator()
+        {
+            return iterable.iterator();
+        }
+
+        @Override
+        @SuppressWarnings( "unused" )
+        public int size()
+        {
+            int size = 0;
+            for ( final Entry<K, V> e : iterable )
+            {
+                size++;
+            }
+            return size;
+        }
     }
 }

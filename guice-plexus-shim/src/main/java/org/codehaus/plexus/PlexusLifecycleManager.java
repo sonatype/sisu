@@ -15,13 +15,17 @@ package org.codehaus.plexus;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.logging.LogEnabled;
+import org.codehaus.plexus.logging.LoggerManager;
+import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
 import org.sonatype.guice.plexus.binders.BeanWatcher;
 
+import com.google.inject.Inject;
 import com.google.inject.matcher.AbstractMatcher;
 
 /**
@@ -37,16 +41,11 @@ final class PlexusLifecycleManager
 
     private final List<Object> activeComponents = new ArrayList<Object>();
 
-    private final DefaultPlexusContainer container;
+    @Inject
+    private Context context;
 
-    // ----------------------------------------------------------------------
-    // Constructors
-    // ----------------------------------------------------------------------
-
-    PlexusLifecycleManager( final DefaultPlexusContainer container )
-    {
-        this.container = container;
-    }
+    @Inject( optional = true )
+    LoggerManager loggerManager = new ConsoleLoggerManager();
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -70,11 +69,11 @@ final class PlexusLifecycleManager
              */
             if ( injectee instanceof LogEnabled )
             {
-                ( (LogEnabled) injectee ).enableLogging( container.loggerManager.getLogger( name ) );
+                ( (LogEnabled) injectee ).enableLogging( loggerManager.getLogger( name ) );
             }
             if ( injectee instanceof Contextualizable )
             {
-                ( (Contextualizable) injectee ).contextualize( container.context );
+                ( (Contextualizable) injectee ).contextualize( context );
             }
             if ( injectee instanceof Initializable )
             {
@@ -92,7 +91,7 @@ final class PlexusLifecycleManager
         }
         catch ( final Exception e )
         {
-            container.loggerManager.getLogger( name ).error( "Problem starting: " + injectee, e );
+            loggerManager.getLogger( name ).error( "Problem starting: " + injectee, e );
         }
     }
 
@@ -119,11 +118,11 @@ final class PlexusLifecycleManager
             }
             catch ( final Throwable e )
             {
-                container.loggerManager.getLogger( name ).error( "Problem stopping: " + injectee, e );
+                loggerManager.getLogger( name ).error( "Problem stopping: " + injectee, e );
             }
             finally
             {
-                container.loggerManager.returnLogger( name );
+                loggerManager.returnLogger( name );
             }
         }
     }

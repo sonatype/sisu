@@ -42,9 +42,13 @@ import org.sonatype.guice.bean.reflect.StrongClassSpace;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
+import org.sonatype.guice.plexus.config.PlexusTypeConverter;
 import org.sonatype.guice.plexus.config.PlexusTypeLocator;
-import org.sonatype.guice.plexus.converters.PlexusTypeConverterModule;
-import org.sonatype.guice.plexus.locators.PlexusTypeLocatorModule;
+import org.sonatype.guice.plexus.converters.DateTypeConverter;
+import org.sonatype.guice.plexus.converters.XmlTypeConverter;
+import org.sonatype.guice.plexus.locators.EntryListAdapter;
+import org.sonatype.guice.plexus.locators.EntryMapAdapter;
+import org.sonatype.guice.plexus.locators.GuiceTypeLocator;
 import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 import org.sonatype.guice.plexus.scanners.XmlPlexusBeanSource;
 
@@ -52,7 +56,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Provides;
+import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -72,22 +76,14 @@ public final class DefaultPlexusContainer
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final PlexusLifecycleManager lifecycleManager = new PlexusLifecycleManager( this );
-
     private final ClassRealm containerRealm;
-
-    private final URL configurationUrl;
 
     final Context context;
 
-    @Inject
-    Injector injector;
-
-    @Inject( optional = true )
-    LoggerManager loggerManager = new ConsoleLoggerManager();
+    final PlexusLifecycleManager lifecycleManager;
 
     @Inject
-    private PlexusTypeLocator typeLocator;
+    private GuiceTypeLocator typeLocator;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -96,13 +92,15 @@ public final class DefaultPlexusContainer
     public DefaultPlexusContainer( final ContainerConfiguration configuration )
         throws PlexusContainerException
     {
+        URL configurationUrl = lookupConfigurationUrl( configuration );
+
         containerRealm = lookupContainerRealm( configuration );
-        configurationUrl = lookupConfigurationUrl( configuration );
         context = new DefaultContext( configuration.getContext() );
         context.put( PlexusConstants.PLEXUS_KEY, this );
+        lifecycleManager = new PlexusLifecycleManager();
 
-        final Map<?, ?> contextMap = new ContextMapAdapter( context );
         final ClassSpace space = new StrongClassSpace( containerRealm );
+        final Map<?, ?> contextMap = new ContextMapAdapter( context );
 
         final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( configurationUrl, space, contextMap );
         final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( contextMap );
@@ -112,17 +110,26 @@ public final class DefaultPlexusContainer
             @Override
             protected void configure()
             {
-                install( new PlexusTypeLocatorModule() );
-                install( new PlexusTypeConverterModule() );
+                requestInjection( lifecycleManager );
 
+                install( new DateTypeConverter() );
+                install( new XmlTypeConverter() );
+
+                bind( PlexusTypeLocator.class ).to( GuiceTypeLocator.class );
+                bind( PlexusTypeConverter.class ).to( XmlTypeConverter.class );
+
+                bind( Context.class ).toInstance( context );
                 bind( PlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
-            }
+                bind( Logger.class ).toProvider( new Provider<Logger>()
+                {
+                    @Inject( optional = true )
+                    private LoggerManager loggerManager = new ConsoleLoggerManager();
 
-            @Provides
-            @SuppressWarnings( "unused" )
-            private Logger logger()
-            {
-                return loggerManager.getLogger( PlexusContainer.class.getName() );
+                    public Logger get()
+                    {
+                        return loggerManager.getLogger( "ROOT" );
+                    }
+                } );
             }
         }, new PlexusBindingModule( lifecycleManager, xmlSource, annSource ) );
     }
@@ -185,7 +192,7 @@ public final class DefaultPlexusContainer
 
     public <T> List<T> lookupList( final Class<T> role )
     {
-        return PlexusBindingModule.asList( locate( role ) );
+        return new EntryListAdapter<String, T>( locate( role ) );
     }
 
     public Map<String, Object> lookupMap( final String role )
@@ -196,7 +203,7 @@ public final class DefaultPlexusContainer
 
     public <T> Map<String, T> lookupMap( final Class<T> role )
     {
-        return PlexusBindingModule.asMap( locate( role ) );
+        return new EntryMapAdapter<String, T>( locate( role ) );
     }
 
     // ----------------------------------------------------------------------

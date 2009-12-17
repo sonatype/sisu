@@ -12,8 +12,6 @@
  */
 package org.sonatype.guice.plexus.binders;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -69,16 +67,6 @@ public final class PlexusBindingModule
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
-
-    public static <T> List<T> asList( final Iterable<Entry<String, T>> entries )
-    {
-        return new EntryListAdapter<String, T>( entries );
-    }
-
-    public static <T> Map<String, T> asMap( final Iterable<Entry<String, T>> entries )
-    {
-        return new EntryMapAdapter<String, T>( entries );
-    }
 
     @Override
     protected void configure()
