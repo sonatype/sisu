@@ -120,7 +120,7 @@ final class InjectorTypeLocator
         }
     }
 
-    private static final class MissingEntry<T>
+    static final class MissingEntry<T>
         implements Entry<String, T>
     {
         private final TypeLiteral<T> type;
@@ -143,7 +143,7 @@ final class InjectorTypeLocator
             return Roles.throwMissingComponentException( type, hint );
         }
 
-        public T setValue( T arg0 )
+        public T setValue( final T value )
         {
             throw new UnsupportedOperationException();
         }

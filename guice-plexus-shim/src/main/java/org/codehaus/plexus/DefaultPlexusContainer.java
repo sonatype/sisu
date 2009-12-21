@@ -13,10 +13,13 @@
 package org.codehaus.plexus;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +41,9 @@ import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 import org.codehaus.plexus.util.StringUtils;
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.StrongClassSpace;
+import org.sonatype.guice.bean.reflect.StrongDeferredClass;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
@@ -76,11 +81,18 @@ public final class DefaultPlexusContainer
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final ClassRealm containerRealm;
-
     final Context context;
 
+    private final Map<?, ?> contextMap;
+
+    private final PlexusBeanSource annSource;
+
+    private final ClassRealm containerRealm;
+
     final PlexusLifecycleManager lifecycleManager;
+
+    @Inject
+    private Injector injector;
 
     @Inject
     private GuiceTypeLocator typeLocator;
@@ -92,18 +104,18 @@ public final class DefaultPlexusContainer
     public DefaultPlexusContainer( final ContainerConfiguration configuration )
         throws PlexusContainerException
     {
-        URL configurationUrl = lookupConfigurationUrl( configuration );
+        final URL configurationUrl = lookupConfigurationUrl( configuration );
 
-        containerRealm = lookupContainerRealm( configuration );
         context = new DefaultContext( configuration.getContext() );
         context.put( PlexusConstants.PLEXUS_KEY, this );
+        contextMap = new ContextMapAdapter( context );
+
+        annSource = new AnnotatedPlexusBeanSource( contextMap );
+        containerRealm = lookupContainerRealm( configuration );
         lifecycleManager = new PlexusLifecycleManager();
 
         final ClassSpace space = new StrongClassSpace( containerRealm );
-        final Map<?, ?> contextMap = new ContextMapAdapter( context );
-
         final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( configurationUrl, space, contextMap );
-        final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( contextMap );
 
         Guice.createInjector( new AbstractModule()
         {
@@ -123,7 +135,7 @@ public final class DefaultPlexusContainer
                 bind( Logger.class ).toProvider( new Provider<Logger>()
                 {
                     @Inject( optional = true )
-                    private LoggerManager loggerManager = new ConsoleLoggerManager();
+                    LoggerManager loggerManager = new ConsoleLoggerManager();
 
                     public Logger get()
                     {
@@ -270,8 +282,29 @@ public final class DefaultPlexusContainer
 
     public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm classRealm )
     {
-        // TODO: do we need to do anything here?
-        getLogger().warn( "TODO DefaultPlexusContainer.discoverComponents(" + classRealm + ")" );
+        final ClassSpace space = new ClassSpace()
+        {
+            public Class<?> loadClass( final String name )
+                throws ClassNotFoundException
+            {
+                return classRealm.loadClass( name );
+            }
+
+            public Enumeration<URL> getResources( final String name )
+                throws IOException
+            {
+                return new URLClassLoader( classRealm.getURLs() ).getResources( name );
+            }
+
+            @SuppressWarnings( "unchecked" )
+            public DeferredClass<?> deferLoadClass( final String name )
+            {
+                return new StrongDeferredClass( this, name );
+            }
+        };
+
+        final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( null, space, contextMap );
+        typeLocator.add( injector.createChildInjector( new PlexusBindingModule( lifecycleManager, xmlSource, annSource ) ) );
         return Collections.emptyList();
     }
 
