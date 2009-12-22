@@ -113,29 +113,37 @@ public final class PlexusBindingModule
     @SuppressWarnings( "unchecked" )
     private void registerPlexusBean( final Component component, final DeferredClass<?> clazz )
     {
-        final Key<?> roleKey = Roles.componentKey( component );
+        final Key roleKey = Roles.componentKey( component );
         final String strategy = component.instantiationStrategy();
         final ScopedBindingBuilder sbb;
 
-        // we can take a simple shortcut if role == implementation
+        // simple case when role and implementation are identical
         if ( component.role().getName().equals( clazz.getName() ) )
         {
-            sbb = bind( roleKey );
+            if ( roleKey.getAnnotation() != null )
+            {
+                // wire annotated role to the plain role type
+                sbb = bind( roleKey ).to( component.role() );
+            }
+            else
+            {
+                // no wiring required
+                sbb = bind( roleKey );
+            }
         }
         else if ( "load-on-start".equals( strategy ) )
         {
-            // no need to defer eagerly loaded components
-            sbb = bind( roleKey ).to( (Class) clazz.get() );
+            // no point deferring eager components
+            sbb = bind( roleKey ).to( clazz.get() );
         }
         else
         {
-            // use deferred approach to match the expected Plexus behaviour
+            // mimic Plexus behaviour, only load component classes on demand
             sbb = bind( roleKey ).toProvider( new DeferredProvider( clazz ) );
         }
 
         if ( "load-on-start".equals( strategy ) )
         {
-            // force early creation
             sbb.asEagerSingleton();
         }
         else if ( !"per-lookup".equals( strategy ) )

@@ -85,16 +85,16 @@ public class PlexusBeanMetadataTest
     static class DefaultBean1
         implements Bean
     {
-        Object testMetadata;
+        Object extraMetadata;
 
         public Object getExtraMetadata()
         {
-            return testMetadata;
+            return extraMetadata;
         }
 
         public void setExtraMetadata( final Object metadata )
         {
-            testMetadata = metadata;
+            extraMetadata = metadata;
         }
     }
 
@@ -112,8 +112,9 @@ public class PlexusBeanMetadataTest
         {
             final Map<Component, DeferredClass<?>> componentMap = new HashMap<Component, DeferredClass<?>>();
 
-            componentMap.put( new ComponentImpl( Bean.class, "2", "singleton" ), defer( DefaultBean1.class ) );
+            componentMap.put( new ComponentImpl( Bean.class, "2", "load-on-start" ), defer( DefaultBean1.class ) );
             componentMap.put( new ComponentImpl( DefaultBean2.class, "", "per-lookup" ), defer( DefaultBean2.class ) );
+            componentMap.put( new ComponentImpl( DefaultBean2.class, "2", "per-lookup" ), defer( DefaultBean2.class ) );
 
             return componentMap;
         }

@@ -336,16 +336,15 @@ public final class XmlTypeConverter
     /**
      * Attempts to load the named implementation, uses default implementation if no name is given.
      * 
-     * @param implementationName The optional implementation name
+     * @param name The optional implementation name
      * @param defaultClazz The default implementation type
      * @return Custom implementation type if one was given; otherwise default implementation type
      */
-    private static Class<?> loadImplementation( final String implementationName, final Class<?> defaultClazz )
+    private static Class<?> loadImplementation( final String name, final Class<?> defaultClazz )
     {
-        // fall-back to the default type?
-        if ( null == implementationName )
+        if ( null == name )
         {
-            return defaultClazz;
+            return defaultClazz; // just use the default type
         }
 
         // TCCL allows surrounding container to influence class loading policy
@@ -354,9 +353,9 @@ public final class XmlTypeConverter
         {
             try
             {
-                return tccl.loadClass( implementationName );
+                return tccl.loadClass( name );
             }
-            catch ( final ClassNotFoundException e ) // NOPMD
+            catch ( final Throwable e ) // NOPMD
             {
                 // drop through and try the peer class loader
             }
@@ -368,9 +367,9 @@ public final class XmlTypeConverter
         {
             try
             {
-                return peer.loadClass( implementationName );
+                return peer.loadClass( name );
             }
-            catch ( final ClassNotFoundException e ) // NOPMD
+            catch ( final Throwable e ) // NOPMD
             {
                 // drop through and try the classic approach
             }
@@ -378,12 +377,12 @@ public final class XmlTypeConverter
 
         try
         {
-            // last chance - standard class loading
-            return Class.forName( implementationName );
+            // last chance - classic model
+            return Class.forName( name );
         }
-        catch ( final ClassNotFoundException e )
+        catch ( final Throwable e )
         {
-            throw new IllegalArgumentException( "Cannot load implementation: " + implementationName, e );
+            throw new TypeNotPresentException( name, e );
         }
     }
 

@@ -159,7 +159,7 @@ public class PlexusRequirementTest
         A testSetter;
 
         @Requirement( hints = { "default" } )
-        void testSetter( final A a )
+        void setValue( final A a )
         {
             testSetter = a;
         }
