@@ -32,6 +32,8 @@ import org.codehaus.plexus.util.xml.XmlStreamReader;
 import org.codehaus.plexus.util.xml.pull.MXParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
@@ -67,6 +69,8 @@ public final class XmlPlexusBeanSource
     private final ClassSpace space;
 
     private final Map<?, ?> variables;
+
+    private final Logger logger = LoggerFactory.getLogger( XmlPlexusBeanSource.class );
 
     private Map<String, MappedPlexusBeanMetadata> metadataMap = Collections.emptyMap();
 
@@ -347,6 +351,20 @@ public final class XmlPlexusBeanSource
             role = implementation;
         }
 
+        final Class<?> clazz;
+
+        try
+        {
+            // check the role actually exists
+            clazz = space.loadClass( role );
+        }
+        catch ( final Throwable e )
+        {
+            // not all roles are used, so just note for now
+            logger.debug( "Missing Plexus role: " + role, e );
+            return; // missing roles don't need any metadata
+        }
+
         if ( !configurationMap.isEmpty() || !requirementMap.isEmpty() )
         {
             final MappedPlexusBeanMetadata beanMetadata = metadataMap.get( implementation );
@@ -371,16 +389,8 @@ public final class XmlPlexusBeanSource
             strategies.put( roleHintKey, instantiationStrategy );
         }
 
-        try
-        {
-            hint = Hints.canonicalHint( hint );
-            final Component component = new ComponentImpl( space.loadClass( role ), hint, instantiationStrategy );
-            components.put( component, space.deferLoadClass( implementation ) );
-        }
-        catch ( final ClassNotFoundException e )
-        {
-            throw new TypeNotPresentException( role, e );
-        }
+        final Component component = new ComponentImpl( clazz, Hints.canonicalHint( hint ), instantiationStrategy );
+        components.put( component, space.deferLoadClass( implementation ) );
     }
 
     /**

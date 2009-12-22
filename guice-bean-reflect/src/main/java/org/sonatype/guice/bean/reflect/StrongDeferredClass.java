@@ -51,7 +51,7 @@ public final class StrongDeferredClass<T>
             {
                 clazz = (Class) space.loadClass( name );
             }
-            catch ( final ClassNotFoundException e )
+            catch ( final Throwable e )
             {
                 throw new TypeNotPresentException( name, e );
             }

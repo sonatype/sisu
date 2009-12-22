@@ -294,25 +294,20 @@ public class XmlPlexusBeanSourceTest
             System.out.println( e );
         }
 
-        try
         {
             final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_4.xml" );
-            new XmlPlexusBeanSource( null, space, null ).findPlexusComponentBeans();
-            fail( "Expected TypeNotPresentException" );
+            final PlexusBeanSource source = new XmlPlexusBeanSource( null, space, null );
+            assertTrue( source.findPlexusComponentBeans().isEmpty() );
         }
-        catch ( final TypeNotPresentException e )
-        {
-            System.out.println( e );
-        }
-
-        final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_5.xml" );
-        final PlexusBeanSource source = new XmlPlexusBeanSource( null, space, null );
-        source.findPlexusComponentBeans();
-        final PlexusBeanMetadata metadata = source.getBeanMetadata( DefaultBean.class );
-        final Requirement badReq = metadata.getRequirement( new NamedProperty( "class" ) );
 
         try
         {
+            final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_5.xml" );
+            final PlexusBeanSource source = new XmlPlexusBeanSource( null, space, null );
+            source.findPlexusComponentBeans();
+            final PlexusBeanMetadata metadata = source.getBeanMetadata( DefaultBean.class );
+            final Requirement badReq = metadata.getRequirement( new NamedProperty( "class" ) );
+
             badReq.role();
             fail( "Expected TypeNotPresentException" );
         }

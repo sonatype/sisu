@@ -56,7 +56,7 @@ public final class WeakDeferredClass<T>
                 clazz = space.loadClass( name );
                 clazzRef = new WeakReference( clazz );
             }
-            catch ( final ClassNotFoundException e )
+            catch ( final Throwable e )
             {
                 throw new TypeNotPresentException( name, e );
             }
