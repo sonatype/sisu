@@ -53,7 +53,7 @@ public class BeanPropertiesTest
 
     static interface D
     {
-        void name( String name );
+        void setName( String name );
     }
 
     static class E
@@ -74,6 +74,10 @@ public class BeanPropertiesTest
         }
 
         void setName( final String firstName, final String lastName )
+        {
+        }
+
+        void name( final String name )
         {
         }
     }
@@ -233,7 +237,6 @@ public class BeanPropertiesTest
         final Iterator<BeanProperty<Object>> i = new BeanProperties( G.class ).iterator();
         assertEquals( "name", i.next().getName() );
         assertEquals( "name", i.next().getName() );
-        assertEquals( "name", i.next().getName() );
         assertFalse( i.hasNext() );
 
         try
@@ -304,7 +307,7 @@ public class BeanPropertiesTest
         }
         catch ( final NoSuchFieldException e )
         {
-            fail( "Expected RuntimeException" );
+            fail( e.toString() );
         }
         catch ( final RuntimeException e )
         {
@@ -313,13 +316,14 @@ public class BeanPropertiesTest
         try
         {
             @SuppressWarnings( "unchecked" )
-            final BeanProperty<Object> p = new BeanPropertySetter( D.class.getDeclaredMethod( "name", String.class ) );
+            final BeanProperty<Object> p =
+                new BeanPropertySetter( D.class.getDeclaredMethod( "setName", String.class ) );
             p.set( new Object(), "test" );
             fail( "Expected RuntimeException" );
         }
         catch ( final NoSuchMethodException e )
         {
-            fail( "Expected RuntimeException" );
+            fail( e.toString() );
         }
         catch ( final RuntimeException e )
         {
@@ -363,8 +367,11 @@ public class BeanPropertiesTest
         }
     }
 
+    @SuppressWarnings( "unchecked" )
     public void testSetterNames()
+        throws NoSuchMethodException
     {
+        assertEquals( "name", new BeanPropertySetter( F.class.getDeclaredMethod( "name", String.class ) ).getName() );
         assertEquals( "setter", new BeanProperties( M.class ).iterator().next().getName() );
         assertEquals( "set", new BeanProperties( N.class ).iterator().next().getName() );
     }

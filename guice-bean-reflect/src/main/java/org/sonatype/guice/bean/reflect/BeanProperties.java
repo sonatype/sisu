@@ -112,7 +112,8 @@ public final class BeanProperties
                 }
 
                 // ignore zero/multi-argument methods, as they can't be setters
-                if ( member instanceof Method && ( (Method) member ).getParameterTypes().length == 1 )
+                if ( member instanceof Method && member.getName().startsWith( "set" )
+                    && ( (Method) member ).getParameterTypes().length == 1 )
                 {
                     nextProperty = new BeanPropertySetter<T>( (Method) member );
                     return true;
