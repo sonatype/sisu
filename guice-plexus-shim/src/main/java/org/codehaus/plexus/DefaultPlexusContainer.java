@@ -445,7 +445,7 @@ public final class DefaultPlexusContainer
         {
             return containerRealm.loadClass( role );
         }
-        catch ( final ClassNotFoundException e )
+        catch ( final Throwable e )
         {
             throw new TypeNotPresentException( role, e );
         }
