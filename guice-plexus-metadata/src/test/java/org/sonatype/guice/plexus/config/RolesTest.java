@@ -20,6 +20,7 @@ import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 
 import com.google.inject.Key;
+import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Jsr330;
 import com.google.inject.util.Types;
@@ -78,5 +79,28 @@ public class RolesTest
     private static Requirement requirement( final Class<?> role )
     {
         return new RequirementImpl( role, true );
+    }
+
+    public void testMissingComponentExceptions()
+    {
+        try
+        {
+            Roles.throwMissingComponentException( STRING_LITERAL, null );
+            fail( "Expected ProvisionException" );
+        }
+        catch ( final ProvisionException e )
+        {
+            System.out.println( e );
+        }
+
+        try
+        {
+            Roles.throwMissingComponentException( STRING_LITERAL, "foo" );
+            fail( "Expected ProvisionException" );
+        }
+        catch ( final ProvisionException e )
+        {
+            System.out.println( e );
+        }
     }
 }
