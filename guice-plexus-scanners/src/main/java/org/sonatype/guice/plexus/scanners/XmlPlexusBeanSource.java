@@ -357,6 +357,11 @@ public final class XmlPlexusBeanSource
         {
             // check the role actually exists
             clazz = space.loadClass( role );
+            if ( implementation.equals( role ) )
+            {
+                // also check constructor types
+                clazz.getDeclaredConstructors();
+            }
         }
         catch ( final Throwable e )
         {
