@@ -26,6 +26,8 @@ public final class ComponentDescriptor<T>
 
     private String instantiationStrategy;
 
+    private String description;
+
     private String implementation;
 
     private ClassRealm classRealm;
@@ -37,11 +39,6 @@ public final class ComponentDescriptor<T>
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
-
-    public String getDescription()
-    {
-        return null;
-    }
 
     public void setRole( final String role )
     {
@@ -58,6 +55,11 @@ public final class ComponentDescriptor<T>
         this.instantiationStrategy = instantiationStrategy;
     }
 
+    public void setDescription( final String description )
+    {
+        this.description = description;
+    }
+
     public String getRole()
     {
         return role;
@@ -71,6 +73,11 @@ public final class ComponentDescriptor<T>
     public String getInstantiationStrategy()
     {
         return instantiationStrategy;
+    }
+
+    public String getDescription()
+    {
+        return description;
     }
 
     @SuppressWarnings( "unchecked" )

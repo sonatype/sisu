@@ -61,6 +61,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 
@@ -251,6 +252,7 @@ public final class DefaultPlexusContainer
         final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
         descriptor.setRole( role );
         descriptor.setRoleHint( hint );
+        descriptor.setDescription( lifecycleManager.getDescription( role, hint ) );
         return descriptor;
     }
 
@@ -266,8 +268,10 @@ public final class DefaultPlexusContainer
         for ( final Entry<String, T> entry : locate( type ) )
         {
             final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
+            final String hint = entry.getKey();
             descriptor.setRole( role );
-            descriptor.setRoleHint( entry.getKey() );
+            descriptor.setRoleHint( hint );
+            descriptor.setDescription( lifecycleManager.getDescription( role, hint ) );
             tempList.add( descriptor );
         }
         return tempList;
@@ -303,8 +307,17 @@ public final class DefaultPlexusContainer
             }
         };
 
-        final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( null, space, contextMap );
-        typeLocator.add( injector.createChildInjector( new PlexusBindingModule( lifecycleManager, xmlSource, annSource ) ) );
+        try
+        {
+            final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( null, space, contextMap );
+            final Module bindings = new PlexusBindingModule( lifecycleManager, xmlSource, annSource );
+            typeLocator.add( injector.createChildInjector( bindings ) );
+        }
+        catch ( final Throwable e )
+        {
+            getLogger().warn( classRealm.toString(), e );
+        }
+
         return Collections.emptyList();
     }
 

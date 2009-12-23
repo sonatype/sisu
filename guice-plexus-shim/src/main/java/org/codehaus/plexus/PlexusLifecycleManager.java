@@ -13,8 +13,11 @@
 package org.codehaus.plexus;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.LoggerManager;
@@ -23,23 +26,20 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
-import org.sonatype.guice.plexus.binders.BeanWatcher;
+import org.sonatype.guice.plexus.binders.PlexusBeanManager;
+import org.sonatype.guice.plexus.config.Roles;
 
 import com.google.inject.Inject;
-import com.google.inject.matcher.AbstractMatcher;
 
 /**
- * {@link BeanWatcher} that watches for Plexus components requiring lifecycle management.
+ * {@link PlexusBeanManager} that manages Plexus components requiring lifecycle management.
  */
 final class PlexusLifecycleManager
-    extends AbstractMatcher<Class<?>>
-    implements BeanWatcher
+    implements PlexusBeanManager
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
-
-    private final List<Object> activeComponents = new ArrayList<Object>();
 
     @Inject
     private Context context;
@@ -47,52 +47,69 @@ final class PlexusLifecycleManager
     @Inject( optional = true )
     LoggerManager loggerManager = new ConsoleLoggerManager();
 
+    private final Map<String, String> descriptions = new HashMap<String, String>();
+
+    private final List<Object> activeComponents = new ArrayList<Object>();
+
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public boolean matches( final Class<?> clazz )
+    public String getDescription( final String role, final String hint )
+    {
+        return descriptions.get( Roles.canonicalRoleHint( role, hint ) );
+    }
+
+    public boolean manage( final Component component )
+    {
+        final String key = Roles.canonicalRoleHint( component.role().getName(), component.hint() );
+        return null == descriptions.put( key, component.description() );
+    }
+
+    public boolean manage( final Class<?> clazz )
     {
         return LogEnabled.class.isAssignableFrom( clazz ) || Contextualizable.class.isAssignableFrom( clazz )
             || Initializable.class.isAssignableFrom( clazz ) || Startable.class.isAssignableFrom( clazz )
             || Disposable.class.isAssignableFrom( clazz );
     }
 
-    public void afterInjection( final Object injectee )
+    public boolean manage( final Object bean )
     {
-        final String name = injectee.getClass().getName();
+        final String name = bean.getClass().getName();
 
         try
         {
             /*
              * Run through the startup phase of the standard plexus "personality"
              */
-            if ( injectee instanceof LogEnabled )
+            if ( bean instanceof LogEnabled )
             {
-                ( (LogEnabled) injectee ).enableLogging( loggerManager.getLogger( name ) );
+                ( (LogEnabled) bean ).enableLogging( loggerManager.getLogger( name ) );
             }
-            if ( injectee instanceof Contextualizable )
+            if ( bean instanceof Contextualizable )
             {
-                ( (Contextualizable) injectee ).contextualize( context );
+                ( (Contextualizable) bean ).contextualize( context );
             }
-            if ( injectee instanceof Initializable )
+            if ( bean instanceof Initializable )
             {
-                ( (Initializable) injectee ).initialize();
+                ( (Initializable) bean ).initialize();
             }
-            if ( injectee instanceof Startable )
+            if ( bean instanceof Startable )
             {
-                ( (Startable) injectee ).start();
-                activeComponents.add( injectee );
+                ( (Startable) bean ).start();
+                activeComponents.add( bean );
             }
-            else if ( injectee instanceof Disposable )
+            else if ( bean instanceof Disposable )
             {
-                activeComponents.add( injectee );
+                activeComponents.add( bean );
             }
         }
         catch ( final Exception e )
         {
-            loggerManager.getLogger( name ).error( "Problem starting: " + injectee, e );
+            loggerManager.getLogger( name ).error( "Problem starting: " + bean, e );
         }
+
+        return true;
     }
 
     public void dispose()
