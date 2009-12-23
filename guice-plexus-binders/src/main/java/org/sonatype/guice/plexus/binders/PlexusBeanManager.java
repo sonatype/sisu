@@ -12,13 +12,13 @@
  */
 package org.sonatype.guice.plexus.binders;
 
-import com.google.inject.matcher.Matcher;
-import com.google.inject.spi.InjectionListener;
+import org.codehaus.plexus.component.annotations.Component;
 
-/**
- * When {@link #matches(Class)} is true, send instances of that type to {@link #afterInjection(Object)}.
- */
-public interface BeanWatcher
-    extends Matcher<Class<?>>, InjectionListener<Object>
+public interface PlexusBeanManager
 {
+    boolean manage( final Component component );
+
+    boolean manage( final Class<?> clazz );
+
+    boolean manage( final Object bean );
 }

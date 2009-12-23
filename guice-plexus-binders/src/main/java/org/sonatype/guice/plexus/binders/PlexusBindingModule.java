@@ -15,36 +15,25 @@ package org.sonatype.guice.plexus.binders;
 import java.util.Map.Entry;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.sonatype.guice.bean.inject.BeanBinder;
 import org.sonatype.guice.bean.inject.BeanListener;
-import org.sonatype.guice.bean.inject.PropertyBinder;
 import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.config.Roles;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
-import com.google.inject.Module;
 import com.google.inject.Scopes;
-import com.google.inject.TypeLiteral;
 import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.matcher.Matchers;
-import com.google.inject.spi.TypeEncounter;
-import com.google.inject.spi.TypeListener;
 
-/**
- * Guice {@link Module} that registers a custom {@link TypeListener} to auto-bind Plexus beans.
- */
 public final class PlexusBindingModule
     extends AbstractModule
-    implements BeanBinder
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final BeanWatcher beanWatcher;
+    private final PlexusBeanManager manager;
 
     private final PlexusBeanSource[] sources;
 
@@ -52,15 +41,9 @@ public final class PlexusBindingModule
     // Constructors
     // ----------------------------------------------------------------------
 
-    /**
-     * Creates a Guice {@link Module} that auto-binds Plexus beans according to the given metadata sources.
-     * 
-     * @param beanWatcher An optional bean watcher
-     * @param sources The Plexus metadata sources
-     */
-    public PlexusBindingModule( final BeanWatcher beanWatcher, final PlexusBeanSource... sources )
+    public PlexusBindingModule( final PlexusBeanManager manager, final PlexusBeanSource... sources )
     {
-        this.beanWatcher = beanWatcher;
+        this.manager = manager;
         this.sources = sources.clone();
     }
 
@@ -75,35 +58,15 @@ public final class PlexusBindingModule
         {
             for ( final Entry<Component, DeferredClass<?>> e : source.findPlexusComponentBeans().entrySet() )
             {
-                registerPlexusBean( e.getKey(), e.getValue() );
+                final Component component = e.getKey();
+                if ( null == manager || manager.manage( component ) )
+                {
+                    bindPlexusComponent( component, e.getValue() );
+                }
             }
         }
 
-        // wire Plexus requirements/configurations into beans
-        bindListener( Matchers.any(), new BeanListener( this ) );
-    }
-
-    public <B> PropertyBinder bindBean( final TypeLiteral<B> type, final TypeEncounter<B> encounter )
-    {
-        final Class<?> clazz = type.getRawType();
-
-        // watchers are a way to mix-in behaviour, like lifecycles
-        if ( null != beanWatcher && beanWatcher.matches( clazz ) )
-        {
-            encounter.register( beanWatcher );
-        }
-
-        for ( final PlexusBeanSource source : sources )
-        {
-            // use first source that has metadata for the given implementation
-            final PlexusBeanMetadata metadata = source.getBeanMetadata( clazz );
-            if ( metadata != null )
-            {
-                return new PlexusPropertyBinder( encounter, metadata );
-            }
-        }
-
-        return null; // no need to auto-bind
+        bindListener( Matchers.any(), new BeanListener( new PlexusBeanBinder( manager, sources ) ) );
     }
 
     // ----------------------------------------------------------------------
@@ -111,7 +74,7 @@ public final class PlexusBindingModule
     // ----------------------------------------------------------------------
 
     @SuppressWarnings( "unchecked" )
-    private void registerPlexusBean( final Component component, final DeferredClass<?> clazz )
+    private void bindPlexusComponent( final Component component, final DeferredClass<?> clazz )
     {
         final Key roleKey = Roles.componentKey( component );
         final String strategy = component.instantiationStrategy();

@@ -82,11 +82,11 @@ public class PlexusRequirementTest
                         final Map<Component, DeferredClass<?>> componentMap =
                             new HashMap<Component, DeferredClass<?>>();
 
-                        componentMap.put( new ComponentImpl( Alpha.class, "", "" ), defer( AlphaImpl.class ) );
-                        componentMap.put( new ComponentImpl( Omega.class, "", "" ), defer( OmegaImpl.class ) );
+                        componentMap.put( new ComponentImpl( Alpha.class, "", "", "" ), defer( AlphaImpl.class ) );
+                        componentMap.put( new ComponentImpl( Omega.class, "", "", "" ), defer( OmegaImpl.class ) );
 
                         final ClassSpace space = new StrongClassSpace( TestCase.class.getClassLoader() );
-                        componentMap.put( new ComponentImpl( Gamma.class, "", "" ),
+                        componentMap.put( new ComponentImpl( Gamma.class, "", "", "" ),
                                           space.deferLoadClass( "some-broken-class" ) );
 
                         return componentMap;

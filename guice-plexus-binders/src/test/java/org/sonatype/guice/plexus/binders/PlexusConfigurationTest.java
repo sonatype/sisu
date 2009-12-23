@@ -27,7 +27,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.matcher.AbstractMatcher;
 
 public class PlexusConfigurationTest
     extends TestCase
@@ -38,20 +37,25 @@ public class PlexusConfigurationTest
     @Inject
     Injector injector;
 
-    static class ComponentWatcher
-        extends AbstractMatcher<Class<?>>
-        implements BeanWatcher
+    static class ComponentManager
+        implements PlexusBeanManager
     {
         static int SEEN;
 
-        public boolean matches( final Class<?> clazz )
+        public boolean manage( final Component component )
+        {
+            return true;
+        }
+
+        public boolean manage( final Class<?> clazz )
         {
             return ConfiguredComponent.class.isAssignableFrom( clazz );
         }
 
-        public void afterInjection( final Object injectee )
+        public boolean manage( final Object bean )
         {
             SEEN++;
+            return true;
         }
     }
 
@@ -69,7 +73,7 @@ public class PlexusConfigurationTest
                 bind( PlexusTypeLocator.class ).to( GuiceTypeLocator.class );
                 bind( PlexusTypeConverter.class ).to( XmlTypeConverter.class );
 
-                install( new PlexusBindingModule( new ComponentWatcher(), new AnnotatedPlexusBeanSource( null ) ) );
+                install( new PlexusBindingModule( new ComponentManager(), new AnnotatedPlexusBeanSource( null ) ) );
 
                 requestInjection( PlexusConfigurationTest.this );
             }
@@ -103,7 +107,7 @@ public class PlexusConfigurationTest
         assertEquals( Double.valueOf( 4.0 ), component.d );
         assertEquals( 5.0, component.e, 0 );
 
-        assertEquals( 1, ComponentWatcher.SEEN );
+        assertEquals( 1, ComponentManager.SEEN );
 
         final ConfiguredComponent jitComponent = injector.getInstance( ConfiguredComponent.class );
 
@@ -113,6 +117,6 @@ public class PlexusConfigurationTest
         assertEquals( Double.valueOf( 4.0 ), jitComponent.d );
         assertEquals( 5.0, jitComponent.e, 0 );
 
-        assertEquals( 2, ComponentWatcher.SEEN );
+        assertEquals( 2, ComponentManager.SEEN );
     }
 }

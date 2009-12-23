@@ -12,8 +12,10 @@
  */
 package org.sonatype.guice.plexus.binders;
 
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Named;
 
@@ -68,11 +70,39 @@ public class PlexusBeanMetadataTest
                 bind( PlexusTypeConverter.class ).to( XmlTypeConverter.class );
 
                 bindConstant().annotatedWith( Jsr330.named( "KEY1" ) ).to( "REQUIREMENT" );
+
+                final PlexusBeanManager manager = new TestBeanManager();
+
+                install( new PlexusBindingModule( null, new BeanSourceA() ) );
+                install( new PlexusBindingModule( manager, new BeanSourceB() ) );
+                install( new PlexusBindingModule( manager, new BeanSourceB() ) );
+                install( new PlexusBindingModule( null, new BeanSourceC() ) );
                 install( new PlexusBindingModule( null, new CustomizedBeanSource() ) );
 
                 requestInjection( PlexusBeanMetadataTest.this );
             }
         } );
+    }
+
+    static class TestBeanManager
+        implements PlexusBeanManager
+    {
+        private final Set<Component> seen = new HashSet<Component>();
+
+        public boolean manage( final Component component )
+        {
+            return !seen.add( component );
+        }
+
+        public boolean manage( final Class<?> clazz )
+        {
+            return false;
+        }
+
+        public boolean manage( final Object bean )
+        {
+            return false;
+        }
     }
 
     interface Bean
@@ -105,18 +135,60 @@ public class PlexusBeanMetadataTest
         String leftovers;
     }
 
+    static class BeanSourceA
+        implements PlexusBeanSource
+    {
+        public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
+        {
+            return Collections.<Component, DeferredClass<?>> singletonMap( new ComponentImpl( Bean.class, "2",
+                                                                                              "load-on-start", "A" ),
+                                                                           defer( DefaultBean1.class ) );
+        }
+
+        public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
+        {
+            return null;
+        }
+    }
+
+    static class BeanSourceB
+        implements PlexusBeanSource
+    {
+        public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
+        {
+            return Collections.<Component, DeferredClass<?>> singletonMap( new ComponentImpl( DefaultBean2.class, "",
+                                                                                              "per-lookup", "B" ),
+                                                                           defer( DefaultBean2.class ) );
+        }
+
+        public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
+        {
+            return null;
+        }
+    }
+
+    static class BeanSourceC
+        implements PlexusBeanSource
+    {
+        public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
+        {
+            return Collections.<Component, DeferredClass<?>> singletonMap( new ComponentImpl( DefaultBean2.class, "2",
+                                                                                              "per-lookup", "C" ),
+                                                                           defer( DefaultBean2.class ) );
+        }
+
+        public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
+        {
+            return null;
+        }
+    }
+
     static class CustomizedBeanSource
         implements PlexusBeanSource
     {
         public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
         {
-            final Map<Component, DeferredClass<?>> componentMap = new HashMap<Component, DeferredClass<?>>();
-
-            componentMap.put( new ComponentImpl( Bean.class, "2", "load-on-start" ), defer( DefaultBean1.class ) );
-            componentMap.put( new ComponentImpl( DefaultBean2.class, "", "per-lookup" ), defer( DefaultBean2.class ) );
-            componentMap.put( new ComponentImpl( DefaultBean2.class, "2", "per-lookup" ), defer( DefaultBean2.class ) );
-
-            return componentMap;
+            return Collections.emptyMap();
         }
 
         public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
