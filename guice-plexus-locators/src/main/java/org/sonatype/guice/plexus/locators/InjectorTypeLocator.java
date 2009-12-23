@@ -120,7 +120,7 @@ final class InjectorTypeLocator
         }
     }
 
-    static final class MissingEntry<T>
+    private static final class MissingEntry<T>
         implements Entry<String, T>
     {
         private final TypeLiteral<T> type;

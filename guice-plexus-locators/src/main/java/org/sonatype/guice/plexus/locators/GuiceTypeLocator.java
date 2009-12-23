@@ -22,7 +22,6 @@ import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
 import org.sonatype.guice.plexus.config.PlexusTypeLocator;
-import org.sonatype.guice.plexus.locators.InjectorTypeLocator.MissingEntry;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -87,9 +86,16 @@ public final class GuiceTypeLocator
                         while ( hasNext() )
                         {
                             final Entry<String, T> entry = e.next();
-                            if ( l.hasNext() && entry instanceof MissingEntry<?> ) // TODO: round-robin checks
+                            if ( l.hasNext() ) // TODO: round-robin checks for named lists/maps
                             {
-                                continue;
+                                try
+                                {
+                                    entry.getValue();
+                                }
+                                catch ( final RuntimeException re )
+                                {
+                                    continue; // TODO: is it always OK to skip broken entries?
+                                }
                             }
                             return entry;
                         }

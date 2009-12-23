@@ -29,7 +29,6 @@ import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
-import org.codehaus.plexus.component.composition.CycleDetectedInComponentGraphException;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.context.Context;
@@ -278,10 +277,8 @@ public final class DefaultPlexusContainer
     }
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
-        throws CycleDetectedInComponentGraphException
     {
         // TODO: do we need to do anything here?
-        getLogger().warn( "TODO DefaultPlexusContainer.addComponentDescriptor(" + descriptor + ")" );
     }
 
     public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm classRealm )
