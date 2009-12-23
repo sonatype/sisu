@@ -36,6 +36,9 @@
       <implementation>
         org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$DebugBean
       </implementation>
+      <description>
+        For debugging
+      </description>
     </component>
   </components>
 

@@ -21,6 +21,9 @@
       <role-hint>
         debug
       </role-hint>
+      <description>
+        For debugging
+      </description>
       <implementation>
         org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$DebugBean
       </implementation>

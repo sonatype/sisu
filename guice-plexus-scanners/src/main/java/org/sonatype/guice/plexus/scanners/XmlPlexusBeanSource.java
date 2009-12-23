@@ -293,8 +293,9 @@ public final class XmlPlexusBeanSource
     {
         String role = null;
         String hint = "";
-
         String instantiationStrategy = SINGLETON;
+        String description = "";
+
         String implementation = null;
 
         final Map<String, Requirement> requirementMap = new HashMap<String, Requirement>();
@@ -330,6 +331,10 @@ public final class XmlPlexusBeanSource
             else if ( "instantiation-strategy".equals( name ) )
             {
                 instantiationStrategy = TEXT( parser ).intern();
+            }
+            else if ( "description".equals( name ) )
+            {
+                description = TEXT( parser );
             }
             else if ( "implementation".equals( name ) )
             {
@@ -394,8 +399,8 @@ public final class XmlPlexusBeanSource
             strategies.put( roleHintKey, instantiationStrategy );
         }
 
-        final Component component = new ComponentImpl( clazz, Hints.canonicalHint( hint ), instantiationStrategy );
-        components.put( component, space.deferLoadClass( implementation ) );
+        components.put( new ComponentImpl( clazz, Hints.canonicalHint( hint ), instantiationStrategy, description ),
+                        space.deferLoadClass( implementation ) );
     }
 
     /**

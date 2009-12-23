@@ -115,10 +115,10 @@ public class XmlPlexusBeanSourceTest
 
         assertEquals( 2, componentMap.size() );
 
-        final Component component1 = new ComponentImpl( DefaultBean.class, Hints.DEFAULT_HINT, "load-on-start" );
+        final Component component1 = new ComponentImpl( DefaultBean.class, Hints.DEFAULT_HINT, "load-on-start", "" );
         assertEquals( DefaultBean.class, componentMap.get( component1 ).get() );
 
-        final Component component2 = new ComponentImpl( Bean.class, "debug", "load-on-start" );
+        final Component component2 = new ComponentImpl( Bean.class, "debug", "load-on-start", "For debugging" );
         assertEquals( DebugBean.class, componentMap.get( component2 ).get() );
     }
 
@@ -178,13 +178,13 @@ public class XmlPlexusBeanSourceTest
 
         assertEquals( 3, componentMap.size() );
 
-        final Component component1 = new ComponentImpl( DefaultBean.class, Hints.DEFAULT_HINT, "per-lookup" );
+        final Component component1 = new ComponentImpl( DefaultBean.class, Hints.DEFAULT_HINT, "per-lookup", "" );
         assertEquals( DefaultBean.class, componentMap.get( component1 ).get() );
 
-        final Component component2 = new ComponentImpl( Bean.class, "debug", "singleton" );
+        final Component component2 = new ComponentImpl( Bean.class, "debug", "singleton", "For debugging" );
         assertEquals( DebugBean.class, componentMap.get( component2 ).get() );
 
-        final Component component3 = new ComponentImpl( Bean.class, Hints.DEFAULT_HINT, "singleton" );
+        final Component component3 = new ComponentImpl( Bean.class, Hints.DEFAULT_HINT, "singleton", "" );
         assertEquals( AnotherBean.class, componentMap.get( component3 ).get() );
 
         final PlexusBeanMetadata metadata1 = source.getBeanMetadata( DefaultBean.class );
