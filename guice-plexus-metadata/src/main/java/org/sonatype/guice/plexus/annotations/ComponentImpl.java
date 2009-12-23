@@ -27,7 +27,7 @@ public final class ComponentImpl
     // ----------------------------------------------------------------------
 
     // computed hashCode representing hard-coded attributes
-    private static final int HASH_CODE_OFFSET = 0x69E113F9;
+    private static final int HASH_CODE_OFFSET = 0x685499F5;
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -39,13 +39,16 @@ public final class ComponentImpl
 
     private final String instantiationStrategy;
 
+    private final String description;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    public ComponentImpl( final Class<?> role, final String hint, final String instantiationStrategy )
+    public ComponentImpl( final Class<?> role, final String hint, final String instantiationStrategy,
+                          final String description )
     {
-        if ( null == role || null == hint || null == instantiationStrategy )
+        if ( null == role || null == hint || null == instantiationStrategy || null == description )
         {
             throw new IllegalArgumentException( "@Component cannot contain null values" );
         }
@@ -53,6 +56,7 @@ public final class ComponentImpl
         this.role = role;
         this.hint = hint;
         this.instantiationStrategy = instantiationStrategy;
+        this.description = description;
     }
 
     // ----------------------------------------------------------------------
@@ -74,6 +78,11 @@ public final class ComponentImpl
         return instantiationStrategy;
     }
 
+    public String description()
+    {
+        return description;
+    }
+
     public boolean isolatedRealm()
     {
         return false;
@@ -90,11 +99,6 @@ public final class ComponentImpl
     }
 
     public String configurator()
-    {
-        return "";
-    }
-
-    public String description()
     {
         return "";
     }
@@ -141,12 +145,13 @@ public final class ComponentImpl
             final Component cmp = (Component) rhs;
 
             if ( role.equals( cmp.role() ) && hint.equals( cmp.hint() )
-                && instantiationStrategy.equals( cmp.instantiationStrategy() ) )
+                && instantiationStrategy.equals( cmp.instantiationStrategy() )
+                && description.equals( cmp.description() ) )
             {
                 // optimization: we hard-code all these attributes to be empty
                 final String hardCodedAttributes =
-                    cmp.alias() + cmp.composer() + cmp.configurator() + cmp.description() + cmp.factory()
-                        + cmp.lifecycleHandler() + cmp.profile() + cmp.type() + cmp.version();
+                    cmp.alias() + cmp.composer() + cmp.configurator() + cmp.factory() + cmp.lifecycleHandler()
+                        + cmp.profile() + cmp.type() + cmp.version();
 
                 return hardCodedAttributes.length() == 0 && !cmp.isolatedRealm();
             }
@@ -160,15 +165,16 @@ public final class ComponentImpl
     {
         return HASH_CODE_OFFSET + ( 127 * "role".hashCode() ^ role.hashCode() )
             + ( 127 * "hint".hashCode() ^ hint.hashCode() )
-            + ( 127 * "instantiationStrategy".hashCode() ^ instantiationStrategy.hashCode() );
+            + ( 127 * "instantiationStrategy".hashCode() ^ instantiationStrategy.hashCode() )
+            + ( 127 * "description".hashCode() ^ description.hashCode() );
     }
 
     @Override
     public String toString()
     {
-        return String.format( "@%s(isolatedRealm=false, composer=, configurator=, alias=, description=, "
+        return String.format( "@%s(isolatedRealm=false, composer=, configurator=, alias=, description=%s, "
             + "instantiationStrategy=%s, factory=, hint=%s, type=, lifecycleHandler=, version=, "
-            + "profile=, role=%s)", Component.class.getName(), instantiationStrategy, hint, role );
+            + "profile=, role=%s)", Component.class.getName(), description, instantiationStrategy, hint, role );
     }
 
     public Class<? extends Annotation> annotationType()

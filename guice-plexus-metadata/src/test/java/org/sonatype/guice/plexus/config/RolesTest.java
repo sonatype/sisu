@@ -73,7 +73,7 @@ public class RolesTest
 
     private static Component component( final String hint )
     {
-        return new ComponentImpl( Object.class, hint, "per-lookup" );
+        return new ComponentImpl( Object.class, hint, "per-lookup", "" );
     }
 
     private static Requirement requirement( final Class<?> role )

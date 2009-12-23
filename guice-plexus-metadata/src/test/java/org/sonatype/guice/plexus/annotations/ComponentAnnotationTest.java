@@ -38,6 +38,12 @@ public class ComponentAnnotationTest
     {
     }
 
+    @Component( role = A.class, description = "Something" )
+    static class DescribedA
+        implements A
+    {
+    }
+
     @Component( role = A.class, instantiationStrategy = "per-lookup" )
     static class PrototypeA
         implements A
@@ -74,9 +80,11 @@ public class ComponentAnnotationTest
         checkBehaviour( "NamedA" );
         checkBehaviour( "PrototypeA" );
         checkBehaviour( "NamedPrototypeA" );
+        checkBehaviour( "DescribedA" );
 
         assertFalse( replicate( getComponent( "DefaultA" ) ).equals( getComponent( "NamedA" ) ) );
         assertFalse( replicate( getComponent( "DefaultA" ) ).equals( getComponent( "PrototypeA" ) ) );
+        assertFalse( replicate( getComponent( "DefaultA" ) ).equals( getComponent( "DescribedA" ) ) );
         assertFalse( replicate( getComponent( "Simple" ) ).equals( getComponent( "DefaultA" ) ) );
         assertFalse( replicate( getComponent( "Simple" ) ).equals( getComponent( "Simple2" ) ) );
         assertFalse( replicate( getComponent( "Simple" ) ).equals( getComponent( "Simple3" ) ) );
@@ -109,21 +117,23 @@ public class ComponentAnnotationTest
 
     private static Component replicate( final Component orig )
     {
-        return new ComponentImpl( orig.role(), orig.hint(), orig.instantiationStrategy() );
+        return new ComponentImpl( orig.role(), orig.hint(), orig.instantiationStrategy(), orig.description() );
     }
 
     public void testNullChecks()
     {
-        checkNullNotAllowed( null, "", "" );
-        checkNullNotAllowed( Object.class, null, "" );
-        checkNullNotAllowed( Object.class, "", null );
+        checkNullNotAllowed( null, "", "", "" );
+        checkNullNotAllowed( Object.class, null, "", "" );
+        checkNullNotAllowed( Object.class, "", null, "" );
+        checkNullNotAllowed( Object.class, "", "", null );
     }
 
-    private static void checkNullNotAllowed( final Class<?> role, final String hint, final String instantationStrategy )
+    private static void checkNullNotAllowed( final Class<?> role, final String hint, final String instantationStrategy,
+                                             final String description )
     {
         try
         {
-            new ComponentImpl( role, hint, instantationStrategy );
+            new ComponentImpl( role, hint, instantationStrategy, description );
             fail( "Expected IllegalArgumentException" );
         }
         catch ( final IllegalArgumentException e )
