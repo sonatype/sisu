@@ -14,8 +14,10 @@ package org.codehaus.plexus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.context.Context;
@@ -49,6 +51,8 @@ final class PlexusLifecycleManager
 
     private final Map<String, String> descriptions = new HashMap<String, String>();
 
+    private final Set<String> managedTypes = new HashSet<String>();
+
     private final List<Object> activeComponents = new ArrayList<Object>();
 
     // ----------------------------------------------------------------------
@@ -68,9 +72,13 @@ final class PlexusLifecycleManager
 
     public boolean manage( final Class<?> clazz )
     {
-        return LogEnabled.class.isAssignableFrom( clazz ) || Contextualizable.class.isAssignableFrom( clazz )
+        if ( LogEnabled.class.isAssignableFrom( clazz ) || Contextualizable.class.isAssignableFrom( clazz )
             || Initializable.class.isAssignableFrom( clazz ) || Startable.class.isAssignableFrom( clazz )
-            || Disposable.class.isAssignableFrom( clazz );
+            || Disposable.class.isAssignableFrom( clazz ) )
+        {
+            return managedTypes.add( clazz.getName() );
+        }
+        return false;
     }
 
     public boolean manage( final Object bean )
