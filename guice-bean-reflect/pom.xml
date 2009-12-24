@@ -23,7 +23,6 @@
     <dependency>
       <groupId>org.ops4j.peaberry.dependencies</groupId>
       <artifactId>javax.inject</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 

@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.bean.reflect;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -96,6 +97,15 @@ public final class BeanProperties
             while ( i.hasNext() )
             {
                 final Member member = i.next();
+
+                // ignore members with @Inject as they will have been injected by Guice
+                final AnnotatedElement annotatedElement = (AnnotatedElement) member;
+                if ( annotatedElement.isAnnotationPresent( com.google.inject.Inject.class )
+                    || annotatedElement.isAnnotationPresent( javax.inject.Inject.class ) )
+                {
+                    continue;
+                }
+
                 final int modifiers = member.getModifiers();
 
                 // statics can't be properties and synthetics are just noise
