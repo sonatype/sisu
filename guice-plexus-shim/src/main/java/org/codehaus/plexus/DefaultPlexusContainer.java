@@ -278,7 +278,7 @@ public final class DefaultPlexusContainer
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
     {
-        // TODO: do we need to do anything here?
+        // TODO: augment type lookup results
     }
 
     public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm classRealm )
@@ -315,7 +315,8 @@ public final class DefaultPlexusContainer
             getLogger().warn( classRealm.toString(), e );
         }
 
-        return Collections.emptyList();
+        return Collections.emptyList(); // don't need to return anything at the moment
+
     }
 
     // ----------------------------------------------------------------------
@@ -341,8 +342,8 @@ public final class DefaultPlexusContainer
 
     public void removeComponentRealm( final ClassRealm classRealm )
     {
-        // TODO: do we need to do anything here?
-        getLogger().warn( "TODO DefaultPlexusContainer.removeComponentRealm(" + classRealm + ")" );
+        // TODO: clear type lookup results, dispose of any active components
+        getLogger().warn( "TODO removeComponentRealm(" + classRealm + ")" );
     }
 
     // ----------------------------------------------------------------------
@@ -351,8 +352,7 @@ public final class DefaultPlexusContainer
 
     public void release( final Object component )
     {
-        // TODO: do we need to do anything here?
-        getLogger().warn( "TODO DefaultPlexusContainer.release(" + component + ")" );
+        lifecycleManager.dispose( component );
     }
 
     public void dispose()

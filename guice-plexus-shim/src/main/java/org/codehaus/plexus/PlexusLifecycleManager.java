@@ -120,35 +120,44 @@ final class PlexusLifecycleManager
         return true;
     }
 
-    public void dispose()
+    // ----------------------------------------------------------------------
+    // Shared implementation methods
+    // ----------------------------------------------------------------------
+
+    void dispose( final Object bean )
+    {
+        final String name = bean.getClass().getName();
+        activeComponents.remove( bean );
+
+        try
+        {
+            /*
+             * Run through the shutdown phase of the standard plexus "personality"
+             */
+            if ( bean instanceof Startable )
+            {
+                ( (Startable) bean ).stop();
+            }
+            if ( bean instanceof Disposable )
+            {
+                ( (Disposable) bean ).dispose();
+            }
+        }
+        catch ( final Throwable e )
+        {
+            loggerManager.getLogger( name ).error( "Problem stopping: " + bean, e );
+        }
+        finally
+        {
+            loggerManager.returnLogger( name );
+        }
+    }
+
+    void dispose()
     {
         while ( !activeComponents.isEmpty() )
         {
-            final Object injectee = activeComponents.remove( 0 );
-            final String name = injectee.getClass().getName();
-
-            try
-            {
-                /*
-                 * Run through the shutdown phase of the standard plexus "personality"
-                 */
-                if ( injectee instanceof Startable )
-                {
-                    ( (Startable) injectee ).stop();
-                }
-                if ( injectee instanceof Disposable )
-                {
-                    ( (Disposable) injectee ).dispose();
-                }
-            }
-            catch ( final Throwable e )
-            {
-                loggerManager.getLogger( name ).error( "Problem stopping: " + injectee, e );
-            }
-            finally
-            {
-                loggerManager.returnLogger( name );
-            }
+            dispose( activeComponents.get( 0 ) );
         }
     }
 }
