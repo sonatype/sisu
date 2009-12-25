@@ -85,8 +85,6 @@ public final class DefaultPlexusContainer
 
     private final Map<?, ?> contextMap;
 
-    private final PlexusBeanSource annSource;
-
     private final ClassRealm containerRealm;
 
     final PlexusLifecycleManager lifecycleManager;
@@ -110,12 +108,12 @@ public final class DefaultPlexusContainer
         context.put( PlexusConstants.PLEXUS_KEY, this );
         contextMap = new ContextMapAdapter( context );
 
-        annSource = new AnnotatedPlexusBeanSource( contextMap );
         containerRealm = lookupContainerRealm( configuration );
         lifecycleManager = new PlexusLifecycleManager();
 
         final ClassSpace space = new StrongClassSpace( containerRealm );
         final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( configurationUrl, space, contextMap );
+        final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( space, contextMap );
 
         Guice.createInjector( new AbstractModule()
         {
@@ -307,6 +305,7 @@ public final class DefaultPlexusContainer
         try
         {
             final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( null, space, contextMap );
+            final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( space, contextMap );
             final Module bindings = new PlexusBindingModule( lifecycleManager, xmlSource, annSource );
             typeLocator.add( injector.createChildInjector( bindings ) );
         }

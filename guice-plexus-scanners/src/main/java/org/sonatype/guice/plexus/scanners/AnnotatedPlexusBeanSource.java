@@ -20,6 +20,7 @@ import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.util.StringUtils;
 import org.sonatype.guice.bean.reflect.BeanProperty;
+import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
@@ -35,14 +36,17 @@ public final class AnnotatedPlexusBeanSource
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    private final ClassSpace space;
+
     private final Map<?, ?> variables;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    public AnnotatedPlexusBeanSource( final Map<?, ?> variables )
+    public AnnotatedPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables )
     {
+        this.space = space;
         this.variables = variables;
     }
 
@@ -57,7 +61,12 @@ public final class AnnotatedPlexusBeanSource
 
     public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
     {
-        return Collections.emptyMap();
+        if ( null == space )
+        {
+            return Collections.emptyMap();
+        }
+
+        return Collections.emptyMap(); // TODO
     }
 
     public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )

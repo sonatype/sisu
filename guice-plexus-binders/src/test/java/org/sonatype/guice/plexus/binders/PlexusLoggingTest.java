@@ -45,7 +45,7 @@ public class PlexusLoggingTest
                 bind( PlexusTypeLocator.class ).to( GuiceTypeLocator.class );
                 bind( PlexusTypeConverter.class ).to( XmlTypeConverter.class );
 
-                install( new PlexusBindingModule( null, new AnnotatedPlexusBeanSource( null ) ) );
+                install( new PlexusBindingModule( null, new AnnotatedPlexusBeanSource( null, null ) ) );
 
                 requestInjection( PlexusLoggingTest.this );
             }
