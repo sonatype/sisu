@@ -73,7 +73,7 @@ public class PlexusConfigurationTest
                 bind( PlexusTypeLocator.class ).to( GuiceTypeLocator.class );
                 bind( PlexusTypeConverter.class ).to( XmlTypeConverter.class );
 
-                install( new PlexusBindingModule( new ComponentManager(), new AnnotatedPlexusBeanSource( null ) ) );
+                install( new PlexusBindingModule( new ComponentManager(), new AnnotatedPlexusBeanSource( null, null ) ) );
 
                 requestInjection( PlexusConfigurationTest.this );
             }

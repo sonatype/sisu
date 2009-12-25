@@ -77,8 +77,6 @@ public final class DefaultPlexusContainer
 
     private static final String DEFAULT_REALM_NAME = "plexus.core";
 
-    private static final String PLUGIN_XML_PATH = "META-INF/nexus/plugin.xml";
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -115,7 +113,7 @@ public final class DefaultPlexusContainer
 
         final ClassSpace space = new StrongClassSpace( containerRealm );
         final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( configurationUrl, space, contextMap );
-        final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( contextMap );
+        final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( null, contextMap );
 
         Guice.createInjector( new AbstractModule()
         {
@@ -285,6 +283,8 @@ public final class DefaultPlexusContainer
     {
         final ClassSpace space = new ClassSpace()
         {
+            final ClassLoader localLoader = URLClassLoader.newInstance( classRealm.getURLs() );
+
             public Class<?> loadClass( final String name )
                 throws ClassNotFoundException
             {
@@ -294,7 +294,7 @@ public final class DefaultPlexusContainer
             public Enumeration<URL> getResources( final String name )
                 throws IOException
             {
-                return new URLClassLoader( classRealm.getURLs() ).getResources( name );
+                return localLoader.getResources( name );
             }
 
             @SuppressWarnings( "unchecked" )
@@ -306,9 +306,8 @@ public final class DefaultPlexusContainer
 
         try
         {
-            final URL pluginUrl = classRealm.getResource( PLUGIN_XML_PATH );
             final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( null, space, contextMap );
-            final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( pluginUrl, space, contextMap );
+            final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( space, contextMap );
             final Module bindings = new PlexusBindingModule( lifecycleManager, xmlSource, annSource );
             typeLocator.add( injector.createChildInjector( bindings ) );
         }
