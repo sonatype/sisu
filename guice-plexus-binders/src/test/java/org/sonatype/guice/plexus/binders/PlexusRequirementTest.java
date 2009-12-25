@@ -96,7 +96,7 @@ public class PlexusRequirementTest
                     {
                         return null;
                     }
-                }, new AnnotatedPlexusBeanSource( null, null ) ) );
+                }, new AnnotatedPlexusBeanSource( null ) ) );
 
                 requestInjection( PlexusRequirementTest.this );
             }

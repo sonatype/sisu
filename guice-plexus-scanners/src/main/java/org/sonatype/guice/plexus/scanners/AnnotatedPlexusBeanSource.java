@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.plexus.scanners;
 
+import java.net.URL;
 import java.util.Collections;
 import java.util.Map;
 
@@ -36,6 +37,8 @@ public final class AnnotatedPlexusBeanSource
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    private final URL pluginDotXml;
+
     private final ClassSpace space;
 
     private final Map<?, ?> variables;
@@ -44,8 +47,14 @@ public final class AnnotatedPlexusBeanSource
     // Constructors
     // ----------------------------------------------------------------------
 
-    public AnnotatedPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables )
+    public AnnotatedPlexusBeanSource( final Map<?, ?> variables )
     {
+        this( null, null, variables );
+    }
+
+    public AnnotatedPlexusBeanSource( final URL pluginDotXml, final ClassSpace space, final Map<?, ?> variables )
+    {
+        this.pluginDotXml = pluginDotXml;
         this.space = space;
         this.variables = variables;
     }
@@ -65,6 +74,8 @@ public final class AnnotatedPlexusBeanSource
         {
             return Collections.emptyMap();
         }
+
+        System.out.println( "TODO: process " + pluginDotXml ); // TODO
 
         return Collections.emptyMap(); // TODO
     }
