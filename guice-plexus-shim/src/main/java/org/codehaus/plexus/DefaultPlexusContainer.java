@@ -276,14 +276,15 @@ public final class DefaultPlexusContainer
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
     {
-        // TODO: augment type lookup results
+        // can safely ignore this, we get these descriptors via another route
     }
 
     public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm classRealm )
     {
         final ClassSpace space = new ClassSpace()
         {
-            final ClassLoader localLoader = URLClassLoader.newInstance( classRealm.getURLs() );
+            // TODO: remove non-managed dependencies from the search path passed to the scanners
+            final ClassLoader localLoader = URLClassLoader.newInstance( classRealm.getURLs(), null );
 
             public Class<?> loadClass( final String name )
                 throws ClassNotFoundException

@@ -30,7 +30,7 @@ public class DeferredClassTest
     public void testStrongDeferredClass()
         throws IOException
     {
-        ClassLoader loader = new URLClassLoader( new URL[] { new File( "target/test-classes" ).toURL() }, null );
+        ClassLoader loader = URLClassLoader.newInstance( new URL[] { new File( "target/test-classes" ).toURL() }, null );
 
         final String clazzName = Dummy.class.getName();
         final ClassSpace space = new StrongClassSpace( loader );
@@ -83,7 +83,7 @@ public class DeferredClassTest
     public void testWeakDeferredClass()
         throws IOException
     {
-        ClassLoader loader = new URLClassLoader( new URL[] { new File( "target/test-classes" ).toURL() }, null );
+        ClassLoader loader = URLClassLoader.newInstance( new URL[] { new File( "target/test-classes" ).toURL() }, null );
 
         final String clazzName = Dummy.class.getName();
         final ClassSpace space = new WeakClassSpace( loader );
