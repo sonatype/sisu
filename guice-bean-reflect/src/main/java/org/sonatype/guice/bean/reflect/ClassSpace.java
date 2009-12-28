@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 
+import org.osgi.framework.Bundle;
+
 /**
  * Represents an abstract collection of related classes and resources.
  */
@@ -41,12 +43,24 @@ public interface ClassSpace
     DeferredClass<?> deferLoadClass( String name );
 
     /**
-     * Queries the class space for resources matching the given name.
+     * Queries the surrounding class space for resources matching the given name.
      * 
      * @param name The resource name
-     * @return Series of URLs
+     * @return Sequence of URLs, one for each matching resource
      * @see ClassLoader#getResources(String)
      */
     Enumeration<URL> getResources( String name )
+        throws IOException;
+
+    /**
+     * Queries local class space content for entries matching the given pattern.
+     * 
+     * @param path The containing directory
+     * @param glob The filename glob pattern
+     * @param recurse Include sub-directories?
+     * @return Sequence of URLs, one for each matching entry
+     * @see Bundle#findEntries(String, String, boolean)
+     */
+    Enumeration<URL> findEntries( String path, String glob, boolean recurse )
         throws IOException;
 }

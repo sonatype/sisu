@@ -12,60 +12,58 @@
  */
 package org.sonatype.guice.bean.reflect;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
+import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
+
+import org.osgi.framework.Bundle;
 
 /**
- * Weak {@link DeferredClass} representing a named class from a {@link ClassSpace}.
+ * {@link ClassSpace} backed by a strongly-referenced {@link Bundle}.
  */
-public final class WeakDeferredClass<T>
-    implements DeferredClass<T>
+public final class BundleClassSpace
+    implements ClassSpace
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final ClassSpace space;
-
-    private final String name;
-
-    private Reference<Class<T>> clazzRef;
+    private final Bundle bundle;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    public WeakDeferredClass( final ClassSpace space, final String name )
+    public BundleClassSpace( final Bundle bundle )
     {
-        this.space = space;
-        this.name = name;
+        this.bundle = bundle;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
-    public Class<T> get()
+    public Class<?> loadClass( final String name )
+        throws ClassNotFoundException
     {
-        Class clazz = null != clazzRef ? clazzRef.get() : null;
-        if ( null == clazz )
-        {
-            try
-            {
-                clazz = space.loadClass( name );
-                clazzRef = new WeakReference( clazz );
-            }
-            catch ( final Throwable e )
-            {
-                throw new TypeNotPresentException( name, e );
-            }
-        }
-        return clazz;
+        return bundle.loadClass( name );
     }
 
-    public String getName()
+    public DeferredClass<?> deferLoadClass( final String name )
     {
-        return name;
+        return new StrongDeferredClass<Object>( this, name );
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public Enumeration<URL> getResources( final String name )
+        throws IOException
+    {
+        return bundle.getResources( name );
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
+    {
+        return bundle.findEntries( path, glob, recurse );
     }
 }

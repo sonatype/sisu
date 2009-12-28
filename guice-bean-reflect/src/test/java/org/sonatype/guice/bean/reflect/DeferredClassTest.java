@@ -13,139 +13,50 @@
 package org.sonatype.guice.bean.reflect;
 
 import java.io.File;
-import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Enumeration;
 
 import junit.framework.TestCase;
 
 public class DeferredClassTest
     extends TestCase
 {
+    URLClassLoader testLoader;
+
+    @Override
+    protected void setUp()
+        throws MalformedURLException
+    {
+        testLoader = URLClassLoader.newInstance( new URL[] { new File( "target/test-classes" ).toURL() }, null );
+    }
+
     private static class Dummy
     {
     }
 
     public void testStrongDeferredClass()
-        throws IOException
     {
-        ClassLoader loader = URLClassLoader.newInstance( new URL[] { new File( "target/test-classes" ).toURL() }, null );
-
         final String clazzName = Dummy.class.getName();
-        final ClassSpace space = new StrongClassSpace( loader );
+        final ClassSpace space = new URLClassSpace( testLoader );
         final DeferredClass<?> clazz = space.deferLoadClass( clazzName );
 
+        assertEquals( clazzName, clazz.getName() );
         assertEquals( clazzName, clazz.get().getName() );
         assertFalse( Dummy.class.equals( clazz.get() ) );
-
-        final String resourceName = clazzName.replace( '.', '/' ) + ".class";
-        Enumeration<URL> resources = space.getResources( resourceName );
-        assertEquals( resourceName, resources.nextElement().getPath().replaceFirst( ".*/test-classes/", "" ) );
-        assertFalse( resources.hasMoreElements() );
-
-        // clear refs
-        resources = null;
-        loader = null;
-
-        System.gc();
-        new StringBuilder( 1024 );
-        System.gc();
-        new StringBuilder( 1024 );
-        System.gc();
-        new StringBuilder( 1024 );
-        System.gc();
-        new StringBuilder( 1024 );
-        System.gc();
-
-        // still there
-        clazz.get();
-
-        // still there
-        space.getResources( resourceName );
-
-        assertEquals( clazzName, clazz.getName() );
     }
 
     public void testMissingStrongDeferredClass()
     {
         try
         {
-            final ClassSpace space = new StrongClassSpace( getClass().getClassLoader() );
+            final ClassSpace space = new URLClassSpace( testLoader );
             new StrongDeferredClass<Object>( space, "unknown-class" ).get();
             fail( "Expected TypeNotPresentException" );
         }
         catch ( final TypeNotPresentException e )
         {
-        }
-    }
-
-    public void testWeakDeferredClass()
-        throws IOException
-    {
-        ClassLoader loader = URLClassLoader.newInstance( new URL[] { new File( "target/test-classes" ).toURL() }, null );
-
-        final String clazzName = Dummy.class.getName();
-        final ClassSpace space = new WeakClassSpace( loader );
-        final DeferredClass<?> clazz = space.deferLoadClass( clazzName );
-
-        assertEquals( clazzName, clazz.get().getName() );
-        assertFalse( Dummy.class.equals( clazz.get() ) );
-
-        final String resourceName = clazzName.replace( '.', '/' ) + ".class";
-        Enumeration<URL> resources = space.getResources( resourceName );
-        assertEquals( resourceName, resources.nextElement().getPath().replaceFirst( ".*/test-classes/", "" ) );
-        assertFalse( resources.hasMoreElements() );
-
-        // clear refs
-        resources = null;
-        loader = null;
-
-        System.gc();
-        new StringBuilder( 1024 );
-        System.gc();
-        new StringBuilder( 1024 );
-        System.gc();
-        new StringBuilder( 1024 );
-        System.gc();
-        new StringBuilder( 1024 );
-        System.gc();
-
-        try
-        {
-            // now gone
-            clazz.get();
-            fail( "Expected TypeNotPresentException" );
-        }
-        catch ( final TypeNotPresentException e )
-        {
-            assertEquals( "ClassSpace has been unloaded.", e.getCause().getMessage() );
-        }
-
-        try
-        {
-            // now gone
-            space.getResources( resourceName );
-            fail( "Expected IOException" );
-        }
-        catch ( final IOException e )
-        {
-            assertEquals( "ClassSpace has been unloaded.", e.getMessage() );
-        }
-
-        assertEquals( clazzName, clazz.getName() );
-    }
-
-    public void testMissingWeakDeferredClass()
-    {
-        try
-        {
-            final ClassSpace space = new WeakClassSpace( getClass().getClassLoader() );
-            new WeakDeferredClass<Object>( space, "unknown-class" ).get();
-            fail( "Expected TypeNotPresentException" );
-        }
-        catch ( final TypeNotPresentException e )
-        {
+            System.out.println( e.toString() );
         }
     }
 }
