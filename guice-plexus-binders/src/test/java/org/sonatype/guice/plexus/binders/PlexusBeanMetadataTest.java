@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.plexus.binders;
 
+import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -26,7 +27,7 @@ import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.reflect.StrongClassSpace;
+import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
@@ -258,6 +259,6 @@ public class PlexusBeanMetadataTest
 
     static DeferredClass<?> defer( final Class<?> clazz )
     {
-        return new StrongClassSpace( TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
+        return new URLClassSpace( (URLClassLoader) TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
     }
 }

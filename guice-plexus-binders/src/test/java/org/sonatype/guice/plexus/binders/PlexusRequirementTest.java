@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.plexus.binders;
 
+import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -23,7 +24,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.reflect.StrongClassSpace;
+import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
@@ -85,7 +86,7 @@ public class PlexusRequirementTest
                         componentMap.put( new ComponentImpl( Alpha.class, "", "", "" ), defer( AlphaImpl.class ) );
                         componentMap.put( new ComponentImpl( Omega.class, "", "", "" ), defer( OmegaImpl.class ) );
 
-                        final ClassSpace space = new StrongClassSpace( TestCase.class.getClassLoader() );
+                        final ClassSpace space = new URLClassSpace( (URLClassLoader) TestCase.class.getClassLoader() );
                         componentMap.put( new ComponentImpl( Gamma.class, "", "", "" ),
                                           space.deferLoadClass( "some-broken-class" ) );
 
@@ -476,6 +477,6 @@ public class PlexusRequirementTest
 
     static DeferredClass<?> defer( final Class<?> clazz )
     {
-        return new StrongClassSpace( TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
+        return new URLClassSpace( (URLClassLoader) TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
     }
 }

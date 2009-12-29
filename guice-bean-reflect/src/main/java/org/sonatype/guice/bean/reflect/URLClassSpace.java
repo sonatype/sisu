@@ -61,6 +61,6 @@ public final class URLClassSpace
 
     public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
     {
-        return new ClassPathEntryEnumeration( space.getURLs(), path, glob, recurse );
+        return new ResourceEnumeration( space.getURLs(), path, glob, recurse );
     }
 }

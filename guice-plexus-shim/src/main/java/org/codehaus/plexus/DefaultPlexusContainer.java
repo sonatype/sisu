@@ -41,8 +41,8 @@ import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 import org.codehaus.plexus.util.StringUtils;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.reflect.StrongClassSpace;
 import org.sonatype.guice.bean.reflect.StrongDeferredClass;
+import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
@@ -111,7 +111,7 @@ public final class DefaultPlexusContainer
         containerRealm = lookupContainerRealm( configuration );
         lifecycleManager = new PlexusLifecycleManager();
 
-        final ClassSpace space = new StrongClassSpace( containerRealm );
+        final ClassSpace space = new URLClassSpace( containerRealm );
         final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( configurationUrl, space, contextMap );
         final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( null, contextMap );
 
@@ -302,6 +302,12 @@ public final class DefaultPlexusContainer
             public DeferredClass<?> deferLoadClass( final String name )
             {
                 return new StrongDeferredClass( this, name );
+            }
+
+            public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
+                throws IOException
+            {
+                return Collections.enumeration( Collections.<URL> emptyList() );
             }
         };
 

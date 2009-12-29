@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
-final class ClassPathEntryEnumeration
+final class ResourceEnumeration
     implements Enumeration<URL>
 {
     private final URL[] urls;
@@ -39,7 +39,7 @@ final class ClassPathEntryEnumeration
 
     private String cachedEntry;
 
-    ClassPathEntryEnumeration( final URL[] urls, final String path, final String glob, final boolean recurse )
+    ResourceEnumeration( final URL[] urls, final String path, final String glob, final boolean recurse )
     {
         this.urls = urls;
         this.path = normalizePath( path );
@@ -84,13 +84,15 @@ final class ClassPathEntryEnumeration
         {
             try
             {
-                final String entry = cachedEntry;
-                cachedEntry = null;
-                return new URL( parentURL, entry );
+                return new URL( parentURL, cachedEntry );
             }
             catch ( final IOException e ) // NOPMD
             {
                 // fall-through
+            }
+            finally
+            {
+                cachedEntry = null;
             }
         }
         throw new NoSuchElementException();
@@ -98,11 +100,26 @@ final class ClassPathEntryEnumeration
 
     private static String normalizePath( final String path )
     {
-        if ( null != path )
+        if ( null == path )
         {
-            return path.replaceFirst( "^/*", "" ).replaceFirst( "//*$", "/" );
+            return "/";
         }
-        return "/";
+
+        int i = 0;
+        int j = path.length();
+
+        while ( i < j )
+        {
+            if ( path.charAt( i ) == '/' )
+            {
+                i++;
+            }
+            if ( path.charAt( j - 1 ) == '/' )
+            {
+                j--;
+            }
+        }
+        return path.substring( i, j );
     }
 
     private static Pattern compileGlob( final String glob )

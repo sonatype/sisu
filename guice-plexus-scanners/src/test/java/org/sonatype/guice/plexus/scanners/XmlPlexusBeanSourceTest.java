@@ -16,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Map;
@@ -28,7 +29,7 @@ import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.StrongDeferredClass;
-import org.sonatype.guice.bean.reflect.WeakClassSpace;
+import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
@@ -107,6 +108,12 @@ public class XmlPlexusBeanSourceTest
                 // hide components.xml so we can just test plexus.xml parsing
                 return Collections.enumeration( Collections.<URL> emptyList() );
             }
+
+            public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
+                throws IOException
+            {
+                return Collections.enumeration( Collections.<URL> emptyList() );
+            }
         };
 
         final URL plexusDotXml = getClass().getResource( "/META-INF/plexus/plexus.xml" );
@@ -124,7 +131,7 @@ public class XmlPlexusBeanSourceTest
 
     public void testBadPlexusDotXml()
     {
-        final ClassSpace space = new WeakClassSpace( XmlPlexusBeanSourceTest.class.getClassLoader() );
+        final ClassSpace space = new URLClassSpace( (URLClassLoader) XmlPlexusBeanSourceTest.class.getClassLoader() );
 
         try
         {
@@ -157,6 +164,12 @@ public class XmlPlexusBeanSourceTest
             {
                 return new StrongDeferredClass<Object>( this, name );
             }
+
+            public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
+                throws IOException
+            {
+                return Collections.enumeration( Collections.<URL> emptyList() );
+            }
         };
 
         try
@@ -172,7 +185,7 @@ public class XmlPlexusBeanSourceTest
 
     public void testComponents()
     {
-        final ClassSpace space = new WeakClassSpace( XmlPlexusBeanSourceTest.class.getClassLoader() );
+        final ClassSpace space = new URLClassSpace( (URLClassLoader) XmlPlexusBeanSourceTest.class.getClassLoader() );
         final PlexusBeanSource source = new XmlPlexusBeanSource( null, space, null );
         final Map<Component, DeferredClass<?>> componentMap = source.findPlexusComponentBeans();
 
@@ -256,6 +269,12 @@ public class XmlPlexusBeanSourceTest
         public Enumeration<URL> getResources( final String name )
         {
             return Collections.enumeration( Collections.singleton( getClass().getResource( fixedResourceName ) ) );
+        }
+
+        public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
+            throws IOException
+        {
+            return Collections.enumeration( Collections.<URL> emptyList() );
         }
     }
 
