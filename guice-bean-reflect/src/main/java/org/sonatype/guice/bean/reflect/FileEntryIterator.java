@@ -13,7 +13,6 @@
 package org.sonatype.guice.bean.reflect;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -21,36 +20,51 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * {@link Iterator} that iterates over entries beneath file/directory resources.
+ */
 final class FileEntryIterator
     implements Iterator<String>
 {
-    private String rootPath;
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final String rootPath;
 
     private final List<String> entries = new ArrayList<String>();
 
     private final boolean recurse;
 
-    public FileEntryIterator( final URL url, final String path, final boolean recurse )
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    FileEntryIterator( final URL url, final String subPath, final boolean recurse )
     {
-        try
+        // allow the entry search to start from a specific sub-path
+        final File rootFile = new File( url.getPath() ).getAbsoluteFile();
+        final File fromFile = null != subPath ? new File( rootFile, subPath ) : rootFile;
+
+        // use canonical paths to try and detect cycles caused by symlinks, etc
+        rootPath = normalizePath( rootFile.isFile() ? rootFile.getParentFile() : rootFile );
+        final String fromPath = normalizePath( fromFile );
+
+        if ( fromPath.endsWith( "/" ) )
         {
-            rootPath = canonicalPath( new File( url.getPath() ) );
-            final String fromPath = canonicalPath( new File( rootPath, path ) );
-            if ( fromPath.startsWith( rootPath ) )
-            {
-                entries.add( fromPath.substring( rootPath.length() ) );
-                if ( !recurse )
-                {
-                    unrollListing( fromPath );
-                }
-            }
+            addChildren( fromPath ); // directory listing
         }
-        catch ( final Exception e ) // NOPMD
+        else if ( fromFile.exists() )
         {
-            // empty-iterator
+            addEntry( fromPath ); // single file listing
         }
+
         this.recurse = recurse;
     }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
     public boolean hasNext()
     {
@@ -62,9 +76,10 @@ final class FileEntryIterator
         if ( hasNext() )
         {
             final String entry = entries.remove( 0 );
-            if ( recurse )
+            if ( recurse && entry.endsWith( "/" ) )
             {
-                unrollListing( rootPath + entry );
+                // unroll listing as we iterate
+                addChildren( rootPath + entry );
             }
             return entry;
         }
@@ -76,46 +91,62 @@ final class FileEntryIterator
         throw new UnsupportedOperationException();
     }
 
-    private void unrollListing( final String parentPath )
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Adds children of the given entry whose canonical paths are located below the entry.
+     * 
+     * @param path The entry path
+     */
+    private void addChildren( final String path )
     {
-        final File[] listing = new File( parentPath ).listFiles();
+        final File[] listing = new File( path ).listFiles();
         if ( null == listing )
         {
-            return;
+            return; // no children to add
         }
         for ( final File f : listing )
         {
-            try
+            // check canonical path len to avoid cycles
+            final String childPath = normalizePath( f );
+            if ( childPath.length() > path.length() )
             {
-                final String entryPath = canonicalPath( f );
-                if ( entryPath.startsWith( parentPath ) && entryPath.length() > parentPath.length() )
-                {
-                    entries.add( entryPath.substring( rootPath.length() ) );
-                }
-            }
-            catch ( final Exception e )
-            {
-                continue;
+                addEntry( childPath );
             }
         }
     }
 
-    private String canonicalPath( final File file )
-        throws IOException
+    /**
+     * Adds the given entry if it is located below the root; otherwise ignores the entry.
+     * 
+     * @param path The entry path
+     */
+    private void addEntry( final String path )
     {
-        if ( !file.exists() )
+        // make sure entry is in our scope
+        if ( path.startsWith( rootPath ) )
         {
-            throw new FileNotFoundException();
+            entries.add( path.substring( rootPath.length() ) );
         }
-        String path = file.getCanonicalPath();
-        if ( File.separatorChar != '/' )
+    }
+
+    /**
+     * Returns the unique normalized URI form of the given path.
+     * 
+     * @param file The path to normalize
+     * @return Normalized URI-form path
+     */
+    private static String normalizePath( final File file )
+    {
+        try
         {
-            path = path.replace( File.separatorChar, '/' );
+            return file.getCanonicalFile().toURI().getPath();
         }
-        if ( file.isDirectory() )
+        catch ( final IOException e )
         {
-            path = path + '/';
+            return file.toURI().getPath();
         }
-        return path;
     }
 }

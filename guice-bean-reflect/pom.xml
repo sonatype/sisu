@@ -28,6 +28,11 @@
       <groupId>org.ops4j.peaberry.dependencies</groupId>
       <artifactId>javax.inject</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>

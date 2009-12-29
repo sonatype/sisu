@@ -39,7 +39,7 @@ public class ZipEntryIteratorTest
 
     public void testBlankZip()
     {
-        final Iterator<String> i = new ZipEntryIterator( getClass().getClassLoader().getResource( "blank.zip" ) );
+        final Iterator<String> i = new ZipEntryIterator( resource( "blank.zip" ) );
         assertFalse( i.hasNext() );
         try
         {
@@ -53,7 +53,7 @@ public class ZipEntryIteratorTest
 
     public void testEmptyZip()
     {
-        final Iterator<String> i = new ZipEntryIterator( getClass().getClassLoader().getResource( "empty.zip" ) );
+        final Iterator<String> i = new ZipEntryIterator( resource( "empty.zip" ) );
         assertFalse( i.hasNext() );
         try
         {
@@ -67,7 +67,7 @@ public class ZipEntryIteratorTest
 
     public void testEmptyJar()
     {
-        final Iterator<String> i = new ZipEntryIterator( getClass().getClassLoader().getResource( "empty.jar" ) );
+        final Iterator<String> i = new ZipEntryIterator( resource( "empty.jar" ) );
         assertTrue( i.hasNext() );
         assertEquals( "META-INF/MANIFEST.MF", i.next() );
         assertFalse( i.hasNext() );
@@ -83,7 +83,7 @@ public class ZipEntryIteratorTest
 
     public void testSimpleZip()
     {
-        final Iterator<String> i = new ZipEntryIterator( getClass().getClassLoader().getResource( "simple.zip" ) );
+        final Iterator<String> i = new ZipEntryIterator( resource( "simple.zip" ) );
         assertEquals( "0", i.next() );
         assertEquals( "a/1", i.next() );
         assertEquals( "a/b/2", i.next() );
@@ -104,7 +104,7 @@ public class ZipEntryIteratorTest
 
     public void testSimpleJar()
     {
-        final Iterator<String> i = new ZipEntryIterator( getClass().getClassLoader().getResource( "simple.jar" ) );
+        final Iterator<String> i = new ZipEntryIterator( resource( "simple.jar" ) );
         assertEquals( "META-INF/", i.next() );
         assertEquals( "META-INF/MANIFEST.MF", i.next() );
         assertEquals( "0", i.next() );
@@ -132,7 +132,7 @@ public class ZipEntryIteratorTest
 
     public void testBrokenJar()
     {
-        final Iterator<String> i = new ZipEntryIterator( getClass().getClassLoader().getResource( "broken.jar" ) );
+        final Iterator<String> i = new ZipEntryIterator( resource( "broken.jar" ) );
         assertEquals( "META-INF/", i.next() );
         assertEquals( "META-INF/MANIFEST.MF", i.next() );
         assertEquals( "0", i.next() );
@@ -159,5 +159,10 @@ public class ZipEntryIteratorTest
         catch ( final UnsupportedOperationException e )
         {
         }
+    }
+
+    private static URL resource( final String name )
+    {
+        return ZipEntryIteratorTest.class.getClassLoader().getResource( name );
     }
 }

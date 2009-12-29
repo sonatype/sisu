@@ -19,7 +19,7 @@ import java.util.NoSuchElementException;
 import java.util.zip.ZipInputStream;
 
 /**
- * {@link Iterator} that iterates over entries in JAR or ZIP resource.
+ * {@link Iterator} that iterates over entries inside JAR or ZIP resources.
  */
 final class ZipEntryIterator
     implements Iterator<String>
