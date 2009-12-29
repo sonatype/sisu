@@ -12,7 +12,6 @@
  */
 package org.sonatype.guice.bean.reflect;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
@@ -43,7 +42,7 @@ final class ClassPathEntryEnumeration
     ClassPathEntryEnumeration( final URL[] urls, final String path, final String glob, final boolean recurse )
     {
         this.urls = urls;
-        this.path = path.replaceFirst( "/*$", "/" ).replaceFirst( "^/*", "" );
+        this.path = normalizePath( path );
         globPattern = compileGlob( glob );
         this.recurse = recurse;
     }
@@ -97,20 +96,50 @@ final class ClassPathEntryEnumeration
         throw new NoSuchElementException();
     }
 
+    private static String normalizePath( final String path )
+    {
+        if ( null != path )
+        {
+            return path.replaceFirst( "^/*", "" ).replaceFirst( "//*$", "/" );
+        }
+        return "/";
+    }
+
     private static Pattern compileGlob( final String glob )
     {
         if ( null == glob || "*".equals( glob ) )
         {
             return null;
         }
+
+        char nextChar;
+        char prevChar = '^';
+
         final StringBuilder buf = new StringBuilder();
-        for ( final String s : glob.split( "\\*" ) )
+        for ( int i = 0; i < glob.length(); i++ )
         {
-            if ( s.length() > 0 )
+            nextChar = glob.charAt( i );
+            if ( '*' == nextChar )
             {
-                buf.append( "\\Q" ).append( s ).append( "\\E" );
+                if ( '*' == prevChar )
+                {
+                    continue;
+                }
+                if ( i > 0 )
+                {
+                    buf.append( "\\E" );
+                }
+                buf.append( ".*" );
             }
-            buf.append( ".*" );
+            else
+            {
+                if ( 0 == i || '*' == prevChar )
+                {
+                    buf.append( "\\Q" );
+                }
+                buf.append( nextChar );
+            }
+            prevChar = nextChar;
         }
         return Pattern.compile( buf.toString() );
     }
@@ -121,7 +150,7 @@ final class ClassPathEntryEnumeration
         if ( url.getPath().endsWith( ".jar" ) )
         {
             parentURL = new URL( "jar:" + url + "!/" );
-            return new JarEntryIterator( url );
+            return new ZipEntryIterator( url );
         }
         if ( "file".equals( url.getProtocol() ) )
         {
@@ -133,7 +162,7 @@ final class ClassPathEntryEnumeration
 
     private boolean matches( final String entry )
     {
-        if ( !entry.startsWith( path ) )
+        if ( !entry.equals( path ) && !entry.startsWith( path + "/" ) )
         {
             return false;
         }
@@ -145,6 +174,11 @@ final class ClassPathEntryEnumeration
         {
             return true;
         }
-        return globPattern.matcher( new File( entry ).getName() ).matches();
+        if ( entry.equals( path ) )
+        {
+            return globPattern.matcher( "/" ).matches();
+        }
+        final int basenameIndex = 1 + entry.lastIndexOf( '/', entry.length() - 2 );
+        return globPattern.matcher( entry.substring( basenameIndex ) ).matches();
     }
 }

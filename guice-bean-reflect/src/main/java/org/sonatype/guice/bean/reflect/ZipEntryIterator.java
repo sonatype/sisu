@@ -12,30 +12,45 @@
  */
 package org.sonatype.guice.bean.reflect;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.jar.JarInputStream;
+import java.util.zip.ZipInputStream;
 
-final class JarEntryIterator
+/**
+ * {@link Iterator} that iterates over entries in JAR or ZIP resource.
+ */
+final class ZipEntryIterator
     implements Iterator<String>
 {
-    private JarInputStream in;
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private ZipInputStream in;
 
     private String nextPath;
 
-    public JarEntryIterator( final URL url )
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    ZipEntryIterator( final URL url )
     {
         try
         {
-            in = new JarInputStream( url.openStream(), false );
-            nextPath = "META-INF/MANIFEST.MF";
+            in = new ZipInputStream( url.openStream() );
         }
-        catch ( final Exception e ) // NOPMD
+        catch ( final IOException e ) // NOPMD
         {
             // empty-iterator
         }
     }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
     public boolean hasNext()
     {
@@ -46,11 +61,8 @@ final class JarEntryIterator
         try
         {
             // populate cache with the next element
-            nextPath = in.getNextJarEntry().getName();
-            if ( null != nextPath )
-            {
-                return true;
-            }
+            nextPath = in.getNextEntry().getName();
+            return true;
         }
         catch ( final Exception e ) // NOPMD
         {
