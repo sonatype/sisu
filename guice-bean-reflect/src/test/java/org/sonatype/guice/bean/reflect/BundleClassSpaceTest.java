@@ -35,6 +35,7 @@ public class BundleClassSpaceTest
     {
         final Map<String, String> configuration = new HashMap<String, String>();
         configuration.put( Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT );
+        configuration.put( Constants.FRAMEWORK_STORAGE, "target/bundlecache" );
 
         final FrameworkFactory frameworkFactory = new FrameworkFactory();
         final Framework framework = frameworkFactory.newFramework( configuration );
@@ -64,6 +65,7 @@ public class BundleClassSpaceTest
     {
         final Map<String, String> configuration = new HashMap<String, String>();
         configuration.put( Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT );
+        configuration.put( Constants.FRAMEWORK_STORAGE, "target/bundlecache" );
 
         final FrameworkFactory frameworkFactory = new FrameworkFactory();
         final Framework framework = frameworkFactory.newFramework( configuration );
