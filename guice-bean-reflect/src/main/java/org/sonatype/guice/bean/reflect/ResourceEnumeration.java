@@ -12,7 +12,7 @@
  */
 package org.sonatype.guice.bean.reflect;
 
-import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -31,11 +31,9 @@ final class ResourceEnumeration
 
     private final boolean recurse;
 
-    private int index;
+    private int index = -1;
 
     private Iterator<String> entries = Collections.<String> emptyList().iterator();
-
-    private URL parentURL;
 
     private String cachedEntry;
 
@@ -61,18 +59,11 @@ final class ResourceEnumeration
             }
             else
             {
-                if ( index >= urls.length )
+                if ( ++index >= urls.length )
                 {
                     return false;
                 }
-                try
-                {
-                    entries = iterator( urls[index++] );
-                }
-                catch ( final IOException e )
-                {
-                    continue; // try next element
-                }
+                entries = iterator( urls[index] );
             }
         }
         return true;
@@ -84,11 +75,17 @@ final class ResourceEnumeration
         {
             try
             {
-                return new URL( parentURL, cachedEntry );
+                final URL url = urls[index];
+                if ( entries instanceof ZipEntryIterator )
+                {
+                    return new URL( "jar:" + url + "!/" + cachedEntry );
+                }
+                return new URL( url, cachedEntry );
             }
-            catch ( final IOException e ) // NOPMD
+            catch ( final MalformedURLException e )
             {
-                // fall-through
+                // this shouldn't happen, hence illegal state
+                throw new IllegalStateException( e.toString() );
             }
             finally
             {
@@ -100,26 +97,11 @@ final class ResourceEnumeration
 
     private static String normalizePath( final String path )
     {
-        if ( null == path )
+        if ( null == path || "/".equals( path ) )
         {
-            return "/";
+            return "";
         }
-
-        int i = 0;
-        int j = path.length();
-
-        while ( i < j )
-        {
-            if ( path.charAt( i ) == '/' )
-            {
-                i++;
-            }
-            if ( path.charAt( j - 1 ) == '/' )
-            {
-                j--;
-            }
-        }
-        return path.substring( i, j );
+        return segmentize( path, '/', "", "/", "" );
     }
 
     private static Pattern compileGlob( final String glob )
@@ -128,72 +110,77 @@ final class ResourceEnumeration
         {
             return null;
         }
+        return Pattern.compile( segmentize( glob, '*', "\\Q", "\\E", ".*" ) );
+    }
 
+    private static String segmentize( final String text, final char delim, final String openBrace,
+                                      final String closeBrace, final String separator )
+    {
         char nextChar;
-        char prevChar = '^';
+        char prevChar = delim;
 
         final StringBuilder buf = new StringBuilder();
-        for ( int i = 0; i < glob.length(); i++ )
+        for ( int i = 0; i < text.length(); i++ )
         {
-            nextChar = glob.charAt( i );
-            if ( '*' == nextChar )
+            nextChar = text.charAt( i );
+            if ( delim == nextChar )
             {
-                if ( '*' == prevChar )
+                if ( delim != prevChar )
                 {
-                    continue;
+                    buf.append( closeBrace ).append( separator );
                 }
-                if ( i > 0 )
+                else if ( 0 == i )
                 {
-                    buf.append( "\\E" );
+                    buf.append( separator );
                 }
-                buf.append( ".*" );
             }
             else
             {
-                if ( 0 == i || '*' == prevChar )
+                if ( delim == prevChar )
                 {
-                    buf.append( "\\Q" );
+                    buf.append( openBrace );
                 }
                 buf.append( nextChar );
             }
             prevChar = nextChar;
         }
-        return Pattern.compile( buf.toString() );
+        if ( delim != prevChar )
+        {
+            buf.append( closeBrace );
+        }
+        return buf.toString();
     }
 
     private Iterator<String> iterator( final URL url )
-        throws IOException
     {
         if ( url.getPath().endsWith( ".jar" ) )
         {
-            parentURL = new URL( "jar:" + url + "!/" );
             return new ZipEntryIterator( url );
         }
         if ( "file".equals( url.getProtocol() ) )
         {
-            parentURL = new URL( url + "/" );
             return new FileEntryIterator( url, path, recurse );
         }
-        throw new IOException( "Cannot scan: " + url );
+        return Collections.<String> emptyList().iterator();
     }
 
     private boolean matches( final String entry )
     {
-        if ( !entry.equals( path ) && !entry.startsWith( path + "/" ) )
+        if ( !entry.startsWith( path ) || entry.equals( path ) )
         {
             return false;
         }
-        if ( !recurse && entry.indexOf( '/', path.length() + 1 ) > 0 )
+        if ( !recurse )
         {
-            return false;
+            final int nextSlashIndex = entry.indexOf( '/', path.length() );
+            if ( 0 < nextSlashIndex && nextSlashIndex < entry.length() - 1 )
+            {
+                return false;
+            }
         }
         if ( null == globPattern )
         {
             return true;
-        }
-        if ( entry.equals( path ) )
-        {
-            return globPattern.matcher( "/" ).matches();
         }
         final int basenameIndex = 1 + entry.lastIndexOf( '/', entry.length() - 2 );
         return globPattern.matcher( entry.substring( basenameIndex ) ).matches();

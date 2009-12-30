@@ -20,12 +20,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import junit.framework.TestCase;
 
 import com.google.inject.TypeLiteral;
-import com.google.inject.name.Named;
 import com.google.inject.util.Types;
 
 @SuppressWarnings( "unused" )
@@ -78,6 +78,16 @@ public class BeanPropertiesTest
         }
 
         void name( final String name )
+        {
+        }
+
+        @javax.inject.Inject
+        void setFirstName( final String name )
+        {
+        }
+
+        @com.google.inject.Inject
+        void setLastName( final String name )
         {
         }
     }
