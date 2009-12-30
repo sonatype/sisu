@@ -23,6 +23,10 @@ import java.util.regex.Pattern;
 final class ResourceEnumeration
     implements Enumeration<URL>
 {
+    private static final StringPartitioner PATH_PARTITIONER = new StringPartitioner( '/', "", "/", "" );
+
+    private static final StringPartitioner GLOB_PARTITIONER = new StringPartitioner( '*', "\\Q", "\\E", ".*" );
+
     private final URL[] urls;
 
     private final String path;
@@ -101,7 +105,7 @@ final class ResourceEnumeration
         {
             return "";
         }
-        return segmentize( path, '/', "", "/", "" );
+        return PATH_PARTITIONER.partition( path );
     }
 
     private static Pattern compileGlob( final String glob )
@@ -110,45 +114,7 @@ final class ResourceEnumeration
         {
             return null;
         }
-        return Pattern.compile( segmentize( glob, '*', "\\Q", "\\E", ".*" ) );
-    }
-
-    private static String segmentize( final String text, final char delim, final String openBrace,
-                                      final String closeBrace, final String separator )
-    {
-        char nextChar;
-        char prevChar = delim;
-
-        final StringBuilder buf = new StringBuilder();
-        for ( int i = 0; i < text.length(); i++ )
-        {
-            nextChar = text.charAt( i );
-            if ( delim == nextChar )
-            {
-                if ( delim != prevChar )
-                {
-                    buf.append( closeBrace ).append( separator );
-                }
-                else if ( 0 == i )
-                {
-                    buf.append( separator );
-                }
-            }
-            else
-            {
-                if ( delim == prevChar )
-                {
-                    buf.append( openBrace );
-                }
-                buf.append( nextChar );
-            }
-            prevChar = nextChar;
-        }
-        if ( delim != prevChar )
-        {
-            buf.append( closeBrace );
-        }
-        return buf.toString();
+        return Pattern.compile( GLOB_PARTITIONER.partition( glob ) );
     }
 
     private Iterator<String> iterator( final URL url )
