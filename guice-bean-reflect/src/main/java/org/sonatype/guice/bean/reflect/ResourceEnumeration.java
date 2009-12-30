@@ -132,7 +132,7 @@ final class ResourceEnumeration
 
     private boolean matches( final String entry )
     {
-        if ( !entry.startsWith( path ) || entry.equals( path ) )
+        if ( !entry.startsWith( path ) || entry.length() == path.length() )
         {
             return false;
         }

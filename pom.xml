@@ -50,10 +50,6 @@
           <artifactId>build-helper-maven-plugin</artifactId>
           <version>1.4</version>
         </plugin>
-        <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.4</version>
-        </plugin>
       </plugins>
     </pluginManagement>
     <plugins>
@@ -108,12 +104,12 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.5.8</version>
+        <version>1.5.10</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
-        <version>1.5.8</version>
+        <version>1.5.10</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
@@ -129,6 +125,11 @@
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-classworlds</artifactId>
         <version>2.2.2</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.main</artifactId>
+        <version>2.0.2</version>
       </dependency>
       <dependency>
         <groupId>junit</groupId>
