@@ -7,8 +7,6 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <packaging>bundle</packaging>
-
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sonatype.spice.inject</groupId>
   <artifactId>guice-bean-reflect</artifactId>
@@ -17,16 +15,17 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-patches</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.ops4j.peaberry.dependencies</groupId>
+      <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
@@ -35,7 +34,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.main</artifactId>
+      <artifactId>org.apache.felix.framework</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

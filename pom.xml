@@ -5,7 +5,7 @@
     <relativePath>../spice-parent/</relativePath>
     <artifactId>spice-parent</artifactId>
     <groupId>org.sonatype.spice</groupId>
-    <version>15-SNAPSHOT</version>
+    <version>14</version>
   </parent>
 
   <packaging>pom</packaging>
@@ -37,9 +37,18 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>com.pyx4me</groupId>
+          <artifactId>proguard-maven-plugin</artifactId>
+          <version>2.0.4</version>
+        </plugin>
+        <plugin>
           <groupId>org.apache.felix</groupId>
           <artifactId>maven-bundle-plugin</artifactId>
           <version>2.0.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>2.1</version>
         </plugin>
         <plugin>
           <artifactId>maven-antrun-plugin</artifactId>
@@ -52,18 +61,6 @@
         </plugin>
       </plugins>
     </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <_nouses>true</_nouses>
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
 
   <dependencies>
@@ -77,9 +74,9 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.osgi</groupId>
-        <artifactId>org.osgi.core</artifactId>
-        <version>4.2.0</version>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-component-annotations</artifactId>
+        <version>1.5.2</version>
       </dependency>
       <dependency>
         <groupId>org.sonatype.spice.inject</groupId>
@@ -87,19 +84,14 @@
         <version>2.1-SNAPSHOT</version>
       </dependency>
       <dependency>
-        <groupId>org.ops4j.peaberry.dependencies</groupId>
+        <groupId>aopalliance</groupId>
         <artifactId>aopalliance</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0</version>
       </dependency>
       <dependency>
-        <groupId>org.ops4j.peaberry.dependencies</groupId>
+        <groupId>javax.inject</groupId>
         <artifactId>javax.inject</artifactId>
-        <version>1.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>asm</groupId>
-        <artifactId>asm</artifactId>
-        <version>3.2</version>
+        <version>1</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -112,9 +104,9 @@
         <version>1.5.10</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-component-annotations</artifactId>
-        <version>1.5.2</version>
+        <groupId>asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>3.2</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
@@ -127,8 +119,13 @@
         <version>2.2.2</version>
       </dependency>
       <dependency>
+        <groupId>org.osgi</groupId>
+        <artifactId>org.osgi.core</artifactId>
+        <version>4.2.0</version>
+      </dependency>
+      <dependency>
         <groupId>org.apache.felix</groupId>
-        <artifactId>org.apache.felix.main</artifactId>
+        <artifactId>org.apache.felix.framework</artifactId>
         <version>2.0.2</version>
       </dependency>
       <dependency>

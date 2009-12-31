@@ -38,7 +38,6 @@ import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
-import org.codehaus.plexus.util.StringUtils;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.StrongDeferredClass;
@@ -425,7 +424,13 @@ public final class DefaultPlexusContainer
             final String configurationPath = configuration.getContainerConfiguration();
             if ( null != configurationPath )
             {
-                url = getClass().getClassLoader().getResource( StringUtils.stripStart( configurationPath, "/" ) );
+                int index = 0;
+                while ( index < configurationPath.length() && configurationPath.charAt( index ) == '/' )
+                {
+                    index++;
+                }
+
+                url = getClass().getClassLoader().getResource( configurationPath.substring( index ) );
                 if ( null == url )
                 {
                     final File file = new File( configurationPath );

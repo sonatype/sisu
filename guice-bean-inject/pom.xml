@@ -7,8 +7,6 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <packaging>bundle</packaging>
-
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sonatype.spice.inject</groupId>
   <artifactId>guice-bean-inject</artifactId>

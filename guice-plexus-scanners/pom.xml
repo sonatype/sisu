@@ -7,8 +7,6 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
 
-  <packaging>bundle</packaging>
-
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sonatype.spice.inject</groupId>
   <artifactId>guice-plexus-scanners</artifactId>
@@ -16,18 +14,6 @@
   <name>Guice - Plexus scanners</name>
 
   <dependencies>
-    <dependency>
-      <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-patches</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>asm</groupId>
-      <artifactId>asm</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-utils</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-component-annotations</artifactId>
@@ -38,6 +24,10 @@
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
+      <artifactId>guice-patches</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-bean-reflect</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -45,6 +35,14 @@
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-plexus-metadata</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
