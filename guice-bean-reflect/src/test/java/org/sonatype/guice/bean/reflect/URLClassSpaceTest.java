@@ -25,6 +25,10 @@ public class URLClassSpaceTest
     private static final URL COMMONS_LOGGING_JAR =
         ZipEntryIteratorTest.class.getClassLoader().getResource( "commons-logging-1.1.1.jar" );
 
+    private static final URL SIMPLE_JAR = ZipEntryIteratorTest.class.getClassLoader().getResource( "simple.jar" );
+
+    private static final URL CLASS_PATH_JAR = ZipEntryIteratorTest.class.getClassLoader().getResource( "classpath.jar" );
+
     public void testClassSpaceResources()
         throws IOException
     {
@@ -51,6 +55,22 @@ public class URLClassSpaceTest
         // only expect to see single result
         assertTrue( e.hasMoreElements() );
         assertTrue( e.nextElement().getPath().startsWith( COMMONS_LOGGING_JAR.toString() ) );
+        assertFalse( e.hasMoreElements() );
+    }
+
+    public void testClassPathExpansion()
+        throws IOException
+    {
+        final ClassSpace space = new URLClassSpace( URLClassLoader.newInstance( new URL[] { CLASS_PATH_JAR } ) );
+        final Enumeration<URL> e = space.findEntries( "META-INF", "*.MF", false );
+
+        // expect to see three results
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().getPath().startsWith( CLASS_PATH_JAR.toString() ) );
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().getPath().startsWith( COMMONS_LOGGING_JAR.toString() ) );
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().getPath().startsWith( SIMPLE_JAR.toString() ) );
         assertFalse( e.hasMoreElements() );
     }
 }

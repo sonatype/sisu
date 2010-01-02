@@ -28,7 +28,7 @@ import com.google.inject.TypeLiteral;
  * &#064;SomeAnnotation
  * void setName( SomeType _name )
  * {
- *     //...etc...
+ *     // ...etc...
  * }
  * </pre>
  */

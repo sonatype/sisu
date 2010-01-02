@@ -13,7 +13,6 @@
 package org.sonatype.guice.bean.reflect;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -21,7 +20,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * {@link Iterator} that iterates over entries beneath file/directory resources.
+ * {@link Iterator} that iterates over entries beneath a file-system directory.
  */
 final class FileEntryIterator
     implements Iterator<String>
@@ -40,26 +39,19 @@ final class FileEntryIterator
     // Constructors
     // ----------------------------------------------------------------------
 
+    /**
+     * Creates an iterator that iterates over entries beneath the given file URL and sub-path.
+     * 
+     * @param url The root file URL
+     * @param subPath An optional path below the root URL
+     * @param recurse When {@code true} include sub-directories; otherwise don't
+     */
     FileEntryIterator( final URL url, final String subPath, final boolean recurse )
     {
-        // allow the entry search to start from a specific sub-path
-        final File rootFile = new File( url.getPath() ).getAbsoluteFile();
-        final File fromFile = null != subPath ? new File( rootFile, subPath ) : rootFile;
-
-        // use canonical paths to try and detect cycles caused by symlinks, etc
-        rootPath = normalizePath( rootFile.isFile() ? rootFile.getParentFile() : rootFile );
-        final String fromPath = normalizePath( fromFile );
-
-        if ( fromPath.endsWith( "/" ) )
-        {
-            addChildren( fromPath ); // directory listing
-        }
-        else if ( fromFile.exists() )
-        {
-            addEntry( fromPath ); // single file listing
-        }
-
+        rootPath = normalizePath( new File( url.getPath() ).getAbsoluteFile() );
         this.recurse = recurse;
+
+        includeEntries( null == subPath ? "" : subPath );
     }
 
     // ----------------------------------------------------------------------
@@ -78,8 +70,8 @@ final class FileEntryIterator
             final String entry = entries.remove( 0 );
             if ( recurse && entry.endsWith( "/" ) )
             {
-                // unroll listing as we iterate
-                addChildren( rootPath + entry );
+                // include its contents
+                includeEntries( entry );
             }
             return entry;
         }
@@ -96,57 +88,30 @@ final class FileEntryIterator
     // ----------------------------------------------------------------------
 
     /**
-     * Adds children of the given entry whose canonical paths are located below the entry.
+     * Includes entries from the given sub-path.
      * 
-     * @param path The entry path
+     * @param subPath The sub path
      */
-    private void addChildren( final String path )
+    private void includeEntries( final String subPath )
     {
-        final File[] listing = new File( path ).listFiles();
-        if ( null == listing )
+        final File[] listing = new File( rootPath + subPath ).listFiles();
+        if ( null != listing )
         {
-            return; // no children to add
-        }
-        for ( final File f : listing )
-        {
-            // check canonical path len to avoid cycles
-            final String childPath = normalizePath( f );
-            if ( childPath.length() > path.length() )
+            for ( final File f : listing )
             {
-                addEntry( childPath );
+                entries.add( normalizePath( f ).substring( rootPath.length() ) );
             }
         }
     }
 
     /**
-     * Adds the given entry if it is located below the root; otherwise ignores the entry.
+     * Returns the normalized URI path of the given file.
      * 
-     * @param path The entry path
-     */
-    private void addEntry( final String path )
-    {
-        // make sure entry is in our scope
-        if ( path.startsWith( rootPath ) )
-        {
-            entries.add( path.substring( rootPath.length() ) );
-        }
-    }
-
-    /**
-     * Returns the unique normalized URI form of the given path.
-     * 
-     * @param file The path to normalize
-     * @return Normalized URI-form path
+     * @param file The file to normalize
+     * @return Normalized URI path
      */
     private static String normalizePath( final File file )
     {
-        try
-        {
-            return file.getCanonicalFile().toURI().getPath();
-        }
-        catch ( final IOException e )
-        {
-            return file.toURI().getPath();
-        }
+        return file.toURI().getPath();
     }
 }

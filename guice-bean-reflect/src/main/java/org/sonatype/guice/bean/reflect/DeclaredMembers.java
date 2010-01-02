@@ -62,6 +62,8 @@ final class DeclaredMembers
 
         private static final View[] VIEWS = View.values();
 
+        private static final Member[] NO_MEMBERS = new Member[0];
+
         // ----------------------------------------------------------------------
         // Implementation fields
         // ----------------------------------------------------------------------
@@ -70,7 +72,7 @@ final class DeclaredMembers
 
         private int viewIndex;
 
-        private Member[] members = {};
+        private Member[] members = NO_MEMBERS;
 
         private int memberIndex;
 
@@ -132,6 +134,7 @@ final class DeclaredMembers
 
         private static Class<?> filterClass( final Class<?> clazz )
         {
+            // deliberately ignore all java.* classes because we won't be injecting them
             return null == clazz || clazz.getName().startsWith( "java." ) ? null : clazz;
         }
     }

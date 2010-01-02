@@ -24,7 +24,7 @@ import org.osgi.framework.Bundle;
 public interface ClassSpace
 {
     /**
-     * Load the named class from the surrounding class space.
+     * Loads the named class from the surrounding class space.
      * 
      * @param name The class name
      * @return Class instance
@@ -34,7 +34,7 @@ public interface ClassSpace
         throws ClassNotFoundException;
 
     /**
-     * Defer loading the named class from the surrounding class space.
+     * Defers loading of the named class from the surrounding class space.
      * 
      * @param name The class name
      * @return Deferred class

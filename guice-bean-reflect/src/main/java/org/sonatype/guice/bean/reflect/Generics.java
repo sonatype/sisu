@@ -20,7 +20,7 @@ import java.lang.reflect.WildcardType;
 import com.google.inject.TypeLiteral;
 
 /**
- * Constants and utility methods for dealing with reified generic types.
+ * Utility methods for dealing with reified generic types.
  */
 public final class Generics
 {

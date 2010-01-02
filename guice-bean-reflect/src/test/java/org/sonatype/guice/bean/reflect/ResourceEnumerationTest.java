@@ -32,8 +32,7 @@ public class ResourceEnumerationTest
         throws Exception
     {
         final Enumeration<URL> e =
-            new ResourceEnumeration( new URL[] { COMMONS_LOGGING_JAR, new URL( "http://127.0.0.1/" ),
-                expand( COMMONS_LOGGING_JAR ) }, null, null, true );
+            new ResourceEnumeration( new URL[] { COMMONS_LOGGING_JAR, expand( COMMONS_LOGGING_JAR ) }, null, null, true );
 
         int n = 0;
         while ( e.hasMoreElements() )

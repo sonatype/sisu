@@ -12,10 +12,16 @@
  */
 package org.sonatype.guice.bean.reflect;
 
+import static org.sonatype.guice.bean.reflect.ResourceEnumeration.entryURL;
+
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.jar.Manifest;
 
 /**
  * {@link ClassSpace} backed by a strongly-referenced {@link URLClassLoader}.
@@ -29,6 +35,8 @@ public final class URLClassSpace
 
     private final URLClassLoader space;
 
+    private final URL[] urls;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -36,6 +44,42 @@ public final class URLClassSpace
     public URLClassSpace( final URLClassLoader space )
     {
         this.space = space;
+
+        final List<URL> searchURLs = new ArrayList<URL>();
+        Collections.addAll( searchURLs, space.getURLs() );
+
+        final List<URL> expandedURLs = new ArrayList<URL>();
+        for ( int i = 0; i < searchURLs.size(); i++ )
+        {
+            final URL url = searchURLs.get( i );
+            expandedURLs.add( url );
+
+            try
+            {
+                // add URLs referenced by Class-Path directives in associated manifest files
+                final Manifest manifest = new Manifest( entryURL( url, "META-INF/MANIFEST.MF" ).openStream() );
+                final String classPath = manifest.getMainAttributes().getValue( "Class-Path" );
+                if ( null == classPath )
+                {
+                    continue; // nothing extra to add
+                }
+                for ( final String entry : classPath.split( " " ) )
+                {
+                    final URL entryURL = new URL( url, entry );
+                    if ( searchURLs.contains( entryURL ) )
+                    {
+                        continue; // already processed
+                    }
+                    searchURLs.add( entryURL );
+                }
+            }
+            catch ( final IOException e ) // NOPMD
+            {
+                // move onto next URL
+            }
+        }
+
+        urls = expandedURLs.toArray( new URL[expandedURLs.size()] );
     }
 
     // ----------------------------------------------------------------------
@@ -61,6 +105,6 @@ public final class URLClassSpace
 
     public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
     {
-        return new ResourceEnumeration( space.getURLs(), path, glob, recurse );
+        return new ResourceEnumeration( urls, path, glob, recurse );
     }
 }

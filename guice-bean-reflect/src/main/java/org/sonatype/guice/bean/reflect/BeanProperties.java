@@ -114,19 +114,26 @@ public final class BeanProperties
                     continue;
                 }
 
-                // ignore any final fields, as they should not be updated
-                if ( member instanceof Field && !Modifier.isFinal( modifiers ) )
+                if ( member instanceof Field )
                 {
-                    nextProperty = new BeanPropertyField<T>( (Field) member );
-                    return true;
+                    // don't try to inject final fields
+                    if ( !Modifier.isFinal( modifiers ) )
+                    {
+                        nextProperty = new BeanPropertyField<T>( (Field) member );
+                        return true;
+                    }
+                    continue;
                 }
 
-                // ignore zero/multi-argument methods, as they can't be setters
-                if ( member instanceof Method && member.getName().startsWith( "set" )
-                    && ( (Method) member ).getParameterTypes().length == 1 )
+                if ( member instanceof Method )
                 {
-                    nextProperty = new BeanPropertySetter<T>( (Method) member );
-                    return true;
+                    // assume setter methods start with "set", we should also ignore any zero/multi-argument methods
+                    if ( member.getName().startsWith( "set" ) && ( (Method) member ).getParameterTypes().length == 1 )
+                    {
+                        nextProperty = new BeanPropertySetter<T>( (Method) member );
+                        return true;
+                    }
+                    continue;
                 }
             }
 
