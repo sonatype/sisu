@@ -28,7 +28,6 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.reflect.StrongDeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
@@ -98,9 +97,28 @@ public class XmlPlexusBeanSourceTest
                 return Class.forName( name );
             }
 
+            @SuppressWarnings( "unchecked" )
             public DeferredClass<?> deferLoadClass( final String name )
             {
-                return new StrongDeferredClass<Object>( this, name );
+                return new DeferredClass()
+                {
+                    public Class get()
+                    {
+                        try
+                        {
+                            return loadClass( name );
+                        }
+                        catch ( final ClassNotFoundException e )
+                        {
+                            throw new TypeNotPresentException( name, e );
+                        }
+                    }
+
+                    public String getName()
+                    {
+                        return name;
+                    }
+                };
             }
 
             public Enumeration<URL> getResources( final String name )
@@ -110,8 +128,8 @@ public class XmlPlexusBeanSourceTest
             }
 
             public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
-                throws IOException
             {
+                // hide components.xml so we can just test plexus.xml parsing
                 return Collections.enumeration( Collections.<URL> emptyList() );
             }
         };
@@ -154,21 +172,40 @@ public class XmlPlexusBeanSourceTest
                 return Class.forName( name );
             }
 
+            @SuppressWarnings( "unchecked" )
+            public DeferredClass<?> deferLoadClass( final String name )
+            {
+                return new DeferredClass()
+                {
+                    public Class get()
+                    {
+                        try
+                        {
+                            return loadClass( name );
+                        }
+                        catch ( final ClassNotFoundException e )
+                        {
+                            throw new TypeNotPresentException( name, e );
+                        }
+                    }
+
+                    public String getName()
+                    {
+                        return name;
+                    }
+                };
+            }
+
             public Enumeration<URL> getResources( final String name )
                 throws IOException
             {
                 throw new FileNotFoundException( "UNKNOWN" );
             }
 
-            public DeferredClass<?> deferLoadClass( final String name )
-            {
-                return new StrongDeferredClass<Object>( this, name );
-            }
-
             public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
                 throws IOException
             {
-                return Collections.enumeration( Collections.<URL> emptyList() );
+                throw new FileNotFoundException( "UNKNOWN" );
             }
         };
 
@@ -186,6 +223,7 @@ public class XmlPlexusBeanSourceTest
     public void testComponents()
     {
         final ClassSpace space = new URLClassSpace( (URLClassLoader) XmlPlexusBeanSourceTest.class.getClassLoader() );
+
         final PlexusBeanSource source = new XmlPlexusBeanSource( null, space, null );
         final Map<Component, DeferredClass<?>> componentMap = source.findPlexusComponentBeans();
 
@@ -261,9 +299,28 @@ public class XmlPlexusBeanSourceTest
             return Class.forName( name );
         }
 
+        @SuppressWarnings( "unchecked" )
         public DeferredClass<?> deferLoadClass( final String name )
         {
-            return new StrongDeferredClass<Object>( this, name );
+            return new DeferredClass()
+            {
+                public Class get()
+                {
+                    try
+                    {
+                        return loadClass( name );
+                    }
+                    catch ( final ClassNotFoundException e )
+                    {
+                        throw new TypeNotPresentException( name, e );
+                    }
+                }
+
+                public String getName()
+                {
+                    return name;
+                }
+            };
         }
 
         public Enumeration<URL> getResources( final String name )
@@ -272,9 +329,8 @@ public class XmlPlexusBeanSourceTest
         }
 
         public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
-            throws IOException
         {
-            return Collections.enumeration( Collections.<URL> emptyList() );
+            return Collections.enumeration( Collections.singleton( getClass().getResource( fixedResourceName ) ) );
         }
     }
 

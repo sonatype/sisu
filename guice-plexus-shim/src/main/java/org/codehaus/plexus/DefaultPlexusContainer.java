@@ -40,7 +40,6 @@ import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.reflect.StrongDeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.config.Hints;
@@ -300,7 +299,25 @@ public final class DefaultPlexusContainer
             @SuppressWarnings( "unchecked" )
             public DeferredClass<?> deferLoadClass( final String name )
             {
-                return new StrongDeferredClass( this, name );
+                return new DeferredClass()
+                {
+                    public Class get()
+                    {
+                        try
+                        {
+                            return loadClass( name );
+                        }
+                        catch ( final ClassNotFoundException e )
+                        {
+                            throw new TypeNotPresentException( name, e );
+                        }
+                    }
+
+                    public String getName()
+                    {
+                        return name;
+                    }
+                };
             }
 
             public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
