@@ -44,11 +44,13 @@ final class AnnotatedComponentScanner
 
     private final Map<Component, DeferredClass<?>> components = new HashMap<Component, DeferredClass<?>>();
 
-    private String implementation;
+    private String role;
+
+    private String hint;
 
     private String instantiationStrategy;
 
-    private String hint;
+    private String implementation;
 
     private boolean isExtension;
 
@@ -67,38 +69,29 @@ final class AnnotatedComponentScanner
             return;
         }
 
+        role = null;
+        hint = Hints.DEFAULT_HINT;
+        instantiationStrategy = "per-lookup";
+
+        implementation = name;
+
+        isExtension = false;
+        isManaged = false;
+
         for ( final String i : interfaces )
         {
             try
             {
-                implementation = name;
-                instantiationStrategy = "per-lookup";
-                hint = Hints.DEFAULT_HINT;
-
-                isExtension = false;
-                isManaged = false;
-
                 scan( space.getResources( i + ".class" ).nextElement() );
-
                 if ( isExtension || isManaged )
                 {
-                    implementation = implementation.replace( '/', '.' );
-                    if ( isExtension && Hints.isDefaultHint( hint ) )
-                    {
-                        hint = implementation;
-                    }
-                    final Class<?> role = space.loadClass( i.replace( '/', '.' ) );
-                    final Component component = new ComponentImpl( role, hint, instantiationStrategy, "" );
-                    components.put( component, space.deferLoadClass( implementation ) );
+                    role = i.replace( '/', '.' );
+                    break;
                 }
             }
             catch ( final Exception e )
             {
                 // ignore?
-            }
-            finally
-            {
-                implementation = null;
             }
         }
     }
@@ -113,7 +106,14 @@ final class AnnotatedComponentScanner
 
     public AnnotationVisitor visitAnnotation( final String desc, final boolean visible )
     {
-        if ( null != implementation )
+        if ( null != role )
+        {
+            if ( NAMED_DESC.equals( desc ) )
+            {
+                return this;
+            }
+        }
+        else if ( null != implementation )
         {
             if ( EXTENSION_POINT_DESC.equals( desc ) )
             {
@@ -122,10 +122,6 @@ final class AnnotatedComponentScanner
             else if ( MANAGED_DESC.equals( desc ) )
             {
                 isManaged = true;
-            }
-            else if ( NAMED_DESC.equals( desc ) )
-            {
-                return this;
             }
             else if ( SINGLETON_DESC.equals( desc ) )
             {
@@ -179,6 +175,30 @@ final class AnnotatedComponentScanner
 
     public void visitEnd()
     {
+        if ( null == role )
+        {
+            return;
+        }
+
+        implementation = implementation.replace( '/', '.' );
+        if ( isExtension && Hints.isDefaultHint( hint ) )
+        {
+            hint = implementation;
+        }
+
+        try
+        {
+            final Component component = new ComponentImpl( space.loadClass( role ), hint, instantiationStrategy, "" );
+            components.put( component, space.deferLoadClass( implementation ) );
+        }
+        catch ( final ClassNotFoundException e )
+        {
+            // ignore?
+        }
+        finally
+        {
+            role = null;
+        }
     }
 
     void scan( final URL url )

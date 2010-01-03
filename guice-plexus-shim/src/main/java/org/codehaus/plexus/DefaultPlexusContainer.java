@@ -275,12 +275,19 @@ public final class DefaultPlexusContainer
 
     public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm classRealm )
     {
-        final ClassSpace space = new URLClassSpace( classRealm );
-        final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, contextMap );
-        final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( space, contextMap );
-        final Module bindings = new PlexusBindingModule( lifecycleManager, xmlSource, annSource );
+        try
+        {
+            final ClassSpace space = new URLClassSpace( classRealm );
+            final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, contextMap );
+            final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( space, contextMap );
+            final Module bindings = new PlexusBindingModule( lifecycleManager, xmlSource, annSource );
 
-        typeLocator.add( injector.createChildInjector( bindings ) );
+            typeLocator.add( injector.createChildInjector( bindings ) );
+        }
+        catch ( final Throwable e )
+        {
+            getLogger().warn( classRealm.toString(), e );
+        }
 
         return Collections.emptyList(); // don't need to return anything at the moment
     }
