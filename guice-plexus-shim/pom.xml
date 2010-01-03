@@ -27,7 +27,7 @@
               J2SE-1.5,JavaSE-1.6
             </Bundle-RequiredExecutionEnvironment>
             <_exportcontents>org.codehaus.plexus.*;-noimport:=true</_exportcontents>
-            <_versionpolicy>[${version;==;${@}},${version;+;${@}})</_versionpolicy>
+            <_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>
             <_nouses>true</_nouses>
             <Embed-Dependency>
               *;groupId=org.sonatype.spice.inject;artifactId=!guice-patches;inline=org/**

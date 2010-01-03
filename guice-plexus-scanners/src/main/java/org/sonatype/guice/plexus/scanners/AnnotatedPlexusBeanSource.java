@@ -12,7 +12,10 @@
  */
 package org.sonatype.guice.plexus.scanners;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -65,7 +68,21 @@ public final class AnnotatedPlexusBeanSource
         {
             return Collections.emptyMap();
         }
-        return Collections.emptyMap(); // TODO: resource scanning
+
+        try
+        {
+            final AnnotatedComponentScanner scanner = new AnnotatedComponentScanner( space );
+            final Enumeration<URL> e = space.findEntries( null, "*.class", true );
+            while ( e.hasMoreElements() )
+            {
+                scanner.scan( e.nextElement() );
+            }
+            return scanner.getComponents();
+        }
+        catch ( final IOException e )
+        {
+            throw new RuntimeException( e.toString() );
+        }
     }
 
     public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )

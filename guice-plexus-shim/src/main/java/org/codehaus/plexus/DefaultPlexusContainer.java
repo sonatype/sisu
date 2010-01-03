@@ -13,13 +13,10 @@
 package org.codehaus.plexus;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +36,6 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.config.Hints;
@@ -110,7 +106,7 @@ public final class DefaultPlexusContainer
         lifecycleManager = new PlexusLifecycleManager();
 
         final ClassSpace space = new URLClassSpace( containerRealm );
-        final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( configurationUrl, space, contextMap );
+        final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, contextMap, configurationUrl );
         final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( null, contextMap );
 
         Guice.createInjector( new AbstractModule()
@@ -279,68 +275,14 @@ public final class DefaultPlexusContainer
 
     public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm classRealm )
     {
-        final ClassSpace space = new ClassSpace()
-        {
-            // TODO: remove non-managed dependencies from the search path passed to the scanners
-            final ClassLoader localLoader = URLClassLoader.newInstance( classRealm.getURLs(), null );
+        final ClassSpace space = new URLClassSpace( classRealm );
+        final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, contextMap );
+        final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( space, contextMap );
+        final Module bindings = new PlexusBindingModule( lifecycleManager, xmlSource, annSource );
 
-            public Class<?> loadClass( final String name )
-                throws ClassNotFoundException
-            {
-                return classRealm.loadClass( name );
-            }
-
-            public Enumeration<URL> getResources( final String name )
-                throws IOException
-            {
-                return localLoader.getResources( name );
-            }
-
-            @SuppressWarnings( "unchecked" )
-            public DeferredClass<?> deferLoadClass( final String name )
-            {
-                return new DeferredClass()
-                {
-                    public Class get()
-                    {
-                        try
-                        {
-                            return loadClass( name );
-                        }
-                        catch ( final ClassNotFoundException e )
-                        {
-                            throw new TypeNotPresentException( name, e );
-                        }
-                    }
-
-                    public String getName()
-                    {
-                        return name;
-                    }
-                };
-            }
-
-            public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
-                throws IOException
-            {
-                return Collections.enumeration( Collections.<URL> emptyList() );
-            }
-        };
-
-        try
-        {
-            final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( null, space, contextMap );
-            final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( space, contextMap );
-            final Module bindings = new PlexusBindingModule( lifecycleManager, xmlSource, annSource );
-            typeLocator.add( injector.createChildInjector( bindings ) );
-        }
-        catch ( final Throwable e )
-        {
-            getLogger().warn( classRealm.toString(), e );
-        }
+        typeLocator.add( injector.createChildInjector( bindings ) );
 
         return Collections.emptyList(); // don't need to return anything at the moment
-
     }
 
     // ----------------------------------------------------------------------

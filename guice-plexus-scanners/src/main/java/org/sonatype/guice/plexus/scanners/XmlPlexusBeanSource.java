@@ -54,8 +54,6 @@ public final class XmlPlexusBeanSource
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final String COMPONENTS_XML_PATH = "META-INF/plexus/components.xml";
-
     private static final String LOAD_ON_START = "load-on-start";
 
     private static final String SINGLETON = "singleton";
@@ -64,11 +62,13 @@ public final class XmlPlexusBeanSource
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final URL plexusDotXml;
-
     private final ClassSpace space;
 
     private final Map<?, ?> variables;
+
+    private final URL plexusXml;
+
+    private final boolean isPrimarySpace;
 
     private final Logger logger = LoggerFactory.getLogger( XmlPlexusBeanSource.class );
 
@@ -79,17 +79,32 @@ public final class XmlPlexusBeanSource
     // ----------------------------------------------------------------------
 
     /**
-     * Scans the optional {@code plexus.xml} resource and the given class space for XML based Plexus metadata.
+     * Scans the {@code plexus.xml} resource and primary class space for XML based Plexus metadata.
      * 
-     * @param plexusDotXml Optional plexus.xml URL
+     * @param space The containing class space
+     * @param variables The filter variables
+     * @param plexusXml The plexus.xml URL
+     */
+    public XmlPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables, final URL plexusXml )
+    {
+        this.space = space;
+        this.variables = variables;
+        this.plexusXml = plexusXml;
+        isPrimarySpace = true;
+    }
+
+    /**
+     * Scans the local secondary class space for XML based Plexus metadata.
+     * 
      * @param space The containing class space
      * @param variables The filter variables
      */
-    public XmlPlexusBeanSource( final URL plexusDotXml, final ClassSpace space, final Map<?, ?> variables )
+    public XmlPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables )
     {
-        this.plexusDotXml = plexusDotXml;
         this.space = space;
         this.variables = variables;
+        plexusXml = null;
+        isPrimarySpace = false;
     }
 
     // ----------------------------------------------------------------------
@@ -104,44 +119,25 @@ public final class XmlPlexusBeanSource
         final Map<Component, DeferredClass<?>> components = new HashMap<Component, DeferredClass<?>>();
         final Map<String, String> strategies = new HashMap<String, String>();
 
-        URL url = plexusDotXml;
-
         try
         {
-            if ( null != url )
+            if ( null != plexusXml )
             {
-                final InputStream in = url.openStream();
-                try
-                {
-                    parsePlexusDotXml( filteredXmlReader( in, variables ), components, strategies );
-                }
-                finally
-                {
-                    IOUtil.close( in );
-                }
+                parsePlexusXml( plexusXml, components, strategies );
             }
 
-            for ( final Enumeration<URL> i = space.getResources( COMPONENTS_XML_PATH ); i.hasMoreElements(); )
+            final Enumeration<URL> e =
+                isPrimarySpace ? space.getResources( "META-INF/plexus/components.xml" )
+                                : space.findEntries( "META-INF/plexus/", "components.xml", false );
+
+            while ( e.hasMoreElements() )
             {
-                url = i.nextElement();
-                final InputStream in = url.openStream();
-                try
-                {
-                    parseComponentsDotXml( filteredXmlReader( in, variables ), components, strategies );
-                }
-                finally
-                {
-                    IOUtil.close( in );
-                }
+                parseComponentsXml( e.nextElement(), components, strategies );
             }
-        }
-        catch ( final XmlPullParserException e )
-        {
-            throw new RuntimeException( "Problem parsing: " + url + " reason: " + e );
         }
         catch ( final IOException e )
         {
-            throw new RuntimeException( "Problem reading: " + url + " reason: " + e );
+            throw new RuntimeException( e.toString() );
         }
 
         return components;
@@ -173,72 +169,100 @@ public final class XmlPlexusBeanSource
         throws IOException
     {
         final Reader reader = new XmlStreamReader( in );
-        return null != variables ? new InterpolationFilterReader( reader, variables ) : reader;
+        if ( null != variables )
+        {
+            return new InterpolationFilterReader( reader, variables );
+        }
+        return reader;
     }
 
     /**
      * Parses a {@code plexus.xml} resource into load-on-start settings and Plexus bean metadata.
      * 
-     * @param reader The XML resource reader
+     * @param url The plexus.xml URL
      * @param components The parsed component implementations
      * @param strategies The role instantiation strategies
      */
-    private void parsePlexusDotXml( final Reader reader, final Map<Component, DeferredClass<?>> components,
-                                    final Map<String, String> strategies )
-        throws XmlPullParserException, IOException
+    private void parsePlexusXml( final URL url, final Map<Component, DeferredClass<?>> components,
+                                 final Map<String, String> strategies )
+        throws IOException
     {
-        final MXParser parser = new MXParser();
-        parser.setInput( reader );
-
-        parser.nextTag();
-        parser.require( XmlPullParser.START_TAG, null, "plexus" );
-
-        while ( parser.nextTag() == XmlPullParser.START_TAG )
+        final InputStream in = url.openStream();
+        try
         {
-            final String name = parser.getName();
-            if ( LOAD_ON_START.equals( name ) )
+            final MXParser parser = new MXParser();
+            parser.setInput( filteredXmlReader( in, variables ) );
+
+            parser.nextTag();
+            parser.require( XmlPullParser.START_TAG, null, "plexus" );
+
+            while ( parser.nextTag() == XmlPullParser.START_TAG )
             {
-                while ( parser.nextTag() == XmlPullParser.START_TAG )
+                final String name = parser.getName();
+                if ( LOAD_ON_START.equals( name ) )
                 {
-                    parseLoadOnStart( parser, strategies );
+                    while ( parser.nextTag() == XmlPullParser.START_TAG )
+                    {
+                        parseLoadOnStart( parser, strategies );
+                    }
+                }
+                else if ( "components".equals( name ) )
+                {
+                    while ( parser.nextTag() == XmlPullParser.START_TAG )
+                    {
+                        parseComponent( parser, components, strategies );
+                    }
+                }
+                else
+                {
+                    parser.skipSubTree();
                 }
             }
-            else if ( "components".equals( name ) )
-            {
-                while ( parser.nextTag() == XmlPullParser.START_TAG )
-                {
-                    parseComponent( parser, components, strategies );
-                }
-            }
-            else
-            {
-                parser.skipSubTree();
-            }
+        }
+        catch ( final XmlPullParserException e )
+        {
+            throw new IOException( "Problem parsing: " + url + " reason: " + e );
+        }
+        finally
+        {
+            IOUtil.close( in );
         }
     }
 
     /**
      * Parses a {@code components.xml} resource into a series of Plexus bean metadata.
      * 
-     * @param reader The XML resource reader
+     * @param url The components.xml URL
      * @param components The parsed component implementations
      * @param strategies The role instantiation strategies
      */
-    private void parseComponentsDotXml( final Reader reader, final Map<Component, DeferredClass<?>> components,
-                                        final Map<String, String> strategies )
-        throws XmlPullParserException, IOException
+    private void parseComponentsXml( final URL url, final Map<Component, DeferredClass<?>> components,
+                                     final Map<String, String> strategies )
+        throws IOException
     {
-        final MXParser parser = new MXParser();
-        parser.setInput( reader );
-
-        parser.nextTag();
-        parser.require( XmlPullParser.START_TAG, null, "component-set" );
-        parser.nextTag();
-        parser.require( XmlPullParser.START_TAG, null, "components" );
-
-        while ( parser.nextTag() == XmlPullParser.START_TAG )
+        final InputStream in = url.openStream();
+        try
         {
-            parseComponent( parser, components, strategies );
+            final MXParser parser = new MXParser();
+            parser.setInput( filteredXmlReader( in, variables ) );
+
+            parser.nextTag();
+            parser.require( XmlPullParser.START_TAG, null, "component-set" );
+            parser.nextTag();
+            parser.require( XmlPullParser.START_TAG, null, "components" );
+
+            while ( parser.nextTag() == XmlPullParser.START_TAG )
+            {
+                parseComponent( parser, components, strategies );
+            }
+        }
+        catch ( final XmlPullParserException e )
+        {
+            throw new IOException( "Problem parsing: " + url + " reason: " + e );
+        }
+        finally
+        {
+            IOUtil.close( in );
         }
     }
 
