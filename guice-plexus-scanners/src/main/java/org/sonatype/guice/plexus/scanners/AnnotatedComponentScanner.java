@@ -32,6 +32,8 @@ final class AnnotatedComponentScanner
     private static final int CLASS_READER_FLAGS =
         ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES;
 
+    private static final String COMPONENT_DESC = Type.getDescriptor( Component.class );
+
     private static final String EXTENSION_POINT_DESC = Type.getDescriptor( ExtensionPoint.class );
 
     private static final String MANAGED_DESC = Type.getDescriptor( Managed.class );
@@ -50,11 +52,15 @@ final class AnnotatedComponentScanner
 
     private String instantiationStrategy;
 
+    private String description;
+
     private String implementation;
 
     private boolean isExtension;
 
     private boolean isManaged;
+
+    private boolean isSingleton;
 
     AnnotatedComponentScanner( final ClassSpace space )
     {
@@ -72,11 +78,13 @@ final class AnnotatedComponentScanner
         role = null;
         hint = Hints.DEFAULT_HINT;
         instantiationStrategy = "per-lookup";
+        description = "";
 
         implementation = name;
 
         isExtension = false;
         isManaged = false;
+        isSingleton = false;
 
         for ( final String i : interfaces )
         {
@@ -108,7 +116,12 @@ final class AnnotatedComponentScanner
     {
         if ( null != role )
         {
-            if ( NAMED_DESC.equals( desc ) )
+            if ( COMPONENT_DESC.equals( desc ) )
+            {
+                instantiationStrategy = "";
+                return this;
+            }
+            else if ( NAMED_DESC.equals( desc ) )
             {
                 return this;
             }
@@ -125,7 +138,7 @@ final class AnnotatedComponentScanner
             }
             else if ( SINGLETON_DESC.equals( desc ) )
             {
-                instantiationStrategy = "singleton";
+                isSingleton = true;
             }
         }
         return null;
@@ -153,9 +166,24 @@ final class AnnotatedComponentScanner
 
     public void visit( final String name, final Object value )
     {
-        if ( "value".equals( name ) && value instanceof String )
+        if ( value instanceof String )
         {
-            hint = (String) value;
+            if ( "value".equals( name ) )
+            {
+                hint = (String) value;
+            }
+            else if ( "hint".equals( name ) )
+            {
+                hint = (String) value;
+            }
+            else if ( "instantiationStrategy".equals( name ) )
+            {
+                instantiationStrategy = (String) value;
+            }
+            else if ( "description".equals( name ) )
+            {
+                description = (String) value;
+            }
         }
     }
 
@@ -186,10 +214,15 @@ final class AnnotatedComponentScanner
             hint = implementation;
         }
 
+        if ( isSingleton )
+        {
+            instantiationStrategy = "singleton";
+        }
+
         try
         {
-            final Component component = new ComponentImpl( space.loadClass( role ), hint, instantiationStrategy, "" );
-            components.put( component, space.deferLoadClass( implementation ) );
+            final Component cmp = new ComponentImpl( space.loadClass( role ), hint, instantiationStrategy, description );
+            components.put( cmp, space.deferLoadClass( implementation ) );
         }
         catch ( final ClassNotFoundException e )
         {
