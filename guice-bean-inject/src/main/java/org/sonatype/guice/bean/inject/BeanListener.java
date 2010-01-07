@@ -13,7 +13,7 @@
 package org.sonatype.guice.bean.inject;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import org.sonatype.guice.bean.reflect.BeanProperties;
 import org.sonatype.guice.bean.reflect.BeanProperty;
@@ -55,7 +55,7 @@ public final class BeanListener
             return; // no properties to bind
         }
 
-        final Collection<PropertyBinding> bindings = new ArrayList<PropertyBinding>();
+        final List<PropertyBinding> bindings = new ArrayList<PropertyBinding>();
         for ( final BeanProperty<?> property : new BeanProperties( type.getRawType() ) )
         {
             try

@@ -68,6 +68,17 @@ public class PropertyListenerTest
         String c;
     }
 
+    static class Bean4
+        extends Bean1
+    {
+        void setA( @SuppressWarnings( "unused" ) final String unused )
+        {
+            assertNull( a ); // hidden by our setter method
+            assertNotNull( b ); // should be injected first
+            a = "correct order";
+        }
+    }
+
     static class NamedPropertyBinder
         implements PropertyBinder
     {
@@ -173,5 +184,10 @@ public class PropertyListenerTest
         {
             System.out.println( e );
         }
+    }
+
+    public void testInjectionOrder()
+    {
+        assertEquals( "correct order", injector.getInstance( Bean4.class ).a );
     }
 }

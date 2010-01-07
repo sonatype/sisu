@@ -12,7 +12,7 @@
  */
 package org.sonatype.guice.bean.inject;
 
-import java.util.Collection;
+import java.util.List;
 
 import com.google.inject.MembersInjector;
 
@@ -32,10 +32,15 @@ final class BeanInjector<B>
     // Constructors
     // ----------------------------------------------------------------------
 
-    BeanInjector( final Collection<PropertyBinding> bindings )
+    BeanInjector( final List<PropertyBinding> bindings )
     {
-        // cache using a fixed-sized binding array for a nice performance boost
-        this.bindings = bindings.toArray( new PropertyBinding[bindings.size()] );
+        final int length = bindings.size();
+        this.bindings = new PropertyBinding[length];
+        for ( int n = 1; n <= length; n++ )
+        {
+            // inject properties in reverse order of discovery
+            this.bindings[length - n] = bindings.get( n - 1 );
+        }
     }
 
     // ----------------------------------------------------------------------
