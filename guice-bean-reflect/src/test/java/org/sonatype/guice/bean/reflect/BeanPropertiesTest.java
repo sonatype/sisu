@@ -128,7 +128,7 @@ public class BeanPropertiesTest
     static class H
         extends IBase<String>
     {
-        private volatile String id = "test";
+        private volatile String vid = "test";
 
         private static Internal internal = new Internal();
 
@@ -146,21 +146,21 @@ public class BeanPropertiesTest
         @Override
         public String toString()
         {
-            return id + "@" + internal.m_id;
+            return vid + "@" + internal.m_id;
         }
     }
 
     static class I
     {
         @Singleton
-        @Named( "foo" )
-        void setName( final String name )
-        {
-        }
+        @Named( "bar" )
+        String bar;
 
         @Singleton
-        @Named( "bar" )
-        String name;
+        @Named( "foo" )
+        void setFoo( final String foo )
+        {
+        }
     }
 
     static class J
@@ -194,7 +194,7 @@ public class BeanPropertiesTest
         }
     }
 
-    public void testInterfaceWithConstant()
+    public void testInterface()
     {
         for ( final BeanProperty<?> bp : new BeanProperties( A.class ) )
         {
@@ -236,7 +236,6 @@ public class BeanPropertiesTest
     {
         final Iterator<BeanProperty<Object>> i = new BeanProperties( F.class ).iterator();
         assertEquals( "name", i.next().getName() );
-        assertEquals( "name", i.next().getName() );
         assertFalse( i.hasNext() );
 
         try
@@ -269,8 +268,8 @@ public class BeanPropertiesTest
     public void testPropertyType()
     {
         final Iterator<BeanProperty<Object>> i = new BeanProperties( G.class ).iterator();
-        assertEquals( TypeLiteral.get( Types.listOf( String.class ) ), i.next().getType() );
         assertEquals( TypeLiteral.get( Types.mapOf( BigDecimal.class, Float.class ) ), i.next().getType() );
+        assertEquals( TypeLiteral.get( Types.listOf( String.class ) ), i.next().getType() );
     }
 
     public void testPropertyUpdate()
@@ -282,13 +281,13 @@ public class BeanPropertiesTest
 
         final H component = new H();
 
-        a.set( component, "foo" );
-        b.set( component, "bar" );
+        a.set( component, "bar" );
+        b.set( component, "foo" );
 
         assertEquals( "foo@bar", component.toString() );
 
-        b.set( component, "xyz" );
-        a.set( component, "abc" );
+        b.set( component, "abc" );
+        a.set( component, "xyz" );
 
         assertEquals( "abc@xyz", component.toString() );
     }
@@ -330,8 +329,8 @@ public class BeanPropertiesTest
     public void testPropertyAnnotations()
     {
         final Iterator<BeanProperty<Object>> i = new BeanProperties( I.class ).iterator();
-        assertEquals( "bar", i.next().getAnnotation( Named.class ).value() );
         assertEquals( "foo", i.next().getAnnotation( Named.class ).value() );
+        assertEquals( "bar", i.next().getAnnotation( Named.class ).value() );
         assertFalse( i.hasNext() );
     }
 

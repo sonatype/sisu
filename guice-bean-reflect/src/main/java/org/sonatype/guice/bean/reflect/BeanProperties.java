@@ -17,8 +17,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -78,6 +80,9 @@ public final class BeanProperties
 
         private final Iterator<Member> i;
 
+        // avoid reporting duplicate properties with same name
+        private final Set<String> visited = new HashSet<String>();
+
         // look-ahead, maintained by hasNext()
         private BeanProperty<T> nextProperty;
 
@@ -104,16 +109,15 @@ public final class BeanProperties
             while ( i.hasNext() )
             {
                 final Member member = i.next();
-
                 final int modifiers = member.getModifiers();
 
-                // static members can't be properties, abstracts and synthetics are simply noise we can ignore
+                // static members can't be properties, abstracts and synthetics are just noise so we ignore them
                 if ( Modifier.isStatic( modifiers ) || Modifier.isAbstract( modifiers ) || member.isSynthetic() )
                 {
                     continue;
                 }
 
-                // ignore members with @Inject as they will have been injected by Guice
+                // ignore any members with @Inject as they will be injected by Guice
                 final AnnotatedElement annotatedElement = (AnnotatedElement) member;
                 if ( annotatedElement.isAnnotationPresent( com.google.inject.Inject.class )
                     || annotatedElement.isAnnotationPresent( javax.inject.Inject.class ) )
@@ -121,28 +125,25 @@ public final class BeanProperties
                     continue;
                 }
 
-                if ( member instanceof Field )
-                {
-                    // don't try to inject final fields
-                    if ( !Modifier.isFinal( modifiers ) )
-                    {
-                        nextProperty = new BeanPropertyField<T>( (Field) member );
-                        return true;
-                    }
-                    continue;
-                }
-
                 if ( member instanceof Method )
                 {
-                    // setter methods have one parameter and names like "setFoo"
-                    if ( ( (Method) member ).getParameterTypes().length == 1
-                        && SETTER_PATTERN.matcher( member.getName() ).lookingAt() )
+                    final Method m = (Method) member;
+                    if ( m.getParameterTypes().length == 1 && SETTER_PATTERN.matcher( m.getName() ).lookingAt() )
                     {
-                        nextProperty = new BeanPropertySetter<T>( (Method) member );
-                        return true;
+                        nextProperty = new BeanPropertySetter<T>( m );
                     }
-                    continue;
                 }
+                if ( member instanceof Field && !Modifier.isFinal( modifiers ) )
+                {
+                    nextProperty = new BeanPropertyField<T>( (Field) member );
+                }
+
+                // report one property per name, even if they have different types
+                if ( null != nextProperty && visited.add( nextProperty.getName() ) )
+                {
+                    return true;
+                }
+                nextProperty = null;
             }
 
             return false;
