@@ -12,9 +12,6 @@
  */
 package org.sonatype.guice.plexus.binders;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.slf4j.Logger;
@@ -42,8 +39,6 @@ final class PlexusPropertyBinder
     private final PlexusConfigurations configurations;
 
     private final PlexusRequirements requirements;
-
-    private final Set<String> visited = new HashSet<String>();
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -81,13 +76,6 @@ final class PlexusPropertyBinder
             return PropertyBinder.LAST_BINDING;
         }
 
-        // ignore hidden/shadowed properties
-        final String name = property.getName();
-        if ( visited.contains( name ) )
-        {
-            return null;
-        }
-
         /*
          * @Configuration binding
          */
@@ -95,7 +83,6 @@ final class PlexusPropertyBinder
         if ( null != configuration )
         {
             final Provider<T> valueProvider = configurations.lookup( configuration, property );
-            visited.add( name );
             return new ProvidedPropertyBinding<T>( property, valueProvider );
         }
 
@@ -106,7 +93,6 @@ final class PlexusPropertyBinder
         if ( null != requirement )
         {
             final Provider<T> roleProvider = requirements.lookup( requirement, property );
-            visited.add( name );
             return new ProvidedPropertyBinding<T>( property, roleProvider );
         }
 
