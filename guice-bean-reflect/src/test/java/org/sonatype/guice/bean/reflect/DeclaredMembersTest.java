@@ -115,7 +115,7 @@ public class DeclaredMembersTest
     public void testInterfaceHierarchy()
         throws NoSuchMethodException, NoSuchFieldException
     {
-        final Member[] elements = { C.class.getDeclaredMethod( "c" ), C.class.getDeclaredField( "c" ) };
+        final Member[] elements = { C.class.getDeclaredField( "c" ), C.class.getDeclaredMethod( "c" ) };
 
         int i = 0;
         for ( final Member e : new DeclaredMembers( C.class ) )
@@ -129,8 +129,8 @@ public class DeclaredMembersTest
         throws NoSuchMethodException, NoSuchFieldException
     {
         final Member[] elements =
-            { /* D.class.getDeclaredConstructor(), */D.class.getDeclaredMethod( "c" ), D.class.getDeclaredField( "d" ),
-            /* B.class.getDeclaredConstructor(), */B.class.getDeclaredMethod( "a" ), B.class.getDeclaredField( "b" ) };
+            { /* D.class.getDeclaredConstructor(), */D.class.getDeclaredField( "d" ), D.class.getDeclaredMethod( "c" ),
+            /* B.class.getDeclaredConstructor(), */B.class.getDeclaredField( "b" ), B.class.getDeclaredMethod( "a" ) };
 
         int i = 0;
         for ( final Member e : new DeclaredMembers( D.class ) )

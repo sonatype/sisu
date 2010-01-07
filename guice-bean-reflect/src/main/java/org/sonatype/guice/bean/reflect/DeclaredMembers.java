@@ -155,20 +155,20 @@ final class DeclaredMembers
         // }
         // },
         //
-        METHODS
-        {
-            @Override
-            final Member[] members( final Class<?> clazz )
-            {
-                return clazz.getDeclaredMethods();
-            }
-        },
         FIELDS
         {
             @Override
             final Member[] members( final Class<?> clazz )
             {
                 return clazz.getDeclaredFields();
+            }
+        },
+        METHODS
+        {
+            @Override
+            final Member[] members( final Class<?> clazz )
+            {
+                return clazz.getDeclaredMethods();
             }
         };
 

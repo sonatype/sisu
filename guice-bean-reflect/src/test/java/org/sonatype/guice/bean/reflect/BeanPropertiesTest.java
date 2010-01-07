@@ -35,6 +35,8 @@ public class BeanPropertiesTest
     static interface A
     {
         String name = "";
+
+        void setName( String name );
     }
 
     static class B
@@ -51,14 +53,9 @@ public class BeanPropertiesTest
         String name;
     }
 
-    static interface D
+    static class D
     {
-        void setName( String name );
-    }
-
-    static class E
-    {
-        public E()
+        public D()
         {
         }
 
@@ -67,7 +64,7 @@ public class BeanPropertiesTest
         }
     }
 
-    static class F
+    static class E
     {
         void setName()
         {
@@ -92,7 +89,7 @@ public class BeanPropertiesTest
         }
     }
 
-    static class G
+    static class F
     {
         void setName( final String name )
         {
@@ -113,7 +110,7 @@ public class BeanPropertiesTest
         }
     }
 
-    static class H
+    static class G
     {
         List<String> names;
 
@@ -128,7 +125,7 @@ public class BeanPropertiesTest
     }
 
     @SuppressWarnings( "synthetic-access" )
-    static class I
+    static class H
         extends IBase<String>
     {
         private volatile String id = "test";
@@ -153,20 +150,20 @@ public class BeanPropertiesTest
         }
     }
 
-    static class J
+    static class I
     {
-        @Singleton
-        @Named( "bar" )
-        String name;
-
         @Singleton
         @Named( "foo" )
         void setName( final String name )
         {
         }
+
+        @Singleton
+        @Named( "bar" )
+        String name;
     }
 
-    static class K
+    static class J
     {
         String a;
 
@@ -175,7 +172,7 @@ public class BeanPropertiesTest
         String c;
     }
 
-    static class L
+    static class K
     {
         void setName( final String name )
         {
@@ -183,21 +180,21 @@ public class BeanPropertiesTest
         }
     }
 
-    static class M
+    static class L
     {
         void setter( final String value )
         {
         }
     }
 
-    static class N
+    static class M
     {
         void set( final String value )
         {
         }
     }
 
-    public void testInterface()
+    public void testInterfaceWithConstant()
     {
         for ( final BeanProperty<?> bp : new BeanProperties( A.class ) )
         {
@@ -220,23 +217,16 @@ public class BeanPropertiesTest
         assertFalse( i.hasNext() );
     }
 
-    public void testPropertyParam()
+    public void testPropertySetter()
     {
         final Iterator<BeanProperty<Object>> i = new BeanProperties( D.class ).iterator();
         assertEquals( "name", i.next().getName() );
         assertFalse( i.hasNext() );
     }
 
-    public void testPropertySetter()
-    {
-        final Iterator<BeanProperty<Object>> i = new BeanProperties( E.class ).iterator();
-        assertEquals( "name", i.next().getName() );
-        assertFalse( i.hasNext() );
-    }
-
     public void testSkipInvalidSetters()
     {
-        for ( final BeanProperty<?> bp : new BeanProperties( F.class ) )
+        for ( final BeanProperty<?> bp : new BeanProperties( E.class ) )
         {
             fail( "Expected no bean properties" );
         }
@@ -244,7 +234,7 @@ public class BeanPropertiesTest
 
     public void testPropertyCombination()
     {
-        final Iterator<BeanProperty<Object>> i = new BeanProperties( G.class ).iterator();
+        final Iterator<BeanProperty<Object>> i = new BeanProperties( F.class ).iterator();
         assertEquals( "name", i.next().getName() );
         assertEquals( "name", i.next().getName() );
         assertFalse( i.hasNext() );
@@ -278,30 +268,27 @@ public class BeanPropertiesTest
 
     public void testPropertyType()
     {
-        final Iterator<BeanProperty<Object>> i = new BeanProperties( H.class ).iterator();
-        assertEquals( TypeLiteral.get( Types.mapOf( BigDecimal.class, Float.class ) ), i.next().getType() );
+        final Iterator<BeanProperty<Object>> i = new BeanProperties( G.class ).iterator();
         assertEquals( TypeLiteral.get( Types.listOf( String.class ) ), i.next().getType() );
+        assertEquals( TypeLiteral.get( Types.mapOf( BigDecimal.class, Float.class ) ), i.next().getType() );
     }
 
     public void testPropertyUpdate()
     {
-        final Iterator<BeanProperty<Object>> i = new BeanProperties( I.class ).iterator();
+        final Iterator<BeanProperty<Object>> i = new BeanProperties( H.class ).iterator();
         final BeanProperty<Object> a = i.next();
         final BeanProperty<Object> b = i.next();
-        final BeanProperty<Object> c = i.next();
         assertFalse( i.hasNext() );
 
-        final I component = new I();
+        final H component = new H();
 
-        a.set( component, "---" );
-        b.set( component, "foo" );
-        c.set( component, "bar" );
+        a.set( component, "foo" );
+        b.set( component, "bar" );
 
         assertEquals( "foo@bar", component.toString() );
 
-        c.set( component, "---" );
-        b.set( component, "abc" );
-        a.set( component, "xyz" );
+        b.set( component, "xyz" );
+        a.set( component, "abc" );
 
         assertEquals( "abc@xyz", component.toString() );
     }
@@ -327,7 +314,7 @@ public class BeanPropertiesTest
         {
             @SuppressWarnings( "unchecked" )
             final BeanProperty<Object> p =
-                new BeanPropertySetter( D.class.getDeclaredMethod( "setName", String.class ) );
+                new BeanPropertySetter( A.class.getDeclaredMethod( "setName", String.class ) );
             p.set( new Object(), "test" );
             fail( "Expected RuntimeException" );
         }
@@ -342,15 +329,15 @@ public class BeanPropertiesTest
 
     public void testPropertyAnnotations()
     {
-        final Iterator<BeanProperty<Object>> i = new BeanProperties( J.class ).iterator();
-        assertEquals( "foo", i.next().getAnnotation( Named.class ).value() );
+        final Iterator<BeanProperty<Object>> i = new BeanProperties( I.class ).iterator();
         assertEquals( "bar", i.next().getAnnotation( Named.class ).value() );
+        assertEquals( "foo", i.next().getAnnotation( Named.class ).value() );
         assertFalse( i.hasNext() );
     }
 
     public void testPropertyIteration()
     {
-        final Iterator<BeanProperty<Object>> i = new BeanProperties( K.class ).iterator();
+        final Iterator<BeanProperty<Object>> i = new BeanProperties( J.class ).iterator();
         assertTrue( i.hasNext() );
         assertTrue( i.hasNext() );
         assertEquals( "a", i.next().getName() );
@@ -368,8 +355,8 @@ public class BeanPropertiesTest
     {
         try
         {
-            final Iterator<BeanProperty<Object>> i = new BeanProperties( L.class ).iterator();
-            i.next().set( new L(), "TEST" );
+            final Iterator<BeanProperty<Object>> i = new BeanProperties( K.class ).iterator();
+            i.next().set( new K(), "TEST" );
             fail( "Expected RuntimeException" );
         }
         catch ( final RuntimeException e )
@@ -381,8 +368,8 @@ public class BeanPropertiesTest
     public void testSetterNames()
         throws NoSuchMethodException
     {
-        assertEquals( "name", new BeanPropertySetter( F.class.getDeclaredMethod( "name", String.class ) ).getName() );
-        assertEquals( "setter", new BeanProperties( M.class ).iterator().next().getName() );
-        assertEquals( "set", new BeanProperties( N.class ).iterator().next().getName() );
+        assertEquals( "name", new BeanPropertySetter( E.class.getDeclaredMethod( "name", String.class ) ).getName() );
+        assertEquals( "setter", new BeanProperties( L.class ).iterator().next().getName() );
+        assertEquals( "set", new BeanProperties( M.class ).iterator().next().getName() );
     }
 }

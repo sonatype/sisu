@@ -98,18 +98,18 @@ public final class BeanProperties
             {
                 final Member member = i.next();
 
-                // ignore members with @Inject as they will have been injected by Guice
-                final AnnotatedElement annotatedElement = (AnnotatedElement) member;
-                if ( annotatedElement.isAnnotationPresent( com.google.inject.Inject.class )
-                    || annotatedElement.isAnnotationPresent( javax.inject.Inject.class ) )
+                final int modifiers = member.getModifiers();
+
+                // static members can't be properties, abstracts and synthetics are simply noise we can ignore
+                if ( Modifier.isStatic( modifiers ) || Modifier.isAbstract( modifiers ) || member.isSynthetic() )
                 {
                     continue;
                 }
 
-                final int modifiers = member.getModifiers();
-
-                // statics can't be properties and synthetics are just noise
-                if ( Modifier.isStatic( modifiers ) || member.isSynthetic() )
+                // ignore members with @Inject as they will have been injected by Guice
+                final AnnotatedElement annotatedElement = (AnnotatedElement) member;
+                if ( annotatedElement.isAnnotationPresent( com.google.inject.Inject.class )
+                    || annotatedElement.isAnnotationPresent( javax.inject.Inject.class ) )
                 {
                     continue;
                 }
