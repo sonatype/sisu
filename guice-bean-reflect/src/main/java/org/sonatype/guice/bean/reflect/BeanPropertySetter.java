@@ -65,15 +65,9 @@ final class BeanPropertySetter<T>
     public String getName()
     {
         final String name = method.getName();
-        if ( name.length() >= 4 && name.startsWith( "set" ) )
-        {
-            final char c = name.charAt( 3 );
-            if ( Character.isUpperCase( c ) )
-            {
-                return Character.toLowerCase( c ) + name.substring( 4 );
-            }
-        }
-        return name;
+
+        // this is guaranteed OK by the checks made in the BeanProperties code
+        return Character.toLowerCase( name.charAt( 3 ) ) + name.substring( 4 );
     }
 
     public <B> void set( final B bean, final T value )

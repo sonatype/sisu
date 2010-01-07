@@ -364,12 +364,10 @@ public class BeanPropertiesTest
         }
     }
 
-    @SuppressWarnings( "unchecked" )
     public void testSetterNames()
         throws NoSuchMethodException
     {
-        assertEquals( "name", new BeanPropertySetter( E.class.getDeclaredMethod( "name", String.class ) ).getName() );
-        assertEquals( "setter", new BeanProperties( L.class ).iterator().next().getName() );
-        assertEquals( "set", new BeanProperties( M.class ).iterator().next().getName() );
+        assertFalse( new BeanProperties( L.class ).iterator().hasNext() );
+        assertFalse( new BeanProperties( M.class ).iterator().hasNext() );
     }
 }

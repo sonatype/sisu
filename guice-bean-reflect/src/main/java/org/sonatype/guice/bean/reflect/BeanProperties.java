@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.regex.Pattern;
 
 /**
  * {@link Iterable} that iterates over potential bean properties in a class hierarchy.
@@ -26,6 +27,12 @@ import java.util.NoSuchElementException;
 public final class BeanProperties
     implements Iterable<BeanProperty<Object>>
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    static final Pattern SETTER_PATTERN = Pattern.compile( "set\\p{javaUpperCase}" );
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -127,8 +134,9 @@ public final class BeanProperties
 
                 if ( member instanceof Method )
                 {
-                    // assume setter methods start with "set", we should also ignore any zero/multi-argument methods
-                    if ( member.getName().startsWith( "set" ) && ( (Method) member ).getParameterTypes().length == 1 )
+                    // setter methods have one parameter and names like "setFoo"
+                    if ( ( (Method) member ).getParameterTypes().length == 1
+                        && SETTER_PATTERN.matcher( member.getName() ).lookingAt() )
                     {
                         nextProperty = new BeanPropertySetter<T>( (Method) member );
                         return true;
