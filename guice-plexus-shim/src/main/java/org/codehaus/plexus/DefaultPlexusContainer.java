@@ -37,6 +37,8 @@ import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
+import org.sonatype.guice.plexus.adapters.EntryListAdapter;
+import org.sonatype.guice.plexus.adapters.EntryMapAdapter;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
@@ -44,8 +46,6 @@ import org.sonatype.guice.plexus.config.PlexusTypeConverter;
 import org.sonatype.guice.plexus.config.PlexusTypeLocator;
 import org.sonatype.guice.plexus.converters.DateTypeConverter;
 import org.sonatype.guice.plexus.converters.XmlTypeConverter;
-import org.sonatype.guice.plexus.locators.EntryListAdapter;
-import org.sonatype.guice.plexus.locators.EntryMapAdapter;
 import org.sonatype.guice.plexus.locators.GuiceTypeLocator;
 import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 import org.sonatype.guice.plexus.scanners.XmlPlexusBeanSource;
@@ -279,7 +279,7 @@ public final class DefaultPlexusContainer
         {
             final ClassSpace space = new URLClassSpace( classRealm );
             final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, contextMap );
-            final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( space, contextMap );
+            final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( null, contextMap ); // TODO: space
             final Module bindings = new PlexusBindingModule( lifecycleManager, xmlSource, annSource );
 
             typeLocator.add( injector.createChildInjector( bindings ) );

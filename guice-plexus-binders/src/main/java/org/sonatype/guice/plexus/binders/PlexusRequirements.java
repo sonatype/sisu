@@ -19,11 +19,11 @@ import java.util.Map.Entry;
 
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.bean.reflect.BeanProperty;
+import org.sonatype.guice.plexus.adapters.EntryListAdapter;
+import org.sonatype.guice.plexus.adapters.EntryMapAdapter;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusTypeLocator;
 import org.sonatype.guice.plexus.config.Roles;
-import org.sonatype.guice.plexus.locators.EntryListAdapter;
-import org.sonatype.guice.plexus.locators.EntryMapAdapter;
 
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;

@@ -82,13 +82,13 @@
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-plexus-locators</artifactId>
+      <artifactId>guice-plexus-converters</artifactId>
       <version>${project.version}</version>
       <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-plexus-converters</artifactId>
+      <artifactId>guice-plexus-locators</artifactId>
       <version>${project.version}</version>
       <optional>true</optional>
     </dependency>
