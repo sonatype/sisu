@@ -141,6 +141,10 @@ final class ResourceEnumeration
     static URL entryURL( final URL url, final String path )
         throws MalformedURLException
     {
+        if ( null == url )
+        {
+            throw new MalformedURLException( "null" );
+        }
         return url.getPath().endsWith( "/" ) ? new URL( url, path ) : new URL( "jar:" + url + "!/" + path );
     }
 
@@ -186,6 +190,10 @@ final class ResourceEnumeration
      */
     private Iterator<String> iterator( final URL url )
     {
+        if ( null == url )
+        {
+            return NO_STRINGS;
+        }
         if ( url.getPath().endsWith( "/" ) )
         {
             return new FileEntryIterator( url, subPath, recurse );

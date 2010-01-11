@@ -15,6 +15,7 @@ package org.sonatype.guice.bean.reflect;
 import static org.sonatype.guice.bean.reflect.ResourceEnumeration.entryURL;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public final class URLClassSpace
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final URLClassLoader space;
+    private final URLClassLoader loader;
 
     private final URL[] urls;
 
@@ -41,42 +42,62 @@ public final class URLClassSpace
     // Constructors
     // ----------------------------------------------------------------------
 
-    public URLClassSpace( final URLClassLoader space )
+    public URLClassSpace( final URLClassLoader loader )
     {
-        this.space = space;
+        this.loader = loader;
 
-        final List<URL> searchURLs = new ArrayList<URL>();
-        Collections.addAll( searchURLs, space.getURLs() );
-
-        // expand search URLs to include Class-Path entries
         final List<URL> expandedURLs = new ArrayList<URL>();
-        for ( int i = 0; i < searchURLs.size(); i++ )
-        {
-            final URL url = searchURLs.get( i );
-            expandedURLs.add( url );
+        Collections.addAll( expandedURLs, loader.getURLs() );
 
+        // list may expand, so use index not iterator
+        for ( int i = 0; i < expandedURLs.size(); i++ )
+        {
+            final URL url = expandedURLs.get( i );
+            final InputStream in;
             try
             {
-                // add URLs referenced in Class-Path header from the associated manifest file
-                final Manifest manifest = new Manifest( entryURL( url, "META-INF/MANIFEST.MF" ).openStream() );
-                final String classPath = manifest.getMainAttributes().getValue( "Class-Path" );
-                if ( null == classPath )
+                in = entryURL( url, "META-INF/MANIFEST.MF" ).openStream();
+            }
+            catch ( final IOException e ) // NOPMD
+            {
+                continue; // missing manifest
+            }
+            try
+            {
+                // add any URLs referenced in the Class-Path header from the associated manifest file
+                final String classPath = new Manifest( in ).getMainAttributes().getValue( "Class-Path" );
+                if ( null != classPath )
                 {
-                    continue; // nothing extra to add
-                }
-                for ( final String entry : classPath.split( " " ) )
-                {
-                    final URL entryURL = new URL( url, entry );
-                    if ( searchURLs.contains( entryURL ) )
+                    for ( final String entry : classPath.split( " " ) )
                     {
-                        continue; // already processed
+                        final URL entryURL;
+                        try
+                        {
+                            entryURL = new URL( url, entry );
+                        }
+                        catch ( final IOException e ) // NOPMD
+                        {
+                            continue; // broken or missing entry
+                        }
+                        if ( expandedURLs.contains( entryURL ) )
+                        {
+                            continue; // already processed
+                        }
+                        expandedURLs.add( entryURL );
                     }
-                    searchURLs.add( entryURL );
                 }
             }
             catch ( final IOException e ) // NOPMD
             {
-                // move onto next URL
+                // ignore
+            }
+            try
+            {
+                in.close();
+            }
+            catch ( final IOException e ) // NOPMD
+            {
+                // ignore
             }
         }
 
@@ -90,7 +111,7 @@ public final class URLClassSpace
     public Class<?> loadClass( final String name )
         throws ClassNotFoundException
     {
-        return space.loadClass( name );
+        return loader.loadClass( name );
     }
 
     public DeferredClass<?> deferLoadClass( final String name )
@@ -101,7 +122,7 @@ public final class URLClassSpace
     public Enumeration<URL> getResources( final String name )
         throws IOException
     {
-        return space.getResources( name );
+        return loader.getResources( name );
     }
 
     public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
