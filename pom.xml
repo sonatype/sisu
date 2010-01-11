@@ -1,33 +1,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-  <parent>
-    <relativePath>../spice-parent/</relativePath>
-    <artifactId>spice-parent</artifactId>
-    <groupId>org.sonatype.spice</groupId>
-    <version>14</version>
-  </parent>
-
   <packaging>pom</packaging>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>spice-inject</artifactId>
+  <groupId>org.sonatype.spice</groupId>
+  <artifactId>spice-inject-modules</artifactId>
   <version>1-SNAPSHOT</version>
 
-  <name>Spice - Dependency Injection</name>
-
-  <properties>
-
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    <guice.bean.version>0.1.0-SNAPSHOT</guice.bean.version>
-    <guice.plexus.version>0.1.0-SNAPSHOT</guice.plexus.version>
-    <plexus.plugin.version>1.0.2</plexus.plugin.version>
-    <slf4j.version>1.5.10</slf4j.version>
-
-  </properties>
+  <name>Spice - Dependency Injection (modules)</name>
 
   <modules>
+    <module>pom</module>
     <module>guice-patches</module>
     <module>guice-bean-reflect</module>
     <module>guice-bean-inject</module>
@@ -39,175 +23,5 @@
     <module>guice-plexus-shim</module>
     <module>guice-plexus-tck</module>
   </modules>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.felix</groupId>
-          <artifactId>maven-bundle-plugin</artifactId>
-          <version>2.0.1</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-antrun-plugin</artifactId>
-          <version>1.3</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <version>1.4</version>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
-
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
-  <dependencyManagement>
-    <dependencies>
-
-      <dependency>
-        <groupId>javax.inject</groupId>
-        <artifactId>javax.inject</artifactId>
-        <version>1</version>
-      </dependency>
-      <dependency>
-        <groupId>aopalliance</groupId>
-        <artifactId>aopalliance</artifactId>
-        <version>1.0</version>
-      </dependency>
-      <dependency>
-        <groupId>asm</groupId>
-        <artifactId>asm</artifactId>
-        <version>3.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>${slf4j.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-component-annotations</artifactId>
-        <version>1.5.2</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.plugin</groupId>
-        <artifactId>plugin-api</artifactId>
-	<version>${plexus.plugin.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.google.code.atinject</groupId>
-            <artifactId>atinject</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.plugin</groupId>
-        <artifactId>plugin-host-api</artifactId>
-	<version>${plexus.plugin.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.google.code.atinject</groupId>
-            <artifactId>atinject</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-utils</artifactId>
-        <version>2.0.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-classworlds</artifactId>
-        <version>2.2.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.osgi</groupId>
-        <artifactId>org.osgi.core</artifactId>
-        <version>4.2.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>org.apache.felix.framework</artifactId>
-        <version>2.0.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-patches</artifactId>
-        <version>2.1-SNAPSHOT</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-bean-reflect</artifactId>
-        <version>${guice.bean.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-bean-inject</artifactId>
-        <version>${guice.bean.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-plexus-metadata</artifactId>
-        <version>${guice.plexus.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-plexus-scanners</artifactId>
-        <version>${guice.plexus.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-plexus-converters</artifactId>
-        <version>${guice.plexus.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-plexus-locators</artifactId>
-        <version>${guice.plexus.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-plexus-binders</artifactId>
-        <version>${guice.plexus.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-plexus-shim</artifactId>
-        <version>${guice.plexus.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-plexus-tck</artifactId>
-        <version>${guice.plexus.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>3.8.2</version>
-      </dependency>
-
-    </dependencies>
-  </dependencyManagement>
 
 </project>
