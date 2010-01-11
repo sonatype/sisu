@@ -4,12 +4,13 @@
   <parent>
     <artifactId>spice-inject</artifactId>
     <groupId>org.sonatype.spice</groupId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sonatype.spice.inject</groupId>
   <artifactId>guice-bean-inject</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
 
   <name>Guice - Bean injection</name>
 
@@ -21,7 +22,6 @@
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-bean-reflect</artifactId>
-      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
