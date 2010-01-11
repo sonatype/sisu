@@ -48,6 +48,7 @@ public final class URLClassSpace
         final List<URL> searchURLs = new ArrayList<URL>();
         Collections.addAll( searchURLs, space.getURLs() );
 
+        // expand search URLs to include Class-Path entries
         final List<URL> expandedURLs = new ArrayList<URL>();
         for ( int i = 0; i < searchURLs.size(); i++ )
         {
@@ -56,7 +57,7 @@ public final class URLClassSpace
 
             try
             {
-                // add URLs referenced by Class-Path directives in associated manifest files
+                // add URLs referenced in Class-Path header from the associated manifest file
                 final Manifest manifest = new Manifest( entryURL( url, "META-INF/MANIFEST.MF" ).openStream() );
                 final String classPath = manifest.getMainAttributes().getValue( "Class-Path" );
                 if ( null == classPath )

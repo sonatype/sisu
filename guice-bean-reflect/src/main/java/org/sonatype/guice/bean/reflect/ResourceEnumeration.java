@@ -194,8 +194,10 @@ final class ResourceEnumeration
     }
 
     /**
+     * Compares the given entry path against the normalized search path and compiled glob pattern.
+     * 
      * @param entryPath The entry path
-     * @return {@code true} if the given path matches the search pattern; otherwise {@code false}
+     * @return {@code true} if the given path matches the search criteria; otherwise {@code false}
      */
     private boolean matches( final String entryPath )
     {

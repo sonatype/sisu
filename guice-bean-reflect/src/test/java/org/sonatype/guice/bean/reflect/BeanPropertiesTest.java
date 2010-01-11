@@ -74,19 +74,21 @@ public class BeanPropertiesTest
         {
         }
 
-        void name( final String name )
+        void name( final String _name )
         {
         }
 
         @javax.inject.Inject
-        void setFirstName( final String name )
+        void setName( final String _name )
         {
         }
 
         @com.google.inject.Inject
-        void setLastName( final String name )
+        void setLastName( final String _name )
         {
         }
+
+        String name;
     }
 
     static class F

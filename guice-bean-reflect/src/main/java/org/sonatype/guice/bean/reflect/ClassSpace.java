@@ -55,9 +55,9 @@ public interface ClassSpace
     /**
      * Queries local class space content for entries matching the given pattern.
      * 
-     * @param path The containing directory
-     * @param glob The filename glob pattern
-     * @param recurse Include sub-directories?
+     * @param path The initial search directory; for example {@code "META-INF"}
+     * @param glob The filename glob pattern; for example {@code "*.xml"}
+     * @param recurse If {@code true} recurse into sub-directories; otherwise only search initial directory
      * @return Sequence of URLs, one for each matching entry
      * @see Bundle#findEntries(String, String, boolean)
      */

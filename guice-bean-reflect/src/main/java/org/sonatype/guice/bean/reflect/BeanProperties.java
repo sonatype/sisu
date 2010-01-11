@@ -117,14 +117,6 @@ public final class BeanProperties
                     continue;
                 }
 
-                // ignore any members with @Inject as they will be injected by Guice
-                final AnnotatedElement annotatedElement = (AnnotatedElement) member;
-                if ( annotatedElement.isAnnotationPresent( com.google.inject.Inject.class )
-                    || annotatedElement.isAnnotationPresent( javax.inject.Inject.class ) )
-                {
-                    continue;
-                }
-
                 if ( member instanceof Method )
                 {
                     final Method m = (Method) member;
@@ -133,13 +125,13 @@ public final class BeanProperties
                         nextProperty = new BeanPropertySetter<T>( m );
                     }
                 }
-                if ( member instanceof Field && !Modifier.isFinal( modifiers ) )
+                else if ( member instanceof Field && !Modifier.isFinal( modifiers ) )
                 {
                     nextProperty = new BeanPropertyField<T>( (Field) member );
                 }
 
-                // report one property per name, even if they have different types
-                if ( null != nextProperty && visited.add( nextProperty.getName() ) )
+                // ignore properties that we've already handed out, or any properties that are @Inject'd
+                if ( null != nextProperty && visited.add( nextProperty.getName() ) && !atInject( member ) )
                 {
                     return true;
                 }
@@ -164,6 +156,17 @@ public final class BeanProperties
         public void remove()
         {
             throw new UnsupportedOperationException();
+        }
+
+        // ----------------------------------------------------------------------
+        // Implementation methods
+        // ----------------------------------------------------------------------
+
+        private static boolean atInject( final Member member )
+        {
+            final AnnotatedElement e = (AnnotatedElement) member;
+            return e.isAnnotationPresent( com.google.inject.Inject.class )
+                || e.isAnnotationPresent( javax.inject.Inject.class );
         }
     }
 }

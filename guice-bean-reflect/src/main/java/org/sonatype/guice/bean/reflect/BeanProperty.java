@@ -22,11 +22,11 @@ import com.google.inject.TypeLiteral;
  * <pre>
  * // like...
  * &#064;SomeAnnotation
- * SomeType name;
+ * SomeType someProperty;
  * 
  * // ...or...
  * &#064;SomeAnnotation
- * void setName( SomeType _name )
+ * void setSomeProperty( SomeType _someProperty )
  * {
  *     // ...etc...
  * }
@@ -43,12 +43,16 @@ public interface BeanProperty<T>
     <A extends Annotation> A getAnnotation( Class<A> annotationType );
 
     /**
-     * @return Reified generic type of the property
+     * Returns the reified generic type of the property; for example {@code TypeLiteral<List<String>>}.
+     * 
+     * @return Reified generic type
      */
     TypeLiteral<T> getType();
 
     /**
-     * @return Name of the property (excluding name-space)
+     * Returns the normalized property name excluding the namespace; for example {@code "address"}.
+     * 
+     * @return Normalized property name
      */
     String getName();
 
