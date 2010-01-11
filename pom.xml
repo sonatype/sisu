@@ -12,7 +12,9 @@
 
   <modules>
     <module>pom</module>
+<!--
     <module>guice-patches</module>
+-->
     <module>guice-bean-reflect</module>
     <module>guice-bean-inject</module>
     <module>guice-plexus-metadata</module>

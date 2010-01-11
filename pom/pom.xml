@@ -11,7 +11,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>spice-inject</artifactId>
-  <version>3-SNAPSHOT</version>
+  <version>4-SNAPSHOT</version>
 
   <name>Spice - Dependency Injection</name>
 
@@ -19,7 +19,7 @@
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <guice.bean.version>0.1.0-SNAPSHOT</guice.bean.version>
+    <guice.bean.version>0.1.0</guice.bean.version>
     <guice.plexus.version>0.1.0-SNAPSHOT</guice.plexus.version>
     <plexus.plugin.version>1.0.2</plexus.plugin.version>
     <slf4j.version>1.5.10</slf4j.version>
