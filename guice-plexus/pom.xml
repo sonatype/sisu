@@ -16,7 +16,7 @@
   <name>Guice - Plexus</name>
 
   <properties>
-    <guice.plexus.version>${project.version}</guice.plexus.version>
+    <guice.plexus.version>0.1.0-SNAPSHOT</guice.plexus.version>
   </properties>
 
   <modules>
