@@ -1,0 +1,62 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.sonatype.spice.inject</groupId>
+    <artifactId>guice-bean</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <packaging>pom</packaging>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>guice-plexus</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+
+  <name>Guice - Plexus (settings)</name>
+
+  <properties>
+    <guice.plexus.version>${project.version}</guice.plexus.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-plexus-metadata</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-plexus-scanners</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-plexus-converters</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-plexus-locators</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-plexus-binders</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-plexus-shim</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-plexus-tck</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+</project>

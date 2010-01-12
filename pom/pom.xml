@@ -13,17 +13,10 @@
   <artifactId>spice-inject</artifactId>
   <version>4-SNAPSHOT</version>
 
-  <name>Spice - Dependency Injection</name>
+  <name>Spice - Dependency Injection (settings)</name>
 
   <properties>
-
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-    <guice.bean.version>0.1.0</guice.bean.version>
-    <guice.plexus.version>0.1.0-SNAPSHOT</guice.plexus.version>
-    <plexus.plugin.version>1.0.2</plexus.plugin.version>
-    <slf4j.version>1.5.10</slf4j.version>
-
   </properties>
 
   <build>
@@ -69,48 +62,26 @@
         <version>1.0</version>
       </dependency>
       <dependency>
-        <groupId>asm</groupId>
-        <artifactId>asm</artifactId>
-        <version>3.2</version>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-patches</artifactId>
+        <version>2.1.0</version>
       </dependency>
 
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>${slf4j.version}</version>
+        <version>1.5.10</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
-        <version>${slf4j.version}</version>
+        <version>1.5.10</version>
       </dependency>
 
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
         <artifactId>plexus-component-annotations</artifactId>
         <version>1.5.2</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.plugin</groupId>
-        <artifactId>plugin-api</artifactId>
-	<version>${plexus.plugin.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.google.code.atinject</groupId>
-            <artifactId>atinject</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.plugin</groupId>
-        <artifactId>plugin-host-api</artifactId>
-	<version>${plexus.plugin.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.google.code.atinject</groupId>
-            <artifactId>atinject</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.codehaus.plexus</groupId>
@@ -124,6 +95,35 @@
       </dependency>
 
       <dependency>
+        <groupId>org.sonatype.plugin</groupId>
+        <artifactId>plugin-api</artifactId>
+	<version>1.0.2</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.code.atinject</groupId>
+            <artifactId>atinject</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.plugin</groupId>
+        <artifactId>plugin-host-api</artifactId>
+	<version>1.0.2</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.code.atinject</groupId>
+            <artifactId>atinject</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>3.2</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.osgi</groupId>
         <artifactId>org.osgi.core</artifactId>
         <version>4.2.0</version>
@@ -132,59 +132,6 @@
         <groupId>org.apache.felix</groupId>
         <artifactId>org.apache.felix.framework</artifactId>
         <version>2.0.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-patches</artifactId>
-        <version>2.1.0</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-bean-reflect</artifactId>
-        <version>${guice.bean.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-bean-inject</artifactId>
-        <version>${guice.bean.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-plexus-metadata</artifactId>
-        <version>${guice.plexus.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-plexus-scanners</artifactId>
-        <version>${guice.plexus.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-plexus-converters</artifactId>
-        <version>${guice.plexus.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-plexus-locators</artifactId>
-        <version>${guice.plexus.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-plexus-binders</artifactId>
-        <version>${guice.plexus.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-plexus-shim</artifactId>
-        <version>${guice.plexus.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-plexus-tck</artifactId>
-        <version>${guice.plexus.version}</version>
       </dependency>
 
       <dependency>
