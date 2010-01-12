@@ -13,16 +13,21 @@
 package org.sonatype.guice.bean.reflect;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import junit.framework.TestCase;
-
-import org.codehaus.plexus.util.Expand;
 
 public class FileEntryIteratorTest
     extends TestCase
@@ -159,16 +164,39 @@ public class FileEntryIteratorTest
         }
     }
 
-    private static URL expand( final URL url )
+    static URL expand( final URL url )
         throws Exception
     {
         final File jar = new File( url.toURI() );
         final File dir = new File( jar.getParentFile(), jar.getName() + "_expanded" );
-        final Expand expander = new Expand();
-        expander.setSrc( jar );
-        expander.setDest( dir );
-        dir.mkdirs();
-        expander.execute();
+
+        try
+        {
+            final ZipFile zip = new ZipFile( jar );
+            for ( final Enumeration<? extends ZipEntry> e = zip.entries(); e.hasMoreElements(); )
+            {
+                final ZipEntry entry = e.nextElement();
+                final File path = new File( dir, entry.getName() );
+                if ( entry.isDirectory() )
+                {
+                    path.mkdirs();
+                }
+                else
+                {
+                    path.getParentFile().mkdirs();
+                    final ReadableByteChannel in = Channels.newChannel( zip.getInputStream( entry ) );
+                    final FileChannel out = new FileOutputStream( path ).getChannel();
+                    out.transferFrom( in, 0, entry.getSize() );
+                    out.close();
+                    in.close();
+                }
+            }
+        }
+        catch ( final IOException e )
+        {
+            System.out.println( e + " " + jar.getName() );
+        }
+
         return dir.toURI().toURL();
     }
 

@@ -12,15 +12,14 @@
  */
 package org.sonatype.guice.bean.reflect;
 
-import java.io.File;
+import static org.sonatype.guice.bean.reflect.FileEntryIteratorTest.expand;
+
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
-
-import org.codehaus.plexus.util.Expand;
 
 public class ResourceEnumerationTest
     extends TestCase
@@ -152,18 +151,5 @@ public class ResourceEnumerationTest
         catch ( final IllegalStateException ise )
         {
         }
-    }
-
-    private static URL expand( final URL url )
-        throws Exception
-    {
-        final File jar = new File( url.toURI() );
-        final File dir = new File( jar.getParentFile(), jar.getName() + "_expanded" );
-        final Expand expander = new Expand();
-        expander.setSrc( jar );
-        expander.setDest( dir );
-        dir.mkdirs();
-        expander.execute();
-        return dir.toURI().toURL();
     }
 }

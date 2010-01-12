@@ -5,10 +5,10 @@
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sonatype.spice</groupId>
-  <artifactId>spice-inject-modules</artifactId>
+  <artifactId>spice-inject-build</artifactId>
   <version>1-SNAPSHOT</version>
 
-  <name>Spice - Dependency Injection (modules)</name>
+  <name>Spice - Dependency Injection (build)</name>
 
   <modules>
     <module>pom</module>

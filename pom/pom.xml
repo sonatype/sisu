@@ -13,7 +13,7 @@
   <artifactId>spice-inject</artifactId>
   <version>5-SNAPSHOT</version>
 
-  <name>Spice - Dependency Injection (settings)</name>
+  <name>Spice - Dependency Injection</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -76,51 +76,6 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
         <version>1.5.10</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-component-annotations</artifactId>
-        <version>1.5.2</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-utils</artifactId>
-        <version>2.0.1</version>
-      </dependency>
-      <dependency>
-        <groupId>org.codehaus.plexus</groupId>
-        <artifactId>plexus-classworlds</artifactId>
-        <version>2.2.2</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.sonatype.plugin</groupId>
-        <artifactId>plugin-api</artifactId>
-	<version>1.0.2</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.google.code.atinject</groupId>
-            <artifactId>atinject</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.plugin</groupId>
-        <artifactId>plugin-host-api</artifactId>
-	<version>1.0.2</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.google.code.atinject</groupId>
-            <artifactId>atinject</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>asm</groupId>
-        <artifactId>asm</artifactId>
-        <version>3.2</version>
       </dependency>
 
       <dependency>

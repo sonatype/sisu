@@ -1,17 +1,25 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
+  <parent>
+    <groupId>org.sonatype.spice.inject</groupId>
+    <artifactId>guice-bean</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
   <packaging>pom</packaging>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.sonatype.spice.inject</groupId>
-  <artifactId>guice-plexus-modules</artifactId>
-  <version>1-SNAPSHOT</version>
+  <artifactId>guice-plexus</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
 
-  <name>Guice - Plexus (modules)</name>
+  <name>Guice - Plexus</name>
+
+  <properties>
+    <guice.plexus.version>${project.version}</guice.plexus.version>
+  </properties>
 
   <modules>
-    <module>pom</module>
     <module>guice-plexus-metadata</module>
     <module>guice-plexus-scanners</module>
     <module>guice-plexus-converters</module>
@@ -20,5 +28,94 @@
     <module>guice-plexus-shim</module>
     <module>guice-plexus-tck</module>
   </modules>
+
+  <dependencyManagement>
+    <dependencies>
+
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-component-annotations</artifactId>
+        <version>1.5.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.sonatype.plugin</groupId>
+        <artifactId>plugin-api</artifactId>
+        <version>1.0.2</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.code.atinject</groupId>
+            <artifactId>atinject</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.plugin</groupId>
+        <artifactId>plugin-host-api</artifactId>
+        <version>1.0.2</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.code.atinject</groupId>
+            <artifactId>atinject</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-classworlds</artifactId>
+        <version>2.2.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.codehaus.plexus</groupId>
+        <artifactId>plexus-utils</artifactId>
+        <version>2.0.1</version>
+      </dependency>
+
+      <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>3.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-plexus-metadata</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-plexus-scanners</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-plexus-converters</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-plexus-locators</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-plexus-binders</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-plexus-shim</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-plexus-tck</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
 
 </project>
