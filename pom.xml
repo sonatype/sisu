@@ -12,18 +12,9 @@
 
   <modules>
     <module>pom</module>
-<!--
     <module>guice-patches</module>
--->
-    <module>guice-bean-reflect</module>
-    <module>guice-bean-inject</module>
-    <module>guice-plexus-metadata</module>
-    <module>guice-plexus-scanners</module>
-    <module>guice-plexus-converters</module>
-    <module>guice-plexus-locators</module>
-    <module>guice-plexus-binders</module>
-    <module>guice-plexus-shim</module>
-    <module>guice-plexus-tck</module>
+    <module>guice-bean</module>
+    <module>guice-plexus</module>
   </modules>
 
 </project>
