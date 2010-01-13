@@ -14,6 +14,7 @@ package org.sonatype.guice.bean.reflect;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -30,13 +31,13 @@ final class ResourceEnumeration
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final Iterator<String> NO_STRINGS = Collections.<String> emptyList().iterator();
+    private static final Iterator<String> NO_ENTRIES = Collections.<String> emptyList().iterator();
 
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final URL[] urls;
+    private final Iterator<URL> urls;
 
     private final String subPath;
 
@@ -44,11 +45,11 @@ final class ResourceEnumeration
 
     private final boolean recurse;
 
-    private int index = -1;
+    private URL currentURL;
 
-    private Iterator<String> entries = NO_STRINGS;
+    private Iterator<String> entries = NO_ENTRIES;
 
-    private String cachedEntry;
+    private String nextEntry;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -64,7 +65,7 @@ final class ResourceEnumeration
      */
     ResourceEnumeration( final URL[] urls, final String subPath, final String glob, final boolean recurse )
     {
-        this.urls = urls;
+        this.urls = Arrays.asList( urls ).iterator();
         this.subPath = normalizeSearchPath( subPath );
         globPattern = compileGlobPattern( glob );
         this.recurse = recurse;
@@ -76,22 +77,20 @@ final class ResourceEnumeration
 
     public boolean hasMoreElements()
     {
-        while ( null == cachedEntry )
+        while ( null == nextEntry )
         {
-            // URL still has resources
             if ( entries.hasNext() )
             {
-                cachedEntry = entries.next();
-                if ( !matches( cachedEntry ) )
+                nextEntry = entries.next();
+                if ( !matchesRequest( nextEntry ) )
                 {
-                    // reset, try again
-                    cachedEntry = null;
+                    nextEntry = null; // try again
                 }
             }
-            else if ( index < urls.length - 1 )
+            else if ( urls.hasNext() )
             {
-                // try the next URL in the list
-                entries = iterator( urls[++index] );
+                currentURL = urls.next();
+                entries = scan( currentURL );
             }
             else
             {
@@ -106,12 +105,12 @@ final class ResourceEnumeration
         if ( hasMoreElements() )
         {
             // initialized by hasMoreElements()
-            final String tempEntry = cachedEntry;
-            cachedEntry = null;
+            final String entry = nextEntry;
+            nextEntry = null;
 
             try
             {
-                return entryURL( urls[index], tempEntry );
+                return entryURL( currentURL, entry );
             }
             catch ( final MalformedURLException e )
             {
@@ -183,11 +182,11 @@ final class ResourceEnumeration
      * @param url The containing URL
      * @return Iterator that iterates over resources contained inside the given URL
      */
-    private Iterator<String> iterator( final URL url )
+    private Iterator<String> scan( final URL url )
     {
         if ( null == url )
         {
-            return NO_STRINGS;
+            return NO_ENTRIES;
         }
         if ( url.getPath().endsWith( "/" ) )
         {
@@ -202,7 +201,7 @@ final class ResourceEnumeration
      * @param entryPath The entry path
      * @return {@code true} if the given path matches the search criteria; otherwise {@code false}
      */
-    private boolean matches( final String entryPath )
+    private boolean matchesRequest( final String entryPath )
     {
         if ( entryPath.length() <= subPath.length() || !entryPath.startsWith( subPath ) )
         {

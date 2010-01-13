@@ -144,10 +144,10 @@ public final class BeanProperties
         {
             if ( hasNext() )
             {
-                // look-ahead from hasNext(), remember to reset it
-                final BeanProperty<T> tempProperty = nextProperty;
+                // initialized by hasNext()
+                final BeanProperty<T> property = nextProperty;
                 nextProperty = null;
-                return tempProperty;
+                return property;
             }
             throw new NoSuchElementException();
         }
