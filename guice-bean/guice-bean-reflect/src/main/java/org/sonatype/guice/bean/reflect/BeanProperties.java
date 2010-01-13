@@ -101,13 +101,13 @@ public final class BeanProperties
 
         public boolean hasNext()
         {
-            if ( null != nextProperty )
+            while ( null == nextProperty )
             {
-                return true; // no need to check again
-            }
+                if ( !i.hasNext() )
+                {
+                    return false; // no more properties
+                }
 
-            while ( i.hasNext() )
-            {
                 final Member member = i.next();
                 final int modifiers = member.getModifiers();
 
@@ -130,15 +130,14 @@ public final class BeanProperties
                     nextProperty = new BeanPropertyField<T>( (Field) member );
                 }
 
-                // ignore properties that we've already handed out, or any properties that are @Inject'd
-                if ( null != nextProperty && visited.add( nextProperty.getName() ) && !atInject( member ) )
+                // ignore properties with names we've already processed, or properties annotated with @Inject
+                if ( null != nextProperty && ( !visited.add( nextProperty.getName() ) || atInject( member ) ) )
                 {
-                    return true;
+                    nextProperty = null;
                 }
-                nextProperty = null;
             }
 
-            return false;
+            return true;
         }
 
         public BeanProperty<T> next()

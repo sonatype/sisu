@@ -21,7 +21,9 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.jar.Manifest;
 
 /**
@@ -46,19 +48,25 @@ public final class URLClassSpace
     {
         this.loader = loader;
 
-        final List<URL> expandedURLs = new ArrayList<URL>();
-        Collections.addAll( expandedURLs, loader.getURLs() );
+        final List<URL> searchURLs = new ArrayList<URL>();
+        Collections.addAll( searchURLs, loader.getURLs() );
+
+        final Set<URL> expandedURLs = new LinkedHashSet<URL>();
 
         // list may expand, so use index not iterator
-        for ( int i = 0; i < expandedURLs.size(); i++ )
+        for ( int i = 0; i < searchURLs.size(); i++ )
         {
-            final URL url = expandedURLs.get( i );
+            final URL url = searchURLs.get( i );
+            if ( !expandedURLs.add( url ) )
+            {
+                continue; // already processed
+            }
             final InputStream in;
             try
             {
                 in = entryURL( url, "META-INF/MANIFEST.MF" ).openStream();
             }
-            catch ( final IOException e ) // NOPMD
+            catch ( final IOException e )
             {
                 continue; // missing manifest
             }
@@ -70,20 +78,14 @@ public final class URLClassSpace
                 {
                     for ( final String entry : classPath.split( " " ) )
                     {
-                        final URL entryURL;
                         try
                         {
-                            entryURL = new URL( url, entry );
+                            searchURLs.add( new URL( url, entry ) );
                         }
                         catch ( final IOException e ) // NOPMD
                         {
-                            continue; // broken or missing entry
+                            // broken or missing entry
                         }
-                        if ( expandedURLs.contains( entryURL ) )
-                        {
-                            continue; // already processed
-                        }
-                        expandedURLs.add( entryURL );
                     }
                 }
             }

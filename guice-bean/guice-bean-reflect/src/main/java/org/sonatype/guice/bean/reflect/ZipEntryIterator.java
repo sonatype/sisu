@@ -85,7 +85,7 @@ final class ZipEntryIterator
     {
         if ( hasNext() )
         {
-            // clear cache after using it
+            // initialized by hasNext()
             final String path = nextPath;
             nextPath = null;
             return path;

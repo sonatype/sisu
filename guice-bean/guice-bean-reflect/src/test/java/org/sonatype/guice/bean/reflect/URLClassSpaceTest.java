@@ -69,20 +69,20 @@ public class URLClassSpaceTest
         System.setProperty( "java.protocol.handler.pkgs", getClass().getPackage().getName() );
 
         final ClassSpace space =
-            new URLClassSpace( URLClassLoader.newInstance( new URL[] { CLASS_PATH_JAR, null, new URL( "barf:up/" ),
-                CORRUPT_MANIFEST } ) );
+            new URLClassSpace( URLClassLoader.newInstance( new URL[] { SIMPLE_JAR, CLASS_PATH_JAR, null,
+                new URL( "barf:up/" ), CLASS_PATH_JAR, CORRUPT_MANIFEST } ) );
 
         final Enumeration<URL> e = space.findEntries( "META-INF", "*.MF", false );
 
         // expect to see three results
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().getPath().startsWith( SIMPLE_JAR.toString() ) );
         assertTrue( e.hasMoreElements() );
         assertTrue( e.nextElement().getPath().startsWith( CLASS_PATH_JAR.toString() ) );
         assertTrue( e.hasMoreElements() );
         assertTrue( e.nextElement().getPath().startsWith( BROKEN_JAR.toString() ) );
         assertTrue( e.hasMoreElements() );
         assertTrue( e.nextElement().getPath().startsWith( COMMONS_LOGGING_JAR.toString() ) );
-        assertTrue( e.hasMoreElements() );
-        assertTrue( e.nextElement().getPath().startsWith( SIMPLE_JAR.toString() ) );
         assertFalse( e.hasMoreElements() );
     }
 }

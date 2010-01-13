@@ -26,7 +26,8 @@ final class StrongDeferredClass<T>
 
     private final String name;
 
-    private Class<T> clazz;
+    @SuppressWarnings( "unchecked" )
+    private Class clazz;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -49,7 +50,7 @@ final class StrongDeferredClass<T>
         {
             try
             {
-                clazz = (Class) space.loadClass( name );
+                clazz = space.loadClass( name );
             }
             catch ( final Throwable e )
             {

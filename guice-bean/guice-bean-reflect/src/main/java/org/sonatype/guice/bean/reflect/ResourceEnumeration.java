@@ -88,18 +88,14 @@ final class ResourceEnumeration
                     cachedEntry = null;
                 }
             }
+            else if ( index < urls.length - 1 )
+            {
+                // try the next URL in the list
+                entries = iterator( urls[++index] );
+            }
             else
             {
-                if ( index < urls.length - 1 )
-                {
-                    // try the next URL in the list
-                    entries = iterator( urls[++index] );
-                }
-                else
-                {
-                    // no more URLs
-                    return false;
-                }
+                return false; // no more URLs
             }
         }
         return true;
@@ -109,19 +105,18 @@ final class ResourceEnumeration
     {
         if ( hasMoreElements() )
         {
+            // initialized by hasMoreElements()
+            final String tempEntry = cachedEntry;
+            cachedEntry = null;
+
             try
             {
-                return entryURL( urls[index], cachedEntry );
+                return entryURL( urls[index], tempEntry );
             }
             catch ( final MalformedURLException e )
             {
                 // this shouldn't happen, hence illegal state
                 throw new IllegalStateException( e.toString() );
-            }
-            finally
-            {
-                // remember to reset
-                cachedEntry = null;
             }
         }
         throw new NoSuchElementException();
@@ -183,7 +178,7 @@ final class ResourceEnumeration
     }
 
     /**
-     * Returns the appropriate {@link Iterator} to iterator over the contents of the given URL.
+     * Returns the appropriate {@link Iterator} to iterate over the contents of the given URL.
      * 
      * @param url The containing URL
      * @return Iterator that iterates over resources contained inside the given URL
@@ -209,7 +204,7 @@ final class ResourceEnumeration
      */
     private boolean matches( final String entryPath )
     {
-        if ( !entryPath.startsWith( subPath ) || entryPath.length() == subPath.length() )
+        if ( entryPath.length() <= subPath.length() || !entryPath.startsWith( subPath ) )
         {
             return false; // not inside the search scope
         }
