@@ -139,9 +139,9 @@ public class ResourceEnumerationTest
         assertTrue( e.hasMoreElements() );
 
         // intentionally break the internal cached path to trigger a malformed URL problem
-        final Field cachedEntry = ResourceEnumeration.class.getDeclaredField( "cachedEntry" );
-        cachedEntry.setAccessible( true );
-        cachedEntry.set( e, "foo:" );
+        final Field nextEntry = ResourceEnumeration.class.getDeclaredField( "nextEntry" );
+        nextEntry.setAccessible( true );
+        nextEntry.set( e, "foo:" );
 
         try
         {
