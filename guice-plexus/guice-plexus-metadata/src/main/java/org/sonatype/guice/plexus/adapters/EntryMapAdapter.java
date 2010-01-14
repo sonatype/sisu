@@ -15,17 +15,37 @@ package org.sonatype.guice.plexus.adapters;
 import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
+import org.sonatype.guice.plexus.config.PlexusTypeLocator;
+
+/**
+ * {@link Map} backed by an {@link Iterable} sequence of map entries.
+ * 
+ * @see PlexusTypeLocator#locate(com.google.inject.TypeLiteral, String...)
+ */
 public final class EntryMapAdapter<K, V>
     extends AbstractMap<K, V>
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     private final Set<Entry<K, V>> entrySet;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
 
     public EntryMapAdapter( final Iterable<Entry<K, V>> iterable )
     {
         entrySet = new EntrySet<K, V>( iterable );
     }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
     @Override
     public Set<Entry<K, V>> entrySet()
@@ -33,15 +53,34 @@ public final class EntryMapAdapter<K, V>
         return entrySet;
     }
 
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    /**
+     * Entry {@link Set} backed by an {@link Iterable} sequence of map entries.
+     */
     private static final class EntrySet<K, V>
         extends AbstractSet<Entry<K, V>>
     {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
         private final Iterable<Entry<K, V>> iterable;
+
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
 
         EntrySet( final Iterable<Entry<K, V>> iterable )
         {
             this.iterable = iterable;
         }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
 
         @Override
         public Iterator<Entry<K, V>> iterator()
@@ -50,11 +89,10 @@ public final class EntryMapAdapter<K, V>
         }
 
         @Override
-        @SuppressWarnings( "unused" )
         public int size()
         {
             int size = 0;
-            for ( final Entry<K, V> e : iterable )
+            for ( final Iterator<?> i = iterable.iterator(); i.hasNext(); i.next() )
             {
                 size++;
             }

@@ -26,7 +26,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.util.Jsr330;
 
 /**
- * Constants and utility methods for dealing with Plexus roles.
+ * Utility methods for dealing with Plexus roles.
  */
 public final class Roles
 {
@@ -133,6 +133,12 @@ public final class Roles
         return (Key) componentKey( role.getRawType(), hint );
     }
 
+    /**
+     * Throws a {@link ProvisionException} detailing the missing Plexus component.
+     * 
+     * @param role The Plexus role
+     * @param hint The Plexus hint
+     */
     public static <T> T throwMissingComponentException( final TypeLiteral<T> role, final String hint )
     {
         if ( Hints.isDefaultHint( hint ) )

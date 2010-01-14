@@ -78,7 +78,7 @@ public final class BeanProperties
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final Iterator<Member> i;
+        private final Iterator<Member> memberIterator;
 
         // avoid reporting duplicate properties with same name
         private final Set<String> visited = new HashSet<String>();
@@ -92,7 +92,7 @@ public final class BeanProperties
 
         BeanPropertyIterator( final Iterable<Member> members )
         {
-            i = members.iterator();
+            memberIterator = members.iterator();
         }
 
         // ----------------------------------------------------------------------
@@ -103,12 +103,12 @@ public final class BeanProperties
         {
             while ( null == nextProperty )
             {
-                if ( !i.hasNext() )
+                if ( !memberIterator.hasNext() )
                 {
                     return false; // no more properties
                 }
 
-                final Member member = i.next();
+                final Member member = memberIterator.next();
                 final int modifiers = member.getModifiers();
 
                 // static members can't be properties, abstracts and synthetics are just noise so we ignore them

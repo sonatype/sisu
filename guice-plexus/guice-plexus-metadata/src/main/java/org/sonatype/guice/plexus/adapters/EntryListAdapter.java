@@ -20,56 +20,105 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
+import org.sonatype.guice.plexus.config.PlexusTypeLocator;
+
+/**
+ * {@link List} backed by an {@link Iterable} sequence of map entries.
+ * 
+ * @see PlexusTypeLocator#locate(com.google.inject.TypeLiteral, String...)
+ */
 public final class EntryListAdapter<K, V>
     extends AbstractSequentialList<V>
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     private final Iterable<Entry<K, V>> iterable;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
 
     public EntryListAdapter( final Iterable<Entry<K, V>> iterable )
     {
         this.iterable = iterable;
     }
 
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
     @Override
     public ListIterator<V> listIterator( final int index )
     {
-        return new ValueIterator<K, V>( iterable.iterator(), index );
+        return new ValueIterator<K, V>( iterable, index );
     }
 
     @Override
-    @SuppressWarnings( "unused" )
     public int size()
     {
         int size = 0;
-        for ( final Entry<K, V> e : iterable )
+        for ( final Iterator<?> i = iterable.iterator(); i.hasNext(); i.next() )
         {
             size++;
         }
         return size;
     }
 
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    /**
+     * {@link ListIterator} backed by a cache of map entries, fed from an {@link Iterator}.
+     */
     private static final class ValueIterator<K, V>
         implements ListIterator<V>
     {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
         private final Iterator<Entry<K, V>> iterator;
 
-        private final List<Entry<K, V>> cache = new ArrayList<Entry<K, V>>();
+        private final List<Entry<K, V>> entryCache = new ArrayList<Entry<K, V>>();
 
         private int index;
 
-        ValueIterator( final Iterator<Entry<K, V>> iterator, final int index )
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
+        ValueIterator( final Iterable<Entry<K, V>> iterable, final int index )
         {
-            this.iterator = iterator;
-            for ( int i = 0; i < index; i++ )
+            if ( index < 0 )
             {
-                cache.add( iterator.next() );
+                throw new IndexOutOfBoundsException();
             }
-            this.index = index;
+            try
+            {
+                // position iterator just before index position, caching previous entries so we can reverse over them
+                this.iterator = iterable.iterator();
+                for ( int i = 0; i < index; i++ )
+                {
+                    entryCache.add( iterator.next() );
+                }
+                this.index = index;
+            }
+            catch ( final NoSuchElementException e )
+            {
+                throw new IndexOutOfBoundsException();
+            }
         }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
 
         public boolean hasNext()
         {
-            return index < cache.size() || iterator.hasNext();
+            return index < entryCache.size() || iterator.hasNext();
         }
 
         public boolean hasPrevious()
@@ -79,11 +128,11 @@ public final class EntryListAdapter<K, V>
 
         public V next()
         {
-            if ( index >= cache.size() )
+            if ( index >= entryCache.size() )
             {
-                cache.add( iterator.next() );
+                entryCache.add( iterator.next() );
             }
-            return cache.get( index++ ).getValue();
+            return entryCache.get( index++ ).getValue();
         }
 
         public V previous()
@@ -92,12 +141,12 @@ public final class EntryListAdapter<K, V>
             {
                 throw new NoSuchElementException();
             }
-            return cache.get( --index ).getValue();
+            return entryCache.get( --index ).getValue();
         }
 
         public int nextIndex()
         {
-            return index + 1;
+            return index;
         }
 
         public int previousIndex()

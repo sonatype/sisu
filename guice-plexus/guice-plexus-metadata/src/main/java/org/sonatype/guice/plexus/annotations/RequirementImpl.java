@@ -68,7 +68,6 @@ public final class RequirementImpl
         }
     }
 
-    @SuppressWarnings( "unchecked" )
     public RequirementImpl( final Class<?> role, final boolean optional, final String... hints )
     {
         this( null == role ? null : new ExistingClass( role ), optional, hints );
@@ -145,17 +144,18 @@ public final class RequirementImpl
     // Implementation classes
     // ----------------------------------------------------------------------
 
-    private static final class ExistingClass<T>
-        implements DeferredClass<T>
+    @SuppressWarnings( "unchecked" )
+    private static final class ExistingClass
+        implements DeferredClass
     {
-        private final Class<T> clazz;
+        private final Class clazz;
 
-        ExistingClass( final Class<T> clazz )
+        ExistingClass( final Class clazz )
         {
             this.clazz = clazz;
         }
 
-        public Class<T> get()
+        public Class get()
         {
             return clazz;
         }

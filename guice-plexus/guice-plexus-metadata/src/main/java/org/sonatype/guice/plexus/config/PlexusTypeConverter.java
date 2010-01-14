@@ -15,7 +15,7 @@ package org.sonatype.guice.plexus.config;
 import com.google.inject.TypeLiteral;
 
 /**
- * Converts values into various types, using Plexus conversion rules.
+ * Converts values into various types, according to Plexus conversion rules.
  */
 public interface PlexusTypeConverter
 {

@@ -17,16 +17,16 @@ import java.util.Map.Entry;
 import com.google.inject.TypeLiteral;
 
 /**
- * Locates instances of various types, using Plexus hints as a guide.
+ * Locates instances of various types, using optional Plexus hints as a guide.
  */
 public interface PlexusTypeLocator
 {
     /**
-     * Locates instances of the given type, filtered using the given named hints.
+     * Locates instances of the given type, optionally filtered using the given named hints.
      * 
      * @param type The expected type
      * @param hints The optional hints
-     * @return Instances of the given type; ordered according to the given hints
+     * @return Sequence of hint->instance map entries; ordered according to the given hints
      */
     <T> Iterable<Entry<String, T>> locate( TypeLiteral<T> type, String... hints );
 }
