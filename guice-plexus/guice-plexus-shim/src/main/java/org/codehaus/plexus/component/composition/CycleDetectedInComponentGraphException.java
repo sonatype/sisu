@@ -20,7 +20,7 @@ public final class CycleDetectedInComponentGraphException
         super( message );
     }
 
-    public CycleDetectedInComponentGraphException( final String message, final Exception detail )
+    public CycleDetectedInComponentGraphException( final String message, final Throwable detail )
     {
         super( message, detail );
     }

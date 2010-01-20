@@ -11,141 +11,85 @@
 package org.codehaus.plexus.component.repository;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.configuration.PlexusConfiguration;
-import org.sonatype.guice.plexus.config.Hints;
 
-public final class ComponentDescriptor<T>
+public class ComponentDescriptor<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private String role;
+    private String componentConfigurator;
 
-    private String hint = Hints.DEFAULT_HINT;
-
-    private String instantiationStrategy;
-
-    private String description;
+    private String componentFactory;
 
     private String implementation;
-
-    private ClassRealm classRealm;
-
-    private Class<? extends T> roleClass;
-
-    private Class<? extends T> implementationClass;
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public void setRole( final String role )
+    @SuppressWarnings( "unused" )
+    public final void setRole( final String role )
     {
-        this.role = role;
     }
 
-    public void setRoleHint( final String hint )
+    @SuppressWarnings( "unused" )
+    public final void setRoleHint( final String hint )
     {
-        this.hint = Hints.canonicalHint( hint );
     }
 
-    public void setInstantiationStrategy( final String instantiationStrategy )
+    @SuppressWarnings( "unused" )
+    public final void setInstantiationStrategy( final String instantiationStrategy )
     {
-        this.instantiationStrategy = instantiationStrategy;
     }
 
-    public void setDescription( final String description )
+    @SuppressWarnings( "unused" )
+    public final void setDescription( final String description )
     {
-        this.description = description;
     }
 
-    public String getRole()
+    @SuppressWarnings( "unused" )
+    public final void setComponentComposer( final String componentComposer )
     {
-        return role;
     }
 
-    public String getRoleHint()
+    public final void setComponentConfigurator( final String componentConfigurator )
     {
-        return hint;
+        this.componentConfigurator = componentConfigurator;
     }
 
-    public String getInstantiationStrategy()
+    public final void setComponentFactory( final String componentFactory )
     {
-        return instantiationStrategy;
+        this.componentFactory = componentFactory;
     }
 
-    public String getDescription()
-    {
-        return description;
-    }
-
-    @SuppressWarnings( "unchecked" )
-    public Class<T> getRoleClass()
-    {
-        if ( null == roleClass )
-        {
-            try
-            {
-                roleClass = classRealm.loadClass( role );
-            }
-            catch ( final Throwable e ) // NOPMD
-            {
-                // ignore
-            }
-        }
-        return null == roleClass ? (Class) Object.class : roleClass;
-    }
-
-    public void setImplementation( final String implementation )
+    public final void setImplementation( final String implementation )
     {
         this.implementation = implementation;
     }
 
-    public String getImplementation()
+    public final String getComponentConfigurator()
+    {
+        return componentConfigurator;
+    }
+
+    public final String getComponentFactory()
+    {
+        return componentFactory;
+    }
+
+    public final String getImplementation()
     {
         return implementation;
     }
 
-    @SuppressWarnings( "unchecked" )
-    public Class<? extends T> getImplementationClass()
-    {
-        if ( null == implementationClass )
-        {
-            try
-            {
-                implementationClass = classRealm.loadClass( implementation );
-            }
-            catch ( final Throwable e ) // NOPMD
-            {
-                // ignore
-            }
-        }
-        return null == implementationClass ? (Class) Object.class : implementationClass;
-    }
-
     @SuppressWarnings( "unused" )
-    public void addRequirement( final ComponentRequirement requirement )
+    public final void addRequirement( final ComponentRequirement requirement )
     {
     }
 
     @SuppressWarnings( "unused" )
-    public void setConfiguration( final PlexusConfiguration configuration )
+    public final void setRealm( final ClassRealm classRealm )
     {
-    }
-
-    @SuppressWarnings( "unused" )
-    public void setComponentSetDescriptor( final ComponentSetDescriptor setDescriptor )
-    {
-    }
-
-    public void setRealm( final ClassRealm classRealm )
-    {
-        this.classRealm = classRealm;
-    }
-
-    public ClassRealm getRealm()
-    {
-        return classRealm;
     }
 }

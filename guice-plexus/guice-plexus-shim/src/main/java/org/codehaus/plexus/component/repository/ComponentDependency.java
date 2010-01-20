@@ -30,4 +30,9 @@ public final class ComponentDependency
     public void setVersion( final String version )
     {
     }
+
+    @SuppressWarnings( "unused" )
+    public void setType( final String type )
+    {
+    }
 }

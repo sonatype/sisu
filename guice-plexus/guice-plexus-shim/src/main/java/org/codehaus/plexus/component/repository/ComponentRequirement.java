@@ -30,9 +30,4 @@ public final class ComponentRequirement
     public void setFieldName( final String name )
     {
     }
-
-    @SuppressWarnings( "unused" )
-    public void setFieldMappingType( final String mappingType )
-    {
-    }
 }
