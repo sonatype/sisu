@@ -10,18 +10,44 @@
  */
 package org.codehaus.plexus.configuration.xml;
 
+import org.codehaus.plexus.configuration.DefaultPlexusConfiguration;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 public final class XmlPlexusConfiguration
-    implements PlexusConfiguration
+    extends DefaultPlexusConfiguration
 {
     // ----------------------------------------------------------------------
-    // Public methods
+    // Constructors
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unused" )
-    public PlexusConfiguration addChild( final String name, final String value )
+    public XmlPlexusConfiguration( final String name )
     {
-        return this;
+        super( name );
+    }
+
+    public XmlPlexusConfiguration( final Xpp3Dom dom )
+    {
+        super( dom.getName(), dom.getValue() );
+
+        for ( final String attribute : dom.getAttributeNames() )
+        {
+            setAttribute( attribute, dom.getAttribute( attribute ) );
+        }
+
+        for ( final Xpp3Dom child : dom.getChildren() )
+        {
+            addChild( new XmlPlexusConfiguration( child ) );
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // Customizable methods
+    // ----------------------------------------------------------------------
+
+    @Override
+    protected PlexusConfiguration createChild( final String name )
+    {
+        return new XmlPlexusConfiguration( name );
     }
 }

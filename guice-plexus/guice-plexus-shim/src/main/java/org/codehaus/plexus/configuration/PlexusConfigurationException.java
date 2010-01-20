@@ -10,7 +10,7 @@
  */
 package org.codehaus.plexus.configuration;
 
-public final class PlexusConfigurationException
+public class PlexusConfigurationException
     extends Exception
 {
     private static final long serialVersionUID = 1L;
@@ -20,7 +20,7 @@ public final class PlexusConfigurationException
         super( message );
     }
 
-    public PlexusConfigurationException( final String message, final Exception detail )
+    public PlexusConfigurationException( final String message, final Throwable detail )
     {
         super( message, detail );
     }

@@ -12,4 +12,19 @@ package org.codehaus.plexus.configuration;
 
 public interface PlexusConfiguration
 {
+    String getName();
+
+    String getValue();
+
+    String getValue( String defaultValue );
+
+    String getAttribute( String attributeName, String defaultValue );
+
+    PlexusConfiguration getChild( String childName );
+
+    PlexusConfiguration getChild( String childName, boolean create );
+
+    PlexusConfiguration[] getChildren();
+
+    PlexusConfiguration[] getChildren( String childName );
 }
