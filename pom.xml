@@ -15,6 +15,7 @@
     <module>guice-patches</module>
     <module>guice-bean</module>
     <module>guice-plexus</module>
+    <module>guice-nexus</module>
   </modules>
 
 </project>
