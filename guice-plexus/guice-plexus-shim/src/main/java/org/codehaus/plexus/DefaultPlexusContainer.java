@@ -15,7 +15,6 @@ package org.codehaus.plexus;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -24,7 +23,6 @@ import java.util.Map.Entry;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -63,7 +61,7 @@ import com.google.inject.TypeLiteral;
  */
 public final class DefaultPlexusContainer
     extends AbstractLogEnabled
-    implements PlexusContainer
+    implements MutablePlexusContainer
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -139,15 +137,6 @@ public final class DefaultPlexusContainer
     }
 
     // ----------------------------------------------------------------------
-    // Context methods
-    // ----------------------------------------------------------------------
-
-    public Context getContext()
-    {
-        return context;
-    }
-
-    // ----------------------------------------------------------------------
     // Lookup methods
     // ----------------------------------------------------------------------
 
@@ -182,12 +171,6 @@ public final class DefaultPlexusContainer
         }
     }
 
-    public <T> T lookup( final Class<T> type, final String role, final String hint )
-        throws ComponentLookupException
-    {
-        return role.equals( type.getName() ) ? lookup( type, hint ) : type.cast( lookup( role, hint ) );
-    }
-
     public List<Object> lookupList( final String role )
         throws ComponentLookupException
     {
@@ -211,62 +194,8 @@ public final class DefaultPlexusContainer
     }
 
     // ----------------------------------------------------------------------
-    // Query methods
-    // ----------------------------------------------------------------------
-
-    public boolean hasComponent( final Class<?> role )
-    {
-        return hasComponent( role, Hints.DEFAULT_HINT );
-    }
-
-    public boolean hasComponent( final Class<?> role, final String hint )
-    {
-        return locate( role, hint ).iterator().hasNext();
-    }
-
-    public boolean hasComponent( final Class<?> type, final String role, final String hint )
-    {
-        return role.equals( type.getName() ) ? hasComponent( type, hint ) : hasComponent( loadRoleClass( role ), hint );
-    }
-
-    // ----------------------------------------------------------------------
     // Component descriptor methods
     // ----------------------------------------------------------------------
-
-    public ComponentDescriptor<?> getComponentDescriptor( final String role, final String hint )
-    {
-        return getComponentDescriptor( Object.class, role, hint );
-    }
-
-    public <T> ComponentDescriptor<T> getComponentDescriptor( final Class<T> type, final String role, final String hint )
-    {
-        final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
-        descriptor.setRole( role );
-        descriptor.setRoleHint( hint );
-        descriptor.setDescription( lifecycleManager.getDescription( role, hint ) );
-        return descriptor;
-    }
-
-    @SuppressWarnings( "unchecked" )
-    public List<ComponentDescriptor<?>> getComponentDescriptorList( final String role )
-    {
-        return (List) getComponentDescriptorList( Object.class, role );
-    }
-
-    public <T> List<ComponentDescriptor<T>> getComponentDescriptorList( final Class<T> type, final String role )
-    {
-        final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
-        for ( final Entry<String, T> entry : locate( type ) )
-        {
-            final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
-            final String hint = entry.getKey();
-            descriptor.setRole( role );
-            descriptor.setRoleHint( hint );
-            descriptor.setDescription( lifecycleManager.getDescription( role, hint ) );
-            tempList.add( descriptor );
-        }
-        return tempList;
-    }
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
     {
@@ -296,27 +225,27 @@ public final class DefaultPlexusContainer
     // Class realm methods
     // ----------------------------------------------------------------------
 
+    public ClassWorld getClassWorld()
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     public ClassRealm getContainerRealm()
     {
         return containerRealm;
     }
 
-    public ClassRealm createChildRealm( final String id )
+    public ClassRealm setLookupRealm( ClassRealm realm )
     {
-        try
-        {
-            return containerRealm.createChildRealm( id );
-        }
-        catch ( final DuplicateRealmException e )
-        {
-            return containerRealm.getWorld().getClassRealm( id );
-        }
+        // TODO Auto-generated method stub
+        return null;
     }
 
-    public void removeComponentRealm( final ClassRealm classRealm )
+    public ClassRealm getLookupRealm()
     {
-        // TODO: clear type lookup results, dispose of any active components
-        getLogger().warn( "TODO removeComponentRealm(" + classRealm + ")" );
+        // TODO Auto-generated method stub
+        return null;
     }
 
     // ----------------------------------------------------------------------
@@ -333,6 +262,22 @@ public final class DefaultPlexusContainer
         lifecycleManager.dispose();
 
         containerRealm.setParentRealm( null );
+    }
+
+    // ----------------------------------------------------------------------
+    // Logger methods
+    // ----------------------------------------------------------------------
+
+    @SuppressWarnings( "unused" )
+    public void setLoggerManager( final LoggerManager loggerManager )
+    {
+        // TODO Auto-generated method stub
+    }
+
+    public LoggerManager getLoggerManager()
+    {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     // ----------------------------------------------------------------------

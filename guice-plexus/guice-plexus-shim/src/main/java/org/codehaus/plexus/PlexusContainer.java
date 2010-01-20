@@ -19,12 +19,9 @@ import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.exception.ComponentLifecycleException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.configuration.PlexusConfigurationException;
-import org.codehaus.plexus.context.Context;
 
 public interface PlexusContainer
 {
-    Context getContext();
-
     Object lookup( String role )
         throws ComponentLookupException;
 
@@ -35,9 +32,6 @@ public interface PlexusContainer
         throws ComponentLookupException;
 
     <T> T lookup( Class<T> role, String hint )
-        throws ComponentLookupException;
-
-    <T> T lookup( Class<T> type, String role, String hint )
         throws ComponentLookupException;
 
     List<Object> lookupList( String role )
@@ -52,32 +46,17 @@ public interface PlexusContainer
     <T> Map<String, T> lookupMap( Class<T> role )
         throws ComponentLookupException;
 
-    boolean hasComponent( Class<?> role );
-
-    boolean hasComponent( Class<?> role, String hint );
-
-    boolean hasComponent( Class<?> type, String role, String hint );
-
-    ComponentDescriptor<?> getComponentDescriptor( String role, String hint );
-
-    <T> ComponentDescriptor<T> getComponentDescriptor( Class<T> type, String role, String hint );
-
-    List<ComponentDescriptor<?>> getComponentDescriptorList( String role );
-
-    <T> List<ComponentDescriptor<T>> getComponentDescriptorList( Class<T> type, String role );
-
     <T> void addComponentDescriptor( ComponentDescriptor<T> descriptor )
         throws CycleDetectedInComponentGraphException;
-
-    ClassRealm getContainerRealm();
-
-    ClassRealm createChildRealm( String id );
 
     List<ComponentDescriptor<?>> discoverComponents( ClassRealm classRealm )
         throws PlexusConfigurationException, CycleDetectedInComponentGraphException;
 
-    void removeComponentRealm( ClassRealm classRealm )
-        throws PlexusContainerException;
+    ClassRealm getContainerRealm();
+
+    ClassRealm setLookupRealm( ClassRealm realm );
+
+    ClassRealm getLookupRealm();
 
     void release( Object component )
         throws ComponentLifecycleException;

@@ -10,18 +10,13 @@
  */
 package org.codehaus.plexus;
 
-public final class PlexusContainerException
-    extends Exception
+import org.codehaus.plexus.classworlds.ClassWorld;
+import org.codehaus.plexus.logging.Logger;
+
+public interface MutablePlexusContainer
+    extends PlexusContainer
 {
-    private static final long serialVersionUID = 1L;
+    ClassWorld getClassWorld();
 
-    public PlexusContainerException( final String message )
-    {
-        super( message );
-    }
-
-    public PlexusContainerException( final String message, final Throwable detail )
-    {
-        super( message, detail );
-    }
+    Logger getLogger();
 }
