@@ -10,17 +10,17 @@
  */
 package org.codehaus.plexus.component.repository.exception;
 
-public final class ComponentLifecycleException
+public final class ComponentRepositoryException
     extends Exception
 {
     private static final long serialVersionUID = 1L;
 
-    public ComponentLifecycleException( final String message )
+    public ComponentRepositoryException( final String message )
     {
         super( message );
     }
 
-    public ComponentLifecycleException( final String message, final Throwable detail )
+    public ComponentRepositoryException( final String message, final Throwable detail )
     {
         super( message, detail );
     }
