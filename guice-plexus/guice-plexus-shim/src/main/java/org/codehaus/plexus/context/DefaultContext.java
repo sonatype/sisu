@@ -35,12 +35,13 @@ public final class DefaultContext
 
     public DefaultContext( final Map<?, ?> context )
     {
-        if ( context != null )
+        if ( null == context )
         {
-            for ( final Entry<?, ?> e : context.entrySet() )
-            {
-                put( e.getKey(), e.getValue() );
-            }
+            throw new IllegalArgumentException( "Context is null" );
+        }
+        for ( final Entry<?, ?> e : context.entrySet() )
+        {
+            put( e.getKey(), e.getValue() );
         }
     }
 

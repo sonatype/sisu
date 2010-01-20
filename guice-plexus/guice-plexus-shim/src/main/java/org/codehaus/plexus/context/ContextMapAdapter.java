@@ -12,6 +12,7 @@ package org.codehaus.plexus.context;
 
 import java.util.AbstractMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public final class ContextMapAdapter
@@ -23,7 +24,7 @@ public final class ContextMapAdapter
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Context context;
+    final Map<Object, Object> contextData;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -31,7 +32,7 @@ public final class ContextMapAdapter
 
     public ContextMapAdapter( final Context context )
     {
-        this.context = context;
+        contextData = context.getContextData();
     }
 
     // ----------------------------------------------------------------------
@@ -39,24 +40,27 @@ public final class ContextMapAdapter
     // ----------------------------------------------------------------------
 
     @Override
+    public boolean containsKey( final Object key )
+    {
+        return get( key ) != null;
+    }
+
+    @Override
     public Object get( final Object key )
     {
-        try
-        {
-            final Object value = context.get( key );
-            return value instanceof String ? value : null;
-        }
-        catch ( final ContextException e )
-        {
-            return null;
-        }
+        final Object value = contextData.get( key );
+        return value instanceof String ? value : null;
     }
+
+    // ----------------------------------------------------------------------
+    // Implementation helpers
+    // ----------------------------------------------------------------------
 
     @Override
     public Set<Entry<Object, Object>> entrySet()
     {
         final Set<Entry<Object, Object>> tempSet = new HashSet<Entry<Object, Object>>();
-        for ( final Entry<Object, Object> entry : context.getContextData().entrySet() )
+        for ( final Entry<Object, Object> entry : contextData.entrySet() )
         {
             if ( entry.getValue() instanceof String )
             {

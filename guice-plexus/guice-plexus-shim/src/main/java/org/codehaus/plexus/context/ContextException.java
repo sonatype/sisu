@@ -20,7 +20,7 @@ public final class ContextException
         super( message );
     }
 
-    public ContextException( final String message, final Exception detail )
+    public ContextException( final String message, final Throwable detail )
     {
         super( message, detail );
     }
