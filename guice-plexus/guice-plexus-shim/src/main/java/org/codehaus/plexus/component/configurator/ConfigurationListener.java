@@ -10,14 +10,6 @@
  */
 package org.codehaus.plexus.component.configurator;
 
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
-import org.codehaus.plexus.configuration.PlexusConfiguration;
-
-public interface ComponentConfigurator
+public interface ConfigurationListener
 {
-    void configureComponent( Object component, PlexusConfiguration configuration,
-                             ExpressionEvaluator expressionEvaluator, ClassRealm containerRealm,
-                             ConfigurationListener listener )
-        throws ComponentConfigurationException;
 }

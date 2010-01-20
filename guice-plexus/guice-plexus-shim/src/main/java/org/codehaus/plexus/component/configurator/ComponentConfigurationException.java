@@ -10,14 +10,25 @@
  */
 package org.codehaus.plexus.component.configurator;
 
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
-public interface ComponentConfigurator
+public final class ComponentConfigurationException
+    extends Exception
 {
-    void configureComponent( Object component, PlexusConfiguration configuration,
-                             ExpressionEvaluator expressionEvaluator, ClassRealm containerRealm,
-                             ConfigurationListener listener )
-        throws ComponentConfigurationException;
+    private static final long serialVersionUID = 1L;
+
+    public ComponentConfigurationException( final String message )
+    {
+        super( message );
+    }
+
+    public ComponentConfigurationException( final String message, final Throwable detail )
+    {
+        super( message, detail );
+    }
+
+    public PlexusConfiguration getFailedConfiguration()
+    {
+        return null;
+    }
 }

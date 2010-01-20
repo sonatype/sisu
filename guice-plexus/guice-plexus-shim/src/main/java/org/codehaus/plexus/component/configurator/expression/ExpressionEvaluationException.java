@@ -8,16 +8,20 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.codehaus.plexus.component.configurator;
+package org.codehaus.plexus.component.configurator.expression;
 
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
-import org.codehaus.plexus.configuration.PlexusConfiguration;
-
-public interface ComponentConfigurator
+public final class ExpressionEvaluationException
+    extends Exception
 {
-    void configureComponent( Object component, PlexusConfiguration configuration,
-                             ExpressionEvaluator expressionEvaluator, ClassRealm containerRealm,
-                             ConfigurationListener listener )
-        throws ComponentConfigurationException;
+    private static final long serialVersionUID = 1L;
+
+    public ExpressionEvaluationException( final String message )
+    {
+        super( message );
+    }
+
+    public ExpressionEvaluationException( final String message, final Throwable detail )
+    {
+        super( message, detail );
+    }
 }
