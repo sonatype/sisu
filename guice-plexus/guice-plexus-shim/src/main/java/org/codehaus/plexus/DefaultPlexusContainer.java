@@ -32,7 +32,7 @@ import org.codehaus.plexus.context.DefaultContext;
 import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
-import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
+import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.adapters.EntryListAdapter;
@@ -124,12 +124,9 @@ public final class DefaultPlexusContainer
                 bind( PlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
                 bind( Logger.class ).toProvider( new Provider<Logger>()
                 {
-                    @Inject( optional = true )
-                    LoggerManager loggerManager = new ConsoleLoggerManager();
-
                     public Logger get()
                     {
-                        return loggerManager.getLogger( "ROOT" );
+                        return new ConsoleLogger( Logger.LEVEL_INFO, null );
                     }
                 } );
             }
@@ -236,7 +233,7 @@ public final class DefaultPlexusContainer
         return containerRealm;
     }
 
-    public ClassRealm setLookupRealm( ClassRealm realm )
+    public ClassRealm setLookupRealm( final ClassRealm realm )
     {
         // TODO Auto-generated method stub
         return null;
@@ -359,7 +356,7 @@ public final class DefaultPlexusContainer
                 }
                 if ( null == url )
                 {
-                    ConsoleLoggerManager.LOGGER.warn( "Bad container configuration path: " + configurationPath );
+                    // ConsoleLoggerManager.LOGGER.warn( "Bad container configuration path: " + configurationPath );
                 }
             }
         }

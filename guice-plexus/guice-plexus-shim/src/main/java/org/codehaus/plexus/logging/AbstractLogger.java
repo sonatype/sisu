@@ -1,6 +1,4 @@
 /**
- * Copyright (c) 2009 Sonatype, Inc. All rights reserved.
- *
  * This program is licensed to you under the Apache License Version 2.0,
  * and you may not use this file except in compliance with the Apache License Version 2.0.
  * You may obtain a copy of the Apache License Version 2.0 at http://www.apache.org/licenses/LICENSE-2.0.
@@ -21,13 +19,11 @@ public abstract class AbstractLogger
 
     private int threshold;
 
-    private final String name;
-
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    public AbstractLogger( final int threshold, final String name )
+    public AbstractLogger( final int threshold, @SuppressWarnings( "unused" ) final String name )
     {
         if ( threshold < LEVEL_DEBUG || LEVEL_DISABLED < threshold )
         {
@@ -35,22 +31,11 @@ public abstract class AbstractLogger
         }
 
         this.threshold = threshold;
-        this.name = name;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
-
-    public final void setThreshold( final int threshold )
-    {
-        this.threshold = threshold;
-    }
-
-    public final String getName()
-    {
-        return name;
-    }
 
     public final void debug( final String message )
     {
@@ -100,5 +85,10 @@ public abstract class AbstractLogger
     public boolean isFatalErrorEnabled()
     {
         return threshold <= LEVEL_FATAL;
+    }
+
+    public final void setThreshold( final int threshold )
+    {
+        this.threshold = threshold;
     }
 }

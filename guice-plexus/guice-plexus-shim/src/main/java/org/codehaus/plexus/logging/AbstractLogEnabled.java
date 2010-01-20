@@ -28,11 +28,7 @@ public abstract class AbstractLogEnabled
         logger = theLogger;
     }
 
-    // ----------------------------------------------------------------------
-    // Shared methods
-    // ----------------------------------------------------------------------
-
-    protected final Logger getLogger()
+    public final Logger getLogger()
     {
         return logger;
     }

@@ -22,8 +22,6 @@ import java.util.Set;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.logging.LogEnabled;
-import org.codehaus.plexus.logging.LoggerManager;
-import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
@@ -46,8 +44,8 @@ final class PlexusLifecycleManager
     @Inject
     private Context context;
 
-    @Inject( optional = true )
-    LoggerManager loggerManager = new ConsoleLoggerManager();
+    // @Inject( optional = true )
+    // LoggerManager loggerManager = new ConsoleLoggerManager();
 
     private final Map<String, String> descriptions = new HashMap<String, String>();
 
@@ -83,7 +81,7 @@ final class PlexusLifecycleManager
 
     public boolean manage( final Object bean )
     {
-        final String name = bean.getClass().getName();
+        // final String name = bean.getClass().getName();
 
         try
         {
@@ -92,7 +90,7 @@ final class PlexusLifecycleManager
              */
             if ( bean instanceof LogEnabled )
             {
-                ( (LogEnabled) bean ).enableLogging( loggerManager.getLogger( name ) );
+                // ( (LogEnabled) bean ).enableLogging( loggerManager.getLogger( name ) );
             }
             if ( bean instanceof Contextualizable )
             {
@@ -114,7 +112,7 @@ final class PlexusLifecycleManager
         }
         catch ( final Exception e )
         {
-            loggerManager.getLogger( name ).error( "Problem starting: " + bean, e );
+            // loggerManager.getLogger( name ).error( "Problem starting: " + bean, e );
         }
 
         return true;
@@ -126,7 +124,7 @@ final class PlexusLifecycleManager
 
     void dispose( final Object bean )
     {
-        final String name = bean.getClass().getName();
+        // final String name = bean.getClass().getName();
         activeComponents.remove( bean );
 
         try
@@ -145,11 +143,11 @@ final class PlexusLifecycleManager
         }
         catch ( final Throwable e )
         {
-            loggerManager.getLogger( name ).error( "Problem stopping: " + bean, e );
+            // loggerManager.getLogger( name ).error( "Problem stopping: " + bean, e );
         }
         finally
         {
-            loggerManager.returnLogger( name );
+            // loggerManager.returnLogger( name );
         }
     }
 
