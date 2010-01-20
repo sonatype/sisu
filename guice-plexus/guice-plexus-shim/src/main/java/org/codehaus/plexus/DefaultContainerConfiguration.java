@@ -1,6 +1,4 @@
 /**
- * Copyright (c) 2009 Sonatype, Inc. All rights reserved.
- *
  * This program is licensed to you under the Apache License Version 2.0,
  * and you may not use this file except in compliance with the Apache License Version 2.0.
  * You may obtain a copy of the Apache License Version 2.0 at http://www.apache.org/licenses/LICENSE-2.0.
@@ -17,12 +15,13 @@ import java.util.Map;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.component.repository.ComponentRepository;
 
 public final class DefaultContainerConfiguration
     implements ContainerConfiguration
 {
-    private String name;
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
 
     private String configurationPath;
 
@@ -32,8 +31,6 @@ public final class DefaultContainerConfiguration
 
     private ClassRealm classRealm;
 
-    private ComponentRepository repository;
-
     private Map<Object, Object> contextData;
 
     // ----------------------------------------------------------------------
@@ -42,13 +39,7 @@ public final class DefaultContainerConfiguration
 
     public ContainerConfiguration setName( final String name )
     {
-        this.name = name;
         return this;
-    }
-
-    public String getName()
-    {
-        return name;
     }
 
     public ContainerConfiguration setContainerConfiguration( final String configurationPath )
@@ -93,17 +84,6 @@ public final class DefaultContainerConfiguration
     public ClassRealm getRealm()
     {
         return classRealm;
-    }
-
-    public ContainerConfiguration setComponentRepository( final ComponentRepository repository )
-    {
-        this.repository = repository;
-        return this;
-    }
-
-    public ComponentRepository getComponentRepository()
-    {
-        return repository;
     }
 
     public ContainerConfiguration setContext( final Map<Object, Object> contextData )

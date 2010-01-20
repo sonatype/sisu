@@ -15,13 +15,10 @@ import java.util.Map;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.codehaus.plexus.component.repository.ComponentRepository;
 
 public interface ContainerConfiguration
 {
     ContainerConfiguration setName( String name );
-
-    String getName();
 
     ContainerConfiguration setContainerConfiguration( String configurationPath );
 
@@ -38,10 +35,6 @@ public interface ContainerConfiguration
     ContainerConfiguration setRealm( ClassRealm classRealm );
 
     ClassRealm getRealm();
-
-    ContainerConfiguration setComponentRepository( ComponentRepository repository );
-
-    ComponentRepository getComponentRepository();
 
     ContainerConfiguration setContext( Map<Object, Object> context );
 
