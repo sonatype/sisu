@@ -20,10 +20,13 @@ import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.exception.ComponentLifecycleException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.configuration.PlexusConfigurationException;
+import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.logging.Logger;
 
 public interface PlexusContainer
 {
+    Context getContext();
+
     Object lookup( String role )
         throws ComponentLookupException;
 
@@ -50,6 +53,8 @@ public interface PlexusContainer
 
     <T> void addComponentDescriptor( ComponentDescriptor<T> descriptor )
         throws CycleDetectedInComponentGraphException;
+
+    <T> ComponentDescriptor<T> getComponentDescriptor( Class<T> type, String role, String hint );
 
     List<ComponentDescriptor<?>> discoverComponents( ClassRealm classRealm )
         throws PlexusConfigurationException;

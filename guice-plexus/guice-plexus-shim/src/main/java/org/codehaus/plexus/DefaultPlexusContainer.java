@@ -136,6 +136,15 @@ public final class DefaultPlexusContainer
     }
 
     // ----------------------------------------------------------------------
+    // Context methods
+    // ----------------------------------------------------------------------
+
+    public Context getContext()
+    {
+        return context;
+    }
+
+    // ----------------------------------------------------------------------
     // Lookup methods
     // ----------------------------------------------------------------------
 
@@ -199,6 +208,15 @@ public final class DefaultPlexusContainer
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
     {
         // can safely ignore this, we get these descriptors via another route
+    }
+
+    public <T> ComponentDescriptor<T> getComponentDescriptor( final Class<T> type, final String role, final String hint )
+    {
+        final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
+        descriptor.setRole( role );
+        descriptor.setRoleHint( hint );
+        descriptor.setDescription( lifecycleManager.getDescription( role, hint ) );
+        return descriptor;
     }
 
     public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm classRealm )

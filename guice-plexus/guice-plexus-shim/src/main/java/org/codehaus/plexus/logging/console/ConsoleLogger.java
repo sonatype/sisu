@@ -13,6 +13,7 @@
 package org.codehaus.plexus.logging.console;
 
 import org.codehaus.plexus.logging.AbstractLogger;
+import org.codehaus.plexus.logging.Logger;
 
 public final class ConsoleLogger
     extends AbstractLogger
@@ -74,6 +75,11 @@ public final class ConsoleLogger
         {
             log( LEVEL_FATAL, message, throwable );
         }
+    }
+
+    public Logger getChildLogger( final String name )
+    {
+        return this;
     }
 
     // ----------------------------------------------------------------------

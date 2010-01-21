@@ -11,12 +11,17 @@
 package org.codehaus.plexus.component.repository;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.sonatype.guice.plexus.config.Hints;
 
 public class ComponentDescriptor<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
+
+    private String hint;
+
+    private String description;
 
     private String componentConfigurator;
 
@@ -33,9 +38,9 @@ public class ComponentDescriptor<T>
     {
     }
 
-    @SuppressWarnings( "unused" )
     public final void setRoleHint( final String hint )
     {
+        this.hint = Hints.canonicalHint( hint );
     }
 
     @SuppressWarnings( "unused" )
@@ -43,9 +48,9 @@ public class ComponentDescriptor<T>
     {
     }
 
-    @SuppressWarnings( "unused" )
     public final void setDescription( final String description )
     {
+        this.description = description;
     }
 
     @SuppressWarnings( "unused" )
@@ -66,6 +71,16 @@ public class ComponentDescriptor<T>
     public final void setImplementation( final String implementation )
     {
         this.implementation = implementation;
+    }
+
+    public final String getRoleHint()
+    {
+        return hint;
+    }
+
+    public final String getDescription()
+    {
+        return description;
     }
 
     public final String getComponentConfigurator()
