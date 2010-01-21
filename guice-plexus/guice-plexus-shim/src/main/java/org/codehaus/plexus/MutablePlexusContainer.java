@@ -10,13 +10,7 @@
  */
 package org.codehaus.plexus;
 
-import org.codehaus.plexus.classworlds.ClassWorld;
-import org.codehaus.plexus.logging.Logger;
-
 public interface MutablePlexusContainer
     extends PlexusContainer
 {
-    ClassWorld getClassWorld();
-
-    Logger getLogger();
 }

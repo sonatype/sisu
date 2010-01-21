@@ -226,8 +226,7 @@ public final class DefaultPlexusContainer
 
     public ClassWorld getClassWorld()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return containerRealm.getWorld();
     }
 
     public ClassRealm getContainerRealm()
@@ -248,6 +247,20 @@ public final class DefaultPlexusContainer
     }
 
     // ----------------------------------------------------------------------
+    // Logger methods
+    // ----------------------------------------------------------------------
+
+    public void setLoggerManager( final LoggerManager loggerManager )
+    {
+        this.loggerManager = loggerManager;
+    }
+
+    public LoggerManager getLoggerManager()
+    {
+        return loggerManager;
+    }
+
+    // ----------------------------------------------------------------------
     // Shutdown methods
     // ----------------------------------------------------------------------
 
@@ -261,20 +274,6 @@ public final class DefaultPlexusContainer
         lifecycleManager.dispose();
 
         containerRealm.setParentRealm( null );
-    }
-
-    // ----------------------------------------------------------------------
-    // Logger methods
-    // ----------------------------------------------------------------------
-
-    public void setLoggerManager( final LoggerManager loggerManager )
-    {
-        this.loggerManager = loggerManager;
-    }
-
-    public LoggerManager getLoggerManager()
-    {
-        return loggerManager;
     }
 
     // ----------------------------------------------------------------------
