@@ -22,6 +22,8 @@ import java.util.Set;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.logging.LogEnabled;
+import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
@@ -81,7 +83,7 @@ final class PlexusLifecycleManager
 
     public boolean manage( final Object bean )
     {
-        // final String name = bean.getClass().getName();
+        final String name = bean.getClass().getName();
 
         try
         {
@@ -90,7 +92,8 @@ final class PlexusLifecycleManager
              */
             if ( bean instanceof LogEnabled )
             {
-                // ( (LogEnabled) bean ).enableLogging( loggerManager.getLogger( name ) );
+                ( (LogEnabled) bean ).enableLogging( new ConsoleLogger( Logger.LEVEL_DEBUG, name ) );
+                // loggerManager.getLogger( name ) );
             }
             if ( bean instanceof Contextualizable )
             {

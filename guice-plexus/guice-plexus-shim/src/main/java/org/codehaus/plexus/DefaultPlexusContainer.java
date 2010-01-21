@@ -87,6 +87,8 @@ public final class DefaultPlexusContainer
     @Inject
     private GuiceTypeLocator typeLocator;
 
+    private LoggerManager loggerManager;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -126,7 +128,7 @@ public final class DefaultPlexusContainer
                 {
                     public Logger get()
                     {
-                        return new ConsoleLogger( Logger.LEVEL_INFO, null );
+                        return new ConsoleLogger( Logger.LEVEL_DEBUG, null );
                     }
                 } );
             }
@@ -265,16 +267,14 @@ public final class DefaultPlexusContainer
     // Logger methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unused" )
     public void setLoggerManager( final LoggerManager loggerManager )
     {
-        // TODO Auto-generated method stub
+        this.loggerManager = loggerManager;
     }
 
     public LoggerManager getLoggerManager()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return loggerManager;
     }
 
     // ----------------------------------------------------------------------
