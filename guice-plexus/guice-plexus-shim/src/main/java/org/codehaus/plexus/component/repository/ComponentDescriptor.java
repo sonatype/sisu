@@ -77,7 +77,7 @@ public class ComponentDescriptor<T>
         this.implementation = implementation;
     }
 
-    public final String getRoleHint()
+    public String getRoleHint()
     {
         return hint;
     }
