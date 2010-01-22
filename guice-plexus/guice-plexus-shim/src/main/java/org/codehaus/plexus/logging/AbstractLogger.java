@@ -87,6 +87,11 @@ public abstract class AbstractLogger
         return threshold <= LEVEL_FATAL;
     }
 
+    public final int getThreshold()
+    {
+        return threshold;
+    }
+
     public final void setThreshold( final int threshold )
     {
         this.threshold = threshold;

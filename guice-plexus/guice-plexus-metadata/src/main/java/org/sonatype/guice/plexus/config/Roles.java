@@ -62,7 +62,7 @@ public final class Roles
      */
     public static String canonicalRoleHint( final String role, final String hint )
     {
-        return role + ':' + Hints.canonicalHint( hint );
+        return Hints.isDefaultHint( hint ) ? role : role + ':' + hint;
     }
 
     /**

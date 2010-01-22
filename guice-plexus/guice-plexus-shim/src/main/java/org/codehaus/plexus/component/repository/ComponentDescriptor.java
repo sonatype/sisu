@@ -19,7 +19,7 @@ public class ComponentDescriptor<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private String hint;
+    private String hint = Hints.DEFAULT_HINT;
 
     private String description;
 
@@ -28,6 +28,10 @@ public class ComponentDescriptor<T>
     private String componentFactory;
 
     private String implementation;
+
+    private ClassRealm classRealm;
+
+    private Class<T> implementationClass;
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -103,8 +107,25 @@ public class ComponentDescriptor<T>
     {
     }
 
-    @SuppressWarnings( "unused" )
     public final void setRealm( final ClassRealm classRealm )
     {
+        this.classRealm = classRealm;
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public final Class<T> getImplementationClass()
+    {
+        if ( null == implementationClass )
+        {
+            try
+            {
+                implementationClass = classRealm.loadClass( implementation );
+            }
+            catch ( final Throwable e ) // NOPMD
+            {
+                // ignore
+            }
+        }
+        return null == implementationClass ? (Class) Object.class : implementationClass;
     }
 }

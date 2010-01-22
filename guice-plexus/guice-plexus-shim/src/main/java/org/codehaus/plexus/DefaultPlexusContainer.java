@@ -15,7 +15,7 @@ package org.codehaus.plexus;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,10 +29,9 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.context.ContextMapAdapter;
 import org.codehaus.plexus.context.DefaultContext;
-import org.codehaus.plexus.logging.AbstractLogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
-import org.codehaus.plexus.logging.console.ConsoleLogger;
+import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.adapters.EntryListAdapter;
@@ -60,7 +59,6 @@ import com.google.inject.TypeLiteral;
  * {@link PlexusContainer} shim that delegates to a Plexus-aware Guice {@link Injector}.
  */
 public final class DefaultPlexusContainer
-    extends AbstractLogEnabled
     implements MutablePlexusContainer
 {
     // ----------------------------------------------------------------------
@@ -68,6 +66,8 @@ public final class DefaultPlexusContainer
     // ----------------------------------------------------------------------
 
     private static final String DEFAULT_REALM_NAME = "plexus.core";
+
+    private static final LoggerManager CONSOLE_LOGGER_MANAGER = new ConsoleLoggerManager();
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -87,7 +87,11 @@ public final class DefaultPlexusContainer
     @Inject
     private GuiceTypeLocator typeLocator;
 
-    private LoggerManager loggerManager;
+    private ClassRealm lookupRealm; // TODO: thread-local?
+
+    private LoggerManager loggerManager = CONSOLE_LOGGER_MANAGER;
+
+    private Logger logger;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -104,6 +108,7 @@ public final class DefaultPlexusContainer
 
         containerRealm = lookupContainerRealm( configuration );
         lifecycleManager = new PlexusLifecycleManager();
+        lookupRealm = containerRealm;
 
         final ClassSpace space = new URLClassSpace( containerRealm );
         final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, contextMap, configurationUrl );
@@ -128,7 +133,7 @@ public final class DefaultPlexusContainer
                 {
                     public Logger get()
                     {
-                        return new ConsoleLogger( Logger.LEVEL_DEBUG, null );
+                        return getLogger();
                     }
                 } );
             }
@@ -179,6 +184,12 @@ public final class DefaultPlexusContainer
         }
     }
 
+    public <T> T lookup( final Class<T> type, final String role, final String hint )
+        throws ComponentLookupException
+    {
+        return role.equals( type.getName() ) ? lookup( type, hint ) : type.cast( lookup( role, hint ) );
+    }
+
     public List<Object> lookupList( final String role )
         throws ComponentLookupException
     {
@@ -202,6 +213,25 @@ public final class DefaultPlexusContainer
     }
 
     // ----------------------------------------------------------------------
+    // Query methods
+    // ----------------------------------------------------------------------
+
+    public boolean hasComponent( final Class<?> role )
+    {
+        return hasComponent( role, Hints.DEFAULT_HINT );
+    }
+
+    public boolean hasComponent( final Class<?> role, final String hint )
+    {
+        return locate( role, hint ).iterator().hasNext();
+    }
+
+    public boolean hasComponent( final Class<?> type, final String role, final String hint )
+    {
+        return role.equals( type.getName() ) ? hasComponent( type, hint ) : hasComponent( loadRoleClass( role ), hint );
+    }
+
+    // ----------------------------------------------------------------------
     // Component descriptor methods
     // ----------------------------------------------------------------------
 
@@ -210,13 +240,41 @@ public final class DefaultPlexusContainer
         // can safely ignore this, we get these descriptors via another route
     }
 
+    public ComponentDescriptor<?> getComponentDescriptor( final String role, final String hint )
+    {
+        return getComponentDescriptor( null, role, hint );
+    }
+
     public <T> ComponentDescriptor<T> getComponentDescriptor( final Class<T> type, final String role, final String hint )
     {
         final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
         descriptor.setRole( role );
         descriptor.setRoleHint( hint );
         descriptor.setDescription( lifecycleManager.getDescription( role, hint ) );
+        // TODO: implementation, etc?
         return descriptor;
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public List<ComponentDescriptor<?>> getComponentDescriptorList( final String role )
+    {
+        return (List) getComponentDescriptorList( loadRoleClass( role ), role );
+    }
+
+    public <T> List<ComponentDescriptor<T>> getComponentDescriptorList( final Class<T> type, final String role )
+    {
+        final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
+        for ( final Entry<String, T> entry : locate( type ) )
+        {
+            final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
+            final String hint = entry.getKey();
+            descriptor.setRole( role );
+            descriptor.setRoleHint( hint );
+            descriptor.setDescription( lifecycleManager.getDescription( role, hint ) );
+            // TODO: implementation, etc?
+            tempList.add( descriptor );
+        }
+        return tempList;
     }
 
     public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm classRealm )
@@ -235,7 +293,7 @@ public final class DefaultPlexusContainer
             getLogger().warn( classRealm.toString(), e );
         }
 
-        return Collections.emptyList(); // don't need to return anything at the moment
+        return null; // no-one actually seems to use or check the returned component list
     }
 
     // ----------------------------------------------------------------------
@@ -254,28 +312,39 @@ public final class DefaultPlexusContainer
 
     public ClassRealm setLookupRealm( final ClassRealm realm )
     {
-        // TODO Auto-generated method stub
-        return null;
+        final ClassRealm oldRealm = lookupRealm;
+        lookupRealm = realm;
+        return oldRealm;
     }
 
     public ClassRealm getLookupRealm()
     {
-        // TODO Auto-generated method stub
-        return null;
+        return lookupRealm;
     }
 
     // ----------------------------------------------------------------------
     // Logger methods
     // ----------------------------------------------------------------------
 
-    public void setLoggerManager( final LoggerManager loggerManager )
-    {
-        this.loggerManager = loggerManager;
-    }
-
     public LoggerManager getLoggerManager()
     {
         return loggerManager;
+    }
+
+    public void setLoggerManager( final LoggerManager loggerManager )
+    {
+        this.loggerManager = null != loggerManager ? loggerManager : CONSOLE_LOGGER_MANAGER;
+
+        logger = null;
+    }
+
+    public Logger getLogger()
+    {
+        if ( null == logger )
+        {
+            logger = loggerManager.getLoggerForComponent( PlexusContainer.class.getName(), null );
+        }
+        return logger;
     }
 
     // ----------------------------------------------------------------------
@@ -373,7 +442,7 @@ public final class DefaultPlexusContainer
                 }
                 if ( null == url )
                 {
-                    // ConsoleLoggerManager.LOGGER.warn( "Bad container configuration path: " + configurationPath );
+                    getLogger().warn( "Bad container configuration path: " + configurationPath );
                 }
             }
         }
@@ -391,7 +460,7 @@ public final class DefaultPlexusContainer
     {
         try
         {
-            return containerRealm.loadClass( role );
+            return lookupRealm.loadClass( role );
         }
         catch ( final Throwable e )
         {

@@ -38,9 +38,9 @@ public class RolesTest
 
     public void testCanonicalRoleHint()
     {
-        assertEquals( OBJECT_LITERAL + ":default", Roles.canonicalRoleHint( Object.class.getName(), null ) );
-        assertEquals( OBJECT_LITERAL + ":default", Roles.canonicalRoleHint( Object.class.getName(), "" ) );
-        assertEquals( OBJECT_LITERAL + ":default", Roles.canonicalRoleHint( Object.class.getName(), "default" ) );
+        assertEquals( OBJECT_LITERAL + "", Roles.canonicalRoleHint( Object.class.getName(), null ) );
+        assertEquals( OBJECT_LITERAL + "", Roles.canonicalRoleHint( Object.class.getName(), "" ) );
+        assertEquals( OBJECT_LITERAL + "", Roles.canonicalRoleHint( Object.class.getName(), "default" ) );
         assertEquals( OBJECT_LITERAL + ":foo", Roles.canonicalRoleHint( Object.class.getName(), "foo" ) );
     }
 

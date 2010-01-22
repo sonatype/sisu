@@ -8,70 +8,48 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.codehaus.plexus.logging;
+package org.codehaus.plexus.logging.console;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.codehaus.plexus.logging.AbstractLoggerManager;
+import org.codehaus.plexus.logging.Logger;
 
-import org.sonatype.guice.plexus.config.Roles;
-
-public abstract class BaseLoggerManager
+public final class ConsoleLoggerManager
     extends AbstractLoggerManager
 {
     // ----------------------------------------------------------------------
-    // Implementation fields
+    // Constants
     // ----------------------------------------------------------------------
 
-    private final Map<String, Logger> activeLoggers = new HashMap<String, Logger>();
-
-    private int currentThreshold;
+    private final static Logger LOGGER = new ConsoleLogger( Logger.LEVEL_INFO, null );
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public final void setThreshold( final String threshold )
+    public void setThreshold( final String threshold )
     {
-        currentThreshold = parseThreshold( threshold );
+        LOGGER.setThreshold( parseThreshold( threshold ) );
     }
 
-    public final Logger getLoggerForComponent( final String role, final String hint )
+    public Logger getLoggerForComponent( final String role, final String hint )
     {
-        final String name = Roles.canonicalRoleHint( role, hint );
-        Logger logger = activeLoggers.get( name );
-        if ( null == logger )
-        {
-            logger = createLogger( name );
-            logger.setThreshold( currentThreshold );
-            activeLoggers.put( name, logger );
-        }
-        return logger;
+        return LOGGER;
     }
 
-    public final void returnComponentLogger( final String role, final String hint )
+    public void returnComponentLogger( final String role, final String hint )
     {
-        activeLoggers.remove( Roles.canonicalRoleHint( role, hint ) );
+        // nothing to do
     }
 
-    public final int getThreshold()
+    public int getThreshold()
     {
-        return currentThreshold;
+        return LOGGER.getThreshold();
     }
 
-    public final void setThresholds( final int currentThreshold )
+    public void setThresholds( final int currentThreshold )
     {
-        this.currentThreshold = currentThreshold;
-        for ( final Logger logger : activeLoggers.values() )
-        {
-            logger.setThreshold( currentThreshold );
-        }
+        LOGGER.setThreshold( currentThreshold );
     }
-
-    // ----------------------------------------------------------------------
-    // Customizable methods
-    // ----------------------------------------------------------------------
-
-    protected abstract Logger createLogger( String name );
 
     // ----------------------------------------------------------------------
     // Implementation methods

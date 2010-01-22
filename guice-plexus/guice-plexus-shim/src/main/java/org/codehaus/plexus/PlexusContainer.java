@@ -22,6 +22,7 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.configuration.PlexusConfigurationException;
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.logging.LoggerManager;
 
 public interface PlexusContainer
 {
@@ -39,6 +40,9 @@ public interface PlexusContainer
     <T> T lookup( Class<T> role, String hint )
         throws ComponentLookupException;
 
+    <T> T lookup( Class<T> type, String role, String hint )
+        throws ComponentLookupException;
+
     List<Object> lookupList( String role )
         throws ComponentLookupException;
 
@@ -51,10 +55,22 @@ public interface PlexusContainer
     <T> Map<String, T> lookupMap( Class<T> role )
         throws ComponentLookupException;
 
+    boolean hasComponent( Class<?> role );
+
+    boolean hasComponent( Class<?> role, String hint );
+
+    boolean hasComponent( Class<?> type, String role, String hint );
+
     <T> void addComponentDescriptor( ComponentDescriptor<T> descriptor )
         throws CycleDetectedInComponentGraphException;
 
+    ComponentDescriptor<?> getComponentDescriptor( String role, String hint );
+
     <T> ComponentDescriptor<T> getComponentDescriptor( Class<T> type, String role, String hint );
+
+    List<ComponentDescriptor<?>> getComponentDescriptorList( String role );
+
+    <T> List<ComponentDescriptor<T>> getComponentDescriptorList( Class<T> type, String role );
 
     List<ComponentDescriptor<?>> discoverComponents( ClassRealm classRealm )
         throws PlexusConfigurationException;
@@ -66,6 +82,10 @@ public interface PlexusContainer
     ClassRealm setLookupRealm( ClassRealm realm );
 
     ClassRealm getLookupRealm();
+
+    LoggerManager getLoggerManager();
+
+    void setLoggerManager( LoggerManager loggerManager );
 
     Logger getLogger();
 

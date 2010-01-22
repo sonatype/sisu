@@ -66,6 +66,8 @@ public interface Logger
     // Management methods
     // ----------------------------------------------------------------------
 
+    int getThreshold();
+
     void setThreshold( int threshold );
 
     Logger getChildLogger( String name );
