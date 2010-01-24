@@ -1,0 +1,9 @@
+<component-set>
+  <components>
+    <component>
+      <role>org.sonatype.nexus.plugins.NexusPluginManager</role>
+      <implementation>org.sonatype.nexus.plugins.DefaultNexusPluginManager</implementation>
+      <role-hint>default</role-hint>
+    </component>
+  </components>
+</component-set>

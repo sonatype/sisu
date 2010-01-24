@@ -19,6 +19,7 @@ import java.util.Map;
 import org.sonatype.plugin.metadata.GAVCoordinate;
 
 public final class DefaultNexusPluginManager
+    implements NexusPluginManager
 {
     public Collection<PluginManagerResponse> activateInstalledPlugins()
     {
