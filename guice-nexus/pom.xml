@@ -18,6 +18,7 @@
 
   <properties>
     <guice.nexus.version>0.1.0-SNAPSHOT</guice.nexus.version>
+    <sonatype.plugin.version>1.0.2</sonatype.plugin.version>
   </properties>
 
   <modules>
@@ -31,7 +32,7 @@
       <dependency>
         <groupId>org.sonatype.plugin</groupId>
         <artifactId>plugin-api</artifactId>
-        <version>1.0.2</version>
+        <version>${sonatype.plugin.version}</version>
         <exclusions>
           <exclusion>
             <groupId>com.google.code.atinject</groupId>
@@ -42,7 +43,7 @@
       <dependency>
         <groupId>org.sonatype.plugin</groupId>
         <artifactId>plugin-host-api</artifactId>
-        <version>1.0.2</version>
+        <version>${sonatype.plugin.version}</version>
         <exclusions>
           <exclusion>
             <groupId>com.google.code.atinject</groupId>
@@ -50,17 +51,28 @@
           </exclusion>
         </exclusions>
       </dependency>
+      <dependency>
+        <groupId>org.sonatype.plugin</groupId>
+        <artifactId>plugin-model-api</artifactId>
+        <version>${sonatype.plugin.version}</version>
+      </dependency>
 
-       <dependency>
-         <groupId>org.sonatype.spice.inject</groupId>
-         <artifactId>guice-nexus-scanners</artifactId>
-         <version>${guice.nexus.version}</version>
-       </dependency>
-       <dependency>
-         <groupId>org.sonatype.spice.inject</groupId>
-         <artifactId>guice-nexus-shim</artifactId>
-         <version>${guice.nexus.version}</version>
-       </dependency>
+      <dependency>
+        <groupId>org.sonatype.appbooter.plexus-booters</groupId>
+        <artifactId>plexus-app-booter</artifactId>
+        <version>2.1.0</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-nexus-scanners</artifactId>
+        <version>${guice.nexus.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-nexus-shim</artifactId>
+        <version>${guice.nexus.version}</version>
+      </dependency>
 
     </dependencies>
   </dependencyManagement>
