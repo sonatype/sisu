@@ -56,8 +56,6 @@ public final class XmlPlexusBeanSource
 
     private static final String LOAD_ON_START = "load-on-start";
 
-    private static final String SINGLETON = "singleton";
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -81,7 +79,7 @@ public final class XmlPlexusBeanSource
     /**
      * Scans the {@code plexus.xml} resource and primary class space for XML based Plexus metadata.
      * 
-     * @param space The containing class space
+     * @param space The primary class space
      * @param variables The filter variables
      * @param plexusXml The plexus.xml URL
      */
@@ -96,7 +94,7 @@ public final class XmlPlexusBeanSource
     /**
      * Scans the local secondary class space for XML based Plexus metadata.
      * 
-     * @param space The containing class space
+     * @param space The secondary class space
      * @param variables The filter variables
      */
     public XmlPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables )
@@ -317,7 +315,7 @@ public final class XmlPlexusBeanSource
     {
         String role = null;
         String hint = "";
-        String instantiationStrategy = SINGLETON;
+        String instantiationStrategy = "singleton";
         String description = "";
 
         String implementation = null;
@@ -381,7 +379,6 @@ public final class XmlPlexusBeanSource
         }
 
         final Class<?> clazz;
-
         try
         {
             // check the role actually exists
@@ -396,7 +393,7 @@ public final class XmlPlexusBeanSource
         {
             // not all roles are used, so just note for now
             logger.debug( "Missing Plexus role: " + role, e );
-            return; // missing roles don't need any metadata
+            return;
         }
 
         if ( !configurationMap.isEmpty() || !requirementMap.isEmpty() )
@@ -423,8 +420,9 @@ public final class XmlPlexusBeanSource
             strategies.put( roleHintKey, instantiationStrategy );
         }
 
-        components.put( new ComponentImpl( clazz, Hints.canonicalHint( hint ), instantiationStrategy, description ),
-                        space.deferLoadClass( implementation ) );
+        hint = Hints.canonicalHint( hint );
+        final Component component = new ComponentImpl( clazz, hint, instantiationStrategy, description );
+        components.put( component, space.deferLoadClass( implementation ) );
     }
 
     /**

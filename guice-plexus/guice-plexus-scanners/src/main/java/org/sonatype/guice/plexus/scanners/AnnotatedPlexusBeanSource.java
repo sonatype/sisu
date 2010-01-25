@@ -13,6 +13,7 @@
 package org.sonatype.guice.plexus.scanners;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -21,7 +22,9 @@ import java.util.Map;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
+import org.objectweb.asm.ClassReader;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
@@ -36,6 +39,13 @@ public final class AnnotatedPlexusBeanSource
     implements PlexusBeanSource, PlexusBeanMetadata
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final int CLASS_READER_FLAGS =
+        ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES;
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
@@ -47,9 +57,26 @@ public final class AnnotatedPlexusBeanSource
     // Constructors
     // ----------------------------------------------------------------------
 
+    /**
+     * Scans the given class space for components and annotation based Plexus metadata.
+     * 
+     * @param space The containing class space
+     * @param variables The filter variables
+     */
     public AnnotatedPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables )
     {
         this.space = space;
+        this.variables = variables;
+    }
+
+    /**
+     * Provides runtime Plexus metadata based on property annotations, no scanning.
+     * 
+     * @param variables The filter variables
+     */
+    public AnnotatedPlexusBeanSource( final Map<?, ?> variables )
+    {
+        space = null;
         this.variables = variables;
     }
 
@@ -66,18 +93,26 @@ public final class AnnotatedPlexusBeanSource
     {
         if ( null == space )
         {
-            return Collections.emptyMap();
+            return Collections.emptyMap(); // nothing to scan
         }
 
         try
         {
-            final AnnotatedComponentScanner scanner = new AnnotatedComponentScanner( space );
+            final PlexusComponentClassVisitor visitor = new PlexusComponentClassVisitor( space );
             final Enumeration<URL> e = space.findEntries( null, "*.class", true );
             while ( e.hasMoreElements() )
             {
-                scanner.scan( e.nextElement() );
+                final InputStream in = e.nextElement().openStream();
+                try
+                {
+                    new ClassReader( in ).accept( visitor, CLASS_READER_FLAGS );
+                }
+                finally
+                {
+                    IOUtil.close( in );
+                }
             }
-            return scanner.getComponents();
+            return visitor.getComponents();
         }
         catch ( final IOException e )
         {
@@ -92,14 +127,14 @@ public final class AnnotatedPlexusBeanSource
 
     public Configuration getConfiguration( final BeanProperty<?> property )
     {
-        Configuration configuration = property.getAnnotation( Configuration.class );
+        final Configuration configuration = property.getAnnotation( Configuration.class );
         if ( configuration != null && variables != null )
         {
             // support runtime interpolation of @Configuration values
             final String value = StringUtils.interpolate( configuration.value(), variables );
             if ( !value.equals( configuration.value() ) )
             {
-                configuration = new ConfigurationImpl( configuration.name(), value );
+                return new ConfigurationImpl( configuration.name(), value );
             }
         }
         return configuration;
