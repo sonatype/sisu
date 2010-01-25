@@ -297,11 +297,7 @@ public final class XmlTypeConverter
         final Map<String, BeanProperty<Object>> propertyMap = new HashMap<String, BeanProperty<Object>>();
         for ( final BeanProperty<Object> property : new BeanProperties( clazz ) )
         {
-            final String name = property.getName();
-            if ( !propertyMap.containsKey( name ) )
-            {
-                propertyMap.put( name, property );
-            }
+            propertyMap.put( property.getName(), property );
         }
 
         while ( parser.getEventType() == XmlPullParser.START_TAG )
