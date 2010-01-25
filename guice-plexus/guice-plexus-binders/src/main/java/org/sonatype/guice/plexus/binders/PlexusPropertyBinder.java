@@ -93,6 +93,10 @@ final class PlexusPropertyBinder
         if ( null != requirement )
         {
             final Provider<T> roleProvider = requirements.lookup( requirement, property );
+            // if ( requirement.optional() )
+            // {
+            // return new OptionalPropertyBinding<T>( property, roleProvider );
+            // }
             return new ProvidedPropertyBinding<T>( property, roleProvider );
         }
 

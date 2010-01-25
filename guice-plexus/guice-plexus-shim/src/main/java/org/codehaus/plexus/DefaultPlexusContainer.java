@@ -44,7 +44,6 @@ import org.sonatype.guice.plexus.config.PlexusTypeLocator;
 import org.sonatype.guice.plexus.converters.DateTypeConverter;
 import org.sonatype.guice.plexus.converters.XmlTypeConverter;
 import org.sonatype.guice.plexus.locators.GuiceTypeLocator;
-import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 import org.sonatype.guice.plexus.scanners.XmlPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
@@ -112,7 +111,6 @@ public final class DefaultPlexusContainer
 
         final ClassSpace space = new URLClassSpace( containerRealm );
         final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, contextMap, configurationUrl );
-        final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( null, contextMap );
 
         Guice.createInjector( new AbstractModule()
         {
@@ -137,7 +135,7 @@ public final class DefaultPlexusContainer
                     }
                 } );
             }
-        }, new PlexusBindingModule( lifecycleManager, xmlSource, annSource ) );
+        }, new PlexusBindingModule( lifecycleManager, xmlSource ) );
     }
 
     // ----------------------------------------------------------------------
@@ -237,7 +235,7 @@ public final class DefaultPlexusContainer
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
     {
-        // can safely ignore this, we get these descriptors via another route
+        getLogger().warn( "Ignoring " + descriptor );
     }
 
     public ComponentDescriptor<?> getComponentDescriptor( final String role, final String hint )
@@ -283,8 +281,7 @@ public final class DefaultPlexusContainer
         {
             final ClassSpace space = new URLClassSpace( classRealm );
             final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, contextMap );
-            final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( null, contextMap ); // TODO: space
-            final Module bindings = new PlexusBindingModule( lifecycleManager, xmlSource, annSource );
+            final Module bindings = new PlexusBindingModule( lifecycleManager, xmlSource );
 
             typeLocator.add( injector.createChildInjector( bindings ) );
         }
