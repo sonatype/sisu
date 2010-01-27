@@ -121,6 +121,11 @@ public final class URLClassSpace
         return new StrongDeferredClass<Object>( this, name );
     }
 
+    public URL getResource( final String name )
+    {
+        return loader.getResource( name );
+    }
+
     public Enumeration<URL> getResources( final String name )
         throws IOException
     {
@@ -129,6 +134,6 @@ public final class URLClassSpace
 
     public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
     {
-        return new ResourceEnumeration( urls, path, glob, recurse );
+        return new ResourceEnumeration( path, glob, recurse, urls );
     }
 }

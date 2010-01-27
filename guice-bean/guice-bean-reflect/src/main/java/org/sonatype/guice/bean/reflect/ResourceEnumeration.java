@@ -22,16 +22,16 @@ import java.util.NoSuchElementException;
 import java.util.regex.Pattern;
 
 /**
- * {@link Enumeration} of resource {@link URL}s that match globbed search patterns.
+ * {@link Enumeration} of resources found by scanning JARs and directories.
  */
-final class ResourceEnumeration
+public final class ResourceEnumeration
     implements Enumeration<URL>
 {
     // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final Iterator<String> NO_ENTRIES = Collections.<String> emptyList().iterator();
+    static final Iterator<String> NO_ENTRIES = Collections.<String> emptyList().iterator();
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -58,17 +58,18 @@ final class ResourceEnumeration
     /**
      * Creates an {@link Enumeration} that scans the given URLs for resources matching the globbed pattern.
      * 
-     * @param urls The URLs containing resources
      * @param subPath An optional path to begin the search from
      * @param glob The globbed basename pattern
      * @param recurse When {@code true} search paths below the initial search point; otherwise don't
+     * @param urls The URLs containing resources
      */
-    ResourceEnumeration( final URL[] urls, final String subPath, final String glob, final boolean recurse )
+    public ResourceEnumeration( final String subPath, final String glob, final boolean recurse, final URL... urls )
     {
-        this.urls = Arrays.asList( urls ).iterator();
         this.subPath = normalizeSearchPath( subPath );
         globPattern = compileGlobPattern( glob );
         this.recurse = recurse;
+
+        this.urls = Arrays.asList( urls ).iterator();
     }
 
     // ----------------------------------------------------------------------

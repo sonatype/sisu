@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.Manifest;
 
 import junit.framework.TestCase;
 
@@ -30,18 +31,34 @@ public class BundleClassSpaceTest
     private static final URL COMMONS_LOGGING_JAR =
         ZipEntryIteratorTest.class.getClassLoader().getResource( "commons-logging-1.1.1.jar" );
 
-    public void testClassSpaceResources()
+    private Framework framework;
+
+    @Override
+    protected void setUp()
         throws Exception
     {
+        super.setUp();
+
         final Map<String, String> configuration = new HashMap<String, String>();
         configuration.put( Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT );
         configuration.put( Constants.FRAMEWORK_STORAGE, "target/bundlecache" );
 
         final FrameworkFactory frameworkFactory = new FrameworkFactory();
-        final Framework framework = frameworkFactory.newFramework( configuration );
-
+        framework = frameworkFactory.newFramework( configuration );
         framework.start();
+    }
 
+    @Override
+    protected void tearDown()
+        throws Exception
+    {
+        framework.stop();
+        super.tearDown();
+    }
+
+    public void testClassSpaceResources()
+        throws Exception
+    {
         final Bundle testBundle = framework.getBundleContext().installBundle( COMMONS_LOGGING_JAR.toString() );
         final ClassSpace space = new BundleClassSpace( testBundle );
 
@@ -57,21 +74,14 @@ public class BundleClassSpaceTest
         assertTrue( e.nextElement().toString().matches( "bundle://.*/META-INF/MANIFEST.MF" ) );
         assertFalse( e.hasMoreElements() );
 
-        framework.stop();
+        final URL manifestURL = space.getResource( "META-INF/MANIFEST.MF" );
+        assertNotNull( manifestURL );
+        new Manifest( manifestURL.openStream() );
     }
 
     public void testDeferredClass()
         throws Exception
     {
-        final Map<String, String> configuration = new HashMap<String, String>();
-        configuration.put( Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT );
-        configuration.put( Constants.FRAMEWORK_STORAGE, "target/bundlecache" );
-
-        final FrameworkFactory frameworkFactory = new FrameworkFactory();
-        final Framework framework = frameworkFactory.newFramework( configuration );
-
-        framework.start();
-
         final Bundle testBundle = framework.getBundleContext().installBundle( COMMONS_LOGGING_JAR.toString() );
         final ClassSpace space = new BundleClassSpace( testBundle );
 
@@ -80,7 +90,5 @@ public class BundleClassSpaceTest
 
         assertEquals( clazzName, clazz.getName() );
         assertSame( space.loadClass( clazzName ), clazz.get() );
-
-        framework.stop();
     }
 }

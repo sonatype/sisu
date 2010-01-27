@@ -43,7 +43,16 @@ public interface ClassSpace
     DeferredClass<?> deferLoadClass( String name );
 
     /**
-     * Queries the surrounding class space for resources matching the given name.
+     * Queries the surrounding class space for the resource with the given name.
+     * 
+     * @param name The resource name
+     * @return URL pointing to the resource; {@code null} if it wasn't found
+     * @see ClassLoader#getResource(String)
+     */
+    URL getResource( String name );
+
+    /**
+     * Queries the surrounding class space for all resources with the given name.
      * 
      * @param name The resource name
      * @return Sequence of URLs, one for each matching resource

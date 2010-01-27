@@ -14,8 +14,12 @@ package org.sonatype.guice.bean.reflect;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -28,9 +32,7 @@ final class ZipEntryIterator
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private ZipInputStream in;
-
-    private String nextPath;
+    private Iterator<String> iterator;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -40,11 +42,18 @@ final class ZipEntryIterator
     {
         try
         {
-            in = new ZipInputStream( url.openStream() );
+            if ( "file".equals( url.getProtocol() ) )
+            {
+                iterator = iterator( new ZipFile( url.getPath() ) );
+            }
+            else
+            {
+                iterator = iterator( new ZipInputStream( url.openStream() ) );
+            }
         }
-        catch ( final IOException e ) // NOPMD
+        catch ( final IOException e )
         {
-            // empty-iterator
+            iterator = ResourceEnumeration.NO_ENTRIES;
         }
     }
 
@@ -54,47 +63,68 @@ final class ZipEntryIterator
 
     public boolean hasNext()
     {
-        if ( null != nextPath )
-        {
-            return true; // already cached
-        }
-        try
-        {
-            // populate cache with the next element
-            nextPath = in.getNextEntry().getName();
-            return true;
-        }
-        catch ( final Exception e ) // NOPMD
-        {
-            // end-of-stream
-        }
-        try
-        {
-            // cleanup
-            in.close();
-            in = null;
-        }
-        catch ( final Exception e ) // NOPMD
-        {
-            // ignore
-        }
-        return false;
+        return iterator.hasNext();
     }
 
     public String next()
     {
-        if ( hasNext() )
-        {
-            // initialized by hasNext()
-            final String path = nextPath;
-            nextPath = null;
-            return path;
-        }
-        throw new NoSuchElementException();
+        return iterator.next();
     }
 
     public void remove()
     {
         throw new UnsupportedOperationException();
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Returns an {@link Iterator} that iterates over the contents of the given zip file.
+     * 
+     * @param zipFile The zip file
+     * @return Iterator that iterates over resources contained inside the given zip file
+     */
+    private static Iterator<String> iterator( final ZipFile zipFile )
+        throws IOException
+    {
+        try
+        {
+            final List<String> names = new ArrayList<String>( zipFile.size() );
+            for ( final Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements(); )
+            {
+                names.add( e.nextElement().getName() );
+            }
+            return names.iterator();
+        }
+        finally
+        {
+            zipFile.close();
+        }
+    }
+
+    /**
+     * Returns an {@link Iterator} that iterates over the contents of the given zip stream.
+     * 
+     * @param zipStream The zip stream
+     * @return Iterator that iterates over resources contained inside the given zip stream
+     */
+    private static Iterator<String> iterator( final ZipInputStream zipStream )
+        throws IOException
+    {
+        try
+        {
+            final List<String> names = new ArrayList<String>();
+            for ( ZipEntry e = zipStream.getNextEntry(); e != null; e = zipStream.getNextEntry() )
+            {
+                names.add( e.getName() );
+            }
+            return names.iterator();
+        }
+        finally
+        {
+            zipStream.close();
+        }
     }
 }

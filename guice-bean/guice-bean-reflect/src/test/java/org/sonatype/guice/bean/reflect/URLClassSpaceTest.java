@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
+import java.util.jar.Manifest;
 
 import junit.framework.TestCase;
 
@@ -28,8 +29,6 @@ public class URLClassSpaceTest
     private static final URL SIMPLE_JAR = ZipEntryIteratorTest.class.getClassLoader().getResource( "simple.jar" );
 
     private static final URL CLASS_PATH_JAR = ZipEntryIteratorTest.class.getClassLoader().getResource( "classpath.jar" );
-
-    private static final URL BROKEN_JAR = ZipEntryIteratorTest.class.getClassLoader().getResource( "broken.jar" );
 
     private static final URL CORRUPT_MANIFEST =
         ZipEntryIteratorTest.class.getClassLoader().getResource( "corrupt.manifest/" );
@@ -61,6 +60,10 @@ public class URLClassSpaceTest
         assertTrue( e.hasMoreElements() );
         assertTrue( e.nextElement().getPath().startsWith( COMMONS_LOGGING_JAR.toString() ) );
         assertFalse( e.hasMoreElements() );
+
+        final URL manifestURL = space.getResource( "META-INF/MANIFEST.MF" );
+        assertNotNull( manifestURL );
+        new Manifest( manifestURL.openStream() );
     }
 
     public void testClassPathExpansion()
@@ -79,8 +82,6 @@ public class URLClassSpaceTest
         assertTrue( e.nextElement().getPath().startsWith( SIMPLE_JAR.toString() ) );
         assertTrue( e.hasMoreElements() );
         assertTrue( e.nextElement().getPath().startsWith( CLASS_PATH_JAR.toString() ) );
-        assertTrue( e.hasMoreElements() );
-        assertTrue( e.nextElement().getPath().startsWith( BROKEN_JAR.toString() ) );
         assertTrue( e.hasMoreElements() );
         assertTrue( e.nextElement().getPath().startsWith( COMMONS_LOGGING_JAR.toString() ) );
         assertFalse( e.hasMoreElements() );

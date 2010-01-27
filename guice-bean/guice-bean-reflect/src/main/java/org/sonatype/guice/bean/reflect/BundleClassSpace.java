@@ -54,6 +54,11 @@ public final class BundleClassSpace
         return new StrongDeferredClass<Object>( this, name );
     }
 
+    public URL getResource( final String name )
+    {
+        return bundle.getResource( name );
+    }
+
     @SuppressWarnings( "unchecked" )
     public Enumeration<URL> getResources( final String name )
         throws IOException

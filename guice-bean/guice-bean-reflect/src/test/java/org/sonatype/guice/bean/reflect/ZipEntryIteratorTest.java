@@ -13,6 +13,7 @@
 package org.sonatype.guice.bean.reflect;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -130,13 +131,34 @@ public class ZipEntryIteratorTest
         }
     }
 
+    public void testEmbeddedZip()
+        throws MalformedURLException
+    {
+        final Iterator<String> i =
+            new ZipEntryIterator( new URL( "jar:" + resource( "embedded.zip" ) + "!/simple.zip" ) );
+
+        assertEquals( "0", i.next() );
+        assertEquals( "a/1", i.next() );
+        assertEquals( "a/b/2", i.next() );
+        assertEquals( "a/b/c/3", i.next() );
+        assertEquals( "4", i.next() );
+        assertEquals( "x/5", i.next() );
+        assertEquals( "x/y/6", i.next() );
+        assertEquals( "7", i.next() );
+
+        try
+        {
+            i.next();
+            fail( "Expected NoSuchElementException" );
+        }
+        catch ( final NoSuchElementException e )
+        {
+        }
+    }
+
     public void testBrokenJar()
     {
         final Iterator<String> i = new ZipEntryIterator( resource( "broken.jar" ) );
-        assertEquals( "META-INF/", i.next() );
-        assertEquals( "META-INF/MANIFEST.MF", i.next() );
-        assertEquals( "0", i.next() );
-        assertEquals( "a/", i.next() );
         try
         {
             i.next();
