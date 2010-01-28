@@ -68,24 +68,26 @@ public final class URLClassSpace
             {
                 continue; // already processed
             }
+            final String[] classPath;
             try
             {
-                // must search all Class-Path entries in the manifest in case they reference other JARs / folders
-                for ( final String entry : getClassPath( entryURL( url, "META-INF/MANIFEST.MF" ).openStream() ) )
-                {
-                    try
-                    {
-                        searchURLs.add( new URL( url, entry ) );
-                    }
-                    catch ( final IOException e ) // NOPMD
-                    {
-                        // broken or missing entry
-                    }
-                }
+                // search Class-Path entries in manifest in case they refer to other JARs/folders
+                classPath = getClassPath( entryURL( url, "META-INF/MANIFEST.MF" ).openStream() );
             }
             catch ( final IOException e ) // NOPMD
             {
-                // missing or corrupt manifest
+                continue; // corrupt manifest
+            }
+            for ( final String entry : classPath )
+            {
+                try
+                {
+                    searchURLs.add( new URL( url, entry ) );
+                }
+                catch ( final IOException e ) // NOPMD
+                {
+                    // invalid Class-Path entry
+                }
             }
         }
 
