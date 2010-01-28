@@ -21,37 +21,48 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
-import org.sonatype.guice.plexus.config.PlexusTypeLocator;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-import com.google.inject.Inject;
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+
 import com.google.inject.Injector;
-import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 
 @Singleton
-public final class GuiceTypeLocator
-    implements PlexusTypeLocator
+public final class GuiceBeanLocator
+    implements PlexusBeanLocator
 {
-    final List<PlexusTypeLocator> locators = new ArrayList<PlexusTypeLocator>();
+    final List<PlexusBeanLocator> locators = new ArrayList<PlexusBeanLocator>();
 
     @Inject
-    public void add( final Injector injector )
+    GuiceBeanLocator( final Injector rootInjector )
     {
-        locators.add( new InjectorTypeLocator( injector ) );
+        locators.add( new InjectorBeanLocator( rootInjector ) );
+    }
+
+    public void add( final PlexusBeanLocator locator )
+    {
+        locators.add( locator );
+    }
+
+    public void remove( final PlexusBeanLocator locator )
+    {
+        locators.remove( locator );
     }
 
     public <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> type, final String... hints )
     {
         return new Iterable<Entry<String, T>>()
         {
-            final Map<PlexusTypeLocator, Iterable<Entry<String, T>>> iterableCache =
-                new HashMap<PlexusTypeLocator, Iterable<Entry<String, T>>>();
+            final Map<PlexusBeanLocator, Iterable<Entry<String, T>>> iterableCache =
+                new HashMap<PlexusBeanLocator, Iterable<Entry<String, T>>>();
 
             public Iterator<Entry<String, T>> iterator()
             {
                 return new Iterator<Entry<String, T>>()
                 {
-                    private final Iterator<PlexusTypeLocator> l = locators.iterator();
+                    private final Iterator<PlexusBeanLocator> l = locators.iterator();
 
                     private Iterator<Entry<String, T>> e = Collections.<Entry<String, T>> emptyList().iterator();
 
@@ -65,7 +76,7 @@ public final class GuiceTypeLocator
                             }
                             else if ( l.hasNext() )
                             {
-                                final PlexusTypeLocator locator = l.next();
+                                final PlexusBeanLocator locator = l.next();
                                 Iterable<Entry<String, T>> i = iterableCache.get( locator );
                                 if ( null == i )
                                 {
