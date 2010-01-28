@@ -137,9 +137,9 @@ public final class PlexusXmlBeanConverter
     }
 
     @SuppressWarnings( "unchecked" )
-    public <T> T convert( final TypeLiteral<T> type, final String value )
+    public Object convert( final TypeLiteral type, final String value )
     {
-        return (T) convert( value, type );
+        return convert( value, type );
     }
 
     // ----------------------------------------------------------------------
@@ -153,8 +153,7 @@ public final class PlexusXmlBeanConverter
      * @param toType The target type
      * @return Converted instance of the target type
      */
-    @SuppressWarnings( "unchecked" )
-    private <T> T parse( final XmlPullParser parser, final TypeLiteral<T> toType )
+    private Object parse( final XmlPullParser parser, final TypeLiteral<?> toType )
         throws Exception
     {
         parser.require( XmlPullParser.START_TAG, null, null );
@@ -162,19 +161,19 @@ public final class PlexusXmlBeanConverter
         final Class<?> rawType = toType.getRawType();
         if ( Properties.class.isAssignableFrom( rawType ) )
         {
-            return (T) parseProperties( parser );
+            return parseProperties( parser );
         }
         if ( Map.class.isAssignableFrom( rawType ) )
         {
-            return (T) parseMap( parser, Generics.typeArgument( toType, 1 ) );
+            return parseMap( parser, Generics.typeArgument( toType, 1 ) );
         }
         if ( Collection.class.isAssignableFrom( rawType ) )
         {
-            return (T) parseCollection( parser, Generics.typeArgument( toType, 0 ) );
+            return parseCollection( parser, Generics.typeArgument( toType, 0 ) );
         }
         if ( rawType.isArray() )
         {
-            return (T) parseArray( parser, Generics.componentType( toType ) );
+            return parseArray( parser, Generics.componentType( toType ) );
         }
         return parseBean( parser, toType, rawType );
     }
@@ -216,11 +215,11 @@ public final class PlexusXmlBeanConverter
      * @param parser The XML parser
      * @return Converted Map instance
      */
-    private <T> Map<String, T> parseMap( final XmlPullParser parser, final TypeLiteral<T> toType )
+    private Map<String, Object> parseMap( final XmlPullParser parser, final TypeLiteral<?> toType )
         throws Exception
     {
         @SuppressWarnings( "unchecked" )
-        final Map<String, T> map = newImplementation( parser, HashMap.class );
+        final Map<String, Object> map = newImplementation( parser, HashMap.class );
         while ( parser.nextTag() == XmlPullParser.START_TAG )
         {
             map.put( parser.getName(), parse( parser, toType ) );
@@ -234,11 +233,11 @@ public final class PlexusXmlBeanConverter
      * @param parser The XML parser
      * @return Converted Collection instance
      */
-    private <T> Collection<T> parseCollection( final XmlPullParser parser, final TypeLiteral<T> toType )
+    private Collection<Object> parseCollection( final XmlPullParser parser, final TypeLiteral<?> toType )
         throws Exception
     {
         @SuppressWarnings( "unchecked" )
-        final Collection<T> collection = newImplementation( parser, ArrayList.class );
+        final Collection<Object> collection = newImplementation( parser, ArrayList.class );
         while ( parser.nextTag() == XmlPullParser.START_TAG )
         {
             collection.add( parse( parser, toType ) );
@@ -274,11 +273,10 @@ public final class PlexusXmlBeanConverter
      * @param parser The XML parser
      * @return Converted bean instance
      */
-    private <T> T parseBean( final XmlPullParser parser, final TypeLiteral<T> toType, final Class<?> rawType )
+    private Object parseBean( final XmlPullParser parser, final TypeLiteral<?> toType, final Class<?> rawType )
         throws Exception
     {
-        @SuppressWarnings( "unchecked" )
-        final Class<T> clazz = (Class) loadImplementation( parseImplementation( parser ), rawType );
+        final Class<?> clazz = loadImplementation( parseImplementation( parser ), rawType );
 
         // simple bean with string constructor
         if ( parser.next() == XmlPullParser.TEXT )
@@ -291,7 +289,7 @@ public final class PlexusXmlBeanConverter
             }
         }
 
-        final T bean = newImplementation( clazz );
+        final Object bean = newImplementation( clazz );
 
         // build map of all known bean properties belonging to the chosen implementation
         final Map<String, BeanProperty<Object>> propertyMap = new HashMap<String, BeanProperty<Object>>();
@@ -443,15 +441,14 @@ public final class PlexusXmlBeanConverter
      * @param toType The target type
      * @return Converted instance of the target type
      */
-    @SuppressWarnings( "unchecked" )
-    private <T> T convertText( final String value, final TypeLiteral<T> toType )
+    private Object convertText( final String value, final TypeLiteral<?> toType )
     {
         final String text = value.trim();
 
         final Class<?> rawType = toType.getRawType();
         if ( rawType.isAssignableFrom( String.class ) )
         {
-            return (T) text; // compatible type => no conversion needed
+            return text; // compatible type => no conversion needed
         }
 
         // use temporary Key as quick way to auto-box primitive types into their equivalent object types
@@ -461,11 +458,11 @@ public final class PlexusXmlBeanConverter
         {
             if ( b.getTypeMatcher().matches( boxedType ) )
             {
-                return (T) b.getTypeConverter().convert( text, toType );
+                return b.getTypeConverter().convert( text, toType );
             }
         }
 
-        // last chance => attempt to create an instance of the expected type (use the string if non-empty)
-        return (T) ( text.length() == 0 ? newImplementation( rawType ) : newImplementation( rawType, text ) );
+        // last chance => attempt to create an instance of the expected type: use the string if non-empty
+        return ( text.length() == 0 ? newImplementation( rawType ) : newImplementation( rawType, text ) );
     }
 }
