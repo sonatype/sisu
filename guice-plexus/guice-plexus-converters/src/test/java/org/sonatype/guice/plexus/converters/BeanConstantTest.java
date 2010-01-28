@@ -19,7 +19,7 @@ import java.util.Date;
 
 import junit.framework.TestCase;
 
-import org.sonatype.guice.plexus.config.PlexusTypeConverter;
+import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
@@ -33,7 +33,7 @@ import com.google.inject.util.Jsr330;
 public class BeanConstantTest
     extends TestCase
 {
-    final XmlTypeConverter xmlConverter = new XmlTypeConverter();
+    final PlexusXmlBeanConverter xmlConverter = new PlexusXmlBeanConverter();
 
     @Override
     protected void setUp()
@@ -65,10 +65,10 @@ public class BeanConstantTest
                 bindConstant().annotatedWith( Jsr330.named( "SITE" ) ).to( "http://www.sonatype.org" );
                 bindConstant().annotatedWith( Jsr330.named( "DATE" ) ).to( "2009-11-15 18:02:00" );
 
-                install( new DateTypeConverter() );
+                install( new PlexusDateTypeConverter() );
                 install( xmlConverter );
 
-                bind( PlexusTypeConverter.class ).to( XmlTypeConverter.class );
+                bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
             }
         } ).injectMembers( this );
     }
@@ -209,7 +209,7 @@ public class BeanConstantTest
     @SuppressWarnings( "boxing" )
     public void testConfigurator()
     {
-        final PlexusTypeConverter configurator = injector.getInstance( PlexusTypeConverter.class );
+        final PlexusBeanConverter configurator = injector.getInstance( PlexusBeanConverter.class );
         assertSame( xmlConverter, configurator );
         final float value = configurator.convert( TypeLiteral.get( float.class ), "4.2" );
         assertEquals( 4.2f, value, 0 );

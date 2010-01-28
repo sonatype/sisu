@@ -55,7 +55,7 @@ public class MapConstantTest
                 bind( "Properties", "<items><property><name>key1</name><value>value1</value></property>"
                     + "<property><value>value2</value><name>key2</name></property></items>" );
 
-                install( new XmlTypeConverter() );
+                install( new PlexusXmlBeanConverter() );
             }
         } ).injectMembers( this );
     }

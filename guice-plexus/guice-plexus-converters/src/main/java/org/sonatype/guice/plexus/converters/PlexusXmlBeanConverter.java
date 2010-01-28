@@ -28,7 +28,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.guice.bean.reflect.BeanProperties;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.Generics;
-import org.sonatype.guice.plexus.config.PlexusTypeConverter;
+import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 
 import com.google.inject.Binder;
 import com.google.inject.Inject;
@@ -42,12 +42,12 @@ import com.google.inject.spi.TypeConverter;
 import com.google.inject.spi.TypeConverterBinding;
 
 /**
- * {@link TypeConverter} {@link Module} that converts Plexus formatted XML into the appropriate instances.
+ * {@link PlexusBeanConverter} {@link Module} that converts Plexus formatted XML into beans.
  */
 @Singleton
-public final class XmlTypeConverter
+public final class PlexusXmlBeanConverter
     extends AbstractMatcher<TypeLiteral<?>>
-    implements Module, TypeConverter, PlexusTypeConverter
+    implements PlexusBeanConverter, TypeConverter, Module
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -71,7 +71,7 @@ public final class XmlTypeConverter
         binder.convertToTypes( this, this );
 
         // used by the primary module, also bootstraps injection
-        binder.bind( XmlTypeConverter.class ).toInstance( this );
+        binder.bind( PlexusXmlBeanConverter.class ).toInstance( this );
     }
 
     // ----------------------------------------------------------------------
@@ -90,7 +90,7 @@ public final class XmlTypeConverter
         for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
         {
             // play safe: don't want to get into any sort of recursion!
-            if ( !( b.getTypeConverter() instanceof XmlTypeConverter ) )
+            if ( !( b.getTypeConverter() instanceof PlexusXmlBeanConverter ) )
             {
                 tempBindings.add( b );
             }

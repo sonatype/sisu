@@ -55,7 +55,7 @@ public class CollectionConstantTest
 
                 bind( "Numbers", "<as><a><b>1</b><b>2</b></a><a><b>3</b><b>4</b></a><a><b>5</b><b>6</b></a></as>" );
 
-                install( new XmlTypeConverter() );
+                install( new PlexusXmlBeanConverter() );
             }
         } ).injectMembers( this );
     }

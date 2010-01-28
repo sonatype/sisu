@@ -48,7 +48,7 @@ public class DateConstantTest
                 bind( "Format2", "2005-10-06 2:22:55PM" );
                 bind( "BadFormat", "2005-10-06" );
 
-                install( new DateTypeConverter() );
+                install( new PlexusDateTypeConverter() );
             }
         } ).injectMembers( this );
     }
