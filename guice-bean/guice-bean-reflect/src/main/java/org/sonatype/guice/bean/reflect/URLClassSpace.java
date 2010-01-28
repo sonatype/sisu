@@ -33,6 +33,12 @@ public final class URLClassSpace
     implements ClassSpace
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final String[] NO_CLASS_PATH = new String[0];
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
@@ -48,62 +54,42 @@ public final class URLClassSpace
     {
         this.loader = loader;
 
+        // discover all URLs reachable from the given list
         final List<URL> searchURLs = new ArrayList<URL>();
         Collections.addAll( searchURLs, loader.getURLs() );
 
-        final Set<URL> expandedURLs = new LinkedHashSet<URL>();
+        final Set<URL> reachableURLs = new LinkedHashSet<URL>();
 
-        // list may expand, so use index not iterator
+        // search may grow, so use index not iterator
         for ( int i = 0; i < searchURLs.size(); i++ )
         {
             final URL url = searchURLs.get( i );
-            if ( !expandedURLs.add( url ) )
+            if ( !reachableURLs.add( url ) )
             {
                 continue; // already processed
             }
-            final InputStream in;
             try
             {
-                in = entryURL( url, "META-INF/MANIFEST.MF" ).openStream();
-            }
-            catch ( final IOException e )
-            {
-                continue; // missing manifest
-            }
-            try
-            {
-                // add any URLs referenced in the Class-Path header from the associated manifest file
-                final String classPath = new Manifest( in ).getMainAttributes().getValue( "Class-Path" );
-                if ( null != classPath )
+                // must search all Class-Path entries in the manifest in case they reference other JARs / folders
+                for ( final String entry : getClassPath( entryURL( url, "META-INF/MANIFEST.MF" ).openStream() ) )
                 {
-                    for ( final String entry : classPath.split( " " ) )
+                    try
                     {
-                        try
-                        {
-                            searchURLs.add( new URL( url, entry ) );
-                        }
-                        catch ( final IOException e ) // NOPMD
-                        {
-                            // broken or missing entry
-                        }
+                        searchURLs.add( new URL( url, entry ) );
+                    }
+                    catch ( final IOException e ) // NOPMD
+                    {
+                        // broken or missing entry
                     }
                 }
             }
             catch ( final IOException e ) // NOPMD
             {
-                // ignore
-            }
-            try
-            {
-                in.close();
-            }
-            catch ( final IOException e ) // NOPMD
-            {
-                // ignore
+                // missing or corrupt manifest
             }
         }
 
-        urls = expandedURLs.toArray( new URL[expandedURLs.size()] );
+        urls = reachableURLs.toArray( new URL[reachableURLs.size()] );
     }
 
     // ----------------------------------------------------------------------
@@ -135,5 +121,33 @@ public final class URLClassSpace
     public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
     {
         return new ResourceEnumeration( path, glob, recurse, urls );
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Looks for Class-Path entries in the given manifest stream; returns empty array if none are found.
+     * 
+     * @param in The manifest input stream
+     * @return Array of class-path entries
+     */
+    private static String[] getClassPath( final InputStream in )
+        throws IOException
+    {
+        try
+        {
+            final String classPath = new Manifest( in ).getMainAttributes().getValue( "Class-Path" );
+            if ( null != classPath )
+            {
+                return classPath.split( " " );
+            }
+            return NO_CLASS_PATH;
+        }
+        finally
+        {
+            in.close();
+        }
     }
 }
