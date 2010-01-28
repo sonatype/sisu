@@ -48,7 +48,7 @@ final class FileEntryIterator
      */
     FileEntryIterator( final URL url, final String subPath, final boolean recurse )
     {
-        rootPath = normalizePath( new File( url.getPath() ).getAbsoluteFile() );
+        rootPath = normalizePath( toFile( url ).getAbsoluteFile() );
         this.recurse = recurse;
 
         includeEntries( null == subPath ? "" : subPath );
@@ -81,6 +81,40 @@ final class FileEntryIterator
     public void remove()
     {
         throw new UnsupportedOperationException();
+    }
+
+    // ----------------------------------------------------------------------
+    // Locally-shared methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Converts a {@link URL} into a {@link File} converting slashes and encoded characters where appropriate.
+     * 
+     * @param url The file URL
+     * @return File instance for the given URL
+     */
+    static File toFile( final URL url )
+    {
+        final StringBuilder buf = new StringBuilder();
+        final String path = url.getPath();
+
+        for ( int i = 0; i < path.length(); i++ )
+        {
+            final char c = path.charAt( i );
+            if ( '/' == c )
+            {
+                buf.append( File.separatorChar );
+            }
+            else if ( '%' == c && i < path.length() - 2 )
+            {
+                buf.append( (char) Integer.parseInt( path.substring( ++i, ++i + 1 ), 16 ) );
+            }
+            else
+            {
+                buf.append( c );
+            }
+        }
+        return new File( buf.toString() );
     }
 
     // ----------------------------------------------------------------------

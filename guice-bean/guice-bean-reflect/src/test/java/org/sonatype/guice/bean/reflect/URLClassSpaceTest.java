@@ -28,7 +28,8 @@ public class URLClassSpaceTest
 
     private static final URL SIMPLE_JAR = ZipEntryIteratorTest.class.getClassLoader().getResource( "simple.jar" );
 
-    private static final URL CLASS_PATH_JAR = ZipEntryIteratorTest.class.getClassLoader().getResource( "classpath.jar" );
+    private static final URL CLASS_PATH_JAR =
+        ZipEntryIteratorTest.class.getClassLoader().getResource( "class path.jar" );
 
     private static final URL CORRUPT_MANIFEST =
         ZipEntryIteratorTest.class.getClassLoader().getResource( "corrupt.manifest/" );

@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 /**
  * {@link Enumeration} of resources found by scanning JARs and directories.
  */
-public final class ResourceEnumeration
+final class ResourceEnumeration
     implements Enumeration<URL>
 {
     // ----------------------------------------------------------------------
@@ -63,7 +63,7 @@ public final class ResourceEnumeration
      * @param recurse When {@code true} search paths below the initial search point; otherwise don't
      * @param urls The URLs containing resources
      */
-    public ResourceEnumeration( final String subPath, final String glob, final boolean recurse, final URL... urls )
+    ResourceEnumeration( final String subPath, final String glob, final boolean recurse, final URL... urls )
     {
         this.subPath = normalizeSearchPath( subPath );
         globPattern = compileGlobPattern( glob );

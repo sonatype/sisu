@@ -44,7 +44,7 @@ final class ZipEntryIterator
         {
             if ( "file".equals( url.getProtocol() ) )
             {
-                iterator = iterator( new ZipFile( url.getPath() ) );
+                iterator = iterator( new ZipFile( FileEntryIterator.toFile( url ) ) );
             }
             else
             {

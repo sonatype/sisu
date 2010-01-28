@@ -15,6 +15,7 @@ package org.sonatype.guice.bean.reflect;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -32,6 +33,14 @@ import junit.framework.TestCase;
 public class FileEntryIteratorTest
     extends TestCase
 {
+    public void testURLtoFile()
+        throws MalformedURLException
+    {
+        assertEquals( "test", FileEntryIterator.toFile( new URL( "file:test" ) ).getPath() );
+        assertEquals( "A B C", FileEntryIterator.toFile( new URL( "file:A B C" ) ).getPath() );
+        assertEquals( "A B C%%", FileEntryIterator.toFile( new URL( "file:A B%20C%%" ) ).getPath() );
+    }
+
     public void testNoSuchFile()
         throws Exception
     {
