@@ -28,7 +28,7 @@ import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.InterpolationFilterReader;
-import org.codehaus.plexus.util.xml.XmlStreamReader;
+import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.xml.pull.MXParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
@@ -56,6 +56,8 @@ public final class XmlPlexusBeanSource
 
     private static final String LOAD_ON_START = "load-on-start";
 
+    private static final Map<String, MappedPlexusBeanMetadata> EMPTY_METADATA_MAP = Collections.emptyMap();
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -70,7 +72,7 @@ public final class XmlPlexusBeanSource
 
     private final Logger logger = LoggerFactory.getLogger( XmlPlexusBeanSource.class );
 
-    private Map<String, MappedPlexusBeanMetadata> metadataMap = Collections.emptyMap();
+    private Map<String, MappedPlexusBeanMetadata> metadataMap = EMPTY_METADATA_MAP;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -124,9 +126,17 @@ public final class XmlPlexusBeanSource
                 parsePlexusXml( plexusXml, components, strategies );
             }
 
-            final Enumeration<URL> e =
-                isPrimarySpace ? space.getResources( "META-INF/plexus/components.xml" )
-                                : space.findEntries( "META-INF/plexus/", "components.xml", false );
+            final Enumeration<URL> e;
+            if ( isPrimarySpace )
+            {
+                // search entire hierarchy, including any parent spaces
+                e = space.getResources( "META-INF/plexus/components.xml" );
+            }
+            else
+            {
+                // limit search to the current space, don't bother with parent spaces
+                e = space.findEntries( "META-INF/plexus/", "components.xml", false );
+            }
 
             while ( e.hasMoreElements() )
             {
@@ -147,7 +157,7 @@ public final class XmlPlexusBeanSource
         if ( metadataMap.isEmpty() )
         {
             // avoid leaving sparse maps around
-            metadataMap = Collections.emptyMap();
+            metadataMap = EMPTY_METADATA_MAP;
         }
         return metadata;
     }
@@ -166,7 +176,7 @@ public final class XmlPlexusBeanSource
     private static Reader filteredXmlReader( final InputStream in, final Map<?, ?> variables )
         throws IOException
     {
-        final Reader reader = new XmlStreamReader( in );
+        final Reader reader = ReaderFactory.newXmlReader( in );
         if ( null != variables )
         {
             return new InterpolationFilterReader( reader, variables );
@@ -391,7 +401,7 @@ public final class XmlPlexusBeanSource
         }
         catch ( final Throwable e )
         {
-            // not all roles are used, so just note for now
+            // not all roles are needed, so just note for now
             logger.debug( "Missing Plexus role: " + role, e );
             return;
         }

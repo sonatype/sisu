@@ -148,6 +148,11 @@ public class AnnotatedPlexusBeanSourceTest
                 throw new ClassNotFoundException();
             }
 
+            public URL getResource( final String name )
+            {
+                return null;
+            }
+
             public Enumeration<URL> getResources( final String name )
                 throws IOException
             {

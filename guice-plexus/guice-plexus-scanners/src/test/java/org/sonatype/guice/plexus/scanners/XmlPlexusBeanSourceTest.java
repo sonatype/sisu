@@ -121,6 +121,11 @@ public class XmlPlexusBeanSourceTest
                 };
             }
 
+            public URL getResource( final String name )
+            {
+                return null;
+            }
+
             public Enumeration<URL> getResources( final String name )
             {
                 // hide components.xml so we can just test plexus.xml parsing
@@ -194,6 +199,11 @@ public class XmlPlexusBeanSourceTest
                         return name;
                     }
                 };
+            }
+
+            public URL getResource( final String name )
+            {
+                return null;
             }
 
             public Enumeration<URL> getResources( final String name )
@@ -321,6 +331,11 @@ public class XmlPlexusBeanSourceTest
                     return name;
                 }
             };
+        }
+
+        public URL getResource( final String name )
+        {
+            return getClass().getResource( fixedResourceName );
         }
 
         public Enumeration<URL> getResources( final String name )

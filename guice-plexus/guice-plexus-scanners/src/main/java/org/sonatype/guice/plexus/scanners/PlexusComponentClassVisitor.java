@@ -173,7 +173,7 @@ final class PlexusComponentClassVisitor
         }
         catch ( final Throwable e )
         {
-            // not all roles are used, so just note for now
+            // not all roles are needed, so just note for now
             logger.debug( "Missing Plexus role: " + role, e );
             return;
         }
