@@ -12,10 +12,10 @@
  */
 package org.sonatype.guice.plexus.binders;
 
+import javax.inject.Provider;
+
 import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
-
-import com.google.inject.Provider;
 
 /**
  * Represents a {@link BeanProperty} bound to a {@link Provider}.

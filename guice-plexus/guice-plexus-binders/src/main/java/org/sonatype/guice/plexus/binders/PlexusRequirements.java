@@ -17,15 +17,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.inject.Provider;
+
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.plexus.adapters.EntryListAdapter;
 import org.sonatype.guice.plexus.adapters.EntryMapAdapter;
 import org.sonatype.guice.plexus.config.Hints;
-import org.sonatype.guice.plexus.config.PlexusTypeLocator;
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.Roles;
 
-import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeEncounter;
 
@@ -38,7 +39,7 @@ final class PlexusRequirements
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Provider<PlexusTypeLocator> locator;
+    private final Provider<PlexusBeanLocator> locator;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -46,7 +47,7 @@ final class PlexusRequirements
 
     PlexusRequirements( final TypeEncounter<?> encounter )
     {
-        locator = encounter.getProvider( PlexusTypeLocator.class );
+        locator = encounter.getProvider( PlexusBeanLocator.class );
     }
 
     // ----------------------------------------------------------------------
@@ -89,15 +90,15 @@ final class PlexusRequirements
     private static abstract class AbstractRequirementProvider<S, T>
         implements Provider<S>
     {
-        private Provider<PlexusTypeLocator> provider;
+        private Provider<PlexusBeanLocator> provider;
 
-        private PlexusTypeLocator locator;
+        private PlexusBeanLocator locator;
 
         final TypeLiteral<T> type;
 
         final String[] hints;
 
-        AbstractRequirementProvider( final Provider<PlexusTypeLocator> provider, final TypeLiteral<T> type,
+        AbstractRequirementProvider( final Provider<PlexusBeanLocator> provider, final TypeLiteral<T> type,
                                      final String... hints )
         {
             this.provider = provider;
@@ -121,7 +122,7 @@ final class PlexusRequirements
     private static final class RequirementMapProvider<T>
         extends AbstractRequirementProvider<Map<String, T>, T>
     {
-        RequirementMapProvider( final Provider<PlexusTypeLocator> provider, final TypeLiteral<T> type,
+        RequirementMapProvider( final Provider<PlexusBeanLocator> provider, final TypeLiteral<T> type,
                                 final String... hints )
         {
             super( provider, type, hints );
@@ -136,7 +137,7 @@ final class PlexusRequirements
     private static final class RequirementListProvider<T>
         extends AbstractRequirementProvider<List<T>, T>
     {
-        RequirementListProvider( final Provider<PlexusTypeLocator> provider, final TypeLiteral<T> type,
+        RequirementListProvider( final Provider<PlexusBeanLocator> provider, final TypeLiteral<T> type,
                                  final String... hints )
         {
             super( provider, type, hints );
@@ -151,7 +152,7 @@ final class PlexusRequirements
     private static final class RequirementProvider<T>
         extends AbstractRequirementProvider<T, T>
     {
-        RequirementProvider( final Provider<PlexusTypeLocator> provider, final TypeLiteral<T> type,
+        RequirementProvider( final Provider<PlexusBeanLocator> provider, final TypeLiteral<T> type,
                              final String... hints )
         {
             super( provider, type, hints );

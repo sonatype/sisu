@@ -12,21 +12,22 @@
  */
 package org.sonatype.guice.plexus.binders;
 
+import javax.inject.Inject;
+
 import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.slf4j.Logger;
-import org.sonatype.guice.plexus.config.PlexusTypeConverter;
-import org.sonatype.guice.plexus.config.PlexusTypeLocator;
-import org.sonatype.guice.plexus.converters.DateTypeConverter;
-import org.sonatype.guice.plexus.converters.XmlTypeConverter;
-import org.sonatype.guice.plexus.locators.GuiceTypeLocator;
+import org.sonatype.guice.plexus.config.PlexusBeanConverter;
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
+import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
+import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
 import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Inject;
 
 public class PlexusLoggingTest
     extends TestCase
@@ -39,11 +40,11 @@ public class PlexusLoggingTest
             @Override
             protected void configure()
             {
-                install( new DateTypeConverter() );
-                install( new XmlTypeConverter() );
+                install( new PlexusDateTypeConverter() );
+                install( new PlexusXmlBeanConverter() );
 
-                bind( PlexusTypeLocator.class ).to( GuiceTypeLocator.class );
-                bind( PlexusTypeConverter.class ).to( XmlTypeConverter.class );
+                bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
+                bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
 
                 install( new PlexusBindingModule( null, new AnnotatedPlexusBeanSource( null, null ) ) );
 

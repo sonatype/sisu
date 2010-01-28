@@ -12,9 +12,10 @@
  */
 package org.sonatype.guice.plexus.binders;
 
+import javax.inject.Inject;
+
 import org.sonatype.guice.bean.reflect.DeferredClass;
 
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.ProvisionException;

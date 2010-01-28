@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import junit.framework.TestCase;
@@ -31,17 +32,16 @@ import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
+import org.sonatype.guice.plexus.config.PlexusBeanConverter;
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.config.PlexusTypeConverter;
-import org.sonatype.guice.plexus.config.PlexusTypeLocator;
-import org.sonatype.guice.plexus.converters.DateTypeConverter;
-import org.sonatype.guice.plexus.converters.XmlTypeConverter;
-import org.sonatype.guice.plexus.locators.GuiceTypeLocator;
+import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
+import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
+import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.util.Jsr330;
@@ -64,11 +64,11 @@ public class PlexusBeanMetadataTest
             @Override
             protected void configure()
             {
-                install( new DateTypeConverter() );
-                install( new XmlTypeConverter() );
+                install( new PlexusDateTypeConverter() );
+                install( new PlexusXmlBeanConverter() );
 
-                bind( PlexusTypeLocator.class ).to( GuiceTypeLocator.class );
-                bind( PlexusTypeConverter.class ).to( XmlTypeConverter.class );
+                bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
+                bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
 
                 bindConstant().annotatedWith( Jsr330.named( "KEY1" ) ).to( "REQUIREMENT" );
 

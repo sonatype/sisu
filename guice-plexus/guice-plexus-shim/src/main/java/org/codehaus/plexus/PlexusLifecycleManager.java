@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.logging.LogEnabled;
@@ -29,8 +31,6 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 import org.sonatype.guice.plexus.config.Roles;
-
-import com.google.inject.Inject;
 
 /**
  * {@link PlexusBeanManager} that manages Plexus components requiring lifecycle management.

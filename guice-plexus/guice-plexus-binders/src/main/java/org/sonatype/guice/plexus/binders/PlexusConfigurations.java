@@ -12,11 +12,12 @@
  */
 package org.sonatype.guice.plexus.binders;
 
+import javax.inject.Provider;
+
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.sonatype.guice.bean.reflect.BeanProperty;
-import org.sonatype.guice.plexus.config.PlexusTypeConverter;
+import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 
-import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeEncounter;
 
@@ -29,7 +30,7 @@ final class PlexusConfigurations
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Provider<PlexusTypeConverter> converter;
+    private final Provider<PlexusBeanConverter> converter;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -37,7 +38,7 @@ final class PlexusConfigurations
 
     PlexusConfigurations( final TypeEncounter<?> encounter )
     {
-        converter = encounter.getProvider( PlexusTypeConverter.class );
+        converter = encounter.getProvider( PlexusBeanConverter.class );
     }
 
     // ----------------------------------------------------------------------
@@ -63,15 +64,15 @@ final class PlexusConfigurations
     private static final class ConfigurationProvider<T>
         implements Provider<T>
     {
-        private Provider<PlexusTypeConverter> provider;
+        private Provider<PlexusBeanConverter> provider;
 
-        private PlexusTypeConverter converter;
+        private PlexusBeanConverter converter;
 
         private final TypeLiteral<T> type;
 
         private final String value;
 
-        ConfigurationProvider( final Provider<PlexusTypeConverter> provider, final TypeLiteral<T> type,
+        ConfigurationProvider( final Provider<PlexusBeanConverter> provider, final TypeLiteral<T> type,
                                final String value )
         {
             this.provider = provider;

@@ -464,6 +464,6 @@ public final class PlexusXmlBeanConverter
         }
 
         // last chance => attempt to create an instance of the expected type: use the string if non-empty
-        return ( text.length() == 0 ? newImplementation( rawType ) : newImplementation( rawType, text ) );
+        return text.length() == 0 ? newImplementation( rawType ) : newImplementation( rawType, text );
     }
 }

@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.inject.Inject;
+
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
@@ -38,20 +40,20 @@ import org.sonatype.guice.plexus.adapters.EntryListAdapter;
 import org.sonatype.guice.plexus.adapters.EntryMapAdapter;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.config.Hints;
+import org.sonatype.guice.plexus.config.PlexusBeanConverter;
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.config.PlexusTypeConverter;
-import org.sonatype.guice.plexus.config.PlexusTypeLocator;
-import org.sonatype.guice.plexus.converters.DateTypeConverter;
-import org.sonatype.guice.plexus.converters.XmlTypeConverter;
-import org.sonatype.guice.plexus.locators.GuiceTypeLocator;
+import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
+import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
+import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
+import org.sonatype.guice.plexus.locators.InjectorBeanLocator;
 import org.sonatype.guice.plexus.scanners.XmlPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.Provider;
+import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -84,7 +86,7 @@ public final class DefaultPlexusContainer
     private Injector injector;
 
     @Inject
-    private GuiceTypeLocator typeLocator;
+    private GuiceBeanLocator beanLocator;
 
     private ClassRealm lookupRealm; // TODO: thread-local?
 
@@ -119,22 +121,22 @@ public final class DefaultPlexusContainer
             {
                 requestInjection( lifecycleManager );
 
-                install( new DateTypeConverter() );
-                install( new XmlTypeConverter() );
-
-                bind( PlexusTypeLocator.class ).to( GuiceTypeLocator.class );
-                bind( PlexusTypeConverter.class ).to( XmlTypeConverter.class );
+                install( new PlexusDateTypeConverter() );
+                install( new PlexusXmlBeanConverter() );
 
                 bind( Context.class ).toInstance( context );
                 bind( PlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
-                bind( Logger.class ).toProvider( new Provider<Logger>()
-                {
-                    public Logger get()
-                    {
-                        return getLogger();
-                    }
-                } );
+                bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
+                bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
             }
+
+            @Provides
+            @SuppressWarnings( "unused" )
+            protected Logger logger()
+            {
+                return getLogger();
+            }
+
         }, new PlexusBindingModule( lifecycleManager, xmlSource ) );
     }
 
@@ -245,6 +247,7 @@ public final class DefaultPlexusContainer
 
     public <T> ComponentDescriptor<T> getComponentDescriptor( final Class<T> type, final String role, final String hint )
     {
+        // TODO: check this mapping exists!
         final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
         descriptor.setRole( role );
         descriptor.setRoleHint( hint );
@@ -283,7 +286,7 @@ public final class DefaultPlexusContainer
             final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, contextMap );
             final Module bindings = new PlexusBindingModule( lifecycleManager, xmlSource );
 
-            typeLocator.add( injector.createChildInjector( bindings ) );
+            beanLocator.add( new InjectorBeanLocator( injector.createChildInjector( bindings ) ) );
         }
         catch ( final Throwable e )
         {
@@ -474,6 +477,6 @@ public final class DefaultPlexusContainer
      */
     private <T> Iterable<Entry<String, T>> locate( final Class<T> role, final String... hints )
     {
-        return typeLocator.locate( TypeLiteral.get( role ), hints );
+        return beanLocator.locate( TypeLiteral.get( role ), hints );
     }
 }

@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -26,19 +28,18 @@ import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
+import org.sonatype.guice.plexus.config.PlexusBeanConverter;
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.config.PlexusTypeConverter;
-import org.sonatype.guice.plexus.config.PlexusTypeLocator;
-import org.sonatype.guice.plexus.converters.DateTypeConverter;
-import org.sonatype.guice.plexus.converters.XmlTypeConverter;
-import org.sonatype.guice.plexus.locators.GuiceTypeLocator;
+import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
+import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
+import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
 import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.ProvisionException;
 import com.google.inject.Scopes;
@@ -61,11 +62,11 @@ public class PlexusRequirementTest
             @Override
             protected void configure()
             {
-                install( new DateTypeConverter() );
-                install( new XmlTypeConverter() );
+                install( new PlexusDateTypeConverter() );
+                install( new PlexusXmlBeanConverter() );
 
-                bind( PlexusTypeLocator.class ).to( GuiceTypeLocator.class );
-                bind( PlexusTypeConverter.class ).to( XmlTypeConverter.class );
+                bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
+                bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
 
                 bind( A.class ).annotatedWith( Jsr330.named( "AA" ) ).to( AAImpl.class );
                 bind( A.class ).annotatedWith( Jsr330.named( "AB" ) ).to( ABImpl.class );
