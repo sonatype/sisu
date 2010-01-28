@@ -15,6 +15,7 @@ package org.sonatype.guice.plexus.converters;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import junit.framework.TestCase;
@@ -22,7 +23,6 @@ import junit.framework.TestCase;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.util.Jsr330;

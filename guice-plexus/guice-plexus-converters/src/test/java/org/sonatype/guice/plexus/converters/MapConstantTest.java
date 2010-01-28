@@ -18,13 +18,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import junit.framework.TestCase;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.Inject;
 import com.google.inject.util.Jsr330;
 
 public class MapConstantTest

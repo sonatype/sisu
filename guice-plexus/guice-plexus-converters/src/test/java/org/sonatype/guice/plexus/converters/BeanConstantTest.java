@@ -17,6 +17,8 @@ import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.inject.Inject;
+
 import junit.framework.TestCase;
 
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
@@ -24,7 +26,6 @@ import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
