@@ -18,12 +18,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.sonatype.guice.plexus.config.PlexusTypeLocator;
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 
 /**
  * {@link Map} backed by an {@link Iterable} sequence of map entries.
  * 
- * @see PlexusTypeLocator#locate(com.google.inject.TypeLiteral, String...)
+ * @see PlexusBeanLocator#locate(com.google.inject.TypeLiteral, String...)
  */
 public final class EntryMapAdapter<K, V>
     extends AbstractMap<K, V>

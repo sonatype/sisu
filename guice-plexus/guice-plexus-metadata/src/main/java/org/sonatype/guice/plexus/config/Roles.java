@@ -30,10 +30,14 @@ import com.google.inject.util.Jsr330;
  */
 public final class Roles
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
     private static final String MISSING_COMPONENT_ERROR = "No implementation for %s was bound.";
 
     private static final String MISSING_COMPONENT_WITH_HINT_ERROR =
-        "No implementation for %s annotated with @com.google.inject.name.Named(value=%s) was bound.";
+        "No implementation for %s annotated with @javax.inject.Named(value=%s) was bound.";
 
     // ----------------------------------------------------------------------
     // Constructors

@@ -20,12 +20,12 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
-import org.sonatype.guice.plexus.config.PlexusTypeLocator;
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 
 /**
  * {@link List} backed by an {@link Iterable} sequence of map entries.
  * 
- * @see PlexusTypeLocator#locate(com.google.inject.TypeLiteral, String...)
+ * @see PlexusBeanLocator#locate(com.google.inject.TypeLiteral, String...)
  */
 public final class EntryListAdapter<K, V>
     extends AbstractSequentialList<V>
@@ -96,15 +96,13 @@ public final class EntryListAdapter<K, V>
             {
                 throw new IndexOutOfBoundsException();
             }
+            this.iterator = iterable.iterator();
             try
             {
-                // position iterator just before index position, caching previous entries so we can reverse over them
-                this.iterator = iterable.iterator();
-                for ( int i = 0; i < index; i++ )
+                while ( this.index < index )
                 {
-                    entryCache.add( iterator.next() );
+                    next(); // position iterator at the index position
                 }
-                this.index = index;
             }
             catch ( final NoSuchElementException e )
             {

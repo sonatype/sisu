@@ -15,16 +15,16 @@ package org.sonatype.guice.plexus.config;
 import com.google.inject.TypeLiteral;
 
 /**
- * Converts values into various types, according to Plexus conversion rules.
+ * Service that converts values into various beans by following Plexus configuration rules.
  */
-public interface PlexusTypeConverter
+public interface PlexusBeanConverter
 {
     /**
-     * Converts the given constant value to an instance of the given type.
+     * Converts the given constant value to a bean of the given type.
      * 
-     * @param type The expected type
+     * @param type The expected bean type
      * @param value The constant value
-     * @return Instance of the given type, based on the given constant value
+     * @return Bean of the given type, based on the given constant value
      */
     <T> T convert( TypeLiteral<T> type, String value );
 }
