@@ -70,7 +70,6 @@ final class RoleHintIterable<T>
     // Cache methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
     synchronized boolean populate( final int index )
     {
         if ( null == cache )
@@ -85,37 +84,12 @@ final class RoleHintIterable<T>
         {
             return false;
         }
-
-        final String hint = hints[index];
-        final Key key = Roles.componentKey( role, hint );
-
-        if ( null == injector.getParent() )
+        Entry<String, T> roleHint = lookupRoleHint( injector, role, hints[index] );
+        if ( null == roleHint )
         {
-            try
-            {
-                final Provider<T> provider = injector.getProvider( key );
-                cache.add( new LazyBeanEntry( hint, provider ) );
-            }
-            catch ( final ConfigurationException e )
-            {
-                cache.add( new MissingBeanEntry( role, hint ) );
-            }
+            roleHint = new MissingRoleHint<T>( role, hints[index] );
         }
-        else
-        {
-            final Binding binding = injector.getBindings().get( key );
-            if ( null != binding )
-            {
-                final Provider<T> provider = binding.getProvider();
-                cache.add( new LazyBeanEntry( hint, provider ) );
-            }
-            else
-            {
-                cache.add( new MissingBeanEntry( role, hint ) );
-            }
-        }
-
-        return true;
+        return cache.add( roleHint );
     }
 
     synchronized Entry<String, T> lookup( final int index )
@@ -158,5 +132,36 @@ final class RoleHintIterable<T>
         {
             throw new UnsupportedOperationException();
         }
+    }
+
+    // ----------------------------------------------------------------------
+    // Locally-shared methods
+    // ----------------------------------------------------------------------
+
+    @SuppressWarnings( "unchecked" )
+    static <T> Entry<String, T> lookupRoleHint( final Injector injector, final TypeLiteral<T> role, final String hint )
+    {
+        final Key key = Roles.componentKey( role, hint );
+        if ( null == injector.getParent() )
+        {
+            try
+            {
+                final Provider provider = injector.getProvider( key );
+                return new LazyRoleHint( hint, provider );
+            }
+            catch ( final ConfigurationException e )
+            {
+                return null;
+            }
+        }
+
+        final Binding binding = injector.getBindings().get( key );
+        if ( null != binding )
+        {
+            final Provider provider = binding.getProvider();
+            return new LazyRoleHint( hint, provider );
+        }
+
+        return null;
     }
 }

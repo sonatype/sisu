@@ -12,6 +12,8 @@
  */
 package org.sonatype.guice.plexus.locators;
 
+import static org.sonatype.guice.plexus.locators.RoleHintIterable.lookupRoleHint;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,9 +27,7 @@ import javax.inject.Provider;
 import org.sonatype.guice.plexus.config.Hints;
 
 import com.google.inject.Binding;
-import com.google.inject.ConfigurationException;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -44,9 +44,9 @@ final class RoleIterable<T>
 
     private final TypeLiteral<T> role;
 
-    private List<Entry<String, T>> cache;
-
     private int bindingIndex;
+
+    private List<Entry<String, T>> cache;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -82,16 +82,12 @@ final class RoleIterable<T>
             return true;
         }
 
-        if ( 0 == index && null == injector.getParent() )
+        if ( 0 == index )
         {
-            try
+            final Entry<String, T> defaultRoleHint = lookupRoleHint( injector, role, Hints.DEFAULT_HINT );
+            if ( null != defaultRoleHint )
             {
-                final Provider<T> provider = injector.getProvider( Key.get( role ) );
-                return cache.add( new LazyBeanEntry<T>( Hints.DEFAULT_HINT, provider ) );
-            }
-            catch ( final ConfigurationException e ) // NOPMD
-            {
-                // ignore missing default
+                return cache.add( defaultRoleHint );
             }
         }
 
@@ -106,7 +102,7 @@ final class RoleIterable<T>
                 if ( !Hints.isDefaultHint( hint ) )
                 {
                     final Provider<T> provider = binding.getProvider();
-                    cache.add( new LazyBeanEntry<T>( hint, provider ) );
+                    cache.add( new LazyRoleHint<T>( hint, provider ) );
                     return true;
                 }
             }

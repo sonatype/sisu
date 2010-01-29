@@ -79,14 +79,14 @@ public final class InjectorBeanLocator
             final Annotation ann = binding.getKey().getAnnotation();
             if ( null == ann )
             {
-                entries.add( 0, new LazyBeanEntry<T>( Hints.DEFAULT_HINT, binding.getProvider() ) );
+                entries.add( 0, new LazyRoleHint<T>( Hints.DEFAULT_HINT, binding.getProvider() ) );
             }
             else if ( ann instanceof Named )
             {
                 final String hint = ( (Named) ann ).value();
                 if ( !Hints.isDefaultHint( hint ) )
                 {
-                    entries.add( new LazyBeanEntry<T>( hint, binding.getProvider() ) );
+                    entries.add( new LazyRoleHint<T>( hint, binding.getProvider() ) );
                 }
             }
         }
@@ -111,11 +111,11 @@ public final class InjectorBeanLocator
             final Binding binding = bindings.get( Roles.componentKey( type, h ) );
             if ( binding != null )
             {
-                entries.add( new LazyBeanEntry<T>( h, binding.getProvider() ) );
+                entries.add( new LazyRoleHint<T>( h, binding.getProvider() ) );
             }
             else
             {
-                entries.add( new MissingBeanEntry<T>( type, h ) );
+                entries.add( new MissingRoleHint<T>( type, h ) );
             }
         }
         return entries;
