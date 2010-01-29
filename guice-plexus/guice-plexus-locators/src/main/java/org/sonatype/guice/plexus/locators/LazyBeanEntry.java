@@ -19,7 +19,7 @@ import javax.inject.Provider;
 /**
  * {@link Entry} that represents a lazy Plexus bean; the bean is only retrieved when the value is requested.
  */
-final class LazyRoleHint<T>
+final class LazyBeanEntry<T>
     implements Entry<String, T>
 {
     // ----------------------------------------------------------------------
@@ -30,13 +30,13 @@ final class LazyRoleHint<T>
 
     private Provider<T> provider;
 
-    private T value;
+    private T bean;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    LazyRoleHint( final String hint, final Provider<T> provider )
+    LazyBeanEntry( final String hint, final Provider<T> provider )
     {
         this.hint = hint;
         this.provider = provider;
@@ -56,10 +56,10 @@ final class LazyRoleHint<T>
         if ( null != provider )
         {
             // lazy bean creation
-            value = provider.get();
+            bean = provider.get();
             provider = null;
         }
-        return value; // from now on return same bean
+        return bean; // from now on return same bean
     }
 
     public T setValue( final T value )

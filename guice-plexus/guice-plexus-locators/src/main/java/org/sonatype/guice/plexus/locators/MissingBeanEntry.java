@@ -23,14 +23,14 @@ import com.google.inject.TypeLiteral;
 /**
  * {@link Entry} that represents a missing @{@link Named} Plexus bean.
  */
-final class MissingRoleHint<T>
+final class MissingBeanEntry<T>
     implements Entry<String, T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final TypeLiteral<T> type;
+    private final TypeLiteral<T> role;
 
     private final String hint;
 
@@ -38,9 +38,9 @@ final class MissingRoleHint<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    MissingRoleHint( final TypeLiteral<T> type, final String hint )
+    MissingBeanEntry( final TypeLiteral<T> role, final String hint )
     {
-        this.type = type;
+        this.role = role;
         this.hint = hint;
     }
 
@@ -55,7 +55,7 @@ final class MissingRoleHint<T>
 
     public T getValue()
     {
-        return Roles.throwMissingComponentException( type, hint );
+        return Roles.throwMissingComponentException( role, hint );
     }
 
     public T setValue( final T value )

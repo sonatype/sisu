@@ -27,7 +27,7 @@ import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Jsr330;
 
-public class RoleIteratorTest
+public class BeanEntriesByRoleTest
     extends TestCase
 {
     interface Bean
@@ -75,7 +75,8 @@ public class RoleIteratorTest
             }
         } );
 
-        final Iterable<Entry<String, Bean>> roles = new RoleIterable<Bean>( injector, TypeLiteral.get( Bean.class ) );
+        final Iterable<Entry<String, Bean>> roles =
+            new BeanEntriesByRole<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
         Iterator<Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -90,7 +91,7 @@ public class RoleIteratorTest
             mapping.setValue( null );
             fail( "Expected UnsupportedOperationException" );
         }
-        catch ( UnsupportedOperationException e )
+        catch ( final UnsupportedOperationException e )
         {
         }
 
@@ -132,7 +133,7 @@ public class RoleIteratorTest
             i.next();
             fail( "Expected NoSuchElementException" );
         }
-        catch ( NoSuchElementException e )
+        catch ( final NoSuchElementException e )
         {
         }
 
@@ -141,7 +142,7 @@ public class RoleIteratorTest
             i.remove();
             fail( "Expected UnsupportedOperationException" );
         }
-        catch ( UnsupportedOperationException e )
+        catch ( final UnsupportedOperationException e )
         {
         }
     }
@@ -163,7 +164,7 @@ public class RoleIteratorTest
         } );
 
         final Iterable<Entry<String, ImplicitDefaultBean>> roles =
-            new RoleIterable<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
+            new BeanEntriesByRole<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
 
         Iterator<Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
@@ -221,7 +222,7 @@ public class RoleIteratorTest
             i.next();
             fail( "Expected NoSuchElementException" );
         }
-        catch ( NoSuchElementException e )
+        catch ( final NoSuchElementException e )
         {
         }
 
@@ -230,7 +231,7 @@ public class RoleIteratorTest
             i.remove();
             fail( "Expected UnsupportedOperationException" );
         }
-        catch ( UnsupportedOperationException e )
+        catch ( final UnsupportedOperationException e )
         {
         }
     }
@@ -251,7 +252,8 @@ public class RoleIteratorTest
             }
         } );
 
-        final Iterable<Entry<String, Bean>> roles = new RoleIterable<Bean>( injector, TypeLiteral.get( Bean.class ) );
+        final Iterable<Entry<String, Bean>> roles =
+            new BeanEntriesByRole<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
         Iterator<Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -309,7 +311,7 @@ public class RoleIteratorTest
             i.next();
             fail( "Expected NoSuchElementException" );
         }
-        catch ( NoSuchElementException e )
+        catch ( final NoSuchElementException e )
         {
         }
 
@@ -318,7 +320,7 @@ public class RoleIteratorTest
             i.remove();
             fail( "Expected UnsupportedOperationException" );
         }
-        catch ( UnsupportedOperationException e )
+        catch ( final UnsupportedOperationException e )
         {
         }
     }
@@ -348,7 +350,7 @@ public class RoleIteratorTest
         } );
 
         final Iterable<Entry<String, ImplicitDefaultBean>> roles =
-            new RoleIterable<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
+            new BeanEntriesByRole<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
 
         Iterator<Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
@@ -376,7 +378,7 @@ public class RoleIteratorTest
             i.next();
             fail( "Expected NoSuchElementException" );
         }
-        catch ( NoSuchElementException e )
+        catch ( final NoSuchElementException e )
         {
         }
 
@@ -385,7 +387,7 @@ public class RoleIteratorTest
             i.remove();
             fail( "Expected UnsupportedOperationException" );
         }
-        catch ( UnsupportedOperationException e )
+        catch ( final UnsupportedOperationException e )
         {
         }
     }
@@ -414,7 +416,8 @@ public class RoleIteratorTest
             }
         } );
 
-        final Iterable<Entry<String, Bean>> roles = new RoleIterable<Bean>( injector, TypeLiteral.get( Bean.class ) );
+        final Iterable<Entry<String, Bean>> roles =
+            new BeanEntriesByRole<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
         Iterator<Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -452,7 +455,7 @@ public class RoleIteratorTest
             i.next();
             fail( "Expected NoSuchElementException" );
         }
-        catch ( NoSuchElementException e )
+        catch ( final NoSuchElementException e )
         {
         }
 
@@ -461,7 +464,7 @@ public class RoleIteratorTest
             i.remove();
             fail( "Expected UnsupportedOperationException" );
         }
-        catch ( UnsupportedOperationException e )
+        catch ( final UnsupportedOperationException e )
         {
         }
     }

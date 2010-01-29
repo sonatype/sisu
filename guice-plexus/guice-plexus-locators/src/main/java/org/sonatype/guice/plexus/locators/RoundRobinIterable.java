@@ -16,12 +16,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+/**
+ * 
+ */
 final class RoundRobinIterable<T>
     implements Iterable<T>
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     private final Class<T> componentType;
 
     private final Iterable<?>[] iterables;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
 
     RoundRobinIterable( final Class<T> componentType, final List<Iterable<?>> iterables )
     {
@@ -29,19 +40,35 @@ final class RoundRobinIterable<T>
         this.iterables = iterables.toArray( new Iterable[iterables.size()] );
     }
 
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
     public Iterator<T> iterator()
     {
         return new RoundRobinIterator<T>( componentType, iterables );
     }
 
+    // ----------------------------------------------------------------------
+    // Iterator implementation
+    // ----------------------------------------------------------------------
+
     private static final class RoundRobinIterator<T>
         implements Iterator<T>
     {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
         private final Class<T> componentType;
 
         private final Iterator<?>[] iterators;
 
         private Object nextValue;
+
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
 
         RoundRobinIterator( final Class<T> componentType, final Iterable<?>... iterables )
         {
@@ -52,6 +79,10 @@ final class RoundRobinIterable<T>
                 iterators[i] = iterables[i].iterator();
             }
         }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
 
         public boolean hasNext()
         {

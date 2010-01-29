@@ -31,7 +31,7 @@ import com.google.inject.TypeLiteral;
 /**
  * 
  */
-final class RoleHintIterable<T>
+final class BeanEntriesByRoleHint<T>
     implements Iterable<Entry<String, T>>
 {
     // ----------------------------------------------------------------------
@@ -50,7 +50,7 @@ final class RoleHintIterable<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    RoleHintIterable( final Injector injector, final TypeLiteral<T> role, final String... hints )
+    BeanEntriesByRoleHint( final Injector injector, final TypeLiteral<T> role, final String... hints )
     {
         this.injector = injector;
         this.role = role;
@@ -87,7 +87,7 @@ final class RoleHintIterable<T>
         Entry<String, T> roleHint = lookupRoleHint( injector, role, hints[index] );
         if ( null == roleHint )
         {
-            roleHint = new MissingRoleHint<T>( role, hints[index] );
+            roleHint = new MissingBeanEntry<T>( role, hints[index] );
         }
         return cache.add( roleHint );
     }
@@ -147,7 +147,7 @@ final class RoleHintIterable<T>
             try
             {
                 final Provider provider = injector.getProvider( key );
-                return new LazyRoleHint( hint, provider );
+                return new LazyBeanEntry( hint, provider );
             }
             catch ( final ConfigurationException e )
             {
@@ -159,7 +159,7 @@ final class RoleHintIterable<T>
         if ( null != binding )
         {
             final Provider provider = binding.getProvider();
-            return new LazyRoleHint( hint, provider );
+            return new LazyBeanEntry( hint, provider );
         }
 
         return null;

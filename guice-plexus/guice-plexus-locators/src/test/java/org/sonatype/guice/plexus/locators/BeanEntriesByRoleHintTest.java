@@ -28,7 +28,7 @@ import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Jsr330;
 
-public class RoleHintIteratorTest
+public class BeanEntriesByRoleHintTest
     extends TestCase
 {
     interface Bean
@@ -77,7 +77,7 @@ public class RoleHintIteratorTest
         } );
 
         final Iterable<Entry<String, Bean>> roles =
-            new RoleHintIterable<Bean>( injector, TypeLiteral.get( Bean.class ), "A", Hints.DEFAULT_HINT, "B", "C" );
+            new BeanEntriesByRoleHint<Bean>( injector, TypeLiteral.get( Bean.class ), "A", Hints.DEFAULT_HINT, "B", "C" );
 
         Iterator<Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -102,7 +102,7 @@ public class RoleHintIteratorTest
             mapping.getValue();
             fail( "Expected ProvisionException" );
         }
-        catch ( ProvisionException e )
+        catch ( final ProvisionException e )
         {
             System.out.println( e );
         }
@@ -112,7 +112,7 @@ public class RoleHintIteratorTest
             mapping.setValue( null );
             fail( "Expected UnsupportedOperationException" );
         }
-        catch ( UnsupportedOperationException e )
+        catch ( final UnsupportedOperationException e )
         {
         }
 
@@ -151,7 +151,7 @@ public class RoleHintIteratorTest
             i.next();
             fail( "Expected NoSuchElementException" );
         }
-        catch ( NoSuchElementException e )
+        catch ( final NoSuchElementException e )
         {
         }
 
@@ -160,7 +160,7 @@ public class RoleHintIteratorTest
             i.remove();
             fail( "Expected UnsupportedOperationException" );
         }
-        catch ( UnsupportedOperationException e )
+        catch ( final UnsupportedOperationException e )
         {
         }
     }
@@ -182,8 +182,8 @@ public class RoleHintIteratorTest
         } );
 
         final Iterable<Entry<String, ImplicitDefaultBean>> roles =
-            new RoleHintIterable<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ), "A",
-                                                       Hints.DEFAULT_HINT, "B", "C" );
+            new BeanEntriesByRoleHint<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ),
+                                                            "A", Hints.DEFAULT_HINT, "B", "C" );
 
         Iterator<Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
@@ -241,7 +241,7 @@ public class RoleHintIteratorTest
             i.next();
             fail( "Expected NoSuchElementException" );
         }
-        catch ( NoSuchElementException e )
+        catch ( final NoSuchElementException e )
         {
         }
 
@@ -250,7 +250,7 @@ public class RoleHintIteratorTest
             i.remove();
             fail( "Expected UnsupportedOperationException" );
         }
-        catch ( UnsupportedOperationException e )
+        catch ( final UnsupportedOperationException e )
         {
         }
     }
@@ -272,7 +272,7 @@ public class RoleHintIteratorTest
         } );
 
         final Iterable<Entry<String, Bean>> roles =
-            new RoleHintIterable<Bean>( injector, TypeLiteral.get( Bean.class ), "A", Hints.DEFAULT_HINT, "B", "C" );
+            new BeanEntriesByRoleHint<Bean>( injector, TypeLiteral.get( Bean.class ), "A", Hints.DEFAULT_HINT, "B", "C" );
 
         Iterator<Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -330,7 +330,7 @@ public class RoleHintIteratorTest
             i.next();
             fail( "Expected NoSuchElementException" );
         }
-        catch ( NoSuchElementException e )
+        catch ( final NoSuchElementException e )
         {
         }
 
@@ -339,7 +339,7 @@ public class RoleHintIteratorTest
             i.remove();
             fail( "Expected UnsupportedOperationException" );
         }
-        catch ( UnsupportedOperationException e )
+        catch ( final UnsupportedOperationException e )
         {
         }
     }
@@ -369,8 +369,8 @@ public class RoleHintIteratorTest
         } );
 
         final Iterable<Entry<String, ImplicitDefaultBean>> roles =
-            new RoleHintIterable<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ), "A",
-                                                       Hints.DEFAULT_HINT, "B", "C" );
+            new BeanEntriesByRoleHint<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ),
+                                                            "A", Hints.DEFAULT_HINT, "B", "C" );
 
         Iterator<Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
@@ -387,7 +387,7 @@ public class RoleHintIteratorTest
             mapping.getValue();
             fail( "Expected ProvisionException" );
         }
-        catch ( ProvisionException e )
+        catch ( final ProvisionException e )
         {
             System.out.println( e );
         }
@@ -402,7 +402,7 @@ public class RoleHintIteratorTest
             mapping.getValue();
             fail( "Expected ProvisionException" );
         }
-        catch ( ProvisionException e )
+        catch ( final ProvisionException e )
         {
             System.out.println( e );
         }
@@ -425,7 +425,7 @@ public class RoleHintIteratorTest
             mapping.getValue();
             fail( "Expected ProvisionException" );
         }
-        catch ( ProvisionException e )
+        catch ( final ProvisionException e )
         {
             System.out.println( e );
         }
@@ -449,7 +449,7 @@ public class RoleHintIteratorTest
             i.next();
             fail( "Expected NoSuchElementException" );
         }
-        catch ( NoSuchElementException e )
+        catch ( final NoSuchElementException e )
         {
         }
 
@@ -458,7 +458,7 @@ public class RoleHintIteratorTest
             i.remove();
             fail( "Expected UnsupportedOperationException" );
         }
-        catch ( UnsupportedOperationException e )
+        catch ( final UnsupportedOperationException e )
         {
         }
     }
@@ -488,7 +488,7 @@ public class RoleHintIteratorTest
         } );
 
         final Iterable<Entry<String, Bean>> roles =
-            new RoleHintIterable<Bean>( injector, TypeLiteral.get( Bean.class ), "A", Hints.DEFAULT_HINT, "B", "C" );
+            new BeanEntriesByRoleHint<Bean>( injector, TypeLiteral.get( Bean.class ), "A", Hints.DEFAULT_HINT, "B", "C" );
 
         Iterator<Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -505,7 +505,7 @@ public class RoleHintIteratorTest
             mapping.getValue();
             fail( "Expected ProvisionException" );
         }
-        catch ( ProvisionException e )
+        catch ( final ProvisionException e )
         {
             System.out.println( e );
         }
@@ -528,7 +528,7 @@ public class RoleHintIteratorTest
             mapping.getValue();
             fail( "Expected ProvisionException" );
         }
-        catch ( ProvisionException e )
+        catch ( final ProvisionException e )
         {
             System.out.println( e );
         }
@@ -560,7 +560,7 @@ public class RoleHintIteratorTest
             i.next();
             fail( "Expected NoSuchElementException" );
         }
-        catch ( NoSuchElementException e )
+        catch ( final NoSuchElementException e )
         {
         }
 
@@ -569,7 +569,7 @@ public class RoleHintIteratorTest
             i.remove();
             fail( "Expected UnsupportedOperationException" );
         }
-        catch ( UnsupportedOperationException e )
+        catch ( final UnsupportedOperationException e )
         {
         }
     }

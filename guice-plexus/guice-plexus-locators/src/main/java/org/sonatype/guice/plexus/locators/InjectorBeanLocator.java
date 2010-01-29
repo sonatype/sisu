@@ -12,22 +12,14 @@
  */
 package org.sonatype.guice.plexus.locators;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
-import org.sonatype.guice.plexus.config.Roles;
 
-import com.google.inject.Binding;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -56,68 +48,12 @@ public final class InjectorBeanLocator
     // Public methods
     // ----------------------------------------------------------------------
 
-    public <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> type, final String... hints )
+    public <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> role, final String... hints )
     {
-        return hints.length == 0 ? locateByType( type ) : locateByName( type, hints );
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * Locates all beans of the given type; the default bean will be first, if it exists.
-     * 
-     * @param type The expected bean type
-     * @return Sequence of matching beans
-     */
-    private <T> Iterable<Entry<String, T>> locateByType( final TypeLiteral<T> type )
-    {
-        final List<Entry<String, T>> entries = new ArrayList<Entry<String, T>>();
-        for ( final Binding<T> binding : injector.findBindingsByType( type ) )
+        if ( hints.length > 0 )
         {
-            final Annotation ann = binding.getKey().getAnnotation();
-            if ( null == ann )
-            {
-                entries.add( 0, new LazyRoleHint<T>( Hints.DEFAULT_HINT, binding.getProvider() ) );
-            }
-            else if ( ann instanceof Named )
-            {
-                final String hint = ( (Named) ann ).value();
-                if ( !Hints.isDefaultHint( hint ) )
-                {
-                    entries.add( new LazyRoleHint<T>( hint, binding.getProvider() ) );
-                }
-            }
+            return new BeanEntriesByRoleHint<T>( injector, role, hints );
         }
-        return entries;
-    }
-
-    /**
-     * Locates named beans of the given type; ordered according to the given name sequence.
-     * 
-     * @param type The expected bean type
-     * @param hints The expected name sequence
-     * @return Sequence of matching beans; ordered according to the given name sequence.
-     */
-    @SuppressWarnings( "unchecked" )
-    private <T> Iterable<Entry<String, T>> locateByName( final TypeLiteral<T> type, final String... hints )
-    {
-        final List<Entry<String, T>> entries = new ArrayList<Entry<String, T>>();
-        final Map<Key<?>, Binding<?>> bindings = injector.getBindings();
-        for ( final String h : hints )
-        {
-            // we already know what names to expect, but some might be missing
-            final Binding binding = bindings.get( Roles.componentKey( type, h ) );
-            if ( binding != null )
-            {
-                entries.add( new LazyRoleHint<T>( h, binding.getProvider() ) );
-            }
-            else
-            {
-                entries.add( new MissingRoleHint<T>( type, h ) );
-            }
-        }
-        return entries;
+        return new BeanEntriesByRole<T>( injector, role );
     }
 }

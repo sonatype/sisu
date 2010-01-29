@@ -12,7 +12,7 @@
  */
 package org.sonatype.guice.plexus.locators;
 
-import static org.sonatype.guice.plexus.locators.RoleHintIterable.lookupRoleHint;
+import static org.sonatype.guice.plexus.locators.BeanEntriesByRoleHint.lookupRoleHint;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import com.google.inject.TypeLiteral;
 /**
  * 
  */
-final class RoleIterable<T>
+final class BeanEntriesByRole<T>
     implements Iterable<Entry<String, T>>
 {
     // ----------------------------------------------------------------------
@@ -52,7 +52,7 @@ final class RoleIterable<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    RoleIterable( final Injector injector, final TypeLiteral<T> role )
+    BeanEntriesByRole( final Injector injector, final TypeLiteral<T> role )
     {
         this.injector = injector;
         this.role = role;
@@ -102,7 +102,7 @@ final class RoleIterable<T>
                 if ( !Hints.isDefaultHint( hint ) )
                 {
                     final Provider<T> provider = binding.getProvider();
-                    cache.add( new LazyRoleHint<T>( hint, provider ) );
+                    cache.add( new LazyBeanEntry<T>( hint, provider ) );
                     return true;
                 }
             }
