@@ -138,9 +138,9 @@ public final class PlexusXmlBeanConverter
     }
 
     @SuppressWarnings( "unchecked" )
-    public Object convert( final TypeLiteral type, final String value )
+    public Object convert( final TypeLiteral role, final String value )
     {
-        return convert( value, type );
+        return convert( value, role );
     }
 
     // ----------------------------------------------------------------------

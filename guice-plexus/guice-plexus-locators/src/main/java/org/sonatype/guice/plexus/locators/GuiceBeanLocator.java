@@ -13,12 +13,7 @@
 package org.sonatype.guice.plexus.locators;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
@@ -29,11 +24,22 @@ import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
+/**
+ * 
+ */
 @Singleton
 public final class GuiceBeanLocator
     implements PlexusBeanLocator
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     final List<PlexusBeanLocator> locators = new ArrayList<PlexusBeanLocator>();
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
 
     @Inject
     GuiceBeanLocator( final Injector rootInjector )
@@ -41,84 +47,28 @@ public final class GuiceBeanLocator
         locators.add( new InjectorBeanLocator( rootInjector ) );
     }
 
-    public void add( final PlexusBeanLocator locator )
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
+    public synchronized void add( final PlexusBeanLocator locator )
     {
         locators.add( locator );
     }
 
-    public void remove( final PlexusBeanLocator locator )
+    public synchronized void remove( final PlexusBeanLocator locator )
     {
         locators.remove( locator );
     }
 
-    public <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> type, final String... hints )
+    @SuppressWarnings( "unchecked" )
+    public synchronized <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> role, final String... hints )
     {
-        return new Iterable<Entry<String, T>>()
+        final Iterable[] iterables = new Iterable[locators.size()];
+        for ( int i = 0; i < iterables.length; i++ )
         {
-            final Map<PlexusBeanLocator, Iterable<Entry<String, T>>> iterableCache =
-                new HashMap<PlexusBeanLocator, Iterable<Entry<String, T>>>();
-
-            public Iterator<Entry<String, T>> iterator()
-            {
-                return new Iterator<Entry<String, T>>()
-                {
-                    private final Iterator<PlexusBeanLocator> l = locators.iterator();
-
-                    private Iterator<Entry<String, T>> e = Collections.<Entry<String, T>> emptyList().iterator();
-
-                    public boolean hasNext()
-                    {
-                        while ( true )
-                        {
-                            if ( e.hasNext() )
-                            {
-                                return true;
-                            }
-                            else if ( l.hasNext() )
-                            {
-                                final PlexusBeanLocator locator = l.next();
-                                Iterable<Entry<String, T>> i = iterableCache.get( locator );
-                                if ( null == i )
-                                {
-                                    i = locator.locate( type, hints );
-                                    iterableCache.put( locator, i );
-                                }
-                                e = i.iterator();
-                            }
-                            else
-                            {
-                                return false;
-                            }
-                        }
-                    }
-
-                    public Entry<String, T> next()
-                    {
-                        while ( hasNext() )
-                        {
-                            final Entry<String, T> entry = e.next();
-                            if ( l.hasNext() ) // TODO: round-robin checks for named lists/maps
-                            {
-                                try
-                                {
-                                    entry.getValue();
-                                }
-                                catch ( final RuntimeException re )
-                                {
-                                    continue; // TODO: is it always OK to skip broken entries?
-                                }
-                            }
-                            return entry;
-                        }
-                        throw new NoSuchElementException();
-                    }
-
-                    public void remove()
-                    {
-                        throw new UnsupportedOperationException();
-                    }
-                };
-            }
-        };
+            iterables[i] = locators.get( i ).locate( role, hints );
+        }
+        return new RoundRobinIterable( iterables );
     }
 }

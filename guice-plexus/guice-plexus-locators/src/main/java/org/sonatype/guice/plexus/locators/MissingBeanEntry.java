@@ -24,7 +24,7 @@ import com.google.inject.TypeLiteral;
  * {@link Entry} that represents a missing @{@link Named} Plexus bean.
  */
 final class MissingBeanEntry<T>
-    implements Entry<String, T>
+    implements RoundRobinIterable.Ignore, Entry<String, T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields

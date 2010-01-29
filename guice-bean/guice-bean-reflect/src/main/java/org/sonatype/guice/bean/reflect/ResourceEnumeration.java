@@ -82,10 +82,10 @@ final class ResourceEnumeration
         {
             if ( entries.hasNext() )
             {
-                nextEntry = entries.next();
-                if ( !matchesRequest( nextEntry ) )
+                final String entry = entries.next();
+                if ( matchesRequest( entry ) )
                 {
-                    nextEntry = null; // try again
+                    nextEntry = entry;
                 }
             }
             else if ( urls.hasNext() )

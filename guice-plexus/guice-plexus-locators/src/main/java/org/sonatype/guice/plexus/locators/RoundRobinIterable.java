@@ -13,7 +13,6 @@
 package org.sonatype.guice.plexus.locators;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -22,11 +21,13 @@ import java.util.NoSuchElementException;
 final class RoundRobinIterable<T>
     implements Iterable<T>
 {
+    interface Ignore
+    {
+    }
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
-
-    private final Class<T> componentType;
 
     private final Iterable<?>[] iterables;
 
@@ -34,10 +35,9 @@ final class RoundRobinIterable<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    RoundRobinIterable( final Class<T> componentType, final List<Iterable<?>> iterables )
+    RoundRobinIterable( final Iterable<?>... iterables )
     {
-        this.componentType = componentType;
-        this.iterables = iterables.toArray( new Iterable[iterables.size()] );
+        this.iterables = iterables;
     }
 
     // ----------------------------------------------------------------------
@@ -46,7 +46,7 @@ final class RoundRobinIterable<T>
 
     public Iterator<T> iterator()
     {
-        return new RoundRobinIterator<T>( componentType, iterables );
+        return new RoundRobinIterator<T>( iterables );
     }
 
     // ----------------------------------------------------------------------
@@ -60,8 +60,6 @@ final class RoundRobinIterable<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final Class<T> componentType;
-
         private final Iterator<?>[] iterators;
 
         private Object nextValue;
@@ -70,9 +68,8 @@ final class RoundRobinIterable<T>
         // Constructors
         // ----------------------------------------------------------------------
 
-        RoundRobinIterator( final Class<T> componentType, final Iterable<?>... iterables )
+        RoundRobinIterator( final Iterable<?>... iterables )
         {
-            this.componentType = componentType;
             iterators = new Iterator[iterables.length];
             for ( int i = 0; i < iterators.length; i++ )
             {
@@ -86,18 +83,22 @@ final class RoundRobinIterable<T>
 
         public boolean hasNext()
         {
+            if ( null != nextValue )
+            {
+                return true;
+            }
             for ( final Iterator<?> iterator : iterators )
             {
-                if ( componentType.isInstance( nextValue ) )
-                {
-                    return true;
-                }
                 if ( iterator.hasNext() )
                 {
                     nextValue = iterator.next();
+                    if ( !( nextValue instanceof Ignore ) )
+                    {
+                        return true;
+                    }
                 }
             }
-            return false;
+            return null != nextValue;
         }
 
         @SuppressWarnings( "unchecked" )
@@ -105,7 +106,9 @@ final class RoundRobinIterable<T>
         {
             if ( hasNext() )
             {
-                return (T) nextValue;
+                final T value = (T) nextValue;
+                nextValue = null;
+                return value;
             }
             throw new NoSuchElementException();
         }
