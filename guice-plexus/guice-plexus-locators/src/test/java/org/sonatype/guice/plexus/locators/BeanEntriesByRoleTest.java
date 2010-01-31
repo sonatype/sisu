@@ -12,7 +12,9 @@
  */
 package org.sonatype.guice.plexus.locators;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
@@ -62,7 +64,8 @@ public class BeanEntriesByRoleTest
 
     public void testRolesWithNoDefault()
     {
-        final Injector injector = Guice.createInjector( new AbstractModule()
+        final List<Injector> injectors = new ArrayList<Injector>();
+        injectors.add( Guice.createInjector( new AbstractModule()
         {
             @Override
             protected void configure()
@@ -73,10 +76,10 @@ public class BeanEntriesByRoleTest
                 bind( Bean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
                 bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
             }
-        } );
+        } ) );
 
         final Iterable<Entry<String, Bean>> roles =
-            new BeanEntriesByRole<Bean>( injector, TypeLiteral.get( Bean.class ) );
+            new BeanEntriesByRole<Bean>( injectors, TypeLiteral.get( Bean.class ) );
 
         Iterator<Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -149,7 +152,8 @@ public class BeanEntriesByRoleTest
 
     public void testRolesWithImplicitDefault()
     {
-        final Injector injector = Guice.createInjector( new AbstractModule()
+        final List<Injector> injectors = new ArrayList<Injector>();
+        injectors.add( Guice.createInjector( new AbstractModule()
         {
             @Override
             protected void configure()
@@ -161,10 +165,10 @@ public class BeanEntriesByRoleTest
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
             }
-        } );
+        } ) );
 
         final Iterable<Entry<String, ImplicitDefaultBean>> roles =
-            new BeanEntriesByRole<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
+            new BeanEntriesByRole<ImplicitDefaultBean>( injectors, TypeLiteral.get( ImplicitDefaultBean.class ) );
 
         Iterator<Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
@@ -238,7 +242,8 @@ public class BeanEntriesByRoleTest
 
     public void testRolesWithExplicitDefault()
     {
-        final Injector injector = Guice.createInjector( new AbstractModule()
+        final List<Injector> injectors = new ArrayList<Injector>();
+        injectors.add( Guice.createInjector( new AbstractModule()
         {
             @Override
             protected void configure()
@@ -250,10 +255,10 @@ public class BeanEntriesByRoleTest
                 bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
                 bind( Bean.class ).to( DefaultBean.class );
             }
-        } );
+        } ) );
 
         final Iterable<Entry<String, Bean>> roles =
-            new BeanEntriesByRole<Bean>( injector, TypeLiteral.get( Bean.class ) );
+            new BeanEntriesByRole<Bean>( injectors, TypeLiteral.get( Bean.class ) );
 
         Iterator<Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -305,150 +310,6 @@ public class BeanEntriesByRoleTest
         assertSame( cBean, i.next().getValue() );
         assertSame( aBean, i.next().getValue() );
         assertSame( bBean, i.next().getValue() );
-
-        try
-        {
-            i.next();
-            fail( "Expected NoSuchElementException" );
-        }
-        catch ( final NoSuchElementException e )
-        {
-        }
-
-        try
-        {
-            i.remove();
-            fail( "Expected UnsupportedOperationException" );
-        }
-        catch ( final UnsupportedOperationException e )
-        {
-        }
-    }
-
-    public void testChildRolesWithImplicitDefault()
-    {
-        final Injector parentInjector = Guice.createInjector( new AbstractModule()
-        {
-            @Override
-            protected void configure()
-            {
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to(
-                                                                                                          DefaultBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
-            }
-        } );
-
-        final Injector injector = parentInjector.createChildInjector( new AbstractModule()
-        {
-            @Override
-            protected void configure()
-            {
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-            }
-        } );
-
-        final Iterable<Entry<String, ImplicitDefaultBean>> roles =
-            new BeanEntriesByRole<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
-
-        Iterator<Entry<String, ImplicitDefaultBean>> i;
-        Entry<String, ImplicitDefaultBean> mapping;
-        ImplicitDefaultBean aBean;
-
-        i = roles.iterator();
-        assertTrue( i.hasNext() );
-        mapping = i.next();
-
-        aBean = mapping.getValue();
-        assertEquals( "A", mapping.getKey() );
-        assertEquals( ABean.class, aBean.getClass() );
-        assertSame( aBean, mapping.getValue() );
-
-        assertFalse( i.hasNext() );
-
-        i = roles.iterator();
-        assertEquals( "A", i.next().getKey() );
-
-        i = roles.iterator();
-        assertSame( aBean, i.next().getValue() );
-
-        try
-        {
-            i.next();
-            fail( "Expected NoSuchElementException" );
-        }
-        catch ( final NoSuchElementException e )
-        {
-        }
-
-        try
-        {
-            i.remove();
-            fail( "Expected UnsupportedOperationException" );
-        }
-        catch ( final UnsupportedOperationException e )
-        {
-        }
-    }
-
-    public void testChildRolesWithExplicitDefault()
-    {
-        final Injector parentInjector = Guice.createInjector( new AbstractModule()
-        {
-            @Override
-            protected void configure()
-            {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
-            }
-        } );
-
-        final Injector injector = parentInjector.createChildInjector( new AbstractModule()
-        {
-            @Override
-            protected void configure()
-            {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( Bean.class ).to( DefaultBean.class );
-            }
-        } );
-
-        final Iterable<Entry<String, Bean>> roles =
-            new BeanEntriesByRole<Bean>( injector, TypeLiteral.get( Bean.class ) );
-
-        Iterator<Entry<String, Bean>> i;
-        Entry<String, Bean> mapping;
-        Bean defaultBean, cBean;
-
-        i = roles.iterator();
-        assertTrue( i.hasNext() );
-        mapping = i.next();
-
-        defaultBean = mapping.getValue();
-        assertSame( Hints.DEFAULT_HINT, mapping.getKey() );
-        assertEquals( DefaultBean.class, defaultBean.getClass() );
-        assertSame( defaultBean, mapping.getValue() );
-
-        assertTrue( i.hasNext() );
-        mapping = i.next();
-
-        cBean = mapping.getValue();
-        assertEquals( "C", mapping.getKey() );
-        assertEquals( CBean.class, cBean.getClass() );
-        assertSame( cBean, mapping.getValue() );
-
-        assertFalse( i.hasNext() );
-
-        i = roles.iterator();
-        assertSame( Hints.DEFAULT_HINT, i.next().getKey() );
-        assertEquals( "C", i.next().getKey() );
-
-        i = roles.iterator();
-        assertSame( defaultBean, i.next().getValue() );
-        assertSame( cBean, i.next().getValue() );
 
         try
         {

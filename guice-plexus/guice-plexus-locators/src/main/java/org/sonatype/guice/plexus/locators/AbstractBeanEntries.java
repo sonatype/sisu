@@ -12,70 +12,104 @@
  */
 package org.sonatype.guice.plexus.locators;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Map.Entry;
+
+import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
 
 /**
  * 
  */
-final class RoundRobinIterable<T>
-    implements Iterable<T>
+abstract class AbstractBeanEntries<T>
+    implements Iterable<Entry<String, T>>
 {
-    interface Ignore
-    {
-    }
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Iterable<?>[] iterables;
+    final List<Injector> injectors;
+
+    final TypeLiteral<T> role;
+
+    private List<Entry<String, T>> cache;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    RoundRobinIterable( final Iterable<?>... iterables )
+    AbstractBeanEntries( final List<Injector> injectors, final TypeLiteral<T> role )
     {
-        this.iterables = iterables;
+        this.injectors = injectors;
+        this.role = role;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public Iterator<T> iterator()
+    public final Iterator<Entry<String, T>> iterator()
     {
-        return new RoundRobinIterator<T>( iterables );
+        return new CachingIterator();
+    }
+
+    // ----------------------------------------------------------------------
+    // Cache methods
+    // ----------------------------------------------------------------------
+
+    abstract Entry<String, T> populate( final int index );
+
+    final boolean cache( final Entry<String, T> entry )
+    {
+        if ( null == cache )
+        {
+            cache = new ArrayList<Entry<String, T>>();
+        }
+        return cache.add( entry );
+    }
+
+    synchronized boolean hasNext( final int index )
+    {
+        if ( null != cache && index < cache.size() )
+        {
+            return true;
+        }
+        final Entry<String, T> entry = populate( index );
+        if ( null == entry )
+        {
+            return false;
+        }
+        if ( null == cache )
+        {
+            cache = new ArrayList<Entry<String, T>>();
+        }
+        return cache.add( entry );
+    }
+
+    synchronized Entry<String, T> next( final int index )
+    {
+        if ( hasNext( index ) )
+        {
+            return cache.get( index );
+        }
+        throw new NoSuchElementException();
     }
 
     // ----------------------------------------------------------------------
     // Iterator implementation
     // ----------------------------------------------------------------------
 
-    private static final class RoundRobinIterator<T>
-        implements Iterator<T>
+    final class CachingIterator
+        implements Iterator<Entry<String, T>>
     {
         // ----------------------------------------------------------------------
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final Iterator<?>[] iterators;
-
-        private Object nextValue;
-
-        // ----------------------------------------------------------------------
-        // Constructors
-        // ----------------------------------------------------------------------
-
-        RoundRobinIterator( final Iterable<?>... iterables )
-        {
-            iterators = new Iterator[iterables.length];
-            for ( int i = 0; i < iterators.length; i++ )
-            {
-                iterators[i] = iterables[i].iterator();
-            }
-        }
+        private int index;
 
         // ----------------------------------------------------------------------
         // Public methods
@@ -83,34 +117,12 @@ final class RoundRobinIterable<T>
 
         public boolean hasNext()
         {
-            if ( null != nextValue )
-            {
-                return true;
-            }
-            for ( final Iterator<?> iterator : iterators )
-            {
-                if ( iterator.hasNext() )
-                {
-                    nextValue = iterator.next();
-                    if ( !( nextValue instanceof Ignore ) )
-                    {
-                        return true;
-                    }
-                }
-            }
-            return null != nextValue;
+            return AbstractBeanEntries.this.hasNext( index );
         }
 
-        @SuppressWarnings( "unchecked" )
-        public T next()
+        public Entry<String, T> next()
         {
-            if ( hasNext() )
-            {
-                final T value = (T) nextValue;
-                nextValue = null;
-                return value;
-            }
-            throw new NoSuchElementException();
+            return AbstractBeanEntries.this.next( index++ );
         }
 
         public void remove()

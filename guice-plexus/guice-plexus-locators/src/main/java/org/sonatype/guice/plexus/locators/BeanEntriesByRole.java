@@ -12,13 +12,8 @@
  */
 package org.sonatype.guice.plexus.locators;
 
-import static org.sonatype.guice.plexus.locators.BeanEntriesByRoleHint.lookupRoleHint;
-
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
 import javax.inject.Named;
@@ -27,129 +22,77 @@ import javax.inject.Provider;
 import org.sonatype.guice.plexus.config.Hints;
 
 import com.google.inject.Binding;
+import com.google.inject.ConfigurationException;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 /**
  * 
  */
 final class BeanEntriesByRole<T>
-    implements Iterable<Entry<String, T>>
+    extends AbstractBeanEntries<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Injector injector;
-
-    private final TypeLiteral<T> role;
+    private int injectorIndex = -1;
 
     private int bindingIndex;
-
-    private List<Entry<String, T>> cache;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    BeanEntriesByRole( final Injector injector, final TypeLiteral<T> role )
+    BeanEntriesByRole( final List<Injector> injectors, final TypeLiteral<T> role )
     {
-        this.injector = injector;
-        this.role = role;
-    }
-
-    // ----------------------------------------------------------------------
-    // Public methods
-    // ----------------------------------------------------------------------
-
-    public Iterator<Entry<String, T>> iterator()
-    {
-        return new CachingIterator();
+        super( injectors, role );
     }
 
     // ----------------------------------------------------------------------
     // Cache methods
     // ----------------------------------------------------------------------
 
-    synchronized boolean populate( final int index )
+    @Override
+    @SuppressWarnings( "unchecked" )
+    Entry<String, T> populate( final int index )
     {
-        if ( null == cache )
+        if ( -1 == injectorIndex )
         {
-            cache = new ArrayList<Entry<String, T>>();
-        }
-        else if ( index < cache.size() )
-        {
-            return true;
-        }
-
-        if ( 0 == index )
-        {
-            final Entry<String, T> defaultRoleHint = lookupRoleHint( injector, role, Hints.DEFAULT_HINT );
-            if ( null != defaultRoleHint )
+            try
             {
-                return cache.add( defaultRoleHint );
+                final Provider defaultProvider = injectors.get( ++injectorIndex ).getProvider( Key.get( role ) );
+                return new LazyBeanEntry( Hints.DEFAULT_HINT, defaultProvider );
+            }
+            catch ( final ConfigurationException e ) // NOPMD
+            {
+                // drop-through and search child injectors
             }
         }
-
-        final List<Binding<T>> bindings = injector.findBindingsByType( role );
-        while ( bindingIndex < bindings.size() )
+        while ( injectorIndex < injectors.size() )
         {
-            final Binding<T> binding = bindings.get( bindingIndex++ );
-            final Annotation ann = binding.getKey().getAnnotation();
-            if ( ann instanceof Named )
+            final Injector injector = injectors.get( injectorIndex );
+            if ( null != injector )
             {
-                final String hint = ( (Named) ann ).value();
-                if ( !Hints.isDefaultHint( hint ) )
+                final List<Binding<T>> bindings = injector.findBindingsByType( role );
+                while ( bindingIndex < bindings.size() )
                 {
-                    final Provider<T> provider = binding.getProvider();
-                    cache.add( new LazyBeanEntry<T>( hint, provider ) );
-                    return true;
+                    final Binding binding = bindings.get( bindingIndex++ );
+                    final Annotation ann = binding.getKey().getAnnotation();
+                    if ( ann instanceof Named )
+                    {
+                        final String hint = ( (Named) ann ).value();
+                        if ( !Hints.isDefaultHint( hint ) )
+                        {
+                            return new LazyBeanEntry<T>( hint, binding.getProvider() );
+                        }
+                    }
                 }
             }
+            injectorIndex++;
+            bindingIndex = 0;
         }
-
-        return false;
-    }
-
-    synchronized Entry<String, T> lookup( final int index )
-    {
-        return cache.get( index );
-    }
-
-    // ----------------------------------------------------------------------
-    // Iterator implementation
-    // ----------------------------------------------------------------------
-
-    final class CachingIterator
-        implements Iterator<Entry<String, T>>
-    {
-        // ----------------------------------------------------------------------
-        // Implementation fields
-        // ----------------------------------------------------------------------
-
-        private int index;
-
-        // ----------------------------------------------------------------------
-        // Public methods
-        // ----------------------------------------------------------------------
-
-        public boolean hasNext()
-        {
-            return populate( index );
-        }
-
-        public Entry<String, T> next()
-        {
-            if ( hasNext() )
-            {
-                return lookup( index++ );
-            }
-            throw new NoSuchElementException();
-        }
-
-        public void remove()
-        {
-            throw new UnsupportedOperationException();
-        }
+        return null;
     }
 }

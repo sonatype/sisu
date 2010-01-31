@@ -35,40 +35,34 @@ public final class GuiceBeanLocator
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    final List<PlexusBeanLocator> locators = new ArrayList<PlexusBeanLocator>();
-
-    // ----------------------------------------------------------------------
-    // Constructors
-    // ----------------------------------------------------------------------
-
-    @Inject
-    GuiceBeanLocator( final Injector rootInjector )
-    {
-        locators.add( new InjectorBeanLocator( rootInjector ) );
-    }
+    final List<Injector> injectors = new ArrayList<Injector>( 1024 ); // TODO: RW-lock?
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public synchronized void add( final PlexusBeanLocator locator )
+    @Inject
+    public void add( final Injector injector )
     {
-        locators.add( locator );
+        injectors.add( injector );
     }
 
-    public synchronized void remove( final PlexusBeanLocator locator )
+    @Inject
+    public void remove( final Injector injector )
     {
-        locators.remove( locator );
-    }
-
-    @SuppressWarnings( "unchecked" )
-    public synchronized <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> role, final String... hints )
-    {
-        final Iterable[] iterables = new Iterable[locators.size()];
-        for ( int i = 0; i < iterables.length; i++ )
+        final int index = injectors.indexOf( injector );
+        if ( index >= 0 )
         {
-            iterables[i] = locators.get( i ).locate( role, hints );
+            injectors.set( index, null );
         }
-        return new RoundRobinIterable( iterables );
+    }
+
+    public <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> role, final String... hints )
+    {
+        if ( hints.length > 0 )
+        {
+            return new BeanEntriesByRoleHint<T>( injectors, role, hints );
+        }
+        return new BeanEntriesByRole<T>( injectors, role );
     }
 }
