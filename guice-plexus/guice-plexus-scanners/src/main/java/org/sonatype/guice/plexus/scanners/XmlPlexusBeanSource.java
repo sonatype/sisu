@@ -555,7 +555,7 @@ public final class XmlPlexusBeanSource
         final StringBuilder buf = new StringBuilder();
 
         boolean capitalize = false;
-        for ( int i = 0; i < name.length(); i++ )
+        for ( int i = 0, length = name.length(); i < length; i++ )
         {
             final char c = name.charAt( i );
             if ( !Character.isJavaIdentifierPart( c ) )

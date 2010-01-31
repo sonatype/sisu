@@ -98,14 +98,14 @@ final class FileEntryIterator
         final StringBuilder buf = new StringBuilder();
         final String path = url.getPath();
 
-        for ( int i = 0; i < path.length(); i++ )
+        for ( int i = 0, length = path.length(); i < length; i++ )
         {
             final char c = path.charAt( i );
             if ( '/' == c )
             {
                 buf.append( File.separatorChar );
             }
-            else if ( '%' == c && i < path.length() - 2 )
+            else if ( '%' == c && i < length - 2 )
             {
                 buf.append( (char) Integer.parseInt( path.substring( ++i, ++i + 1 ), 16 ) );
             }

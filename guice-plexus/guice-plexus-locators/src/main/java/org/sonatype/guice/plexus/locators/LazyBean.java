@@ -12,60 +12,64 @@
  */
 package org.sonatype.guice.plexus.locators;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map.Entry;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.sonatype.guice.plexus.config.PlexusBeanLocator;
-
-import com.google.inject.Injector;
-import com.google.inject.TypeLiteral;
+import javax.inject.Provider;
 
 /**
- * 
+ * {@link Entry} that represents a lazy Plexus bean; the bean is only retrieved when the value is requested.
  */
-@Singleton
-public final class GuiceBeanLocator
-    implements PlexusBeanLocator
+final class LazyBean<T>
+    implements Entry<String, T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final List<Injector> injectors = new ArrayList<Injector>();
+    private final String hint;
+
+    private volatile Provider<T> provider;
+
+    private T bean;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    @Inject
-    public void add( final Injector injector )
+    LazyBean( final String hint, final Provider<T> provider )
     {
-        injectors.add( injector );
+        this.hint = hint;
+        this.provider = provider;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> role, final String... hints )
+    public String getKey()
     {
-        final GuiceBeans<T> beans;
-        if ( hints.length == 0 )
+        return hint;
+    }
+
+    public T getValue()
+    {
+        if ( null != provider )
         {
-            beans = new DefaultGuiceBeans<T>( role );
+            synchronized ( this )
+            {
+                if ( null != provider )
+                {
+                    // lazy bean creation
+                    bean = provider.get();
+                    provider = null;
+                }
+            }
         }
-        else
-        {
-            beans = new HintedGuiceBeans<T>( role, hints );
-        }
-        for ( int i = 0, size = injectors.size(); i < size; i++ )
-        {
-            beans.add( injectors.get( i ) );
-        }
-        return beans;
+        return bean; // from now on return same bean
+    }
+
+    public T setValue( final T value )
+    {
+        throw new UnsupportedOperationException();
     }
 }

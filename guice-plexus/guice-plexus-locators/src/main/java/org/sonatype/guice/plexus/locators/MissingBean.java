@@ -14,32 +14,34 @@ package org.sonatype.guice.plexus.locators;
 
 import java.util.Map.Entry;
 
-import javax.inject.Provider;
+import javax.inject.Named;
+
+import org.sonatype.guice.plexus.config.Roles;
+
+import com.google.inject.TypeLiteral;
 
 /**
- * {@link Entry} that represents a lazy Plexus bean; the bean is only retrieved when the value is requested.
+ * {@link Entry} that represents a missing @{@link Named} Plexus bean.
  */
-final class LazyBeanEntry<T>
+final class MissingBean<T>
     implements Entry<String, T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    private final TypeLiteral<T> role;
+
     private final String hint;
-
-    private Provider<T> provider;
-
-    private T bean;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    LazyBeanEntry( final String hint, final Provider<T> provider )
+    MissingBean( final TypeLiteral<T> role, final String hint )
     {
+        this.role = role;
         this.hint = hint;
-        this.provider = provider;
     }
 
     // ----------------------------------------------------------------------
@@ -51,15 +53,9 @@ final class LazyBeanEntry<T>
         return hint;
     }
 
-    public synchronized T getValue()
+    public T getValue()
     {
-        if ( null != provider )
-        {
-            // lazy bean creation
-            bean = provider.get();
-            provider = null;
-        }
-        return bean; // from now on return same bean
+        return Roles.throwMissingComponentException( role, hint );
     }
 
     public T setValue( final T value )

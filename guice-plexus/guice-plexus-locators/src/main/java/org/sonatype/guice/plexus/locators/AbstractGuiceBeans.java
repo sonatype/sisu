@@ -14,58 +14,64 @@ package org.sonatype.guice.plexus.locators;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 
 import com.google.inject.Injector;
-import com.google.inject.TypeLiteral;
 
 /**
  * 
  */
-@Singleton
-public final class GuiceBeanLocator
-    implements PlexusBeanLocator
+abstract class AbstractGuiceBeans<T>
+    implements GuiceBeans<T>
 {
     // ----------------------------------------------------------------------
-    // Implementation fields
+    // Common fields
     // ----------------------------------------------------------------------
 
-    private final List<Injector> injectors = new ArrayList<Injector>();
-
-    // ----------------------------------------------------------------------
-    // Constructors
-    // ----------------------------------------------------------------------
-
-    @Inject
-    public void add( final Injector injector )
-    {
-        injectors.add( injector );
-    }
+    List<InjectorBeans<T>> injectorBeans;
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> role, final String... hints )
+    public final boolean add( final InjectorBeans<T> newBeans )
     {
-        final GuiceBeans<T> beans;
-        if ( hints.length == 0 )
+        if ( newBeans.isEmpty() )
         {
-            beans = new DefaultGuiceBeans<T>( role );
+            return false;
         }
-        else
+        synchronized ( this )
         {
-            beans = new HintedGuiceBeans<T>( role, hints );
+            if ( null == injectorBeans )
+            {
+                injectorBeans = new ArrayList<InjectorBeans<T>>( 4 );
+            }
+            for ( final InjectorBeans<T> beans : injectorBeans )
+            {
+                if ( newBeans.injector() == beans.injector() )
+                {
+                    return false;
+                }
+            }
+            return injectorBeans.add( newBeans );
         }
-        for ( int i = 0, size = injectors.size(); i < size; i++ )
+    }
+
+    public final boolean remove( final Injector injector )
+    {
+        synchronized ( this )
         {
-            beans.add( injectors.get( i ) );
+            if ( null == injectorBeans )
+            {
+                return false;
+            }
+            for ( final InjectorBeans<T> beans : injectorBeans )
+            {
+                if ( injector == beans.injector() )
+                {
+                    return injectorBeans.remove( beans );
+                }
+            }
         }
-        return beans;
+        return false;
     }
 }

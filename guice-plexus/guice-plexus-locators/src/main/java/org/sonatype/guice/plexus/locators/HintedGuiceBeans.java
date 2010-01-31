@@ -13,13 +13,10 @@
 package org.sonatype.guice.plexus.locators;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
-import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
@@ -27,45 +24,70 @@ import com.google.inject.TypeLiteral;
 /**
  * 
  */
-@Singleton
-public final class GuiceBeanLocator
-    implements PlexusBeanLocator
+final class HintedGuiceBeans<T>
+    extends AbstractGuiceBeans<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final List<Injector> injectors = new ArrayList<Injector>();
+    private final TypeLiteral<T> role;
+
+    private final String[] hints;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    @Inject
-    public void add( final Injector injector )
+    HintedGuiceBeans( final TypeLiteral<T> role, final String[] hints )
     {
-        injectors.add( injector );
+        this.role = role;
+        this.hints = hints;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> role, final String... hints )
+    @SuppressWarnings( "unchecked" )
+    public synchronized Iterator<Entry<String, T>> iterator()
     {
-        final GuiceBeans<T> beans;
-        if ( hints.length == 0 )
+        final int length = hints.length;
+
+        final List combinedBeans;
+        final int numInjectorBeans;
+
+        if ( null != injectorBeans )
         {
-            beans = new DefaultGuiceBeans<T>( role );
+            combinedBeans = new ArrayList( injectorBeans.get( 0 ) );
+            numInjectorBeans = injectorBeans.size();
         }
         else
         {
-            beans = new HintedGuiceBeans<T>( role, hints );
+            combinedBeans = new ArrayList( Collections.nCopies( length, null ) );
+            numInjectorBeans = 0;
         }
-        for ( int i = 0, size = injectors.size(); i < size; i++ )
+
+        for ( int h = 0; h < length; h++ )
         {
-            beans.add( injectors.get( i ) );
+            int index = 1;
+            while ( combinedBeans.get( h ) == null )
+            {
+                if ( index < numInjectorBeans )
+                {
+                    combinedBeans.set( h, injectorBeans.get( index++ ).get( h ) );
+                }
+                else
+                {
+                    combinedBeans.set( h, new MissingBean( role, hints[h] ) );
+                }
+            }
         }
-        return beans;
+        return combinedBeans.iterator();
+    }
+
+    public boolean add( final Injector injector )
+    {
+        return add( new HintedInjectorBeans<T>( injector, role, hints ) );
     }
 }

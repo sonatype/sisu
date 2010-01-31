@@ -46,7 +46,6 @@ import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
-import org.sonatype.guice.plexus.locators.InjectorBeanLocator;
 import org.sonatype.guice.plexus.scanners.XmlPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
@@ -286,7 +285,7 @@ public final class DefaultPlexusContainer
             final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, contextMap );
             final Module bindings = new PlexusBindingModule( lifecycleManager, xmlSource );
 
-            beanLocator.add( new InjectorBeanLocator( injector.createChildInjector( bindings ) ) );
+            beanLocator.add( injector.createChildInjector( bindings ) );
         }
         catch ( final Throwable e )
         {

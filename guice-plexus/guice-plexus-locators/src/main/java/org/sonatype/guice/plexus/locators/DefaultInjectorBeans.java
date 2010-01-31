@@ -12,10 +12,13 @@
  */
 package org.sonatype.guice.plexus.locators;
 
-import java.util.List;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Map.Entry;
 
-import org.sonatype.guice.plexus.config.Roles;
+import javax.inject.Named;
+
+import org.sonatype.guice.plexus.config.Hints;
 
 import com.google.inject.Binding;
 import com.google.inject.ConfigurationException;
@@ -26,59 +29,64 @@ import com.google.inject.TypeLiteral;
 /**
  * 
  */
-final class BeanEntriesByRoleHint<T>
-    extends AbstractBeanEntries<T>
+final class DefaultInjectorBeans<T>
+    extends ArrayList<Entry<String, T>>
+    implements InjectorBeans<T>
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final long serialVersionUID = 1L;
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final String[] hints;
+    private final Injector injector;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    BeanEntriesByRoleHint( final List<Injector> injectors, final TypeLiteral<T> role, final String[] hints )
+    DefaultInjectorBeans( final Injector injector, final TypeLiteral<T> role )
     {
-        super( injectors, role );
-        this.hints = hints;
-    }
-
-    // ----------------------------------------------------------------------
-    // Cache methods
-    // ----------------------------------------------------------------------
-
-    @Override
-    @SuppressWarnings( "unchecked" )
-    Entry<String, T> populate( final int index )
-    {
-        if ( index >= hints.length )
+        if ( null == injector.getParent() )
         {
-            return null;
-        }
-        final String hint = hints[index];
-        final Key key = Roles.componentKey( role, hint );
-        try
-        {
-            return new LazyBeanEntry( hint, injectors.get( 0 ).getProvider( key ) );
-        }
-        catch ( final ConfigurationException e ) // NOPMD
-        {
-            // drop-through and search child injectors
-        }
-        for ( int i = 1; i < injectors.size(); i++ )
-        {
-            final Injector injector = injectors.get( i );
-            if ( null != injector )
+            try
             {
-                final Binding binding = injector.getBindings().get( key );
-                if ( null != binding )
+                add( new LazyBean<T>( Hints.DEFAULT_HINT, injector.getProvider( Key.get( role ) ) ) );
+            }
+            catch ( final ConfigurationException e ) // NOPMD
+            {
+                // drop-through and search named hints
+            }
+        }
+
+        for ( final Binding<T> binding : injector.findBindingsByType( role ) )
+        {
+            final Annotation ann = binding.getKey().getAnnotation();
+            if ( ann instanceof Named )
+            {
+                final String hint = ( (Named) ann ).value();
+                if ( !Hints.isDefaultHint( hint ) )
                 {
-                    return new LazyBeanEntry( hint, binding.getProvider() );
+                    add( new LazyBean<T>( hint, binding.getProvider() ) );
                 }
             }
         }
-        return new MissingBeanEntry( role, hint );
+
+        trimToSize();
+
+        this.injector = injector;
+    }
+
+    // ----------------------------------------------------------------------
+    // Public fields
+    // ----------------------------------------------------------------------
+
+    public Injector injector()
+    {
+        return injector;
     }
 }

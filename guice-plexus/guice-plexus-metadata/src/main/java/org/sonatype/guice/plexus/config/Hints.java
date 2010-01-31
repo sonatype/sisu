@@ -76,11 +76,12 @@ public final class Hints
      */
     public static String[] canonicalHints( final String... hints )
     {
-        if ( hints.length == 0 )
+        final int length = hints.length;
+        if ( length == 0 )
         {
             return NO_HINTS;
         }
-        for ( int i = 0; i < hints.length; i++ )
+        for ( int i = 0; i < length; i++ )
         {
             hints[i] = canonicalHint( hints[i] );
         }

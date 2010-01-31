@@ -12,19 +12,20 @@
  */
 package org.sonatype.guice.plexus.locators;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 
-import javax.inject.Named;
-
-import org.sonatype.guice.plexus.config.Roles;
-
+import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
- * {@link Entry} that represents a missing @{@link Named} Plexus bean.
+ * 
  */
-final class MissingBeanEntry<T>
-    implements Entry<String, T>
+final class DefaultGuiceBeans<T>
+    extends AbstractGuiceBeans<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -32,34 +33,36 @@ final class MissingBeanEntry<T>
 
     private final TypeLiteral<T> role;
 
-    private final String hint;
-
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    MissingBeanEntry( final TypeLiteral<T> role, final String hint )
+    DefaultGuiceBeans( final TypeLiteral<T> role )
     {
         this.role = role;
-        this.hint = hint;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public String getKey()
+    @SuppressWarnings( "unchecked" )
+    public synchronized Iterator<Entry<String, T>> iterator()
     {
-        return hint;
+        if ( null == injectorBeans )
+        {
+            return Collections.EMPTY_LIST.iterator();
+        }
+        final List combinedBeans = new ArrayList();
+        for ( int i = 0, size = injectorBeans.size(); i < size; i++ )
+        {
+            combinedBeans.addAll( injectorBeans.get( i ) );
+        }
+        return combinedBeans.iterator();
     }
 
-    public T getValue()
+    public boolean add( final Injector injector )
     {
-        return Roles.throwMissingComponentException( role, hint );
-    }
-
-    public T setValue( final T value )
-    {
-        throw new UnsupportedOperationException();
+        return add( new DefaultInjectorBeans<T>( injector, role ) );
     }
 }
