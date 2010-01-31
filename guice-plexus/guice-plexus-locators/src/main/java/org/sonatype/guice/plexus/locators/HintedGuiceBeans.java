@@ -13,9 +13,10 @@
 package org.sonatype.guice.plexus.locators;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import com.google.inject.Injector;
@@ -53,41 +54,32 @@ final class HintedGuiceBeans<T>
     public synchronized Iterator<Entry<String, T>> iterator()
     {
         final int length = hints.length;
-
-        final List combinedBeans;
-        final int numInjectorBeans;
-
+        final Map<String, Entry<String, T>> beanMap = new HashMap();
         if ( null != injectorBeans )
         {
-            combinedBeans = new ArrayList( injectorBeans.get( 0 ) );
-            numInjectorBeans = injectorBeans.size();
-        }
-        else
-        {
-            combinedBeans = new ArrayList( Collections.nCopies( length, null ) );
-            numInjectorBeans = 0;
-        }
-
-        for ( int h = 0; h < length; h++ )
-        {
-            int index = 1;
-            while ( combinedBeans.get( h ) == null )
+            for ( int i = 0, size = injectorBeans.size(); i < size; i++ )
             {
-                if ( index < numInjectorBeans )
+                for ( final Entry<String, T> e : injectorBeans.get( i ) )
                 {
-                    combinedBeans.set( h, injectorBeans.get( index++ ).get( h ) );
-                }
-                else
-                {
-                    combinedBeans.set( h, new MissingBean( role, hints[h] ) );
+                    final String key = e.getKey();
+                    if ( !beanMap.containsKey( key ) )
+                    {
+                        beanMap.put( e.getKey(), e );
+                    }
                 }
             }
         }
-        return combinedBeans.iterator();
+        final List selectedBeans = new ArrayList( length );
+        for ( final String hint : hints )
+        {
+            final Entry bean = beanMap.get( hint );
+            selectedBeans.add( null != bean ? bean : new MissingBean( role, hint ) );
+        }
+        return selectedBeans.iterator();
     }
 
     public boolean add( final Injector injector )
     {
-        return add( new HintedInjectorBeans<T>( injector, role, hints ) );
+        return add( new InjectorBeans<T>( injector, role ) );
     }
 }

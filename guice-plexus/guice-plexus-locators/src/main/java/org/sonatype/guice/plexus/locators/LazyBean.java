@@ -30,7 +30,7 @@ final class LazyBean<T>
 
     private volatile Provider<T> provider;
 
-    private T bean;
+    private volatile T bean;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -51,19 +51,13 @@ final class LazyBean<T>
         return hint;
     }
 
-    public T getValue()
+    public synchronized T getValue()
     {
         if ( null != provider )
         {
-            synchronized ( this )
-            {
-                if ( null != provider )
-                {
-                    // lazy bean creation
-                    bean = provider.get();
-                    provider = null;
-                }
-            }
+            // lazy bean creation
+            bean = provider.get();
+            provider = null;
         }
         return bean; // from now on return same bean
     }

@@ -12,16 +12,71 @@
  */
 package org.sonatype.guice.plexus.locators;
 
-import java.util.List;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Map.Entry;
 
+import javax.inject.Named;
+
+import org.sonatype.guice.plexus.config.Hints;
+
+import com.google.inject.Binding;
+import com.google.inject.ConfigurationException;
 import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
 /**
  * 
  */
-interface InjectorBeans<T>
-    extends List<Entry<String, T>>
+final class InjectorBeans<T>
+    extends ArrayList<Entry<String, T>>
 {
-    Injector injector();
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final long serialVersionUID = 1L;
+
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    final transient Injector injector;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    InjectorBeans( final Injector injector, final TypeLiteral<T> role )
+    {
+        if ( null == injector.getParent() )
+        {
+            try
+            {
+                add( new LazyBean<T>( Hints.DEFAULT_HINT, injector.getProvider( Key.get( role ) ) ) );
+            }
+            catch ( final ConfigurationException e ) // NOPMD
+            {
+                // drop-through and search named hints
+            }
+        }
+
+        for ( final Binding<T> binding : injector.findBindingsByType( role ) )
+        {
+            final Annotation ann = binding.getKey().getAnnotation();
+            if ( ann instanceof Named )
+            {
+                final String hint = ( (Named) ann ).value();
+                if ( !Hints.isDefaultHint( hint ) )
+                {
+                    add( new LazyBean<T>( hint, binding.getProvider() ) );
+                }
+            }
+        }
+
+        trimToSize();
+
+        this.injector = injector;
+    }
 }

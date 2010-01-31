@@ -47,7 +47,7 @@ abstract class AbstractGuiceBeans<T>
             }
             for ( final InjectorBeans<T> beans : injectorBeans )
             {
-                if ( newBeans.injector() == beans.injector() )
+                if ( newBeans.injector == beans.injector )
                 {
                     return false;
                 }
@@ -66,7 +66,7 @@ abstract class AbstractGuiceBeans<T>
             }
             for ( final InjectorBeans<T> beans : injectorBeans )
             {
-                if ( injector == beans.injector() )
+                if ( injector == beans.injector )
                 {
                     return injectorBeans.remove( beans );
                 }

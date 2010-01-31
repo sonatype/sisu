@@ -63,6 +63,6 @@ final class DefaultGuiceBeans<T>
 
     public boolean add( final Injector injector )
     {
-        return add( new DefaultInjectorBeans<T>( injector, role ) );
+        return add( new InjectorBeans<T>( injector, role ) );
     }
 }
