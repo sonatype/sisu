@@ -12,6 +12,8 @@
  */
 package org.sonatype.guice.plexus.locators;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -37,21 +39,52 @@ public final class GuiceBeanLocator
 
     private final List<Injector> injectors = new ArrayList<Injector>();
 
+    private final List<Reference<GuiceBeans<?>>> guiceBeans = new ArrayList<Reference<GuiceBeans<?>>>();
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
     @Inject
-    public void add( final Injector injector )
+    public synchronized void add( final Injector injector )
     {
         injectors.add( injector );
+        for ( int i = 0; i < guiceBeans.size(); i++ )
+        {
+            final GuiceBeans<?> beans = guiceBeans.get( i ).get();
+            if ( null != beans )
+            {
+                beans.add( injector );
+            }
+            else
+            {
+                guiceBeans.remove( i-- );
+            }
+        }
+    }
+
+    public synchronized void remove( final Injector injector )
+    {
+        injectors.remove( injector );
+        for ( int i = 0; i < guiceBeans.size(); i++ )
+        {
+            final GuiceBeans<?> beans = guiceBeans.get( i ).get();
+            if ( null != beans )
+            {
+                beans.remove( injector );
+            }
+            else
+            {
+                guiceBeans.remove( i-- );
+            }
+        }
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> role, final String... hints )
+    public synchronized <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> role, final String... hints )
     {
         final GuiceBeans<T> beans;
         if ( hints.length == 0 )
@@ -62,10 +95,22 @@ public final class GuiceBeanLocator
         {
             beans = new HintedGuiceBeans<T>( role, hints );
         }
-        for ( int i = 0, size = injectors.size(); i < size; i++ )
+
+        for ( final Injector injector : injectors )
         {
-            beans.add( injectors.get( i ) );
+            beans.add( injector );
         }
+
+        for ( int i = 0; i < guiceBeans.size(); i++ )
+        {
+            if ( null == guiceBeans.get( i ).get() )
+            {
+                guiceBeans.remove( i-- );
+            }
+        }
+
+        guiceBeans.add( new WeakReference<GuiceBeans<?>>( beans ) );
+
         return beans;
     }
 }

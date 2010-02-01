@@ -33,43 +33,37 @@ abstract class AbstractGuiceBeans<T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    public final boolean add( final InjectorBeans<T> newBeans )
+    public final synchronized boolean add( final InjectorBeans<T> newBeans )
     {
         if ( newBeans.isEmpty() )
         {
             return false;
         }
-        synchronized ( this )
+        if ( null == injectorBeans )
         {
-            if ( null == injectorBeans )
-            {
-                injectorBeans = new ArrayList<InjectorBeans<T>>( 4 );
-            }
-            for ( final InjectorBeans<T> beans : injectorBeans )
-            {
-                if ( newBeans.injector == beans.injector )
-                {
-                    return false;
-                }
-            }
-            return injectorBeans.add( newBeans );
+            injectorBeans = new ArrayList<InjectorBeans<T>>( 4 );
         }
-    }
-
-    public final boolean remove( final Injector injector )
-    {
-        synchronized ( this )
+        for ( final InjectorBeans<T> beans : injectorBeans )
         {
-            if ( null == injectorBeans )
+            if ( newBeans.injector == beans.injector )
             {
                 return false;
             }
-            for ( final InjectorBeans<T> beans : injectorBeans )
+        }
+        return injectorBeans.add( newBeans );
+    }
+
+    public final synchronized boolean remove( final Injector injector )
+    {
+        if ( null == injectorBeans )
+        {
+            return false;
+        }
+        for ( final InjectorBeans<T> beans : injectorBeans )
+        {
+            if ( injector == beans.injector )
             {
-                if ( injector == beans.injector )
-                {
-                    return injectorBeans.remove( beans );
-                }
+                return injectorBeans.remove( beans );
             }
         }
         return false;

@@ -73,6 +73,10 @@ final class InjectorBeans<T>
                     add( new LazyBean<T>( hint, binding.getProvider() ) );
                 }
             }
+            else if ( null == ann && null != injector.getParent() )
+            {
+                add( 0, new LazyBean<T>( Hints.DEFAULT_HINT, binding.getProvider() ) );
+            }
         }
 
         trimToSize();
