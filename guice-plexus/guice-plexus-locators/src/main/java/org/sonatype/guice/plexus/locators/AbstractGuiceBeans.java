@@ -43,13 +43,6 @@ abstract class AbstractGuiceBeans<T>
         {
             injectorBeans = new ArrayList<InjectorBeans<T>>( 4 );
         }
-        for ( final InjectorBeans<T> beans : injectorBeans )
-        {
-            if ( newBeans.injector == beans.injector )
-            {
-                return false;
-            }
-        }
         return injectorBeans.add( newBeans );
     }
 

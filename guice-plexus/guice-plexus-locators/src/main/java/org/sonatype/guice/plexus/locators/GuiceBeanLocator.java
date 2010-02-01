@@ -15,7 +15,9 @@ package org.sonatype.guice.plexus.locators;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
@@ -37,7 +39,7 @@ public final class GuiceBeanLocator
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final List<Injector> injectors = new ArrayList<Injector>();
+    private final Set<Injector> injectors = new LinkedHashSet<Injector>();
 
     private final List<Reference<GuiceBeans<?>>> guiceBeans = new ArrayList<Reference<GuiceBeans<?>>>();
 
@@ -48,7 +50,10 @@ public final class GuiceBeanLocator
     @Inject
     public synchronized void add( final Injector injector )
     {
-        injectors.add( injector );
+        if ( null == injector || !injectors.add( injector ) )
+        {
+            return;
+        }
         for ( int i = 0; i < guiceBeans.size(); i++ )
         {
             final GuiceBeans<?> beans = guiceBeans.get( i ).get();
@@ -65,7 +70,10 @@ public final class GuiceBeanLocator
 
     public synchronized void remove( final Injector injector )
     {
-        injectors.remove( injector );
+        if ( null == injector || !injectors.remove( injector ) )
+        {
+            return;
+        }
         for ( int i = 0; i < guiceBeans.size(); i++ )
         {
             final GuiceBeans<?> beans = guiceBeans.get( i ).get();
