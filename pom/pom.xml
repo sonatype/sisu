@@ -11,7 +11,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>spice-inject</artifactId>
-  <version>5-SNAPSHOT</version>
+  <version>6-SNAPSHOT</version>
 
   <name>Spice - Dependency Injection</name>
 
