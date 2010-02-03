@@ -31,7 +31,8 @@ final class ResourceEnumeration
     // Constants
     // ----------------------------------------------------------------------
 
-    static final Iterator<String> NO_ENTRIES = Collections.<String> emptyList().iterator();
+    @SuppressWarnings( "unchecked" )
+    static final Iterator<String> NO_ENTRIES = Collections.EMPTY_LIST.iterator();
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -159,7 +160,7 @@ final class ResourceEnumeration
         {
             return "";
         }
-        return ( '/' + path + '/' ).replaceAll( "/+", "/" ).substring( 1 );
+        return ( '/' + path + '/' ).replaceAll( "//+", "/" ).substring( 1 );
     }
 
     /**

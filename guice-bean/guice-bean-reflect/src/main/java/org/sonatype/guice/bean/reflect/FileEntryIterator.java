@@ -14,9 +14,8 @@ package org.sonatype.guice.bean.reflect;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
 /**
@@ -31,7 +30,7 @@ final class FileEntryIterator
 
     private final String rootPath;
 
-    private final List<String> entries = new ArrayList<String>();
+    private final LinkedList<String> entries = new LinkedList<String>();
 
     private final boolean recurse;
 
@@ -67,7 +66,7 @@ final class FileEntryIterator
     {
         if ( hasNext() )
         {
-            final String entry = entries.remove( 0 );
+            final String entry = entries.removeFirst();
             if ( recurse && entry.endsWith( "/" ) )
             {
                 // include its contents
