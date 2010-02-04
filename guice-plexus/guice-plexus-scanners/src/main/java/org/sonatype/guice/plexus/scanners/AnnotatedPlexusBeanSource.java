@@ -13,18 +13,13 @@
 package org.sonatype.guice.plexus.scanners;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.StringUtils;
-import org.objectweb.asm.ClassReader;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
@@ -33,18 +28,11 @@ import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 
 /**
- * {@link PlexusBeanSource} that provides {@link PlexusBeanMetadata} based on runtime annotations.
+ * {@link PlexusBeanSource} that collects {@link PlexusBeanMetadata} by scanning classes for runtime annotations.
  */
 public final class AnnotatedPlexusBeanSource
     implements PlexusBeanSource, PlexusBeanMetadata
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final int CLASS_READER_FLAGS =
-        ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES;
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -53,31 +41,46 @@ public final class AnnotatedPlexusBeanSource
 
     private final Map<?, ?> variables;
 
+    private final PlexusComponentScanner scanner;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
     /**
-     * Scans the given class space for components and annotation based Plexus metadata.
+     * Creates a bean source that scans the given class space for Plexus annotations using the given scanner.
+     * 
+     * @param space The containing class space
+     * @param variables The filter variables
+     * @param scanner The component scanner
+     */
+    public AnnotatedPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables,
+                                      final PlexusComponentScanner scanner )
+    {
+        this.space = space;
+        this.variables = variables;
+        this.scanner = scanner;
+    }
+
+    /**
+     * Creates a bean source that scans the given class space for Plexus annotations using the default scanner.
      * 
      * @param space The containing class space
      * @param variables The filter variables
      */
     public AnnotatedPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables )
     {
-        this.space = space;
-        this.variables = variables;
+        this( space, variables, new AnnotatedPlexusComponentScanner() );
     }
 
     /**
-     * Provides runtime Plexus metadata based on property annotations, no scanning.
+     * Provides runtime Plexus metadata based on simple property annotations, no scanning.
      * 
      * @param variables The filter variables
      */
     public AnnotatedPlexusBeanSource( final Map<?, ?> variables )
     {
-        space = null;
-        this.variables = variables;
+        this( null, variables, null );
     }
 
     // ----------------------------------------------------------------------
@@ -93,26 +96,11 @@ public final class AnnotatedPlexusBeanSource
     {
         if ( null == space )
         {
-            return Collections.emptyMap(); // nothing to scan
+            return Collections.emptyMap();
         }
-
         try
         {
-            final PlexusComponentClassVisitor visitor = new PlexusComponentClassVisitor( space );
-            final Enumeration<URL> e = space.findEntries( null, "*.class", true );
-            while ( e.hasMoreElements() )
-            {
-                final InputStream in = e.nextElement().openStream();
-                try
-                {
-                    new ClassReader( in ).accept( visitor, CLASS_READER_FLAGS );
-                }
-                finally
-                {
-                    IOUtil.close( in );
-                }
-            }
-            return visitor.getComponents();
+            return scanner.scan( space, false );
         }
         catch ( final IOException e )
         {

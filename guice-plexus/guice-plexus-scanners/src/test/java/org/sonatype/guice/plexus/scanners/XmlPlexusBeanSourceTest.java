@@ -423,4 +423,13 @@ public class XmlPlexusBeanSourceTest
         final PlexusBeanMetadata metadata2 = interpolatedSource.getBeanMetadata( DefaultBean.class );
         assertEquals( "INTERPOLATED", metadata2.getConfiguration( new NamedProperty( "variable" ) ).value() );
     }
+
+    public void testLocalizedXmlScanning()
+    {
+        final ClassLoader parent = XmlPlexusBeanSourceTest.class.getClassLoader();
+        final ClassSpace space = new URLClassSpace( new URLClassLoader( new URL[0], parent ) );
+        final PlexusBeanSource source = new XmlPlexusBeanSource( space, null );
+        final Map<Component, DeferredClass<?>> componentMap = source.findPlexusComponentBeans();
+        assertTrue( componentMap.isEmpty() );
+    }
 }

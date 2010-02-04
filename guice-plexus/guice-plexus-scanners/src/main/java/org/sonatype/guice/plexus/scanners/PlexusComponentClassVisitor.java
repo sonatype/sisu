@@ -12,29 +12,23 @@
  */
 package org.sonatype.guice.plexus.scanners;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Attribute;
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.Hints;
 
 /**
- * {@link ClassVisitor} that collects Plexus beans annotated with @{@link Component}.
+ * {@link ClassVisitor} that records Plexus bean classes annotated with @{@link Component}.
  */
-final class PlexusComponentClassVisitor
-    implements ClassVisitor, AnnotationVisitor
+public class PlexusComponentClassVisitor
+    extends EmptyClassVisitor
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -46,11 +40,11 @@ final class PlexusComponentClassVisitor
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final ClassSpace space;
+    protected final ClassSpace space;
 
-    private final Map<Component, DeferredClass<?>> components = new HashMap<Component, DeferredClass<?>>();
+    private final PlexusComponentMap components;
 
-    private final Logger logger = LoggerFactory.getLogger( PlexusComponentClassVisitor.class );
+    private final AnnotationVisitor componentVisitor = new ComponentAnnotationVisitor();
 
     private String role;
 
@@ -66,128 +60,112 @@ final class PlexusComponentClassVisitor
     // Constructors
     // ----------------------------------------------------------------------
 
-    PlexusComponentClassVisitor( final ClassSpace space )
+    public PlexusComponentClassVisitor( final ClassSpace space )
     {
         this.space = space;
+
+        components = new PlexusComponentMap( space );
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
+    public final Map<Component, DeferredClass<?>> getComponents()
+    {
+        return components;
+    }
+
+    public void setRole( final String role )
+    {
+        this.role = role;
+    }
+
+    public void setHint( final String hint )
+    {
+        this.hint = hint;
+    }
+
+    public void setInstantiationStrategy( final String instantiationStrategy )
+    {
+        this.instantiationStrategy = instantiationStrategy;
+    }
+
+    public void setDescription( final String description )
+    {
+        this.description = description;
+    }
+
+    public void setImplementation( final String implementation )
+    {
+        this.implementation = implementation;
+    }
+
+    @Override
     public void visit( final int version, final int access, final String name, final String signature,
                        final String superName, final String[] interfaces )
     {
+        role = null;
+
         if ( ( access & ( Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_SYNTHETIC ) ) != 0 )
         {
             return;
         }
 
-        role = null;
         hint = Hints.DEFAULT_HINT;
         instantiationStrategy = "singleton";
         description = "";
 
-        implementation = name.replace( '/', '.' );
+        setImplementation( name.replace( '/', '.' ) );
     }
 
-    public void visitSource( final String source, final String debug )
-    {
-    }
-
-    public void visitOuterClass( final String owner, final String name, final String desc )
-    {
-    }
-
+    @Override
     public AnnotationVisitor visitAnnotation( final String desc, final boolean visible )
     {
-        return COMPONENT_DESC.equals( desc ) ? this : null;
+        return COMPONENT_DESC.equals( desc ) ? componentVisitor : null;
     }
 
-    public void visitAttribute( final Attribute attr )
-    {
-    }
-
-    public void visitInnerClass( final String name, final String outerName, final String innerName, final int access )
-    {
-    }
-
-    public FieldVisitor visitField( final int access, final String name, final String desc, final String signature,
-                                    final Object value )
-    {
-        return null;
-    }
-
-    public MethodVisitor visitMethod( final int access, final String name, final String desc, final String signature,
-                                      final String[] exceptions )
-    {
-        return null;
-    }
-
-    public void visit( final String name, final Object value )
-    {
-        if ( "role".equals( name ) )
-        {
-            role = ( (Type) value ).getClassName();
-        }
-        else if ( "hint".equals( name ) )
-        {
-            hint = Hints.canonicalHint( (String) value );
-        }
-        else if ( "instantiationStrategy".equals( name ) )
-        {
-            instantiationStrategy = (String) value;
-        }
-        else if ( "description".equals( name ) )
-        {
-            description = (String) value;
-        }
-    }
-
-    public void visitEnum( final String name, final String desc, final String value )
-    {
-    }
-
-    public AnnotationVisitor visitAnnotation( final String name, final String desc )
-    {
-        return null;
-    }
-
-    public AnnotationVisitor visitArray( final String name )
-    {
-        return null;
-    }
-
+    @Override
     public void visitEnd()
     {
-        if ( null == role )
+        if ( null != role )
         {
-            return;
+            final Class<?> clazz = components.loadRole( role, implementation );
+            if ( null != clazz )
+            {
+                hint = Hints.canonicalHint( hint );
+                final Component component = new ComponentImpl( clazz, hint, instantiationStrategy, description );
+                components.addComponent( component, implementation );
+            }
         }
-
-        final Class<?> clazz;
-        try
-        {
-            // check the role actually exists
-            clazz = space.loadClass( role );
-        }
-        catch ( final Throwable e )
-        {
-            // not all roles are needed, so just note for now
-            logger.debug( "Missing Plexus role: " + role, e );
-            return;
-        }
-
-        final Component component = new ComponentImpl( clazz, hint, instantiationStrategy, description );
-        components.put( component, space.deferLoadClass( implementation ) );
     }
 
     // ----------------------------------------------------------------------
-    // Locally-shared methods
+    // Component annotation scanner
     // ----------------------------------------------------------------------
 
-    Map<Component, DeferredClass<?>> getComponents()
+    final class ComponentAnnotationVisitor
+        extends EmptyAnnotationVisitor
     {
-        return components;
+        @Override
+        public void visit( final String name, final Object value )
+        {
+            if ( "role".equals( name ) )
+            {
+                setRole( ( (Type) value ).getClassName() );
+            }
+            else if ( "hint".equals( name ) )
+            {
+                setHint( (String) value );
+            }
+            else if ( "instantiationStrategy".equals( name ) )
+            {
+                setInstantiationStrategy( (String) value );
+            }
+            else if ( "description".equals( name ) )
+            {
+                setDescription( (String) value );
+            }
+        }
     }
 }
