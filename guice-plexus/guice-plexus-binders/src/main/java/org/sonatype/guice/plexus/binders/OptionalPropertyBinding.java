@@ -51,9 +51,9 @@ final class OptionalPropertyBinding<T>
         {
             property.set( bean, provider.get() );
         }
-        catch ( final RuntimeException e )
+        catch ( final RuntimeException e ) // NOPMD
         {
-            // binding is optional, ignore
+            // binding is optional, ignore this
         }
     }
 }

@@ -32,6 +32,27 @@ final class PlexusPropertyBinder
     implements PropertyBinder
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final boolean ALLOW_OPTIONAL;
+
+    static
+    {
+        boolean optionalSupport = true;
+        try
+        {
+            // support both old and new forms of @Requirement
+            Requirement.class.getDeclaredMethod( "optional" );
+        }
+        catch ( final Throwable e )
+        {
+            optionalSupport = false;
+        }
+        ALLOW_OPTIONAL = optionalSupport;
+    }
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
@@ -94,10 +115,10 @@ final class PlexusPropertyBinder
         if ( null != requirement )
         {
             final Provider<T> roleProvider = requirements.lookup( requirement, property );
-            // if ( requirement.optional() )
-            // {
-            // return new OptionalPropertyBinding<T>( property, roleProvider );
-            // }
+            if ( ALLOW_OPTIONAL && requirement.optional() )
+            {
+                return new OptionalPropertyBinding<T>( property, roleProvider );
+            }
             return new ProvidedPropertyBinding<T>( property, roleProvider );
         }
 

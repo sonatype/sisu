@@ -172,7 +172,7 @@ public class PlexusRequirementTest
         @Requirement( hint = "AB" )
         A testHint;
 
-        @Requirement( role = A.class )
+        @Requirement( role = A.class, optional = true )
         Map<String, ?> testMap;
 
         @Requirement( hints = { "AC", "AB" } )
@@ -192,6 +192,9 @@ public class PlexusRequirementTest
 
         @Requirement
         B testWildcard;
+
+        @Requirement( optional = true )
+        C optionalRequirement;
     }
 
     @Component( role = Component2.class )
