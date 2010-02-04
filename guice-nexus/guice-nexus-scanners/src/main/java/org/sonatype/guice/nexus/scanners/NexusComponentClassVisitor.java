@@ -1,0 +1,221 @@
+/**
+ * Copyright (c) 2009 Sonatype, Inc. All rights reserved.
+ *
+ * This program is licensed to you under the Apache License Version 2.0,
+ * and you may not use this file except in compliance with the Apache License Version 2.0.
+ * You may obtain a copy of the Apache License Version 2.0 at http://www.apache.org/licenses/LICENSE-2.0.
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Apache License Version 2.0 is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
+ */
+package org.sonatype.guice.nexus.scanners;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.inject.Named;
+import javax.inject.Singleton;
+
+import org.codehaus.plexus.util.IOUtil;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.Type;
+import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.plexus.scanners.EmptyAnnotationVisitor;
+import org.sonatype.guice.plexus.scanners.EmptyClassVisitor;
+import org.sonatype.guice.plexus.scanners.PlexusComponentClassVisitor;
+import org.sonatype.plugin.ExtensionPoint;
+import org.sonatype.plugin.Managed;
+
+/**
+ * {@link ClassVisitor} that collects Nexus components annotated with @{@link ExtensionPoint} or @{@link Managed}.
+ */
+final class NexusComponentClassVisitor
+    extends PlexusComponentClassVisitor
+{
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    static final String EXTENSION_POINT_DESC = Type.getDescriptor( ExtensionPoint.class );
+
+    static final String MANAGED_DESC = Type.getDescriptor( Managed.class );
+
+    static final String SINGLETON_DESC = Type.getDescriptor( Singleton.class );
+
+    static final String NAMED_DESC = Type.getDescriptor( Named.class );
+
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final Map<String, NexusComponentType> knownTypes = new HashMap<String, NexusComponentType>();
+
+    private final ClassVisitor managedVisitor = new ManagedInterfaceVisitor();
+
+    private final AnnotationVisitor namedVisitor = new NamedAnnotationVisitor();
+
+    private boolean skipClass;
+
+    NexusComponentType type;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    NexusComponentClassVisitor( final ClassSpace space )
+    {
+        super( space );
+    }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
+    @Override
+    public void visit( final int version, final int access, final String name, final String signature,
+                       final String superName, final String[] interfaces )
+    {
+        skipClass = true;
+        super.visit( version, access, name, signature, superName, interfaces );
+        if ( skipClass || interfaces.length == 0 )
+        {
+            return;
+        }
+
+        try
+        {
+            scanInterfaces( interfaces );
+        }
+        catch ( IOException e )
+        {
+            throw new RuntimeException( e.toString() );
+        }
+
+        if ( type.name().startsWith( "EXTENSION" ) )
+        {
+            // extensions don't have default hints
+            setHint( name.replace( '/', '.' ) );
+        }
+
+        if ( !type.isSingleton() )
+        {
+            setInstantiationStrategy( "per-lookup" );
+        }
+    }
+
+    @Override
+    public AnnotationVisitor visitAnnotation( String desc, boolean visible )
+    {
+        if ( type.isComponent() && NAMED_DESC.equals( desc ) )
+        {
+            return namedVisitor;
+        }
+        return super.visitAnnotation( desc, visible );
+    }
+
+    @Override
+    public void setImplementation( String implementation )
+    {
+        super.setImplementation( implementation );
+        skipClass = false;
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private void scanInterfaces( final String... interfaces )
+        throws IOException
+    {
+        // look for @ExtensionPoint / @Managed
+        for ( final String i : interfaces )
+        {
+            type = knownTypes.get( i );
+            if ( null == type )
+            {
+                // not seen this interface before
+                type = NexusComponentType.UNKNOWN;
+                final InputStream in = space.getResource( i + ".class" ).openStream();
+                try
+                {
+                    new ClassReader( in ).accept( managedVisitor, AnnotatedNexusComponentScanner.CLASS_READER_FLAGS );
+                }
+                finally
+                {
+                    IOUtil.close( in );
+                }
+                // cache for next time
+                knownTypes.put( i, type );
+            }
+            if ( type.isComponent() )
+            {
+                // we now know the Plexus role
+                setRole( i.replace( '/', '.' ) );
+                break;
+            }
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // Managed interface visitor
+    // ----------------------------------------------------------------------
+
+    final class ManagedInterfaceVisitor
+        extends EmptyClassVisitor
+    {
+        private boolean singleton;
+
+        @Override
+        public void visit( int version, int access, String name, String signature, String superName, String[] interfaces )
+        {
+            singleton = false;
+        }
+
+        @Override
+        public AnnotationVisitor visitAnnotation( final String desc, final boolean visible )
+        {
+            if ( EXTENSION_POINT_DESC.equals( desc ) )
+            {
+                type = NexusComponentType.EXTENSION_POINT;
+            }
+            else if ( MANAGED_DESC.equals( desc ) )
+            {
+                type = NexusComponentType.MANAGED;
+            }
+            else if ( SINGLETON_DESC.equals( desc ) )
+            {
+                singleton = true;
+            }
+            return null;
+        }
+
+        @Override
+        public void visitEnd()
+        {
+            if ( singleton )
+            {
+                type = type.toSingleton();
+            }
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // Named annotation visitor
+    // ----------------------------------------------------------------------
+
+    final class NamedAnnotationVisitor
+        extends EmptyAnnotationVisitor
+    {
+        @Override
+        public void visit( final String name, final Object value )
+        {
+            setHint( (String) value );
+        }
+    }
+}
