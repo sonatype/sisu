@@ -36,18 +36,20 @@ public final class XmlPlexusBeanSource
 
     private final ClassSpace space;
 
-    private Map<String, MappedPlexusBeanMetadata> metadata;
+    private final Map<?, ?> variables;
 
-    private final PlexusComponentScanner scanner;
+    private final URL plexusXml;
 
     private final boolean localSearch;
+
+    private Map<String, NamedPlexusBeanMetadata> metadata;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
     /**
-     * Creates a bean source that scans all the surrounding class spaces for Plexus XML.
+     * Creates a bean source that scans all the surrounding class spaces for XML resources.
      * 
      * @param space The main class space
      * @param variables The filter variables
@@ -56,13 +58,13 @@ public final class XmlPlexusBeanSource
     public XmlPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables, final URL plexusXml )
     {
         this.space = space;
-        metadata = new HashMap<String, MappedPlexusBeanMetadata>();
-        scanner = new XmlPlexusComponentScanner( variables, plexusXml, metadata );
+        this.variables = variables;
+        this.plexusXml = plexusXml;
         localSearch = false;
     }
 
     /**
-     * Creates a bean source that scans the local class space for Plexus XML.
+     * Creates a bean source that only scans the local class space for XML resources.
      * 
      * @param space The local class space
      * @param variables The filter variables
@@ -70,8 +72,8 @@ public final class XmlPlexusBeanSource
     public XmlPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables )
     {
         this.space = space;
-        metadata = new HashMap<String, MappedPlexusBeanMetadata>();
-        scanner = new XmlPlexusComponentScanner( variables, null, metadata );
+        this.variables = variables;
+        plexusXml = null;
         localSearch = true;
     }
 
@@ -83,7 +85,8 @@ public final class XmlPlexusBeanSource
     {
         try
         {
-            return scanner.scan( space, localSearch );
+            metadata = new HashMap<String, NamedPlexusBeanMetadata>();
+            return new XmlPlexusComponentScanner( variables, plexusXml, metadata ).scan( space, localSearch );
         }
         catch ( final IOException e )
         {

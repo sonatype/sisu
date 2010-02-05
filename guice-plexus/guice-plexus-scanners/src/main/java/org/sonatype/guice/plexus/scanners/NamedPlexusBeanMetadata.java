@@ -22,9 +22,9 @@ import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 
 /**
- * Consumable {@link PlexusBeanMetadata} backed by maps with {@link BeanProperty} names as keys.
+ * Consumable {@link PlexusBeanMetadata} that uses {@link BeanProperty} names as keys.
  */
-final class MappedPlexusBeanMetadata
+final class NamedPlexusBeanMetadata
     implements PlexusBeanMetadata
 {
     // ----------------------------------------------------------------------
@@ -39,8 +39,8 @@ final class MappedPlexusBeanMetadata
     // Constructors
     // ----------------------------------------------------------------------
 
-    MappedPlexusBeanMetadata( final Map<String, Configuration> configurationMap,
-                              final Map<String, Requirement> requirementMap )
+    NamedPlexusBeanMetadata( final Map<String, Configuration> configurationMap,
+                             final Map<String, Requirement> requirementMap )
     {
         merge( configurationMap, requirementMap );
     }

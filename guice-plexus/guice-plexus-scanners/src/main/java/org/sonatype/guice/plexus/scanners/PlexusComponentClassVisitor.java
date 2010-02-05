@@ -42,7 +42,7 @@ public class PlexusComponentClassVisitor
 
     protected final ClassSpace space;
 
-    private final PlexusComponentMap components;
+    private final PlexusComponentMap componentMap;
 
     private final AnnotationVisitor componentVisitor = new ComponentAnnotationVisitor();
 
@@ -64,7 +64,7 @@ public class PlexusComponentClassVisitor
     {
         this.space = space;
 
-        components = new PlexusComponentMap( space );
+        componentMap = new PlexusComponentMap( space );
     }
 
     // ----------------------------------------------------------------------
@@ -73,7 +73,7 @@ public class PlexusComponentClassVisitor
 
     public final Map<Component, DeferredClass<?>> getComponents()
     {
-        return components;
+        return componentMap.getComponents();
     }
 
     public void setRole( final String role )
@@ -130,12 +130,12 @@ public class PlexusComponentClassVisitor
     {
         if ( null != role )
         {
-            final Class<?> clazz = components.loadRole( role, implementation );
+            final Class<?> clazz = componentMap.loadRole( role, implementation );
             if ( null != clazz )
             {
                 hint = Hints.canonicalHint( hint );
                 final Component component = new ComponentImpl( clazz, hint, instantiationStrategy, description );
-                components.addComponent( component, implementation );
+                componentMap.addComponent( component, implementation );
             }
         }
     }

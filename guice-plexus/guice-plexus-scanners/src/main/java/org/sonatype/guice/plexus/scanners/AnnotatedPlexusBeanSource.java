@@ -50,7 +50,7 @@ public final class AnnotatedPlexusBeanSource
     /**
      * Creates a bean source that scans the given class space for Plexus annotations using the given scanner.
      * 
-     * @param space The containing class space
+     * @param space The local class space
      * @param variables The filter variables
      * @param scanner The component scanner
      */
@@ -119,8 +119,9 @@ public final class AnnotatedPlexusBeanSource
         if ( configuration != null && variables != null )
         {
             // support runtime interpolation of @Configuration values
-            final String value = StringUtils.interpolate( configuration.value(), variables );
-            if ( !value.equals( configuration.value() ) )
+            final String uninterpolatedValue = configuration.value();
+            final String value = StringUtils.interpolate( uninterpolatedValue, variables );
+            if ( !value.equals( uninterpolatedValue ) )
             {
                 return new ConfigurationImpl( configuration.name(), value );
             }

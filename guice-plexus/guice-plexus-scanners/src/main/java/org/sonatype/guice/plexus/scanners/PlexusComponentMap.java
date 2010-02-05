@@ -26,23 +26,18 @@ import org.sonatype.guice.plexus.config.Roles;
  * Enhanced Plexus component map with additional book-keeping.
  */
 final class PlexusComponentMap
-    extends HashMap<Component, DeferredClass<?>>
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final long serialVersionUID = 1L;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger( PlexusComponentMap.class );
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final transient ClassSpace space;
+    private final Logger logger = LoggerFactory.getLogger( PlexusComponentMap.class );
 
     private final Map<String, String> strategies = new HashMap<String, String>();
+
+    private final Map<Component, DeferredClass<?>> components = new HashMap<Component, DeferredClass<?>>();
+
+    private final ClassSpace space;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -70,23 +65,31 @@ final class PlexusComponentMap
      * 
      * @param role The Plexus role
      * @param hint The Plexus hint
-     * @param instantiationStrategy The instantiation strategy
+     * @param instantiationStrategy The selected instantiation strategy
      */
-    void setStrategy( final String role, final String hint, final String instantiationStrategy )
+    void selectStrategy( final String role, final String hint, final String instantiationStrategy )
     {
         strategies.put( Roles.canonicalRoleHint( role, hint ), instantiationStrategy );
     }
 
     /**
-     * Returns the selected instantiation strategy for the given Plexus component.
+     * Checks the selected instantiation strategy for the given Plexus component.
      * 
      * @param role The Plexus role
      * @param hint The Plexus hint
+     * @param instantiationStrategy The default instantiation strategy
      * @return Selected instantiation strategy
      */
-    String getStrategy( final String role, final String hint )
+    String checkStrategy( final String role, final String hint, final String instantiationStrategy )
     {
-        return strategies.get( Roles.canonicalRoleHint( role, hint ) );
+        final String roleHintKey = Roles.canonicalRoleHint( role, hint );
+        final String selectedStrategy = strategies.get( roleHintKey );
+        if ( null == selectedStrategy )
+        {
+            strategies.put( roleHintKey, instantiationStrategy );
+            return instantiationStrategy;
+        }
+        return selectedStrategy;
     }
 
     /**
@@ -113,7 +116,7 @@ final class PlexusComponentMap
         catch ( final Throwable e )
         {
             // not all roles are needed, so just note for now
-            LOGGER.debug( "Missing Plexus role: " + role, e );
+            logger.debug( "Missing Plexus role: " + role, e );
             return null;
         }
     }
@@ -127,19 +130,27 @@ final class PlexusComponentMap
      */
     boolean addComponent( final Component component, final String implementation )
     {
-        final DeferredClass<?> oldImplementation = get( component );
+        final DeferredClass<?> oldImplementation = components.get( component );
         if ( null != oldImplementation )
         {
             // check for simple component clashes and report conflicts
             if ( !oldImplementation.getName().equals( implementation ) )
             {
-                LOGGER.warn( "Duplicate implementations found for component key: " + component );
-                LOGGER.warn( "Saw: " + oldImplementation.getName() + " and: " + implementation );
+                logger.warn( "Duplicate implementations found for component key: " + component );
+                logger.warn( "Saw: " + oldImplementation.getName() + " and: " + implementation );
             }
             return false;
         }
 
-        put( component, space.deferLoadClass( implementation ) );
+        components.put( component, space.deferLoadClass( implementation ) );
         return true;
+    }
+
+    /**
+     * @return Plexus component map
+     */
+    Map<Component, DeferredClass<?>> getComponents()
+    {
+        return components;
     }
 }

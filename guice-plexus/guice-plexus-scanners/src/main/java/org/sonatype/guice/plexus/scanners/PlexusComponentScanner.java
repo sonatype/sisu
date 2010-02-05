@@ -28,10 +28,12 @@ public interface PlexusComponentScanner
     /**
      * Scan the given {@link ClassSpace} for Plexus components; may also gather extra metadata.
      * 
-     * @param space The class space
-     * @param localSearch If {@code true} limit search to local space; otherwise include containing spaces
+     * @param space The class space to scan
+     * @param localSearch If {@code true} only scan local space; otherwise include surrounding spaces
      * @return Map of Plexus component beans
      * @see PlexusBeanSource#findPlexusComponentBeans()
+     * @see ClassSpace#findEntries(String, String, boolean)
+     * @see ClassSpace#getResources(String)
      */
     Map<Component, DeferredClass<?>> scan( ClassSpace space, boolean localSearch )
         throws IOException;
