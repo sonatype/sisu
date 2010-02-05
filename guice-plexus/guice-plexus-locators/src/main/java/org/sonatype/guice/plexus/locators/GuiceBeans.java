@@ -17,12 +17,24 @@ import java.util.Map.Entry;
 import com.google.inject.Injector;
 
 /**
- * 
+ * Dynamic {@link Iterable} sequence of beans backed by bindings from zero or more Guice {@link Injector}s.
  */
 interface GuiceBeans<T>
     extends Iterable<Entry<String, T>>
 {
+    /**
+     * Adds the given Guice {@link Injector} to the backing list.
+     * 
+     * @param injector The Guice injector
+     * @return {@code true} if the sequence changed as a result of the call; otherwise {@code false}
+     */
     boolean add( Injector injector );
 
+    /**
+     * Removes the given Guice {@link Injector} from the backing list.
+     * 
+     * @param injector The Guice injector
+     * @return {@code true} if the sequence changed as a result of the call; otherwise {@code false}
+     */
     boolean remove( Injector injector );
 }

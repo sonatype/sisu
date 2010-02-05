@@ -14,10 +14,11 @@ package org.sonatype.guice.plexus.locators;
 
 import java.util.Map.Entry;
 
+import javax.inject.Named;
 import javax.inject.Provider;
 
 /**
- * {@link Entry} that represents a lazy Plexus bean; the bean is only retrieved when the value is requested.
+ * {@link Entry} representing a lazy @{@link Named} Plexus bean; the bean is only retrieved when the value is requested.
  */
 final class LazyBean<T>
     implements Entry<String, T>
@@ -28,9 +29,9 @@ final class LazyBean<T>
 
     private final String hint;
 
-    private volatile Provider<T> provider;
+    private Provider<T> provider;
 
-    private volatile T bean;
+    private T bean;
 
     // ----------------------------------------------------------------------
     // Constructors

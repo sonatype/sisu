@@ -21,7 +21,7 @@ import org.sonatype.guice.plexus.config.Roles;
 import com.google.inject.TypeLiteral;
 
 /**
- * {@link Entry} that represents a missing @{@link Named} Plexus bean.
+ * {@link Entry} representing a missing @{@link Named} Plexus bean.
  */
 final class MissingBean<T>
     implements Entry<String, T>

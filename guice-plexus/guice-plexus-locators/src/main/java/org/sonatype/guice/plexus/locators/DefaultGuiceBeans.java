@@ -22,7 +22,7 @@ import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
- * 
+ * Default {@link GuiceBeans} implementation that iterates over all beans of a given type.
  */
 final class DefaultGuiceBeans<T>
     extends AbstractGuiceBeans<T>
@@ -53,6 +53,7 @@ final class DefaultGuiceBeans<T>
         {
             return Collections.EMPTY_LIST.iterator();
         }
+        // "copy-on-read" - concatenate all beans
         final List combinedBeans = new ArrayList();
         for ( int i = 0, size = injectorBeans.size(); i < size; i++ )
         {
@@ -63,6 +64,6 @@ final class DefaultGuiceBeans<T>
 
     public boolean add( final Injector injector )
     {
-        return add( new InjectorBeans<T>( injector, role ) );
+        return addInjectorBeans( new InjectorBeans<T>( injector, role ) );
     }
 }

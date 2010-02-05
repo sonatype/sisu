@@ -23,7 +23,7 @@ import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
- * 
+ * Specialized {@link GuiceBeans} implementation that iterates over beans of a given type according to named hints.
  */
 final class HintedGuiceBeans<T>
     extends AbstractGuiceBeans<T>
@@ -40,7 +40,7 @@ final class HintedGuiceBeans<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    HintedGuiceBeans( final TypeLiteral<T> role, final String[] hints )
+    HintedGuiceBeans( final TypeLiteral<T> role, final String... hints )
     {
         this.role = role;
         this.hints = hints;
@@ -53,7 +53,7 @@ final class HintedGuiceBeans<T>
     @SuppressWarnings( "unchecked" )
     public synchronized Iterator<Entry<String, T>> iterator()
     {
-        final int length = hints.length;
+        // compile map of all known beans at this particular moment
         final Map<String, Entry<String, T>> beanMap = new HashMap();
         if ( null != injectorBeans )
         {
@@ -69,7 +69,8 @@ final class HintedGuiceBeans<T>
                 }
             }
         }
-        final List selectedBeans = new ArrayList( length );
+        // "copy-on-read" - select hinted beans from above map
+        final List selectedBeans = new ArrayList( hints.length );
         for ( final String hint : hints )
         {
             final Entry bean = beanMap.get( hint );
@@ -80,6 +81,6 @@ final class HintedGuiceBeans<T>
 
     public boolean add( final Injector injector )
     {
-        return add( new InjectorBeans<T>( injector, role ) );
+        return addInjectorBeans( new InjectorBeans<T>( injector, role ) );
     }
 }

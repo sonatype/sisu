@@ -18,7 +18,7 @@ import java.util.List;
 import com.google.inject.Injector;
 
 /**
- * 
+ * Base {@link GuiceBeans} implementation that manages a backing list of {@link InjectorBeans}.
  */
 abstract class AbstractGuiceBeans<T>
     implements GuiceBeans<T>
@@ -33,24 +33,11 @@ abstract class AbstractGuiceBeans<T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    public final synchronized boolean add( final InjectorBeans<T> newBeans )
-    {
-        if ( newBeans.isEmpty() )
-        {
-            return false;
-        }
-        if ( null == injectorBeans )
-        {
-            injectorBeans = new ArrayList<InjectorBeans<T>>( 4 );
-        }
-        return injectorBeans.add( newBeans );
-    }
-
     public final synchronized boolean remove( final Injector injector )
     {
         if ( null == injectorBeans )
         {
-            return false;
+            return false; // nothing to remove
         }
         for ( final InjectorBeans<T> beans : injectorBeans )
         {
@@ -60,5 +47,28 @@ abstract class AbstractGuiceBeans<T>
             }
         }
         return false;
+    }
+
+    // ----------------------------------------------------------------------
+    // Common methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Add the given {@link InjectorBeans} sequence to the backing list.
+     * 
+     * @param newBeans The new injector beans
+     * @return {@code true} if the list changed as a result of the call; otherwise {@code false}
+     */
+    final synchronized boolean addInjectorBeans( final InjectorBeans<T> newBeans )
+    {
+        if ( newBeans.isEmpty() )
+        {
+            return false; // nothing to add
+        }
+        if ( null == injectorBeans )
+        {
+            injectorBeans = new ArrayList<InjectorBeans<T>>( 4 );
+        }
+        return injectorBeans.add( newBeans );
     }
 }
