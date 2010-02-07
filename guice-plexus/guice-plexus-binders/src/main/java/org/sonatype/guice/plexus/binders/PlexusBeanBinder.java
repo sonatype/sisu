@@ -21,6 +21,9 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.spi.InjectionListener;
 import com.google.inject.spi.TypeEncounter;
 
+/**
+ * {@link BeanBinder} that binds bean properties according to Plexus metadata.
+ */
 final class PlexusBeanBinder
     implements BeanBinder, InjectionListener<Object>
 {
@@ -48,6 +51,7 @@ final class PlexusBeanBinder
 
     public <B> PropertyBinder bindBean( final TypeLiteral<B> type, final TypeEncounter<B> encounter )
     {
+        // do we need to report bean instances?
         final Class<?> clazz = type.getRawType();
         if ( null != manager && manager.manage( clazz ) )
         {
@@ -69,6 +73,7 @@ final class PlexusBeanBinder
 
     public void afterInjection( final Object bean )
     {
+        // report bean creation
         manager.manage( bean );
     }
 }

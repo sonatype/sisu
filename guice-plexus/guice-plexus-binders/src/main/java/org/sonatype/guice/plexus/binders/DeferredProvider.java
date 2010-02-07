@@ -20,23 +20,39 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.ProvisionException;
 
+/**
+ * {@link Provider} that defers loading the implementation class until it is actually required.
+ */
 final class DeferredProvider<T>
     implements Provider<T>
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     @Inject
     private Injector injector;
 
     private final DeferredClass<T> clazz;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
 
     DeferredProvider( final DeferredClass<T> clazz )
     {
         this.clazz = clazz;
     }
 
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
     public T get()
     {
         try
         {
+            // load class and bootstrap bean injection
             return injector.getInstance( clazz.get() );
         }
         catch ( final RuntimeException e )

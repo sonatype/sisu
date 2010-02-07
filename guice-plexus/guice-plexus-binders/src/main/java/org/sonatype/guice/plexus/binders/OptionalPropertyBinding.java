@@ -53,7 +53,7 @@ final class OptionalPropertyBinding<T>
         }
         catch ( final RuntimeException e ) // NOPMD
         {
-            // binding is optional, ignore this
+            // binding is optional, ignore failures
         }
     }
 }

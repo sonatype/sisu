@@ -22,10 +22,14 @@ import org.sonatype.guice.plexus.config.Roles;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
+import com.google.inject.Module;
 import com.google.inject.Scopes;
 import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.matcher.Matchers;
 
+/**
+ * Guice {@link Module} that supports registration, injection, and management of Plexus beans.
+ */
 public final class PlexusBindingModule
     extends AbstractModule
 {
@@ -54,10 +58,12 @@ public final class PlexusBindingModule
     @Override
     protected void configure()
     {
+        // attempt to register all known Plexus components
         for ( final PlexusBeanSource source : sources )
         {
             for ( final Entry<Component, DeferredClass<?>> e : source.findPlexusComponentBeans().entrySet() )
             {
+                // should we register this component?
                 final Component component = e.getKey();
                 if ( null == manager || manager.manage( component ) )
                 {
@@ -66,6 +72,7 @@ public final class PlexusBindingModule
             }
         }
 
+        // attach custom bean listener that performs injection of Plexus requirements/configuration
         bindListener( Matchers.any(), new BeanListener( new PlexusBeanBinder( manager, sources ) ) );
     }
 
@@ -90,7 +97,7 @@ public final class PlexusBindingModule
             }
             else
             {
-                // no wiring required
+                // simple wire to self
                 sbb = bind( roleKey );
             }
         }

@@ -30,7 +30,7 @@ final class PlexusConfigurations
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Provider<PlexusBeanConverter> converter;
+    private final Provider<PlexusBeanConverter> converterProvider;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -38,7 +38,7 @@ final class PlexusConfigurations
 
     PlexusConfigurations( final TypeEncounter<?> encounter )
     {
-        converter = encounter.getProvider( PlexusBeanConverter.class );
+        converterProvider = encounter.getProvider( PlexusBeanConverter.class );
     }
 
     // ----------------------------------------------------------------------
@@ -54,17 +54,24 @@ final class PlexusConfigurations
      */
     public <T> Provider<T> lookup( final Configuration configuration, final BeanProperty<T> property )
     {
-        return new ConfigurationProvider<T>( converter, property.getType(), configuration.value() );
+        return new ConfigurationProvider<T>( converterProvider, property.getType(), configuration.value() );
     }
 
     // ----------------------------------------------------------------------
     // Implementation classes
     // ----------------------------------------------------------------------
 
+    /**
+     * {@link Provider} of Plexus configurations.
+     */
     private static final class ConfigurationProvider<T>
         implements Provider<T>
     {
-        private Provider<PlexusBeanConverter> provider;
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
+        private Provider<PlexusBeanConverter> converterProvider;
 
         private PlexusBeanConverter converter;
 
@@ -72,21 +79,30 @@ final class PlexusConfigurations
 
         private final String value;
 
-        ConfigurationProvider( final Provider<PlexusBeanConverter> provider, final TypeLiteral<T> type,
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
+        ConfigurationProvider( final Provider<PlexusBeanConverter> converterProvider, final TypeLiteral<T> type,
                                final String value )
         {
-            this.provider = provider;
+            this.converterProvider = converterProvider;
+
             this.type = type;
             this.value = value;
         }
 
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
+
         public synchronized T get()
         {
-            if ( null != provider )
+            if ( null != converterProvider )
             {
-                // avoid repeated lookup
-                converter = provider.get();
-                provider = null;
+                // avoid repeated service lookup
+                converter = converterProvider.get();
+                converterProvider = null;
             }
             // cannot cache this, need per-lookup
             return converter.convert( type, value );

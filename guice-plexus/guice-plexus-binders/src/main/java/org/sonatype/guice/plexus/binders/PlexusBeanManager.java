@@ -14,11 +14,32 @@ package org.sonatype.guice.plexus.binders;
 
 import org.codehaus.plexus.component.annotations.Component;
 
+/**
+ * Service that manages the lifecycle of Plexus beans.
+ */
 public interface PlexusBeanManager
 {
+    /**
+     * Decides whether the given Plexus component should be registered with the injector.
+     * 
+     * @param component The Plexus component
+     * @return {@code true} if the component should be registered; otherwise {@code false}
+     */
     boolean manage( final Component component );
 
+    /**
+     * Decides whether instances of the given Plexus bean type should be reported to this manager.
+     * 
+     * @param clazz The Plexus bean type
+     * @return {@code true} if instances of the bean should be reported; otherwise {@code false}
+     */
     boolean manage( final Class<?> clazz );
 
+    /**
+     * Decides whether the given Plexus bean instance will be managed by this manager.
+     * 
+     * @param bean The Plexus bean instance
+     * @return {@code true} if the bean instance will be managed; otherwise {@code false}
+     */
     boolean manage( final Object bean );
 }

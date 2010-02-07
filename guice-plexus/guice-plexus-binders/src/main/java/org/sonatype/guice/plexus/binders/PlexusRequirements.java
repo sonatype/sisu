@@ -39,7 +39,7 @@ final class PlexusRequirements
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Provider<PlexusBeanLocator> locator;
+    private final Provider<PlexusBeanLocator> locatorProvider;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -47,7 +47,7 @@ final class PlexusRequirements
 
     PlexusRequirements( final TypeEncounter<?> encounter )
     {
-        locator = encounter.getProvider( PlexusBeanLocator.class );
+        locatorProvider = encounter.getProvider( PlexusBeanLocator.class );
     }
 
     // ----------------------------------------------------------------------
@@ -73,60 +73,87 @@ final class PlexusRequirements
 
         if ( Map.class == rawType )
         {
-            return new RequirementMapProvider( locator, roleType, hints );
+            return new RequirementMapProvider( locatorProvider, roleType, hints );
         }
         else if ( List.class == rawType )
         {
-            return new RequirementListProvider( locator, roleType, hints );
+            return new RequirementListProvider( locatorProvider, roleType, hints );
         }
 
-        return new RequirementProvider( locator, roleType, hints );
+        return new RequirementProvider( locatorProvider, roleType, hints );
     }
 
     // ----------------------------------------------------------------------
     // Implementation classes
     // ----------------------------------------------------------------------
 
+    /**
+     * Abstract {@link Provider} that locates Plexus beans on-demand.
+     */
     private static abstract class AbstractRequirementProvider<S, T>
         implements Provider<S>
     {
-        private Provider<PlexusBeanLocator> provider;
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
+        private Provider<PlexusBeanLocator> locatorProvider;
 
         private PlexusBeanLocator locator;
 
         final TypeLiteral<T> type;
 
-        final String[] hints;
+        private final String[] hints;
 
-        AbstractRequirementProvider( final Provider<PlexusBeanLocator> provider, final TypeLiteral<T> type,
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
+        AbstractRequirementProvider( final Provider<PlexusBeanLocator> locatorProvider, final TypeLiteral<T> type,
                                      final String... hints )
         {
-            this.provider = provider;
+            this.locatorProvider = locatorProvider;
+
             this.type = type;
             this.hints = hints;
         }
 
+        // ----------------------------------------------------------------------
+        // Locally-shared methods
+        // ----------------------------------------------------------------------
+
         final synchronized Iterable<Entry<String, T>> locate()
         {
-            if ( null != provider )
+            if ( null != locatorProvider )
             {
-                // avoid repeated lookup
-                locator = provider.get();
-                provider = null;
+                // avoid repeated service lookup
+                locator = locatorProvider.get();
+                locatorProvider = null;
             }
             // cannot cache this, need per-lookup
             return locator.locate( type, hints );
         }
     }
 
+    /**
+     * {@link Provider} of Plexus requirement maps.
+     */
     private static final class RequirementMapProvider<T>
         extends AbstractRequirementProvider<Map<String, T>, T>
     {
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
         RequirementMapProvider( final Provider<PlexusBeanLocator> provider, final TypeLiteral<T> type,
                                 final String... hints )
         {
             super( provider, type, hints );
         }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
 
         public Map<String, T> get()
         {
@@ -134,14 +161,25 @@ final class PlexusRequirements
         }
     }
 
+    /**
+     * {@link Provider} of Plexus requirement lists.
+     */
     private static final class RequirementListProvider<T>
         extends AbstractRequirementProvider<List<T>, T>
     {
-        RequirementListProvider( final Provider<PlexusBeanLocator> provider, final TypeLiteral<T> type,
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
+        RequirementListProvider( final Provider<PlexusBeanLocator> locatorProvider, final TypeLiteral<T> type,
                                  final String... hints )
         {
-            super( provider, type, hints );
+            super( locatorProvider, type, hints );
         }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
 
         public List<T> get()
         {
@@ -149,17 +187,29 @@ final class PlexusRequirements
         }
     }
 
+    /**
+     * {@link Provider} of a single Plexus requirement.
+     */
     private static final class RequirementProvider<T>
         extends AbstractRequirementProvider<T, T>
     {
-        RequirementProvider( final Provider<PlexusBeanLocator> provider, final TypeLiteral<T> type,
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
+        RequirementProvider( final Provider<PlexusBeanLocator> locatorProvider, final TypeLiteral<T> type,
                              final String... hints )
         {
-            super( provider, type, hints );
+            super( locatorProvider, type, hints );
         }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
 
         public T get()
         {
+            // pick first bean: supports specific and wildcard lookup
             final Iterator<Entry<String, T>> i = locate().iterator();
             if ( i.hasNext() )
             {

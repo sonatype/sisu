@@ -80,6 +80,9 @@ final class PlexusPropertyBinder
 
     public <T> PropertyBinding bindProperty( final BeanProperty<T> property )
     {
+        /*
+         * Implicit SLF4J logger binding
+         */
         if ( property.getAnnotation( Requirement.class ) != null
             && Logger.class.equals( property.getType().getRawType() ) )
         {
