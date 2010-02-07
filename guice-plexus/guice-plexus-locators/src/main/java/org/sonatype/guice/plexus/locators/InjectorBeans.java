@@ -124,6 +124,7 @@ final class InjectorBeans<T>
                 }
                 catch ( final ConfigurationException e ) // NOPMD
                 {
+                    // default doesn't always exist, so move onto next hint
                 }
             }
             else
