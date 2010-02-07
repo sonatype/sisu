@@ -35,11 +35,11 @@ final class PlexusPropertyBinder
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final boolean ALLOW_OPTIONAL;
+    private static final boolean OPTIONAL_SUPPORTED;
 
     static
     {
-        boolean optionalSupport = true;
+        boolean optionalSupported = true;
         try
         {
             // support both old and new forms of @Requirement
@@ -47,9 +47,9 @@ final class PlexusPropertyBinder
         }
         catch ( final Throwable e )
         {
-            optionalSupport = false;
+            optionalSupported = false;
         }
-        ALLOW_OPTIONAL = optionalSupport;
+        OPTIONAL_SUPPORTED = optionalSupported;
     }
 
     // ----------------------------------------------------------------------
@@ -115,7 +115,7 @@ final class PlexusPropertyBinder
         if ( null != requirement )
         {
             final Provider<T> roleProvider = requirements.lookup( requirement, property );
-            if ( ALLOW_OPTIONAL && requirement.optional() )
+            if ( OPTIONAL_SUPPORTED && requirement.optional() )
             {
                 return new OptionalPropertyBinding<T>( property, roleProvider );
             }

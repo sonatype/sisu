@@ -108,7 +108,7 @@ final class PlexusRequirements
 
         final synchronized Iterable<Entry<String, T>> locate()
         {
-            if ( null == locator )
+            if ( null != provider )
             {
                 // avoid repeated lookup
                 locator = provider.get();

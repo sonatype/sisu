@@ -54,6 +54,7 @@ final class HintedGuiceBeans<T>
     public synchronized Iterator<Entry<String, T>> iterator()
     {
         // compile map of all known beans at this particular moment
+        // can't build map ahead of time as contributions will vary
         final Map<String, Entry<String, T>> beanMap = new HashMap();
         if ( null != injectorBeans )
         {
@@ -64,23 +65,32 @@ final class HintedGuiceBeans<T>
                     final String key = e.getKey();
                     if ( !beanMap.containsKey( key ) )
                     {
-                        beanMap.put( e.getKey(), e );
+                        beanMap.put( key, e );
                     }
                 }
             }
         }
+
         // "copy-on-read" - select hinted beans from above map
         final List selectedBeans = new ArrayList( hints.length );
         for ( final String hint : hints )
         {
             final Entry bean = beanMap.get( hint );
-            selectedBeans.add( null != bean ? bean : new MissingBean( role, hint ) );
+            if ( null != bean )
+            {
+                selectedBeans.add( bean );
+            }
+            else
+            {
+                // no-one supplies this hint, so mark it as missing
+                selectedBeans.add( new MissingBean( role, hint ) );
+            }
         }
         return selectedBeans.iterator();
     }
 
     public boolean add( final Injector injector )
     {
-        return addInjectorBeans( new InjectorBeans<T>( injector, role ) );
+        return addInjectorBeans( new InjectorBeans<T>( injector, role, hints ) );
     }
 }

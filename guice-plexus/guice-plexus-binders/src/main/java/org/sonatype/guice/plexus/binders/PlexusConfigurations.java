@@ -82,7 +82,7 @@ final class PlexusConfigurations
 
         public synchronized T get()
         {
-            if ( null == converter )
+            if ( null != provider )
             {
                 // avoid repeated lookup
                 converter = provider.get();
