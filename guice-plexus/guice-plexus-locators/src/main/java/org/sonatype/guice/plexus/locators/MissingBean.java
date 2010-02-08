@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 
 import javax.inject.Named;
 
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.Roles;
 
 import com.google.inject.TypeLiteral;
@@ -24,7 +25,7 @@ import com.google.inject.TypeLiteral;
  * {@link Entry} representing a missing @{@link Named} Plexus bean.
  */
 final class MissingBean<T>
-    implements Entry<String, T>
+    implements PlexusBeanLocator.Bean<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields

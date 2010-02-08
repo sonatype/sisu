@@ -77,6 +77,13 @@ public class ComponentDescriptor<T>
         this.implementation = implementation;
     }
 
+    @SuppressWarnings( "unchecked" )
+    public final void setImplementationClass( final Class implementationClass )
+    {
+        this.implementationClass = implementationClass;
+        implementation = implementationClass.getName();
+    }
+
     public String getRoleHint()
     {
         return hint;

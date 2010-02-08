@@ -22,6 +22,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
@@ -29,6 +30,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
+import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 import org.sonatype.guice.plexus.config.Roles;
 
@@ -42,11 +44,7 @@ final class PlexusLifecycleManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    @Inject
-    private Context context;
-
-    @Inject
-    private PlexusContainer container;
+    private final Map<String, DeferredClass<?>> implementations = new HashMap<String, DeferredClass<?>>();
 
     private final Map<String, String> descriptions = new HashMap<String, String>();
 
@@ -54,14 +52,30 @@ final class PlexusLifecycleManager
 
     private final List<Object> activeComponents = new ArrayList<Object>();
 
+    @Inject
+    private Context context;
+
+    @Inject
+    private PlexusContainer container;
+
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public boolean manage( final Component component )
+    public boolean manage( final Component component, final DeferredClass<?> clazz )
     {
-        final String key = Roles.canonicalRoleHint( component.role().getName(), component.hint() );
-        return null == descriptions.put( key, component.description() );
+        final String key = Roles.canonicalRoleHint( component );
+        if ( implementations.containsKey( key ) )
+        {
+            return false; // component already exists
+        }
+        implementations.put( key, clazz );
+        final String description = component.description();
+        if ( description.length() > 0 )
+        {
+            descriptions.put( key, description );
+        }
+        return true;
     }
 
     public boolean manage( final Class<?> clazz )
@@ -113,9 +127,23 @@ final class PlexusLifecycleManager
         return true;
     }
 
-    public String getDescription( final String role, final String hint )
+    public <T> ComponentDescriptor<T> getComponentDescriptor( final String role, final String hint )
     {
-        return descriptions.get( Roles.canonicalRoleHint( role, hint ) );
+        final String key = Roles.canonicalRoleHint( role, hint );
+
+        @SuppressWarnings( "unchecked" )
+        final DeferredClass clazz = implementations.get( key );
+        if ( null == clazz )
+        {
+            return null;
+        }
+
+        final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
+        descriptor.setRole( role );
+        descriptor.setRoleHint( hint );
+        descriptor.setImplementationClass( clazz.get() );
+        descriptor.setDescription( descriptions.get( key ) );
+        return descriptor;
     }
 
     // ----------------------------------------------------------------------

@@ -90,7 +90,7 @@ public class PlexusBeanMetadataTest
     {
         private final Set<Component> seen = new HashSet<Component>();
 
-        public boolean manage( final Component component )
+        public boolean manage( final Component component, final DeferredClass<?> clazz )
         {
             return !seen.add( component );
         }

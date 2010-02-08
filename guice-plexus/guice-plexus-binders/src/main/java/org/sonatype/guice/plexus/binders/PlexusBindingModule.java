@@ -65,9 +65,10 @@ public final class PlexusBindingModule
             {
                 // should we register this component?
                 final Component component = e.getKey();
-                if ( null == manager || manager.manage( component ) )
+                final DeferredClass<?> clazz = e.getValue();
+                if ( null == manager || manager.manage( component, clazz ) )
                 {
-                    bindPlexusComponent( component, e.getValue() );
+                    bindPlexusComponent( component, clazz );
                 }
             }
         }

@@ -122,7 +122,7 @@ final class PlexusRequirements
         // Locally-shared methods
         // ----------------------------------------------------------------------
 
-        final synchronized Iterable<Entry<String, T>> locate()
+        final synchronized Iterable<? extends Entry<String, T>> locate()
         {
             if ( null != locatorProvider )
             {
@@ -209,8 +209,8 @@ final class PlexusRequirements
 
         public T get()
         {
-            // pick first bean: supports specific and wildcard lookup
-            final Iterator<Entry<String, T>> i = locate().iterator();
+            // pick first bean: supports both specific and wildcard lookup
+            final Iterator<? extends Entry<String, T>> i = locate().iterator();
             if ( i.hasNext() )
             {
                 return i.next().getValue();

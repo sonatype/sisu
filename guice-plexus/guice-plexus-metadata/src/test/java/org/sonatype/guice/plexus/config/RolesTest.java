@@ -42,6 +42,9 @@ public class RolesTest
         assertEquals( OBJECT_LITERAL + "", Roles.canonicalRoleHint( Object.class.getName(), "" ) );
         assertEquals( OBJECT_LITERAL + "", Roles.canonicalRoleHint( Object.class.getName(), "default" ) );
         assertEquals( OBJECT_LITERAL + ":foo", Roles.canonicalRoleHint( Object.class.getName(), "foo" ) );
+        assertEquals( OBJECT_LITERAL + "", Roles.canonicalRoleHint( component( "" ) ) );
+        assertEquals( OBJECT_LITERAL + "", Roles.canonicalRoleHint( component( "default" ) ) );
+        assertEquals( OBJECT_LITERAL + ":foo", Roles.canonicalRoleHint( component( "foo" ) ) );
     }
 
     public void testDefaultComponentKeys()
@@ -78,7 +81,7 @@ public class RolesTest
 
     private static Requirement requirement( final Class<?> role )
     {
-        return new RequirementImpl( role, true );
+        return new RequirementImpl( role, false );
     }
 
     public void testMissingComponentExceptions()

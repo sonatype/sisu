@@ -100,7 +100,7 @@ public class GuiceBeanLocatorTest
     {
         final GuiceBeanLocator locator = new GuiceBeanLocator();
 
-        final Iterable<Entry<String, Bean>> roles = locator.locate( TypeLiteral.get( Bean.class ) );
+        final Iterable<? extends Entry<String, Bean>> roles = locator.locate( TypeLiteral.get( Bean.class ) );
 
         locator.add( parent );
         locator.add( child1 );
@@ -109,7 +109,7 @@ public class GuiceBeanLocatorTest
         locator.remove( child1 );
         locator.add( child1 );
 
-        Iterator<Entry<String, Bean>> i;
+        Iterator<? extends Entry<String, Bean>> i;
 
         i = roles.iterator();
         assertSame( Hints.DEFAULT_HINT, i.next().getKey() );
@@ -173,11 +173,11 @@ public class GuiceBeanLocatorTest
 
         locator.add( parent );
         locator.add( child1 );
-        final Iterable<Entry<String, Bean>> roles = locator.locate( TypeLiteral.get( Bean.class ) );
+        final Iterable<? extends Entry<String, Bean>> roles = locator.locate( TypeLiteral.get( Bean.class ) );
         locator.add( child2 );
         locator.add( child3 );
 
-        Iterator<Entry<String, Bean>> i;
+        Iterator<? extends Entry<String, Bean>> i;
 
         i = roles.iterator();
         assertSame( Hints.DEFAULT_HINT, i.next().getKey() );
@@ -283,10 +283,10 @@ public class GuiceBeanLocatorTest
     {
         final GuiceBeanLocator locator = new GuiceBeanLocator();
 
-        final Iterable<Entry<String, Bean>> roles =
+        final Iterable<? extends Entry<String, Bean>> roles =
             locator.locate( TypeLiteral.get( Bean.class ), "A", "M1", "N3", "-", "!", "-", "M3", "N1", "Z" );
 
-        Iterator<Entry<String, Bean>> i;
+        Iterator<? extends Entry<String, Bean>> i;
 
         i = roles.iterator();
         assertEquals( "A", i.next().getKey() );

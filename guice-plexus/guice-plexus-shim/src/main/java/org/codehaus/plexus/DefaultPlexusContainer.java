@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.inject.Inject;
-
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
@@ -50,6 +48,7 @@ import org.sonatype.guice.plexus.scanners.XmlPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provides;
@@ -246,33 +245,25 @@ public final class DefaultPlexusContainer
 
     public <T> ComponentDescriptor<T> getComponentDescriptor( final Class<T> type, final String role, final String hint )
     {
-        // TODO: check this mapping exists!
-        final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
-        descriptor.setRole( role );
-        descriptor.setRoleHint( hint );
-        descriptor.setDescription( lifecycleManager.getDescription( role, hint ) );
-        // TODO: implementation, etc?
-        return descriptor;
+        return lifecycleManager.getComponentDescriptor( role, hint );
     }
 
     @SuppressWarnings( "unchecked" )
-    public List<ComponentDescriptor<?>> getComponentDescriptorList( final String role )
+    public List getComponentDescriptorList( final String role )
     {
-        return (List) getComponentDescriptorList( loadRoleClass( role ), role );
+        return getComponentDescriptorList( loadRoleClass( role ), role );
     }
 
     public <T> List<ComponentDescriptor<T>> getComponentDescriptorList( final Class<T> type, final String role )
     {
         final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
-        for ( final Entry<String, T> entry : locate( type ) )
+        for ( final Entry<String, T> bean : locate( type ) )
         {
-            final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
-            final String hint = entry.getKey();
-            descriptor.setRole( role );
-            descriptor.setRoleHint( hint );
-            descriptor.setDescription( lifecycleManager.getDescription( role, hint ) );
-            // TODO: implementation, etc?
-            tempList.add( descriptor );
+            final ComponentDescriptor<T> descriptor = lifecycleManager.getComponentDescriptor( role, bean.getKey() );
+            if ( null != descriptor )
+            {
+                tempList.add( descriptor );
+            }
         }
         return tempList;
     }
@@ -292,7 +283,7 @@ public final class DefaultPlexusContainer
             getLogger().warn( classRealm.toString(), e );
         }
 
-        return null; // no-one actually seems to use or check the returned component list
+        return null; // no-one actually seems to use or check the returned component list!
     }
 
     // ----------------------------------------------------------------------
@@ -330,6 +321,7 @@ public final class DefaultPlexusContainer
         return loggerManager;
     }
 
+    @Inject( optional = true )
     public void setLoggerManager( final LoggerManager loggerManager )
     {
         this.loggerManager = null != loggerManager ? loggerManager : CONSOLE_LOGGER_MANAGER;
@@ -474,7 +466,7 @@ public final class DefaultPlexusContainer
      * @param hints The Plexus hints
      * @return Instances of the given role; ordered according to the given hints
      */
-    private <T> Iterable<Entry<String, T>> locate( final Class<T> role, final String... hints )
+    private <T> Iterable<? extends Entry<String, T>> locate( final Class<T> role, final String... hints )
     {
         return beanLocator.locate( TypeLiteral.get( role ), hints );
     }

@@ -17,11 +17,13 @@ import java.util.Map.Entry;
 import javax.inject.Named;
 import javax.inject.Provider;
 
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+
 /**
  * {@link Entry} representing a lazy @{@link Named} Plexus bean; the bean is only retrieved when the value is requested.
  */
 final class LazyBean<T>
-    implements Entry<String, T>
+    implements PlexusBeanLocator.Bean<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields

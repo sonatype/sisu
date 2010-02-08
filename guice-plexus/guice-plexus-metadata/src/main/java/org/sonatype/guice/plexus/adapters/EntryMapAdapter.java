@@ -38,7 +38,7 @@ public final class EntryMapAdapter<K, V>
     // Constructors
     // ----------------------------------------------------------------------
 
-    public EntryMapAdapter( final Iterable<Entry<K, V>> iterable )
+    public EntryMapAdapter( final Iterable<? extends Entry<K, V>> iterable )
     {
         entrySet = new EntrySet<K, V>( iterable );
     }
@@ -73,7 +73,8 @@ public final class EntryMapAdapter<K, V>
         // Constructors
         // ----------------------------------------------------------------------
 
-        EntrySet( final Iterable<Entry<K, V>> iterable )
+        @SuppressWarnings( "unchecked" )
+        EntrySet( final Iterable iterable )
         {
             this.iterable = iterable;
         }

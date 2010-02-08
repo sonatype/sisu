@@ -12,7 +12,7 @@
  */
 package org.sonatype.guice.plexus.locators;
 
-import java.util.Map.Entry;
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 
 import com.google.inject.Injector;
 
@@ -20,7 +20,7 @@ import com.google.inject.Injector;
  * Dynamic {@link Iterable} sequence of beans backed by bindings from zero or more Guice {@link Injector}s.
  */
 interface GuiceBeans<T>
-    extends Iterable<Entry<String, T>>
+    extends Iterable<PlexusBeanLocator.Bean<T>>
 {
     /**
      * Adds the given Guice {@link Injector} to the backing list.

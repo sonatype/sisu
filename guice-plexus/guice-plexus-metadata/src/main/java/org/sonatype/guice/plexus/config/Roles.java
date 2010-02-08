@@ -70,6 +70,17 @@ public final class Roles
     }
 
     /**
+     * Returns the canonical role-hint for the given Plexus component.
+     * 
+     * @param component The Plexus component
+     * @return Canonical role-hint denoting the given component
+     */
+    public static String canonicalRoleHint( final Component component )
+    {
+        return canonicalRoleHint( component.role().getName(), component.hint() );
+    }
+
+    /**
      * Deduces the role type based on the given @{@link Requirement} and expected type.
      * 
      * @param requirement The Plexus requirement

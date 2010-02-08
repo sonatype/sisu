@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -93,7 +92,7 @@ public final class GuiceBeanLocator
         }
     }
 
-    public synchronized <T> Iterable<Entry<String, T>> locate( final TypeLiteral<T> role, final String... hints )
+    public synchronized <T> Iterable<Bean<T>> locate( final TypeLiteral<T> role, final String... hints )
     {
         final GuiceBeans<T> beans;
         if ( hints.length == 0 )

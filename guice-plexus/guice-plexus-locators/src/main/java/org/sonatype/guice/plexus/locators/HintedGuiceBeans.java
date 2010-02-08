@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
@@ -51,7 +53,7 @@ final class HintedGuiceBeans<T>
     // ----------------------------------------------------------------------
 
     @SuppressWarnings( "unchecked" )
-    public synchronized Iterator<Entry<String, T>> iterator()
+    public synchronized Iterator<PlexusBeanLocator.Bean<T>> iterator()
     {
         // compile map of all known beans at this particular moment
         // can't build map ahead of time as contributions will vary

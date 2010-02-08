@@ -16,7 +16,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
+
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
@@ -47,7 +48,7 @@ final class DefaultGuiceBeans<T>
     // ----------------------------------------------------------------------
 
     @SuppressWarnings( "unchecked" )
-    public synchronized Iterator<Entry<String, T>> iterator()
+    public synchronized Iterator<PlexusBeanLocator.Bean<T>> iterator()
     {
         if ( null == injectorBeans )
         {

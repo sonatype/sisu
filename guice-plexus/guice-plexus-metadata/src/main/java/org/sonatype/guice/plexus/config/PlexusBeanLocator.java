@@ -22,11 +22,20 @@ import com.google.inject.TypeLiteral;
 public interface PlexusBeanLocator
 {
     /**
+     * Plexus bean mapping; from hint->instance.
+     */
+    interface Bean<T>
+        extends Entry<String, T>
+    {
+        // no extra data at the moment
+    }
+
+    /**
      * Locates beans of the given type, optionally filtered using the given named hints.
      * 
      * @param role The expected bean type
      * @param hints The optional hints
-     * @return Sequence of lazy hint->bean mappings; ordered according to the given hints
+     * @return Sequence of Plexus bean mappings; ordered according to the given hints
      */
-    <T> Iterable<Entry<String, T>> locate( TypeLiteral<T> role, String... hints );
+    <T> Iterable<Bean<T>> locate( TypeLiteral<T> role, String... hints );
 }

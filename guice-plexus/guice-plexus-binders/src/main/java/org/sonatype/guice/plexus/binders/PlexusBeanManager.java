@@ -13,6 +13,7 @@
 package org.sonatype.guice.plexus.binders;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.sonatype.guice.bean.reflect.DeferredClass;
 
 /**
  * Service that manages the lifecycle of Plexus beans.
@@ -23,9 +24,10 @@ public interface PlexusBeanManager
      * Decides whether the given Plexus component should be registered with the injector.
      * 
      * @param component The Plexus component
+     * @param clazz The implementation class
      * @return {@code true} if the component should be registered; otherwise {@code false}
      */
-    boolean manage( final Component component );
+    boolean manage( final Component component, final DeferredClass<?> clazz );
 
     /**
      * Decides whether instances of the given Plexus bean type should be reported to this manager.
