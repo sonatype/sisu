@@ -11,6 +11,7 @@
 package org.codehaus.plexus.logging.console;
 
 import org.codehaus.plexus.logging.AbstractLoggerManager;
+import org.codehaus.plexus.logging.BaseLoggerManager;
 import org.codehaus.plexus.logging.Logger;
 
 public final class ConsoleLoggerManager
@@ -28,7 +29,7 @@ public final class ConsoleLoggerManager
 
     public void setThreshold( final String threshold )
     {
-        LOGGER.setThreshold( parseThreshold( threshold ) );
+        LOGGER.setThreshold( BaseLoggerManager.parseThreshold( threshold ) );
     }
 
     public Logger getLoggerForComponent( final String role, final String hint )
@@ -49,35 +50,5 @@ public final class ConsoleLoggerManager
     public void setThresholds( final int currentThreshold )
     {
         LOGGER.setThreshold( currentThreshold );
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    private static final int parseThreshold( final String text )
-    {
-        if ( "DEBUG".equalsIgnoreCase( text ) )
-        {
-            return Logger.LEVEL_DEBUG;
-        }
-        else if ( "INFO".equalsIgnoreCase( text ) )
-        {
-            return Logger.LEVEL_INFO;
-        }
-        else if ( "WARN".equalsIgnoreCase( text ) )
-        {
-            return Logger.LEVEL_WARN;
-        }
-        else if ( "ERROR".equalsIgnoreCase( text ) )
-        {
-            return Logger.LEVEL_ERROR;
-        }
-        else if ( "FATAL".equalsIgnoreCase( text ) )
-        {
-            return Logger.LEVEL_FATAL;
-        }
-
-        return Logger.LEVEL_DISABLED;
     }
 }

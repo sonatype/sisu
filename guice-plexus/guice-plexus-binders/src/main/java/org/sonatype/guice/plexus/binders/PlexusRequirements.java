@@ -110,7 +110,7 @@ final class PlexusRequirements
         // ----------------------------------------------------------------------
 
         AbstractRequirementProvider( final Provider<PlexusBeanLocator> locatorProvider, final TypeLiteral<T> type,
-                                     final String... hints )
+                                     final String[] hints )
         {
             this.locatorProvider = locatorProvider;
 
@@ -130,7 +130,6 @@ final class PlexusRequirements
                 locator = locatorProvider.get();
                 locatorProvider = null;
             }
-            // cannot cache this, need per-lookup
             return locator.locate( type, hints );
         }
     }
@@ -146,7 +145,7 @@ final class PlexusRequirements
         // ----------------------------------------------------------------------
 
         RequirementMapProvider( final Provider<PlexusBeanLocator> provider, final TypeLiteral<T> type,
-                                final String... hints )
+                                final String[] hints )
         {
             super( provider, type, hints );
         }
@@ -172,7 +171,7 @@ final class PlexusRequirements
         // ----------------------------------------------------------------------
 
         RequirementListProvider( final Provider<PlexusBeanLocator> locatorProvider, final TypeLiteral<T> type,
-                                 final String... hints )
+                                 final String[] hints )
         {
             super( locatorProvider, type, hints );
         }
@@ -198,7 +197,7 @@ final class PlexusRequirements
         // ----------------------------------------------------------------------
 
         RequirementProvider( final Provider<PlexusBeanLocator> locatorProvider, final TypeLiteral<T> type,
-                             final String... hints )
+                             final String[] hints )
         {
             super( locatorProvider, type, hints );
         }

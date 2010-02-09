@@ -35,7 +35,7 @@ public abstract class BaseLoggerManager
         currentThreshold = parseThreshold( threshold );
     }
 
-    public final Logger getLoggerForComponent( final String role, final String hint )
+    public final synchronized Logger getLoggerForComponent( final String role, final String hint )
     {
         final String name = Roles.canonicalRoleHint( role, hint );
         Logger logger = activeLoggers.get( name );
@@ -48,7 +48,7 @@ public abstract class BaseLoggerManager
         return logger;
     }
 
-    public final void returnComponentLogger( final String role, final String hint )
+    public final synchronized void returnComponentLogger( final String role, final String hint )
     {
         activeLoggers.remove( Roles.canonicalRoleHint( role, hint ) );
     }
@@ -58,7 +58,7 @@ public abstract class BaseLoggerManager
         return currentThreshold;
     }
 
-    public final void setThresholds( final int currentThreshold )
+    public final synchronized void setThresholds( final int currentThreshold )
     {
         this.currentThreshold = currentThreshold;
         for ( final Logger logger : activeLoggers.values() )
@@ -67,17 +67,7 @@ public abstract class BaseLoggerManager
         }
     }
 
-    // ----------------------------------------------------------------------
-    // Customizable methods
-    // ----------------------------------------------------------------------
-
-    protected abstract Logger createLogger( String name );
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    private static final int parseThreshold( final String text )
+    public static final int parseThreshold( final String text )
     {
         if ( "DEBUG".equalsIgnoreCase( text ) )
         {
@@ -102,4 +92,10 @@ public abstract class BaseLoggerManager
 
         return Logger.LEVEL_DISABLED;
     }
+
+    // ----------------------------------------------------------------------
+    // Customizable methods
+    // ----------------------------------------------------------------------
+
+    protected abstract Logger createLogger( String name );
 }

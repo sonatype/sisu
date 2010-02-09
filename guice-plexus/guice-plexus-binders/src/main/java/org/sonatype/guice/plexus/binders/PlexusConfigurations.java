@@ -104,7 +104,6 @@ final class PlexusConfigurations
                 converter = converterProvider.get();
                 converterProvider = null;
             }
-            // cannot cache this, need per-lookup
             return converter.convert( type, value );
         }
     }

@@ -86,7 +86,7 @@ public final class DefaultPlexusContainer
     @Inject
     private GuiceBeanLocator beanLocator;
 
-    private ClassRealm lookupRealm; // TODO: thread-local?
+    private ClassRealm lookupRealm; // TODO: use thread-local
 
     private LoggerManager loggerManager = CONSOLE_LOGGER_MANAGER;
 
@@ -324,9 +324,15 @@ public final class DefaultPlexusContainer
     @Inject( optional = true )
     public void setLoggerManager( final LoggerManager loggerManager )
     {
-        this.loggerManager = null != loggerManager ? loggerManager : CONSOLE_LOGGER_MANAGER;
-
-        logger = null;
+        if ( null != loggerManager )
+        {
+            this.loggerManager = loggerManager;
+        }
+        else
+        {
+            this.loggerManager = CONSOLE_LOGGER_MANAGER;
+        }
+        logger = null; // refresh our local logger
     }
 
     public Logger getLogger()
@@ -350,7 +356,6 @@ public final class DefaultPlexusContainer
     public void dispose()
     {
         lifecycleManager.dispose();
-
         containerRealm.setParentRealm( null );
     }
 

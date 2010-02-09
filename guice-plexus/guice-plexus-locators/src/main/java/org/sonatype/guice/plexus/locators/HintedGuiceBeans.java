@@ -42,7 +42,7 @@ final class HintedGuiceBeans<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    HintedGuiceBeans( final TypeLiteral<T> role, final String... hints )
+    HintedGuiceBeans( final TypeLiteral<T> role, final String[] hints )
     {
         this.role = role;
         this.hints = hints;
