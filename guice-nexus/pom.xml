@@ -17,6 +17,7 @@
   <name>Guice - Nexus</name>
 
   <properties>
+    <nexus.api.version>1.5.1-SNAPSHOT</nexus.api.version>
     <guice.nexus.version>0.1.0-SNAPSHOT</guice.nexus.version>
     <sonatype.plugin.version>1.0.2</sonatype.plugin.version>
   </properties>
@@ -28,6 +29,12 @@
 
   <dependencyManagement>
     <dependencies>
+
+      <dependency>
+        <groupId>org.sonatype.nexus</groupId>
+        <artifactId>nexus-api</artifactId>
+        <version>${nexus.api.version}</version>
+      </dependency>
 
       <dependency>
         <groupId>org.sonatype.plugin</groupId>

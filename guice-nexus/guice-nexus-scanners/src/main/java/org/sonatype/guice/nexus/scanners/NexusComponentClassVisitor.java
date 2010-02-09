@@ -12,17 +12,16 @@
  */
 package org.sonatype.guice.nexus.scanners;
 
+import static org.sonatype.guice.plexus.scanners.AnnotatedPlexusComponentScanner.visitClassResource;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.codehaus.plexus.util.IOUtil;
 import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Type;
 import org.sonatype.guice.bean.reflect.ClassSpace;
@@ -141,16 +140,7 @@ final class NexusComponentClassVisitor
             {
                 // not seen this interface before
                 type = NexusComponentType.UNKNOWN;
-                final InputStream in = space.getResource( i + ".class" ).openStream();
-                try
-                {
-                    new ClassReader( in ).accept( managedVisitor, AnnotatedNexusComponentScanner.CLASS_READER_FLAGS );
-                }
-                finally
-                {
-                    IOUtil.close( in );
-                }
-                // cache for next time
+                visitClassResource( space.getResource( i + ".class" ), managedVisitor );
                 knownTypes.put( i, type );
             }
             if ( type.isComponent() )

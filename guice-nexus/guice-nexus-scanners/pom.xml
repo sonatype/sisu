@@ -18,6 +18,10 @@
       <artifactId>guice-plexus-scanners</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sonatype.plugin</groupId>
       <artifactId>plugin-api</artifactId>
     </dependency>

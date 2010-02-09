@@ -12,10 +12,10 @@
  */
 package org.sonatype.guice.nexus.scanners;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.Map;
 
@@ -42,6 +42,7 @@ public class AnnotatedNexusPluginTest
     {
     }
 
+    @Deprecated
     interface HostInterface0
     {
     }
@@ -157,24 +158,64 @@ public class AnnotatedNexusPluginTest
     }
 
     public void testComponentScanning()
+        throws MalformedURLException
     {
+        final URL[] testURLs = new URL[] { new File( "target/test-classes" ).toURI().toURL() };
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader(), testURLs );
+
         final PlexusBeanSource source =
-            new AnnotatedPlexusBeanSource( new URLClassSpace( (URLClassLoader) getClass().getClassLoader() ), null,
-                                           new AnnotatedNexusComponentScanner() );
+            new AnnotatedPlexusBeanSource( space, null, new AnnotatedNexusComponentScanner() );
 
         final Map<Component, DeferredClass<?>> components = source.findPlexusComponentBeans();
         assertEquals( 11, components.size() );
 
+        // non-extension so no automatic hinting...
         assertEquals( BeanA.class, components.get(
                                                    new ComponentImpl( HostInterface0.class, Hints.DEFAULT_HINT,
                                                                       "per-lookup", "" ) ).get() );
+        assertEquals( BeanB.class, components.get(
+                                                   new ComponentImpl( HostInterface1.class, BeanB.class.getName(),
+                                                                      "per-lookup", "" ) ).get() );
+        assertEquals( BeanC.class, components.get(
+                                                   new ComponentImpl( HostInterface2.class, BeanC.class.getName(),
+                                                                      "singleton", "" ) ).get() );
+        // non-component so API @Singleton ignored...
+        assertEquals( BeanD.class, components.get(
+                                                   new ComponentImpl( UserInterface0.class, Hints.DEFAULT_HINT,
+                                                                      "per-lookup", "" ) ).get() );
+        assertEquals( BeanE.class, components.get(
+                                                   new ComponentImpl( UserInterface1.class, Hints.DEFAULT_HINT,
+                                                                      "per-lookup", "" ) ).get() );
+        assertEquals( BeanF.class, components.get(
+                                                   new ComponentImpl( UserInterface2.class, Hints.DEFAULT_HINT,
+                                                                      "singleton", "" ) ).get() );
+
+        assertEquals( NamedBeanA.class, components.get(
+                                                        new ComponentImpl( HostInterface1.class, "BeanA", "per-lookup",
+                                                                           "" ) ).get() );
+        assertEquals( NamedBeanB.class, components.get(
+                                                        new ComponentImpl( HostInterface2.class, Hints.DEFAULT_HINT,
+                                                                           "singleton", "" ) ).get() );
+        assertEquals( NamedBeanC.class, components.get(
+                                                        new ComponentImpl( UserInterface1.class, "BeanC", "per-lookup",
+                                                                           "" ) ).get() );
+
+        assertEquals( ComponentBeanA.class, components.get(
+                                                            new ComponentImpl( SubHostInterface1.class,
+                                                                               ComponentBeanA.class.getName(),
+                                                                               "per-lookup", "" ) ).get() );
+        assertEquals(
+                      ComponentBeanB.class,
+                      components.get( new ComponentImpl( SubUserInterface1.class, Hints.DEFAULT_HINT, "per-lookup", "" ) ).get() );
     }
 
     public void testBadClassFile()
+        throws MalformedURLException
     {
         System.setProperty( "java.protocol.handler.pkgs", getClass().getPackage().getName() );
 
-        final ClassSpace parentSpace = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
+        final URL[] testURLs = new URL[] { new File( "target/test-classes" ).toURI().toURL() };
+        final ClassSpace parentSpace = new URLClassSpace( getClass().getClassLoader(), testURLs );
         final PlexusBeanSource source = new AnnotatedPlexusBeanSource( new ClassSpace()
         {
             public Class<?> loadClass( final String name )

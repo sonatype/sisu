@@ -12,15 +12,12 @@
  */
 package org.sonatype.guice.nexus.scanners;
 
+import static org.sonatype.guice.plexus.scanners.AnnotatedPlexusComponentScanner.visitClassResources;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Enumeration;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.util.IOUtil;
-import org.objectweb.asm.ClassReader;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.scanners.PlexusComponentScanner;
@@ -32,33 +29,12 @@ public final class AnnotatedNexusComponentScanner
     implements PlexusComponentScanner
 {
     // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    static final int CLASS_READER_FLAGS = ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES;
-
-    // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
     public Map<Component, DeferredClass<?>> scan( final ClassSpace space, final boolean localSearch )
         throws IOException
     {
-        // for now scan complete plugin class space, TODO: just check managed dependencies
-        final NexusComponentClassVisitor visitor = new NexusComponentClassVisitor( space );
-        final Enumeration<URL> e = space.findEntries( null, "*.class", true );
-        while ( e.hasMoreElements() )
-        {
-            final InputStream in = e.nextElement().openStream();
-            try
-            {
-                new ClassReader( in ).accept( visitor, CLASS_READER_FLAGS );
-            }
-            finally
-            {
-                IOUtil.close( in );
-            }
-        }
-        return visitor.getComponents();
+        return visitClassResources( space, new NexusComponentClassVisitor( space ) ).getComponents();
     }
 }
