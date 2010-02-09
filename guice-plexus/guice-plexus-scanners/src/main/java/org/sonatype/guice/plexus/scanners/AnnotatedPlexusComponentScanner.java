@@ -21,6 +21,7 @@ import java.util.Map;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.util.IOUtil;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 
@@ -44,20 +45,44 @@ public final class AnnotatedPlexusComponentScanner
     public Map<Component, DeferredClass<?>> scan( final ClassSpace space, final boolean localSearch )
         throws IOException
     {
-        final PlexusComponentClassVisitor visitor = new PlexusComponentClassVisitor( space );
+        return visitClassResources( space, new PlexusComponentClassVisitor( space ) ).getComponents();
+    }
+
+    /**
+     * Visits class resources in the given space with the given class visitor.
+     * 
+     * @param space The class space
+     * @param visitor The class visitor
+     * @return Current class visitor
+     */
+    public static <T extends ClassVisitor> T visitClassResources( final ClassSpace space, final T visitor )
+        throws IOException
+    {
         final Enumeration<URL> e = space.findEntries( null, "*.class", true );
         while ( e.hasMoreElements() )
         {
-            final InputStream in = e.nextElement().openStream();
-            try
-            {
-                new ClassReader( in ).accept( visitor, CLASS_READER_FLAGS );
-            }
-            finally
-            {
-                IOUtil.close( in );
-            }
+            visitClassResource( e.nextElement(), visitor );
         }
-        return visitor.getComponents();
+        return visitor;
+    }
+
+    /**
+     * Visits the given class resource with the given class visitor.
+     * 
+     * @param url The class resource URL
+     * @param visitor The class visitor
+     */
+    public static void visitClassResource( final URL url, final ClassVisitor visitor )
+        throws IOException
+    {
+        final InputStream in = url.openStream();
+        try
+        {
+            new ClassReader( in ).accept( visitor, CLASS_READER_FLAGS );
+        }
+        finally
+        {
+            IOUtil.close( in );
+        }
     }
 }
