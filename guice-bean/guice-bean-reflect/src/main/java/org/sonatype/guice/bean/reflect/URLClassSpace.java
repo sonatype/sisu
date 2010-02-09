@@ -115,10 +115,13 @@ public final class URLClassSpace
      * @param urls The URL search path
      * @return Expanded URL search path
      */
-    private static URL[] expandClassPath( final URL... urls )
+    private static URL[] expandClassPath( final URL[] urls )
     {
         final List<URL> searchURLs = new ArrayList<URL>();
-        Collections.addAll( searchURLs, urls );
+        if ( null != urls )
+        {
+            Collections.addAll( searchURLs, urls );
+        }
 
         final Set<URL> reachableURLs = new LinkedHashSet<URL>();
 

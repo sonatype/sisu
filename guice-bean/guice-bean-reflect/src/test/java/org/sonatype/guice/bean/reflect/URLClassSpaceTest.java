@@ -87,4 +87,14 @@ public class URLClassSpaceTest
         assertTrue( e.nextElement().getPath().startsWith( COMMONS_LOGGING_JAR.toString() ) );
         assertFalse( e.hasMoreElements() );
     }
+
+    public void testNullSearchPath()
+        throws IOException
+    {
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader(), null );
+        final Enumeration<URL> e = space.findEntries( null, null, true );
+
+        // local search should see nothing
+        assertFalse( e.hasMoreElements() );
+    }
 }
