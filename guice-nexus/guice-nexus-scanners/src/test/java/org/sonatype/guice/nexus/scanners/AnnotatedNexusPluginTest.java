@@ -232,7 +232,7 @@ public class AnnotatedNexusPluginTest
                     {
                         return new URL( "barf:up/" );
                     }
-                    catch ( MalformedURLException e )
+                    catch ( final MalformedURLException e )
                     {
                         throw new IllegalArgumentException( e.toString() );
                     }

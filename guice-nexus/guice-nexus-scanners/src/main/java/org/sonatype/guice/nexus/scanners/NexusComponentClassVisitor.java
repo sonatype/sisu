@@ -91,7 +91,7 @@ final class NexusComponentClassVisitor
         {
             scanInterfaces( interfaces );
         }
-        catch ( IOException e )
+        catch ( final IOException e )
         {
             throw new RuntimeException( e.toString() );
         }
@@ -109,7 +109,7 @@ final class NexusComponentClassVisitor
     }
 
     @Override
-    public AnnotationVisitor visitAnnotation( String desc, boolean visible )
+    public AnnotationVisitor visitAnnotation( final String desc, final boolean visible )
     {
         if ( type.isComponent() && NAMED_DESC.equals( desc ) )
         {
@@ -119,7 +119,7 @@ final class NexusComponentClassVisitor
     }
 
     @Override
-    public void setImplementation( String implementation )
+    public void setImplementation( final String implementation )
     {
         super.setImplementation( implementation );
         skipClass = false;
@@ -162,7 +162,8 @@ final class NexusComponentClassVisitor
         private boolean singleton;
 
         @Override
-        public void visit( int version, int access, String name, String signature, String superName, String[] interfaces )
+        public void visit( final int version, final int access, final String name, final String signature,
+                           final String superName, final String[] interfaces )
         {
             singleton = false;
         }

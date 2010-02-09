@@ -17,18 +17,24 @@ import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.context.Context;
 import org.sonatype.appbooter.PlexusAppBooterCustomizer;
 
+/**
+ * Nexus specific {@link PlexusAppBooterCustomizer}.
+ */
 public final class NexusBooterCustomizer
     implements PlexusAppBooterCustomizer
 {
     public void customizeContainerConfiguration( final ContainerConfiguration configuration )
     {
+        // nothing to customize
     }
 
     public void customizeContext( final Context context )
     {
+        // nothing to customize
     }
 
     public void customizeContainer( final PlexusContainer container )
     {
+        // nothing to customize
     }
 }

@@ -3,7 +3,10 @@
     <component>
       <role>org.sonatype.nexus.plugins.NexusPluginManager</role>
       <implementation>org.sonatype.nexus.plugins.DefaultNexusPluginManager</implementation>
-      <role-hint>default</role-hint>
+    </component>
+    <component>
+      <role>org.sonatype.nexus.plugins.repository.PluginRepositoryManager</role>
+      <implementation>org.sonatype.nexus.plugins.repository.DefaultPluginRepositoryManager</implementation>
     </component>
   </components>
 </component-set>

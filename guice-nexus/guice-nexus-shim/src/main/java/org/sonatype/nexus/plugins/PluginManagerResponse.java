@@ -12,15 +12,37 @@
  */
 package org.sonatype.nexus.plugins;
 
+/**
+ * TODO.
+ */
 public final class PluginManagerResponse
 {
-    public boolean isSuccessful()
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final boolean successful;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    PluginManagerResponse( final boolean successful )
     {
-        return true;
+        this.successful = successful;
     }
 
-    public String formatAsString( @SuppressWarnings( "unused" ) final boolean detailed )
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
+    public boolean isSuccessful()
     {
-        return toString();
+        return successful;
+    }
+
+    public String formatAsString( final boolean detailed )
+    {
+        return "TODO: formatAsString(" + detailed + ")";// TODO
     }
 }

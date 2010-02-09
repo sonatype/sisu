@@ -14,30 +14,62 @@ package org.sonatype.nexus.plugins;
 
 import org.sonatype.plugin.metadata.GAVCoordinate;
 
+/**
+ * TODO.
+ */
 public final class PluginResponse
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final GAVCoordinate coordinate;
+
+    private final PluginDescriptor descriptor;
+
+    private final PluginActivationResult result;
+
+    private final boolean successful;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    PluginResponse( final GAVCoordinate coordinate, final PluginDescriptor descriptor,
+                    final PluginActivationResult result, final boolean successful )
+    {
+        this.coordinate = coordinate;
+        this.descriptor = descriptor;
+        this.result = result;
+        this.successful = successful;
+    }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
     public GAVCoordinate getPluginCoordinates()
     {
-        return null;
+        return coordinate;
     }
 
     public PluginDescriptor getPluginDescriptor()
     {
-        return null;
+        return descriptor;
     }
 
     public PluginActivationResult getAchievedGoal()
     {
-        return null;
+        return result;
     }
 
     public boolean isSuccessful()
     {
-        return true;
+        return successful;
     }
 
-    public String formatAsString( @SuppressWarnings( "unused" ) final boolean detailed )
+    public String formatAsString( final boolean detailed )
     {
-        return toString();
+        return "TODO: formatAsString(" + detailed + ")";// TODO
     }
 }

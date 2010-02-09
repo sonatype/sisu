@@ -12,20 +12,74 @@
  */
 package org.sonatype.plugin.metadata;
 
+/**
+ * Trivial Group:Artifact:Version identifier.
+ */
 public final class GAVCoordinate
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final String groupId;
+
+    private final String artifactId;
+
+    private final String version;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    public GAVCoordinate( final String groupId, final String artifactId, final String version )
+    {
+        this.groupId = groupId;
+        this.artifactId = artifactId;
+        this.version = version;
+    }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
     public String getGroupId()
     {
-        return null;
+        return groupId;
     }
 
     public String getArtifactId()
     {
-        return null;
+        return artifactId;
     }
 
     public String getVersion()
     {
-        return null;
+        return version;
+    }
+
+    @Override
+    public boolean equals( final Object rhs )
+    {
+        if ( this == rhs )
+        {
+            return true;
+        }
+        if ( !( rhs instanceof GAVCoordinate ) )
+        {
+            return false;
+        }
+        return toString().equals( rhs.toString() );
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return toString().hashCode();
+    }
+
+    @Override
+    public String toString()
+    {
+        return groupId + ':' + artifactId + ':' + version;
     }
 }

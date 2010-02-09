@@ -10,27 +10,20 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.nexus.plugins;
+package org.sonatype.nexus.plugins.repository;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-
-import org.sonatype.plugin.metadata.GAVCoordinate;
-
-/**
- * TODO.
- */
-public final class DefaultNexusPluginManager
-    implements NexusPluginManager
+public final class NoSuchPluginRepositoryArtifactException
+    extends Exception
 {
-    public Collection<PluginManagerResponse> activateInstalledPlugins()
+    private static final long serialVersionUID = 1L;
+
+    public NoSuchPluginRepositoryArtifactException( final String message )
     {
-        return Collections.emptyList(); // TODO
+        super( message );
     }
 
-    public Map<GAVCoordinate, PluginResponse> getPluginResponses()
+    public NoSuchPluginRepositoryArtifactException( final String message, final Throwable cause )
     {
-        return Collections.emptyMap(); // TODO
+        super( message, cause );
     }
 }
