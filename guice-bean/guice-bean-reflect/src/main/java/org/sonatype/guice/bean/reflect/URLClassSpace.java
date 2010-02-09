@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.jar.Manifest;
 
 /**
- * {@link ClassSpace} backed by a strongly-referenced {@link URLClassLoader}.
+ * {@link ClassSpace} backed by a strongly-referenced {@link ClassLoader} and a search path of {@link URL}s.
  */
 public final class URLClassSpace
     implements ClassSpace
@@ -42,7 +42,7 @@ public final class URLClassSpace
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final URLClassLoader loader;
+    private final ClassLoader loader;
 
     private final URL[] urls;
 
@@ -50,48 +50,28 @@ public final class URLClassSpace
     // Constructors
     // ----------------------------------------------------------------------
 
+    /**
+     * Creates a {@link ClassSpace} backed by a {@link URLClassLoader}.
+     * 
+     * @param loader The URL class loader
+     */
     public URLClassSpace( final URLClassLoader loader )
     {
+        this( loader, loader.getURLs() );
+    }
+
+    /**
+     * Creates a {@link ClassSpace} with custom 'get' and 'find' search spaces.
+     * 
+     * @param loader The class loader to use when getting resources
+     * @param urls The path of URLs to search when finding resources
+     * @see #getResources(String)
+     * @see #findEntries(String, String, boolean)
+     */
+    public URLClassSpace( final ClassLoader loader, final URL[] urls )
+    {
         this.loader = loader;
-
-        // discover all URLs reachable from the given list
-        final List<URL> searchURLs = new ArrayList<URL>();
-        Collections.addAll( searchURLs, loader.getURLs() );
-
-        final Set<URL> reachableURLs = new LinkedHashSet<URL>();
-
-        // search may grow, so use index not iterator
-        for ( int i = 0; i < searchURLs.size(); i++ )
-        {
-            final URL url = searchURLs.get( i );
-            if ( !reachableURLs.add( url ) )
-            {
-                continue; // already processed
-            }
-            final String[] classPath;
-            try
-            {
-                // search Class-Path entries in manifest in case they refer to other JARs/folders
-                classPath = getClassPath( entryURL( url, "META-INF/MANIFEST.MF" ).openStream() );
-            }
-            catch ( final IOException e ) // NOPMD
-            {
-                continue; // corrupt manifest
-            }
-            for ( final String entry : classPath )
-            {
-                try
-                {
-                    searchURLs.add( new URL( url, entry ) );
-                }
-                catch ( final IOException e ) // NOPMD
-                {
-                    // invalid Class-Path entry
-                }
-            }
-        }
-
-        urls = reachableURLs.toArray( new URL[reachableURLs.size()] );
+        this.urls = expandClassPath( urls );
     }
 
     // ----------------------------------------------------------------------
@@ -128,6 +108,53 @@ public final class URLClassSpace
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
+
+    /**
+     * Expands the given URL search path to include Class-Path entries from local manifests.
+     * 
+     * @param urls The URL search path
+     * @return Expanded URL search path
+     */
+    private static URL[] expandClassPath( final URL... urls )
+    {
+        final List<URL> searchURLs = new ArrayList<URL>();
+        Collections.addAll( searchURLs, urls );
+
+        final Set<URL> reachableURLs = new LinkedHashSet<URL>();
+
+        // search may grow, so use index not iterator
+        for ( int i = 0; i < searchURLs.size(); i++ )
+        {
+            final URL url = searchURLs.get( i );
+            if ( !reachableURLs.add( url ) )
+            {
+                continue; // already processed
+            }
+            final String[] classPath;
+            try
+            {
+                // search Class-Path entries in manifest in case they refer to other JARs/folders
+                classPath = getClassPath( entryURL( url, "META-INF/MANIFEST.MF" ).openStream() );
+            }
+            catch ( final IOException e ) // NOPMD
+            {
+                continue; // corrupt manifest
+            }
+            for ( final String entry : classPath )
+            {
+                try
+                {
+                    searchURLs.add( new URL( url, entry ) );
+                }
+                catch ( final IOException e ) // NOPMD
+                {
+                    // invalid Class-Path entry
+                }
+            }
+        }
+
+        return reachableURLs.toArray( new URL[reachableURLs.size()] );
+    }
 
     /**
      * Looks for Class-Path entries in the given manifest stream; returns empty array if none are found.
