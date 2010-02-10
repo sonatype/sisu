@@ -23,53 +23,26 @@ public class ComponentDescriptor<T>
 
     private String description;
 
+    private String implementation;
+
+    private Class<T> implementationClass;
+
     private String componentConfigurator;
 
     private String componentFactory;
 
-    private String implementation;
-
-    private ClassRealm classRealm;
-
-    private Class<T> implementationClass;
-
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
-
-    @SuppressWarnings( "unused" )
-    public final void setRole( final String role )
-    {
-    }
 
     public final void setRoleHint( final String hint )
     {
         this.hint = Hints.canonicalHint( hint );
     }
 
-    @SuppressWarnings( "unused" )
-    public final void setInstantiationStrategy( final String instantiationStrategy )
-    {
-    }
-
     public final void setDescription( final String description )
     {
         this.description = description;
-    }
-
-    @SuppressWarnings( "unused" )
-    public final void setComponentComposer( final String componentComposer )
-    {
-    }
-
-    public final void setComponentConfigurator( final String componentConfigurator )
-    {
-        this.componentConfigurator = componentConfigurator;
-    }
-
-    public final void setComponentFactory( final String componentFactory )
-    {
-        this.componentFactory = componentFactory;
     }
 
     public final void setImplementation( final String implementation )
@@ -82,6 +55,16 @@ public class ComponentDescriptor<T>
     {
         this.implementationClass = implementationClass;
         implementation = implementationClass.getName();
+    }
+
+    public final void setComponentConfigurator( final String componentConfigurator )
+    {
+        this.componentConfigurator = componentConfigurator;
+    }
+
+    public final void setComponentFactory( final String componentFactory )
+    {
+        this.componentFactory = componentFactory;
     }
 
     public String getRoleHint()
@@ -109,30 +92,34 @@ public class ComponentDescriptor<T>
         return implementation;
     }
 
+    @SuppressWarnings( "unchecked" )
+    public final Class<T> getImplementationClass()
+    {
+        return null != implementationClass ? implementationClass : (Class) Object.class;
+    }
+
+    @SuppressWarnings( "unused" )
+    public final void setRole( final String role )
+    {
+    }
+
+    @SuppressWarnings( "unused" )
+    public final void setInstantiationStrategy( final String instantiationStrategy )
+    {
+    }
+
+    @SuppressWarnings( "unused" )
+    public final void setComponentComposer( final String componentComposer )
+    {
+    }
+
     @SuppressWarnings( "unused" )
     public final void addRequirement( final ComponentRequirement requirement )
     {
     }
 
+    @SuppressWarnings( "unused" )
     public final void setRealm( final ClassRealm classRealm )
     {
-        this.classRealm = classRealm;
-    }
-
-    @SuppressWarnings( "unchecked" )
-    public final Class<T> getImplementationClass()
-    {
-        if ( null == implementationClass )
-        {
-            try
-            {
-                implementationClass = classRealm.loadClass( implementation );
-            }
-            catch ( final Throwable e ) // NOPMD
-            {
-                // ignore
-            }
-        }
-        return null == implementationClass ? (Class) Object.class : implementationClass;
     }
 }

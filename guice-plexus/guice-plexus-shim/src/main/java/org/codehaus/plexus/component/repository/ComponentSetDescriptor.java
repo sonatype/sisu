@@ -20,18 +20,13 @@ public class ComponentSetDescriptor
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final List<ComponentDescriptor<?>> components = new ArrayList<ComponentDescriptor<?>>();
-
     private boolean isolatedRealm;
+
+    private List<ComponentDescriptor<?>> components;
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
-
-    @SuppressWarnings( "unused" )
-    public final void setId( final String id )
-    {
-    }
 
     public final void setIsolatedRealm( final boolean isolatedRealm )
     {
@@ -45,18 +40,26 @@ public class ComponentSetDescriptor
 
     public final void addComponentDescriptor( final ComponentDescriptor<?> component )
     {
+        if ( null == components )
+        {
+            components = new ArrayList<ComponentDescriptor<?>>();
+        }
         components.add( component );
     }
 
     public final void setComponents( final List<ComponentDescriptor<?>> components )
     {
-        this.components.clear();
-        this.components.addAll( components );
+        this.components = new ArrayList<ComponentDescriptor<?>>( components );
     }
 
     public final List<ComponentDescriptor<?>> getComponents()
     {
         return Collections.unmodifiableList( components );
+    }
+
+    @SuppressWarnings( "unused" )
+    public final void setId( final String id )
+    {
     }
 
     @SuppressWarnings( "unused" )
