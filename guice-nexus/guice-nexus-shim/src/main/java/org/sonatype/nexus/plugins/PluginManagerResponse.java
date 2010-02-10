@@ -12,37 +12,101 @@
  */
 package org.sonatype.nexus.plugins;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import org.sonatype.plugin.metadata.GAVCoordinate;
+
 /**
- * TODO.
+ * Describes a response from the {@link NexusPluginManager} concerning a {@link PluginActivationRequest}.
  */
 public final class PluginManagerResponse
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final String LS = System.getProperty( "line.separator" );
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final boolean successful;
+    private final GAVCoordinate originator;
+
+    private final PluginActivationRequest request;
+
+    private final List<PluginResponse> responses = new ArrayList<PluginResponse>( 5 );
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    PluginManagerResponse( final boolean successful )
+    PluginManagerResponse( final GAVCoordinate originator, final PluginActivationRequest request )
     {
-        this.successful = successful;
+        this.originator = originator;
+        this.request = request;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
+    public GAVCoordinate getOriginator()
+    {
+        return originator;
+    }
+
+    public PluginActivationRequest getRequest()
+    {
+        return request;
+    }
+
+    public void addPluginResponse( final PluginResponse response )
+    {
+        responses.add( response );
+    }
+
+    public void addPluginManagerResponse( final PluginManagerResponse managerResponse )
+    {
+        responses.addAll( managerResponse.responses );
+    }
+
+    public List<PluginResponse> getProcessedPluginResponses()
+    {
+        return Collections.unmodifiableList( responses );
+    }
+
     public boolean isSuccessful()
     {
-        return successful;
+        for ( final PluginResponse r : responses )
+        {
+            if ( !r.isSuccessful() )
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     public String formatAsString( final boolean detailed )
     {
-        return "TODO: formatAsString(" + detailed + ")";// TODO
+        final StringBuilder buf = new StringBuilder();
+        final boolean successful = isSuccessful();
+
+        buf.append( "Plugin manager request \"" ).append( request ).append( "\" on plugin \"" ).append( originator );
+        buf.append( successful ? "\" was successful." : "\" FAILED!" );
+
+        if ( detailed || !successful )
+        {
+            buf.append( LS ).append( "The following plugins were processed:" ).append( LS );
+            for ( final PluginResponse r : responses )
+            {
+                buf.append( r.formatAsString( detailed ) );
+            }
+        }
+
+        return buf.toString();
     }
 }

@@ -33,7 +33,7 @@ public final class DefaultNexusPluginManager
     implements NexusPluginManager
 {
     @Inject
-    PluginRepositoryManager repositoryManager;
+    private PluginRepositoryManager repositoryManager;
 
     public Map<GAVCoordinate, PluginDescriptor> getActivatedPlugins()
     {

@@ -12,36 +12,45 @@
  */
 package org.sonatype.nexus.plugins;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+
 import org.sonatype.plugin.metadata.GAVCoordinate;
 
 /**
- * TODO.
+ * Describes a response from a Nexus plugin concerning a {@link PluginActivationRequest}.
  */
 public final class PluginResponse
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final String LS = System.getProperty( "line.separator" );
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final GAVCoordinate coordinate;
+    private final GAVCoordinate gav;
 
-    private final PluginDescriptor descriptor;
+    private final PluginActivationRequest request;
 
-    private final PluginActivationResult result;
+    private PluginActivationResult result;
 
-    private final boolean successful;
+    private PluginDescriptor descriptor;
+
+    private Throwable reason;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    PluginResponse( final GAVCoordinate coordinate, final PluginDescriptor descriptor,
-                    final PluginActivationResult result, final boolean successful )
+    PluginResponse( final GAVCoordinate gav, final PluginActivationRequest request )
     {
-        this.coordinate = coordinate;
-        this.descriptor = descriptor;
-        this.result = result;
-        this.successful = successful;
+        this.gav = gav;
+        this.request = request;
     }
 
     // ----------------------------------------------------------------------
@@ -50,12 +59,17 @@ public final class PluginResponse
 
     public GAVCoordinate getPluginCoordinates()
     {
-        return coordinate;
+        return gav;
     }
 
-    public PluginDescriptor getPluginDescriptor()
+    public PluginActivationRequest getWantedGoal()
     {
-        return descriptor;
+        return request;
+    }
+
+    public void setAchievedGoal( final PluginActivationResult result )
+    {
+        this.result = result;
     }
 
     public PluginActivationResult getAchievedGoal()
@@ -63,13 +77,54 @@ public final class PluginResponse
         return result;
     }
 
+    public void setPluginDescriptor( final PluginDescriptor descriptor )
+    {
+        this.descriptor = descriptor;
+    }
+
+    public PluginDescriptor getPluginDescriptor()
+    {
+        return descriptor;
+    }
+
+    public void setThrowable( final Throwable reason )
+    {
+        this.reason = reason;
+        result = PluginActivationResult.BROKEN;
+    }
+
+    public Throwable getThrowable()
+    {
+        return reason;
+    }
+
     public boolean isSuccessful()
     {
-        return successful;
+        return request.isSuccessful( result );
     }
 
     public String formatAsString( final boolean detailed )
     {
-        return "TODO: formatAsString(" + detailed + ")";// TODO
+        final StringBuilder buf = new StringBuilder();
+
+        buf.append( "... " ).append( gav );
+        buf.append( " :: action=" ).append( request ).append( " result=" ).append( result ).append( LS );
+        if ( !isSuccessful() && null != reason )
+        {
+            buf.append( "       Reason: " ).append( reason.getLocalizedMessage() ).append( LS );
+            if ( detailed )
+            {
+                final Writer writer = new StringWriter();
+                reason.printStackTrace( new PrintWriter( writer ) );
+                buf.append( "Stack trace:" ).append( LS ).append( writer ).append( LS );
+            }
+        }
+
+        if ( detailed && null != descriptor )
+        {
+            buf.append( descriptor.formatAsString( true ) );
+        }
+
+        return buf.toString();
     }
 }

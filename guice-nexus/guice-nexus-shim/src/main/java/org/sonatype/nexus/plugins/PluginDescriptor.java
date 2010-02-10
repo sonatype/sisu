@@ -87,6 +87,31 @@ public final class PluginDescriptor
         return Arrays.asList( exportedClassNames );
     }
 
+    public String formatAsString( final boolean detailed )
+    {
+        return detailed ? "" : "";
+        /****
+         * buf.append( LS ); buf.append( "       Detailed report about the plugin \"" +
+         * descriptor.getPluginCoordinates() + "\":" ); buf.append( LS ).append( LS ); buf.append( "         Source: \""
+         * + descriptor.getSource() + "\":" + LS ); buf.append( "         Plugin defined these components:\n" ); for (
+         * ComponentDescriptor<?> component : descriptor.getComponents() ) { final String hint =
+         * component.getRoleHint(); buf.append( "         * FQN of Type \"" + component.getRole() ); if (
+         * !Hints.isDefaultHint( hint ) ) { buf.append( "\", named as \"" + hint ); } buf.append(
+         * "\", with implementation \"" + component.getImplementation() + "\"" + LS ); } final Map<String,
+         * RepositoryTypeDescriptor> repositoryTypes = descriptor.getPluginRepositoryTypes(); if (
+         * !pluginRepositoryTypes.isEmpty() ) { buf.append( LS ); buf.append(
+         * "         Plugin defined these custom repository types:" ); buf.append( LS ); for ( final
+         * RepositoryTypeDescriptor type : repositoryTypes.values() ) { buf.append( "         * FQN of Type \"" +
+         * type.getRole() + "\", to be published at path \"" + type.getPrefix() + "\"" ); buf.append( LS ); } } final
+         * List<PluginStaticResourceModel> staticResourceModels = descriptor.getPluginStaticResourceModels(); if (
+         * !staticResourceModels.isEmpty() ) { buf.append( LS ); buf.append(
+         * "         Plugin contributed these static resources:" ); buf.append( LS ); for ( final
+         * PluginStaticResourceModel model : staticResourceModels ) { buf.append( "         * Resource path \"" +
+         * model.getResourcePath() + "\", to be published at path \"" + model.getPublishedPath() + "\", content type \""
+         * + model.getContentType() + "\"" ); buf.append( LS ); } }
+         ****/
+    }
+
     // ----------------------------------------------------------------------
     // Locally-shared methods
     // ----------------------------------------------------------------------
