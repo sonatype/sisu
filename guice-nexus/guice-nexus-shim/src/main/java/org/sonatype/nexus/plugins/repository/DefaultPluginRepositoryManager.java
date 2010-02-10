@@ -12,20 +12,27 @@
  */
 package org.sonatype.nexus.plugins.repository;
 
+import java.util.Collections;
 import java.util.Map;
 
+import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.plugin.metadata.GAVCoordinate;
 import org.sonatype.plugins.model.PluginMetadata;
 
 /**
  * Default {@link PluginRepositoryManager} implementation.
  */
+@Component( role = PluginRepositoryManager.class )
 final class DefaultPluginRepositoryManager
     implements PluginRepositoryManager
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
+
+    @Requirement( role = NexusPluginRepository.class )
+    private Map<String, NexusPluginRepository> repositories;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -37,12 +44,12 @@ final class DefaultPluginRepositoryManager
 
     public NexusPluginRepository getNexusPluginRepository( final String id )
     {
-        throw new UnsupportedOperationException(); // TODO
+        return repositories.get( id );
     }
 
     public Map<GAVCoordinate, PluginMetadata> findAvailablePlugins()
     {
-        throw new UnsupportedOperationException(); // TODO
+        return Collections.emptyMap(); // TODO
     }
 
     public PluginRepositoryArtifact resolveArtifact( final GAVCoordinate gav )

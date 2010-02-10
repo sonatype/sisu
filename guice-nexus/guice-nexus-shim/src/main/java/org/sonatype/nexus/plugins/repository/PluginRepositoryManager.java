@@ -12,12 +12,9 @@
  */
 package org.sonatype.nexus.plugins.repository;
 
-import com.google.inject.ImplementedBy;
-
 /**
  * Aggregates zero or more {@link NexusPluginRepository} instances.
  */
-@ImplementedBy( DefaultPluginRepositoryManager.class )
 public interface PluginRepositoryManager
     extends NexusPluginRepository
 {

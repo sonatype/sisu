@@ -16,12 +16,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
+import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.nexus.plugins.repository.PluginRepositoryManager;
 import org.sonatype.plugin.metadata.GAVCoordinate;
 import org.sonatype.plugins.model.PluginMetadata;
@@ -29,6 +30,7 @@ import org.sonatype.plugins.model.PluginMetadata;
 /**
  * Default {@link NexusPluginManager} implementation backed by a {@link PluginRepositoryManager}.
  */
+@Component( role = NexusPluginManager.class )
 public final class DefaultNexusPluginManager
     implements NexusPluginManager
 {
@@ -37,6 +39,10 @@ public final class DefaultNexusPluginManager
     // ----------------------------------------------------------------------
 
     private final PluginRepositoryManager repositoryManager;
+
+    private final Map<GAVCoordinate, PluginDescriptor> activePlugins = new HashMap<GAVCoordinate, PluginDescriptor>();
+
+    private final Map<GAVCoordinate, PluginResponse> pluginResponses = new HashMap<GAVCoordinate, PluginResponse>();
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -54,37 +60,37 @@ public final class DefaultNexusPluginManager
 
     public Map<GAVCoordinate, PluginDescriptor> getActivatedPlugins()
     {
-        throw new UnsupportedOperationException(); // TODO
+        return new HashMap<GAVCoordinate, PluginDescriptor>( activePlugins );
     }
 
     public Map<GAVCoordinate, PluginMetadata> getInstalledPlugins()
     {
-        return Collections.unmodifiableMap( repositoryManager.findAvailablePlugins() );
+        return repositoryManager.findAvailablePlugins();
     }
 
     public Map<GAVCoordinate, PluginResponse> getPluginResponses()
     {
-        throw new UnsupportedOperationException(); // TODO
+        return new HashMap<GAVCoordinate, PluginResponse>( pluginResponses );
     }
 
     public Collection<PluginManagerResponse> activateInstalledPlugins()
     {
         final List<PluginManagerResponse> result = new ArrayList<PluginManagerResponse>();
-        // for ( final GAVCoordinate gav : repositoryManager.findAvailablePlugins().keySet() )
-        // {
-        // result.add( activatePlugin( gav ) );
-        // }
+        for ( final GAVCoordinate gav : repositoryManager.findAvailablePlugins().keySet() )
+        {
+            result.add( activatePlugin( gav ) );
+        }
         return result;
     }
 
     public boolean isActivatedPlugin( final GAVCoordinate gav )
     {
-        throw new UnsupportedOperationException(); // TODO
+        return activePlugins.containsKey( gav );
     }
 
     public PluginManagerResponse activatePlugin( final GAVCoordinate gav )
     {
-        throw new UnsupportedOperationException(); // TODO
+        return new PluginManagerResponse( gav, PluginActivationRequest.ACTIVATE ); // TODO
     }
 
     public PluginManagerResponse deactivatePlugin( final GAVCoordinate gav )
