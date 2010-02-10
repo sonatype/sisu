@@ -23,6 +23,18 @@ import org.sonatype.plugins.model.PluginMetadata;
 final class DefaultPluginRepositoryManager
     implements PluginRepositoryManager
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
     public NexusPluginRepository getNexusPluginRepository( final String id )
     {
         throw new UnsupportedOperationException(); // TODO
@@ -56,4 +68,8 @@ final class DefaultPluginRepositoryManager
     {
         throw new UnsupportedOperationException(); // TODO
     }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
 }

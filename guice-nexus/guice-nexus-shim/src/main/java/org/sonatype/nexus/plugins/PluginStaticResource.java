@@ -15,34 +15,86 @@ package org.sonatype.nexus.plugins;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.nexus.plugins.rest.StaticResource;
 
+/**
+ * {@link StaticResource} contributed from a Nexus plugin.
+ */
 public final class PluginStaticResource
     implements StaticResource
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final String resourcePath;
+
+    private final String publishedPath;
+
+    private final String contentType;
+
+    private ClassSpace space;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    public PluginStaticResource( final String resourcePath, final String publishedPath, final String contentType )
+    {
+        this.resourcePath = resourcePath;
+        this.publishedPath = publishedPath;
+        this.contentType = contentType;
+    }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
     public String getResourcePath()
     {
-        throw new UnsupportedOperationException(); // TODO
+        return resourcePath;
     }
 
     public String getPath()
     {
-        throw new UnsupportedOperationException(); // TODO
+        return publishedPath;
     }
 
     public String getContentType()
     {
-        throw new UnsupportedOperationException(); // TODO
+        return contentType;
     }
 
     public long getSize()
     {
-        throw new UnsupportedOperationException(); // TODO
+        try
+        {
+            return space.getResource( resourcePath ).openConnection().getContentLength();
+        }
+        catch ( final Exception e ) // NOPMD
+        {
+            // default to unknown size
+        }
+        return -1;
     }
 
     public InputStream getInputStream()
         throws IOException
     {
-        throw new UnsupportedOperationException(); // TODO
+        if ( null != space )
+        {
+            return space.getResource( resourcePath ).openStream();
+        }
+        throw new IOException( "Plugin resource \"" + resourcePath + "\" has no class space" );
+    }
+
+    // ----------------------------------------------------------------------
+    // Locally-shared methods
+    // ----------------------------------------------------------------------
+
+    void setClassSpace( final ClassSpace space )
+    {
+        this.space = space;
     }
 }

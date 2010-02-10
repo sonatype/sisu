@@ -32,8 +32,25 @@ import org.sonatype.plugins.model.PluginMetadata;
 public final class DefaultNexusPluginManager
     implements NexusPluginManager
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final PluginRepositoryManager repositoryManager;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
     @Inject
-    private PluginRepositoryManager repositoryManager;
+    DefaultNexusPluginManager( final PluginRepositoryManager repositoryManager )
+    {
+        this.repositoryManager = repositoryManager;
+    }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
     public Map<GAVCoordinate, PluginDescriptor> getActivatedPlugins()
     {
@@ -86,4 +103,9 @@ public final class DefaultNexusPluginManager
     {
         throw new UnsupportedOperationException(); // TODO
     }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
 }
