@@ -67,30 +67,14 @@ public final class PluginResponse
         return request;
     }
 
-    public void setAchievedGoal( final PluginActivationResult result )
-    {
-        this.result = result;
-    }
-
     public PluginActivationResult getAchievedGoal()
     {
         return result;
     }
 
-    public void setPluginDescriptor( final PluginDescriptor descriptor )
-    {
-        this.descriptor = descriptor;
-    }
-
     public PluginDescriptor getPluginDescriptor()
     {
         return descriptor;
-    }
-
-    public void setThrowable( final Throwable reason )
-    {
-        this.reason = reason;
-        result = PluginActivationResult.BROKEN;
     }
 
     public Throwable getThrowable()
@@ -122,9 +106,29 @@ public final class PluginResponse
 
         if ( detailed && null != descriptor )
         {
-            buf.append( descriptor.formatAsString( true ) );
+            buf.append( LS ).append( descriptor.formatAsString() );
         }
 
         return buf.toString();
+    }
+
+    // ----------------------------------------------------------------------
+    // Locally-shared methods
+    // ----------------------------------------------------------------------
+
+    void setAchievedGoal( final PluginActivationResult result )
+    {
+        this.result = result;
+    }
+
+    void setPluginDescriptor( final PluginDescriptor descriptor )
+    {
+        this.descriptor = descriptor;
+    }
+
+    void setThrowable( final Throwable reason )
+    {
+        this.reason = reason;
+        result = PluginActivationResult.BROKEN;
     }
 }

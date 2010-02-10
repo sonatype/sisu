@@ -12,23 +12,17 @@
  */
 package org.sonatype.nexus.plugins;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.net.URL;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import org.codehaus.plexus.util.IOUtil;
-import org.codehaus.plexus.util.InterpolationFilterReader;
-import org.codehaus.plexus.util.ReaderFactory;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.sonatype.nexus.plugins.rest.StaticResource;
+import org.sonatype.nexus.proxy.registry.RepositoryTypeDescriptor;
+import org.sonatype.plugin.metadata.GAVCoordinate;
 import org.sonatype.plugins.model.PluginMetadata;
-import org.sonatype.plugins.model.io.xpp3.PluginModelXpp3Reader;
 
 /**
- * Describes a Nexus plugin; what it contains and what it exports.
+ * Describes a Nexus plugin: its metadata, exports/imports, and what resources it contains.
  */
 public final class PluginDescriptor
 {
@@ -36,135 +30,139 @@ public final class PluginDescriptor
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final PluginModelXpp3Reader PLUGIN_METADATA_READER = new PluginModelXpp3Reader();
-
-    private static final String[] NO_EXPORTS = new String[0];
+    private static final String LS = System.getProperty( "line.separator" );
 
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final URL pluginXml;
-
-    private final Map<?, ?> variables;
+    private final GAVCoordinate gav;
 
     private PluginMetadata metadata;
 
-    private String[] exportedClassNames = NO_EXPORTS;
+    private List<String> exportedResources;
+
+    private List<GAVCoordinate> importedPlugins;
+
+    private List<RepositoryTypeDescriptor> repositoryTypes;
+
+    private List<PluginStaticResource> staticResources;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    PluginDescriptor( final URL pluginXml, final Map<?, ?> variables )
+    PluginDescriptor( final GAVCoordinate gav )
     {
-        this.pluginXml = pluginXml;
-        this.variables = variables;
+        this.gav = gav;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
+    public GAVCoordinate getPluginCoordinates()
+    {
+        return gav;
+    }
+
     public PluginMetadata getPluginMetadata()
     {
-        if ( null == metadata )
-        {
-            try
-            {
-                metadata = parsePluginXml( pluginXml, variables );
-            }
-            catch ( final IOException e )
-            {
-                throw new RuntimeException( e.toString() );
-            }
-        }
         return metadata;
     }
 
-    public List<String> getExportedClassnames()
+    @SuppressWarnings( "unchecked" )
+    public List<String> getExportedResources()
     {
-        return Arrays.asList( exportedClassNames );
+        return exportedResources != null ? exportedResources : Collections.EMPTY_LIST;
     }
 
-    public String formatAsString( final boolean detailed )
+    @SuppressWarnings( "unchecked" )
+    public List<GAVCoordinate> getImportedPlugins()
     {
-        return detailed ? "" : "";
-        /****
-         * buf.append( LS ); buf.append( "       Detailed report about the plugin \"" +
-         * descriptor.getPluginCoordinates() + "\":" ); buf.append( LS ).append( LS ); buf.append( "         Source: \""
-         * + descriptor.getSource() + "\":" + LS ); buf.append( "         Plugin defined these components:\n" ); for (
-         * ComponentDescriptor<?> component : descriptor.getComponents() ) { final String hint =
-         * component.getRoleHint(); buf.append( "         * FQN of Type \"" + component.getRole() ); if (
-         * !Hints.isDefaultHint( hint ) ) { buf.append( "\", named as \"" + hint ); } buf.append(
-         * "\", with implementation \"" + component.getImplementation() + "\"" + LS ); } final Map<String,
-         * RepositoryTypeDescriptor> repositoryTypes = descriptor.getPluginRepositoryTypes(); if (
-         * !pluginRepositoryTypes.isEmpty() ) { buf.append( LS ); buf.append(
-         * "         Plugin defined these custom repository types:" ); buf.append( LS ); for ( final
-         * RepositoryTypeDescriptor type : repositoryTypes.values() ) { buf.append( "         * FQN of Type \"" +
-         * type.getRole() + "\", to be published at path \"" + type.getPrefix() + "\"" ); buf.append( LS ); } } final
-         * List<PluginStaticResourceModel> staticResourceModels = descriptor.getPluginStaticResourceModels(); if (
-         * !staticResourceModels.isEmpty() ) { buf.append( LS ); buf.append(
-         * "         Plugin contributed these static resources:" ); buf.append( LS ); for ( final
-         * PluginStaticResourceModel model : staticResourceModels ) { buf.append( "         * Resource path \"" +
-         * model.getResourcePath() + "\", to be published at path \"" + model.getPublishedPath() + "\", content type \""
-         * + model.getContentType() + "\"" ); buf.append( LS ); } }
-         ****/
+        return importedPlugins != null ? importedPlugins : Collections.EMPTY_LIST;
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public List<RepositoryTypeDescriptor> getRepositoryTypes()
+    {
+        return repositoryTypes != null ? repositoryTypes : Collections.EMPTY_LIST;
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public List<StaticResource> getStaticResources()
+    {
+        return staticResources != null ? staticResources : Collections.EMPTY_LIST;
+    }
+
+    public String formatAsString()
+    {
+        final StringBuilder buf = new StringBuilder();
+
+        buf.append( "       Detailed report about plugin \"" ).append( gav ).append( "\":" ).append( LS );
+
+        if ( metadata != null )
+        {
+            buf.append( LS );
+            buf.append( "         Source: \"" ).append( metadata.sourceUrl ).append( "\"" ).append( LS );
+        }
+
+        // TODO: list components? list exports/imports?
+
+        if ( repositoryTypes != null )
+        {
+            buf.append( LS );
+            buf.append( "         Custom repository types:" ).append( LS );
+
+            for ( final RepositoryTypeDescriptor type : repositoryTypes )
+            {
+                buf.append( "         * Repository type \"" ).append( type.getRole() );
+                buf.append( "\", to be published at path \"" ).append( type.getPrefix() ).append( "\"" ).append( LS );
+            }
+        }
+
+        if ( staticResources != null )
+        {
+            buf.append( LS );
+            buf.append( "         Static resources:" ).append( LS );
+
+            for ( final PluginStaticResource resource : staticResources )
+            {
+                buf.append( "         * Resource path \"" ).append( resource.getResourcePath() );
+                buf.append( "\", to be published at path \"" ).append( resource.getPath() );
+                buf.append( "\", content type \"" ).append( resource.getContentType() ).append( "\"" ).append( LS );
+            }
+        }
+
+        return buf.toString();
     }
 
     // ----------------------------------------------------------------------
     // Locally-shared methods
     // ----------------------------------------------------------------------
 
-    void setExportedClassnames( final String... classNames )
+    void setPluginMetadata( final PluginMetadata metadata )
     {
-        exportedClassNames = classNames;
+        this.metadata = metadata;
     }
 
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * Wraps the given {@link InputStream} as a {@link Reader} with XML encoding detection and optional interpolation.
-     * 
-     * @param in The input stream
-     * @param variables The filter variables
-     * @return Reader that can automatically detect XML encodings and optionally interpolate variables
-     */
-    private static Reader filteredXmlReader( final InputStream in, final Map<?, ?> variables )
-        throws IOException
+    void setExportedResources( final List<String> resources )
     {
-        final Reader reader = ReaderFactory.newXmlReader( in );
-        if ( null != variables )
-        {
-            return new InterpolationFilterReader( reader, variables );
-        }
-        return reader;
+        exportedResources = Collections.unmodifiableList( new ArrayList<String>( resources ) );
     }
 
-    /**
-     * Parses a {@code plugin.xml} resource into plugin metadata.
-     * 
-     * @param url The plugin.xml URL
-     * @param variables The filter variables
-     * @return Nexus plugin metadata
-     */
-    private static PluginMetadata parsePluginXml( final URL url, final Map<?, ?> variables )
-        throws IOException
+    void setImportedPlugins( final List<GAVCoordinate> plugins )
     {
-        final InputStream in = url.openStream();
-        try
-        {
-            return PLUGIN_METADATA_READER.read( filteredXmlReader( in, variables ) );
-        }
-        catch ( final XmlPullParserException e )
-        {
-            throw new IOException( "Problem parsing: " + url + " reason: " + e );
-        }
-        finally
-        {
-            IOUtil.close( in );
-        }
+        importedPlugins = Collections.unmodifiableList( new ArrayList<GAVCoordinate>( plugins ) );
+    }
+
+    void setRepositoryTypes( final List<RepositoryTypeDescriptor> types )
+    {
+        repositoryTypes = Collections.unmodifiableList( new ArrayList<RepositoryTypeDescriptor>( types ) );
+    }
+
+    void setStaticResources( final List<PluginStaticResource> resources )
+    {
+        staticResources = Collections.unmodifiableList( new ArrayList<PluginStaticResource>( resources ) );
     }
 }

@@ -53,10 +53,10 @@ public final class DefaultNexusPluginManager
     public Collection<PluginManagerResponse> activateInstalledPlugins()
     {
         final List<PluginManagerResponse> result = new ArrayList<PluginManagerResponse>();
-        for ( final GAVCoordinate gav : repositoryManager.findAvailablePlugins().keySet() )
-        {
-            result.add( activatePlugin( gav ) );
-        }
+        // for ( final GAVCoordinate gav : repositoryManager.findAvailablePlugins().keySet() )
+        // {
+        // result.add( activatePlugin( gav ) );
+        // }
         return result;
     }
 

@@ -63,16 +63,6 @@ public final class PluginManagerResponse
         return request;
     }
 
-    public void addPluginResponse( final PluginResponse response )
-    {
-        responses.add( response );
-    }
-
-    public void addPluginManagerResponse( final PluginManagerResponse managerResponse )
-    {
-        responses.addAll( managerResponse.responses );
-    }
-
     public List<PluginResponse> getProcessedPluginResponses()
     {
         return Collections.unmodifiableList( responses );
@@ -108,5 +98,19 @@ public final class PluginManagerResponse
         }
 
         return buf.toString();
+    }
+
+    // ----------------------------------------------------------------------
+    // Locally-shared methods
+    // ----------------------------------------------------------------------
+
+    void addPluginResponse( final PluginResponse response )
+    {
+        responses.add( response );
+    }
+
+    void addPluginManagerResponse( final PluginManagerResponse managerResponse )
+    {
+        responses.addAll( managerResponse.responses );
     }
 }

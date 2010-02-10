@@ -17,7 +17,7 @@ public enum PluginActivationRequest
     ACTIVATE
     {
         @Override
-        public boolean isSuccessful( final PluginActivationResult result )
+        final boolean isSuccessful( final PluginActivationResult result )
         {
             return result == PluginActivationResult.ACTIVATED;
         }
@@ -25,7 +25,7 @@ public enum PluginActivationRequest
     DEACTIVATE
     {
         @Override
-        public boolean isSuccessful( final PluginActivationResult result )
+        final boolean isSuccessful( final PluginActivationResult result )
         {
             return result == PluginActivationResult.DEACTIVATED;
         }
