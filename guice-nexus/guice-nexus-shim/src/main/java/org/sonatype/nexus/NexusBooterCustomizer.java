@@ -23,6 +23,10 @@ import org.sonatype.appbooter.PlexusAppBooterCustomizer;
 public final class NexusBooterCustomizer
     implements PlexusAppBooterCustomizer
 {
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
     public void customizeContainerConfiguration( final ContainerConfiguration configuration )
     {
         // nothing to customize

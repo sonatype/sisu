@@ -21,6 +21,7 @@ public final class NoSuchPluginRepositoryArtifactException
 
     NoSuchPluginRepositoryArtifactException( final GAVCoordinate gav, final String repoId )
     {
-        super( "Plugin \"" + gav + "\" not found" + ( repoId == null ? "!" : " in repository \"" + repoId + "\"!" ) );
+        super( "Plugin artifact \"" + gav + "\" not found"
+            + ( repoId == null ? "!" : " in repository \"" + repoId + "\"!" ) );
     }
 }

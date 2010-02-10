@@ -12,10 +12,20 @@
  */
 package org.sonatype.nexus.plugins.repository;
 
-import org.sonatype.plugin.metadata.GAVCoordinate;
+import com.google.inject.ImplementedBy;
 
+/**
+ * Aggregates zero or more {@link NexusPluginRepository} instances.
+ */
+@ImplementedBy( DefaultPluginRepositoryManager.class )
 public interface PluginRepositoryManager
+    extends NexusPluginRepository
 {
-    PluginRepositoryArtifact resolveArtifact( GAVCoordinate gav )
-        throws NoSuchPluginRepositoryArtifactException;
+    /**
+     * Selects a specific {@link NexusPluginRepository} from the aggregate.
+     * 
+     * @param id The repository ID
+     * @return Selected repository
+     */
+    NexusPluginRepository getNexusPluginRepository( String id );
 }

@@ -12,17 +12,48 @@
  */
 package org.sonatype.nexus.plugins.repository;
 
+import java.util.Map;
+
 import org.sonatype.plugin.metadata.GAVCoordinate;
+import org.sonatype.plugins.model.PluginMetadata;
 
 /**
- * TODO.
+ * Default {@link PluginRepositoryManager} implementation.
  */
-public final class DefaultPluginRepositoryManager
+final class DefaultPluginRepositoryManager
     implements PluginRepositoryManager
 {
+    public NexusPluginRepository getNexusPluginRepository( final String id )
+    {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    public Map<GAVCoordinate, PluginMetadata> findAvailablePlugins()
+    {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
     public PluginRepositoryArtifact resolveArtifact( final GAVCoordinate gav )
         throws NoSuchPluginRepositoryArtifactException
     {
-        return null; // TODO
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    public PluginRepositoryArtifact resolveDependencyArtifact( final PluginRepositoryArtifact dependant,
+                                                               final GAVCoordinate gav )
+        throws NoSuchPluginRepositoryArtifactException
+    {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    public PluginMetadata getPluginMetadata( final GAVCoordinate gav )
+        throws NoSuchPluginRepositoryArtifactException
+    {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    public int compareTo( final NexusPluginRepository o )
+    {
+        throw new UnsupportedOperationException(); // TODO
     }
 }
