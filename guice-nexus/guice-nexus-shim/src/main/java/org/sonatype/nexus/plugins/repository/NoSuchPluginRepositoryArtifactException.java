@@ -12,18 +12,15 @@
  */
 package org.sonatype.nexus.plugins.repository;
 
+import org.sonatype.plugin.metadata.GAVCoordinate;
+
 public final class NoSuchPluginRepositoryArtifactException
     extends Exception
 {
     private static final long serialVersionUID = 1L;
 
-    public NoSuchPluginRepositoryArtifactException( final String message )
+    NoSuchPluginRepositoryArtifactException( final GAVCoordinate gav, final String repoId )
     {
-        super( message );
-    }
-
-    public NoSuchPluginRepositoryArtifactException( final String message, final Throwable cause )
-    {
-        super( message, cause );
+        super( "Plugin \"" + gav + "\" not found" + ( repoId == null ? "!" : " in repository \"" + repoId + "\"!" ) );
     }
 }
