@@ -163,7 +163,6 @@ public class XmlPlexusBeanSourceTest
         }
         catch ( final RuntimeException e )
         {
-            System.out.println( e );
         }
     }
 
@@ -226,7 +225,6 @@ public class XmlPlexusBeanSourceTest
         }
         catch ( final RuntimeException e )
         {
-            System.out.println( e );
         }
     }
 
@@ -359,7 +357,6 @@ public class XmlPlexusBeanSourceTest
         }
         catch ( final RuntimeException e )
         {
-            System.out.println( e );
         }
 
         try
@@ -370,7 +367,6 @@ public class XmlPlexusBeanSourceTest
         }
         catch ( final RuntimeException e )
         {
-            System.out.println( e );
         }
 
         try
@@ -381,7 +377,6 @@ public class XmlPlexusBeanSourceTest
         }
         catch ( final RuntimeException e )
         {
-            System.out.println( e );
         }
 
         {
@@ -403,7 +398,6 @@ public class XmlPlexusBeanSourceTest
         }
         catch ( final TypeNotPresentException e )
         {
-            System.out.println( e );
         }
     }
 

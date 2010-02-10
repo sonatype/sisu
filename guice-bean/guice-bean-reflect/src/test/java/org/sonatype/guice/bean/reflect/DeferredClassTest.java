@@ -56,7 +56,6 @@ public class DeferredClassTest
         }
         catch ( final TypeNotPresentException e )
         {
-            System.out.println( e.toString() );
         }
     }
 }

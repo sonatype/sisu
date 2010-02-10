@@ -91,7 +91,6 @@ public class DateConstantTest
         }
         catch ( final ConfigurationException e )
         {
-            System.out.println( e );
         }
     }
 }

@@ -16,6 +16,7 @@ import static org.sonatype.guice.plexus.scanners.AnnotatedPlexusComponentScanner
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Named;
@@ -28,6 +29,8 @@ import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.plexus.scanners.EmptyAnnotationVisitor;
 import org.sonatype.guice.plexus.scanners.EmptyClassVisitor;
 import org.sonatype.guice.plexus.scanners.PlexusComponentClassVisitor;
+import org.sonatype.nexus.plugins.RepositoryType;
+import org.sonatype.nexus.proxy.registry.RepositoryTypeDescriptor;
 import org.sonatype.plugin.ExtensionPoint;
 import org.sonatype.plugin.Managed;
 
@@ -49,6 +52,8 @@ final class NexusComponentClassVisitor
 
     static final String NAMED_DESC = Type.getDescriptor( Named.class );
 
+    static final String REPOSITORY_TYPE_DESC = Type.getDescriptor( RepositoryType.class );
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -59,17 +64,25 @@ final class NexusComponentClassVisitor
 
     private final AnnotationVisitor namedVisitor = new NamedAnnotationVisitor();
 
+    private final AnnotationVisitor repositoryTypeVisitor = new RepositoryTypeAnnotationVisitor();
+
+    final List<RepositoryTypeDescriptor> repositoryTypes;
+
     private boolean skipClass;
 
     NexusComponentType type;
+
+    String className;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    NexusComponentClassVisitor( final ClassSpace space )
+    NexusComponentClassVisitor( final ClassSpace space, final List<RepositoryTypeDescriptor> repositoryTypes )
     {
         super( space );
+
+        this.repositoryTypes = repositoryTypes;
     }
 
     // ----------------------------------------------------------------------
@@ -80,7 +93,9 @@ final class NexusComponentClassVisitor
     public void visit( final int version, final int access, final String name, final String signature,
                        final String superName, final String[] interfaces )
     {
+        className = name;
         skipClass = true;
+
         super.visit( version, access, name, signature, superName, interfaces );
         if ( skipClass || interfaces.length == 0 )
         {
@@ -114,6 +129,10 @@ final class NexusComponentClassVisitor
         if ( type.isComponent() && NAMED_DESC.equals( desc ) )
         {
             return namedVisitor;
+        }
+        if ( null != repositoryTypes && REPOSITORY_TYPE_DESC.equals( desc ) )
+        {
+            return repositoryTypeVisitor;
         }
         return super.visitAnnotation( desc, visible );
     }
@@ -207,6 +226,20 @@ final class NexusComponentClassVisitor
         public void visit( final String name, final Object value )
         {
             setHint( (String) value );
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // RepositoryType annotation visitor
+    // ----------------------------------------------------------------------
+
+    final class RepositoryTypeAnnotationVisitor
+        extends EmptyAnnotationVisitor
+    {
+        @Override
+        public void visit( final String name, final Object value )
+        {
+            repositoryTypes.add( new RepositoryTypeDescriptor( className.replace( '/', '.' ), (String) value ) );
         }
     }
 }

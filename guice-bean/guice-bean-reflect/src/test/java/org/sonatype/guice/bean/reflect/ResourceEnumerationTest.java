@@ -145,7 +145,7 @@ public class ResourceEnumerationTest
 
         try
         {
-            System.out.println( e.nextElement() );
+            e.nextElement();
             fail( "Expected IllegalStateException" );
         }
         catch ( final IllegalStateException ise )

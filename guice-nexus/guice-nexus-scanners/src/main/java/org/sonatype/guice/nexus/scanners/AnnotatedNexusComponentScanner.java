@@ -15,12 +15,14 @@ package org.sonatype.guice.nexus.scanners;
 import static org.sonatype.guice.plexus.scanners.AnnotatedPlexusComponentScanner.visitClassResources;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.scanners.PlexusComponentScanner;
+import org.sonatype.nexus.proxy.registry.RepositoryTypeDescriptor;
 
 /**
  * {@link PlexusComponentScanner} that uses runtime annotations to discover Nexus components.
@@ -29,12 +31,28 @@ public final class AnnotatedNexusComponentScanner
     implements PlexusComponentScanner
 {
     // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final List<RepositoryTypeDescriptor> repositoryTypes;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    public AnnotatedNexusComponentScanner( final List<RepositoryTypeDescriptor> repositoryTypes )
+    {
+        this.repositoryTypes = repositoryTypes;
+    }
+
+    // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
     public Map<Component, DeferredClass<?>> scan( final ClassSpace space, final boolean localSearch )
         throws IOException
     {
-        return visitClassResources( space, new NexusComponentClassVisitor( space ) ).getComponents();
+        final NexusComponentClassVisitor visitor = new NexusComponentClassVisitor( space, repositoryTypes );
+        return visitClassResources( space, visitor ).getComponents();
     }
 }

@@ -203,7 +203,6 @@ public class FileEntryIteratorTest
         }
         catch ( final IOException e )
         {
-            System.out.println( e + " " + jar.getName() );
         }
 
         return dir.toURI().toURL();

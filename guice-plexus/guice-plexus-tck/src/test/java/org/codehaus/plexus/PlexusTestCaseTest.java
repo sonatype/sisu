@@ -47,6 +47,10 @@ public class PlexusTestCaseTest
     {
         PlexusTestCase tc = new PlexusTestCase()
         {
+            protected String getConfigurationName( String subname )
+            {
+                return null;
+            }
         };
 
         tc.setUp();

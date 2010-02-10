@@ -308,7 +308,6 @@ public class GuiceBeanLocatorTest
         }
         catch ( final ProvisionException e )
         {
-            System.out.println( e );
         }
 
         try

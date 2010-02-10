@@ -36,6 +36,17 @@
           <artifactId>build-helper-maven-plugin</artifactId>
           <version>1.4</version>
         </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <systemProperties>
+              <property>
+                <name>log4j.configuration</name>
+                <value>test-log4j.xml</value>
+              </property>
+            </systemProperties>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
@@ -74,7 +85,7 @@
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
+        <artifactId>slf4j-log4j12</artifactId>
         <version>1.5.10</version>
       </dependency>
 

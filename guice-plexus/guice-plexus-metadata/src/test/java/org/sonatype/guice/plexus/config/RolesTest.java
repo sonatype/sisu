@@ -93,7 +93,6 @@ public class RolesTest
         }
         catch ( final ProvisionException e )
         {
-            System.out.println( e );
         }
 
         try
@@ -103,7 +102,6 @@ public class RolesTest
         }
         catch ( final ProvisionException e )
         {
-            System.out.println( e );
         }
     }
 }

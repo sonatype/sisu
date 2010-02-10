@@ -354,7 +354,6 @@ public class PlexusRequirementTest
         }
         catch ( final ProvisionException e )
         {
-            System.out.println( e );
         }
     }
 
@@ -367,7 +366,6 @@ public class PlexusRequirementTest
         }
         catch ( final ProvisionException e )
         {
-            System.out.println( e );
         }
     }
 
@@ -380,7 +378,6 @@ public class PlexusRequirementTest
         }
         catch ( final ProvisionException e )
         {
-            System.out.println( e );
         }
     }
 
@@ -393,7 +390,6 @@ public class PlexusRequirementTest
         }
         catch ( final ProvisionException e )
         {
-            System.out.println( e );
         }
     }
 
@@ -406,7 +402,6 @@ public class PlexusRequirementTest
         }
         catch ( final ProvisionException e )
         {
-            System.out.println( e );
         }
     }
 
@@ -419,7 +414,6 @@ public class PlexusRequirementTest
         }
         catch ( final ProvisionException e )
         {
-            System.out.println( e );
         }
     }
 
@@ -475,7 +469,6 @@ public class PlexusRequirementTest
         }
         catch ( final ProvisionException e )
         {
-            System.out.println( e );
         }
     }
 

@@ -230,7 +230,6 @@ public class BeanConstantTest
         }
         catch ( final ConfigurationException e )
         {
-            System.out.println( e );
         }
     }
 }

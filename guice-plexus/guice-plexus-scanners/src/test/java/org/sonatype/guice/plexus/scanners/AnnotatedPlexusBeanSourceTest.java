@@ -193,7 +193,6 @@ public class AnnotatedPlexusBeanSourceTest
         }
         catch ( final RuntimeException e )
         {
-            System.out.println( e );
         }
     }
 
