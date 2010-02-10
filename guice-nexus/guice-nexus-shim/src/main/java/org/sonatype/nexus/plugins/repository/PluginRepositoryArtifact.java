@@ -14,7 +14,50 @@ package org.sonatype.nexus.plugins.repository;
 
 import java.io.File;
 
-public interface PluginRepositoryArtifact
+import org.sonatype.plugin.metadata.GAVCoordinate;
+
+/**
+ * Represents a resolved artifact from a {@link NexusPluginRepository}.
+ */
+public final class PluginRepositoryArtifact
 {
-    File getFile();
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final GAVCoordinate gav;
+
+    private final File file;
+
+    private final NexusPluginRepository repo;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    PluginRepositoryArtifact( final GAVCoordinate gav, final File file, final NexusPluginRepository repo )
+    {
+        this.gav = gav;
+        this.file = file;
+        this.repo = repo;
+    }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
+    public GAVCoordinate getCoordinate()
+    {
+        return gav;
+    }
+
+    public File getFile()
+    {
+        return file;
+    }
+
+    public NexusPluginRepository getNexusPluginRepository()
+    {
+        return repo;
+    }
 }
