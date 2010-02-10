@@ -24,7 +24,7 @@ public interface NexusPluginRepository
     extends Comparable<NexusPluginRepository>
 {
     /**
-     * Finds out which plugins are available in this repository.
+     * Queries which plugins are available in this repository.
      * 
      * @return Map of available plugins and their metadata
      */

@@ -12,25 +12,78 @@
  */
 package org.sonatype.nexus.plugins;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
+import org.sonatype.nexus.plugins.repository.PluginRepositoryManager;
 import org.sonatype.plugin.metadata.GAVCoordinate;
+import org.sonatype.plugins.model.PluginMetadata;
 
 /**
- * TODO.
+ * Default {@link NexusPluginManager} implementation backed by a {@link PluginRepositoryManager}.
  */
 public final class DefaultNexusPluginManager
     implements NexusPluginManager
 {
-    public Collection<PluginManagerResponse> activateInstalledPlugins()
+    @Inject
+    PluginRepositoryManager repositoryManager;
+
+    public Map<GAVCoordinate, PluginDescriptor> getActivatedPlugins()
     {
-        return Collections.emptyList(); // TODO
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    public Map<GAVCoordinate, PluginMetadata> getInstalledPlugins()
+    {
+        return Collections.unmodifiableMap( repositoryManager.findAvailablePlugins() );
     }
 
     public Map<GAVCoordinate, PluginResponse> getPluginResponses()
     {
-        return Collections.emptyMap(); // TODO
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    public Collection<PluginManagerResponse> activateInstalledPlugins()
+    {
+        final List<PluginManagerResponse> result = new ArrayList<PluginManagerResponse>();
+        for ( final GAVCoordinate gav : repositoryManager.findAvailablePlugins().keySet() )
+        {
+            result.add( activatePlugin( gav ) );
+        }
+        return result;
+    }
+
+    public boolean isActivatedPlugin( final GAVCoordinate gav )
+    {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    public PluginManagerResponse activatePlugin( final GAVCoordinate gav )
+    {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    public PluginManagerResponse deactivatePlugin( final GAVCoordinate gav )
+    {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    public boolean installPluginBundle( final URL bundle )
+        throws IOException
+    {
+        throw new UnsupportedOperationException(); // TODO
+    }
+
+    public boolean uninstallPluginBundle( final GAVCoordinate gav )
+        throws IOException
+    {
+        throw new UnsupportedOperationException(); // TODO
     }
 }

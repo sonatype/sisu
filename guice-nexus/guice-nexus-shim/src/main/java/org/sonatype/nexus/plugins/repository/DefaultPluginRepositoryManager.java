@@ -52,7 +52,7 @@ final class DefaultPluginRepositoryManager
         throw new UnsupportedOperationException(); // TODO
     }
 
-    public int compareTo( final NexusPluginRepository o )
+    public int compareTo( final NexusPluginRepository rhs )
     {
         throw new UnsupportedOperationException(); // TODO
     }
