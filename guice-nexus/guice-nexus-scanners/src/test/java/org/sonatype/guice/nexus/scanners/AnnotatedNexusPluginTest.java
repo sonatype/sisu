@@ -164,7 +164,7 @@ public class AnnotatedNexusPluginTest
         final ClassSpace space = new URLClassSpace( getClass().getClassLoader(), testURLs );
 
         final PlexusBeanSource source =
-            new AnnotatedPlexusBeanSource( space, null, new AnnotatedNexusComponentScanner( null ) );
+            new AnnotatedPlexusBeanSource( space, null, new AnnotatedNexusComponentScanner( null, null ) );
 
         final Map<Component, DeferredClass<?>> components = source.findPlexusComponentBeans();
         assertEquals( 11, components.size() );
@@ -256,7 +256,7 @@ public class AnnotatedNexusPluginTest
             {
                 return parentSpace.deferLoadClass( name );
             }
-        }, null, new AnnotatedNexusComponentScanner( null ) );
+        }, null, new AnnotatedNexusComponentScanner( null, null ) );
 
         try
         {

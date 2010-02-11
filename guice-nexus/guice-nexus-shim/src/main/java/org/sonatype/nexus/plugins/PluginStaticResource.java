@@ -14,8 +14,8 @@ package org.sonatype.nexus.plugins;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
-import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.nexus.plugins.rest.StaticResource;
 
 /**
@@ -28,21 +28,19 @@ public final class PluginStaticResource
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final String resourcePath;
+    private final URL resourceURL;
 
     private final String publishedPath;
 
     private final String contentType;
 
-    private ClassSpace space;
-
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    public PluginStaticResource( final String resourcePath, final String publishedPath, final String contentType )
+    public PluginStaticResource( final URL resourceURL, final String publishedPath, final String contentType )
     {
-        this.resourcePath = resourcePath;
+        this.resourceURL = resourceURL;
         this.publishedPath = publishedPath;
         this.contentType = contentType;
     }
@@ -50,11 +48,6 @@ public final class PluginStaticResource
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
-
-    public String getResourcePath()
-    {
-        return resourcePath;
-    }
 
     public String getPath()
     {
@@ -70,7 +63,7 @@ public final class PluginStaticResource
     {
         try
         {
-            return space.getResource( resourcePath ).openConnection().getContentLength();
+            return resourceURL.openConnection().getContentLength();
         }
         catch ( final Exception e ) // NOPMD
         {
@@ -82,19 +75,6 @@ public final class PluginStaticResource
     public InputStream getInputStream()
         throws IOException
     {
-        if ( null != space )
-        {
-            return space.getResource( resourcePath ).openStream();
-        }
-        throw new IOException( "Plugin resource \"" + resourcePath + "\" has no class space" );
-    }
-
-    // ----------------------------------------------------------------------
-    // Locally-shared methods
-    // ----------------------------------------------------------------------
-
-    void setClassSpace( final ClassSpace space )
-    {
-        this.space = space;
+        return resourceURL.openStream();
     }
 }

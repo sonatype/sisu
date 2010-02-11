@@ -77,7 +77,7 @@ public final class PluginManagerResponse
                 return false;
             }
         }
-        return !responses.isEmpty();
+        return true;
     }
 
     public String formatAsString( final boolean detailed )

@@ -54,6 +54,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.sonatype.nexus</groupId>
+      <artifactId>nexus-configuration</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sonatype.plugin</groupId>
       <artifactId>plugin-host-api</artifactId>
     </dependency>
@@ -69,6 +73,14 @@
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-nexus-scanners</artifactId>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.spice.inject</groupId>
+      <artifactId>guice-plexus-locators</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.spice.inject</groupId>
+      <artifactId>guice-plexus-binders</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>

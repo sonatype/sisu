@@ -44,7 +44,7 @@ abstract class AbstractNexusPluginRepository
     /**
      * @return Filter variables
      */
-    abstract Map<?, ?> getContext();
+    abstract Map<?, ?> getContextMap();
 
     /**
      * Parses a {@code plugin.xml} resource into plugin metadata.
@@ -59,7 +59,7 @@ abstract class AbstractNexusPluginRepository
         try
         {
             Reader reader = ReaderFactory.newXmlReader( in );
-            final Map<?, ?> variables = getContext();
+            final Map<?, ?> variables = getContextMap();
             if ( null != variables )
             {
                 reader = new InterpolationFilterReader( reader, variables );

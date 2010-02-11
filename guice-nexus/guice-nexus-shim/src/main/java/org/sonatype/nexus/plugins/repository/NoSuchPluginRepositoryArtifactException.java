@@ -19,9 +19,18 @@ public final class NoSuchPluginRepositoryArtifactException
 {
     private static final long serialVersionUID = 1L;
 
+    private final GAVCoordinate gav;
+
     NoSuchPluginRepositoryArtifactException( final GAVCoordinate gav, final String repoId )
     {
         super( "Plugin artifact \"" + gav + "\" not found"
             + ( repoId == null ? "!" : " in repository \"" + repoId + "\"!" ) );
+
+        this.gav = gav;
+    }
+
+    public GAVCoordinate getCoordinate()
+    {
+        return gav;
     }
 }

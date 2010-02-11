@@ -205,7 +205,7 @@ final class ResourceEnumeration
      */
     private boolean matchesRequest( final String entryPath )
     {
-        if ( entryPath.length() <= subPath.length() || !entryPath.startsWith( subPath ) )
+        if ( entryPath.endsWith( "/" ) || entryPath.length() <= subPath.length() || !entryPath.startsWith( subPath ) )
         {
             return false; // not inside the search scope
         }

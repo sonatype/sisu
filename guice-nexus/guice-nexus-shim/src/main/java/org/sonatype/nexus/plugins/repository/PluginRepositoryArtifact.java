@@ -15,6 +15,7 @@ package org.sonatype.nexus.plugins.repository;
 import java.io.File;
 
 import org.sonatype.plugin.metadata.GAVCoordinate;
+import org.sonatype.plugins.model.PluginMetadata;
 
 /**
  * Represents a resolved artifact from a {@link NexusPluginRepository}.
@@ -59,5 +60,11 @@ public final class PluginRepositoryArtifact
     public NexusPluginRepository getNexusPluginRepository()
     {
         return repo;
+    }
+
+    public PluginMetadata getPluginMetadata()
+        throws NoSuchPluginRepositoryArtifactException
+    {
+        return repo.getPluginMetadata( gav );
     }
 }

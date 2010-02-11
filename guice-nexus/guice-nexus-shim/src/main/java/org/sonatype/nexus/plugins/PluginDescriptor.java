@@ -40,7 +40,7 @@ public final class PluginDescriptor
 
     private PluginMetadata metadata;
 
-    private List<String> exportedResources;
+    private List<String> exportedClassnames;
 
     private List<GAVCoordinate> importedPlugins;
 
@@ -72,9 +72,9 @@ public final class PluginDescriptor
     }
 
     @SuppressWarnings( "unchecked" )
-    public List<String> getExportedResources()
+    public List<String> getExportedClassnames()
     {
-        return exportedResources != null ? exportedResources : Collections.EMPTY_LIST;
+        return exportedClassnames != null ? exportedClassnames : Collections.EMPTY_LIST;
     }
 
     @SuppressWarnings( "unchecked" )
@@ -128,9 +128,8 @@ public final class PluginDescriptor
 
             for ( final PluginStaticResource resource : staticResources )
             {
-                buf.append( "         * Resource path \"" ).append( resource.getResourcePath() );
-                buf.append( "\", to be published at path \"" ).append( resource.getPath() );
-                buf.append( "\", content type \"" ).append( resource.getContentType() ).append( "\"" ).append( LS );
+                buf.append( "         * Content type \"" ).append( resource.getContentType() );
+                buf.append( "\", to be published at path \"" ).append( resource.getPath() ).append( "\"" ).append( LS );
             }
         }
 
@@ -146,9 +145,9 @@ public final class PluginDescriptor
         this.metadata = metadata;
     }
 
-    void setExportedResources( final List<String> resources )
+    void setExportedClassnames( final List<String> classNames )
     {
-        exportedResources = Collections.unmodifiableList( new ArrayList<String>( resources ) );
+        exportedClassnames = Collections.unmodifiableList( new ArrayList<String>( classNames ) );
     }
 
     void setImportedPlugins( final List<GAVCoordinate> plugins )

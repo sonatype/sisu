@@ -68,6 +68,8 @@ final class NexusComponentClassVisitor
 
     final List<RepositoryTypeDescriptor> repositoryTypes;
 
+    final List<String> exportedClassNames;
+
     private boolean skipClass;
 
     NexusComponentType type;
@@ -78,11 +80,13 @@ final class NexusComponentClassVisitor
     // Constructors
     // ----------------------------------------------------------------------
 
-    NexusComponentClassVisitor( final ClassSpace space, final List<RepositoryTypeDescriptor> repositoryTypes )
+    NexusComponentClassVisitor( final ClassSpace space, final List<RepositoryTypeDescriptor> repositoryTypes,
+                                final List<String> exportedClassNames )
     {
         super( space );
 
         this.repositoryTypes = repositoryTypes;
+        this.exportedClassNames = exportedClassNames;
     }
 
     // ----------------------------------------------------------------------
@@ -93,9 +97,13 @@ final class NexusComponentClassVisitor
     public void visit( final int version, final int access, final String name, final String signature,
                        final String superName, final String[] interfaces )
     {
-        className = name;
-        skipClass = true;
+        className = name.replace( '/', '.' );
+        if ( null != exportedClassNames )
+        {
+            exportedClassNames.add( className );
+        }
 
+        skipClass = true;
         super.visit( version, access, name, signature, superName, interfaces );
         if ( skipClass || interfaces.length == 0 )
         {
@@ -239,7 +247,7 @@ final class NexusComponentClassVisitor
         @Override
         public void visit( final String name, final Object value )
         {
-            repositoryTypes.add( new RepositoryTypeDescriptor( className.replace( '/', '.' ), (String) value ) );
+            repositoryTypes.add( new RepositoryTypeDescriptor( className, (String) value ) );
         }
     }
 }

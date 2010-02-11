@@ -36,6 +36,7 @@ import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.adapters.EntryListAdapter;
 import org.sonatype.guice.plexus.adapters.EntryMapAdapter;
+import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
@@ -74,9 +75,9 @@ public final class DefaultPlexusContainer
 
     final Context context;
 
-    private final Map<?, ?> contextMap;
+    final Map<?, ?> contextMap;
 
-    private final ClassRealm containerRealm;
+    final ClassRealm containerRealm;
 
     final PlexusLifecycleManager lifecycleManager;
 
@@ -123,9 +124,11 @@ public final class DefaultPlexusContainer
                 install( new PlexusXmlBeanConverter() );
 
                 bind( Context.class ).toInstance( context );
+                bind( ClassRealm.class ).toInstance( containerRealm );
                 bind( PlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
                 bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
+                bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
             }
 
             @Provides

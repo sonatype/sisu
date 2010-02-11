@@ -36,13 +36,17 @@ public final class AnnotatedNexusComponentScanner
 
     private final List<RepositoryTypeDescriptor> repositoryTypes;
 
+    private final List<String> exportedClassNames;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    public AnnotatedNexusComponentScanner( final List<RepositoryTypeDescriptor> repositoryTypes )
+    public AnnotatedNexusComponentScanner( final List<RepositoryTypeDescriptor> repositoryTypes,
+                                           final List<String> exportedClassNames )
     {
         this.repositoryTypes = repositoryTypes;
+        this.exportedClassNames = exportedClassNames;
     }
 
     // ----------------------------------------------------------------------
@@ -52,7 +56,9 @@ public final class AnnotatedNexusComponentScanner
     public Map<Component, DeferredClass<?>> scan( final ClassSpace space, final boolean localSearch )
         throws IOException
     {
-        final NexusComponentClassVisitor visitor = new NexusComponentClassVisitor( space, repositoryTypes );
+        final NexusComponentClassVisitor visitor =
+            new NexusComponentClassVisitor( space, repositoryTypes, exportedClassNames );
+
         return visitClassResources( space, visitor ).getComponents();
     }
 }

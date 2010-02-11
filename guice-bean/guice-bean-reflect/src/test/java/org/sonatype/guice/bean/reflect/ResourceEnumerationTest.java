@@ -39,7 +39,7 @@ public class ResourceEnumerationTest
             e.nextElement();
             n++;
         }
-        assertEquals( 84, n );
+        assertEquals( 66, n );
 
         try
         {
@@ -60,7 +60,7 @@ public class ResourceEnumerationTest
             e.nextElement();
             n++;
         }
-        assertEquals( 42, n );
+        assertEquals( 33, n );
     }
 
     public void testGlobbedEnumerationStart()

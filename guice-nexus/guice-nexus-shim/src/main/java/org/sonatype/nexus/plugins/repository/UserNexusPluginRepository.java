@@ -42,7 +42,7 @@ final class UserNexusPluginRepository
     @Configuration( value = "${nexus-work}/plugin-repository" )
     private File pluginsFolder;
 
-    private final Map<?, ?> context;
+    private final Map<?, ?> contextMap;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -51,7 +51,7 @@ final class UserNexusPluginRepository
     @Inject
     public UserNexusPluginRepository( final Context context )
     {
-        this.context = new ContextMapAdapter( context );
+        contextMap = new ContextMapAdapter( context );
     }
 
     // ----------------------------------------------------------------------
@@ -73,9 +73,9 @@ final class UserNexusPluginRepository
     // ----------------------------------------------------------------------
 
     @Override
-    Map<?, ?> getContext()
+    Map<?, ?> getContextMap()
     {
-        return context;
+        return contextMap;
     }
 
     @Override
