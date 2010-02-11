@@ -247,11 +247,27 @@ public final class DefaultNexusPluginManager
             }
         }
 
-        addClassPathEntry( pluginRealm, plugin );
+        final List<URL> scanList = new ArrayList<URL>();
+
+        final URL pluginURL = toURL( plugin );
+        if ( null != pluginURL )
+        {
+            pluginRealm.addURL( pluginURL );
+            scanList.add( pluginURL );
+        }
+
         for ( final ClasspathDependency cd : descriptor.getPluginMetadata().getClasspathDependencies() )
         {
             final GAVCoordinate gav = new GAVCoordinate( cd.getGroupId(), cd.getArtifactId(), cd.getVersion() );
-            addClassPathEntry( pluginRealm, repositoryManager.resolveDependencyArtifact( plugin, gav ) );
+            final URL url = toURL( repositoryManager.resolveDependencyArtifact( plugin, gav ) );
+            if ( null != url )
+            {
+                pluginRealm.addURL( url );
+                if ( cd.isHasComponents() )
+                {
+                    scanList.add( url );
+                }
+            }
         }
 
         for ( final GAVCoordinate gav : descriptor.getImportedPlugins() )
@@ -265,7 +281,7 @@ public final class DefaultNexusPluginManager
                 }
                 catch ( final NoSuchRealmException e )
                 {
-                    // should not happen
+                    // should never happen
                 }
             }
         }
@@ -292,7 +308,7 @@ public final class DefaultNexusPluginManager
             }
         };
 
-        final ClassSpace pluginSpace = new URLClassSpace( pluginRealm );
+        final ClassSpace pluginSpace = new URLClassSpace( pluginRealm, scanList.toArray( new URL[scanList.size()] ) );
 
         final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( pluginSpace, contextMap );
         final AnnotatedNexusComponentScanner scanner =
@@ -327,15 +343,15 @@ public final class DefaultNexusPluginManager
         return pluginInjector;
     }
 
-    private void addClassPathEntry( final ClassRealm classRealm, final PluginRepositoryArtifact artifact )
+    private URL toURL( final PluginRepositoryArtifact artifact )
     {
         try
         {
-            classRealm.addURL( artifact.getFile().toURI().toURL() );
+            return artifact.getFile().toURI().toURL();
         }
-        catch ( final MalformedURLException e ) // NOPMD
+        catch ( final MalformedURLException e )
         {
-            // ignore, this shouldn't ever happen
+            return null; // should never happen
         }
     }
 
