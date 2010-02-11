@@ -24,6 +24,11 @@ public interface NexusPluginRepository
     extends Comparable<NexusPluginRepository>
 {
     /**
+     * @return Unique repository ID
+     */
+    String getId();
+
+    /**
      * Queries which plugins are available in this repository.
      * 
      * @return Map of available plugins and their metadata
@@ -42,10 +47,11 @@ public interface NexusPluginRepository
     /**
      * Resolves the dependency artifact identified by the given {@link GAVCoordinate}.
      * 
+     * @param plugin The plugin artifact
      * @param gav The dependency coordinates
      * @return Resolved dependency artifact
      */
-    PluginRepositoryArtifact resolveDependencyArtifact( PluginRepositoryArtifact dependant, GAVCoordinate gav )
+    PluginRepositoryArtifact resolveDependencyArtifact( PluginRepositoryArtifact plugin, GAVCoordinate gav )
         throws NoSuchPluginRepositoryArtifactException;
 
     /**

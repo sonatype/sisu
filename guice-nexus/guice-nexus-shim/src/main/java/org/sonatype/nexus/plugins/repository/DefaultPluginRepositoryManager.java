@@ -12,7 +12,10 @@
  */
 package org.sonatype.nexus.plugins.repository;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -32,7 +35,7 @@ final class DefaultPluginRepositoryManager
     // ----------------------------------------------------------------------
 
     @Requirement( role = NexusPluginRepository.class )
-    private Map<String, NexusPluginRepository> repositories;
+    private Map<String, NexusPluginRepository> repositoryMap;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -42,41 +45,110 @@ final class DefaultPluginRepositoryManager
     // Public methods
     // ----------------------------------------------------------------------
 
+    public int compareTo( final NexusPluginRepository rhs )
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public String getId()
+    {
+        return null;
+    }
+
     public NexusPluginRepository getNexusPluginRepository( final String id )
     {
-        return repositories.get( id );
+        return repositoryMap.get( id );
     }
 
     public Map<GAVCoordinate, PluginMetadata> findAvailablePlugins()
     {
-        return Collections.emptyMap(); // TODO
+        final Map<GAVCoordinate, PluginMetadata> installedPlugins = new HashMap<GAVCoordinate, PluginMetadata>();
+        for ( final NexusPluginRepository r : getRepositories( true ) )
+        {
+            installedPlugins.putAll( r.findAvailablePlugins() );
+        }
+        return installedPlugins;
     }
 
     public PluginRepositoryArtifact resolveArtifact( final GAVCoordinate gav )
         throws NoSuchPluginRepositoryArtifactException
     {
-        throw new UnsupportedOperationException(); // TODO
+        for ( final NexusPluginRepository r : getRepositories( false ) )
+        {
+            try
+            {
+                return r.resolveArtifact( gav );
+            }
+            catch ( final NoSuchPluginRepositoryArtifactException e ) // NOPMD
+            {
+                // continue
+            }
+        }
+        throw new NoSuchPluginRepositoryArtifactException( gav, null );
     }
 
-    public PluginRepositoryArtifact resolveDependencyArtifact( final PluginRepositoryArtifact dependant,
+    public PluginRepositoryArtifact resolveDependencyArtifact( final PluginRepositoryArtifact plugin,
                                                                final GAVCoordinate gav )
         throws NoSuchPluginRepositoryArtifactException
     {
-        throw new UnsupportedOperationException(); // TODO
+        try
+        {
+            return plugin.getNexusPluginRepository().resolveDependencyArtifact( plugin, gav );
+        }
+        catch ( final NoSuchPluginRepositoryArtifactException e ) // NOPMD
+        {
+            // continue
+        }
+        for ( final NexusPluginRepository r : getRepositories( false ) )
+        {
+            try
+            {
+                if ( r != plugin.getNexusPluginRepository() )
+                {
+                    return r.resolveDependencyArtifact( plugin, gav );
+                }
+            }
+            catch ( final NoSuchPluginRepositoryArtifactException e ) // NOPMD
+            {
+                // continue
+            }
+        }
+        throw new NoSuchPluginRepositoryArtifactException( gav, null );
     }
 
     public PluginMetadata getPluginMetadata( final GAVCoordinate gav )
         throws NoSuchPluginRepositoryArtifactException
     {
-        throw new UnsupportedOperationException(); // TODO
-    }
-
-    public int compareTo( final NexusPluginRepository rhs )
-    {
-        throw new UnsupportedOperationException(); // TODO
+        for ( final NexusPluginRepository r : getRepositories( false ) )
+        {
+            try
+            {
+                return r.getPluginMetadata( gav );
+            }
+            catch ( final NoSuchPluginRepositoryArtifactException e ) // NOPMD
+            {
+                // continue
+            }
+        }
+        throw new NoSuchPluginRepositoryArtifactException( gav, null );
     }
 
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
+
+    private NexusPluginRepository[] getRepositories( final boolean reverse )
+    {
+        final Collection<NexusPluginRepository> values = repositoryMap.values();
+        final NexusPluginRepository[] array = values.toArray( new NexusPluginRepository[values.size()] );
+        if ( reverse )
+        {
+            Arrays.sort( array, Collections.reverseOrder() );
+        }
+        else
+        {
+            Arrays.sort( array );
+        }
+        return array;
+    }
 }

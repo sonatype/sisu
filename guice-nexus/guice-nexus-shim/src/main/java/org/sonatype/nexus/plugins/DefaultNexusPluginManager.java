@@ -22,7 +22,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.nexus.plugins.repository.PluginRepositoryManager;
 import org.sonatype.plugin.metadata.GAVCoordinate;
 import org.sonatype.plugins.model.PluginMetadata;
@@ -30,7 +29,6 @@ import org.sonatype.plugins.model.PluginMetadata;
 /**
  * Default {@link NexusPluginManager} implementation backed by a {@link PluginRepositoryManager}.
  */
-@Component( role = NexusPluginManager.class )
 public final class DefaultNexusPluginManager
     implements NexusPluginManager
 {
