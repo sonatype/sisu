@@ -100,7 +100,7 @@ public class AnnotatedNexusPluginTest
     {
     }
 
-    @Component( role = UserInterface0.class )
+    @Component( role = UserInterface0.class, instantiationStrategy = "per-lookup" )
     static class BeanD
         implements UserInterface0
     {
@@ -172,7 +172,7 @@ public class AnnotatedNexusPluginTest
         // non-extension so no automatic hinting...
         assertEquals( BeanA.class, components.get(
                                                    new ComponentImpl( HostInterface0.class, Hints.DEFAULT_HINT,
-                                                                      "per-lookup", "" ) ).get() );
+                                                                      "singleton", "" ) ).get() );
         assertEquals( BeanB.class, components.get(
                                                    new ComponentImpl( HostInterface1.class, BeanB.class.getName(),
                                                                       "per-lookup", "" ) ).get() );

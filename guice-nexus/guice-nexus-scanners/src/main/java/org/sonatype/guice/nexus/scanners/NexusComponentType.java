@@ -33,23 +33,28 @@ enum NexusComponentType
     EXTENSION_POINT
     {
         @Override
+        boolean isSingleton()
+        {
+            return false;
+        }
+
+        @Override
         NexusComponentType toSingleton()
         {
             return EXTENSION_POINT_SINGLETON;
         }
     },
 
-    EXTENSION_POINT_SINGLETON
+    EXTENSION_POINT_SINGLETON,
+
+    MANAGED
     {
         @Override
         boolean isSingleton()
         {
-            return true;
+            return false;
         }
-    },
 
-    MANAGED
-    {
         @Override
         NexusComponentType toSingleton()
         {
@@ -57,14 +62,7 @@ enum NexusComponentType
         }
     },
 
-    MANAGED_SINGLETON
-    {
-        @Override
-        boolean isSingleton()
-        {
-            return true;
-        }
-    };
+    MANAGED_SINGLETON;
 
     // ----------------------------------------------------------------------
     // Common methods
@@ -82,6 +80,6 @@ enum NexusComponentType
 
     boolean isSingleton()
     {
-        return false;
+        return true;
     }
 }
