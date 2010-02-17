@@ -134,7 +134,7 @@ final class NexusComponentClassVisitor
     @Override
     public AnnotationVisitor visitAnnotation( final String desc, final boolean visible )
     {
-        if ( type.isComponent() && NAMED_DESC.equals( desc ) )
+        if ( null != type && type.isComponent() && NAMED_DESC.equals( desc ) )
         {
             return namedVisitor;
         }
