@@ -97,6 +97,8 @@ final class NexusComponentClassVisitor
     public void visit( final int version, final int access, final String name, final String signature,
                        final String superName, final String[] interfaces )
     {
+        type = NexusComponentType.UNKNOWN;
+
         className = name.replace( '/', '.' );
         if ( null != exportedClassNames )
         {
@@ -134,7 +136,7 @@ final class NexusComponentClassVisitor
     @Override
     public AnnotationVisitor visitAnnotation( final String desc, final boolean visible )
     {
-        if ( null != type && type.isComponent() && NAMED_DESC.equals( desc ) )
+        if ( type.isComponent() && NAMED_DESC.equals( desc ) )
         {
             return namedVisitor;
         }
