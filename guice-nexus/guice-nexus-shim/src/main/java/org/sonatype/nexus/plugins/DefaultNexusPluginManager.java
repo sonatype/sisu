@@ -32,12 +32,12 @@ import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.context.ContextMapAdapter;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
+import org.sonatype.guice.nexus.scanners.AnnotatedNexusBeanSource;
 import org.sonatype.guice.nexus.scanners.AnnotatedNexusComponentScanner;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
-import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 import org.sonatype.guice.plexus.scanners.XmlPlexusBeanSource;
 import org.sonatype.nexus.mime.MimeUtil;
 import org.sonatype.nexus.plugins.events.PluginActivatedEvent;
@@ -315,7 +315,7 @@ public final class DefaultNexusPluginManager
             new AnnotatedNexusComponentScanner( repositoryTypes, exportedClassNames );
 
         final ClassSpace annSpace = new URLClassSpace( pluginRealm, scanList.toArray( new URL[scanList.size()] ) );
-        final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( annSpace, contextMap, scanner );
+        final PlexusBeanSource annSource = new AnnotatedNexusBeanSource( annSpace, contextMap, scanner );
 
         final Module pluginBindings = new PlexusBindingModule( beanManager, xmlSource, annSource );
 

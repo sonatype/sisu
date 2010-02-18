@@ -30,7 +30,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanSource;
 /**
  * {@link PlexusBeanSource} that collects {@link PlexusBeanMetadata} by scanning classes for runtime annotations.
  */
-public final class AnnotatedPlexusBeanSource
+public class AnnotatedPlexusBeanSource
     implements PlexusBeanSource, PlexusBeanMetadata
 {
     // ----------------------------------------------------------------------
@@ -87,12 +87,12 @@ public final class AnnotatedPlexusBeanSource
     // Public methods
     // ----------------------------------------------------------------------
 
-    public boolean isEmpty()
+    public final boolean isEmpty()
     {
         return false; // metadata comes from the properties themselves
     }
 
-    public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
+    public final Map<Component, DeferredClass<?>> findPlexusComponentBeans()
     {
         if ( null == space )
         {
@@ -113,7 +113,7 @@ public final class AnnotatedPlexusBeanSource
         return implementation.isAnnotationPresent( Component.class ) ? this : null;
     }
 
-    public Configuration getConfiguration( final BeanProperty<?> property )
+    public final Configuration getConfiguration( final BeanProperty<?> property )
     {
         final Configuration configuration = property.getAnnotation( Configuration.class );
         if ( configuration != null && variables != null )
@@ -129,7 +129,7 @@ public final class AnnotatedPlexusBeanSource
         return configuration;
     }
 
-    public Requirement getRequirement( final BeanProperty<?> property )
+    public final Requirement getRequirement( final BeanProperty<?> property )
     {
         return property.getAnnotation( Requirement.class );
     }
