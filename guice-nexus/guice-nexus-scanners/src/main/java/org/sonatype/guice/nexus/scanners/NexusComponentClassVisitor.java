@@ -123,8 +123,7 @@ final class NexusComponentClassVisitor
 
         if ( type.name().startsWith( "EXTENSION" ) )
         {
-            // extensions don't have default hints
-            setHint( name.replace( '/', '.' ) );
+            setHint( className ); // default to implementation name as extension hint
         }
 
         if ( !type.isSingleton() )
