@@ -308,13 +308,14 @@ public final class DefaultNexusPluginManager
             }
         };
 
-        final ClassSpace pluginSpace = new URLClassSpace( pluginRealm, scanList.toArray( new URL[scanList.size()] ) );
-
+        final ClassSpace pluginSpace = new URLClassSpace( pluginRealm );
         final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( pluginSpace, contextMap );
+
         final AnnotatedNexusComponentScanner scanner =
             new AnnotatedNexusComponentScanner( repositoryTypes, exportedClassNames );
 
-        final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( pluginSpace, contextMap, scanner );
+        final ClassSpace annSpace = new URLClassSpace( pluginRealm, scanList.toArray( new URL[scanList.size()] ) );
+        final PlexusBeanSource annSource = new AnnotatedPlexusBeanSource( annSpace, contextMap, scanner );
 
         final Module pluginBindings = new PlexusBindingModule( beanManager, xmlSource, annSource );
 
