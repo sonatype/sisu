@@ -97,9 +97,7 @@ final class PlexusRequirements
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private Provider<PlexusBeanLocator> locatorProvider;
-
-        private PlexusBeanLocator locator;
+        private final Provider<PlexusBeanLocator> locatorProvider;
 
         final TypeLiteral<T> type;
 
@@ -122,15 +120,9 @@ final class PlexusRequirements
         // Locally-shared methods
         // ----------------------------------------------------------------------
 
-        final synchronized Iterable<? extends Entry<String, T>> locate()
+        final Iterable<? extends Entry<String, T>> locate()
         {
-            if ( null != locatorProvider )
-            {
-                // avoid repeated service lookup
-                locator = locatorProvider.get();
-                locatorProvider = null;
-            }
-            return locator.locate( type, hints );
+            return locatorProvider.get().locate( type, hints );
         }
     }
 

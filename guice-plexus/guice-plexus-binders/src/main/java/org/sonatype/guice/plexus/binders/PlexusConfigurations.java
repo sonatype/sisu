@@ -71,9 +71,7 @@ final class PlexusConfigurations
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private Provider<PlexusBeanConverter> converterProvider;
-
-        private PlexusBeanConverter converter;
+        private final Provider<PlexusBeanConverter> converterProvider;
 
         private final TypeLiteral<T> type;
 
@@ -96,15 +94,9 @@ final class PlexusConfigurations
         // Public methods
         // ----------------------------------------------------------------------
 
-        public synchronized T get()
+        public T get()
         {
-            if ( null != converterProvider )
-            {
-                // avoid repeated service lookup
-                converter = converterProvider.get();
-                converterProvider = null;
-            }
-            return converter.convert( type, value );
+            return converterProvider.get().convert( type, value );
         }
     }
 }
