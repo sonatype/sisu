@@ -15,6 +15,7 @@ package org.sonatype.guice.nexus.scanners;
 import static org.sonatype.guice.plexus.scanners.AnnotatedPlexusComponentScanner.visitClassResource;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,8 @@ import javax.inject.Singleton;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.plexus.scanners.EmptyAnnotationVisitor;
 import org.sonatype.guice.plexus.scanners.EmptyClassVisitor;
@@ -57,6 +60,8 @@ final class NexusComponentClassVisitor
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
+
+    private final Logger logger = LoggerFactory.getLogger( NexusComponentClassVisitor.class );
 
     private final Map<String, NexusComponentType> knownTypes = new HashMap<String, NexusComponentType>();
 
@@ -163,13 +168,11 @@ final class NexusComponentClassVisitor
         // look for @ExtensionPoint / @Managed
         for ( final String i : interfaces )
         {
+            // check cached results
             type = knownTypes.get( i );
             if ( null == type )
             {
-                // not seen this interface before
-                type = NexusComponentType.UNKNOWN;
-                visitClassResource( space.getResource( i + ".class" ), managedVisitor );
-                knownTypes.put( i, type );
+                searchForComponentType( i );
             }
             if ( type.isComponent() )
             {
@@ -178,6 +181,22 @@ final class NexusComponentClassVisitor
                 break;
             }
         }
+    }
+
+    private void searchForComponentType( final String interfacePath )
+        throws IOException
+    {
+        type = NexusComponentType.UNKNOWN;
+        final URL url = space.getResource( interfacePath + ".class" );
+        if ( null != url )
+        {
+            visitClassResource( url, managedVisitor );
+        }
+        else
+        {
+            logger.debug( "Missing interface: " + interfacePath );
+        }
+        knownTypes.put( interfacePath, type );
     }
 
     // ----------------------------------------------------------------------
