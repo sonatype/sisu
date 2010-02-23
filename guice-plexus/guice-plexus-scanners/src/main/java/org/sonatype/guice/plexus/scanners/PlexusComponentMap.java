@@ -31,7 +31,7 @@ final class PlexusComponentMap
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Logger logger = LoggerFactory.getLogger( PlexusComponentMap.class );
+    private static final Logger logger = LoggerFactory.getLogger( PlexusComponentMap.class );
 
     private final Map<String, String> strategies = new HashMap<String, String>();
 

@@ -14,6 +14,8 @@ package org.sonatype.guice.plexus.binders;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 
 import com.google.inject.Injector;
@@ -29,6 +31,8 @@ final class DeferredProvider<T>
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
+
+    private static final Logger logger = LoggerFactory.getLogger( DeferredProvider.class );
 
     @Inject
     private Injector injector;
@@ -57,7 +61,9 @@ final class DeferredProvider<T>
         }
         catch ( final RuntimeException e )
         {
-            throw new ProvisionException( "Cannot create instance of: " + clazz.getName(), e );
+            final String message = "Cannot create instance of: " + clazz.getName();
+            logger.error( message + ": " + e.getMessage() );
+            throw new ProvisionException( message, e );
         }
     }
 }

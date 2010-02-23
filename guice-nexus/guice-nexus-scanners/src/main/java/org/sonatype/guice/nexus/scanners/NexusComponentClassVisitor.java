@@ -61,7 +61,7 @@ final class NexusComponentClassVisitor
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Logger logger = LoggerFactory.getLogger( NexusComponentClassVisitor.class );
+    private static final Logger logger = LoggerFactory.getLogger( NexusComponentClassVisitor.class );
 
     private final Map<String, NexusComponentType> knownTypes = new HashMap<String, NexusComponentType>();
 
