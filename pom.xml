@@ -12,6 +12,7 @@
 
   <modules>
     <module>pom</module>
+    <module>spice-inject-annotations</module>
 <!--
     <module>guice-patches</module>
 -->
