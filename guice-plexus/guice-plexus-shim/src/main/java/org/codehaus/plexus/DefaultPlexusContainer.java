@@ -54,6 +54,7 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
+import com.google.inject.util.Jsr330;
 
 /**
  * {@link PlexusContainer} shim that delegates to a Plexus-aware Guice {@link Injector}.
@@ -75,7 +76,7 @@ public final class DefaultPlexusContainer
 
     final Context context;
 
-    final Map<?, ?> contextMap;
+    final Map<?, ?> variables;
 
     final ClassRealm containerRealm;
 
@@ -104,14 +105,14 @@ public final class DefaultPlexusContainer
 
         context = new DefaultContext( configuration.getContext() );
         context.put( PlexusConstants.PLEXUS_KEY, this );
-        contextMap = new ContextMapAdapter( context );
+        variables = new ContextMapAdapter( context );
 
         containerRealm = lookupContainerRealm( configuration );
         lifecycleManager = new PlexusLifecycleManager();
         lookupRealm = containerRealm;
 
         final ClassSpace space = new URLClassSpace( containerRealm );
-        final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, contextMap, configurationUrl );
+        final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, variables, configurationUrl );
 
         Guice.createInjector( new AbstractModule()
         {
@@ -124,6 +125,7 @@ public final class DefaultPlexusContainer
                 install( new PlexusXmlBeanConverter() );
 
                 bind( Context.class ).toInstance( context );
+                bind( Map.class ).annotatedWith( Jsr330.named( PlexusConstants.PLEXUS_KEY ) ).toInstance( variables );
                 bind( ClassRealm.class ).toInstance( containerRealm );
                 bind( PlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
@@ -276,7 +278,7 @@ public final class DefaultPlexusContainer
         try
         {
             final ClassSpace space = new URLClassSpace( classRealm );
-            final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, contextMap );
+            final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, variables );
             final Module bindings = new PlexusBindingModule( lifecycleManager, xmlSource );
 
             beanLocator.add( injector.createChildInjector( bindings ) );

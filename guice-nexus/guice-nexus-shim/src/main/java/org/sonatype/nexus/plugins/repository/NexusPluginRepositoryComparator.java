@@ -12,25 +12,25 @@
  */
 package org.sonatype.nexus.plugins.repository;
 
-import org.sonatype.plugin.metadata.GAVCoordinate;
+import java.util.Comparator;
 
-public final class NoSuchPluginRepositoryArtifactException
-    extends Exception
+/**
+ * {@link Comparator} that places two {@link NexusPluginRepository} in order of priority; smallest number first.
+ */
+final class NexusPluginRepositoryComparator
+    implements Comparator<NexusPluginRepository>
 {
-    private static final long serialVersionUID = 1L;
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
-    private final GAVCoordinate gav;
-
-    public NoSuchPluginRepositoryArtifactException( final NexusPluginRepository repo, final GAVCoordinate gav )
+    public int compare( final NexusPluginRepository o1, final NexusPluginRepository o2 )
     {
-        super( "Plugin artifact \"" + gav + "\" not found"
-            + ( repo == null ? "!" : " in repository \"" + repo.getId() + "\"!" ) );
-
-        this.gav = gav;
-    }
-
-    public GAVCoordinate getCoordinate()
-    {
-        return gav;
+        final int order = o1.getPriority() - o2.getPriority();
+        if ( 0 == order )
+        {
+            return o1.getId().compareTo( o2.getId() );
+        }
+        return order;
     }
 }

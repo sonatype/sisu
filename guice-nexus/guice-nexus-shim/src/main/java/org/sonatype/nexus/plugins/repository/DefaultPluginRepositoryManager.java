@@ -15,6 +15,7 @@ package org.sonatype.nexus.plugins.repository;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,6 +32,13 @@ final class DefaultPluginRepositoryManager
     implements PluginRepositoryManager
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final Comparator<NexusPluginRepository> REPOSITORY_COMPARATOR =
+        new NexusPluginRepositoryComparator();
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
@@ -38,21 +46,17 @@ final class DefaultPluginRepositoryManager
     private Map<String, NexusPluginRepository> repositoryMap;
 
     // ----------------------------------------------------------------------
-    // Constructors
-    // ----------------------------------------------------------------------
-
-    // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
-
-    public int compareTo( final NexusPluginRepository rhs )
-    {
-        throw new UnsupportedOperationException();
-    }
 
     public String getId()
     {
         return null;
+    }
+
+    public int getPriority()
+    {
+        return -1;
     }
 
     public NexusPluginRepository getNexusPluginRepository( final String id )
@@ -84,7 +88,7 @@ final class DefaultPluginRepositoryManager
                 // continue
             }
         }
-        throw new NoSuchPluginRepositoryArtifactException( gav, null );
+        throw new NoSuchPluginRepositoryArtifactException( null, gav );
     }
 
     public PluginRepositoryArtifact resolveDependencyArtifact( final PluginRepositoryArtifact plugin,
@@ -113,7 +117,7 @@ final class DefaultPluginRepositoryManager
                 // continue
             }
         }
-        throw new NoSuchPluginRepositoryArtifactException( gav, null );
+        throw new NoSuchPluginRepositoryArtifactException( null, gav );
     }
 
     public PluginMetadata getPluginMetadata( final GAVCoordinate gav )
@@ -130,7 +134,7 @@ final class DefaultPluginRepositoryManager
                 // continue
             }
         }
-        throw new NoSuchPluginRepositoryArtifactException( gav, null );
+        throw new NoSuchPluginRepositoryArtifactException( null, gav );
     }
 
     // ----------------------------------------------------------------------
@@ -143,11 +147,11 @@ final class DefaultPluginRepositoryManager
         final NexusPluginRepository[] array = values.toArray( new NexusPluginRepository[values.size()] );
         if ( reverse )
         {
-            Arrays.sort( array, Collections.reverseOrder() );
+            Arrays.sort( array, Collections.reverseOrder( REPOSITORY_COMPARATOR ) );
         }
         else
         {
-            Arrays.sort( array );
+            Arrays.sort( array, REPOSITORY_COMPARATOR );
         }
         return array;
     }

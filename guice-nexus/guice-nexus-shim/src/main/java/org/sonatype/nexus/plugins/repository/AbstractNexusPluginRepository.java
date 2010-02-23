@@ -18,6 +18,10 @@ import java.io.Reader;
 import java.net.URL;
 import java.util.Map;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.util.IOUtil;
 import org.codehaus.plexus.util.InterpolationFilterReader;
 import org.codehaus.plexus.util.ReaderFactory;
@@ -38,13 +42,17 @@ abstract class AbstractNexusPluginRepository
     private static final PluginModelXpp3Reader PLUGIN_METADATA_READER = new PluginModelXpp3Reader();
 
     // ----------------------------------------------------------------------
-    // Implementation methods
+    // Implementation fields
     // ----------------------------------------------------------------------
 
-    /**
-     * @return Filter variables
-     */
-    abstract Map<?, ?> getContextMap();
+    @Inject
+    @Named( PlexusConstants.PLEXUS_KEY )
+    @SuppressWarnings( "unchecked" )
+    private Map variables;
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
 
     /**
      * Parses a {@code plugin.xml} resource into plugin metadata.
@@ -58,12 +66,7 @@ abstract class AbstractNexusPluginRepository
         final InputStream in = pluginXml.openStream();
         try
         {
-            Reader reader = ReaderFactory.newXmlReader( in );
-            final Map<?, ?> variables = getContextMap();
-            if ( null != variables )
-            {
-                reader = new InterpolationFilterReader( reader, variables );
-            }
+            final Reader reader = new InterpolationFilterReader( ReaderFactory.newXmlReader( in ), variables );
             return PLUGIN_METADATA_READER.read( reader );
         }
         catch ( final XmlPullParserException e )

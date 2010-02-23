@@ -23,13 +23,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
+import org.codehaus.plexus.PlexusConstants;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
-import org.codehaus.plexus.context.Context;
-import org.codehaus.plexus.context.ContextMapAdapter;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.nexus.scanners.AnnotatedNexusBeanSource;
@@ -95,21 +95,14 @@ public final class DefaultNexusPluginManager
     @Inject
     private Injector rootInjector;
 
+    @Inject
+    @Named( PlexusConstants.PLEXUS_KEY )
+    @SuppressWarnings( "unchecked" )
+    private Map variables;
+
     private final Map<GAVCoordinate, PluginDescriptor> activePlugins = new HashMap<GAVCoordinate, PluginDescriptor>();
 
     private final Map<GAVCoordinate, PluginResponse> pluginResponses = new HashMap<GAVCoordinate, PluginResponse>();
-
-    private final Map<?, ?> contextMap;
-
-    // ----------------------------------------------------------------------
-    // Constructors
-    // ----------------------------------------------------------------------
-
-    @Inject
-    public DefaultNexusPluginManager( final Context context )
-    {
-        contextMap = new ContextMapAdapter( context );
-    }
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -311,13 +304,13 @@ public final class DefaultNexusPluginManager
         };
 
         final ClassSpace pluginSpace = new URLClassSpace( pluginRealm );
-        final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( pluginSpace, contextMap );
+        final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( pluginSpace, variables );
 
         final AnnotatedNexusComponentScanner scanner =
             new AnnotatedNexusComponentScanner( repositoryTypes, exportedClassNames );
 
         final ClassSpace annSpace = new URLClassSpace( pluginRealm, scanList.toArray( new URL[scanList.size()] ) );
-        final PlexusBeanSource annSource = new AnnotatedNexusBeanSource( annSpace, contextMap, scanner );
+        final PlexusBeanSource annSource = new AnnotatedNexusBeanSource( annSpace, variables, scanner );
 
         final Module pluginBindings = new PlexusBindingModule( beanManager, xmlSource, annSource );
 

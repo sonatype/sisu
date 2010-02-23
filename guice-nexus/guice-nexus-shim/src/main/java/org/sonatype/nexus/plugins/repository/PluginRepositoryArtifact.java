@@ -26,15 +26,20 @@ public final class PluginRepositoryArtifact
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final GAVCoordinate gav;
+    private GAVCoordinate gav;
 
-    private final File file;
+    private File file;
 
-    private final NexusPluginRepository repo;
+    private NexusPluginRepository repo;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
+
+    public PluginRepositoryArtifact()
+    {
+        // legacy constructor
+    }
 
     PluginRepositoryArtifact( final GAVCoordinate gav, final File file, final NexusPluginRepository repo )
     {
@@ -47,14 +52,29 @@ public final class PluginRepositoryArtifact
     // Public methods
     // ----------------------------------------------------------------------
 
+    public void setCoordinate( final GAVCoordinate gav )
+    {
+        this.gav = gav;
+    }
+
     public GAVCoordinate getCoordinate()
     {
         return gav;
     }
 
+    public void setFile( final File file )
+    {
+        this.file = file;
+    }
+
     public File getFile()
     {
         return file;
+    }
+
+    public void setNexusPluginRepository( final NexusPluginRepository repo )
+    {
+        this.repo = repo;
     }
 
     public NexusPluginRepository getNexusPluginRepository()

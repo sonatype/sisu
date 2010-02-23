@@ -21,12 +21,16 @@ import org.sonatype.plugins.model.PluginMetadata;
  * Provides a simple {@link GAVCoordinate} based plugin repository.
  */
 public interface NexusPluginRepository
-    extends Comparable<NexusPluginRepository>
 {
     /**
      * @return Unique repository ID
      */
     String getId();
+
+    /**
+     * @return Repository priority; natural ordering, smaller before bigger
+     */
+    int getPriority();
 
     /**
      * Queries which plugins are available in this repository.

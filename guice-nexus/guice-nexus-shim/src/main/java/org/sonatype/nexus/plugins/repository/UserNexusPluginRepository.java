@@ -13,14 +13,9 @@
 package org.sonatype.nexus.plugins.repository;
 
 import java.io.File;
-import java.util.Map;
-
-import javax.inject.Inject;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
-import org.codehaus.plexus.context.Context;
-import org.codehaus.plexus.context.ContextMapAdapter;
 
 /**
  * {@link File} backed {@link NexusWritablePluginRepository} that supplies user plugins.
@@ -40,47 +35,29 @@ final class UserNexusPluginRepository
     // ----------------------------------------------------------------------
 
     @Configuration( value = "${nexus-work}/plugin-repository" )
-    private File pluginsFolder;
-
-    private final Map<?, ?> contextMap;
-
-    // ----------------------------------------------------------------------
-    // Constructors
-    // ----------------------------------------------------------------------
-
-    @Inject
-    public UserNexusPluginRepository( final Context context )
-    {
-        contextMap = new ContextMapAdapter( context );
-    }
+    private File userPluginsFolder;
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
-
-    public int compareTo( final NexusPluginRepository rhs )
-    {
-        return this == rhs ? 0 : 1;
-    }
 
     public String getId()
     {
         return ID;
     }
 
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    @Override
-    Map<?, ?> getContextMap()
+    public int getPriority()
     {
-        return contextMap;
+        return 50;
     }
 
+    // ----------------------------------------------------------------------
+    // Customized methods
+    // ----------------------------------------------------------------------
+
     @Override
-    File getPluginsFolder()
+    protected File getNexusPluginsDirectory()
     {
-        return pluginsFolder;
+        return userPluginsFolder;
     }
 }

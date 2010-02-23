@@ -27,7 +27,7 @@ import org.sonatype.plugins.model.PluginMetadata;
 /**
  * Abstract {@link NexusPluginRepository} backed by a file-system.
  */
-abstract class AbstractFileNexusPluginRepository
+public abstract class AbstractFileNexusPluginRepository
     extends AbstractNexusPluginRepository
 {
     // ----------------------------------------------------------------------
@@ -49,7 +49,7 @@ abstract class AbstractFileNexusPluginRepository
 
     public final Map<GAVCoordinate, PluginMetadata> findAvailablePlugins()
     {
-        final File[] plugins = getPluginsFolder().listFiles();
+        final File[] plugins = getPluginFolders();
         if ( null == plugins )
         {
             return Collections.emptyMap();
@@ -94,7 +94,7 @@ abstract class AbstractFileNexusPluginRepository
         final File artifact = new File( dependenciesFolder, gav.getFinalName( packagingMapper ) );
         if ( !artifact.isFile() )
         {
-            throw new NoSuchPluginRepositoryArtifactException( gav, getId() );
+            throw new NoSuchPluginRepositoryArtifactException( this, gav );
         }
         return new PluginRepositoryArtifact( gav, artifact, this );
     }
@@ -106,15 +106,26 @@ abstract class AbstractFileNexusPluginRepository
     }
 
     // ----------------------------------------------------------------------
-    // Implementation methods
+    // Customizable methods
     // ----------------------------------------------------------------------
 
-    abstract File getPluginsFolder();
+    protected abstract File getNexusPluginsDirectory();
 
-    private final File getPluginFolder( final GAVCoordinate gav )
+    protected File[] getPluginFolders()
     {
-        return new File( getPluginsFolder(), gav.getArtifactId() + '-' + gav.getVersion() );
+        return getNexusPluginsDirectory().listFiles();
     }
+
+    @SuppressWarnings( "unused" )
+    protected File getPluginFolder( final GAVCoordinate gav )
+        throws NoSuchPluginRepositoryArtifactException
+    {
+        return new File( getNexusPluginsDirectory(), gav.getArtifactId() + '-' + gav.getVersion() );
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
 
     private static final File getPluginJar( final File pluginFolder )
     {
@@ -130,7 +141,7 @@ abstract class AbstractFileNexusPluginRepository
         {
             return pluginJar;
         }
-        throw new NoSuchPluginRepositoryArtifactException( gav, getId() );
+        throw new NoSuchPluginRepositoryArtifactException( this, gav );
     }
 
     private final PluginMetadata getPluginMetadata( final File file )
