@@ -44,7 +44,7 @@ public class FileEntryIteratorTest
     public void testNoSuchFile()
         throws Exception
     {
-        final Iterator<String> i = new FileEntryIterator( new URL( "file:UNKNOWN" ), null, true );
+        final Iterator<String> i = new FileEntryIterator( new URL( "file:UNKNOWN" ), "", true );
         assertFalse( i.hasNext() );
         try
         {
@@ -59,7 +59,7 @@ public class FileEntryIteratorTest
     public void testEmptyFolder()
         throws Exception
     {
-        final Iterator<String> i = new FileEntryIterator( expand( resource( "empty.zip" ) ), null, true );
+        final Iterator<String> i = new FileEntryIterator( expand( resource( "empty.zip" ) ), "", true );
         assertFalse( i.hasNext() );
         try
         {
@@ -74,7 +74,7 @@ public class FileEntryIteratorTest
     public void testTrivialFolder()
         throws Exception
     {
-        final Iterator<String> i = new FileEntryIterator( expand( resource( "empty.jar" ) ), null, true );
+        final Iterator<String> i = new FileEntryIterator( expand( resource( "empty.jar" ) ), "", true );
         assertTrue( i.hasNext() );
         assertEquals( "META-INF/", i.next() );
         assertTrue( i.hasNext() );
@@ -93,7 +93,7 @@ public class FileEntryIteratorTest
     public void testSimpleFolder()
         throws Exception
     {
-        final Iterator<String> i = new FileEntryIterator( expand( resource( "simple.jar" ) ), null, true );
+        final Iterator<String> i = new FileEntryIterator( expand( resource( "simple.jar" ) ), "", true );
 
         final Set<String> names = new HashSet<String>();
         while ( i.hasNext() )
@@ -123,7 +123,7 @@ public class FileEntryIteratorTest
     public void testNoRecursion()
         throws Exception
     {
-        final Iterator<String> i = new FileEntryIterator( expand( resource( "simple.jar" ) ), null, false );
+        final Iterator<String> i = new FileEntryIterator( expand( resource( "simple.jar" ) ), "", false );
 
         final Set<String> names = new HashSet<String>();
         while ( i.hasNext() )
@@ -162,7 +162,7 @@ public class FileEntryIteratorTest
     public void testRemoveNotSupported()
         throws IOException
     {
-        final Iterator<String> i = new FileEntryIterator( new URL( "file:" ), null, false );
+        final Iterator<String> i = new FileEntryIterator( new URL( "file:" ), "", false );
         try
         {
             i.remove();

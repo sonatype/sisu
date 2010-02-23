@@ -49,8 +49,7 @@ final class FileEntryIterator
     {
         rootPath = normalizePath( toFile( url ).getAbsoluteFile() );
         this.recurse = recurse;
-
-        includeEntries( null == subPath ? "" : subPath );
+        includeEntries( subPath );
     }
 
     // ----------------------------------------------------------------------

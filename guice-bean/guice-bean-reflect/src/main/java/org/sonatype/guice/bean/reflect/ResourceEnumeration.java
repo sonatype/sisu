@@ -209,13 +209,9 @@ final class ResourceEnumeration
         {
             return false; // not inside the search scope
         }
-        if ( !recurse )
+        if ( !recurse && entryPath.indexOf( '/', subPath.length() ) > 0 )
         {
-            final int nextSlashIndex = entryPath.indexOf( '/', subPath.length() );
-            if ( 0 < nextSlashIndex && nextSlashIndex < entryPath.length() - 1 )
-            {
-                return false; // inside a sub-directory
-            }
+            return false; // inside a sub-directory
         }
         if ( null == globPattern )
         {
