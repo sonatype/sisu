@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.sonatype.nexus.proxy.maven.ArtifactPackagingMapper;
 import org.sonatype.plugin.metadata.GAVCoordinate;
 import org.sonatype.plugins.model.PluginMetadata;
 
@@ -33,6 +35,13 @@ abstract class AbstractFileNexusPluginRepository
     // ----------------------------------------------------------------------
 
     private static final String PLUGIN_XML = "META-INF/nexus/plugin.xml";
+
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    @Requirement
+    private ArtifactPackagingMapper packagingMapper;
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -82,9 +91,7 @@ abstract class AbstractFileNexusPluginRepository
         throws NoSuchPluginRepositoryArtifactException
     {
         final File dependenciesFolder = new File( getPluginFolder( plugin.getCoordinate() ), "dependencies" );
-        final String name = gav.getArtifactId() + '-' + gav.getVersion() + ".jar";
-
-        final File artifact = new File( dependenciesFolder, name );
+        final File artifact = new File( dependenciesFolder, gav.getFinalName( packagingMapper ) );
         if ( !artifact.isFile() )
         {
             throw new NoSuchPluginRepositoryArtifactException( gav, getId() );

@@ -12,6 +12,9 @@
  */
 package org.sonatype.plugin.metadata;
 
+import org.codehaus.plexus.util.StringUtils;
+import org.sonatype.nexus.proxy.maven.ArtifactPackagingMapper;
+
 /**
  * Trivial Group:Artifact:Version identifier.
  */
@@ -27,15 +30,27 @@ public final class GAVCoordinate
 
     private final String version;
 
+    private final String classifier;
+
+    private final String type;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
     public GAVCoordinate( final String groupId, final String artifactId, final String version )
     {
+        this( groupId, artifactId, version, null, null );
+    }
+
+    public GAVCoordinate( final String groupId, final String artifactId, final String version, final String classifier,
+                          final String type )
+    {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
+        this.classifier = classifier;
+        this.type = "jar".equals( type ) ? null : type;
     }
 
     // ----------------------------------------------------------------------
@@ -55,6 +70,25 @@ public final class GAVCoordinate
     public String getVersion()
     {
         return version;
+    }
+
+    public String getFinalName( final ArtifactPackagingMapper packagingMapper )
+    {
+        final StringBuilder buf = new StringBuilder();
+        buf.append( artifactId ).append( '-' ).append( version );
+        if ( StringUtils.isNotEmpty( classifier ) )
+        {
+            buf.append( '-' ).append( classifier );
+        }
+        if ( StringUtils.isNotEmpty( type ) )
+        {
+            buf.append( '.' ).append( packagingMapper.getExtensionForPackaging( type ) );
+        }
+        else
+        {
+            buf.append( ".jar" );
+        }
+        return buf.toString();
     }
 
     @Override
@@ -80,6 +114,21 @@ public final class GAVCoordinate
     @Override
     public String toString()
     {
-        return groupId + ':' + artifactId + ':' + version;
+        final StringBuilder buf = new StringBuilder();
+        buf.append( groupId ).append( ':' ).append( artifactId ).append( ':' ).append( version );
+        final boolean haveType = StringUtils.isNotEmpty( type );
+        if ( StringUtils.isNotEmpty( classifier ) )
+        {
+            buf.append( ':' ).append( classifier );
+        }
+        else if ( haveType )
+        {
+            buf.append( ':' );
+        }
+        if ( haveType )
+        {
+            buf.append( ':' ).append( type );
+        }
+        return buf.toString();
     }
 }

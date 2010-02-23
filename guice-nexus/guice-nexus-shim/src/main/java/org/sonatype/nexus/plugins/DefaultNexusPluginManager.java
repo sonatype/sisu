@@ -256,14 +256,16 @@ public final class DefaultNexusPluginManager
             scanList.add( pluginURL );
         }
 
-        for ( final ClasspathDependency cd : descriptor.getPluginMetadata().getClasspathDependencies() )
+        for ( final ClasspathDependency d : descriptor.getPluginMetadata().getClasspathDependencies() )
         {
-            final GAVCoordinate gav = new GAVCoordinate( cd.getGroupId(), cd.getArtifactId(), cd.getVersion() );
+            final GAVCoordinate gav =
+                new GAVCoordinate( d.getGroupId(), d.getArtifactId(), d.getVersion(), d.getClassifier(), d.getType() );
+
             final URL url = toURL( repositoryManager.resolveDependencyArtifact( plugin, gav ) );
             if ( null != url )
             {
                 pluginRealm.addURL( url );
-                if ( cd.isHasComponents() )
+                if ( d.isHasComponents() )
                 {
                     scanList.add( url );
                 }
