@@ -55,7 +55,7 @@ final class PlexusLifecycleManager
 
     private final Set<String> localTypes = new HashSet<String>();
 
-    private final List<Object> activeBeans = new ArrayList<Object>();
+    private final List<Object> activeBeans = Collections.synchronizedList( new ArrayList<Object>() );
 
     @Inject
     private Context context;
@@ -162,7 +162,7 @@ final class PlexusLifecycleManager
         return childManager;
     }
 
-    public boolean unmanage( final Object bean )
+    public synchronized boolean unmanage( final Object bean )
     {
         boolean result = false;
         for ( final PlexusLifecycleManager child : getChildren() )
@@ -176,16 +176,17 @@ final class PlexusLifecycleManager
         return result;
     }
 
-    public boolean unmanage()
+    public synchronized boolean unmanage()
     {
         boolean result = false;
         for ( final PlexusLifecycleManager child : getChildren() )
         {
             result |= child.unmanage();
         }
-        for ( final Object bean : activeBeans )
+        while ( !activeBeans.isEmpty() )
         {
-            result |= dispose( bean );
+            // dispose in reverse order; use index to allow concurrent growth
+            result |= dispose( activeBeans.remove( activeBeans.size() - 1 ) );
         }
         return result;
     }
