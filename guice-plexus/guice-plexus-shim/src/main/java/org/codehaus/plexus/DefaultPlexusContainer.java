@@ -355,12 +355,12 @@ public final class DefaultPlexusContainer
 
     public void release( final Object component )
     {
-        lifecycleManager.dispose( component );
+        lifecycleManager.unmanage( component );
     }
 
     public void dispose()
     {
-        lifecycleManager.dispose();
+        lifecycleManager.unmanage();
         containerRealm.setParentRealm( null );
     }
 

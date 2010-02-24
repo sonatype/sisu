@@ -59,6 +59,21 @@ public class PlexusConfigurationTest
             SEEN++;
             return true;
         }
+
+        public PlexusBeanManager manageChild()
+        {
+            return this;
+        }
+
+        public boolean unmanage( final Object bean )
+        {
+            return false;
+        }
+
+        public boolean unmanage()
+        {
+            return false;
+        }
     }
 
     @Override

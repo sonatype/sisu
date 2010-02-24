@@ -27,7 +27,7 @@ public interface PlexusBeanManager
      * @param clazz The implementation class
      * @return {@code true} if the component should be registered; otherwise {@code false}
      */
-    boolean manage( final Component component, final DeferredClass<?> clazz );
+    boolean manage( Component component, DeferredClass<?> clazz );
 
     /**
      * Decides whether instances of the given Plexus bean type should be reported to this manager.
@@ -35,7 +35,7 @@ public interface PlexusBeanManager
      * @param clazz The Plexus bean type
      * @return {@code true} if instances of the bean should be reported; otherwise {@code false}
      */
-    boolean manage( final Class<?> clazz );
+    boolean manage( Class<?> clazz );
 
     /**
      * Decides whether the given Plexus bean instance will be managed by this manager.
@@ -43,5 +43,27 @@ public interface PlexusBeanManager
      * @param bean The Plexus bean instance
      * @return {@code true} if the bean instance will be managed; otherwise {@code false}
      */
-    boolean manage( final Object bean );
+    boolean manage( Object bean );
+
+    /**
+     * Creates a new child {@link PlexusBeanManager} with this manager as its parent.
+     * 
+     * @return Child PlexusBeanManager
+     */
+    PlexusBeanManager manageChild();
+
+    /**
+     * Tells this manager to unmanage the given Plexus bean instance.
+     * 
+     * @param bean The Plexus bean instance
+     * @return {@code true} if the bean instance was unmanaged; otherwise {@code false}
+     */
+    boolean unmanage( Object bean );
+
+    /**
+     * Tells this manager to unmanage all the Plexus bean instances it knows about.
+     * 
+     * @return {@code true} if any bean instances were unmanaged; otherwise {@code false}
+     */
+    boolean unmanage();
 }

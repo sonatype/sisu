@@ -13,6 +13,7 @@
 package org.codehaus.plexus;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,13 +45,17 @@ final class PlexusLifecycleManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    private final PlexusLifecycleManager parent;
+
+    private List<PlexusLifecycleManager> children;
+
     private final Map<String, DeferredClass<?>> implementations = new HashMap<String, DeferredClass<?>>();
 
     private final Map<String, String> descriptions = new HashMap<String, String>();
 
-    private final Set<String> managedTypes = new HashSet<String>();
+    private final Set<String> localTypes = new HashSet<String>();
 
-    private final List<Object> activeComponents = new ArrayList<Object>();
+    private final List<Object> activeBeans = new ArrayList<Object>();
 
     @Inject
     private Context context;
@@ -59,13 +64,31 @@ final class PlexusLifecycleManager
     private PlexusContainer container;
 
     // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    PlexusLifecycleManager()
+    {
+        parent = null;
+    }
+
+    private PlexusLifecycleManager( final PlexusLifecycleManager parent )
+    {
+        this.parent = parent;
+
+        // copy injected fields
+        context = parent.context;
+        container = parent.container;
+    }
+
+    // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
     public boolean manage( final Component component, final DeferredClass<?> clazz )
     {
         final String key = Roles.canonicalRoleHint( component );
-        if ( implementations.containsKey( key ) )
+        if ( isManaged( key ) )
         {
             return false; // component already exists
         }
@@ -75,18 +98,19 @@ final class PlexusLifecycleManager
         {
             descriptions.put( key, description );
         }
+        localTypes.add( clazz.getName() );
         return true;
     }
 
     public boolean manage( final Class<?> clazz )
     {
-        if ( LogEnabled.class.isAssignableFrom( clazz ) || Contextualizable.class.isAssignableFrom( clazz )
-            || Initializable.class.isAssignableFrom( clazz ) || Startable.class.isAssignableFrom( clazz )
-            || Disposable.class.isAssignableFrom( clazz ) )
+        if ( localTypes.remove( clazz.getName() ) )
         {
-            return managedTypes.add( clazz.getName() );
+            return LogEnabled.class.isAssignableFrom( clazz ) || Contextualizable.class.isAssignableFrom( clazz )
+                || Initializable.class.isAssignableFrom( clazz ) || Startable.class.isAssignableFrom( clazz )
+                || Disposable.class.isAssignableFrom( clazz );
         }
-        return false;
+        return false; // not managed by this manager
     }
 
     public boolean manage( final Object bean )
@@ -112,11 +136,11 @@ final class PlexusLifecycleManager
             if ( bean instanceof Startable )
             {
                 ( (Startable) bean ).start();
-                activeComponents.add( bean );
+                activeBeans.add( bean );
             }
             else if ( bean instanceof Disposable )
             {
-                activeComponents.add( bean );
+                activeBeans.add( bean );
             }
         }
         catch ( final Exception e )
@@ -127,36 +151,109 @@ final class PlexusLifecycleManager
         return true;
     }
 
-    public <T> ComponentDescriptor<T> getComponentDescriptor( final String role, final String hint )
+    public PlexusBeanManager manageChild()
     {
-        final String key = Roles.canonicalRoleHint( role, hint );
-
-        @SuppressWarnings( "unchecked" )
-        final DeferredClass clazz = implementations.get( key );
-        if ( null == clazz )
+        final PlexusLifecycleManager childManager = new PlexusLifecycleManager( this );
+        if ( null == children )
         {
-            return null;
+            children = new ArrayList<PlexusLifecycleManager>();
         }
+        children.add( childManager );
+        return childManager;
+    }
 
-        final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
-        descriptor.setRole( role );
-        descriptor.setRoleHint( hint );
-        descriptor.setImplementationClass( clazz.get() );
-        descriptor.setDescription( descriptions.get( key ) );
-        return descriptor;
+    public boolean unmanage( final Object bean )
+    {
+        boolean result = false;
+        for ( final PlexusLifecycleManager child : getChildren() )
+        {
+            result |= child.unmanage( bean );
+        }
+        if ( activeBeans.remove( bean ) )
+        {
+            result |= dispose( bean );
+        }
+        return result;
+    }
+
+    public boolean unmanage()
+    {
+        boolean result = false;
+        for ( final PlexusLifecycleManager child : getChildren() )
+        {
+            result |= child.unmanage();
+        }
+        for ( final Object bean : activeBeans )
+        {
+            result |= dispose( bean );
+        }
+        return result;
     }
 
     // ----------------------------------------------------------------------
     // Shared implementation methods
     // ----------------------------------------------------------------------
 
-    void dispose( final Object bean )
+    boolean isManaged( final String roleHintKey )
+    {
+        if ( null != parent && parent.isManaged( roleHintKey ) )
+        {
+            return true;
+        }
+        return implementations.containsKey( roleHintKey );
+    }
+
+    <T> ComponentDescriptor<T> getComponentDescriptor( final String role, final String hint )
+    {
+        final String key = Roles.canonicalRoleHint( role, hint );
+
+        @SuppressWarnings( "unchecked" )
+        final DeferredClass clazz = implementations.get( key );
+        if ( null != clazz )
+        {
+            final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
+            descriptor.setRole( role );
+            descriptor.setRoleHint( hint );
+            descriptor.setImplementationClass( clazz.get() );
+            descriptor.setDescription( descriptions.get( key ) );
+            return descriptor;
+        }
+        for ( final PlexusLifecycleManager child : getChildren() )
+        {
+            final ComponentDescriptor<T> descriptor = child.getComponentDescriptor( role, hint );
+            if ( descriptor != null )
+            {
+                return descriptor;
+            }
+        }
+        return null;
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private Logger getLogger( final String name )
+    {
+        return container.getLoggerManager().getLoggerForComponent( name, null );
+    }
+
+    private void releaseLogger( final String name )
+    {
+        container.getLoggerManager().returnComponentLogger( name, null );
+    }
+
+    @SuppressWarnings( "unchecked" )
+    private List<PlexusLifecycleManager> getChildren()
+    {
+        return null != children ? children : Collections.EMPTY_LIST;
+    }
+
+    private boolean dispose( final Object bean )
     {
         final String name = bean.getClass().getName();
         try
         {
-            activeComponents.remove( bean );
-
             /*
              * Run through the shutdown phase of the standard plexus "personality"
              */
@@ -177,27 +274,6 @@ final class PlexusLifecycleManager
         {
             releaseLogger( name );
         }
-    }
-
-    void dispose()
-    {
-        while ( !activeComponents.isEmpty() )
-        {
-            dispose( activeComponents.get( 0 ) );
-        }
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    private Logger getLogger( final String name )
-    {
-        return container.getLoggerManager().getLoggerForComponent( name, null );
-    }
-
-    private void releaseLogger( final String name )
-    {
-        container.getLoggerManager().returnComponentLogger( name, null );
+        return true;
     }
 }

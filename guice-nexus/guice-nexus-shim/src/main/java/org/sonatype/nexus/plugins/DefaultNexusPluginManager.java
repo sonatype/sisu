@@ -312,8 +312,7 @@ public final class DefaultNexusPluginManager
         final ClassSpace annSpace = new URLClassSpace( pluginRealm, scanList.toArray( new URL[scanList.size()] ) );
         final PlexusBeanSource annSource = new AnnotatedNexusBeanSource( annSpace, variables, scanner );
 
-        final Module pluginBindings = new PlexusBindingModule( beanManager, xmlSource, annSource );
-
+        final Module pluginBindings = new PlexusBindingModule( beanManager.manageChild(), xmlSource, annSource );
         final Injector pluginInjector = rootInjector.createChildInjector( pluginBindings, resourceBindings );
 
         descriptor.setExportedClassnames( exportedClassNames );
