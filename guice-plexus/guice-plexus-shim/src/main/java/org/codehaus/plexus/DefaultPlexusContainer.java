@@ -88,7 +88,7 @@ public final class DefaultPlexusContainer
     @Inject
     private GuiceBeanLocator beanLocator;
 
-    private ClassRealm lookupRealm; // TODO: use thread-local
+    private ContainerSecurityManager securityManager;
 
     private LoggerManager loggerManager = CONSOLE_LOGGER_MANAGER;
 
@@ -109,7 +109,16 @@ public final class DefaultPlexusContainer
 
         containerRealm = lookupContainerRealm( configuration );
         lifecycleManager = new PlexusLifecycleManager();
-        lookupRealm = containerRealm;
+
+        try
+        {
+            // optional approach to finding role class loader
+            securityManager = new ContainerSecurityManager();
+        }
+        catch ( final SecurityException e )
+        {
+            securityManager = null;
+        }
 
         final ClassSpace space = new URLClassSpace( containerRealm );
         final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, variables, configurationUrl );
@@ -240,7 +249,7 @@ public final class DefaultPlexusContainer
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
     {
-        getLogger().warn( "Ignoring " + descriptor );
+        getLogger().warn( "TODO addComponentDescriptor( " + descriptor + " )" ); // TODO
     }
 
     public ComponentDescriptor<?> getComponentDescriptor( final String role, final String hint )
@@ -307,14 +316,14 @@ public final class DefaultPlexusContainer
 
     public ClassRealm setLookupRealm( final ClassRealm realm )
     {
-        final ClassRealm oldRealm = lookupRealm;
-        lookupRealm = realm;
-        return oldRealm;
+        getLogger().warn( "TODO setLookupRealm( " + realm + " )" );
+        return containerRealm; // TODO
     }
 
     public ClassRealm getLookupRealm()
     {
-        return lookupRealm;
+        getLogger().warn( "TODO getLookupRealm()" );
+        return containerRealm; // TODO
     }
 
     // ----------------------------------------------------------------------
@@ -461,12 +470,41 @@ public final class DefaultPlexusContainer
     {
         try
         {
-            return lookupRealm.loadClass( role );
+            // the majority of roles are found here
+            return containerRealm.loadClass( role );
         }
-        catch ( final Throwable e )
+        catch ( final Throwable e ) // NOPMD
         {
-            throw new TypeNotPresentException( role, e );
+            // drop-through
         }
+        final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        if ( null != tccl && containerRealm != tccl )
+        {
+            try
+            {
+                // allow per-thread customized lookup
+                return (Class) tccl.loadClass( role );
+            }
+            catch ( final Throwable e ) // NOPMD
+            {
+                // drop through
+            }
+        }
+        if ( null != securityManager )
+        {
+            try
+            {
+                // otherwise the caller should be able to see it
+                return securityManager.loadClassFromCaller( role );
+            }
+            catch ( final Throwable e ) // NOPMD
+            {
+                // drop-through
+            }
+        }
+
+        // TODO: -------- LookupRealm support? --------
+        throw new TypeNotPresentException( role, null );
     }
 
     /**
@@ -479,5 +517,43 @@ public final class DefaultPlexusContainer
     private <T> Iterable<? extends Entry<String, T>> locate( final Class<T> role, final String... hints )
     {
         return beanLocator.locate( TypeLiteral.get( role ), hints );
+    }
+
+    /**
+     * Custom {@link SecurityManager} that can load Plexus roles from the calling class loader.
+     */
+    static final class ContainerSecurityManager
+        extends SecurityManager
+    {
+        // ----------------------------------------------------------------------
+        // Constants
+        // ----------------------------------------------------------------------
+
+        private static final String CONTAINER_CLASS_NAME = DefaultPlexusContainer.class.getName();
+
+        // ----------------------------------------------------------------------
+        // Locally-shared methods
+        // ----------------------------------------------------------------------
+
+        /**
+         * Loads the given role from the class loader of the first non-container class in the call-stack.
+         * 
+         * @param role The Plexus role
+         * @return Plexus role type
+         */
+        @SuppressWarnings( "unchecked" )
+        Class loadClassFromCaller( final String role )
+            throws ClassNotFoundException
+        {
+            for ( final Class clazz : getClassContext() )
+            {
+                // simple check to ignore container related context frames
+                if ( !clazz.getName().startsWith( CONTAINER_CLASS_NAME ) )
+                {
+                    return clazz.getClassLoader().loadClass( role );
+                }
+            }
+            throw new ClassNotFoundException( "Cannot find caller" );
+        }
     }
 }

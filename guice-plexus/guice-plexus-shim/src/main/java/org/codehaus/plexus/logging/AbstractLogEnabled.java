@@ -32,7 +32,7 @@ public abstract class AbstractLogEnabled
     // Shared methods
     // ----------------------------------------------------------------------
 
-    protected final Logger getLogger()
+    protected Logger getLogger()
     {
         return logger;
     }

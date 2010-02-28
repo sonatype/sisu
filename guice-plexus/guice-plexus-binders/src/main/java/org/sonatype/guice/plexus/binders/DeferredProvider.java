@@ -62,7 +62,7 @@ final class DeferredProvider<T>
         catch ( final RuntimeException e )
         {
             final String message = "Cannot create instance of: " + clazz.getName();
-            logger.error( message + ": " + e.getMessage() );
+            logger.error( message, e );
             throw new ProvisionException( message, e );
         }
     }
