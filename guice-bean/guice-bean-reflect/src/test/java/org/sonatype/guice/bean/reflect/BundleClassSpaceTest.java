@@ -53,6 +53,8 @@ public class BundleClassSpaceTest
         throws Exception
     {
         framework.stop();
+        framework.waitForStop( 0 );
+
         super.tearDown();
     }
 
