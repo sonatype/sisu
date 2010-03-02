@@ -482,16 +482,28 @@ public class PlexusRequirementTest
         }
     }
 
-    public void testBackwardsCompatibility()
+    public void testPlexus121Compatibility()
         throws Exception
     {
-        // check binding works with old annotations
         final List<URL> urls = new ArrayList<URL>();
         urls.add( new File( "target/dependency/plexus-component-annotations-1.2.1.jar" ).toURI().toURL() );
         Collections.addAll( urls, ( (URLClassLoader) getClass().getClassLoader() ).getURLs() );
-        final ClassLoader oldLoader = URLClassLoader.newInstance( urls.toArray( new URL[urls.size()] ), null );
-        final Class<?> exampleClass = oldLoader.loadClass( SimpleRequirementExample.class.getName() );
-        exampleClass.newInstance();
+
+        // check binding works with Plexus 1.2.1 annotations: @Requirement does not have optional setting
+        final ClassLoader legacyLoader = new URLClassLoader( urls.toArray( new URL[urls.size()] ), null )
+        {
+            @Override
+            protected synchronized java.lang.Class<?> loadClass( final String name, final boolean resolve )
+                throws ClassNotFoundException
+            {
+                if ( name.contains( "cobertura" ) )
+                {
+                    return PlexusRequirementTest.class.getClassLoader().loadClass( name );
+                }
+                return super.loadClass( name, resolve );
+            }
+        };
+        legacyLoader.loadClass( SimpleRequirementExample.class.getName() ).newInstance();
     }
 
     static DeferredClass<?> defer( final Class<?> clazz )
