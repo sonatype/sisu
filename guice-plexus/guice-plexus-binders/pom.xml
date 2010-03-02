@@ -14,6 +14,32 @@
 
   <name>Guice - Plexus binders</name>
 
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-old-annotations</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.codehaus.plexus</groupId>
+                  <artifactId>plexus-component-annotations</artifactId>
+                  <version>1.2.1</version>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>

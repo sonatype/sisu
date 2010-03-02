@@ -12,7 +12,11 @@
  */
 package org.sonatype.guice.plexus.binders;
 
+import java.io.File;
+import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -169,10 +173,13 @@ public class PlexusRequirementTest
         @Requirement( role = A.class )
         Object testRole;
 
-        @Requirement( hint = "AB" )
+        @Requirement( hint = "AB", optional = true )
         A testHint;
 
-        @Requirement( role = A.class, optional = true )
+        @Requirement( hint = "MISSING", optional = true )
+        A testOptional = new ACImpl();
+
+        @Requirement( role = A.class )
         Map<String, ?> testMap;
 
         @Requirement( hints = { "AC", "AB" } )
@@ -274,12 +281,14 @@ public class PlexusRequirementTest
         assertEquals( AImpl.class, component.testSetter.getClass() );
         assertEquals( AImpl.class, component.testRole.getClass() );
         assertEquals( ABImpl.class, component.testHint.getClass() );
+        assertEquals( ACImpl.class, component.testOptional.getClass() );
         assertEquals( BImpl.class, component.testWildcard.getClass() );
     }
 
     public void testRequirementMap()
     {
         assertEquals( 4, component.testMap.size() );
+        assertEquals( 0, component.testEmptyMap.size() );
 
         // check mapping
         assertEquals( AImpl.class, component.testMap.get( "default" ).getClass() );
@@ -314,6 +323,7 @@ public class PlexusRequirementTest
     public void testRequirementList()
     {
         assertEquals( 4, component.testList.size() );
+        assertEquals( 0, component.testEmptyList.size() );
 
         // check ordering is same as original map-binder
         final Iterator<?> i = component.testList.iterator();
@@ -470,6 +480,18 @@ public class PlexusRequirementTest
         catch ( final ProvisionException e )
         {
         }
+    }
+
+    public void testBackwardsCompatibility()
+        throws Exception
+    {
+        // check binding works with old annotations
+        final List<URL> urls = new ArrayList<URL>();
+        urls.add( new File( "target/dependency/plexus-component-annotations-1.2.1.jar" ).toURI().toURL() );
+        Collections.addAll( urls, ( (URLClassLoader) getClass().getClassLoader() ).getURLs() );
+        final ClassLoader oldLoader = URLClassLoader.newInstance( urls.toArray( new URL[urls.size()] ), null );
+        final Class<?> exampleClass = oldLoader.loadClass( SimpleRequirementExample.class.getName() );
+        exampleClass.newInstance();
     }
 
     static DeferredClass<?> defer( final Class<?> clazz )
