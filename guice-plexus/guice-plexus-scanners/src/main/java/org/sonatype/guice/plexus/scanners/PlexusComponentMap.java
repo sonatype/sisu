@@ -115,8 +115,8 @@ final class PlexusComponentMap
         }
         catch ( final Throwable e )
         {
-            // not all roles are needed, so just note for now
-            logger.debug( "Missing Plexus role: " + role, e );
+            // not all roles are needed, so just note those we couldn't load
+            logger.debug( "Ignoring Plexus role: " + role + " [" + e + "]" );
             return null;
         }
     }
