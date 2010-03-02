@@ -8,19 +8,19 @@
     <relativePath>../pom</relativePath>
     <groupId>org.sonatype.spice</groupId>
     <artifactId>spice-inject</artifactId>
-    <version>6</version>
+    <version>7-SNAPSHOT</version>
   </parent>
 
   <packaging>pom</packaging>
 
   <groupId>org.sonatype.spice.inject</groupId>
   <artifactId>guice-bean</artifactId>
-  <version>0.3.0-SNAPSHOT</version>
+  <version>0.4.0-SNAPSHOT</version>
 
   <name>Guice - Bean</name>
 
   <properties>
-    <guice.bean.version>0.3.0-SNAPSHOT</guice.bean.version>
+    <guice.bean.version>0.4.0-SNAPSHOT</guice.bean.version>
   </properties>
 
   <modules>
