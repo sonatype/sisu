@@ -70,7 +70,7 @@ public final class BeanListener
                     bindings.add( binding );
                 }
             }
-            catch ( final RuntimeException e )
+            catch ( final Throwable e )
             {
                 encounter.addError( e );
             }
