@@ -29,6 +29,7 @@ import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.ProvisionException;
 
 public class PlexusConfigurationTest
     extends TestCase
@@ -116,6 +117,24 @@ public class PlexusConfigurationTest
         double e;
     }
 
+    @Component( role = Object.class )
+    static class MisconfiguredComponent
+    {
+        @Configuration( "misconfigured" )
+        SomeBean bean;
+    }
+
+    public static class SomeBean
+    {
+        public SomeBean( final String data )
+        {
+            if ( "misconfigured".equals( data ) )
+            {
+                throw new NoClassDefFoundError();
+            }
+        }
+    }
+
     public void testConfiguration()
     {
         assertEquals( "1", component.a );
@@ -133,6 +152,17 @@ public class PlexusConfigurationTest
         assertEquals( 3, jitComponent.c );
         assertEquals( Double.valueOf( 4.0 ), jitComponent.d );
         assertEquals( 5.0, jitComponent.e, 0 );
+
+        assertEquals( 2, ComponentManager.SEEN );
+
+        try
+        {
+            injector.getInstance( MisconfiguredComponent.class );
+            fail( "Expected ProvisionException" );
+        }
+        catch ( final ProvisionException e )
+        {
+        }
 
         assertEquals( 2, ComponentManager.SEEN );
     }

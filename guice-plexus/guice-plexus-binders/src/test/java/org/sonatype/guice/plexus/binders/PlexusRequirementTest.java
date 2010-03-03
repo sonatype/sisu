@@ -32,6 +32,7 @@ import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
+import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
@@ -66,6 +67,11 @@ public class PlexusRequirementTest
             @Override
             protected void configure()
             {
+                final ClassSpace space = new URLClassSpace( (URLClassLoader) TestCase.class.getClassLoader() );
+
+                @SuppressWarnings( "unchecked" )
+                final DeferredClass<A> deferA = (DeferredClass) space.deferLoadClass( BrokenAImpl.class.getName() );
+
                 install( new PlexusDateTypeConverter() );
                 install( new PlexusXmlBeanConverter() );
 
@@ -73,6 +79,7 @@ public class PlexusRequirementTest
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
 
                 bind( A.class ).annotatedWith( Jsr330.named( "AA" ) ).to( AAImpl.class );
+                bind( A.class ).annotatedWith( Jsr330.named( "broken" ) ).toProvider( new DeferredProvider<A>( deferA ) );
                 bind( A.class ).annotatedWith( Jsr330.named( "AB" ) ).to( ABImpl.class );
                 bind( A.class ).to( AImpl.class ).in( Scopes.SINGLETON );
                 bind( A.class ).annotatedWith( Jsr330.named( "AC" ) ).to( ACImpl.class );
@@ -91,7 +98,6 @@ public class PlexusRequirementTest
                         componentMap.put( new ComponentImpl( Alpha.class, "", "", "" ), defer( AlphaImpl.class ) );
                         componentMap.put( new ComponentImpl( Omega.class, "", "", "" ), defer( OmegaImpl.class ) );
 
-                        final ClassSpace space = new URLClassSpace( (URLClassLoader) TestCase.class.getClassLoader() );
                         componentMap.put( new ComponentImpl( Gamma.class, "", "", "" ),
                                           space.deferLoadClass( "some-broken-class" ) );
 
@@ -153,6 +159,19 @@ public class PlexusRequirementTest
 
     static class ACImpl
         extends AImpl
+    {
+    }
+
+    static class BrokenAImpl
+        extends AImpl
+    {
+        @SuppressWarnings( "unused" )
+        public BrokenAImpl( final MissingClass missing )
+        {
+        }
+    }
+
+    static class MissingClass
     {
     }
 
@@ -287,7 +306,7 @@ public class PlexusRequirementTest
 
     public void testRequirementMap()
     {
-        assertEquals( 4, component.testMap.size() );
+        assertEquals( 5, component.testMap.size() );
         assertEquals( 0, component.testEmptyMap.size() );
 
         // check mapping
@@ -296,13 +315,30 @@ public class PlexusRequirementTest
         assertEquals( ABImpl.class, component.testMap.get( "AB" ).getClass() );
         assertEquals( ACImpl.class, component.testMap.get( "AC" ).getClass() );
 
-        // check ordering is same as original map-binder
-        final Iterator<?> i = component.testMap.values().iterator();
-        assertEquals( AImpl.class, i.next().getClass() );
-        assertEquals( AAImpl.class, i.next().getClass() );
-        assertEquals( ABImpl.class, i.next().getClass() );
-        assertEquals( ACImpl.class, i.next().getClass() );
-        assertFalse( i.hasNext() );
+        // check key ordering is same as original map-binder
+        final Iterator<String> keys = component.testMap.keySet().iterator();
+        assertEquals( Hints.DEFAULT_HINT, keys.next() );
+        assertEquals( "AA", keys.next() );
+        assertEquals( "broken", keys.next() );
+        assertEquals( "AB", keys.next() );
+        assertEquals( "AC", keys.next() );
+        assertFalse( keys.hasNext() );
+
+        // check value ordering is same as original map-binder
+        final Iterator<?> values = component.testMap.values().iterator();
+        assertEquals( AImpl.class, values.next().getClass() );
+        assertEquals( AAImpl.class, values.next().getClass() );
+        try
+        {
+            values.next();
+            fail( "Expected ProvisionException" );
+        }
+        catch ( final ProvisionException e )
+        {
+        }
+        assertEquals( ABImpl.class, values.next().getClass() );
+        assertEquals( ACImpl.class, values.next().getClass() );
+        assertFalse( values.hasNext() );
     }
 
     public void testRequirementSubMap()
@@ -313,22 +349,36 @@ public class PlexusRequirementTest
         assertEquals( ABImpl.class, component.testSubMap.get( "AB" ).getClass() );
         assertEquals( ACImpl.class, component.testSubMap.get( "AC" ).getClass() );
 
-        // check ordering is same as hints
-        final Iterator<A> i = component.testSubMap.values().iterator();
-        assertEquals( ACImpl.class, i.next().getClass() );
-        assertEquals( ABImpl.class, i.next().getClass() );
-        assertFalse( i.hasNext() );
+        // check key ordering is same as original map-binder
+        final Iterator<String> keys = component.testSubMap.keySet().iterator();
+        assertEquals( "AC", keys.next() );
+        assertEquals( "AB", keys.next() );
+        assertFalse( keys.hasNext() );
+
+        // check value ordering is same as hints
+        final Iterator<A> values = component.testSubMap.values().iterator();
+        assertEquals( ACImpl.class, values.next().getClass() );
+        assertEquals( ABImpl.class, values.next().getClass() );
+        assertFalse( values.hasNext() );
     }
 
     public void testRequirementList()
     {
-        assertEquals( 4, component.testList.size() );
+        assertEquals( 5, component.testList.size() );
         assertEquals( 0, component.testEmptyList.size() );
 
         // check ordering is same as original map-binder
         final Iterator<?> i = component.testList.iterator();
         assertEquals( AImpl.class, i.next().getClass() );
         assertEquals( AAImpl.class, i.next().getClass() );
+        try
+        {
+            i.next();
+            fail( "Expected ProvisionException" );
+        }
+        catch ( final ProvisionException e )
+        {
+        }
         assertEquals( ABImpl.class, i.next().getClass() );
         assertEquals( ACImpl.class, i.next().getClass() );
         assertFalse( i.hasNext() );
