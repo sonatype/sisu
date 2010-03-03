@@ -143,7 +143,7 @@ final class PlexusLifecycleManager
                 activeBeans.add( bean );
             }
         }
-        catch ( final Exception e )
+        catch ( final Throwable e )
         {
             getLogger( name ).error( "Problem starting: " + bean, e );
         }

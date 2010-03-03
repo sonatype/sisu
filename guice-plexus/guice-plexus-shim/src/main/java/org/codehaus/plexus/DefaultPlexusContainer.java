@@ -190,7 +190,7 @@ public final class DefaultPlexusContainer
         {
             return locate( role, hint ).iterator().next().getValue();
         }
-        catch ( final RuntimeException e )
+        catch ( final Throwable e )
         {
             throw new ComponentLookupException( e.toString(), role.getName(), hint );
         }
