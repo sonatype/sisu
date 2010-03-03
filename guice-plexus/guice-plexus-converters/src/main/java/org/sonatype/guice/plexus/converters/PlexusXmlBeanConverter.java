@@ -128,7 +128,7 @@ public final class PlexusXmlBeanConverter
 
                 return parse( parser, toType );
             }
-            catch ( final Exception e )
+            catch ( final Throwable e )
             {
                 throw new IllegalArgumentException( String.format( CONVERSION_ERROR, value, toType ), e );
             }
@@ -393,7 +393,7 @@ public final class PlexusXmlBeanConverter
         {
             return clazz.newInstance();
         }
-        catch ( final Exception e )
+        catch ( final Throwable e )
         {
             throw new IllegalArgumentException( "Cannot create instance of: " + clazz, e );
         }
@@ -416,7 +416,7 @@ public final class PlexusXmlBeanConverter
         {
             throw new IllegalArgumentException( String.format( CONVERSION_ERROR, value, clazz ), e.getTargetException() );
         }
-        catch ( final Exception e )
+        catch ( final Throwable e )
         {
             throw new IllegalArgumentException( String.format( CONVERSION_ERROR, value, clazz ), e );
         }
