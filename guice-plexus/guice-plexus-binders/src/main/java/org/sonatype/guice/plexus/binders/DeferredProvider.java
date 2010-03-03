@@ -59,9 +59,9 @@ final class DeferredProvider<T>
             // load class and bootstrap bean injection
             return injector.getInstance( clazz.get() );
         }
-        catch ( final RuntimeException e )
+        catch ( final Throwable e )
         {
-            final String message = "Cannot create instance of: " + clazz.getName();
+            final String message = "Broken implementation: " + clazz.getName();
             logger.error( message, e );
             throw new ProvisionException( message, e );
         }
