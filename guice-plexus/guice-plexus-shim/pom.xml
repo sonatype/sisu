@@ -24,7 +24,7 @@
         <extensions>true</extensions>
         <configuration>
           <!-- stop the contents of split-packages from leaking into the final bundle -->
-          <excludeDependencies>*;groupId=!org.sonatype.spice.inject</excludeDependencies>
+          <excludeDependencies>*;artifactId=!guice-*</excludeDependencies>
           <instructions>
             <Bundle-RequiredExecutionEnvironment>
               J2SE-1.5,JavaSE-1.6
@@ -33,7 +33,7 @@
             <_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>
             <_nouses>true</_nouses>
             <Embed-Dependency>
-              *;groupId=org.sonatype.spice.inject;optional=true;inline=org/**
+              *;artifactId=guice-*;optional=true;inline=org/**
             </Embed-Dependency>
             <Embed-Transitive>true</Embed-Transitive>
             <_removeheaders>
