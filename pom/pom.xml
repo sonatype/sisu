@@ -8,7 +8,7 @@
     <relativePath>../../spice-parent</relativePath>
     <groupId>org.sonatype.spice</groupId>
     <artifactId>spice-parent</artifactId>
-    <version>16-SNAPSHOT</version>
+    <version>15</version>
   </parent>
 
   <packaging>pom</packaging>
@@ -20,6 +20,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <guice.patches.version>2.1.2-SNAPSHOT</guice.patches.version>
   </properties>
 
   <build>
@@ -75,22 +76,30 @@
         <artifactId>aopalliance</artifactId>
         <version>1.0</version>
       </dependency>
+
+      <!-- patched locally -->
       <dependency>
         <groupId>org.sonatype.spice.inject</groupId>
         <artifactId>guice-patches</artifactId>
-        <version>2.1.2-SNAPSHOT</version>
+        <version>${guice.patches.version}</version>
+      </dependency>
+      <!-- patched (no-AOP) -->
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-patches</artifactId>
+        <version>${guice.patches.version}</version>
         <classifier>noaop</classifier>
       </dependency>
 
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.5.10</version>
+        <version>1.5.11</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
-        <version>1.5.10</version>
+        <version>1.5.11</version>
       </dependency>
 
       <dependency>
@@ -101,7 +110,7 @@
       <dependency>
         <groupId>org.apache.felix</groupId>
         <artifactId>org.apache.felix.framework</artifactId>
-        <version>2.0.2</version>
+        <version>2.0.4</version>
       </dependency>
 
       <dependency>
