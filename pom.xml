@@ -14,7 +14,6 @@
 
   <modules>
     <module>pom</module>
-    <module>spice-inject-annotations</module>
     <module>guice-patches</module>
     <module>guice-bean</module>
     <module>guice-plexus</module>
