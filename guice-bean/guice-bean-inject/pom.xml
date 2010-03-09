@@ -18,7 +18,6 @@
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-patches</artifactId>
-      <classifier>noaop</classifier>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
