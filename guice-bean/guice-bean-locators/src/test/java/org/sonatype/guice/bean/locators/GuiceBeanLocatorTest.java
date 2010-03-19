@@ -12,7 +12,9 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -279,5 +281,73 @@ public class GuiceBeanLocatorTest
         assertEquals( 1, injectors.size() );
         locator.remove( parent );
         assertEquals( 1, injectors.size() );
+    }
+
+    static class CountingWatcher
+        implements Watcher<Entry<Annotation, Bean>>
+    {
+        Set<Entry<Annotation, Bean>> entries = new HashSet<Entry<Annotation, Bean>>();
+
+        public void add( final Entry<Annotation, Bean> item )
+        {
+            assertTrue( entries.add( item ) );
+        }
+
+        public void remove( final Entry<Annotation, Bean> item )
+        {
+            assertTrue( entries.remove( item ) );
+        }
+    }
+
+    public void testWatchableSequence()
+    {
+        final GuiceBeanLocator locator = new GuiceBeanLocator();
+
+        final Watchable<Entry<Annotation, Bean>> watchable = locator.locate( Key.get( Bean.class ) );
+        final CountingWatcher countingWatcher = new CountingWatcher();
+
+        assertNull( watchable.subscribe( countingWatcher ) );
+        assertNull( watchable.subscribe( countingWatcher ) );
+        watchable.unsubscribe( countingWatcher );
+        watchable.unsubscribe( countingWatcher );
+
+        locator.add( null );
+        locator.remove( null );
+
+        locator.add( parent );
+        locator.add( child1 );
+
+        assertNull( watchable.subscribe( countingWatcher ) );
+        assertEquals( 6, countingWatcher.entries.size() );
+
+        locator.add( child2 );
+        assertEquals( 6, countingWatcher.entries.size() );
+        locator.add( child3 );
+        assertEquals( 8, countingWatcher.entries.size() );
+        locator.add( child2 );
+        assertEquals( 8, countingWatcher.entries.size() );
+        locator.add( child1 );
+        assertEquals( 8, countingWatcher.entries.size() );
+        locator.add( parent );
+        assertEquals( 8, countingWatcher.entries.size() );
+
+        locator.remove( child1 );
+        assertEquals( 6, countingWatcher.entries.size() );
+        locator.remove( parent );
+        assertEquals( 2, countingWatcher.entries.size() );
+        locator.remove( child3 );
+        assertEquals( 0, countingWatcher.entries.size() );
+        locator.remove( parent );
+        assertEquals( 0, countingWatcher.entries.size() );
+        locator.remove( child2 );
+        assertEquals( 0, countingWatcher.entries.size() );
+        locator.remove( parent );
+        assertEquals( 0, countingWatcher.entries.size() );
+
+        locator.add( child3 );
+        assertEquals( 2, countingWatcher.entries.size() );
+        assertSame( countingWatcher, watchable.subscribe( null ) );
+        locator.remove( child3 );
+        assertEquals( 2, countingWatcher.entries.size() );
     }
 }
