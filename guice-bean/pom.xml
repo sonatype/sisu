@@ -29,7 +29,6 @@
     <module>guice-bean-metadata</module>
     <module>guice-bean-scanners</module>
     <module>guice-bean-locators</module>
-    <module>guice-bean-binders</module>
   </modules>
 
   <dependencyManagement>
