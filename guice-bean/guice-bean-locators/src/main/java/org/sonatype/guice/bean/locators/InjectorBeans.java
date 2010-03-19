@@ -17,9 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.inject.Provider;
+
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
 /**
  * Fixed {@link List} of qualified beans found by querying bindings from a single {@link Injector}.
@@ -46,41 +49,65 @@ final class InjectorBeans<Q extends Annotation, T>
     InjectorBeans( final Injector injector, final Key<T> key )
     {
         this.injector = injector;
-
-        final Injector parent = injector.getParent();
-        if ( null == parent )
+        if ( key.hasAttributes() )
         {
-            try
-            {
-                add( new DeferredBeanEntry<Q, T>( null, injector.getProvider( key ) ) );
-            }
-            catch ( final RuntimeException e ) // NOPMD
-            {
-                // default binding may not exist
-            }
+            addQualifiedBean( key.getAnnotation(), injector.getProvider( key ) );
         }
-
-        final Class<? extends Annotation> qualifierType = key.getAnnotationType();
-        if ( null == qualifierType )
+        else
         {
-            return; // key only matches the default case, so we can stop here
+            addQualifiedBeans( key.getAnnotationType(), key.getTypeLiteral() );
         }
-
-        for ( final Binding<T> binding : injector.findBindingsByType( key.getTypeLiteral() ) )
-        {
-            @SuppressWarnings( "unchecked" )
-            final Q ann = (Q) binding.getKey().getAnnotation();
-            if ( qualifierType.isInstance( ann ) )
-            {
-                add( new DeferredBeanEntry<Q, T>( ann, binding.getProvider() ) );
-            }
-            else if ( null == ann && null != parent )
-            {
-                // default child bindings should appear before qualified bindings
-                add( 0, new DeferredBeanEntry<Q, T>( null, binding.getProvider() ) );
-            }
-        }
-
         trimToSize(); // minimize memory usage
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private void addDefaultBean( final Provider<T> provider )
+    {
+        add( 0, new DeferredBeanEntry<Q, T>( null, provider ) );
+    }
+
+    @SuppressWarnings( "unchecked" )
+    private void addQualifiedBean( final Annotation qualifier, final Provider<T> provider )
+    {
+        add( new DeferredBeanEntry<Q, T>( (Q) qualifier, provider ) );
+    }
+
+    private void addImplicitDefault( final TypeLiteral<T> beanType )
+    {
+        try
+        {
+            addDefaultBean( injector.getProvider( Key.get( beanType ) ) );
+        }
+        catch ( final RuntimeException e ) // NOPMD
+        {
+            // default binding may not exist
+        }
+    }
+
+    private void addQualifiedBeans( final Class<? extends Annotation> qualifierType, final TypeLiteral<T> beanType )
+    {
+        final boolean isRootInjector = injector.getParent() == null;
+        if ( isRootInjector )
+        {
+            addImplicitDefault( beanType );
+        }
+        for ( final Binding<T> binding : injector.findBindingsByType( beanType ) )
+        {
+            final Annotation ann = binding.getKey().getAnnotation();
+            if ( null == ann )
+            {
+                if ( !isRootInjector )
+                {
+                    addDefaultBean( binding.getProvider() );
+                }
+            }
+            else if ( null == qualifierType || qualifierType.isInstance( ann ) )
+            {
+                addQualifiedBean( ann, binding.getProvider() );
+            }
+        }
     }
 }
