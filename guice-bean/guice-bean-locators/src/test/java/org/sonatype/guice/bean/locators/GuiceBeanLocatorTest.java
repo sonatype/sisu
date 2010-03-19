@@ -308,8 +308,10 @@ public class GuiceBeanLocatorTest
 
         assertNull( watchable.subscribe( countingWatcher ) );
         assertNull( watchable.subscribe( countingWatcher ) );
-        watchable.unsubscribe( countingWatcher );
-        watchable.unsubscribe( countingWatcher );
+
+        assertFalse( watchable.unsubscribe( null ) );
+        assertTrue( watchable.unsubscribe( countingWatcher ) );
+        assertFalse( watchable.unsubscribe( countingWatcher ) );
 
         locator.add( null );
         locator.remove( null );

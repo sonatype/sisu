@@ -22,7 +22,7 @@ public interface Watchable<T>
      * Subscribes the given {@link Watcher} to receive updates from this sequence.
      * 
      * @param watcher The sequence watcher
-     * @return Previous watcher if one was subscribed; otherwise {@code null}
+     * @return Previous watcher if one was already subscribed; otherwise {@code null}
      */
     Watcher<T> subscribe( Watcher<T> watcher );
 
@@ -30,6 +30,7 @@ public interface Watchable<T>
      * Unsubscribes the given {@link Watcher} from receiving updates to this sequence.
      * 
      * @param watcher The sequence watcher
+     * @return {@code true} if the watcher was unsubscribed; otherwise {@code false}
      */
-    void unsubscribe( Watcher<T> watcher );
+    boolean unsubscribe( Watcher<T> watcher );
 }

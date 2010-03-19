@@ -58,7 +58,6 @@ final class GuiceBeans<Q extends Annotation, T>
         {
             return Collections.EMPTY_LIST.iterator();
         }
-        // "copy-on-read" - concatenate all beans
         final List combinedBeans = new ArrayList();
         for ( int i = 0, size = injectorBeans.size(); i < size; i++ )
         {
@@ -85,12 +84,14 @@ final class GuiceBeans<Q extends Annotation, T>
         return oldWatcher;
     }
 
-    public void unsubscribe( final Watcher<Entry<Q, T>> oldWatcher )
+    public synchronized boolean unsubscribe( final Watcher<Entry<Q, T>> oldWatcher )
     {
         if ( oldWatcher == beanWatcher )
         {
             beanWatcher = null;
+            return true;
         }
+        return false;
     }
 
     public synchronized boolean add( final Injector injector )
