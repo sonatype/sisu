@@ -12,23 +12,22 @@
  */
 package org.sonatype.guice.bean.locators;
 
-import java.lang.annotation.Annotation;
-import java.util.Map.Entry;
-
-import javax.inject.Qualifier;
-
-import com.google.inject.Key;
-
 /**
- * Dynamic locator of beans annotated with {@link Qualifier} annotations.
+ * Something that watches a {@link Watchable} sequence of items.
  */
-public interface BeanLocator
+public interface Watcher<T>
 {
     /**
-     * Locates beans that match the given qualified binding {@link Key}.
+     * Notifies the watcher that the given item was added to the end of the watched sequence.
      * 
-     * @param key The qualified key
-     * @return Watchable sequence of beans that match the given key
+     * @param item The added item
      */
-    <Q extends Annotation, T> Watchable<Entry<Q, T>> locate( Key<T> key );
+    void add( T item );
+
+    /**
+     * Notifies the watcher that the given item was removed from the watched sequence.
+     * 
+     * @param item The removed item
+     */
+    void remove( T item );
 }
