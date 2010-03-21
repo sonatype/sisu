@@ -20,6 +20,8 @@ import javax.inject.Named;
 
 import junit.framework.TestCase;
 
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassVisitor;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 
@@ -78,6 +80,11 @@ public class QualifiedScannerModuleTest
     {
     }
 
+    static class Bean
+        extends AbstractTypedBean
+    {
+    }
+
     public void testComponentScanning()
     {
         final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
@@ -86,5 +93,23 @@ public class QualifiedScannerModuleTest
         {
             System.out.println( b.getKey() + " ---> " + b.getProvider() );
         }
+    }
+
+    public void testEmptyMethods()
+    {
+        final AnnotationVisitor emptyAnnotationVisitor = new EmptyAnnotationVisitor();
+
+        emptyAnnotationVisitor.visit( null, null );
+        emptyAnnotationVisitor.visitEnum( null, null, null );
+        emptyAnnotationVisitor.visitAnnotation( null, null );
+        emptyAnnotationVisitor.visitArray( null );
+
+        final ClassVisitor emptyClassVisitor = new EmptyClassVisitor();
+
+        emptyClassVisitor.visit( 0, 0, null, null, null, null );
+        emptyClassVisitor.visitAnnotation( null, false );
+        emptyClassVisitor.visitAttribute( null );
+        emptyClassVisitor.visitSource( null, null );
+        emptyClassVisitor.visitEnd();
     }
 }
