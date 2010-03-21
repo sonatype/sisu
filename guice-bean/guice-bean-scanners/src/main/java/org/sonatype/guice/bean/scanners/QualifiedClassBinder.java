@@ -13,14 +13,24 @@
 package org.sonatype.guice.bean.scanners;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Type;
+import java.util.List;
+import java.util.Map;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Named;
 import javax.inject.Qualifier;
 
+import org.sonatype.guice.bean.reflect.DeclaredMembers;
+import org.sonatype.guice.bean.reflect.Generics;
+
 import com.google.inject.Binder;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import com.google.inject.util.Jsr330;
+import com.google.inject.util.Types;
 
 /**
  * Auto-wires the qualified bean according to the attached {@link Qualifier} metadata.
@@ -49,28 +59,28 @@ final class QualifiedClassBinder
     @SuppressWarnings( "unchecked" )
     void bind( final Class clazz )
     {
-        // handle situations where qualifiers are normalized away
-        final Class primaryInterface = getPrimaryInterface( clazz );
+        final Class keyType = getKeyType( clazz );
         final Annotation qualifier = normalizeQualifier( getQualifier( clazz ), clazz );
         if ( null != qualifier )
         {
-            binder.bind( Key.get( primaryInterface, qualifier ) ).to( clazz );
+            binder.bind( Key.get( keyType, qualifier ) ).to( clazz );
         }
-        else if ( primaryInterface != clazz )
+        else if ( keyType != clazz )
         {
-            binder.bind( Key.get( primaryInterface ) ).to( clazz );
+            binder.bind( Key.get( keyType ) ).to( clazz );
         }
         else
         {
             binder.bind( clazz ); // implementation is the API
         }
+        bindQualifiedCollections( clazz );
     }
 
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private Annotation normalizeQualifier( final Annotation qualifier, final Class<?> clazz )
+    private static Annotation normalizeQualifier( final Annotation qualifier, final Class<?> clazz )
     {
         if ( qualifier instanceof Named )
         {
@@ -90,7 +100,7 @@ final class QualifiedClassBinder
         return qualifier; // no normalization required
     }
 
-    private Annotation getQualifier( final Class<?> clazz )
+    private static Annotation getQualifier( final Class<?> clazz )
     {
         for ( final Annotation ann : clazz.getAnnotations() )
         {
@@ -105,7 +115,7 @@ final class QualifiedClassBinder
     }
 
     @SuppressWarnings( "unchecked" )
-    private Class getPrimaryInterface( final Class<?> clazz )
+    private static Class getKeyType( final Class<?> clazz )
     {
         // @Typed settings take precedence
         final Typed typed = clazz.getAnnotation( Typed.class );
@@ -123,12 +133,56 @@ final class QualifiedClassBinder
         final Class superClazz = clazz.getSuperclass();
         if ( !superClazz.getName().startsWith( "java" ) )
         {
-            final Class superInterface = getPrimaryInterface( superClazz );
+            final Class superInterface = getKeyType( superClazz );
             if ( superInterface != superClazz )
             {
                 return superInterface;
             }
         }
-        return clazz; // our implementation is the API
+        return superClazz != Object.class ? superClazz : clazz;
+    }
+
+    private void bindQualifiedCollections( final Class<?> clazz )
+    {
+        for ( final Member member : new DeclaredMembers( clazz ) )
+        {
+            if ( member instanceof Field )
+            {
+                final TypeLiteral<?> fieldType = TypeLiteral.get( ( (Field) member ).getGenericType() );
+                if ( fieldType.getRawType() == List.class )
+                {
+                    bindQualifiedList( fieldType );
+                }
+                else if ( fieldType.getRawType() == Map.class )
+                {
+                    bindQualifiedMap( fieldType );
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings( "unchecked" )
+    private void bindQualifiedList( final TypeLiteral type )
+    {
+        final Type beanType = Generics.typeArgument( type, 0 ).getType();
+        final Type providerType = Types.newParameterizedType( QualifiedListProvider.class, beanType );
+        binder.bind( type ).toProvider( Key.get( providerType ) );
+    }
+
+    @SuppressWarnings( "unchecked" )
+    private void bindQualifiedMap( final TypeLiteral type )
+    {
+        final Type qualifierType = Generics.typeArgument( type, 0 ).getType();
+        final Type beanType = Generics.typeArgument( type, 1 ).getType();
+        final Type providerType;
+        if ( qualifierType == String.class )
+        {
+            providerType = Types.newParameterizedType( QualifiedHintProvider.class, beanType );
+        }
+        else
+        {
+            providerType = Types.newParameterizedType( QualifiedMapProvider.class, qualifierType, beanType );
+        }
+        binder.bind( type ).toProvider( Key.get( providerType ) );
     }
 }

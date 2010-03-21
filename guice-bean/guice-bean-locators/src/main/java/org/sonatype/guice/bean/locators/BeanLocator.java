@@ -17,11 +17,13 @@ import java.util.Map.Entry;
 
 import javax.inject.Qualifier;
 
+import com.google.inject.ImplementedBy;
 import com.google.inject.Key;
 
 /**
  * Dynamic locator of beans annotated with {@link Qualifier} annotations.
  */
+@ImplementedBy( GuiceBeanLocator.class )
 public interface BeanLocator
 {
     /**

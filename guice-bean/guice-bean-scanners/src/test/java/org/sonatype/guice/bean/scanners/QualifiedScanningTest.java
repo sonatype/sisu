@@ -38,7 +38,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.util.Jsr330;
 
-public class QualifiedScannerModuleTest
+public class QualifiedScanningTest
     extends TestCase
 {
     @Named
@@ -216,7 +216,7 @@ public class QualifiedScannerModuleTest
     public void testComponentScanning()
     {
         checkDefaultBinding( DefaultB01.class, DefaultB01.class );
-        checkNamedBinding( B01.class, B01.class.getName(), B01.class );
+        checkNamedBinding( Thread.class, B01.class.getName(), B01.class );
         checkDefaultBinding( EventListener.class, DefaultB02.class );
 
         checkNamedBinding( EventListener.class, B02.class.getName(), B02.class );
@@ -224,8 +224,8 @@ public class QualifiedScannerModuleTest
         checkNamedBinding( DefaultB04.class, "TEST", DefaultB04.class );
         checkNamedBinding( B04.class, "TEST", B04.class );
 
-        checkNamedBinding( SubclassB00.class, SubclassB00.class.getName(), SubclassB00.class );
-        checkNamedBinding( SubclassB01.class, SubclassB01.class.getName(), SubclassB01.class );
+        checkNamedBinding( Thread.class, SubclassB00.class.getName(), SubclassB00.class );
+        checkNamedBinding( AbstractB01.class, SubclassB01.class.getName(), SubclassB01.class );
 
         checkNamedBinding( EventListener.class, SubclassB02.class.getName(), SubclassB02.class );
         checkNamedBinding( EventListener.class, SubclassB03.class.getName(), SubclassB03.class );
