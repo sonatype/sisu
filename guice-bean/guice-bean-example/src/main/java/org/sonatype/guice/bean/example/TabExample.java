@@ -45,16 +45,16 @@ public final class TabExample
         {
             final JFrame frame = new JFrame( "GuiceBeanExample" );
             frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+            frame.setLocation( 200, 200 );
 
             final JTabbedPane pane = new JTabbedPane();
+            pane.setPreferredSize( new Dimension( 400, 80 ) );
+            frame.getContentPane().add( pane, BorderLayout.CENTER );
+
             for ( final Entry<String, JPanel> e : tabMap.entrySet() )
             {
                 pane.addTab( e.getKey(), e.getValue() );
             }
-
-            pane.setPreferredSize( new Dimension( 400, 80 ) );
-            frame.getContentPane().add( pane, BorderLayout.CENTER );
-            frame.setLocation( 200, 200 );
 
             frame.pack();
             frame.setVisible( true );
