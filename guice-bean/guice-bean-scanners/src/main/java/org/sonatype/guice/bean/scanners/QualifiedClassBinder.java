@@ -22,86 +22,113 @@ import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.util.Jsr330;
 
+/**
+ * Auto-wires the qualified bean according to the attached {@link Qualifier} metadata.
+ */
 final class QualifiedClassBinder
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     private final Binder binder;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
 
     QualifiedClassBinder( final Binder binder )
     {
         this.binder = binder;
     }
 
+    // ----------------------------------------------------------------------
+    // Shared methods
+    // ----------------------------------------------------------------------
+
     @SuppressWarnings( "unchecked" )
-    void bind( final Class<?> clazz )
+    void bind( final Class clazz )
     {
-        Annotation qualifier = getQualifier( clazz );
-        if ( qualifier instanceof Named )
+        // handle situations where qualifiers are normalized away
+        final Class primaryInterface = getPrimaryInterface( clazz );
+        final Annotation qualifier = normalizeQualifier( getQualifier( clazz ), clazz );
+        if ( null != qualifier )
         {
-            final Named named = (Named) qualifier;
-            if ( named.value().length() == 0 )
-            {
-                if ( clazz.getSimpleName().startsWith( "Default" ) )
-                {
-                    qualifier = null;
-                }
-                else
-                {
-                    qualifier = Jsr330.named( clazz.getName() );
-                }
-            }
+            binder.bind( Key.get( primaryInterface, qualifier ) ).to( clazz );
         }
-
-        final Key key =
-            null == qualifier ? Key.get( getInterface( clazz ) ) : Key.get( getInterface( clazz ), qualifier );
-
-        if ( !key.equals( Key.get( clazz ) ) )
+        else if ( primaryInterface != clazz )
         {
-            binder.bind( key ).to( clazz );
+            binder.bind( Key.get( primaryInterface ) ).to( clazz );
         }
         else
         {
-            binder.bind( key );
+            binder.bind( clazz ); // implementation is the API
         }
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private Annotation normalizeQualifier( final Annotation qualifier, final Class<?> clazz )
+    {
+        if ( qualifier instanceof Named )
+        {
+            // Empty @Named needs auto-configuration
+            final Named named = (Named) qualifier;
+            if ( named.value().length() == 0 )
+            {
+                // @Named default classes don't need any qualifier
+                if ( clazz.getSimpleName().startsWith( "Default" ) )
+                {
+                    return null;
+                }
+                // use FQN as the replacement qualifier
+                return Jsr330.named( clazz.getName() );
+            }
+        }
+        return qualifier; // no normalization required
     }
 
     private Annotation getQualifier( final Class<?> clazz )
     {
-        for ( final Annotation a : clazz.getAnnotations() )
+        for ( final Annotation ann : clazz.getAnnotations() )
         {
-            if ( a.annotationType().isAnnotationPresent( Qualifier.class ) )
+            // pick first annotation marked with a @Qualifier meta-annotation
+            if ( ann.annotationType().isAnnotationPresent( Qualifier.class ) )
             {
-                return a;
+                return ann;
             }
         }
-        final Class<?> superClazz = clazz.getSuperclass();
-        if ( null != superClazz )
-        {
-            return getQualifier( clazz.getSuperclass() );
-        }
-        return null;
+        // must be somewhere in the class hierarchy
+        return getQualifier( clazz.getSuperclass() );
     }
 
-    private Class<?> getInterface( final Class<?> clazz )
+    @SuppressWarnings( "unchecked" )
+    private Class getPrimaryInterface( final Class<?> clazz )
     {
+        // @Typed settings take precedence
         final Typed typed = clazz.getAnnotation( Typed.class );
         if ( null != typed && typed.value().length > 0 )
         {
             return typed.value()[0];
         }
-        final Class<?>[] interfaces = clazz.getInterfaces();
+        // followed by explicit declarations
+        final Class[] interfaces = clazz.getInterfaces();
         if ( interfaces.length > 0 )
         {
             return interfaces[0];
         }
-        final Class<?> superClazz = clazz.getSuperclass();
-        if ( null != superClazz && superClazz.getSimpleName().startsWith( "Abstract" ) )
+        // otherwise check the local superclass hierarchy
+        final Class superClazz = clazz.getSuperclass();
+        if ( !superClazz.getName().startsWith( "java" ) )
         {
-            final Class<?> superInterface = getInterface( superClazz );
+            final Class superInterface = getPrimaryInterface( superClazz );
             if ( superInterface != superClazz )
             {
                 return superInterface;
             }
         }
-        return clazz;
+        return clazz; // our implementation is the API
     }
 }

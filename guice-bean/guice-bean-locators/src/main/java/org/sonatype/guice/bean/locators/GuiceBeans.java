@@ -94,7 +94,11 @@ final class GuiceBeans<Q extends Annotation, T>
         return false;
     }
 
-    public synchronized boolean add( final Injector injector )
+    // ----------------------------------------------------------------------
+    // Shared methods
+    // ----------------------------------------------------------------------
+
+    synchronized boolean add( final Injector injector )
     {
         final InjectorBeans<Q, T> newBeans = new InjectorBeans<Q, T>( injector, key );
         if ( newBeans.isEmpty() )
@@ -116,7 +120,7 @@ final class GuiceBeans<Q extends Annotation, T>
         return true;
     }
 
-    public synchronized boolean remove( final Injector injector )
+    synchronized boolean remove( final Injector injector )
     {
         if ( null == injectorBeans )
         {
