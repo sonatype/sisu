@@ -99,7 +99,7 @@ public class QualifiedCollectionTest
 
         final List<Widget> tempList = new ArrayList<Widget>( windowWidget.widgets );
         assertEquals( DefaultWidget.class, tempList.remove( 0 ).getClass() );
-        for ( Iterator<Widget> i = tempList.iterator(); i.hasNext(); )
+        for ( final Iterator<Widget> i = tempList.iterator(); i.hasNext(); )
         {
             if ( ButtonWidget.class.equals( i.next().getClass() ) )
             {
@@ -107,7 +107,7 @@ public class QualifiedCollectionTest
                 break;
             }
         }
-        for ( Iterator<Widget> i = tempList.iterator(); i.hasNext(); )
+        for ( final Iterator<Widget> i = tempList.iterator(); i.hasNext(); )
         {
             if ( MenuWidget.class.equals( i.next().getClass() ) )
             {
@@ -115,7 +115,7 @@ public class QualifiedCollectionTest
                 break;
             }
         }
-        for ( Iterator<Widget> i = tempList.iterator(); i.hasNext(); )
+        for ( final Iterator<Widget> i = tempList.iterator(); i.hasNext(); )
         {
             if ( ScrollBarWidget.class.equals( i.next().getClass() ) )
             {

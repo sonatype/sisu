@@ -13,6 +13,7 @@
 package org.sonatype.guice.bean.scanners;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.inject.Typed;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Qualifier;
 
@@ -146,7 +148,7 @@ final class QualifiedClassBinder
     {
         for ( final Member member : new DeclaredMembers( clazz ) )
         {
-            if ( member instanceof Field )
+            if ( member instanceof Field && ( (AnnotatedElement) member ).isAnnotationPresent( Inject.class ) )
             {
                 final TypeLiteral<?> fieldType = TypeLiteral.get( ( (Field) member ).getGenericType() );
                 if ( fieldType.getRawType() == List.class )

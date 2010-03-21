@@ -75,34 +75,14 @@ final class InjectorBeans<Q extends Annotation, T>
         add( new DeferredBeanEntry<Q, T>( (Q) qualifier, provider ) );
     }
 
-    private void addImplicitDefault( final TypeLiteral<T> beanType )
-    {
-        try
-        {
-            addDefaultBean( injector.getProvider( Key.get( beanType ) ) );
-        }
-        catch ( final RuntimeException e ) // NOPMD
-        {
-            // default binding may not exist
-        }
-    }
-
     private void addQualifiedBeans( final Class<? extends Annotation> qualifierType, final TypeLiteral<T> beanType )
     {
-        final boolean isRootInjector = injector.getParent() == null;
-        if ( isRootInjector )
-        {
-            addImplicitDefault( beanType );
-        }
         for ( final Binding<T> binding : injector.findBindingsByType( beanType ) )
         {
             final Annotation ann = binding.getKey().getAnnotation();
             if ( null == ann )
             {
-                if ( !isRootInjector )
-                {
-                    addDefaultBean( binding.getProvider() );
-                }
+                addDefaultBean( binding.getProvider() );
             }
             else if ( null == qualifierType || qualifierType.isInstance( ann ) )
             {

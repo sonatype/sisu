@@ -26,7 +26,6 @@ import junit.framework.TestCase;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.util.Jsr330;
@@ -34,7 +33,6 @@ import com.google.inject.util.Jsr330;
 public class GuiceBeanLocatorTest
     extends TestCase
 {
-    @ImplementedBy( BeanImpl.class )
     interface Bean
     {
     }
@@ -64,6 +62,7 @@ public class GuiceBeanLocatorTest
                 bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( BeanImpl.class );
                 bind( Bean.class ).annotatedWith( Jsr330.named( "-" ) ).to( BeanImpl.class );
                 bind( Bean.class ).annotatedWith( Jsr330.named( "Z" ) ).to( BeanImpl.class );
+                bind( Bean.class ).to( BeanImpl.class );
             }
         } );
 

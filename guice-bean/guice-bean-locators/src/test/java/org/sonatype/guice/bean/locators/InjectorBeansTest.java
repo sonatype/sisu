@@ -165,17 +165,9 @@ public class InjectorBeansTest
 
         Iterator<Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
-        ImplicitDefaultBean defaultBean, aBean, bBean, cBean;
+        ImplicitDefaultBean aBean, bBean, cBean;
 
         i = roles.iterator();
-        assertTrue( i.hasNext() );
-        mapping = i.next();
-
-        defaultBean = mapping.getValue();
-        assertNull( mapping.getKey() );
-        assertEquals( DefaultBean.class, defaultBean.getClass() );
-        assertSame( defaultBean, mapping.getValue() );
-
         assertTrue( i.hasNext() );
         mapping = i.next();
 
@@ -203,13 +195,11 @@ public class InjectorBeansTest
         assertFalse( i.hasNext() );
 
         i = roles.iterator();
-        assertNull( i.next().getKey() );
         assertEquals( "C", i.next().getKey() );
         assertEquals( "A", i.next().getKey() );
         assertEquals( "B", i.next().getKey() );
 
         i = roles.iterator();
-        assertSame( defaultBean, i.next().getValue() );
         assertSame( cBean, i.next().getValue() );
         assertSame( aBean, i.next().getValue() );
         assertSame( bBean, i.next().getValue() );
