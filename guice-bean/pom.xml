@@ -32,6 +32,13 @@
 
   <dependencyManagement>
     <dependencies>
+
+      <dependency>
+        <groupId>asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>3.2</version>
+      </dependency>
+
       <dependency>
         <groupId>org.sonatype.spice.inject</groupId>
         <artifactId>guice-bean-reflect</artifactId>
@@ -52,6 +59,7 @@
         <artifactId>guice-bean-locators</artifactId>
         <version>${guice.bean.version}</version>
       </dependency>
+
     </dependencies>
   </dependencyManagement>
 
