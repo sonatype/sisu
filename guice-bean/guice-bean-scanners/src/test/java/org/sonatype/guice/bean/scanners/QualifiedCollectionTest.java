@@ -13,6 +13,7 @@
 package org.sonatype.guice.bean.scanners;
 
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import org.sonatype.guice.bean.reflect.URLClassSpace;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.util.Jsr330;
 
 public class QualifiedCollectionTest
     extends TestCase
@@ -88,57 +90,86 @@ public class QualifiedCollectionTest
         assertTrue( it.hasNext() );
         assertEquals( DefaultWidget.class, it.next().getClass() );
         assertTrue( it.hasNext() );
-        assertEquals( ButtonWidget.class, it.next().getClass() );
+        it.next();
         assertTrue( it.hasNext() );
-        assertEquals( MenuWidget.class, it.next().getClass() );
+        it.next();
         assertTrue( it.hasNext() );
-        assertEquals( ScrollBarWidget.class, it.next().getClass() );
+        it.next();
         assertFalse( it.hasNext() );
+
+        final List<Widget> tempList = new ArrayList<Widget>( windowWidget.widgets );
+        assertEquals( DefaultWidget.class, tempList.remove( 0 ).getClass() );
+        for ( Iterator<Widget> i = tempList.iterator(); i.hasNext(); )
+        {
+            if ( ButtonWidget.class.equals( i.next().getClass() ) )
+            {
+                i.remove();
+                break;
+            }
+        }
+        for ( Iterator<Widget> i = tempList.iterator(); i.hasNext(); )
+        {
+            if ( MenuWidget.class.equals( i.next().getClass() ) )
+            {
+                i.remove();
+                break;
+            }
+        }
+        for ( Iterator<Widget> i = tempList.iterator(); i.hasNext(); )
+        {
+            if ( ScrollBarWidget.class.equals( i.next().getClass() ) )
+            {
+                i.remove();
+                break;
+            }
+        }
+        assertTrue( tempList.isEmpty() );
     }
 
     public void testQualifiedMap()
     {
+        final Map<Named, Widget> widgetMap = windowWidget.namedWidgets;
+
         Entry<Named, Widget> mapping;
-        final Iterator<Entry<Named, Widget>> it = windowWidget.namedWidgets.entrySet().iterator();
+        final Iterator<Entry<Named, Widget>> it = widgetMap.entrySet().iterator();
         assertTrue( it.hasNext() );
         mapping = it.next();
         assertNull( mapping.getKey() );
         assertEquals( DefaultWidget.class, mapping.getValue().getClass() );
         assertTrue( it.hasNext() );
-        mapping = it.next();
-        assertEquals( ButtonWidget.class.getName(), mapping.getKey().value() );
-        assertEquals( ButtonWidget.class, mapping.getValue().getClass() );
+        it.next();
         assertTrue( it.hasNext() );
-        mapping = it.next();
-        assertEquals( MenuWidget.class.getName(), mapping.getKey().value() );
-        assertEquals( MenuWidget.class, mapping.getValue().getClass() );
+        it.next();
         assertTrue( it.hasNext() );
-        mapping = it.next();
-        assertEquals( ScrollBarWidget.class.getName(), mapping.getKey().value() );
-        assertEquals( ScrollBarWidget.class, mapping.getValue().getClass() );
+        it.next();
         assertFalse( it.hasNext() );
+
+        assertEquals( ButtonWidget.class, widgetMap.get( Jsr330.named( ButtonWidget.class.getName() ) ).getClass() );
+        assertEquals( MenuWidget.class, widgetMap.get( Jsr330.named( MenuWidget.class.getName() ) ).getClass() );
+        assertEquals( ScrollBarWidget.class,
+                      widgetMap.get( Jsr330.named( ScrollBarWidget.class.getName() ) ).getClass() );
     }
 
     public void testQualifiedHints()
     {
+        final Map<String, Widget> widgetMap = windowWidget.hintedWidgets;
+
         Entry<String, Widget> mapping;
-        final Iterator<Entry<String, Widget>> it = windowWidget.hintedWidgets.entrySet().iterator();
+        final Iterator<Entry<String, Widget>> it = widgetMap.entrySet().iterator();
         assertTrue( it.hasNext() );
         mapping = it.next();
         assertNull( mapping.getKey() );
         assertEquals( DefaultWidget.class, mapping.getValue().getClass() );
         assertTrue( it.hasNext() );
-        mapping = it.next();
-        assertEquals( ButtonWidget.class.getName(), mapping.getKey() );
-        assertEquals( ButtonWidget.class, mapping.getValue().getClass() );
+        it.next();
         assertTrue( it.hasNext() );
-        mapping = it.next();
-        assertEquals( MenuWidget.class.getName(), mapping.getKey() );
-        assertEquals( MenuWidget.class, mapping.getValue().getClass() );
+        it.next();
         assertTrue( it.hasNext() );
-        mapping = it.next();
-        assertEquals( ScrollBarWidget.class.getName(), mapping.getKey() );
-        assertEquals( ScrollBarWidget.class, mapping.getValue().getClass() );
+        it.next();
         assertFalse( it.hasNext() );
+
+        assertEquals( ButtonWidget.class, widgetMap.get( ButtonWidget.class.getName() ).getClass() );
+        assertEquals( MenuWidget.class, widgetMap.get( MenuWidget.class.getName() ).getClass() );
+        assertEquals( ScrollBarWidget.class, widgetMap.get( ScrollBarWidget.class.getName() ).getClass() );
     }
 }
