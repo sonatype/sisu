@@ -26,9 +26,9 @@ final class NestedTab
     @Inject
     Map<String, JPanel> tabMap;
 
-    private static int instanceCount;
+    static int instanceCount;
 
-    private boolean initialized;
+    boolean initialized;
 
     @Override
     public void paint( final Graphics g )

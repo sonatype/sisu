@@ -15,6 +15,7 @@
   <name>Guice - Swing example | main launcher</name>
 
   <build>
+    <finalName>main</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-dependency-plugin</artifactId>
@@ -27,6 +28,7 @@
             </goals>
             <configuration>
               <outputDirectory>${project.build.directory}/lib</outputDirectory>
+              <includeScope>runtime</includeScope>
             </configuration>
           </execution>
         </executions>
@@ -48,24 +50,39 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.sonatype.spice.inject.examples</groupId>
       <artifactId>guice-swing-window</artifactId>
       <version>${project.version}</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject.examples</groupId>
       <artifactId>guice-swing-button-tab</artifactId>
       <version>${project.version}</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject.examples</groupId>
       <artifactId>guice-swing-checkbox-tab</artifactId>
       <version>${project.version}</version>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject.examples</groupId>
       <artifactId>guice-swing-nested-tab</artifactId>
       <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.framework</artifactId>
+      <version>2.0.4</version>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
 

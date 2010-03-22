@@ -12,7 +12,6 @@
  */
 package org.sonatype.guice.swing.example;
 
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -21,7 +20,7 @@ import javax.swing.JPanel;
 final class ButtonTab
     extends JPanel
 {
-    private static int instanceCount;
+    static int instanceCount;
 
     ButtonTab()
     {
