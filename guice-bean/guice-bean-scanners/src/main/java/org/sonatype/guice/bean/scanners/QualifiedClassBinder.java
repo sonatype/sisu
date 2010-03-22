@@ -17,8 +17,11 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
@@ -42,6 +45,12 @@ final class QualifiedClassBinder
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
+
+    private final Set<Type> listedTypes = new HashSet<Type>();
+
+    private final Map<Type, Type> qualifiedTypes = new HashMap<Type, Type>();
+
+    private final Set<Type> hintedTypes = new HashSet<Type>();
 
     private final Binder binder;
 
@@ -167,6 +176,10 @@ final class QualifiedClassBinder
     private void bindQualifiedList( final TypeLiteral type )
     {
         final Type beanType = Generics.typeArgument( type, 0 ).getType();
+        if ( !listedTypes.add( beanType ) )
+        {
+            return; // already bound
+        }
         final Type providerType = Types.newParameterizedType( QualifiedListProvider.class, beanType );
         binder.bind( type ).toProvider( Key.get( providerType ) );
     }
@@ -179,10 +192,18 @@ final class QualifiedClassBinder
         final Type providerType;
         if ( qualifierType == String.class )
         {
+            if ( !hintedTypes.add( beanType ) )
+            {
+                return; // already bound
+            }
             providerType = Types.newParameterizedType( QualifiedHintProvider.class, beanType );
         }
         else
         {
+            if ( qualifiedTypes.put( qualifierType, beanType ) != null )
+            {
+                return; // already bound
+            }
             providerType = Types.newParameterizedType( QualifiedMapProvider.class, qualifierType, beanType );
         }
         binder.bind( type ).toProvider( Key.get( providerType ) );

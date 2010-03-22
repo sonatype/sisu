@@ -12,11 +12,14 @@
  */
 package org.sonatype.guice.bean.example;
 
+import java.awt.Graphics;
+import java.util.Map;
+
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 
 final class Components
 {
@@ -34,9 +37,23 @@ final class Components
     static class Tab2
         extends JPanel
     {
-        Tab2()
+        @Inject
+        Map<String, JPanel> tabMap;
+
+        private static int instanceCount;
+
+        private boolean initialized;
+
+        @Override
+        public void paint( final Graphics g )
         {
-            add( new JRadioButton( "Radio" ) );
+            if ( !initialized )
+            {
+                setName( "Tab2 instance #" + ++instanceCount );
+                TabExample.addTabPane( this, tabMap );
+                initialized = true;
+            }
+            super.paint( g );
         }
     }
 

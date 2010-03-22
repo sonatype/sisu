@@ -13,6 +13,7 @@
 package org.sonatype.guice.bean.example;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.net.URLClassLoader;
 import java.util.Map;
@@ -45,19 +46,25 @@ public final class TabExample
         {
             final JFrame frame = new JFrame( "GuiceBeanExample" );
             frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-            frame.setLocation( 200, 200 );
-
-            final JTabbedPane pane = new JTabbedPane();
-            pane.setPreferredSize( new Dimension( 400, 80 ) );
-            frame.getContentPane().add( pane, BorderLayout.CENTER );
-
-            for ( final Entry<String, JPanel> e : tabMap.entrySet() )
-            {
-                pane.addTab( e.getKey(), e.getValue() );
-            }
-
+            frame.setLocation( 100, 50 );
+            frame.setName( "Main window" );
+            addTabPane( frame, tabMap );
             frame.pack();
             frame.setVisible( true );
+        }
+    }
+
+    static void addTabPane( final Container container, final Map<String, JPanel> tabs )
+    {
+        System.out.println( "Adding tabs to " + container.getName() );
+
+        final JTabbedPane pane = new JTabbedPane();
+        pane.setPreferredSize( new Dimension( 600, 400 ) );
+        container.add( pane, BorderLayout.CENTER );
+
+        for ( final Entry<String, JPanel> e : tabs.entrySet() )
+        {
+            pane.addTab( e.getKey(), e.getValue() );
         }
     }
 
