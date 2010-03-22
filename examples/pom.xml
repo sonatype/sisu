@@ -4,29 +4,20 @@
 
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>org.sonatype.spice</groupId>
+    <artifactId>spice-inject-build</artifactId>
+    <version>1-SNAPSHOT</version>
+  </parent>
+
   <packaging>pom</packaging>
 
-  <groupId>org.sonatype.spice</groupId>
   <artifactId>spice-inject-examples</artifactId>
-  <version>1-SNAPSHOT</version>
 
   <name>Spice - Dependency Injection (examples)</name>
 
   <modules>
-    <module>guice-swing-example</module>
+    <module>guice-swing</module>
   </modules>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <configuration>
-            <skip>true</skip>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
 
 </project>
