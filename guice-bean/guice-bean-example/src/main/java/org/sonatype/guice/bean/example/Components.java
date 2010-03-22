@@ -51,9 +51,9 @@ final class Components
         {
             if ( !initialized )
             {
+                initialized = true;
                 setName( "Tab2 instance #" + ++instanceCount );
                 TabExample.addTabPane( this, tabMap );
-                initialized = true;
             }
             super.paint( g );
         }
