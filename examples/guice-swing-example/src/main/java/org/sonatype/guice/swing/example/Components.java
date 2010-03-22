@@ -10,7 +10,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.bean.example;
+package org.sonatype.guice.swing.example;
 
 import java.awt.Graphics;
 import java.util.Map;
@@ -23,7 +23,7 @@ import javax.swing.JPanel;
 
 final class Components
 {
-    @Named( "Tab1" )
+    @Named( "Button" )
     static class Tab1
         extends JPanel
     {
@@ -35,7 +35,7 @@ final class Components
         }
     }
 
-    @Named( "Tab2" )
+    @Named( "Nested" )
     static class Tab2
         extends JPanel
     {
@@ -52,14 +52,14 @@ final class Components
             if ( !initialized )
             {
                 initialized = true;
-                setName( "Tab2 instance #" + ++instanceCount );
-                TabExample.addTabPane( this, tabMap );
+                setName( "Nested instance #" + ++instanceCount );
+                SwingExample.addTabPane( this, tabMap );
             }
             super.paint( g );
         }
     }
 
-    @Named( "Tab3" )
+    @Named( "Checkbox" )
     static class Tab3
         extends JPanel
     {
@@ -67,7 +67,7 @@ final class Components
 
         Tab3()
         {
-            add( new JCheckBox( "Check #" + ++instanceCount ) );
+            add( new JCheckBox( "Checkbox #" + ++instanceCount ) );
         }
     }
 }

@@ -7,17 +7,13 @@
   <packaging>pom</packaging>
 
   <groupId>org.sonatype.spice</groupId>
-  <artifactId>spice-inject-build</artifactId>
+  <artifactId>spice-inject-examples</artifactId>
   <version>1-SNAPSHOT</version>
 
-  <name>Spice - Dependency Injection (build)</name>
+  <name>Spice - Dependency Injection (examples)</name>
 
   <modules>
-    <module>pom</module>
-    <module>guice-patches</module>
-    <module>guice-bean</module>
-    <module>guice-plexus</module>
-    <module>examples</module>
+    <module>guice-swing-example</module>
   </modules>
 
   <build>

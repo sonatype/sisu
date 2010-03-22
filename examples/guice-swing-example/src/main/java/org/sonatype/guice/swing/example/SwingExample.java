@@ -10,7 +10,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.bean.example;
+package org.sonatype.guice.swing.example;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -33,7 +33,7 @@ import org.sonatype.guice.bean.scanners.QualifiedScannerModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public final class TabExample
+public final class SwingExample
 {
     @Named
     static class DefaultRunnable
@@ -70,7 +70,7 @@ public final class TabExample
 
     public static void main( final String[] args )
     {
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) TabExample.class.getClassLoader() );
+        final ClassSpace space = new URLClassSpace( (URLClassLoader) SwingExample.class.getClassLoader() );
         final Injector injector = Guice.createInjector( new QualifiedScannerModule( space ) );
         SwingUtilities.invokeLater( injector.getInstance( Runnable.class ) );
     }
