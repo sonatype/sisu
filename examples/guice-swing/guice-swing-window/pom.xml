@@ -12,21 +12,6 @@
 
   <artifactId>guice-swing-window</artifactId>
 
-  <name>Guice - Swing example | main window</name>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>1.1.1</version>
-          <configuration>
-            <mainClass>org.sonatype.guice.swing.example.SwingExample</mainClass>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
+  <name>Guice - Swing example | window</name>
 
 </project>

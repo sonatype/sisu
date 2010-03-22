@@ -14,4 +14,12 @@
 
   <name>Guice - Swing example | nested tab</name>
 
+  <dependencies>
+    <dependency>
+      <groupId>org.sonatype.spice.inject.examples</groupId>
+      <artifactId>guice-swing-window</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
 </project>

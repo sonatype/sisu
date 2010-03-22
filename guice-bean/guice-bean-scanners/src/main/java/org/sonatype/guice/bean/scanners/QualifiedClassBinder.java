@@ -97,7 +97,8 @@ final class QualifiedClassBinder
         {
             // Empty @Named needs auto-configuration
             final Named named = (Named) qualifier;
-            if ( named.value().length() == 0 )
+            final String hint = named.value();
+            if ( hint.length() == 0 )
             {
                 // @Named default classes don't need any qualifier
                 if ( clazz.getSimpleName().startsWith( "Default" ) )
@@ -106,6 +107,10 @@ final class QualifiedClassBinder
                 }
                 // use FQN as the replacement qualifier
                 return Jsr330.named( clazz.getName() );
+            }
+            else if ( "default".equalsIgnoreCase( hint ) )
+            {
+                return null;
             }
         }
         return qualifier; // no normalization required
