@@ -27,9 +27,11 @@ final class Components
     static class Tab1
         extends JPanel
     {
+        private static int instanceCount;
+
         Tab1()
         {
-            add( new JButton( "Button" ) );
+            add( new JButton( "Button #" + ++instanceCount ) );
         }
     }
 
@@ -61,9 +63,11 @@ final class Components
     static class Tab3
         extends JPanel
     {
+        private static int instanceCount;
+
         Tab3()
         {
-            add( new JCheckBox( "Check" ) );
+            add( new JCheckBox( "Check #" + ++instanceCount ) );
         }
     }
 }
