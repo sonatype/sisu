@@ -64,7 +64,11 @@ public final class SwingExample
 
         for ( final Entry<String, JPanel> e : tabs.entrySet() )
         {
-            pane.addTab( e.getKey(), e.getValue() );
+            final JPanel panel = e.getValue();
+            if ( container != panel )
+            {
+                pane.addTab( e.getKey(), panel );
+            }
         }
     }
 
