@@ -12,16 +12,8 @@
 
   <packaging>bundle</packaging>
 
-  <artifactId>guice-swing-window</artifactId>
+  <artifactId>guice-swing-util</artifactId>
 
-  <name>Guice - Swing example | window</name>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.sonatype.spice.inject.examples</groupId>
-      <artifactId>guice-swing-util</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-  </dependencies>
+  <name>Guice - Swing example | utilities</name>
 
 </project>

@@ -14,22 +14,29 @@ package org.sonatype.guice.swing.example;
 
 import java.io.File;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.imageio.spi.ServiceRegistry;
 import javax.swing.SwingUtilities;
 
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
+import org.sonatype.guice.bean.locators.GuiceBeanLocator;
+import org.sonatype.guice.bean.reflect.BundleClassSpace;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.bean.scanners.QualifiedScannerModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 
 public final class Main
 {
@@ -59,9 +66,10 @@ public final class Main
     static class OSGiLauncher
     {
         static void launch()
-            throws Exception
+            throws BundleException
         {
             final Map<String, String> configuration = new HashMap<String, String>();
+            configuration.put( Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.aopalliance.intercept,javax.inject" );
             configuration.put( Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT );
             configuration.put( Constants.FRAMEWORK_STORAGE, "target/bundlecache" );
 
@@ -70,15 +78,27 @@ public final class Main
 
             framework.start();
 
+            final Injector parent = Guice.createInjector();
+            final GuiceBeanLocator locator = parent.getInstance( GuiceBeanLocator.class );
             final BundleContext ctx = framework.getBundleContext();
+
+            final List<Bundle> bundles = new ArrayList<Bundle>();
             for ( final File f : new File( getTargetDir(), "lib" ).listFiles() )
             {
-                final String uri = f.toURI().toString();
-                if ( uri.endsWith( ".jar" ) && !uri.contains( "felix" ) )
+                final String name = f.getName();
+                if ( name.startsWith( "guice-swing" ) || name.contains( "shell" ) )
                 {
-                    ctx.installBundle( "reference:" + uri ).start();
+                    bundles.add( ctx.installBundle( "reference:" + f.toURI() ) );
                 }
             }
+            for ( final Bundle bundle : bundles )
+            {
+                final ClassSpace space = new BundleClassSpace( bundle );
+                locator.add( parent.createChildInjector( new QualifiedScannerModule( space ) ) );
+                bundle.start();
+            }
+
+            SwingUtilities.invokeLater( locator.locate( Key.get( Runnable.class ) ).iterator().next().getValue() );
         }
     }
 

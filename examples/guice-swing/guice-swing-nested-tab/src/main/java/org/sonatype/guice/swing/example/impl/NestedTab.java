@@ -10,7 +10,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.swing.example;
+package org.sonatype.guice.swing.example.impl;
 
 import java.awt.Graphics;
 import java.util.Map;
@@ -18,6 +18,8 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.swing.JPanel;
+
+import org.sonatype.guice.swing.example.util.Util;
 
 @Named( "Nested" )
 final class NestedTab
@@ -37,7 +39,7 @@ final class NestedTab
         {
             initialized = true;
             setName( "NestedTab instance #" + ++instanceCount );
-            Window.addTabPane( this, tabMap );
+            Util.addTabPane( this, tabMap );
         }
         super.paint( g );
     }

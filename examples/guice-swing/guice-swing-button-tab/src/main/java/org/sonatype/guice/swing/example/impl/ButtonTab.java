@@ -10,20 +10,20 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.swing.example;
+package org.sonatype.guice.swing.example.impl;
 
 import javax.inject.Named;
-import javax.swing.JCheckBox;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 
-@Named( "Checkbox" )
-final class CheckboxTab
+@Named( "Button" )
+final class ButtonTab
     extends JPanel
 {
     static int instanceCount;
 
-    CheckboxTab()
+    ButtonTab()
     {
-        add( new JCheckBox( "Checkbox #" + ++instanceCount ) );
+        add( new JButton( "Button #" + ++instanceCount ) );
     }
 }

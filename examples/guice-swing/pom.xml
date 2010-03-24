@@ -19,12 +19,23 @@
   <name>Guice - Swing example</name>
 
   <modules>
-    <module>guice-swing-window</module>
+    <module>guice-swing-util</module>
     <module>guice-swing-button-tab</module>
     <module>guice-swing-checkbox-tab</module>
     <module>guice-swing-nested-tab</module>
+    <module>guice-swing-window</module>
     <module>guice-swing-main</module>
   </modules>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
 
   <dependencies>
     <dependency>
