@@ -50,7 +50,7 @@ public final class QualifiedScannerModule
         final QualifiedClassVisitor visitor = new QualifiedClassVisitor( space, binder );
         try
         {
-            final Enumeration<URL> e = space.findEntries( null, "*.class", true );
+            final Enumeration<URL> e = space.findEntries( "", "*.class", true );
             while ( e.hasMoreElements() )
             {
                 try

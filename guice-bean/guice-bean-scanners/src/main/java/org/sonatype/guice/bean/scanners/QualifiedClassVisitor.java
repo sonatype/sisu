@@ -187,14 +187,17 @@ final class QualifiedClassVisitor
     private static void visitClass( final URL url, final ClassVisitor visitor )
         throws IOException
     {
-        final InputStream in = url.openStream();
-        try
+        if ( null != url )
         {
-            new ClassReader( in ).accept( visitor, CLASS_READER_FLAGS );
-        }
-        finally
-        {
-            in.close();
+            final InputStream in = url.openStream();
+            try
+            {
+                new ClassReader( in ).accept( visitor, CLASS_READER_FLAGS );
+            }
+            finally
+            {
+                in.close();
+            }
         }
     }
 }
