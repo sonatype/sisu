@@ -31,6 +31,9 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
+import org.slf4j.LoggerFactory;
+import org.sonatype.guice.bean.inject.PropertyBinding;
+import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 import org.sonatype.guice.plexus.config.Roles;
@@ -111,6 +114,32 @@ final class PlexusLifecycleManager
                 || Disposable.class.isAssignableFrom( clazz );
         }
         return false; // not managed by this manager
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public PropertyBinding manage( final BeanProperty property )
+    {
+        if ( org.slf4j.Logger.class.equals( property.getType().getRawType() ) )
+        {
+            return new PropertyBinding()
+            {
+                public <B> void injectProperty( final B bean )
+                {
+                    property.set( bean, LoggerFactory.getLogger( bean.getClass() ) );
+                }
+            };
+        }
+        if ( Logger.class.equals( property.getType().getRawType() ) )
+        {
+            return new PropertyBinding()
+            {
+                public <B> void injectProperty( final B bean )
+                {
+                    property.set( bean, getLogger( bean.getClass().getName() ) );
+                }
+            };
+        }
+        return null;
     }
 
     public boolean manage( final Object bean )
@@ -230,19 +259,19 @@ final class PlexusLifecycleManager
         return null;
     }
 
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    private Logger getLogger( final String name )
+    Logger getLogger( final String name )
     {
         return container.getLoggerManager().getLoggerForComponent( name, null );
     }
 
-    private void releaseLogger( final String name )
+    void releaseLogger( final String name )
     {
         container.getLoggerManager().returnComponentLogger( name, null );
     }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
 
     @SuppressWarnings( "unchecked" )
     private List<PlexusLifecycleManager> getChildren()

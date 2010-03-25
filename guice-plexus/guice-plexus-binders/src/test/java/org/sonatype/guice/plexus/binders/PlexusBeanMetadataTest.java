@@ -26,6 +26,7 @@ import junit.framework.TestCase;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
@@ -98,6 +99,11 @@ public class PlexusBeanMetadataTest
         public boolean manage( final Class<?> clazz )
         {
             return false;
+        }
+
+        public PropertyBinding manage( final BeanProperty<?> property )
+        {
+            return null;
         }
 
         public boolean manage( final Object bean )

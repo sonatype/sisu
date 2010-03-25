@@ -18,6 +18,8 @@ import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
+import org.sonatype.guice.bean.inject.PropertyBinding;
+import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
@@ -53,6 +55,11 @@ public class PlexusConfigurationTest
         public boolean manage( final Class<?> clazz )
         {
             return ConfiguredComponent.class.isAssignableFrom( clazz );
+        }
+
+        public PropertyBinding manage( final BeanProperty<?> property )
+        {
+            return null;
         }
 
         public boolean manage( final Object bean )

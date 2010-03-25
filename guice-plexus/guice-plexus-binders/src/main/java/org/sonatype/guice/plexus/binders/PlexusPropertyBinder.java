@@ -16,8 +16,6 @@ import javax.inject.Provider;
 
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonatype.guice.bean.inject.PropertyBinder;
 import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
@@ -56,6 +54,8 @@ final class PlexusPropertyBinder
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    private final PlexusBeanManager manager;
+
     private final PlexusBeanMetadata metadata;
 
     private final PlexusConfigurations configurations;
@@ -66,8 +66,10 @@ final class PlexusPropertyBinder
     // Constructors
     // ----------------------------------------------------------------------
 
-    PlexusPropertyBinder( final TypeEncounter<?> encounter, final PlexusBeanMetadata metadata )
+    PlexusPropertyBinder( final PlexusBeanManager manager, final TypeEncounter<?> encounter,
+                          final PlexusBeanMetadata metadata )
     {
+        this.manager = manager;
         this.metadata = metadata;
 
         configurations = new PlexusConfigurations( encounter );
@@ -80,20 +82,13 @@ final class PlexusPropertyBinder
 
     public <T> PropertyBinding bindProperty( final BeanProperty<T> property )
     {
-        /*
-         * Implicit SLF4J logger binding
-         */
-        if ( property.getAnnotation( Requirement.class ) != null
-            && Logger.class.equals( property.getType().getRawType() ) )
+        if ( null != manager )
         {
-            return new PropertyBinding()
+            final PropertyBinding managedBinding = manager.manage( property );
+            if ( null != managedBinding )
             {
-                @SuppressWarnings( "unchecked" )
-                public <B> void injectProperty( final B bean )
-                {
-                    property.set( bean, (T) LoggerFactory.getLogger( bean.getClass() ) );
-                }
-            };
+                return managedBinding; // the bean manager will handle this property
+            }
         }
 
         if ( metadata.isEmpty() )

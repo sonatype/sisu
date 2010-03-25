@@ -19,6 +19,10 @@ import junit.framework.TestCase;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonatype.guice.bean.inject.PropertyBinding;
+import org.sonatype.guice.bean.reflect.BeanProperty;
+import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
@@ -32,6 +36,56 @@ import com.google.inject.Guice;
 public class PlexusLoggingTest
     extends TestCase
 {
+    static class LoggerManager
+        implements PlexusBeanManager
+    {
+        public boolean manage( final Component component, final DeferredClass<?> clazz )
+        {
+            return true;
+        }
+
+        public boolean manage( final Class<?> clazz )
+        {
+            return false;
+        }
+
+        @SuppressWarnings( "unchecked" )
+        public PropertyBinding manage( final BeanProperty property )
+        {
+            if ( Logger.class.equals( property.getType().getRawType() ) )
+            {
+                return new PropertyBinding()
+                {
+                    public <B> void injectProperty( final B bean )
+                    {
+                        property.set( bean, LoggerFactory.getLogger( bean.getClass() ) );
+                    }
+                };
+            }
+            return null;
+        }
+
+        public boolean manage( final Object bean )
+        {
+            return false;
+        }
+
+        public PlexusBeanManager manageChild()
+        {
+            return this;
+        }
+
+        public boolean unmanage( final Object bean )
+        {
+            return false;
+        }
+
+        public boolean unmanage()
+        {
+            return false;
+        }
+    }
+
     @Override
     protected void setUp()
     {
@@ -46,7 +100,7 @@ public class PlexusLoggingTest
                 bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
 
-                install( new PlexusBindingModule( null, new AnnotatedPlexusBeanSource( null, null ) ) );
+                install( new PlexusBindingModule( new LoggerManager(), new AnnotatedPlexusBeanSource( null, null ) ) );
 
                 requestInjection( PlexusLoggingTest.this );
             }

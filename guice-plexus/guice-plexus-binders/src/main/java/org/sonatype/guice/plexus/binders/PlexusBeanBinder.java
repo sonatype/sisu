@@ -64,7 +64,7 @@ final class PlexusBeanBinder
             final PlexusBeanMetadata metadata = source.getBeanMetadata( clazz );
             if ( metadata != null )
             {
-                return new PlexusPropertyBinder( encounter, metadata );
+                return new PlexusPropertyBinder( manager, encounter, metadata );
             }
         }
 

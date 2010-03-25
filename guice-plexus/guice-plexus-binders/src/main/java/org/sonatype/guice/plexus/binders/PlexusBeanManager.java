@@ -13,6 +13,8 @@
 package org.sonatype.guice.plexus.binders;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.sonatype.guice.bean.inject.PropertyBinding;
+import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 
 /**
@@ -36,6 +38,14 @@ public interface PlexusBeanManager
      * @return {@code true} if instances of the bean should be reported; otherwise {@code false}
      */
     boolean manage( Class<?> clazz );
+
+    /**
+     * Decides whether the given bean property will be managed by this manager.
+     * 
+     * @param property The bean property
+     * @return Non-null binding if the bean property will be managed; otherwise {@code null}
+     */
+    PropertyBinding manage( BeanProperty<?> property );
 
     /**
      * Decides whether the given Plexus bean instance will be managed by this manager.
