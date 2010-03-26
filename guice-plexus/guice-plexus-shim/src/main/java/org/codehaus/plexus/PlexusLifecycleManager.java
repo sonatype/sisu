@@ -31,7 +31,6 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
-import org.slf4j.LoggerFactory;
 import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.DeferredClass;
@@ -125,7 +124,7 @@ final class PlexusLifecycleManager
             {
                 public <B> void injectProperty( final B bean )
                 {
-                    property.set( bean, LoggerFactory.getLogger( bean.getClass() ) );
+                    property.set( bean, org.slf4j.LoggerFactory.getLogger( bean.getClass() ) );
                 }
             };
         }
