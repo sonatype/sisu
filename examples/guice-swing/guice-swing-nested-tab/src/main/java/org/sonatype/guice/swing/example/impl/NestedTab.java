@@ -12,35 +12,17 @@
  */
 package org.sonatype.guice.swing.example.impl;
 
-import java.awt.Graphics;
-import java.util.Map;
-
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.swing.JPanel;
-
-import org.sonatype.guice.swing.example.util.Util;
 
 @Named( "Nested" )
 final class NestedTab
     extends JPanel
 {
-    @Inject
-    Map<String, JPanel> tabMap;
-
     static int instanceCount;
 
-    boolean initialized;
-
-    @Override
-    public void paint( final Graphics g )
+    NestedTab()
     {
-        if ( !initialized )
-        {
-            initialized = true;
-            setName( "NestedTab instance #" + ++instanceCount );
-            Util.addTabPane( this, tabMap );
-        }
-        super.paint( g );
+        setName( "NestedTab instance #" + ++instanceCount );
     }
 }

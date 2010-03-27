@@ -19,7 +19,7 @@
   <name>Guice - Swing example</name>
 
   <modules>
-    <module>guice-swing-util</module>
+    <module>guice-swing-extender</module>
     <module>guice-swing-button-tab</module>
     <module>guice-swing-checkbox-tab</module>
     <module>guice-swing-nested-tab</module>

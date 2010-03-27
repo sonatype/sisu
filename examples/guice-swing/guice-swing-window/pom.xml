@@ -16,12 +16,4 @@
 
   <name>Guice - Swing example | window</name>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.sonatype.spice.inject.examples</groupId>
-      <artifactId>guice-swing-util</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-  </dependencies>
-
 </project>

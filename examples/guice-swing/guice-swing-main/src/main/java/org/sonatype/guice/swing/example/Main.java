@@ -28,15 +28,12 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
-import org.sonatype.guice.bean.locators.GuiceBeanLocator;
-import org.sonatype.guice.bean.reflect.BundleClassSpace;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.bean.scanners.QualifiedScannerModule;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 
 public final class Main
 {
@@ -69,17 +66,19 @@ public final class Main
             throws BundleException
         {
             final Map<String, String> configuration = new HashMap<String, String>();
-            configuration.put( Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.aopalliance.intercept,javax.inject" );
             configuration.put( Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT );
             configuration.put( Constants.FRAMEWORK_STORAGE, "target/bundlecache" );
+
+            configuration.put( Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.aopalliance.intercept,"
+                + "javax.inject,javax.enterprise.inject," + "org.sonatype.guice.bean.reflect,"
+                + "org.sonatype.guice.bean.locators," + "org.sonatype.guice.bean.scanners,"
+                + "com.google.inject;version=1.3," + "com.google.inject.binder;version=1.3" );
 
             final FrameworkFactory frameworkFactory = ServiceRegistry.lookupProviders( FrameworkFactory.class ).next();
             final Framework framework = frameworkFactory.newFramework( configuration );
 
             framework.start();
 
-            final Injector parent = Guice.createInjector();
-            final GuiceBeanLocator locator = parent.getInstance( GuiceBeanLocator.class );
             final BundleContext ctx = framework.getBundleContext();
 
             final List<Bundle> bundles = new ArrayList<Bundle>();
@@ -93,12 +92,8 @@ public final class Main
             }
             for ( final Bundle bundle : bundles )
             {
-                final ClassSpace space = new BundleClassSpace( bundle );
-                locator.add( parent.createChildInjector( new QualifiedScannerModule( space ) ) );
                 bundle.start();
             }
-
-            SwingUtilities.invokeLater( locator.locate( Key.get( Runnable.class ) ).iterator().next().getValue() );
         }
     }
 
