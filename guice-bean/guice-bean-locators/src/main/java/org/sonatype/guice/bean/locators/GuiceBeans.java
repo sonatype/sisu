@@ -68,12 +68,12 @@ final class GuiceBeans<Q extends Annotation, T>
 
     public synchronized Watcher<Entry<Q, T>> subscribe( final Watcher<Entry<Q, T>> newWatcher )
     {
-        if ( newWatcher == beanWatcher )
+        if ( null != newWatcher )
         {
-            return null;
-        }
-        if ( newWatcher != null )
-        {
+            if ( newWatcher.equals( beanWatcher ) )
+            {
+                return null;
+            }
             for ( final Entry<Q, T> entry : this )
             {
                 newWatcher.add( entry );
@@ -86,7 +86,7 @@ final class GuiceBeans<Q extends Annotation, T>
 
     public synchronized boolean unsubscribe( final Watcher<Entry<Q, T>> oldWatcher )
     {
-        if ( oldWatcher == beanWatcher )
+        if ( null != oldWatcher && oldWatcher.equals( beanWatcher ) )
         {
             beanWatcher = null;
             return true;

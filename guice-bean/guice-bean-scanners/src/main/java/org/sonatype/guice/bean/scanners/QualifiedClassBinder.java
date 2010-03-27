@@ -17,17 +17,18 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Qualifier;
 
+import org.sonatype.guice.bean.locators.Watchable;
 import org.sonatype.guice.bean.reflect.DeclaredMembers;
 import org.sonatype.guice.bean.reflect.Generics;
 
@@ -46,11 +47,7 @@ final class QualifiedClassBinder
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Set<Type> listedTypes = new HashSet<Type>();
-
-    private final Map<Type, Type> qualifiedTypes = new HashMap<Type, Type>();
-
-    private final Set<Type> hintedTypes = new HashSet<Type>();
+    private final Set<TypeLiteral<?>> boundTypes = new HashSet<TypeLiteral<?>>();
 
     private final Binder binder;
 
@@ -165,6 +162,10 @@ final class QualifiedClassBinder
             if ( member instanceof Field && ( (AnnotatedElement) member ).isAnnotationPresent( Inject.class ) )
             {
                 final TypeLiteral<?> fieldType = TypeLiteral.get( ( (Field) member ).getGenericType() );
+                if ( !boundTypes.add( fieldType ) )
+                {
+                    continue;
+                }
                 if ( fieldType.getRawType() == List.class )
                 {
                     bindQualifiedList( fieldType );
@@ -172,6 +173,10 @@ final class QualifiedClassBinder
                 else if ( fieldType.getRawType() == Map.class )
                 {
                     bindQualifiedMap( fieldType );
+                }
+                else if ( fieldType.getRawType().isAssignableFrom( Watchable.class ) )
+                {
+                    bindQualifiedWatchable( fieldType );
                 }
             }
         }
@@ -181,11 +186,7 @@ final class QualifiedClassBinder
     private void bindQualifiedList( final TypeLiteral type )
     {
         final Type beanType = Generics.typeArgument( type, 0 ).getType();
-        if ( !listedTypes.add( beanType ) )
-        {
-            return; // already bound
-        }
-        final Type providerType = Types.newParameterizedType( QualifiedListProvider.class, beanType );
+        final Type providerType = Types.newParameterizedType( ListProvider.class, beanType );
         binder.bind( type ).toProvider( Key.get( providerType ) );
     }
 
@@ -197,20 +198,33 @@ final class QualifiedClassBinder
         final Type providerType;
         if ( qualifierType == String.class )
         {
-            if ( !hintedTypes.add( beanType ) )
-            {
-                return; // already bound
-            }
-            providerType = Types.newParameterizedType( QualifiedHintProvider.class, beanType );
+            providerType = Types.newParameterizedType( MapHintProvider.class, beanType );
         }
         else
         {
-            if ( qualifiedTypes.put( qualifierType, beanType ) != null )
-            {
-                return; // already bound
-            }
-            providerType = Types.newParameterizedType( QualifiedMapProvider.class, qualifierType, beanType );
+            providerType = Types.newParameterizedType( MapProvider.class, qualifierType, beanType );
         }
         binder.bind( type ).toProvider( Key.get( providerType ) );
+    }
+
+    @SuppressWarnings( "unchecked" )
+    private void bindQualifiedWatchable( final TypeLiteral type )
+    {
+        final TypeLiteral watchedType = Generics.typeArgument( type, 0 );
+        if ( watchedType.getRawType() == Entry.class )
+        {
+            final Type qualifierType = Generics.typeArgument( watchedType, 0 ).getType();
+            final Type beanType = Generics.typeArgument( watchedType, 1 ).getType();
+            final Type providerType;
+            if ( qualifierType == String.class )
+            {
+                providerType = Types.newParameterizedType( WatchedHintProvider.class, beanType );
+            }
+            else
+            {
+                providerType = Types.newParameterizedType( WatchedProvider.class, qualifierType, beanType );
+            }
+            binder.bind( type ).toProvider( Key.get( providerType ) );
+        }
     }
 }

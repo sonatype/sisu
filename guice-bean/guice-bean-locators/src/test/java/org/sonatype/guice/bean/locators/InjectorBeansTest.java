@@ -82,13 +82,11 @@ public class InjectorBeansTest
         final Iterable<Entry<Named, Bean>> namedBeans =
             new InjectorBeans<Named, Bean>( injector, Key.get( Bean.class, Named.class ) );
 
-        final Iterable<Entry<String, Bean>> roles = new NamedIterableAdapter<Bean>( namedBeans );
-
-        Iterator<Entry<String, Bean>> i;
-        Entry<String, Bean> mapping;
+        Iterator<Entry<Named, Bean>> i;
+        Entry<Named, Bean> mapping;
         Bean aBean, bBean, cBean;
 
-        i = roles.iterator();
+        i = namedBeans.iterator();
         assertTrue( i.hasNext() );
         mapping = i.next();
 
@@ -102,7 +100,7 @@ public class InjectorBeansTest
         }
 
         cBean = mapping.getValue();
-        assertEquals( "C", mapping.getKey() );
+        assertEquals( "C", mapping.getKey().value() );
         assertEquals( CBean.class, cBean.getClass() );
         assertSame( cBean, mapping.getValue() );
 
@@ -110,7 +108,7 @@ public class InjectorBeansTest
         mapping = i.next();
 
         aBean = mapping.getValue();
-        assertEquals( "A", mapping.getKey() );
+        assertEquals( "A", mapping.getKey().value() );
         assertEquals( ABean.class, aBean.getClass() );
         assertSame( aBean, mapping.getValue() );
 
@@ -118,18 +116,18 @@ public class InjectorBeansTest
         mapping = i.next();
 
         bBean = mapping.getValue();
-        assertEquals( "B", mapping.getKey() );
+        assertEquals( "B", mapping.getKey().value() );
         assertEquals( BBean.class, bBean.getClass() );
         assertSame( bBean, mapping.getValue() );
 
         assertFalse( i.hasNext() );
 
-        i = roles.iterator();
-        assertEquals( "C", i.next().getKey() );
-        assertEquals( "A", i.next().getKey() );
-        assertEquals( "B", i.next().getKey() );
+        i = namedBeans.iterator();
+        assertEquals( "C", i.next().getKey().value() );
+        assertEquals( "A", i.next().getKey().value() );
+        assertEquals( "B", i.next().getKey().value() );
 
-        i = roles.iterator();
+        i = namedBeans.iterator();
         assertSame( cBean, i.next().getValue() );
         assertSame( aBean, i.next().getValue() );
         assertSame( bBean, i.next().getValue() );
@@ -160,19 +158,16 @@ public class InjectorBeansTest
         final Iterable<Entry<Named, ImplicitDefaultBean>> namedBeans =
             new InjectorBeans<Named, ImplicitDefaultBean>( injector, Key.get( ImplicitDefaultBean.class, Named.class ) );
 
-        final Iterable<Entry<String, ImplicitDefaultBean>> roles =
-            new NamedIterableAdapter<ImplicitDefaultBean>( namedBeans );
-
-        Iterator<Entry<String, ImplicitDefaultBean>> i;
-        Entry<String, ImplicitDefaultBean> mapping;
+        Iterator<Entry<Named, ImplicitDefaultBean>> i;
+        Entry<Named, ImplicitDefaultBean> mapping;
         ImplicitDefaultBean aBean, bBean, cBean;
 
-        i = roles.iterator();
+        i = namedBeans.iterator();
         assertTrue( i.hasNext() );
         mapping = i.next();
 
         cBean = mapping.getValue();
-        assertEquals( "C", mapping.getKey() );
+        assertEquals( "C", mapping.getKey().value() );
         assertEquals( CBean.class, cBean.getClass() );
         assertSame( cBean, mapping.getValue() );
 
@@ -180,7 +175,7 @@ public class InjectorBeansTest
         mapping = i.next();
 
         aBean = mapping.getValue();
-        assertEquals( "A", mapping.getKey() );
+        assertEquals( "A", mapping.getKey().value() );
         assertEquals( ABean.class, aBean.getClass() );
         assertSame( aBean, mapping.getValue() );
 
@@ -188,18 +183,18 @@ public class InjectorBeansTest
         mapping = i.next();
 
         bBean = mapping.getValue();
-        assertEquals( "B", mapping.getKey() );
+        assertEquals( "B", mapping.getKey().value() );
         assertEquals( BBean.class, bBean.getClass() );
         assertSame( bBean, mapping.getValue() );
 
         assertFalse( i.hasNext() );
 
-        i = roles.iterator();
-        assertEquals( "C", i.next().getKey() );
-        assertEquals( "A", i.next().getKey() );
-        assertEquals( "B", i.next().getKey() );
+        i = namedBeans.iterator();
+        assertEquals( "C", i.next().getKey().value() );
+        assertEquals( "A", i.next().getKey().value() );
+        assertEquals( "B", i.next().getKey().value() );
 
-        i = roles.iterator();
+        i = namedBeans.iterator();
         assertSame( cBean, i.next().getValue() );
         assertSame( aBean, i.next().getValue() );
         assertSame( bBean, i.next().getValue() );
@@ -232,13 +227,11 @@ public class InjectorBeansTest
         final Iterable<Entry<Named, Bean>> namedBeans =
             new InjectorBeans<Named, Bean>( injector, Key.get( Bean.class, Named.class ) );
 
-        final Iterable<Entry<String, Bean>> roles = new NamedIterableAdapter<Bean>( namedBeans );
-
-        Iterator<Entry<String, Bean>> i;
-        Entry<String, Bean> mapping;
+        Iterator<Entry<Named, Bean>> i;
+        Entry<Named, Bean> mapping;
         Bean defaultBean, aBean, bBean, cBean;
 
-        i = roles.iterator();
+        i = namedBeans.iterator();
         assertTrue( i.hasNext() );
         mapping = i.next();
 
@@ -251,7 +244,7 @@ public class InjectorBeansTest
         mapping = i.next();
 
         cBean = mapping.getValue();
-        assertEquals( "C", mapping.getKey() );
+        assertEquals( "C", mapping.getKey().value() );
         assertEquals( CBean.class, cBean.getClass() );
         assertSame( cBean, mapping.getValue() );
 
@@ -259,7 +252,7 @@ public class InjectorBeansTest
         mapping = i.next();
 
         aBean = mapping.getValue();
-        assertEquals( "A", mapping.getKey() );
+        assertEquals( "A", mapping.getKey().value() );
         assertEquals( ABean.class, aBean.getClass() );
         assertSame( aBean, mapping.getValue() );
 
@@ -267,19 +260,19 @@ public class InjectorBeansTest
         mapping = i.next();
 
         bBean = mapping.getValue();
-        assertEquals( "B", mapping.getKey() );
+        assertEquals( "B", mapping.getKey().value() );
         assertEquals( BBean.class, bBean.getClass() );
         assertSame( bBean, mapping.getValue() );
 
         assertFalse( i.hasNext() );
 
-        i = roles.iterator();
+        i = namedBeans.iterator();
         assertNull( i.next().getKey() );
-        assertEquals( "C", i.next().getKey() );
-        assertEquals( "A", i.next().getKey() );
-        assertEquals( "B", i.next().getKey() );
+        assertEquals( "C", i.next().getKey().value() );
+        assertEquals( "A", i.next().getKey().value() );
+        assertEquals( "B", i.next().getKey().value() );
 
-        i = roles.iterator();
+        i = namedBeans.iterator();
         assertSame( defaultBean, i.next().getValue() );
         assertSame( cBean, i.next().getValue() );
         assertSame( aBean, i.next().getValue() );
@@ -319,28 +312,25 @@ public class InjectorBeansTest
         final Iterable<Entry<Named, ImplicitDefaultBean>> namedBeans =
             new InjectorBeans<Named, ImplicitDefaultBean>( injector, Key.get( ImplicitDefaultBean.class, Named.class ) );
 
-        final Iterable<Entry<String, ImplicitDefaultBean>> roles =
-            new NamedIterableAdapter<ImplicitDefaultBean>( namedBeans );
-
-        Iterator<Entry<String, ImplicitDefaultBean>> i;
-        Entry<String, ImplicitDefaultBean> mapping;
+        Iterator<Entry<Named, ImplicitDefaultBean>> i;
+        Entry<Named, ImplicitDefaultBean> mapping;
         ImplicitDefaultBean aBean;
 
-        i = roles.iterator();
+        i = namedBeans.iterator();
         assertTrue( i.hasNext() );
         mapping = i.next();
 
         aBean = mapping.getValue();
-        assertEquals( "A", mapping.getKey() );
+        assertEquals( "A", mapping.getKey().value() );
         assertEquals( ABean.class, aBean.getClass() );
         assertSame( aBean, mapping.getValue() );
 
         assertFalse( i.hasNext() );
 
-        i = roles.iterator();
-        assertEquals( "A", i.next().getKey() );
+        i = namedBeans.iterator();
+        assertEquals( "A", i.next().getKey().value() );
 
-        i = roles.iterator();
+        i = namedBeans.iterator();
         assertSame( aBean, i.next().getValue() );
 
         try
@@ -378,13 +368,11 @@ public class InjectorBeansTest
         final Iterable<Entry<Named, Bean>> namedBeans =
             new InjectorBeans<Named, Bean>( injector, Key.get( Bean.class, Named.class ) );
 
-        final Iterable<Entry<String, Bean>> roles = new NamedIterableAdapter<Bean>( namedBeans );
-
-        Iterator<Entry<String, Bean>> i;
-        Entry<String, Bean> mapping;
+        Iterator<Entry<Named, Bean>> i;
+        Entry<Named, Bean> mapping;
         Bean defaultBean, cBean;
 
-        i = roles.iterator();
+        i = namedBeans.iterator();
         assertTrue( i.hasNext() );
         mapping = i.next();
 
@@ -397,17 +385,17 @@ public class InjectorBeansTest
         mapping = i.next();
 
         cBean = mapping.getValue();
-        assertEquals( "C", mapping.getKey() );
+        assertEquals( "C", mapping.getKey().value() );
         assertEquals( CBean.class, cBean.getClass() );
         assertSame( cBean, mapping.getValue() );
 
         assertFalse( i.hasNext() );
 
-        i = roles.iterator();
+        i = namedBeans.iterator();
         assertNull( i.next().getKey() );
-        assertEquals( "C", i.next().getKey() );
+        assertEquals( "C", i.next().getKey().value() );
 
-        i = roles.iterator();
+        i = namedBeans.iterator();
         assertSame( defaultBean, i.next().getValue() );
         assertSame( cBean, i.next().getValue() );
 
@@ -437,27 +425,25 @@ public class InjectorBeansTest
         final Iterable<Entry<Named, Bean>> namedBeans =
             new InjectorBeans<Named, Bean>( injector, Key.get( Bean.class, Jsr330.named( "B" ) ) );
 
-        final Iterable<Entry<String, Bean>> roles = new NamedIterableAdapter<Bean>( namedBeans );
-
-        Iterator<Entry<String, Bean>> i;
-        Entry<String, Bean> mapping;
+        Iterator<Entry<Named, Bean>> i;
+        Entry<Named, Bean> mapping;
         Bean bBean;
 
-        i = roles.iterator();
+        i = namedBeans.iterator();
         assertTrue( i.hasNext() );
         mapping = i.next();
 
         bBean = mapping.getValue();
-        assertEquals( "B", mapping.getKey() );
+        assertEquals( "B", mapping.getKey().value() );
         assertEquals( BBean.class, bBean.getClass() );
         assertSame( bBean, mapping.getValue() );
 
         assertFalse( i.hasNext() );
 
-        i = roles.iterator();
-        assertEquals( "B", i.next().getKey() );
+        i = namedBeans.iterator();
+        assertEquals( "B", i.next().getKey().value() );
 
-        i = roles.iterator();
+        i = namedBeans.iterator();
         assertSame( bBean, i.next().getValue() );
 
         try
@@ -555,25 +541,6 @@ public class InjectorBeansTest
             fail( "Expected NoSuchElementException" );
         }
         catch ( final NoSuchElementException e )
-        {
-        }
-    }
-
-    public void testUnsupportedOperations()
-    {
-        final Injector injector = Guice.createInjector();
-
-        final Iterable<Entry<Named, Bean>> namedBeans =
-            new InjectorBeans<Named, Bean>( injector, Key.get( Bean.class, Named.class ) );
-
-        final Iterable<Entry<String, Bean>> roles = new NamedIterableAdapter<Bean>( namedBeans );
-
-        try
-        {
-            roles.iterator().remove();
-            fail( "Expected UnsupportedOperationException" );
-        }
-        catch ( final UnsupportedOperationException e )
         {
         }
     }

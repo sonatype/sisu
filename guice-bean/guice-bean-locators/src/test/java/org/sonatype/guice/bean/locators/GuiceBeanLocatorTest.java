@@ -100,7 +100,7 @@ public class GuiceBeanLocatorTest
         final GuiceBeanLocator locator = new GuiceBeanLocator();
 
         final Iterable<Entry<String, Bean>> roles =
-            new NamedIterableAdapter<Bean>( locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) ) );
+            new NamedWatchableAdapter<Bean>( locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) ) );
 
         locator.add( parent );
         locator.add( child1 );
@@ -175,7 +175,7 @@ public class GuiceBeanLocatorTest
         locator.add( child1 );
 
         final Iterable<Entry<String, Bean>> roles =
-            new NamedIterableAdapter<Bean>( locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) ) );
+            new NamedWatchableAdapter<Bean>( locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) ) );
 
         locator.add( child2 );
         locator.add( child3 );
