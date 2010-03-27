@@ -14,6 +14,7 @@ package org.sonatype.guice.bean.reflect;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 
 import org.osgi.framework.Bundle;
@@ -24,6 +25,13 @@ import org.osgi.framework.Bundle;
 public final class BundleClassSpace
     implements ClassSpace
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    @SuppressWarnings( "unchecked" )
+    private static final Enumeration EMPTY_ENUMERATION = Collections.enumeration( Collections.EMPTY_LIST );
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -69,6 +77,7 @@ public final class BundleClassSpace
     @SuppressWarnings( "unchecked" )
     public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
     {
-        return bundle.findEntries( path, glob, recurse );
+        final Enumeration e = bundle.findEntries( path, glob, recurse );
+        return null != e ? e : EMPTY_ENUMERATION;
     }
 }

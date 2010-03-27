@@ -43,6 +43,20 @@ public final class GuiceBeanLocator
     private final List<Reference<GuiceBeans<?, ?>>> exposedBeans = new ArrayList<Reference<GuiceBeans<?, ?>>>();
 
     // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    public GuiceBeanLocator()
+    {
+    }
+
+    @Inject
+    public GuiceBeanLocator( final Injector injector )
+    {
+        add( injector );
+    }
+
+    // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
@@ -69,7 +83,6 @@ public final class GuiceBeanLocator
         return beans;
     }
 
-    @Inject
     public synchronized void add( final Injector injector )
     {
         if ( null == injector || !injectors.add( injector ) )
