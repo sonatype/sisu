@@ -14,27 +14,17 @@ package org.sonatype.guice.swing.example.impl;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.util.Map.Entry;
 
-import javax.enterprise.inject.Typed;
-import javax.inject.Inject;
 import javax.inject.Named;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
-import org.sonatype.guice.bean.locators.Watchable;
-import org.sonatype.guice.bean.locators.Watcher;
-
 @Named( "default" )
-@Typed( Runnable.class )
 final class Window
-    implements Runnable, Watcher<Entry<String, JPanel>>
+    implements Runnable
 {
     final JTabbedPane pane = new JTabbedPane();
-
-    @Inject
-    Watchable<Entry<String, JPanel>> watchable;
 
     public void run()
     {
@@ -45,17 +35,15 @@ final class Window
         frame.setLocation( 100, 50 );
         frame.setName( "Window" );
         frame.setVisible( true );
-
-        watchable.subscribe( this );
     }
 
-    public void add( final Entry<String, JPanel> item )
+    public void add( final String name, final JPanel panel )
     {
-        pane.addTab( item.getKey(), item.getValue() );
+        pane.addTab( name, panel );
     }
 
-    public void remove( final Entry<String, JPanel> item )
+    public void remove( final String name )
     {
-        pane.removeTabAt( pane.indexOfTab( item.getKey() ) );
+        pane.removeTabAt( pane.indexOfTab( name ) );
     }
 }

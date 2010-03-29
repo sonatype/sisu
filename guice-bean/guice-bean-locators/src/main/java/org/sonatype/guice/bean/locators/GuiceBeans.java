@@ -26,7 +26,7 @@ import com.google.inject.Key;
  * {@link Watchable} sequence of qualified beans backed by bindings from one or more {@link Injector}s.
  */
 final class GuiceBeans<Q extends Annotation, T>
-    implements Watchable<Entry<Q, T>>
+    implements Iterable<Entry<Q, T>>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -35,8 +35,6 @@ final class GuiceBeans<Q extends Annotation, T>
     private final Key<T> key;
 
     private List<InjectorBeans<Q, T>> injectorBeans;
-
-    private Watcher<Entry<Q, T>> beanWatcher;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -66,34 +64,6 @@ final class GuiceBeans<Q extends Annotation, T>
         return combinedBeans.iterator();
     }
 
-    public synchronized Watcher<Entry<Q, T>> subscribe( final Watcher<Entry<Q, T>> newWatcher )
-    {
-        if ( null != newWatcher )
-        {
-            if ( newWatcher.equals( beanWatcher ) )
-            {
-                return null;
-            }
-            for ( final Entry<Q, T> entry : this )
-            {
-                newWatcher.add( entry );
-            }
-        }
-        final Watcher<Entry<Q, T>> oldWatcher = beanWatcher;
-        beanWatcher = newWatcher;
-        return oldWatcher;
-    }
-
-    public synchronized boolean unsubscribe( final Watcher<Entry<Q, T>> oldWatcher )
-    {
-        if ( null != oldWatcher && oldWatcher.equals( beanWatcher ) )
-        {
-            beanWatcher = null;
-            return true;
-        }
-        return false;
-    }
-
     // ----------------------------------------------------------------------
     // Shared methods
     // ----------------------------------------------------------------------
@@ -109,15 +79,7 @@ final class GuiceBeans<Q extends Annotation, T>
         {
             injectorBeans = new ArrayList<InjectorBeans<Q, T>>( 4 );
         }
-        injectorBeans.add( newBeans );
-        if ( null != beanWatcher )
-        {
-            for ( final Entry<Q, T> entry : newBeans )
-            {
-                beanWatcher.add( entry );
-            }
-        }
-        return true;
+        return injectorBeans.add( newBeans );
     }
 
     synchronized boolean remove( final Injector injector )
@@ -130,15 +92,7 @@ final class GuiceBeans<Q extends Annotation, T>
         {
             if ( injector == beans.injector )
             {
-                injectorBeans.remove( beans );
-                if ( null != beanWatcher )
-                {
-                    for ( final Entry<Q, T> entry : beans )
-                    {
-                        beanWatcher.remove( entry );
-                    }
-                }
-                return true;
+                return injectorBeans.remove( beans );
             }
         }
         return false;

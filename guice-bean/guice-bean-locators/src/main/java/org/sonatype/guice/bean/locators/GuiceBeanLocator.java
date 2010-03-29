@@ -60,7 +60,7 @@ public final class GuiceBeanLocator
     // Public methods
     // ----------------------------------------------------------------------
 
-    public synchronized <Q extends Annotation, T> Watchable<Entry<Q, T>> locate( final Key<T> key )
+    public synchronized <Q extends Annotation, T> Iterable<Entry<Q, T>> locate( final Key<T> key )
     {
         final GuiceBeans<Q, T> beans = new GuiceBeans<Q, T>( key );
         for ( final Injector injector : injectors )
@@ -81,6 +81,11 @@ public final class GuiceBeanLocator
         exposedBeans.add( new WeakReference<GuiceBeans<?, ?>>( beans ) );
 
         return beans;
+    }
+
+    public <Q extends Annotation, T, W> void watch( final Key<T> key, final Mediator<Q, T, W> mediator, final W watcher )
+    {
+        // TODO
     }
 
     public synchronized void add( final Injector injector )

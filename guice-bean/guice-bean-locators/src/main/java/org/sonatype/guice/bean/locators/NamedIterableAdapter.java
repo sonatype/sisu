@@ -18,24 +18,24 @@ import java.util.Map.Entry;
 import javax.inject.Named;
 
 /**
- * String mapping {@link Watchable} backed by a {@link Named} mapping {@link Watchable}.
+ * String mapping {@link Iterable} backed by a {@link Named} mapping {@link Iterable}.
  */
-public final class NamedWatchableAdapter<V>
-    implements Watchable<Entry<String, V>>
+public final class NamedIterableAdapter<V>
+    implements Iterable<Entry<String, V>>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Watchable<Entry<Named, V>> watchable;
+    private final Iterable<Entry<Named, V>> iterable;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    public NamedWatchableAdapter( final Watchable<Entry<Named, V>> watchable )
+    public NamedIterableAdapter( final Iterable<Entry<Named, V>> iterable )
     {
-        this.watchable = watchable;
+        this.iterable = iterable;
     }
 
     // ----------------------------------------------------------------------
@@ -44,20 +44,7 @@ public final class NamedWatchableAdapter<V>
 
     public Iterator<Entry<String, V>> iterator()
     {
-        return new NamedIteratorAdapter<V>( watchable );
-    }
-
-    public Watcher<Entry<String, V>> subscribe( final Watcher<Entry<String, V>> watcher )
-    {
-        final NamedWatcherAdapter<V> adapter =
-            (NamedWatcherAdapter<V>) watchable.subscribe( new NamedWatcherAdapter<V>( watcher ) );
-
-        return null != adapter ? adapter.watcher : null;
-    }
-
-    public boolean unsubscribe( final Watcher<Entry<String, V>> watcher )
-    {
-        return watchable.unsubscribe( new NamedWatcherAdapter<V>( watcher ) );
+        return new NamedIteratorAdapter<V>( iterable );
     }
 
     // ----------------------------------------------------------------------
@@ -146,29 +133,24 @@ public final class NamedWatchableAdapter<V>
             throw new UnsupportedOperationException();
         }
 
-        // TODO: equals
-    }
-
-    private static final class NamedWatcherAdapter<V>
-        implements Watcher<Entry<Named, V>>
-    {
-        final Watcher<Entry<String, V>> watcher;
-
-        NamedWatcherAdapter( final Watcher<Entry<String, V>> watcher )
+        @Override
+        public int hashCode()
         {
-            this.watcher = watcher;
+            return entry.hashCode();
         }
 
-        public void add( final Entry<Named, V> item )
+        @Override
+        public boolean equals( final Object obj )
         {
-            watcher.add( new NamedEntryAdapter<V>( item ) );
+            if ( this == obj )
+            {
+                return true;
+            }
+            if ( obj instanceof NamedEntryAdapter<?> )
+            {
+                return entry.equals( ( (NamedEntryAdapter<?>) obj ).entry );
+            }
+            return false;
         }
-
-        public void remove( final Entry<Named, V> item )
-        {
-            watcher.remove( new NamedEntryAdapter<V>( item ) );
-        }
-
-        // TODO: equals
     }
 }

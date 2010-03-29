@@ -21,14 +21,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Qualifier;
 
-import org.sonatype.guice.bean.locators.Watchable;
 import org.sonatype.guice.bean.reflect.DeclaredMembers;
 import org.sonatype.guice.bean.reflect.Generics;
 
@@ -174,10 +172,6 @@ final class QualifiedClassBinder
                 {
                     bindQualifiedMap( fieldType );
                 }
-                else if ( fieldType.getRawType().isAssignableFrom( Watchable.class ) )
-                {
-                    bindQualifiedWatchable( fieldType );
-                }
             }
         }
     }
@@ -205,26 +199,5 @@ final class QualifiedClassBinder
             providerType = Types.newParameterizedType( MapProvider.class, qualifierType, beanType );
         }
         binder.bind( type ).toProvider( Key.get( providerType ) );
-    }
-
-    @SuppressWarnings( "unchecked" )
-    private void bindQualifiedWatchable( final TypeLiteral type )
-    {
-        final TypeLiteral watchedType = Generics.typeArgument( type, 0 );
-        if ( watchedType.getRawType() == Entry.class )
-        {
-            final Type qualifierType = Generics.typeArgument( watchedType, 0 ).getType();
-            final Type beanType = Generics.typeArgument( watchedType, 1 ).getType();
-            final Type providerType;
-            if ( qualifierType == String.class )
-            {
-                providerType = Types.newParameterizedType( WatchedHintProvider.class, beanType );
-            }
-            else
-            {
-                providerType = Types.newParameterizedType( WatchedProvider.class, qualifierType, beanType );
-            }
-            binder.bind( type ).toProvider( Key.get( providerType ) );
-        }
     }
 }

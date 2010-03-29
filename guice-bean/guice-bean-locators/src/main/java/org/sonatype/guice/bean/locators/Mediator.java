@@ -12,25 +12,12 @@
  */
 package org.sonatype.guice.bean.locators;
 
-/**
- * Represents an {@link Iterable} sequence of items that can be watched.
- */
-public interface Watchable<T>
-    extends Iterable<T>
-{
-    /**
-     * Subscribes the given {@link Watcher} to receive updates from this sequence.
-     * 
-     * @param watcher The sequence watcher
-     * @return Previous watcher if one was already subscribed; otherwise {@code null}
-     */
-    Watcher<T> subscribe( Watcher<T> watcher );
+import java.lang.annotation.Annotation;
+import java.util.Map.Entry;
 
-    /**
-     * Unsubscribes the given {@link Watcher} from receiving updates to this sequence.
-     * 
-     * @param watcher The sequence watcher
-     * @return {@code true} if the watcher was unsubscribed; otherwise {@code false}
-     */
-    boolean unsubscribe( Watcher<T> watcher );
+public interface Mediator<Q extends Annotation, T, W>
+{
+    void add( Entry<Q, T> bean, W watcher );
+
+    void remove( Entry<Q, T> bean, W watcher );
 }

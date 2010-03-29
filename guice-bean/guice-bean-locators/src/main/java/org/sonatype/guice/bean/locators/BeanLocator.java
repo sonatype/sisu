@@ -30,7 +30,9 @@ public interface BeanLocator
      * Locates beans that match the given qualified binding {@link Key}.
      * 
      * @param key The qualified key
-     * @return Watchable sequence of beans that match the given key
+     * @return Sequence of beans that match the given key
      */
-    <Q extends Annotation, T> Watchable<Entry<Q, T>> locate( Key<T> key );
+    <Q extends Annotation, T> Iterable<Entry<Q, T>> locate( Key<T> key );
+
+    <Q extends Annotation, T, W> void watch( Key<T> key, Mediator<Q, T, W> mediator, W watcher );
 }

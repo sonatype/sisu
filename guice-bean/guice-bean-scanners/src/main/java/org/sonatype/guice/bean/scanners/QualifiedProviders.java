@@ -24,14 +24,13 @@ import javax.inject.Provider;
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
-import org.sonatype.guice.bean.locators.NamedWatchableAdapter;
-import org.sonatype.guice.bean.locators.Watchable;
+import org.sonatype.guice.bean.locators.NamedIterableAdapter;
 
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
-final class WatchedProvider<K extends Annotation, V>
-    implements Provider<Watchable<Entry<K, V>>>
+final class IterableProvider<K extends Annotation, V>
+    implements Provider<Iterable<Entry<K, V>>>
 {
     @Inject
     private BeanLocator locator;
@@ -43,7 +42,7 @@ final class WatchedProvider<K extends Annotation, V>
     private TypeLiteral<V> beanType;
 
     @SuppressWarnings( "unchecked" )
-    public Watchable<Entry<K, V>> get()
+    public Iterable<Entry<K, V>> get()
     {
         if ( qualifierType.getRawType() != Annotation.class )
         {
@@ -53,15 +52,15 @@ final class WatchedProvider<K extends Annotation, V>
     }
 }
 
-final class WatchedHintProvider<V>
-    implements Provider<Watchable<Entry<String, V>>>
+final class IterableHintProvider<V>
+    implements Provider<Iterable<Entry<String, V>>>
 {
     @Inject
-    private WatchedProvider<Named, V> provider;
+    private IterableProvider<Named, V> provider;
 
-    public Watchable<Entry<String, V>> get()
+    public Iterable<Entry<String, V>> get()
     {
-        return new NamedWatchableAdapter<V>( provider.get() );
+        return new NamedIterableAdapter<V>( provider.get() );
     }
 }
 
@@ -69,7 +68,7 @@ final class ListProvider<T>
     implements Provider<List<T>>
 {
     @Inject
-    private WatchedProvider<Annotation, T> provider;
+    private IterableProvider<Annotation, T> provider;
 
     public List<T> get()
     {
@@ -81,7 +80,7 @@ final class MapProvider<K extends Annotation, V>
     implements Provider<Map<K, V>>
 {
     @Inject
-    private WatchedProvider<K, V> provider;
+    private IterableProvider<K, V> provider;
 
     public Map<K, V> get()
     {
@@ -93,7 +92,7 @@ final class MapHintProvider<V>
     implements Provider<Map<String, V>>
 {
     @Inject
-    private WatchedHintProvider<V> provider;
+    private IterableHintProvider<V> provider;
 
     public Map<String, V> get()
     {
