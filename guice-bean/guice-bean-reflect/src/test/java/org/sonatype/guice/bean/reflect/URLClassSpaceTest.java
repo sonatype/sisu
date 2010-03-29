@@ -97,4 +97,14 @@ public class URLClassSpaceTest
         // local search should see nothing
         assertFalse( e.hasMoreElements() );
     }
+
+    public void testEmptySearchPath()
+        throws IOException
+    {
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader(), new URL[0] );
+        final Enumeration<URL> e = space.findEntries( null, null, true );
+
+        // local search should see nothing
+        assertFalse( e.hasMoreElements() );
+    }
 }

@@ -36,7 +36,9 @@ public final class URLClassSpace
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final String[] NO_CLASS_PATH = new String[0];
+    private static final String[] EMPTY_CLASS_PATH = new String[0];
+
+    private static final URL[] EMPTY_URL_CLASS_PATH = new URL[0];
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -117,15 +119,16 @@ public final class URLClassSpace
      */
     private static URL[] expandClassPath( final URL[] urls )
     {
-        final List<URL> searchURLs = new ArrayList<URL>();
-        if ( null != urls )
+        if ( null == urls || urls.length == 0 )
         {
-            Collections.addAll( searchURLs, urls );
+            return EMPTY_URL_CLASS_PATH;
         }
 
-        final Set<URL> reachableURLs = new LinkedHashSet<URL>();
+        final List<URL> searchURLs = new ArrayList<URL>( urls.length );
+        Collections.addAll( searchURLs, urls );
 
-        // search may grow, so use index not iterator
+        // search space may grow, so use index not iterator
+        final Set<URL> reachableURLs = new LinkedHashSet<URL>();
         for ( int i = 0; i < searchURLs.size(); i++ )
         {
             final URL url = searchURLs.get( i );
@@ -175,7 +178,7 @@ public final class URLClassSpace
             {
                 return classPath.split( " " );
             }
-            return NO_CLASS_PATH;
+            return EMPTY_CLASS_PATH;
         }
         finally
         {

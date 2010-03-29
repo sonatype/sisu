@@ -76,6 +76,9 @@ public class BundleClassSpaceTest
         assertTrue( e.nextElement().toString().matches( "bundle://.*/META-INF/MANIFEST.MF" ) );
         assertFalse( e.hasMoreElements() );
 
+        e = space.findEntries( "", "missing", true );
+        assertFalse( e.hasMoreElements() );
+
         final URL manifestURL = space.getResource( "META-INF/MANIFEST.MF" );
         assertNotNull( manifestURL );
         new Manifest( manifestURL.openStream() );
