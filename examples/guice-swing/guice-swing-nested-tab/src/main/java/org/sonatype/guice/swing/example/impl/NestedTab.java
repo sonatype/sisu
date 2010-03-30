@@ -12,8 +12,14 @@
  */
 package org.sonatype.guice.swing.example.impl;
 
+import java.awt.Graphics;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 
 @Named( "Nested" )
 final class NestedTab
@@ -21,8 +27,28 @@ final class NestedTab
 {
     static int instanceCount;
 
+    final JTabbedPane pane = new JTabbedPane();
+
+    @Inject
+    Map<String, JPanel> tabs;
+
     NestedTab()
     {
         setName( "NestedTab instance #" + ++instanceCount );
+        add( pane );
+    }
+
+    @Override
+    public void paint( final Graphics g )
+    {
+        if ( pane.getTabCount() == 0 )
+        {
+            pane.setPreferredSize( getSize() );
+            for ( final Entry<String, JPanel> e : tabs.entrySet() )
+            {
+                pane.addTab( e.getKey(), e.getValue() );
+            }
+        }
+        super.paint( g );
     }
 }

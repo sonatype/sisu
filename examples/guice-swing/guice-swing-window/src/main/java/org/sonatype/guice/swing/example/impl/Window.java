@@ -13,7 +13,6 @@
 package org.sonatype.guice.swing.example.impl;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 
 import javax.inject.Named;
 import javax.swing.JFrame;
@@ -30,9 +29,9 @@ final class Window
     {
         final JFrame frame = new JFrame( "Guice Swing Example" );
         frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-        frame.setSize( new Dimension( 600, 400 ) );
         frame.add( pane, BorderLayout.CENTER );
         frame.setLocation( 100, 50 );
+        frame.setSize( 600, 400 );
         frame.setName( "Window" );
         frame.setVisible( true );
     }
