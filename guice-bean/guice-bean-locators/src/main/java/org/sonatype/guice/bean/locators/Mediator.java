@@ -26,7 +26,8 @@ public interface Mediator<Q extends Annotation, T, W>
      * @param bean The added bean
      * @param watcher The bean watcher
      */
-    void add( Entry<Q, T> bean, W watcher );
+    void add( Entry<Q, T> bean, W watcher )
+        throws Exception;
 
     /**
      * Inform the given watcher about the removed bean.
@@ -34,5 +35,6 @@ public interface Mediator<Q extends Annotation, T, W>
      * @param bean The removed bean
      * @param watcher The bean watcher
      */
-    void remove( Entry<Q, T> bean, W watcher );
+    void remove( Entry<Q, T> bean, W watcher )
+        throws Exception;
 }

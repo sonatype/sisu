@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import org.sonatype.guice.bean.locators.Mediator;
 
@@ -26,12 +27,26 @@ final class WindowMediator
     implements Mediator<Named, JPanel, Window>
 {
     public void add( final Entry<Named, JPanel> bean, final Window window )
+        throws Exception
     {
-        window.add( bean.getKey().value(), bean.getValue() );
+        SwingUtilities.invokeLater( new Runnable()
+        {
+            public void run()
+            {
+                window.add( bean.getKey().value(), bean.getValue() );
+            }
+        } );
     }
 
     public void remove( final Entry<Named, JPanel> bean, final Window window )
+        throws Exception
     {
-        window.remove( bean.getKey().value() );
+        SwingUtilities.invokeLater( new Runnable()
+        {
+            public void run()
+            {
+                window.remove( bean.getKey().value() );
+            }
+        } );
     }
 }

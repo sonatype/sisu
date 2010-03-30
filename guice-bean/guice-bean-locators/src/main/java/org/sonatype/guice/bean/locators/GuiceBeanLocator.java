@@ -42,6 +42,8 @@ public final class GuiceBeanLocator
 
     private final List<Reference<GuiceBeans<?, ?>>> exposedBeans = new ArrayList<Reference<GuiceBeans<?, ?>>>();
 
+    private final List<MediatedWatcher<?, ?, ?>> mediatedWatchers = new ArrayList<MediatedWatcher<?, ?, ?>>();
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -84,17 +86,25 @@ public final class GuiceBeanLocator
         return beans;
     }
 
-    public <Q extends Annotation, T, W> void watch( final Key<T> key, final Mediator<Q, T, W> mediator, final W watcher )
+    public synchronized <Q extends Annotation, T, W> void watch( final Key<T> key, final Mediator<Q, T, W> mediator,
+                                                                 final W watcher )
     {
-        // TODO: support proper tracking
+        final MediatedWatcher<Q, T, W> mediatedWatcher = new MediatedWatcher<Q, T, W>( key, mediator, watcher );
         for ( final Injector injector : injectors )
         {
-            final InjectorBeans<Q, T> beans = new InjectorBeans<Q, T>( injector, key );
-            for ( int i = 0, size = beans.size(); i < size; i++ )
+            mediatedWatcher.add( injector );
+        }
+
+        // check for any unused (GC'd) mediated watchers
+        for ( int i = 0; i < mediatedWatchers.size(); i++ )
+        {
+            if ( !mediatedWatchers.get( i ).isWatching() )
             {
-                mediator.add( beans.get( i ), watcher );
+                mediatedWatchers.remove( i-- ); // watcher GC'd, so no need to notify anymore
             }
         }
+
+        mediatedWatchers.add( mediatedWatcher );
     }
 
     /**
@@ -120,6 +130,18 @@ public final class GuiceBeanLocator
                 exposedBeans.remove( i-- ); // sequence GC'd, so no need to track anymore
             }
         }
+        for ( int i = 0; i < mediatedWatchers.size(); i++ )
+        {
+            final MediatedWatcher<?, ?, ?> watcher = mediatedWatchers.get( i );
+            if ( watcher.isWatching() )
+            {
+                watcher.add( injector ); // notify mediated watcher about new injector
+            }
+            else
+            {
+                mediatedWatchers.remove( i-- ); // watcher GC'd, so no need to notify anymore
+            }
+        }
     }
 
     /**
@@ -143,6 +165,18 @@ public final class GuiceBeanLocator
             else
             {
                 exposedBeans.remove( i-- ); // sequence GC'd, so no need to track anymore
+            }
+        }
+        for ( int i = 0; i < mediatedWatchers.size(); i++ )
+        {
+            final MediatedWatcher<?, ?, ?> watcher = mediatedWatchers.get( i );
+            if ( watcher.isWatching() )
+            {
+                watcher.remove( injector ); // notify mediated watcher about old injector
+            }
+            else
+            {
+                mediatedWatchers.remove( i-- ); // watcher GC'd, so no need to notify anymore
             }
         }
     }
