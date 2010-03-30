@@ -87,7 +87,7 @@ final class QualifiedClassVisitor
         {
             clazzName = name; // primary class must be concrete type
         }
-        if ( isQualified || null == clazzName )
+        if ( isQualified || null == clazzName || null == superName )
         {
             return; // short-cut scanning process
         }

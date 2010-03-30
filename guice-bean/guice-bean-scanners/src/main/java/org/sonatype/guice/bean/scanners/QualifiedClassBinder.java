@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Qualifier;
 
+import org.sonatype.guice.bean.locators.Mediator;
 import org.sonatype.guice.bean.reflect.DeclaredMembers;
 import org.sonatype.guice.bean.reflect.Generics;
 
@@ -58,6 +59,8 @@ final class QualifiedClassBinder
 
     private final Set<TypeLiteral> boundTypes = new HashSet<TypeLiteral>();
 
+    private final Set<Class> mediatorTypes = new HashSet<Class>();
+
     private final Binder binder;
 
     // ----------------------------------------------------------------------
@@ -83,6 +86,12 @@ final class QualifiedClassBinder
         {
             binder.bind( e.getKey() ).to( e.getValue() );
         }
+        for ( final Class mediatorType : mediatorTypes )
+        {
+            // our listener is actually a matcher too
+            final WatcherListener listener = new WatcherListener( mediatorType );
+            binder.bindListener( listener, listener );
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -91,8 +100,6 @@ final class QualifiedClassBinder
 
     private void bind( final Class clazz )
     {
-        bindQualifiedCollections( clazz );
-
         final Class keyType = getKeyType( clazz );
         final Annotation qualifier = normalize( getQualifier( clazz ), clazz );
         final Key qualifiedKey = Key.get( keyType, qualifier );
@@ -114,6 +121,13 @@ final class QualifiedClassBinder
         {
             // other qualified bindings can wait
             bindings.put( qualifiedKey, clazz );
+        }
+
+        bindQualifiedCollections( clazz );
+
+        if ( Mediator.class.isAssignableFrom( clazz ) )
+        {
+            mediatorTypes.add( clazz );
         }
     }
 

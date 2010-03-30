@@ -86,7 +86,15 @@ public final class GuiceBeanLocator
 
     public <Q extends Annotation, T, W> void watch( final Key<T> key, final Mediator<Q, T, W> mediator, final W watcher )
     {
-        // TODO
+        // TODO: support proper tracking
+        for ( final Injector injector : injectors )
+        {
+            final InjectorBeans<Q, T> beans = new InjectorBeans<Q, T>( injector, key );
+            for ( int i = 0, size = beans.size(); i < size; i++ )
+            {
+                mediator.add( beans.get( i ), watcher );
+            }
+        }
     }
 
     /**
