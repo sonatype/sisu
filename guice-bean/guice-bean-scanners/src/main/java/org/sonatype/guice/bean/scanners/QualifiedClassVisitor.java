@@ -15,7 +15,9 @@ package org.sonatype.guice.bean.scanners;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Qualifier;
@@ -26,8 +28,6 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.sonatype.guice.bean.reflect.ClassSpace;
-
-import com.google.inject.Binder;
 
 /**
  * {@link ClassVisitor} that detects beans annotated with {@link Qualifier} annotations.
@@ -54,9 +54,9 @@ final class QualifiedClassVisitor
 
     private final Map<String, Boolean> qualifiedClassMap = new HashMap<String, Boolean>();
 
-    private final ClassSpace space;
+    private final List<Class<?>> qualifiedTypes = new ArrayList<Class<?>>();
 
-    private final QualifiedClassBinder qualifiedClassBinder;
+    private final ClassSpace space;
 
     private String clazzName;
 
@@ -66,11 +66,9 @@ final class QualifiedClassVisitor
     // Constructors
     // ----------------------------------------------------------------------
 
-    QualifiedClassVisitor( final ClassSpace space, final Binder binder )
+    QualifiedClassVisitor( final ClassSpace space )
     {
         this.space = space;
-
-        qualifiedClassBinder = new QualifiedClassBinder( binder );
     }
 
     // ----------------------------------------------------------------------
@@ -81,22 +79,28 @@ final class QualifiedClassVisitor
     public void visit( final int version, final int access, final String name, final String signature,
                        final String superName, final String[] interfaces )
     {
-        if ( isQualified || ( access & ( Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_SYNTHETIC ) ) != 0 )
+        if ( ( access & Opcodes.ACC_INTERFACE ) != 0 )
         {
-            return; // no need to process this class
+            return; // we don't scan the interface hierarchy
         }
-        if ( null == clazzName )
+        if ( null == clazzName && ( access & Opcodes.ACC_ABSTRACT ) == 0 )
         {
-            clazzName = name; // primary class name
+            clazzName = name; // primary class must be concrete type
+        }
+        if ( isQualified || null == clazzName )
+        {
+            return; // short-cut scanning process
         }
 
-        // look for the qualifier on the superclass and cache the results
+        /*
+         * scan for qualified super-classes and cache the results
+         */
         final Boolean isQualifiedClass = qualifiedClassMap.get( superName );
         if ( isQualifiedClass != null )
         {
             isQualified = isQualifiedClass.booleanValue();
         }
-        else if ( superName != null && !superName.startsWith( "java" ) )
+        else if ( !superName.startsWith( "java" ) )
         {
             try
             {
@@ -105,7 +109,7 @@ final class QualifiedClassVisitor
             }
             catch ( final IOException e )
             {
-                throw new RuntimeException( e );
+                throw new RuntimeException( e.toString() );
             }
         }
     }
@@ -115,27 +119,32 @@ final class QualifiedClassVisitor
     {
         if ( isQualified || null == clazzName )
         {
-            return null; // no need to process this annotation
+            return null; // short-cut scanning process
         }
 
-        // look for the qualifier marker on the annotation and cache the results
+        /*
+         * scan for qualified annotations and cache the results
+         */
         final Boolean isQualifiedAnnotation = qualifiedAnnotationMap.get( desc );
         if ( isQualifiedAnnotation != null )
         {
             isQualified = isQualifiedAnnotation.booleanValue();
-            return null;
         }
-        final String path = desc.substring( 1, desc.length() - 1 ) + ".class";
-        try
+        else
         {
-            visitClass( space.getResource( path ), qualifiedAnnotationVisitor );
-            qualifiedAnnotationMap.put( desc, Boolean.valueOf( isQualified ) );
-            return null;
+            try
+            {
+                final String annotationClazz = desc.substring( 1, desc.length() - 1 ) + ".class";
+                visitClass( space.getResource( annotationClazz ), qualifiedAnnotationVisitor );
+                qualifiedAnnotationMap.put( desc, Boolean.valueOf( isQualified ) );
+            }
+            catch ( final IOException e )
+            {
+                throw new RuntimeException( e.toString() );
+            }
         }
-        catch ( final IOException e )
-        {
-            throw new RuntimeException( e );
-        }
+
+        return null;
     }
 
     // ----------------------------------------------------------------------
@@ -145,24 +154,27 @@ final class QualifiedClassVisitor
     void scan( final URL url )
         throws IOException
     {
-        // scan primary class
-        visitClass( url, this );
-        final String qualifiedName = clazzName;
+        isQualified = false;
         clazzName = null;
+
+        visitClass( url, this );
 
         if ( isQualified )
         {
-            isQualified = false;
             try
             {
-                // load actual bean class (provides type-safety) and register the right bindings
-                qualifiedClassBinder.bind( space.loadClass( qualifiedName.replace( '/', '.' ) ) );
+                qualifiedTypes.add( space.loadClass( clazzName.replace( '/', '.' ) ) );
             }
             catch ( final ClassNotFoundException e )
             {
-                throw new TypeNotPresentException( qualifiedName, e );
+                throw new TypeNotPresentException( clazzName, e );
             }
         }
+    }
+
+    List<Class<?>> getQualifiedTypes()
+    {
+        return qualifiedTypes;
     }
 
     // ----------------------------------------------------------------------
@@ -187,17 +199,18 @@ final class QualifiedClassVisitor
     private static void visitClass( final URL url, final ClassVisitor visitor )
         throws IOException
     {
-        if ( null != url )
+        if ( null == url )
         {
-            final InputStream in = url.openStream();
-            try
-            {
-                new ClassReader( in ).accept( visitor, CLASS_READER_FLAGS );
-            }
-            finally
-            {
-                in.close();
-            }
+            return; // missing class definition
+        }
+        final InputStream in = url.openStream();
+        try
+        {
+            new ClassReader( in ).accept( visitor, CLASS_READER_FLAGS );
+        }
+        finally
+        {
+            in.close();
         }
     }
 }

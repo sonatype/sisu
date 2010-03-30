@@ -78,7 +78,7 @@ final class BeanPropertyField<T>
         {
             field.set( bean, value );
         }
-        catch ( final Exception e )
+        catch ( final Throwable e )
         {
             throw new RuntimeException( String.format( BEAN_FIELD_ERROR, field, e ) );
         }

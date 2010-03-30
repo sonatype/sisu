@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.bean.scanners;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 
@@ -21,7 +22,7 @@ import com.google.inject.Binder;
 import com.google.inject.Module;
 
 /**
- * Guice {@link Module} that discovers and auto-wires qualified beans contained in a {@link ClassSpace}.
+ * Guice {@link Module} that discovers and auto-wires all qualified beans from a {@link ClassSpace}.
  */
 public final class QualifiedScannerModule
     implements Module
@@ -47,26 +48,35 @@ public final class QualifiedScannerModule
 
     public void configure( final Binder binder )
     {
-        final QualifiedClassVisitor visitor = new QualifiedClassVisitor( space, binder );
-        try
+        final Enumeration<URL> e = findClasses( space );
+        final QualifiedClassVisitor visitor = new QualifiedClassVisitor( space );
+        while ( e.hasMoreElements() )
         {
-            final Enumeration<URL> e = space.findEntries( "", "*.class", true );
-            while ( e.hasMoreElements() )
+            try
             {
-                try
-                {
-                    // process potential bean class
-                    visitor.scan( e.nextElement() );
-                }
-                catch ( final Throwable t )
-                {
-                    binder.addError( t );
-                }
+                visitor.scan( e.nextElement() );
+            }
+            catch ( final Throwable t )
+            {
+                binder.addError( t );
             }
         }
-        catch ( final Throwable t )
+        new QualifiedClassBinder( binder ).bind( visitor.getQualifiedTypes() );
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private static Enumeration<URL> findClasses( final ClassSpace space )
+    {
+        try
         {
-            binder.addError( t );
+            return space.findEntries( "", "*.class", true );
+        }
+        catch ( final IOException e )
+        {
+            throw new RuntimeException( e.toString() );
         }
     }
 }

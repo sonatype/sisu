@@ -29,6 +29,11 @@ import org.sonatype.guice.bean.locators.NamedIterableAdapter;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
+// ----------------------------------------------------------------------
+
+/**
+ * Provides {@link Iterable} sequence of qualified beans.
+ */
 final class IterableProvider<K extends Annotation, V>
     implements Provider<Iterable<Entry<K, V>>>
 {
@@ -44,14 +49,15 @@ final class IterableProvider<K extends Annotation, V>
     @SuppressWarnings( "unchecked" )
     public Iterable<Entry<K, V>> get()
     {
-        if ( qualifierType.getRawType() != Annotation.class )
-        {
-            return locator.locate( Key.get( beanType, (Class) qualifierType.getRawType() ) );
-        }
-        return locator.locate( Key.get( beanType ) );
+        return locator.locate( Key.get( beanType, (Class) qualifierType.getRawType() ) );
     }
 }
 
+// ----------------------------------------------------------------------
+
+/**
+ * Provides {@link Iterable} sequence of hinted beans.
+ */
 final class IterableHintProvider<V>
     implements Provider<Iterable<Entry<String, V>>>
 {
@@ -64,18 +70,28 @@ final class IterableHintProvider<V>
     }
 }
 
+// ----------------------------------------------------------------------
+
+/**
+ * Provides a {@link List} of {@link Named} beans.
+ */
 final class ListProvider<T>
     implements Provider<List<T>>
 {
     @Inject
-    private IterableProvider<Annotation, T> provider;
+    private IterableProvider<Named, T> provider;
 
     public List<T> get()
     {
-        return new EntryListAdapter<Annotation, T>( provider.get() );
+        return new EntryListAdapter<Named, T>( provider.get() );
     }
 }
 
+// ----------------------------------------------------------------------
+
+/**
+ * Provides a {@link Map} of qualified beans.
+ */
 final class MapProvider<K extends Annotation, V>
     implements Provider<Map<K, V>>
 {
@@ -88,6 +104,11 @@ final class MapProvider<K extends Annotation, V>
     }
 }
 
+// ----------------------------------------------------------------------
+
+/**
+ * Provides a {@link Map} of hinted beans.
+ */
 final class MapHintProvider<V>
     implements Provider<Map<String, V>>
 {
@@ -99,3 +120,5 @@ final class MapHintProvider<V>
         return new EntryMapAdapter<String, V>( provider.get() );
     }
 }
+
+// ----------------------------------------------------------------------

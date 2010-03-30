@@ -17,10 +17,12 @@ import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
@@ -39,6 +41,7 @@ import com.google.inject.util.Types;
 /**
  * Auto-wires the qualified bean according to the attached {@link Qualifier} metadata.
  */
+@SuppressWarnings( "unchecked" )
 final class QualifiedClassBinder
 {
     // ----------------------------------------------------------------------
@@ -51,7 +54,9 @@ final class QualifiedClassBinder
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Set<TypeLiteral<?>> boundTypes = new HashSet<TypeLiteral<?>>();
+    private final Map<Key, Class> bindings = new HashMap<Key, Class>();
+
+    private final Set<TypeLiteral> boundTypes = new HashSet<TypeLiteral>();
 
     private final Binder binder;
 
@@ -68,36 +73,55 @@ final class QualifiedClassBinder
     // Shared methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
-    void bind( final Class clazz )
+    void bind( final List<Class<?>> qualifiedTypes )
     {
-        final Class keyType = getKeyType( clazz );
-        final Annotation qualifier = normalizeQualifier( getQualifier( clazz ), clazz );
-        if ( null != qualifier )
+        for ( int i = 0, size = qualifiedTypes.size(); i < size; i++ )
         {
-            binder.bind( Key.get( keyType, qualifier ) ).to( clazz );
+            bind( qualifiedTypes.get( i ) );
         }
-        else if ( keyType != clazz )
+        for ( final Entry<Key, Class> e : bindings.entrySet() )
         {
-            binder.bind( Key.get( keyType ) ).to( clazz );
+            binder.bind( e.getKey() ).to( e.getValue() );
         }
-        else
-        {
-            binder.bind( clazz ); // implementation is the API
-        }
-        bindQualifiedCollections( clazz );
     }
 
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private static Annotation normalizeQualifier( final Annotation qualifier, final Class<?> clazz )
+    private void bind( final Class clazz )
+    {
+        bindQualifiedCollections( clazz );
+
+        final Class keyType = getKeyType( clazz );
+        final Annotation qualifier = normalize( getQualifier( clazz ), clazz );
+        final Key qualifiedKey = Key.get( keyType, qualifier );
+
+        // defaults must be bound first
+        if ( qualifier == DEFAULT_NAMED )
+        {
+            if ( keyType != clazz )
+            {
+                binder.bind( keyType ).to( qualifiedKey );
+            }
+            else
+            {
+                binder.bind( keyType ); // API == Impl
+            }
+            binder.bind( qualifiedKey ).to( clazz );
+        }
+        else
+        {
+            // other qualified bindings can wait
+            bindings.put( qualifiedKey, clazz );
+        }
+    }
+
+    private static Annotation normalize( final Annotation qualifier, final Class clazz )
     {
         if ( qualifier instanceof Named )
         {
-            final Named named = (Named) qualifier;
-            final String hint = named.value();
+            final String hint = ( (Named) qualifier ).value();
             if ( hint.length() == 0 )
             {
                 if ( clazz.getSimpleName().startsWith( "Default" ) )
@@ -114,34 +138,33 @@ final class QualifiedClassBinder
         return qualifier;
     }
 
-    private static Annotation getQualifier( final Class<?> clazz )
+    private static Annotation getQualifier( final Class clazz )
     {
         for ( final Annotation ann : clazz.getAnnotations() )
         {
             // pick first annotation marked with a @Qualifier meta-annotation
             if ( ann.annotationType().isAnnotationPresent( Qualifier.class ) )
             {
-                return ann;
+                return ann; // TODO: warn about multiple qualifiers?
             }
         }
         // must be somewhere in the class hierarchy
         return getQualifier( clazz.getSuperclass() );
     }
 
-    @SuppressWarnings( "unchecked" )
     private static Class getKeyType( final Class<?> clazz )
     {
         // @Typed settings take precedence
         final Typed typed = clazz.getAnnotation( Typed.class );
         if ( null != typed && typed.value().length > 0 )
         {
-            return typed.value()[0];
+            return typed.value()[0]; // TODO: warn about multiple types?
         }
         // followed by explicit declarations
         final Class[] interfaces = clazz.getInterfaces();
         if ( interfaces.length > 0 )
         {
-            return interfaces[0];
+            return interfaces[0]; // TODO: warn about multiple interfaces?
         }
         // otherwise check the local superclass hierarchy
         final Class superClazz = clazz.getSuperclass();
@@ -156,13 +179,13 @@ final class QualifiedClassBinder
         return superClazz != Object.class ? superClazz : clazz;
     }
 
-    private void bindQualifiedCollections( final Class<?> clazz )
+    private void bindQualifiedCollections( final Class clazz )
     {
         for ( final Member member : new DeclaredMembers( clazz ) )
         {
             if ( member instanceof Field && ( (AnnotatedElement) member ).isAnnotationPresent( Inject.class ) )
             {
-                final TypeLiteral<?> fieldType = TypeLiteral.get( ( (Field) member ).getGenericType() );
+                final TypeLiteral fieldType = TypeLiteral.get( ( (Field) member ).getGenericType() );
                 if ( !boundTypes.add( fieldType ) )
                 {
                     continue;
@@ -179,7 +202,6 @@ final class QualifiedClassBinder
         }
     }
 
-    @SuppressWarnings( "unchecked" )
     private void bindQualifiedList( final TypeLiteral type )
     {
         final Type beanType = Generics.typeArgument( type, 0 ).getType();
@@ -187,7 +209,6 @@ final class QualifiedClassBinder
         binder.bind( type ).toProvider( Key.get( providerType ) );
     }
 
-    @SuppressWarnings( "unchecked" )
     private void bindQualifiedMap( final TypeLiteral type )
     {
         final Type qualifierType = Generics.typeArgument( type, 0 ).getType();

@@ -86,7 +86,7 @@ final class BeanPropertySetter<T>
         {
             throw new RuntimeException( String.format( BEAN_SETTER_ERROR, method, e.getTargetException() ) );
         }
-        catch ( final Exception e )
+        catch ( final Throwable e )
         {
             throw new RuntimeException( String.format( BEAN_SETTER_ERROR, method, e ) );
         }

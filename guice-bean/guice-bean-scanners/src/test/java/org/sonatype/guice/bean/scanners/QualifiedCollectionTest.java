@@ -88,7 +88,7 @@ public class QualifiedCollectionTest
     {
         final Iterator<Widget> it = windowWidget.widgets.iterator();
         assertTrue( it.hasNext() );
-        it.next(); // TODO: assertEquals( DefaultWidget.class, it.next().getClass() );
+        assertEquals( DefaultWidget.class, it.next().getClass() );
         assertTrue( it.hasNext() );
         it.next();
         assertTrue( it.hasNext() );
@@ -98,7 +98,7 @@ public class QualifiedCollectionTest
         assertFalse( it.hasNext() );
 
         final List<Widget> tempList = new ArrayList<Widget>( windowWidget.widgets );
-        // TODO: assertEquals( DefaultWidget.class, tempList.remove( 0 ).getClass() );
+        assertEquals( DefaultWidget.class, tempList.remove( 0 ).getClass() );
         for ( final Iterator<Widget> i = tempList.iterator(); i.hasNext(); )
         {
             if ( ButtonWidget.class.equals( i.next().getClass() ) )
@@ -123,7 +123,7 @@ public class QualifiedCollectionTest
                 break;
             }
         }
-        // TODO: assertTrue( tempList.isEmpty() );
+        assertTrue( tempList.isEmpty() );
     }
 
     public void testQualifiedMap()
@@ -134,8 +134,8 @@ public class QualifiedCollectionTest
         final Iterator<Entry<Named, Widget>> it = widgetMap.entrySet().iterator();
         assertTrue( it.hasNext() );
         mapping = it.next();
-        // TODO: assertNull( mapping.getKey() );
-        // TODO: assertEquals( DefaultWidget.class, mapping.getValue().getClass() );
+        assertEquals( "default", mapping.getKey().value() );
+        assertEquals( DefaultWidget.class, mapping.getValue().getClass() );
         assertTrue( it.hasNext() );
         it.next();
         assertTrue( it.hasNext() );
@@ -158,8 +158,8 @@ public class QualifiedCollectionTest
         final Iterator<Entry<String, Widget>> it = widgetMap.entrySet().iterator();
         assertTrue( it.hasNext() );
         mapping = it.next();
-        // TODO: assertNull( mapping.getKey() );
-        // TODO: assertEquals( DefaultWidget.class, mapping.getValue().getClass() );
+        assertEquals( "default", mapping.getKey() );
+        assertEquals( DefaultWidget.class, mapping.getValue().getClass() );
         assertTrue( it.hasNext() );
         it.next();
         assertTrue( it.hasNext() );
