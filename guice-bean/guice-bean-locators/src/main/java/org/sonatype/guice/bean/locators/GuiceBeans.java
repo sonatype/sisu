@@ -23,7 +23,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 
 /**
- * {@link Watchable} sequence of qualified beans backed by bindings from one or more {@link Injector}s.
+ * {@link Iterable} sequence of qualified beans backed by bindings from one or more {@link Injector}s.
  */
 final class GuiceBeans<Q extends Annotation, T>
     implements Iterable<Entry<Q, T>>
@@ -68,6 +68,11 @@ final class GuiceBeans<Q extends Annotation, T>
     // Shared methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Adds qualified beans from the given injector to the current sequence.
+     * 
+     * @param injector The new injector
+     */
     synchronized boolean add( final Injector injector )
     {
         final InjectorBeans<Q, T> newBeans = new InjectorBeans<Q, T>( injector, key );
@@ -82,6 +87,11 @@ final class GuiceBeans<Q extends Annotation, T>
         return injectorBeans.add( newBeans );
     }
 
+    /**
+     * Removes qualified beans from the given injector from the current sequence.
+     * 
+     * @param injector The old injector
+     */
     synchronized boolean remove( final Injector injector )
     {
         if ( null == injectorBeans )

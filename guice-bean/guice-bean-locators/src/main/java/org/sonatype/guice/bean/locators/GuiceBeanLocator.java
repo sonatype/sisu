@@ -48,6 +48,7 @@ public final class GuiceBeanLocator
 
     public GuiceBeanLocator()
     {
+        // no injectors
     }
 
     @Inject
@@ -88,6 +89,11 @@ public final class GuiceBeanLocator
         // TODO
     }
 
+    /**
+     * Adds qualified beans from the given injector to any exported qualified bean sequences.
+     * 
+     * @param injector The new injector
+     */
     public synchronized void add( final Injector injector )
     {
         if ( null == injector || !injectors.add( injector ) )
@@ -108,6 +114,11 @@ public final class GuiceBeanLocator
         }
     }
 
+    /**
+     * Removes qualified beans from the given injector from any exported qualified bean sequences.
+     * 
+     * @param injector The old injector
+     */
     public synchronized void remove( final Injector injector )
     {
         if ( null == injector || !injectors.remove( injector ) )

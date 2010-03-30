@@ -229,17 +229,9 @@ public class InjectorBeansTest
 
         Iterator<Entry<Named, Bean>> i;
         Entry<Named, Bean> mapping;
-        Bean defaultBean, aBean, bBean, cBean;
+        Bean aBean, bBean, cBean;
 
         i = namedBeans.iterator();
-        assertTrue( i.hasNext() );
-        mapping = i.next();
-
-        defaultBean = mapping.getValue();
-        assertNull( mapping.getKey() );
-        assertEquals( DefaultBean.class, defaultBean.getClass() );
-        assertSame( defaultBean, mapping.getValue() );
-
         assertTrue( i.hasNext() );
         mapping = i.next();
 
@@ -267,13 +259,11 @@ public class InjectorBeansTest
         assertFalse( i.hasNext() );
 
         i = namedBeans.iterator();
-        assertNull( i.next().getKey() );
         assertEquals( "C", i.next().getKey().value() );
         assertEquals( "A", i.next().getKey().value() );
         assertEquals( "B", i.next().getKey().value() );
 
         i = namedBeans.iterator();
-        assertSame( defaultBean, i.next().getValue() );
         assertSame( cBean, i.next().getValue() );
         assertSame( aBean, i.next().getValue() );
         assertSame( bBean, i.next().getValue() );
@@ -370,17 +360,9 @@ public class InjectorBeansTest
 
         Iterator<Entry<Named, Bean>> i;
         Entry<Named, Bean> mapping;
-        Bean defaultBean, cBean;
+        Bean cBean;
 
         i = namedBeans.iterator();
-        assertTrue( i.hasNext() );
-        mapping = i.next();
-
-        defaultBean = mapping.getValue();
-        assertNull( mapping.getKey() );
-        assertEquals( DefaultBean.class, defaultBean.getClass() );
-        assertSame( defaultBean, mapping.getValue() );
-
         assertTrue( i.hasNext() );
         mapping = i.next();
 
@@ -392,11 +374,9 @@ public class InjectorBeansTest
         assertFalse( i.hasNext() );
 
         i = namedBeans.iterator();
-        assertNull( i.next().getKey() );
         assertEquals( "C", i.next().getKey().value() );
 
         i = namedBeans.iterator();
-        assertSame( defaultBean, i.next().getValue() );
         assertSame( cBean, i.next().getValue() );
 
         try
@@ -464,10 +444,10 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).to( DefaultBean.class );
                 bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "!" ) ).to( CBean.class );
                 bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
-                bind( Bean.class ).to( DefaultBean.class );
             }
         } );
 
@@ -482,18 +462,18 @@ public class InjectorBeansTest
         assertTrue( i.hasNext() );
         mapping = i.next();
 
-        defaultBean = mapping.getValue();
-        assertNull( mapping.getKey() );
-        assertEquals( DefaultBean.class, defaultBean.getClass() );
-        assertSame( defaultBean, mapping.getValue() );
-
-        assertTrue( i.hasNext() );
-        mapping = i.next();
-
         cBean = mapping.getValue();
         assertEquals( Jsr330.named( "C" ), mapping.getKey() );
         assertEquals( CBean.class, cBean.getClass() );
         assertSame( cBean, mapping.getValue() );
+
+        assertTrue( i.hasNext() );
+        mapping = i.next();
+
+        defaultBean = mapping.getValue();
+        assertNull( mapping.getKey() );
+        assertEquals( DefaultBean.class, defaultBean.getClass() );
+        assertSame( defaultBean, mapping.getValue() );
 
         assertTrue( i.hasNext() );
         mapping = i.next();
@@ -522,15 +502,15 @@ public class InjectorBeansTest
         assertFalse( i.hasNext() );
 
         i = beans.iterator();
-        assertNull( i.next().getKey() );
         assertEquals( Jsr330.named( "C" ), i.next().getKey() );
+        assertNull( i.next().getKey() );
         assertEquals( Jsr330.named( "A" ), i.next().getKey() );
         assertEquals( Names.named( "!" ), i.next().getKey() );
         assertEquals( Jsr330.named( "B" ), i.next().getKey() );
 
         i = beans.iterator();
-        assertSame( defaultBean, i.next().getValue() );
         assertSame( cBean, i.next().getValue() );
+        assertSame( defaultBean, i.next().getValue() );
         assertSame( aBean, i.next().getValue() );
         assertSame( pBean, i.next().getValue() );
         assertSame( bBean, i.next().getValue() );

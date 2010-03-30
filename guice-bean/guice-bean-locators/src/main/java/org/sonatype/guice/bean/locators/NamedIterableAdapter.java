@@ -119,8 +119,7 @@ public final class NamedIterableAdapter<V>
 
         public String getKey()
         {
-            final Named named = entry.getKey();
-            return null != named ? named.value() : null;
+            return entry.getKey().value();
         }
 
         public V getValue()
@@ -131,26 +130,6 @@ public final class NamedIterableAdapter<V>
         public V setValue( final V value )
         {
             throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return entry.hashCode();
-        }
-
-        @Override
-        public boolean equals( final Object obj )
-        {
-            if ( this == obj )
-            {
-                return true;
-            }
-            if ( obj instanceof NamedEntryAdapter<?> )
-            {
-                return entry.equals( ( (NamedEntryAdapter<?>) obj ).entry );
-            }
-            return false;
         }
     }
 }

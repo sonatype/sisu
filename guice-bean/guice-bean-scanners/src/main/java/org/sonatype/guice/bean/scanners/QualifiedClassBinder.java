@@ -42,6 +42,12 @@ import com.google.inject.util.Types;
 final class QualifiedClassBinder
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final Named DEFAULT_NAMED = Jsr330.named( "default" );
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
@@ -90,25 +96,22 @@ final class QualifiedClassBinder
     {
         if ( qualifier instanceof Named )
         {
-            // Empty @Named needs auto-configuration
             final Named named = (Named) qualifier;
             final String hint = named.value();
             if ( hint.length() == 0 )
             {
-                // @Named default classes don't need any qualifier
                 if ( clazz.getSimpleName().startsWith( "Default" ) )
                 {
-                    return null;
+                    return DEFAULT_NAMED;
                 }
-                // use FQN as the replacement qualifier
                 return Jsr330.named( clazz.getName() );
             }
             else if ( "default".equalsIgnoreCase( hint ) )
             {
-                return null;
+                return DEFAULT_NAMED;
             }
         }
-        return qualifier; // no normalization required
+        return qualifier;
     }
 
     private static Annotation getQualifier( final Class<?> clazz )

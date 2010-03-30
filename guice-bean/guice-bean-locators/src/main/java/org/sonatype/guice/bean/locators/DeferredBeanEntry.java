@@ -18,7 +18,7 @@ import java.util.Map.Entry;
 import javax.inject.Provider;
 
 /**
- * Deferred {@link Entry} backed by a qualified {@link Provider}.
+ * Deferred bean {@link Entry} backed by a qualified {@link Provider}.
  */
 final class DeferredBeanEntry<Q extends Annotation, T>
     implements Entry<Q, T>

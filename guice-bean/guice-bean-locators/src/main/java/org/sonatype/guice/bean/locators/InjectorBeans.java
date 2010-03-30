@@ -64,27 +64,30 @@ final class InjectorBeans<Q extends Annotation, T>
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private void addDefaultBean( final Provider<T> provider )
-    {
-        add( 0, new DeferredBeanEntry<Q, T>( null, provider ) );
-    }
-
+    /**
+     * Adds the specific qualified bean to the collection.
+     * 
+     * @param qualifier The bean qualifier
+     * @param provider The bean provider
+     */
     @SuppressWarnings( "unchecked" )
     private void addQualifiedBean( final Annotation qualifier, final Provider<T> provider )
     {
-        add( new DeferredBeanEntry<Q, T>( (Q) qualifier, provider ) );
+        add( new DeferredBeanEntry( qualifier, provider ) );
     }
 
+    /**
+     * Adds all beans of the given type whose qualifiers match the given qualifier type.
+     * 
+     * @param qualifierType The qualifier type
+     * @param beanType The bean type
+     */
     private void addQualifiedBeans( final Class<? extends Annotation> qualifierType, final TypeLiteral<T> beanType )
     {
         for ( final Binding<T> binding : injector.findBindingsByType( beanType ) )
         {
             final Annotation ann = binding.getKey().getAnnotation();
-            if ( null == ann )
-            {
-                addDefaultBean( binding.getProvider() );
-            }
-            else if ( null == qualifierType || qualifierType.isInstance( ann ) )
+            if ( null == qualifierType || qualifierType.isInstance( ann ) )
             {
                 addQualifiedBean( ann, binding.getProvider() );
             }

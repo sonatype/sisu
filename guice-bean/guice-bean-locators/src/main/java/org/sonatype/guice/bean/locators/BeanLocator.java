@@ -34,5 +34,13 @@ public interface BeanLocator
      */
     <Q extends Annotation, T> Iterable<Entry<Q, T>> locate( Key<T> key );
 
+    /**
+     * Watches for beans that match the given qualified binding {@link Key}. <br>
+     * Uses given {@link Mediator} to mediate between locator and watcher.
+     * 
+     * @param key The qualified key
+     * @param mediator The update mediator
+     * @param watcher The bean watcher
+     */
     <Q extends Annotation, T, W> void watch( Key<T> key, Mediator<Q, T, W> mediator, W watcher );
 }

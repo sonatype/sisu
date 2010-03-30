@@ -200,7 +200,8 @@ public class QualifiedScanningTest
 
     private void checkDefaultBinding( final Class<?> api, final Class<?> imp )
     {
-        assertEquals( imp, bindings.get( Key.get( api ) ).getProvider().get().getClass() );
+        // TODO: assertEquals( imp, bindings.get( Key.get( api ) ).getProvider().get().getClass() );
+        assertEquals( imp, bindings.get( Key.get( api, Jsr330.named( "default" ) ) ).getProvider().get().getClass() );
     }
 
     private void checkNamedBinding( final Class<?> api, final String name, final Class<?> imp )

@@ -60,7 +60,6 @@ public class GuiceBeanLocatorTest
                 bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( BeanImpl.class );
                 bind( Bean.class ).annotatedWith( Jsr330.named( "-" ) ).to( BeanImpl.class );
                 bind( Bean.class ).annotatedWith( Jsr330.named( "Z" ) ).to( BeanImpl.class );
-                bind( Bean.class ).to( BeanImpl.class );
             }
         } );
 
@@ -93,6 +92,20 @@ public class GuiceBeanLocatorTest
         } );
     }
 
+    public void testDefaultLocator()
+    {
+        final BeanLocator locator = parent.getInstance( BeanLocator.class );
+
+        final Iterable<Entry<String, Bean>> roles =
+            new NamedIterableAdapter<Bean>( locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) ) );
+
+        final Iterator<? extends Entry<String, Bean>> i = roles.iterator();
+        assertEquals( "A", i.next().getKey() );
+        assertEquals( "-", i.next().getKey() );
+        assertEquals( "Z", i.next().getKey() );
+        assertFalse( i.hasNext() );
+    }
+
     public void testInjectorOrdering()
     {
         final GuiceBeanLocator locator = new GuiceBeanLocator();
@@ -110,7 +123,6 @@ public class GuiceBeanLocatorTest
         Iterator<? extends Entry<String, Bean>> i;
 
         i = roles.iterator();
-        assertNull( i.next().getKey() );
         assertEquals( "A", i.next().getKey() );
         assertEquals( "-", i.next().getKey() );
         assertEquals( "Z", i.next().getKey() );
@@ -124,7 +136,6 @@ public class GuiceBeanLocatorTest
         locator.remove( child2 );
 
         i = roles.iterator();
-        assertNull( i.next().getKey() );
         assertEquals( "A", i.next().getKey() );
         assertEquals( "-", i.next().getKey() );
         assertEquals( "Z", i.next().getKey() );
@@ -139,7 +150,6 @@ public class GuiceBeanLocatorTest
         locator.add( child3 );
 
         i = roles.iterator();
-        assertNull( i.next().getKey() );
         assertEquals( "A", i.next().getKey() );
         assertEquals( "-", i.next().getKey() );
         assertEquals( "Z", i.next().getKey() );
@@ -181,7 +191,6 @@ public class GuiceBeanLocatorTest
         Iterator<? extends Entry<String, Bean>> i;
 
         i = roles.iterator();
-        assertNull( i.next().getKey() );
         assertEquals( "A", i.next().getKey() );
         assertEquals( "-", i.next().getKey() );
         assertEquals( "Z", i.next().getKey() );

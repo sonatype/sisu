@@ -15,11 +15,13 @@ package org.sonatype.guice.swing.example.impl;
 import java.util.Map.Entry;
 
 import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.swing.JPanel;
 
 import org.sonatype.guice.bean.locators.Mediator;
 
 @Named
+@Singleton
 final class WindowMediator
     implements Mediator<Named, JPanel, Window>
 {
