@@ -66,6 +66,41 @@ public class GenericsTest
         assertEquals( STRING_TYPE, Generics.typeArgument( getFieldType( "wildcardStringList" ), 0 ) );
         assertEquals( FLOAT_TYPE, Generics.typeArgument( getFieldType( "wildcardFloatShortMap" ), 0 ) );
         assertEquals( SHORT_TYPE, Generics.typeArgument( getFieldType( "wildcardFloatShortMap" ), 1 ) );
+
+        TypeLiteral<?>[] types;
+
+        types = Generics.typeArguments( getFieldType( "rawList" ) );
+        assertEquals( 0, types.length );
+
+        types = Generics.typeArguments( getFieldType( "rawMap" ) );
+        assertEquals( 0, types.length );
+
+        types = Generics.typeArguments( getFieldType( "shortList" ) );
+        assertEquals( 1, types.length );
+        assertEquals( SHORT_TYPE, types[0] );
+
+        types = Generics.typeArguments( getFieldType( "stringFloatMap" ) );
+        assertEquals( 2, types.length );
+        assertEquals( STRING_TYPE, types[0] );
+        assertEquals( FLOAT_TYPE, types[1] );
+
+        types = Generics.typeArguments( getFieldType( "wildcardList" ) );
+        assertEquals( 1, types.length );
+        assertEquals( OBJECT_TYPE, types[0] );
+
+        types = Generics.typeArguments( getFieldType( "wildcardMap" ) );
+        assertEquals( 2, types.length );
+        assertEquals( OBJECT_TYPE, types[0] );
+        assertEquals( OBJECT_TYPE, types[1] );
+
+        types = Generics.typeArguments( getFieldType( "wildcardStringList" ) );
+        assertEquals( 1, types.length );
+        assertEquals( STRING_TYPE, types[0] );
+
+        types = Generics.typeArguments( getFieldType( "wildcardFloatShortMap" ) );
+        assertEquals( 2, types.length );
+        assertEquals( FLOAT_TYPE, types[0] );
+        assertEquals( SHORT_TYPE, types[1] );
     }
 
     @SuppressWarnings( "unchecked" )

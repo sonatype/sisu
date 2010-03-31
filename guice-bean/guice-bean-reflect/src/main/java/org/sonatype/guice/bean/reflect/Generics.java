@@ -30,8 +30,6 @@ public final class Generics
 
     private static final TypeLiteral<Object> OBJECT_TYPE_LITERAL = TypeLiteral.get( Object.class );
 
-    private static final TypeLiteral<?>[] NO_TYPES = new TypeLiteral[0];
-
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -68,7 +66,7 @@ public final class Generics
     }
 
     /**
-     * Extracts the type arguments from a generic type, for example {@code [Bar]} from {@code List<Bar>}.
+     * Extracts the type arguments from a generic type, for example {@code [Foo,Bar]} from {@code Map<Foo,Bar>}.
      * 
      * @param genericType The generic type
      * @return Array of type arguments
@@ -76,17 +74,17 @@ public final class Generics
     public static TypeLiteral<?>[] typeArguments( final TypeLiteral<?> genericType )
     {
         final Type type = genericType.getType();
-        if ( type instanceof ParameterizedType )
+        if ( false == type instanceof ParameterizedType )
         {
-            final Type[] typeArguments = ( (ParameterizedType) type ).getActualTypeArguments();
-            final TypeLiteral<?>[] literalArguments = new TypeLiteral[typeArguments.length];
-            for ( int i = 0; i < typeArguments.length; i++ )
-            {
-                literalArguments[i] = expandType( typeArguments[i] );
-            }
-            return literalArguments;
+            return new TypeLiteral[0];
         }
-        return NO_TYPES;
+        final Type[] typeArguments = ( (ParameterizedType) type ).getActualTypeArguments();
+        final TypeLiteral<?>[] literalArguments = new TypeLiteral[typeArguments.length];
+        for ( int i = 0; i < typeArguments.length; i++ )
+        {
+            literalArguments[i] = expandType( typeArguments[i] );
+        }
+        return literalArguments;
     }
 
     /**
