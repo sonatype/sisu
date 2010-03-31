@@ -29,8 +29,10 @@ import java.util.Map.Entry;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Qualifier;
 
+import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.Mediator;
 import org.sonatype.guice.bean.reflect.DeclaredMembers;
 import org.sonatype.guice.bean.reflect.Generics;
@@ -79,6 +81,11 @@ final class QualifiedClassBinder
     // Shared methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Auto-binds the given qualified types and detects any use of qualified bean sequences.
+     * 
+     * @param qualifiedTypes The list of qualified types
+     */
     void bind( final List<Class<?>> qualifiedTypes )
     {
         for ( int i = 0, size = qualifiedTypes.size(); i < size; i++ )
@@ -86,17 +93,21 @@ final class QualifiedClassBinder
             final Class clazz = qualifiedTypes.get( i );
             if ( Module.class.isAssignableFrom( clazz ) )
             {
-                install( clazz );
+                install( clazz ); // add custom Guice bindings
             }
             else
             {
-                bind( clazz );
+                bind( clazz ); // record qualified bean type
             }
         }
+
+        // apply the final collection of recorded bindings
         for ( final Entry<Key, Class> e : bindings.entrySet() )
         {
             binder.bind( e.getKey() ).to( e.getValue() );
         }
+
+        // mediation requires that we listen for instances
         for ( final Class mediatorType : mediatorTypes )
         {
             // our listener is actually a matcher too
@@ -109,6 +120,11 @@ final class QualifiedClassBinder
     // Implementation methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Install the given custom bindings into the current module.
+     * 
+     * @param clazz The module class
+     */
     private void install( final Class<Module> clazz )
     {
         try
@@ -127,13 +143,18 @@ final class QualifiedClassBinder
         }
     }
 
+    /**
+     * Records a binding for the given qualified bean type.
+     * 
+     * @param clazz The qualified bean type
+     */
     private void bind( final Class clazz )
     {
         final Class keyType = getKeyType( clazz );
         final Annotation qualifier = normalize( getQualifier( clazz ), clazz );
         final Key qualifiedKey = Key.get( keyType, qualifier );
 
-        // defaults must be bound first
+        // go-ahead and bind defaults now
         if ( qualifier == DEFAULT_NAMED )
         {
             if ( keyType != clazz )
@@ -148,11 +169,12 @@ final class QualifiedClassBinder
         }
         else
         {
-            // other qualified bindings can wait
+            // other bindings can wait until later
             bindings.put( qualifiedKey, clazz );
         }
 
-        bindQualifiedCollections( clazz );
+        // check fields for qualified sequences
+        bindQualifiedBeanCollections( clazz );
 
         if ( Mediator.class.isAssignableFrom( clazz ) )
         {
@@ -160,6 +182,13 @@ final class QualifiedClassBinder
         }
     }
 
+    /**
+     * Normalizes the given qualifier.
+     * 
+     * @param qualifier The bean qualifier
+     * @param clazz The bean type
+     * @return Normalized qualifier
+     */
     private static Annotation normalize( final Annotation qualifier, final Class clazz )
     {
         if ( qualifier instanceof Named )
@@ -167,6 +196,7 @@ final class QualifiedClassBinder
             final String hint = ( (Named) qualifier ).value();
             if ( hint.length() == 0 )
             {
+                // Assume Default* types are default implementations
                 if ( clazz.getSimpleName().startsWith( "Default" ) )
                 {
                     return DEFAULT_NAMED;
@@ -181,6 +211,12 @@ final class QualifiedClassBinder
         return qualifier;
     }
 
+    /**
+     * Searches the given type's hierarchy for the qualifier annotation.
+     * 
+     * @param clazz The qualified type
+     * @return Qualifier annotation
+     */
     private static Annotation getQualifier( final Class clazz )
     {
         for ( final Annotation ann : clazz.getAnnotations() )
@@ -188,41 +224,48 @@ final class QualifiedClassBinder
             // pick first annotation marked with a @Qualifier meta-annotation
             if ( ann.annotationType().isAnnotationPresent( Qualifier.class ) )
             {
-                return ann; // TODO: warn about multiple qualifiers?
+                return ann;
             }
         }
-        // must be somewhere in the class hierarchy
         return getQualifier( clazz.getSuperclass() );
     }
 
-    private static Class getKeyType( final Class<?> clazz )
+    /**
+     * Searches the given type's hierarchy for the key binding type.
+     * 
+     * @param clazz The qualified type
+     * @return Key binding type
+     */
+    private Class getKeyType( final Class<?> clazz )
     {
-        // @Typed settings take precedence
         final Typed typed = clazz.getAnnotation( Typed.class );
-        if ( null != typed && typed.value().length > 0 )
+        final Class[] interfaces = null != typed ? typed.value() : clazz.getInterfaces();
+        if ( interfaces.length == 1 )
         {
-            return typed.value()[0]; // TODO: warn about multiple types?
+            return interfaces[0];
         }
-        // followed by explicit declarations
-        final Class[] interfaces = clazz.getInterfaces();
-        if ( interfaces.length > 0 )
+
+        // disallow ambiguous bindings
+        if ( interfaces.length > 1 )
         {
-            return interfaces[0]; // TODO: warn about multiple interfaces?
+            throw new RuntimeException( "Multiple types found for " + clazz + ", use @Typed to remove ambiguity" );
         }
-        // otherwise check the local superclass hierarchy
+
         final Class superClazz = clazz.getSuperclass();
-        if ( !superClazz.getName().startsWith( "java" ) )
+        if ( superClazz.getName().startsWith( "java" ) )
         {
-            final Class superInterface = getKeyType( superClazz );
-            if ( superInterface != superClazz )
-            {
-                return superInterface;
-            }
+            return Object.class == superClazz ? clazz : superClazz;
         }
-        return superClazz != Object.class ? superClazz : clazz;
+
+        return getKeyType( superClazz );
     }
 
-    private void bindQualifiedCollections( final Class clazz )
+    /**
+     * Scans the given bean type for any use of qualified collections and adds the necessary bindings for them.
+     * 
+     * @param clazz The bean type
+     */
+    private void bindQualifiedBeanCollections( final Class clazz )
     {
         for ( final Member member : new DeclaredMembers( clazz ) )
         {
@@ -231,9 +274,9 @@ final class QualifiedClassBinder
                 final TypeLiteral fieldType = TypeLiteral.get( ( (Field) member ).getGenericType() );
                 if ( !boundTypes.add( fieldType ) )
                 {
-                    continue;
+                    continue; // already handled
                 }
-                if ( fieldType.getRawType() == List.class )
+                else if ( fieldType.getRawType() == List.class )
                 {
                     bindQualifiedList( fieldType );
                 }
@@ -245,17 +288,27 @@ final class QualifiedClassBinder
         }
     }
 
-    private void bindQualifiedList( final TypeLiteral type )
+    /**
+     * Binds the given qualified list type to a {@link Provider} backed by the {@link BeanLocator}.
+     * 
+     * @param listType The list type
+     */
+    private void bindQualifiedList( final TypeLiteral listType )
     {
-        final Type beanType = Generics.typeArgument( type, 0 ).getType();
+        final Type beanType = Generics.typeArgument( listType, 0 ).getType();
         final Type providerType = Types.newParameterizedType( ListProvider.class, beanType );
-        binder.bind( type ).toProvider( Key.get( providerType ) );
+        binder.bind( listType ).toProvider( Key.get( providerType ) );
     }
 
-    private void bindQualifiedMap( final TypeLiteral type )
+    /**
+     * Binds the given qualified map type to a {@link Provider} backed by the {@link BeanLocator}.
+     * 
+     * @param mapType The map type
+     */
+    private void bindQualifiedMap( final TypeLiteral mapType )
     {
-        final Type qualifierType = Generics.typeArgument( type, 0 ).getType();
-        final Type beanType = Generics.typeArgument( type, 1 ).getType();
+        final Type qualifierType = Generics.typeArgument( mapType, 0 ).getType();
+        final Type beanType = Generics.typeArgument( mapType, 1 ).getType();
         final Type providerType;
         if ( qualifierType == String.class )
         {
@@ -265,6 +318,6 @@ final class QualifiedClassBinder
         {
             providerType = Types.newParameterizedType( MapProvider.class, qualifierType, beanType );
         }
-        binder.bind( type ).toProvider( Key.get( providerType ) );
+        binder.bind( mapType ).toProvider( Key.get( providerType ) );
     }
 }

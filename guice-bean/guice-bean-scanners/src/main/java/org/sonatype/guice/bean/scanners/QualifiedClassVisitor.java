@@ -30,7 +30,7 @@ import org.objectweb.asm.Type;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 
 /**
- * {@link ClassVisitor} that detects beans annotated with {@link Qualifier} annotations.
+ * {@link ClassVisitor} that detects types annotated with {@link Qualifier} annotations.
  */
 final class QualifiedClassVisitor
     extends EmptyClassVisitor
@@ -151,6 +151,11 @@ final class QualifiedClassVisitor
     // Shared methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Scans the bytecode contained in the given class-file to see if it's a qualified type.
+     * 
+     * @param url The class-file URL
+     */
     void scan( final URL url )
         throws IOException
     {
@@ -172,6 +177,11 @@ final class QualifiedClassVisitor
         }
     }
 
+    /**
+     * Returns the list of all known qualified types.
+     * 
+     * @return Sequence of qualified types
+     */
     List<Class<?>> getQualifiedTypes()
     {
         return qualifiedTypes;
@@ -196,12 +206,18 @@ final class QualifiedClassVisitor
     // Implementation methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Visits the given class-file using the supplied {@link ClassVisitor}.
+     * 
+     * @param url The class-file URL
+     * @param visitor The class visitor
+     */
     private static void visitClass( final URL url, final ClassVisitor visitor )
         throws IOException
     {
         if ( null == url )
         {
-            return; // missing class definition
+            return; // ignore missing class definitions
         }
         final InputStream in = url.openStream();
         try

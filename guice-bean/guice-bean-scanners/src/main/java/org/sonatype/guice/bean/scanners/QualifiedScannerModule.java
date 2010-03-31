@@ -68,6 +68,12 @@ public final class QualifiedScannerModule
     // Implementation methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Scans for all class-files in the given {@link ClassSpace}.
+     * 
+     * @param space The containing class space
+     * @return Enumeration of all class-files in the class space
+     */
     private static Enumeration<URL> findClasses( final ClassSpace space )
     {
         try

@@ -23,14 +23,14 @@ public interface MutableBeanLocator
     extends BeanLocator
 {
     /**
-     * Adds qualified beans bound by the given injector to any exposed/watched sequences.
+     * Adds qualified beans belonging to the given injector to any exposed/watched sequences.
      * 
      * @param injector The new injector
      */
     void add( Injector injector );
 
     /**
-     * Removes qualified beans bound by the given injector from any exposed/watched sequences.
+     * Removes qualified beans belonging to the given injector from any exposed/watched sequences.
      * 
      * @param injector The old injector
      */

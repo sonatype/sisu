@@ -38,11 +38,11 @@ public final class DefaultBeanLocator
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Set<Injector> injectors = new LinkedHashSet<Injector>();
-
     private final List<Reference<GuiceBeans<?, ?>>> exposedBeans = new ArrayList<Reference<GuiceBeans<?, ?>>>();
 
     private final List<MediatedWatcher<?, ?, ?>> mediatedWatchers = new ArrayList<MediatedWatcher<?, ?, ?>>();
+
+    private final Set<Injector> injectors = new LinkedHashSet<Injector>();
 
     // ----------------------------------------------------------------------
     // Constructors

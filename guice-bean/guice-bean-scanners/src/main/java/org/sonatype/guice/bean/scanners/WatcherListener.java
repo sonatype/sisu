@@ -21,14 +21,22 @@ import org.sonatype.guice.bean.reflect.Generics;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.AbstractMatcher;
+import com.google.inject.matcher.Matcher;
 import com.google.inject.spi.InjectionListener;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
 
+/**
+ * {@link TypeListener} and {@link Matcher} that automatically applies {@link Mediator}s to mediated watchers.
+ */
 final class WatcherListener
     extends AbstractMatcher<TypeLiteral<?>>
     implements TypeListener
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     @SuppressWarnings( "unchecked" )
     private final Class<Mediator> mediatorType;
 
@@ -36,15 +44,27 @@ final class WatcherListener
 
     private final Class<?> watcherType;
 
+    // ----------------------------------------------------------------------
+    // Constructor
+    // ----------------------------------------------------------------------
+
     @SuppressWarnings( "unchecked" )
     WatcherListener( final Class<Mediator> mediatorType )
     {
         this.mediatorType = mediatorType;
         final TypeLiteral superType = TypeLiteral.get( mediatorType ).getSupertype( Mediator.class );
         final TypeLiteral[] params = Generics.typeArguments( superType );
+        if ( params.length != 3 )
+        {
+            throw new IllegalArgumentException( "Generic type information missing for Mediator " + mediatorType );
+        }
         qualifiedKey = Key.get( params[1], params[0].getRawType() );
         watcherType = params[2].getRawType();
     }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
     public boolean matches( final TypeLiteral<?> type )
     {
@@ -59,15 +79,30 @@ final class WatcherListener
         encounter.register( new Autowatcher<I>( locator, mediator, qualifiedKey ) );
     }
 
+    // ----------------------------------------------------------------------
+    // Implementation helpers
+    // ----------------------------------------------------------------------
+
+    /**
+     * {@link InjectionListener} that applies {@link Mediator}s to watcher instances.
+     */
     @SuppressWarnings( "unchecked" )
     private static final class Autowatcher<I>
         implements InjectionListener<I>
     {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
         private final Provider<BeanLocator> locator;
 
         private final Provider<Mediator> mediator;
 
         private final Key qualifiedKey;
+
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
 
         Autowatcher( final Provider<BeanLocator> locator, final Provider<Mediator> mediator, final Key qualifiedKey )
         {
@@ -76,6 +111,10 @@ final class WatcherListener
 
             this.qualifiedKey = qualifiedKey;
         }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
 
         public void afterInjection( final I watcher )
         {

@@ -30,6 +30,8 @@ import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 // ----------------------------------------------------------------------
+// Generic Providers that can supply all sorts of bean sequences/mappings
+// ----------------------------------------------------------------------
 
 /**
  * Provides {@link Iterable} sequence of qualified beans.

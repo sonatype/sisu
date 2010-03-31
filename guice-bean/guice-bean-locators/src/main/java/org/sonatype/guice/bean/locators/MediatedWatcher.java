@@ -22,9 +22,20 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 
+/**
+ * Utility class that uses a {@link Mediator} to send qualified bean updates to a watching object.
+ */
 final class MediatedWatcher<Q extends Annotation, T, W>
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
     private static final Logger logger = LoggerFactory.getLogger( MediatedWatcher.class );
+
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
 
     private final Key<T> key;
 
@@ -32,19 +43,35 @@ final class MediatedWatcher<Q extends Annotation, T, W>
 
     private final Reference<W> watcherRef;
 
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
     MediatedWatcher( final Key<T> key, final Mediator<Q, T, W> mediator, final W watcher )
     {
         this.key = key;
         this.mediator = mediator;
+
+        // use weak-ref to detect when watcher disappears
         this.watcherRef = new WeakReference<W>( watcher );
     }
 
+    // ----------------------------------------------------------------------
+    // Shared methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Pushes qualified beans belonging to the given injector to the watcher via the {@link Mediator}.
+     * 
+     * @param injector The new injector
+     * @return {@code true} if the watcher is still watching; otherwise {@code false}
+     */
     boolean push( final Injector injector )
     {
         final W watcher = watcherRef.get();
         if ( null == watcher )
         {
-            return false;
+            return false; // watcher has been GC'd
         }
         final InjectorBeans<Q, T> beans = new InjectorBeans<Q, T>( injector, key );
         for ( int i = 0, size = beans.size(); i < size; i++ )
@@ -61,12 +88,18 @@ final class MediatedWatcher<Q extends Annotation, T, W>
         return true;
     }
 
+    /**
+     * Pulls qualified beans belonging to the given injector from the watcher via the {@link Mediator}.
+     * 
+     * @param injector The new injector
+     * @return {@code true} if the watcher is still watching; otherwise {@code false}
+     */
     boolean pull( final Injector injector )
     {
         final W watcher = watcherRef.get();
         if ( null == watcher )
         {
-            return false;
+            return false; // watcher has been GC'd
         }
         final InjectorBeans<Q, T> beans = new InjectorBeans<Q, T>( injector, key );
         for ( int i = 0, size = beans.size(); i < size; i++ )
@@ -83,6 +116,11 @@ final class MediatedWatcher<Q extends Annotation, T, W>
         return true;
     }
 
+    /**
+     * Queries to see if the watcher is still watching out for qualified bean updates.
+     * 
+     * @return {@code true} if the watcher is still watching; otherwise {@code false}
+     */
     boolean isWatching()
     {
         return watcherRef.get() != null;
