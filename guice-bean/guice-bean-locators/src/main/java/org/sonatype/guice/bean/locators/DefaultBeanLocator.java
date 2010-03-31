@@ -92,7 +92,7 @@ public final class DefaultBeanLocator
         final MediatedWatcher<Q, T, W> mediatedWatcher = new MediatedWatcher<Q, T, W>( key, mediator, watcher );
         for ( final Injector injector : injectors )
         {
-            mediatedWatcher.add( injector );
+            mediatedWatcher.push( injector );
         }
 
         // check for any unused (GC'd) mediated watchers
@@ -128,11 +128,7 @@ public final class DefaultBeanLocator
         for ( int i = 0; i < mediatedWatchers.size(); i++ )
         {
             final MediatedWatcher<?, ?, ?> watcher = mediatedWatchers.get( i );
-            if ( watcher.isWatching() )
-            {
-                watcher.add( injector ); // notify mediated watcher about new injector
-            }
-            else
+            if ( !watcher.push( injector ) )
             {
                 mediatedWatchers.remove( i-- ); // watcher GC'd, so no need to notify anymore
             }
@@ -160,11 +156,7 @@ public final class DefaultBeanLocator
         for ( int i = 0; i < mediatedWatchers.size(); i++ )
         {
             final MediatedWatcher<?, ?, ?> watcher = mediatedWatchers.get( i );
-            if ( watcher.isWatching() )
-            {
-                watcher.remove( injector ); // notify mediated watcher about old injector
-            }
-            else
+            if ( !watcher.pull( injector ) )
             {
                 mediatedWatchers.remove( i-- ); // watcher GC'd, so no need to notify anymore
             }

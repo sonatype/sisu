@@ -28,7 +28,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.util.Jsr330;
 
-public class GuiceBeanLocatorTest
+public class DefaultBeanLocatorTest
     extends TestCase
 {
     interface Bean
@@ -202,23 +202,23 @@ public class GuiceBeanLocatorTest
         assertFalse( i.hasNext() );
     }
 
-    public void testWeakInjectors()
+    public void testWeakSequences()
         throws Exception
     {
         final MutableBeanLocator locator = new DefaultBeanLocator();
 
-        final Field guiceBeansField = DefaultBeanLocator.class.getDeclaredField( "exposedBeans" );
-        guiceBeansField.setAccessible( true );
+        final Field exposedBeansField = DefaultBeanLocator.class.getDeclaredField( "exposedBeans" );
+        exposedBeansField.setAccessible( true );
 
-        final List<?> guiceBeans = (List<?>) guiceBeansField.get( locator );
+        final List<?> exposedBeans = (List<?>) exposedBeansField.get( locator );
 
-        assertEquals( 0, guiceBeans.size() );
+        assertEquals( 0, exposedBeans.size() );
         Iterable<?> a = locator.locate( Key.get( Bean.class ) );
-        assertEquals( 1, guiceBeans.size() );
+        assertEquals( 1, exposedBeans.size() );
         Iterable<?> b = locator.locate( Key.get( Bean.class ) );
-        assertEquals( 2, guiceBeans.size() );
+        assertEquals( 2, exposedBeans.size() );
         Iterable<?> c = locator.locate( Key.get( Bean.class ) );
-        assertEquals( 3, guiceBeans.size() );
+        assertEquals( 3, exposedBeans.size() );
 
         a.iterator();
         b.iterator();
@@ -228,9 +228,9 @@ public class GuiceBeanLocatorTest
         System.gc();
         System.gc();
 
-        assertEquals( 3, guiceBeans.size() );
+        assertEquals( 3, exposedBeans.size() );
         locator.add( child2 );
-        assertEquals( 3, guiceBeans.size() );
+        assertEquals( 3, exposedBeans.size() );
 
         b.iterator();
         b = null;
@@ -238,9 +238,9 @@ public class GuiceBeanLocatorTest
         System.gc();
         System.gc();
 
-        assertEquals( 3, guiceBeans.size() );
+        assertEquals( 3, exposedBeans.size() );
         locator.remove( child2 );
-        assertEquals( 2, guiceBeans.size() );
+        assertEquals( 2, exposedBeans.size() );
 
         a.iterator();
         a = null;
@@ -248,9 +248,9 @@ public class GuiceBeanLocatorTest
         System.gc();
         System.gc();
 
-        assertEquals( 2, guiceBeans.size() );
+        assertEquals( 2, exposedBeans.size() );
         locator.add( child2 );
-        assertEquals( 1, guiceBeans.size() );
+        assertEquals( 1, exposedBeans.size() );
 
         c.iterator();
         c = null;
@@ -258,9 +258,9 @@ public class GuiceBeanLocatorTest
         System.gc();
         System.gc();
 
-        assertEquals( 1, guiceBeans.size() );
+        assertEquals( 1, exposedBeans.size() );
         locator.locate( Key.get( Bean.class ) );
-        assertEquals( 1, guiceBeans.size() );
+        assertEquals( 1, exposedBeans.size() );
     }
 
     public void testInjectorManagement()
@@ -288,5 +288,98 @@ public class GuiceBeanLocatorTest
         assertEquals( 1, injectors.size() );
         locator.remove( parent );
         assertEquals( 1, injectors.size() );
+    }
+
+    static class NullMediator
+        implements Mediator<Named, Bean, Object>
+    {
+        public void add( final Entry<Named, Bean> bean, final Object watcher )
+            throws Exception
+        {
+        }
+
+        public void remove( final Entry<Named, Bean> bean, final Object watcher )
+            throws Exception
+        {
+        }
+    }
+
+    static class BrokenMediator
+        implements Mediator<Named, Bean, Object>
+    {
+        public void add( final Entry<Named, Bean> bean, final Object watcher )
+            throws Exception
+        {
+            throw new Exception();
+        }
+
+        public void remove( final Entry<Named, Bean> bean, final Object watcher )
+            throws Exception
+        {
+            throw new Exception();
+        }
+    }
+
+    public void testWeakMediation()
+        throws Exception
+    {
+        final MutableBeanLocator locator = new DefaultBeanLocator();
+
+        final Field mediatedWatchersField = DefaultBeanLocator.class.getDeclaredField( "mediatedWatchers" );
+        mediatedWatchersField.setAccessible( true );
+
+        final List<?> mediatedWatchers = (List<?>) mediatedWatchersField.get( locator );
+
+        final Mediator<Named, Bean, Object> nullMediator = new NullMediator();
+        final Mediator<Named, Bean, Object> brokenMediator = new BrokenMediator();
+
+        Object a = new Object();
+        Object b = new Object();
+        Object c = new Object();
+
+        assertEquals( 0, mediatedWatchers.size() );
+        locator.watch( Key.get( Bean.class, Named.class ), nullMediator, a );
+        assertEquals( 1, mediatedWatchers.size() );
+        locator.watch( Key.get( Bean.class, Named.class ), nullMediator, b );
+        assertEquals( 2, mediatedWatchers.size() );
+        locator.watch( Key.get( Bean.class, Named.class ), brokenMediator, c );
+        assertEquals( 3, mediatedWatchers.size() );
+
+        System.gc();
+        System.gc();
+        System.gc();
+
+        assertEquals( 3, mediatedWatchers.size() );
+        locator.add( child1 );
+        assertEquals( 3, mediatedWatchers.size() );
+
+        b = null;
+        System.gc();
+        System.gc();
+        System.gc();
+
+        assertEquals( 3, mediatedWatchers.size() );
+        locator.remove( child1 );
+        assertEquals( 2, mediatedWatchers.size() );
+
+        a = null;
+        System.gc();
+        System.gc();
+        System.gc();
+
+        assertEquals( 2, mediatedWatchers.size() );
+        locator.add( child2 );
+        assertEquals( 1, mediatedWatchers.size() );
+
+        c = null;
+        System.gc();
+        System.gc();
+        System.gc();
+
+        a = new Object();
+
+        assertEquals( 1, mediatedWatchers.size() );
+        locator.watch( Key.get( Bean.class, Named.class ), nullMediator, a );
+        assertEquals( 1, mediatedWatchers.size() );
     }
 }

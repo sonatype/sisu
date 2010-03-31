@@ -39,12 +39,12 @@ final class MediatedWatcher<Q extends Annotation, T, W>
         this.watcherRef = new WeakReference<W>( watcher );
     }
 
-    void add( final Injector injector )
+    boolean push( final Injector injector )
     {
         final W watcher = watcherRef.get();
         if ( null == watcher )
         {
-            return;
+            return false;
         }
         final InjectorBeans<Q, T> beans = new InjectorBeans<Q, T>( injector, key );
         for ( int i = 0, size = beans.size(); i < size; i++ )
@@ -58,14 +58,15 @@ final class MediatedWatcher<Q extends Annotation, T, W>
                 logger.warn( "Problem notifying watcher", e );
             }
         }
+        return true;
     }
 
-    void remove( final Injector injector )
+    boolean pull( final Injector injector )
     {
         final W watcher = watcherRef.get();
         if ( null == watcher )
         {
-            return;
+            return false;
         }
         final InjectorBeans<Q, T> beans = new InjectorBeans<Q, T>( injector, key );
         for ( int i = 0, size = beans.size(); i < size; i++ )
@@ -79,6 +80,7 @@ final class MediatedWatcher<Q extends Annotation, T, W>
                 logger.warn( "Problem notifying watcher", e );
             }
         }
+        return true;
     }
 
     boolean isWatching()
