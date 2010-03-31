@@ -104,4 +104,12 @@ public class RolesTest
         {
         }
     }
+
+    public void testCamelization()
+    {
+        assertEquals( "thisIsATest", Roles.camelizeName( "this-is-a-test" ) );
+        assertEquals( "TestingA", Roles.camelizeName( "-testing-a" ) );
+        assertEquals( "testingB", Roles.camelizeName( "testing-b-" ) );
+        assertEquals( "TestingC", Roles.camelizeName( "--testing--c--" ) );
+    }
 }
