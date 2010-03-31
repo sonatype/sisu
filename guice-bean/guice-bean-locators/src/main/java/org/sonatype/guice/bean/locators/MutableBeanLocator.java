@@ -12,11 +12,13 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
 
 /**
  * Mutable {@link BeanLocator} that tracks zero or more {@link Injector}s.
  */
+@ImplementedBy( DefaultBeanLocator.class )
 public interface MutableBeanLocator
     extends BeanLocator
 {

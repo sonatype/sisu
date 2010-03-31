@@ -95,6 +95,7 @@ public class GuiceBeanLocatorTest
     public void testDefaultLocator()
     {
         final BeanLocator locator = parent.getInstance( BeanLocator.class );
+        assertSame( locator, parent.getInstance( MutableBeanLocator.class ) );
 
         final Iterable<Entry<String, Bean>> roles =
             new NamedIterableAdapter<Bean>( locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) ) );
