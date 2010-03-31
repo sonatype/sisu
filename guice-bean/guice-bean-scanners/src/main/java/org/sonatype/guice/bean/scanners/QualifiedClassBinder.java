@@ -19,8 +19,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,11 +61,11 @@ final class QualifiedClassBinder
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<Key, Class> bindings = new HashMap<Key, Class>();
+    private final Map<Key, Class> bindings = new LinkedHashMap<Key, Class>();
 
     private final Set<TypeLiteral> boundTypes = new HashSet<TypeLiteral>();
 
-    private final Set<Class> mediatorTypes = new HashSet<Class>();
+    private final Set<Class> mediatorTypes = new LinkedHashSet<Class>();
 
     private final Binder binder;
 
