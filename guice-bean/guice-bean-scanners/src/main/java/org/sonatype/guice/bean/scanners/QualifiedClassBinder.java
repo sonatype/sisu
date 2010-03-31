@@ -14,7 +14,9 @@ package org.sonatype.guice.bean.scanners;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -35,6 +37,7 @@ import org.sonatype.guice.bean.reflect.Generics;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
+import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Jsr330;
 import com.google.inject.util.Types;
@@ -80,7 +83,15 @@ final class QualifiedClassBinder
     {
         for ( int i = 0, size = qualifiedTypes.size(); i < size; i++ )
         {
-            bind( qualifiedTypes.get( i ) );
+            final Class clazz = qualifiedTypes.get( i );
+            if ( Module.class.isAssignableFrom( clazz ) )
+            {
+                install( clazz );
+            }
+            else
+            {
+                bind( clazz );
+            }
         }
         for ( final Entry<Key, Class> e : bindings.entrySet() )
         {
@@ -97,6 +108,24 @@ final class QualifiedClassBinder
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
+
+    private void install( final Class<Module> clazz )
+    {
+        try
+        {
+            final Constructor<Module> ctor = clazz.getDeclaredConstructor();
+            ctor.setAccessible( true );
+            binder.install( ctor.newInstance() );
+        }
+        catch ( final InvocationTargetException e )
+        {
+            binder.addError( e.getTargetException() );
+        }
+        catch ( final Throwable e )
+        {
+            binder.addError( e );
+        }
+    }
 
     private void bind( final Class clazz )
     {
