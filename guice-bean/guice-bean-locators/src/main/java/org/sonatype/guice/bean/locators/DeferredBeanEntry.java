@@ -52,19 +52,13 @@ final class DeferredBeanEntry<Q extends Annotation, T>
         return qualifier;
     }
 
-    public T getValue()
+    public synchronized T getValue()
     {
         if ( null != provider )
         {
-            synchronized ( provider )
-            {
-                if ( null != provider )
-                {
-                    // cache bean result
-                    bean = provider.get();
-                    provider = null;
-                }
-            }
+            // cache bean result
+            bean = provider.get();
+            provider = null;
         }
         return bean;
     }

@@ -16,11 +16,16 @@ import java.lang.annotation.Annotation;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.inject.Injector;
 import com.google.inject.Key;
 
 final class MediatedWatcher<Q extends Annotation, T, W>
 {
+    private static final Logger logger = LoggerFactory.getLogger( MediatedWatcher.class );
+
     private final Key<T> key;
 
     private final Mediator<Q, T, W> mediator;
@@ -37,19 +42,20 @@ final class MediatedWatcher<Q extends Annotation, T, W>
     void add( final Injector injector )
     {
         final W watcher = watcherRef.get();
-        if ( null != watcher )
+        if ( null == watcher )
         {
-            final InjectorBeans<Q, T> beans = new InjectorBeans<Q, T>( injector, key );
-            for ( int i = 0, size = beans.size(); i < size; i++ )
+            return;
+        }
+        final InjectorBeans<Q, T> beans = new InjectorBeans<Q, T>( injector, key );
+        for ( int i = 0, size = beans.size(); i < size; i++ )
+        {
+            try
             {
-                try
-                {
-                    mediator.add( beans.get( i ), watcher );
-                }
-                catch ( final Throwable e )
-                {
-                    // TODO: handle exception
-                }
+                mediator.add( beans.get( i ), watcher );
+            }
+            catch ( final Throwable e )
+            {
+                logger.warn( "Problem notifying watcher", e );
             }
         }
     }
@@ -57,19 +63,20 @@ final class MediatedWatcher<Q extends Annotation, T, W>
     void remove( final Injector injector )
     {
         final W watcher = watcherRef.get();
-        if ( null != watcher )
+        if ( null == watcher )
         {
-            final InjectorBeans<Q, T> beans = new InjectorBeans<Q, T>( injector, key );
-            for ( int i = 0, size = beans.size(); i < size; i++ )
+            return;
+        }
+        final InjectorBeans<Q, T> beans = new InjectorBeans<Q, T>( injector, key );
+        for ( int i = 0, size = beans.size(); i < size; i++ )
+        {
+            try
             {
-                try
-                {
-                    mediator.remove( beans.get( i ), watcher );
-                }
-                catch ( final Throwable e )
-                {
-                    // TODO: handle exception
-                }
+                mediator.remove( beans.get( i ), watcher );
+            }
+            catch ( final Throwable e )
+            {
+                logger.warn( "Problem notifying watcher", e );
             }
         }
     }
