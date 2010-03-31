@@ -32,6 +32,7 @@ import org.sonatype.guice.bean.reflect.BeanProperties;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.Generics;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
+import org.sonatype.guice.plexus.config.Roles;
 
 import com.google.inject.Binder;
 import com.google.inject.Injector;
@@ -302,7 +303,7 @@ public final class PlexusXmlBeanConverter
         while ( parser.getEventType() == XmlPullParser.START_TAG )
         {
             // update properties inside the bean, guided by the cached property map
-            final BeanProperty<Object> property = propertyMap.get( parser.getName() );
+            final BeanProperty<Object> property = propertyMap.get( Roles.camelizeName( parser.getName() ) );
             if ( property != null )
             {
                 property.set( bean, parse( parser, property.getType() ) );

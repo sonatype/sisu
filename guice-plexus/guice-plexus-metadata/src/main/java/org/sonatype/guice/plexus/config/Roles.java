@@ -162,4 +162,36 @@ public final class Roles
         }
         throw new ProvisionException( String.format( MISSING_COMPONENT_WITH_HINT_ERROR, role, hint ) );
     }
+
+    /**
+     * Removes any non-Java identifiers from the name and converts it to camelCase.
+     * 
+     * @param name The element name
+     * @return CamelCased name with no dashes
+     */
+    public static String camelizeName( final String name )
+    {
+        final StringBuilder buf = new StringBuilder();
+
+        boolean capitalize = false;
+        for ( int i = 0, length = name.length(); i < length; i++ )
+        {
+            final char c = name.charAt( i );
+            if ( !Character.isJavaIdentifierPart( c ) )
+            {
+                capitalize = true;
+            }
+            else if ( capitalize )
+            {
+                buf.append( Character.toUpperCase( c ) );
+                capitalize = false;
+            }
+            else
+            {
+                buf.append( c );
+            }
+        }
+
+        return buf.toString();
+    }
 }

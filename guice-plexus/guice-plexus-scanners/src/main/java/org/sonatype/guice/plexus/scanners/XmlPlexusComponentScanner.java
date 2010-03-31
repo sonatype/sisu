@@ -37,6 +37,7 @@ import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.Hints;
+import org.sonatype.guice.plexus.config.Roles;
 
 /**
  * {@link PlexusComponentScanner} that uses XML resources to discover Plexus components.
@@ -457,7 +458,7 @@ final class XmlPlexusComponentScanner
         final String name = parser.getName();
 
         // make sure we have a valid Java identifier
-        final String fieldName = camelizeName( name );
+        final String fieldName = Roles.camelizeName( name );
         final StringBuilder buf = new StringBuilder();
 
         final String header = parser.getText().trim();
@@ -481,38 +482,6 @@ final class XmlPlexusComponentScanner
         }
 
         configurationMap.put( fieldName, new ConfigurationImpl( fieldName, buf.toString() ) );
-    }
-
-    /**
-     * Removes any non-Java identifiers from the name and converts it to camelCase.
-     * 
-     * @param name The element name
-     * @return CamelCased name with no dashes
-     */
-    private static String camelizeName( final String name )
-    {
-        final StringBuilder buf = new StringBuilder();
-
-        boolean capitalize = false;
-        for ( int i = 0, length = name.length(); i < length; i++ )
-        {
-            final char c = name.charAt( i );
-            if ( !Character.isJavaIdentifierPart( c ) )
-            {
-                capitalize = true;
-            }
-            else if ( capitalize )
-            {
-                buf.append( Character.toUpperCase( c ) );
-                capitalize = false;
-            }
-            else
-            {
-                buf.append( c );
-            }
-        }
-
-        return buf.toString();
     }
 
     /**
