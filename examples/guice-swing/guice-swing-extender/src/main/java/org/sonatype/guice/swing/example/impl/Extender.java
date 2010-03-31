@@ -24,7 +24,8 @@ import org.osgi.framework.BundleEvent;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 import org.sonatype.guice.bean.locators.BeanLocator;
-import org.sonatype.guice.bean.locators.GuiceBeanLocator;
+import org.sonatype.guice.bean.locators.DefaultBeanLocator;
+import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.BundleClassSpace;
 import org.sonatype.guice.bean.scanners.QualifiedScannerModule;
 
@@ -36,7 +37,7 @@ import com.google.inject.Module;
 public final class Extender
     implements BundleActivator, BundleTrackerCustomizer
 {
-    final GuiceBeanLocator beanLocator = new GuiceBeanLocator();
+    final MutableBeanLocator beanLocator = new DefaultBeanLocator();
 
     final Map<Bundle, Injector> injectorMap = new HashMap<Bundle, Injector>();
 

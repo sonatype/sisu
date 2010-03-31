@@ -108,7 +108,7 @@ public class GuiceBeanLocatorTest
 
     public void testInjectorOrdering()
     {
-        final GuiceBeanLocator locator = new GuiceBeanLocator();
+        final MutableBeanLocator locator = new DefaultBeanLocator();
 
         final Iterable<Entry<String, Bean>> roles =
             new NamedIterableAdapter<Bean>( locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) ) );
@@ -177,7 +177,7 @@ public class GuiceBeanLocatorTest
 
     public void testExistingInjectors()
     {
-        final GuiceBeanLocator locator = new GuiceBeanLocator();
+        final MutableBeanLocator locator = new DefaultBeanLocator();
 
         locator.add( parent );
         locator.add( child1 );
@@ -204,9 +204,9 @@ public class GuiceBeanLocatorTest
     public void testWeakInjectors()
         throws Exception
     {
-        final GuiceBeanLocator locator = new GuiceBeanLocator();
+        final MutableBeanLocator locator = new DefaultBeanLocator();
 
-        final Field guiceBeansField = GuiceBeanLocator.class.getDeclaredField( "exposedBeans" );
+        final Field guiceBeansField = DefaultBeanLocator.class.getDeclaredField( "exposedBeans" );
         guiceBeansField.setAccessible( true );
 
         final List<?> guiceBeans = (List<?>) guiceBeansField.get( locator );
@@ -265,9 +265,9 @@ public class GuiceBeanLocatorTest
     public void testInjectorManagement()
         throws Exception
     {
-        final GuiceBeanLocator locator = new GuiceBeanLocator();
+        final MutableBeanLocator locator = new DefaultBeanLocator();
 
-        final Field injectorsField = GuiceBeanLocator.class.getDeclaredField( "injectors" );
+        final Field injectorsField = DefaultBeanLocator.class.getDeclaredField( "injectors" );
         injectorsField.setAccessible( true );
 
         final Set<?> injectors = (Set<?>) injectorsField.get( locator );

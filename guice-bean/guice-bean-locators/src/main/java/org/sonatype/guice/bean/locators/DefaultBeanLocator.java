@@ -31,8 +31,8 @@ import com.google.inject.Key;
  * {@link BeanLocator} that locates qualified beans across a dynamic group of {@link Injector}s.
  */
 @Singleton
-public final class GuiceBeanLocator
-    implements BeanLocator
+public final class DefaultBeanLocator
+    implements MutableBeanLocator
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -48,13 +48,13 @@ public final class GuiceBeanLocator
     // Constructors
     // ----------------------------------------------------------------------
 
-    public GuiceBeanLocator()
+    public DefaultBeanLocator()
     {
         // no injectors
     }
 
     @Inject
-    public GuiceBeanLocator( final Injector injector )
+    public DefaultBeanLocator( final Injector injector )
     {
         add( injector );
     }
@@ -107,11 +107,6 @@ public final class GuiceBeanLocator
         mediatedWatchers.add( mediatedWatcher );
     }
 
-    /**
-     * Adds qualified beans from the given injector to any exported qualified bean sequences.
-     * 
-     * @param injector The new injector
-     */
     public synchronized void add( final Injector injector )
     {
         if ( null == injector || !injectors.add( injector ) )
@@ -144,11 +139,6 @@ public final class GuiceBeanLocator
         }
     }
 
-    /**
-     * Removes qualified beans from the given injector from any exported qualified bean sequences.
-     * 
-     * @param injector The old injector
-     */
     public synchronized void remove( final Injector injector )
     {
         if ( null == injector || !injectors.remove( injector ) )

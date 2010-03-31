@@ -23,7 +23,7 @@ import com.google.inject.Key;
 /**
  * Dynamic locator of beans annotated with {@link Qualifier} annotations.
  */
-@ImplementedBy( GuiceBeanLocator.class )
+@ImplementedBy( DefaultBeanLocator.class )
 public interface BeanLocator
 {
     /**
