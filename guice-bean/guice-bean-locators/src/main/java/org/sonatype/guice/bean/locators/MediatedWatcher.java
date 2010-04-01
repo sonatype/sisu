@@ -15,6 +15,8 @@ package org.sonatype.guice.bean.locators;
 import java.lang.annotation.Annotation;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.List;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,11 +39,11 @@ final class MediatedWatcher<Q extends Annotation, T, W>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Key<T> key;
-
     private final Mediator<Q, T, W> mediator;
 
     private final Reference<W> watcherRef;
+
+    private final GuiceBeans<Q, T> beans;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -49,11 +51,11 @@ final class MediatedWatcher<Q extends Annotation, T, W>
 
     MediatedWatcher( final Key<T> key, final Mediator<Q, T, W> mediator, final W watcher )
     {
-        this.key = key;
         this.mediator = mediator;
 
         // use weak-ref to detect when watcher disappears
         this.watcherRef = new WeakReference<W>( watcher );
+        beans = new GuiceBeans<Q, T>( key );
     }
 
     // ----------------------------------------------------------------------
@@ -73,12 +75,12 @@ final class MediatedWatcher<Q extends Annotation, T, W>
         {
             return false; // watcher has been GC'd
         }
-        final InjectorBeans<Q, T> beans = new InjectorBeans<Q, T>( injector, key );
-        for ( int i = 0, size = beans.size(); i < size; i++ )
+        final List<Entry<Q, T>> newBeans = beans.add( injector );
+        for ( int i = 0, size = newBeans.size(); i < size; i++ )
         {
             try
             {
-                mediator.add( beans.get( i ), watcher );
+                mediator.add( newBeans.get( i ), watcher );
             }
             catch ( final Throwable e )
             {
@@ -101,12 +103,12 @@ final class MediatedWatcher<Q extends Annotation, T, W>
         {
             return false; // watcher has been GC'd
         }
-        final InjectorBeans<Q, T> beans = new InjectorBeans<Q, T>( injector, key );
-        for ( int i = 0, size = beans.size(); i < size; i++ )
+        final List<Entry<Q, T>> oldBeans = beans.remove( injector );
+        for ( int i = 0, size = oldBeans.size(); i < size; i++ )
         {
             try
             {
-                mediator.remove( beans.get( i ), watcher );
+                mediator.remove( oldBeans.get( i ), watcher );
             }
             catch ( final Throwable e )
             {

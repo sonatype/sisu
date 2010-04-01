@@ -72,39 +72,41 @@ final class GuiceBeans<Q extends Annotation, T>
      * Adds qualified beans from the given injector to the current sequence.
      * 
      * @param injector The new injector
+     * @return Added beans
      */
-    synchronized boolean add( final Injector injector )
+    synchronized List<Entry<Q, T>> add( final Injector injector )
     {
         final InjectorBeans<Q, T> newBeans = new InjectorBeans<Q, T>( injector, key );
-        if ( newBeans.isEmpty() )
+        if ( !newBeans.isEmpty() )
         {
-            return false; // nothing to add
+            if ( null == injectorBeans )
+            {
+                injectorBeans = new ArrayList<InjectorBeans<Q, T>>( 4 );
+            }
+            injectorBeans.add( newBeans );
         }
-        if ( null == injectorBeans )
-        {
-            injectorBeans = new ArrayList<InjectorBeans<Q, T>>( 4 );
-        }
-        return injectorBeans.add( newBeans );
+        return newBeans;
     }
 
     /**
      * Removes qualified beans from the given injector from the current sequence.
      * 
      * @param injector The old injector
+     * @return Removed beans
      */
-    synchronized boolean remove( final Injector injector )
+    synchronized List<Entry<Q, T>> remove( final Injector injector )
     {
-        if ( null == injectorBeans )
+        if ( null != injectorBeans )
         {
-            return false; // nothing to remove
-        }
-        for ( final InjectorBeans<Q, T> beans : injectorBeans )
-        {
-            if ( injector == beans.injector )
+            for ( final InjectorBeans<Q, T> beans : injectorBeans )
             {
-                return injectorBeans.remove( beans );
+                if ( injector == beans.injector )
+                {
+                    injectorBeans.remove( beans );
+                    return beans;
+                }
             }
         }
-        return false;
+        return Collections.emptyList();
     }
 }
