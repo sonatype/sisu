@@ -49,7 +49,7 @@ final class WatcherListener
     // ----------------------------------------------------------------------
 
     @SuppressWarnings( "unchecked" )
-    WatcherListener( final Class<Mediator> mediatorType )
+    WatcherListener( final Class mediatorType )
     {
         this.mediatorType = mediatorType;
         final TypeLiteral superType = TypeLiteral.get( mediatorType ).getSupertype( Mediator.class );

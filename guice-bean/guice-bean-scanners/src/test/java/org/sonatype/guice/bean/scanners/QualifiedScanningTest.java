@@ -46,7 +46,7 @@ public class QualifiedScanningTest
     {
     }
 
-    @Named
+    @Named( "default" )
     @Typed( {} )
     static class B01
         extends Thread
@@ -107,6 +107,7 @@ public class QualifiedScanningTest
     {
     }
 
+    @Named
     static class SubclassB00
         extends B01
     {
@@ -217,7 +218,7 @@ public class QualifiedScanningTest
     public void testComponentScanning()
     {
         checkDefaultBinding( DefaultB01.class, DefaultB01.class );
-        checkNamedBinding( Thread.class, B01.class.getName(), B01.class );
+        checkDefaultBinding( Thread.class, B01.class );
         checkDefaultBinding( EventListener.class, DefaultB02.class );
 
         checkNamedBinding( EventListener.class, B02.class.getName(), B02.class );

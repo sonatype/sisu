@@ -85,6 +85,21 @@ public class QualifiedWatcherTest
         }
     }
 
+    @SuppressWarnings( "unchecked" )
+    static class BrokenMediator
+        implements Mediator
+    {
+        public void add( Entry bean, Object watcher )
+            throws Exception
+        {
+        }
+
+        public void remove( Entry bean, Object watcher )
+            throws Exception
+        {
+        }
+    }
+
     @Inject
     private ItemWatcher itemWatcher;
 
@@ -110,5 +125,17 @@ public class QualifiedWatcherTest
         injector.getInstance( MutableBeanLocator.class ).remove( injector );
 
         assertEquals( 0, itemWatcher.items.size() );
+    }
+
+    public void testMediatorWithMissingTypeInfo()
+    {
+        try
+        {
+            new WatcherListener( BrokenMediator.class );
+            fail( "Expected IllegalArgumentException" );
+        }
+        catch ( final IllegalArgumentException e )
+        {
+        }
     }
 }
