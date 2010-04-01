@@ -228,7 +228,7 @@ final class QualifiedClassBinder
                 return ann;
             }
         }
-        return getQualifier( clazz.getSuperclass() );
+        throw new IllegalArgumentException( clazz + " has no @Qualifier annotation" );
     }
 
     /**
@@ -249,7 +249,7 @@ final class QualifiedClassBinder
         // disallow ambiguous bindings
         if ( interfaces.length > 1 )
         {
-            throw new RuntimeException( "Multiple types found for " + clazz + ", use @Typed to remove ambiguity" );
+            throw new IllegalArgumentException( clazz + " has multiple interfaces, use @Typed to remove ambiguity" );
         }
 
         final Class superClazz = clazz.getSuperclass();

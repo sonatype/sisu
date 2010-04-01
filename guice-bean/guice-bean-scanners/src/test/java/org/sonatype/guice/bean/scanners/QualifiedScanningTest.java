@@ -83,26 +83,17 @@ public class QualifiedScanningTest
     {
     }
 
-    @Named
     static abstract class AbstractB01
     {
     }
 
-    @Named
     @Typed( EventListener.class )
     static abstract class AbstractB02
         implements RandomAccess, EventListener
     {
     }
 
-    @Named
     static abstract class AbstractB03
-        implements EventListener
-    {
-    }
-
-    @Named( "TEST" )
-    static abstract class AbstractB04
         implements EventListener
     {
     }
@@ -113,38 +104,38 @@ public class QualifiedScanningTest
     {
     }
 
+    @Named
     static class SubclassB01
         extends AbstractB01
     {
     }
 
+    @Named
     static class SubclassB02
         extends AbstractB02
     {
     }
 
+    @Named
     static class SubclassB03
         extends AbstractB03
     {
     }
 
-    static class SubclassB04
-        extends AbstractB04
-    {
-    }
-
     @Named( "RENAME" )
-    static class SubclassB05
-        extends AbstractB04
+    static class SubclassB04
+        extends AbstractB03
     {
     }
 
+    @Named
     @Typed( {} )
     static class SubclassB06
         extends B02
     {
     }
 
+    @Named
     @Typed( Serializable.class )
     static class SubclassB07
         extends B02
@@ -157,6 +148,7 @@ public class QualifiedScanningTest
         }
     }
 
+    @Named
     static class SubclassB08
         extends B02
         implements Serializable
@@ -231,8 +223,7 @@ public class QualifiedScanningTest
 
         checkNamedBinding( EventListener.class, SubclassB02.class.getName(), SubclassB02.class );
         checkNamedBinding( EventListener.class, SubclassB03.class.getName(), SubclassB03.class );
-        checkNamedBinding( EventListener.class, "TEST", SubclassB04.class );
-        checkNamedBinding( EventListener.class, "RENAME", SubclassB05.class );
+        checkNamedBinding( EventListener.class, "RENAME", SubclassB04.class );
         checkNamedBinding( EventListener.class, SubclassB06.class.getName(), SubclassB06.class );
 
         checkNamedBinding( Serializable.class, SubclassB07.class.getName(), SubclassB07.class );

@@ -34,26 +34,29 @@ import com.google.inject.util.Jsr330;
 public class QualifiedCollectionTest
     extends TestCase
 {
-    @Named
     static abstract class Widget
     {
     }
 
+    @Named
     static class ButtonWidget
         extends Widget
     {
     }
 
+    @Named
     static class MenuWidget
         extends Widget
     {
     }
 
+    @Named
     static class DefaultWidget
         extends Widget
     {
     }
 
+    @Named
     static class ScrollBarWidget
         extends Widget
     {

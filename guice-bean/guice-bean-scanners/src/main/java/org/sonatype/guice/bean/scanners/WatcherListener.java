@@ -56,7 +56,7 @@ final class WatcherListener
         final TypeLiteral[] params = Generics.typeArguments( superType );
         if ( params.length != 3 )
         {
-            throw new IllegalArgumentException( "Generic type information missing for Mediator " + mediatorType );
+            throw new IllegalArgumentException( mediatorType + " has wrong number of type arguments" );
         }
         qualifiedKey = Key.get( params[1], params[0].getRawType() );
         watcherType = params[2].getRawType();

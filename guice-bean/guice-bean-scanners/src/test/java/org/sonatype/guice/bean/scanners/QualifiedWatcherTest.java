@@ -34,7 +34,6 @@ import com.google.inject.util.Jsr330;
 public class QualifiedWatcherTest
     extends TestCase
 {
-    @Named
     static abstract class Item
     {
     }
@@ -44,16 +43,19 @@ public class QualifiedWatcherTest
     {
     }
 
+    @Named
     static class ItemA
         extends SomeItem
     {
     }
 
+    @Named
     static class ItemB
         extends SomeItem
     {
     }
 
+    @Named
     static class ItemC
         extends SomeItem
     {
@@ -89,12 +91,12 @@ public class QualifiedWatcherTest
     static class BrokenMediator
         implements Mediator
     {
-        public void add( Entry bean, Object watcher )
+        public void add( final Entry bean, final Object watcher )
             throws Exception
         {
         }
 
-        public void remove( Entry bean, Object watcher )
+        public void remove( final Entry bean, final Object watcher )
             throws Exception
         {
         }

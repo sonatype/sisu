@@ -52,8 +52,6 @@ final class QualifiedClassVisitor
 
     private final Map<String, Boolean> qualifiedAnnotationMap = new HashMap<String, Boolean>();
 
-    private final Map<String, Boolean> qualifiedClassMap = new HashMap<String, Boolean>();
-
     private final List<Class<?>> qualifiedTypes = new ArrayList<Class<?>>();
 
     private final ClassSpace space;
@@ -79,45 +77,16 @@ final class QualifiedClassVisitor
     public void visit( final int version, final int access, final String name, final String signature,
                        final String superName, final String[] interfaces )
     {
-        if ( ( access & Opcodes.ACC_INTERFACE ) != 0 )
-        {
-            return; // we don't scan the interface hierarchy
-        }
-        if ( null == clazzName && ( access & Opcodes.ACC_ABSTRACT ) == 0 )
+        if ( null == clazzName && ( access & ( Opcodes.ACC_INTERFACE | access & Opcodes.ACC_ABSTRACT ) ) == 0 )
         {
             clazzName = name; // primary class must be concrete type
-        }
-        if ( isQualified || null == clazzName || null == superName )
-        {
-            return; // short-cut scanning process
-        }
-
-        /*
-         * scan for qualified super-classes and cache the results
-         */
-        final Boolean isQualifiedClass = qualifiedClassMap.get( superName );
-        if ( isQualifiedClass != null )
-        {
-            isQualified = isQualifiedClass.booleanValue();
-        }
-        else if ( !superName.startsWith( "java" ) )
-        {
-            try
-            {
-                visitClass( space.getResource( superName + ".class" ), this );
-                qualifiedClassMap.put( superName, Boolean.valueOf( isQualified ) );
-            }
-            catch ( final IOException e )
-            {
-                throw new RuntimeException( e.toString() );
-            }
         }
     }
 
     @Override
     public AnnotationVisitor visitAnnotation( final String desc, final boolean visible )
     {
-        if ( isQualified || null == clazzName )
+        if ( null == clazzName || isQualified )
         {
             return null; // short-cut scanning process
         }
