@@ -247,6 +247,11 @@ public final class DefaultPlexusContainer
     // Component descriptor methods
     // ----------------------------------------------------------------------
 
+    public <T> void addComponent( final T component, final java.lang.Class<?> role, final String hint )
+    {
+        getLogger().warn( "TODO addComponent( " + role + ", " + hint + " )" ); // TODO
+    }
+
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
     {
         getLogger().warn( "TODO addComponentDescriptor( " + descriptor + " )" ); // TODO

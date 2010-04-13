@@ -32,6 +32,21 @@ public class ComponentDescriptor<T>
     private String componentFactory;
 
     // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    public ComponentDescriptor()
+    {
+        // nothing to set
+    }
+
+    public ComponentDescriptor( final Class<T> implementationClass, final ClassRealm classRealm )
+    {
+        setImplementationClass( implementationClass );
+        setRealm( classRealm );
+    }
+
+    // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
@@ -100,6 +115,11 @@ public class ComponentDescriptor<T>
 
     @SuppressWarnings( "unused" )
     public final void setRole( final String role )
+    {
+    }
+
+    @SuppressWarnings( "unused" )
+    public final void setRoleClass( final Class<T> roleClass )
     {
     }
 

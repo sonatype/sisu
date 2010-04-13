@@ -61,6 +61,8 @@ public interface PlexusContainer
 
     boolean hasComponent( Class<?> type, String role, String hint );
 
+    <T> void addComponent( T component, Class<?> role, String hint );
+
     <T> void addComponentDescriptor( ComponentDescriptor<T> descriptor )
         throws CycleDetectedInComponentGraphException;
 
