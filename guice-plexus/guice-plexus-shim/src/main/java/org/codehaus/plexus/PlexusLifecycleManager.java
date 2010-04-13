@@ -179,7 +179,7 @@ final class PlexusLifecycleManager
         return true;
     }
 
-    public PlexusBeanManager manageChild()
+    public synchronized PlexusBeanManager manageChild()
     {
         final PlexusLifecycleManager childManager = new PlexusLifecycleManager( this );
         children.add( childManager );
@@ -243,12 +243,15 @@ final class PlexusLifecycleManager
             descriptor.setDescription( descriptions.get( key ) );
             return descriptor;
         }
-        for ( final PlexusLifecycleManager child : children )
+        synchronized ( this )
         {
-            final ComponentDescriptor<T> descriptor = child.getComponentDescriptor( role, hint );
-            if ( descriptor != null )
+            for ( final PlexusLifecycleManager child : children )
             {
-                return descriptor;
+                final ComponentDescriptor<T> descriptor = child.getComponentDescriptor( role, hint );
+                if ( descriptor != null )
+                {
+                    return descriptor;
+                }
             }
         }
         return null;
