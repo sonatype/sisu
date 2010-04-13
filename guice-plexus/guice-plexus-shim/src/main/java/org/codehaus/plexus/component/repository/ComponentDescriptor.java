@@ -10,6 +10,10 @@
  */
 package org.codehaus.plexus.component.repository;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.sonatype.guice.plexus.config.Hints;
 
@@ -23,6 +27,8 @@ public class ComponentDescriptor<T>
 
     private String description;
 
+    private String instantiationStrategy;
+
     private String implementation;
 
     private Class<T> implementationClass;
@@ -30,6 +36,8 @@ public class ComponentDescriptor<T>
     private String componentConfigurator;
 
     private String componentFactory;
+
+    private List<ComponentRequirement> requirements = Collections.emptyList();
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -60,6 +68,11 @@ public class ComponentDescriptor<T>
         this.description = description;
     }
 
+    public final void setInstantiationStrategy( final String instantiationStrategy )
+    {
+        this.instantiationStrategy = instantiationStrategy;
+    }
+
     public final void setImplementation( final String implementation )
     {
         this.implementation = implementation;
@@ -82,6 +95,15 @@ public class ComponentDescriptor<T>
         this.componentFactory = componentFactory;
     }
 
+    public final void addRequirement( final ComponentRequirement requirement )
+    {
+        if ( requirements.isEmpty() )
+        {
+            requirements = new ArrayList<ComponentRequirement>();
+        }
+        requirements.add( requirement );
+    }
+
     public String getRoleHint()
     {
         return hint;
@@ -92,14 +114,9 @@ public class ComponentDescriptor<T>
         return description;
     }
 
-    public final String getComponentConfigurator()
+    public final String getInstantiationStrategy()
     {
-        return componentConfigurator;
-    }
-
-    public final String getComponentFactory()
-    {
-        return componentFactory;
+        return instantiationStrategy;
     }
 
     public final String getImplementation()
@@ -113,6 +130,21 @@ public class ComponentDescriptor<T>
         return null != implementationClass ? implementationClass : (Class) Object.class;
     }
 
+    public final String getComponentConfigurator()
+    {
+        return componentConfigurator;
+    }
+
+    public final String getComponentFactory()
+    {
+        return componentFactory;
+    }
+
+    public final List<ComponentRequirement> getRequirements()
+    {
+        return Collections.unmodifiableList( requirements );
+    }
+
     @SuppressWarnings( "unused" )
     public final void setRole( final String role )
     {
@@ -124,17 +156,7 @@ public class ComponentDescriptor<T>
     }
 
     @SuppressWarnings( "unused" )
-    public final void setInstantiationStrategy( final String instantiationStrategy )
-    {
-    }
-
-    @SuppressWarnings( "unused" )
     public final void setComponentComposer( final String componentComposer )
-    {
-    }
-
-    @SuppressWarnings( "unused" )
-    public final void addRequirement( final ComponentRequirement requirement )
     {
     }
 

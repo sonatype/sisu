@@ -22,7 +22,9 @@ public class ComponentSetDescriptor
 
     private boolean isolatedRealm;
 
-    private List<ComponentDescriptor<?>> components;
+    private List<ComponentDescriptor<?>> components = Collections.emptyList();
+
+    private List<ComponentDependency> dependencies = Collections.emptyList();
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -33,14 +35,9 @@ public class ComponentSetDescriptor
         this.isolatedRealm = isolatedRealm;
     }
 
-    public final boolean isIsolatedRealm()
-    {
-        return isolatedRealm;
-    }
-
     public final void addComponentDescriptor( final ComponentDescriptor<?> component )
     {
-        if ( null == components )
+        if ( components.isEmpty() )
         {
             components = new ArrayList<ComponentDescriptor<?>>();
         }
@@ -52,18 +49,28 @@ public class ComponentSetDescriptor
         this.components = new ArrayList<ComponentDescriptor<?>>( components );
     }
 
+    public final void setDependencies( final List<ComponentDependency> dependencies )
+    {
+        this.dependencies = new ArrayList<ComponentDependency>( dependencies );
+    }
+
+    public final boolean isIsolatedRealm()
+    {
+        return isolatedRealm;
+    }
+
     public final List<ComponentDescriptor<?>> getComponents()
     {
         return Collections.unmodifiableList( components );
     }
 
-    @SuppressWarnings( "unused" )
-    public final void setId( final String id )
+    public final List<ComponentDependency> getDependencies()
     {
+        return Collections.unmodifiableList( dependencies );
     }
 
     @SuppressWarnings( "unused" )
-    public final void setDependencies( final List<ComponentDependency> dependencies )
+    public final void setId( final String id )
     {
     }
 }

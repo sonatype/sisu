@@ -10,8 +10,6 @@
  */
 package org.codehaus.plexus.component.repository;
 
-import org.sonatype.guice.plexus.config.Hints;
-
 public final class ComponentRequirement
 {
     // ----------------------------------------------------------------------
@@ -20,7 +18,7 @@ public final class ComponentRequirement
 
     private String role;
 
-    private String hint = Hints.DEFAULT_HINT;
+    private String hint = "";
 
     private String name;
 
@@ -35,7 +33,8 @@ public final class ComponentRequirement
 
     public void setRoleHint( final String hint )
     {
-        this.hint = Hints.canonicalHint( hint );
+        // empty/null hint represents wildcard
+        this.hint = null != hint ? hint : "";
     }
 
     public void setFieldName( final String name )
