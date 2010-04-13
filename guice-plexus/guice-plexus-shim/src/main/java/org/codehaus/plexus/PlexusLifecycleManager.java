@@ -49,7 +49,7 @@ final class PlexusLifecycleManager
 
     private final PlexusLifecycleManager parent;
 
-    private List<PlexusLifecycleManager> children;
+    private final List<PlexusLifecycleManager> children = new ArrayList<PlexusLifecycleManager>();
 
     private final Map<String, DeferredClass<?>> implementations = new HashMap<String, DeferredClass<?>>();
 
@@ -182,10 +182,6 @@ final class PlexusLifecycleManager
     public PlexusBeanManager manageChild()
     {
         final PlexusLifecycleManager childManager = new PlexusLifecycleManager( this );
-        if ( null == children )
-        {
-            children = new ArrayList<PlexusLifecycleManager>();
-        }
         children.add( childManager );
         return childManager;
     }
@@ -193,7 +189,7 @@ final class PlexusLifecycleManager
     public synchronized boolean unmanage( final Object bean )
     {
         boolean result = false;
-        for ( final PlexusLifecycleManager child : getChildren() )
+        for ( final PlexusLifecycleManager child : children )
         {
             result |= child.unmanage( bean );
         }
@@ -207,7 +203,7 @@ final class PlexusLifecycleManager
     public synchronized boolean unmanage()
     {
         boolean result = false;
-        for ( final PlexusLifecycleManager child : getChildren() )
+        for ( final PlexusLifecycleManager child : children )
         {
             result |= child.unmanage();
         }
@@ -247,7 +243,7 @@ final class PlexusLifecycleManager
             descriptor.setDescription( descriptions.get( key ) );
             return descriptor;
         }
-        for ( final PlexusLifecycleManager child : getChildren() )
+        for ( final PlexusLifecycleManager child : children )
         {
             final ComponentDescriptor<T> descriptor = child.getComponentDescriptor( role, hint );
             if ( descriptor != null )
@@ -271,12 +267,6 @@ final class PlexusLifecycleManager
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
-
-    @SuppressWarnings( "unchecked" )
-    private List<PlexusLifecycleManager> getChildren()
-    {
-        return null != children ? children : Collections.EMPTY_LIST;
-    }
 
     private boolean dispose( final Object bean )
     {
