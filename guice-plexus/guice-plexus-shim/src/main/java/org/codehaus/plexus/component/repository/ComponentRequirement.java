@@ -10,24 +10,51 @@
  */
 package org.codehaus.plexus.component.repository;
 
+import org.sonatype.guice.plexus.config.Hints;
+
 public final class ComponentRequirement
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private String role;
+
+    private String hint = Hints.DEFAULT_HINT;
+
+    private String name;
+
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unused" )
     public void setRole( final String role )
     {
+        this.role = role;
     }
 
-    @SuppressWarnings( "unused" )
     public void setRoleHint( final String hint )
     {
+        this.hint = Hints.canonicalHint( hint );
     }
 
-    @SuppressWarnings( "unused" )
     public void setFieldName( final String name )
     {
+        this.name = name;
+    }
+
+    public String getRole()
+    {
+        return role;
+    }
+
+    public String getRoleHint()
+    {
+        return hint;
+    }
+
+    public String getFieldName()
+    {
+        return name;
     }
 }

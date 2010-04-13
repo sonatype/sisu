@@ -13,26 +13,58 @@ package org.codehaus.plexus.component.repository;
 public final class ComponentDependency
 {
     // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private String groupId;
+
+    private String artifactId;
+
+    private String version;
+
+    private String type = "jar";
+
+    // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unused" )
     public void setGroupId( final String groupId )
     {
+        this.groupId = groupId;
     }
 
-    @SuppressWarnings( "unused" )
     public void setArtifactId( final String artifactId )
     {
+        this.artifactId = artifactId;
     }
 
-    @SuppressWarnings( "unused" )
     public void setVersion( final String version )
     {
+        this.version = version;
     }
 
-    @SuppressWarnings( "unused" )
     public void setType( final String type )
     {
+        this.type = type;
+    }
+
+    public String getGroupId()
+    {
+        return groupId;
+    }
+
+    public String getArtifactId()
+    {
+        return artifactId;
+    }
+
+    public String getVersion()
+    {
+        return version;
+    }
+
+    public String getType()
+    {
+        return type;
     }
 }

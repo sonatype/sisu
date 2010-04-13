@@ -12,4 +12,6 @@ package org.codehaus.plexus.component.configurator.expression;
 
 public interface ExpressionEvaluator
 {
+    Object evaluate( String expression )
+        throws ExpressionEvaluationException;
 }
