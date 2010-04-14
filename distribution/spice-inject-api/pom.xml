@@ -22,6 +22,31 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <configuration>
+          <attach>false</attach>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>src-dependencies</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <classifier>sources</classifier>
+              <failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
+              <outputDirectory>${project.build.directory}/sources</outputDirectory>
+              <excludes>**/instrument/**,**/reflect/**,**/Field*</excludes>
+              <includes>javax/**,org/aopalliance/**</includes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <extensions>true</extensions>
@@ -30,15 +55,15 @@
             <Bundle-RequiredExecutionEnvironment>
               J2SE-1.5,JavaSE-1.6
             </Bundle-RequiredExecutionEnvironment>
-            <_exportcontents>*;version=1</_exportcontents>
+            <Export-Package>
+              javax.*|org.aopalliance.*;version=1
+            </Export-Package>
+            <Include-Resource>
+              OSGI-OPT/src=${project.build.directory}/sources
+            </Include-Resource>
             <_versionpolicy>[$(version;=;$(@)),$(version;+;$(@)))</_versionpolicy>
             <_nouses>true</_nouses>
-            <Embed-Dependency>
-              *;inline=javax/**|org/aopalliance/**
-            </Embed-Dependency>
-            <Embed-Transitive>true</Embed-Transitive>
             <_removeheaders>
-              Embed-Dependency,Embed-Transitive,
               Built-By,Tool,Created-By,Build-Jdk,
               Include-Resource,Private-Package,
               Ignore-Package,Bnd-LastModified
