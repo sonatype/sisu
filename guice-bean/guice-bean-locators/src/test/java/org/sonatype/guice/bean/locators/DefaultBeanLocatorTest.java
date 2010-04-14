@@ -22,6 +22,8 @@ import javax.inject.Named;
 
 import junit.framework.TestCase;
 
+import org.sonatype.inject.Mediator;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;

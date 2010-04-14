@@ -22,10 +22,10 @@ import javax.inject.Named;
 
 import junit.framework.TestCase;
 
-import org.sonatype.guice.bean.locators.Mediator;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
+import org.sonatype.inject.Mediator;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

@@ -34,9 +34,9 @@ import javax.inject.Provider;
 import javax.inject.Qualifier;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
-import org.sonatype.guice.bean.locators.Mediator;
 import org.sonatype.guice.bean.reflect.DeclaredMembers;
 import org.sonatype.guice.bean.reflect.Generics;
+import org.sonatype.inject.Mediator;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;

@@ -55,16 +55,7 @@
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.spice.inject.examples</groupId>
-      <artifactId>guice-swing-extender</artifactId>
-      <version>${project.version}</version>
-      <scope>runtime</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject.examples</groupId>
@@ -91,21 +82,28 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
+      <groupId>org.sonatype.spice.inject</groupId>
+      <artifactId>spice-inject-imp</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.felix</groupId>
       <artifactId>org.apache.felix.framework</artifactId>
-      <version>2.0.4</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.felix</groupId>
       <artifactId>org.apache.felix.shell</artifactId>
-      <version>1.4.0</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.felix</groupId>
       <artifactId>org.apache.felix.shell.tui</artifactId>
-      <version>1.4.0</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
       <scope>runtime</scope>
     </dependency>
   </dependencies>

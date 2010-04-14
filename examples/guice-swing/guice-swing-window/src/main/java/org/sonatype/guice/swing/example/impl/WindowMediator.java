@@ -19,7 +19,7 @@ import javax.inject.Singleton;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.sonatype.guice.bean.locators.Mediator;
+import org.sonatype.inject.Mediator;
 
 @Named
 @Singleton

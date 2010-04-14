@@ -24,6 +24,8 @@ import java.util.Map.Entry;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.sonatype.inject.Mediator;
+
 import com.google.inject.Injector;
 import com.google.inject.Key;
 

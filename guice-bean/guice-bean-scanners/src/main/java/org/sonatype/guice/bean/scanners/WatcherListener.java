@@ -15,8 +15,8 @@ package org.sonatype.guice.bean.scanners;
 import javax.inject.Provider;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
-import org.sonatype.guice.bean.locators.Mediator;
 import org.sonatype.guice.bean.reflect.Generics;
+import org.sonatype.inject.Mediator;
 
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;

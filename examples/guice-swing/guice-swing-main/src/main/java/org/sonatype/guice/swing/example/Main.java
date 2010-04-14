@@ -13,14 +13,12 @@
 package org.sonatype.guice.swing.example;
 
 import java.io.File;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.imageio.spi.ServiceRegistry;
-import javax.swing.SwingUtilities;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -28,12 +26,6 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
-import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.reflect.URLClassSpace;
-import org.sonatype.guice.bean.scanners.QualifiedScannerModule;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 public final class Main
 {
@@ -54,9 +46,7 @@ public final class Main
     {
         static void launch()
         {
-            final ClassSpace space = new URLClassSpace( (URLClassLoader) Main.class.getClassLoader() );
-            final Injector injector = Guice.createInjector( new QualifiedScannerModule( space ) );
-            SwingUtilities.invokeLater( injector.getInstance( Runnable.class ) );
+            System.out.println( "Example being updated... back soon!" );
         }
     }
 
@@ -65,14 +55,11 @@ public final class Main
         static void launch()
             throws BundleException
         {
+            System.out.println( "Example being updated... back soon!" );
+
             final Map<String, String> configuration = new HashMap<String, String>();
             configuration.put( Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT );
             configuration.put( Constants.FRAMEWORK_STORAGE, "target/bundlecache" );
-
-            configuration.put( Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "org.aopalliance.intercept,"
-                + "javax.inject,javax.enterprise.inject," + "org.sonatype.guice.bean.reflect,"
-                + "org.sonatype.guice.bean.locators," + "org.sonatype.guice.bean.scanners,"
-                + "com.google.inject;version=1.3," + "com.google.inject.binder;version=1.3" );
 
             final FrameworkFactory frameworkFactory = ServiceRegistry.lookupProviders( FrameworkFactory.class ).next();
             final Framework framework = frameworkFactory.newFramework( configuration );
@@ -84,15 +71,17 @@ public final class Main
             final List<Bundle> bundles = new ArrayList<Bundle>();
             for ( final File f : new File( getTargetDir(), "lib" ).listFiles() )
             {
-                final String name = f.getName();
-                if ( name.startsWith( "guice-swing" ) || name.contains( "shell" ) )
+                if ( !f.getName().contains( "framework" ) )
                 {
                     bundles.add( ctx.installBundle( "reference:" + f.toURI() ) );
                 }
             }
             for ( final Bundle bundle : bundles )
             {
-                bundle.start();
+                if ( bundle.getHeaders().get( Constants.BUNDLE_ACTIVATOR ) != null )
+                {
+                    bundle.start();
+                }
             }
         }
     }

@@ -17,6 +17,8 @@ import java.util.Map.Entry;
 
 import javax.inject.Qualifier;
 
+import org.sonatype.inject.Mediator;
+
 import com.google.inject.ImplementedBy;
 import com.google.inject.Key;
 
