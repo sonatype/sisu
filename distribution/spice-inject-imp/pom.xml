@@ -61,6 +61,16 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>org.sonatype.guice.bean.extender.Main</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
