@@ -26,22 +26,11 @@
           <!-- stop the contents of split-packages from leaking into the final bundle -->
           <excludeDependencies>*;artifactId=!guice-*</excludeDependencies>
           <instructions>
-            <Bundle-RequiredExecutionEnvironment>
-              J2SE-1.5,JavaSE-1.6
-            </Bundle-RequiredExecutionEnvironment>
             <_exportcontents>org.codehaus.plexus.*;-noimport:=true</_exportcontents>
-            <_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>
-            <_nouses>true</_nouses>
             <Embed-Dependency>
               *;artifactId=guice-*;optional=true;inline=org/**
             </Embed-Dependency>
             <Embed-Transitive>true</Embed-Transitive>
-            <_removeheaders>
-              Embed-Dependency,Embed-Transitive,
-              Built-By,Tool,Created-By,Build-Jdk,
-              Include-Resource,Private-Package,
-              Ignore-Package,Bnd-LastModified
-            </_removeheaders>
           </instructions>
         </configuration>
       </plugin>
