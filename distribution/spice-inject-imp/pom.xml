@@ -27,6 +27,9 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
+            <Bundle-Activator>
+              org.sonatype.guice.bean.extender.Activator
+            </Bundle-Activator>
             <Private-Package>
               org.objectweb.asm.*,
               org.sonatype.guice.*
@@ -117,6 +120,7 @@
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-patches</artifactId>
+      <classifier>noaop</classifier>
       <exclusions>
         <exclusion>
           <groupId>javax.inject</groupId>
@@ -130,7 +134,7 @@
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-bean-scanners</artifactId>
+      <artifactId>guice-bean-extender</artifactId>
       <optional>true</optional>
     </dependency>
   </dependencies>

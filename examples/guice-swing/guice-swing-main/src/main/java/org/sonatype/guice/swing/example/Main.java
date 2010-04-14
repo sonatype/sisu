@@ -45,8 +45,10 @@ public final class Main
     static class ClassicLauncher
     {
         static void launch()
+            throws Exception
         {
-            System.out.println( "Example being updated... back soon!" );
+            final Class<?> mainClazz = Class.forName( "org.sonatype.guice.bean.extender.Main" );
+            mainClazz.getMethod( "main", String[].class ).invoke( null, (Object) new String[0] );
         }
     }
 
@@ -55,8 +57,6 @@ public final class Main
         static void launch()
             throws BundleException
         {
-            System.out.println( "Example being updated... back soon!" );
-
             final Map<String, String> configuration = new HashMap<String, String>();
             configuration.put( Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT );
             configuration.put( Constants.FRAMEWORK_STORAGE, "target/bundlecache" );
@@ -78,7 +78,7 @@ public final class Main
             }
             for ( final Bundle bundle : bundles )
             {
-                if ( bundle.getHeaders().get( Constants.BUNDLE_ACTIVATOR ) != null )
+                if ( bundle.getHeaders().get( Constants.FRAGMENT_HOST ) == null )
                 {
                     bundle.start();
                 }

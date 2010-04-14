@@ -28,6 +28,7 @@
     <module>guice-bean-inject</module>
     <module>guice-bean-locators</module>
     <module>guice-bean-scanners</module>
+    <module>guice-bean-extender</module>
   </modules>
 
   <dependencyManagement>
@@ -57,6 +58,11 @@
       <dependency>
         <groupId>org.sonatype.spice.inject</groupId>
         <artifactId>guice-bean-scanners</artifactId>
+        <version>${guice.bean.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-bean-extender</artifactId>
         <version>${guice.bean.version}</version>
       </dependency>
 
