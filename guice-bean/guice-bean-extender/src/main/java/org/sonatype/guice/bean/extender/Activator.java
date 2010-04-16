@@ -38,7 +38,7 @@ import com.google.inject.Stage;
 public final class Activator
     implements BundleActivator, BundleTrackerCustomizer, ServiceTrackerCustomizer
 {
-    private static final int INITIAL_BINDINGS_SIZE = Guice.createInjector().getBindings().size();
+    private static final int BASE_BINDINGS_SIZE = Guice.createInjector().getBindings().size() + 1;
 
     final MutableBeanLocator beanLocator = new DefaultBeanLocator();
 
@@ -75,7 +75,7 @@ public final class Activator
             injectorBuilder.stage( Stage.PRODUCTION ); // TODO: hack to get eager singletons
             injectorBuilder.addModules( locatorModule, new QualifiedScannerModule( new BundleClassSpace( bundle ) ) );
             final Injector bundleInjector = injectorBuilder.build();
-            if ( bundleInjector.getBindings().size() > INITIAL_BINDINGS_SIZE )
+            if ( bundleInjector.getBindings().size() > BASE_BINDINGS_SIZE )
             {
                 bundle.getBundleContext().registerService( Injector.class.getName(), bundleInjector, null );
             }
