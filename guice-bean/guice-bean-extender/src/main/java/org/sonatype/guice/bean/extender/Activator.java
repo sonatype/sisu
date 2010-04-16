@@ -40,9 +40,11 @@ public final class Activator
 {
     private static final int BASE_BINDINGS_SIZE = Guice.createInjector().getBindings().size() + 1;
 
-    final MutableBeanLocator beanLocator = new DefaultBeanLocator();
+    private static final String INJECTOR_CLASS = Injector.class.getName();
 
-    private final Module locatorModule = new AbstractModule()
+    static final MutableBeanLocator beanLocator = new DefaultBeanLocator();
+
+    private static final Module locatorModule = new AbstractModule()
     {
         @Override
         protected void configure()
@@ -60,7 +62,7 @@ public final class Activator
     public void start( final BundleContext context )
     {
         bundleContext = context;
-        serviceTracker = new ServiceTracker( context, Injector.class.getName(), this );
+        serviceTracker = new ServiceTracker( context, INJECTOR_CLASS, this );
         serviceTracker.open();
         bundleTracker = new BundleTracker( context, Bundle.ACTIVE, this );
         bundleTracker.open();
@@ -69,16 +71,28 @@ public final class Activator
     public Object addingBundle( final Bundle bundle, final BundleEvent event )
     {
         final String importPackage = (String) bundle.getHeaders().get( Constants.IMPORT_PACKAGE );
-        if ( null != importPackage && importPackage.contains( "javax.inject" ) )
+        if ( null == importPackage || !importPackage.contains( "javax.inject" ) )
         {
-            final InjectorBuilder injectorBuilder = new InjectorBuilder();
-            injectorBuilder.stage( Stage.PRODUCTION ); // TODO: hack to get eager singletons
-            injectorBuilder.addModules( locatorModule, new QualifiedScannerModule( new BundleClassSpace( bundle ) ) );
-            final Injector bundleInjector = injectorBuilder.build();
-            if ( bundleInjector.getBindings().size() > BASE_BINDINGS_SIZE )
+            return null;
+        }
+        final ServiceReference[] serviceReferences = bundle.getRegisteredServices();
+        if ( null != serviceReferences )
+        {
+            for ( final ServiceReference ref : serviceReferences )
             {
-                bundle.getBundleContext().registerService( Injector.class.getName(), bundleInjector, null );
+                if ( INJECTOR_CLASS.equals( ( (String[]) ref.getProperty( Constants.OBJECTCLASS ) )[0] ) )
+                {
+                    return null; // already has an injector registered
+                }
             }
+        }
+        final InjectorBuilder injectorBuilder = new InjectorBuilder();
+        injectorBuilder.stage( Stage.PRODUCTION ); // TODO: hack to get eager singletons
+        injectorBuilder.addModules( locatorModule, new QualifiedScannerModule( new BundleClassSpace( bundle ) ) );
+        final Injector bundleInjector = injectorBuilder.build();
+        if ( bundleInjector.getBindings().size() > BASE_BINDINGS_SIZE )
+        {
+            bundle.getBundleContext().registerService( INJECTOR_CLASS, bundleInjector, null );
         }
         return null;
     }
@@ -112,7 +126,7 @@ public final class Activator
 
     public void stop( final BundleContext context )
     {
-        serviceTracker.close();
         bundleTracker.close();
+        serviceTracker.close();
     }
 }
