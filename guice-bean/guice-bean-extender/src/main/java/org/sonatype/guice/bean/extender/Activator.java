@@ -29,6 +29,7 @@ import org.sonatype.guice.bean.reflect.BundleClassSpace;
 import org.sonatype.guice.bean.scanners.QualifiedScannerModule;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.InjectorBuilder;
 import com.google.inject.Module;
@@ -37,6 +38,8 @@ import com.google.inject.Stage;
 public final class Activator
     implements BundleActivator, BundleTrackerCustomizer, ServiceTrackerCustomizer
 {
+    private static final int INITIAL_BINDINGS_SIZE = Guice.createInjector().getBindings().size();
+
     final MutableBeanLocator beanLocator = new DefaultBeanLocator();
 
     private final Module locatorModule = new AbstractModule()
@@ -72,7 +75,7 @@ public final class Activator
             injectorBuilder.stage( Stage.PRODUCTION ); // TODO: hack to get eager singletons
             injectorBuilder.addModules( locatorModule, new QualifiedScannerModule( new BundleClassSpace( bundle ) ) );
             final Injector bundleInjector = injectorBuilder.build();
-            if ( bundleInjector.getBindings().size() > 5 ) // TODO: need better check!
+            if ( bundleInjector.getBindings().size() > INITIAL_BINDINGS_SIZE )
             {
                 bundle.getBundleContext().registerService( Injector.class.getName(), bundleInjector, null );
             }
