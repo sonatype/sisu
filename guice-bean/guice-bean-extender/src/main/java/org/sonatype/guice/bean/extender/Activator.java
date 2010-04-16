@@ -16,6 +16,7 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
+import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
@@ -64,13 +65,17 @@ public final class Activator
 
     public Object addingBundle( final Bundle bundle, final BundleEvent event )
     {
-        final InjectorBuilder injectorBuilder = new InjectorBuilder();
-        injectorBuilder.stage( Stage.PRODUCTION ); // TODO: hack to get eager singletons
-        injectorBuilder.addModules( locatorModule, new QualifiedScannerModule( new BundleClassSpace( bundle ) ) );
-        final Injector bundleInjector = injectorBuilder.build();
-        if ( bundleInjector.getBindings().size() > 5 ) // TODO: need better check!
+        final String importPackage = (String) bundle.getHeaders().get( Constants.IMPORT_PACKAGE );
+        if ( null != importPackage && importPackage.contains( "javax.inject" ) )
         {
-            bundle.getBundleContext().registerService( Injector.class.getName(), bundleInjector, null );
+            final InjectorBuilder injectorBuilder = new InjectorBuilder();
+            injectorBuilder.stage( Stage.PRODUCTION ); // TODO: hack to get eager singletons
+            injectorBuilder.addModules( locatorModule, new QualifiedScannerModule( new BundleClassSpace( bundle ) ) );
+            final Injector bundleInjector = injectorBuilder.build();
+            if ( bundleInjector.getBindings().size() > 5 ) // TODO: need better check!
+            {
+                bundle.getBundleContext().registerService( Injector.class.getName(), bundleInjector, null );
+            }
         }
         return null;
     }
