@@ -70,6 +70,12 @@ public final class DefaultPlexusContainer
 
     private static final LoggerManager CONSOLE_LOGGER_MANAGER = new ConsoleLoggerManager();
 
+    static
+    {
+        // disable parent JIT bindings + annotation checks
+        System.setProperty( "guice.plexus.mode", "true" );
+    }
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
