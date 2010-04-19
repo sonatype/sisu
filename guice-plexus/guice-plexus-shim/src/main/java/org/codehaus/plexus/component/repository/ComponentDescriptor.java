@@ -23,6 +23,8 @@ public class ComponentDescriptor<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    private String role;
+
     private String hint = Hints.DEFAULT_HINT;
 
     private String description;
@@ -31,7 +33,10 @@ public class ComponentDescriptor<T>
 
     private String implementation;
 
-    private Class<T> implementationClass;
+    private ClassRealm classRealm;
+
+    @SuppressWarnings( "unchecked" )
+    private Class<T> implementationClass = (Class) Object.class;
 
     private String componentConfigurator;
 
@@ -57,6 +62,16 @@ public class ComponentDescriptor<T>
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
+
+    public final void setRole( final String role )
+    {
+        this.role = role;
+    }
+
+    public final void setRoleClass( final Class<T> roleClass )
+    {
+        this.role = null != roleClass ? roleClass.getName() : null;
+    }
 
     public final void setRoleHint( final String hint )
     {
@@ -119,6 +134,12 @@ public class ComponentDescriptor<T>
         return instantiationStrategy;
     }
 
+    public final void setRealm( final ClassRealm classRealm )
+    {
+        implementationClass = null;
+        this.classRealm = classRealm;
+    }
+
     public final String getImplementation()
     {
         return implementation;
@@ -127,7 +148,18 @@ public class ComponentDescriptor<T>
     @SuppressWarnings( "unchecked" )
     public final Class<T> getImplementationClass()
     {
-        return null != implementationClass ? implementationClass : (Class) Object.class;
+        if ( Object.class == implementationClass && null != classRealm )
+        {
+            try
+            {
+                implementationClass = classRealm.loadClass( implementation );
+            }
+            catch ( final ClassNotFoundException e ) // NOPMD
+            {
+                // follow Plexus and fall back to Object.class
+            }
+        }
+        return implementationClass;
     }
 
     public final String getComponentConfigurator()
@@ -145,14 +177,37 @@ public class ComponentDescriptor<T>
         return Collections.unmodifiableList( requirements );
     }
 
-    @SuppressWarnings( "unused" )
-    public final void setRole( final String role )
+    public final String getHumanReadableKey()
     {
+        return "role: '" + role + "', implementation: '" + implementation + "', role hint: '" + hint + "'";
     }
 
-    @SuppressWarnings( "unused" )
-    public final void setRoleClass( final Class<T> roleClass )
+    @Override
+    public final String toString()
     {
+        return getClass().getName() + " [role: '" + role + "', hint: '" + hint + "', realm: " + classRealm + "]";
+    }
+
+    @Override
+    public boolean equals( final Object rhs )
+    {
+        if ( this == rhs )
+        {
+            return true;
+        }
+        if ( rhs instanceof ComponentDescriptor<?> )
+        {
+            final ComponentDescriptor<?> rhsDescriptor = (ComponentDescriptor<?>) rhs;
+            return equals( role, rhsDescriptor.role ) && equals( hint, rhsDescriptor.hint )
+                && equals( classRealm, rhsDescriptor.classRealm );
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return ( ( 17 * 31 + hash( role ) ) * 31 + hash( hint ) ) * 31 + hash( classRealm );
     }
 
     @SuppressWarnings( "unused" )
@@ -160,8 +215,17 @@ public class ComponentDescriptor<T>
     {
     }
 
-    @SuppressWarnings( "unused" )
-    public final void setRealm( final ClassRealm classRealm )
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private static final <T> boolean equals( final T lhs, final T rhs )
     {
+        return null != lhs ? lhs.equals( rhs ) : null == rhs;
+    }
+
+    private static final int hash( final Object obj )
+    {
+        return null != obj ? obj.hashCode() : 0;
     }
 }

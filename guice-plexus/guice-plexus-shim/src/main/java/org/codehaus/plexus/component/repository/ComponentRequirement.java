@@ -56,4 +56,39 @@ public final class ComponentRequirement
     {
         return name;
     }
+
+    @Override
+    public String toString()
+    {
+        return "ComponentRequirement{role='" + role + "', roleHint='" + hint + "', fieldName='" + name + "'}";
+    }
+
+    @Override
+    public boolean equals( final Object rhs )
+    {
+        if ( this == rhs )
+        {
+            return true;
+        }
+        if ( rhs instanceof ComponentRequirement )
+        {
+            return id().equals( ( (ComponentRequirement) rhs ).id() );
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return id().hashCode();
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private String id()
+    {
+        return role + ':' + hint;
+    }
 }

@@ -255,12 +255,12 @@ public final class DefaultPlexusContainer
 
     public <T> void addComponent( final T component, final java.lang.Class<?> role, final String hint )
     {
-        getLogger().warn( "TODO addComponent( " + role + ", " + hint + " )" ); // TODO
+        getLogger().warn( "TODO addComponent( " + role + ", " + hint + " ) ---> " + component ); // TODO
     }
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
     {
-        getLogger().warn( "TODO addComponentDescriptor( " + descriptor + " )" ); // TODO
+        getLogger().warn( "TODO addComponentDescriptor( " + descriptor + " ) ---> " + descriptor.getImplementation() ); // TODO
     }
 
     public ComponentDescriptor<?> getComponentDescriptor( final String role, final String hint )

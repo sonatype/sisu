@@ -67,4 +67,10 @@ public final class ComponentDependency
     {
         return type;
     }
+
+    @Override
+    public String toString()
+    {
+        return "groupId = " + groupId + ", artifactId = " + artifactId + ", version = " + version + ", type = " + type;
+    }
 }

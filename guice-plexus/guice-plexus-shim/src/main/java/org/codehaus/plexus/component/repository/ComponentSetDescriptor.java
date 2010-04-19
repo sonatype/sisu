@@ -69,6 +69,17 @@ public class ComponentSetDescriptor
         return Collections.unmodifiableList( dependencies );
     }
 
+    @Override
+    public final String toString()
+    {
+        final StringBuffer buf = new StringBuffer( "Component Descriptor: " );
+        for ( final ComponentDescriptor<?> cd : components )
+        {
+            buf.append( cd.getHumanReadableKey() ).append( "\n" );
+        }
+        return buf.append( "---" ).toString();
+    }
+
     @SuppressWarnings( "unused" )
     public final void setId( final String id )
     {
