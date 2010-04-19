@@ -241,7 +241,7 @@ public final class DefaultPlexusContainer
 
     public boolean hasComponent( final Class<?> role, final String hint )
     {
-        return locate( role, hint ).iterator().hasNext();
+        return lookupMap( role ).containsKey( hint );
     }
 
     public boolean hasComponent( final Class<?> type, final String role, final String hint )
