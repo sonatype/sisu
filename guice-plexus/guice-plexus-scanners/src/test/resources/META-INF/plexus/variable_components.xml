@@ -11,6 +11,14 @@
         <suffix>bar</suffix>
       </configuration>
     </component>
+    <component>
+      <role-hint>
+        debug
+      </role-hint>
+      <implementation>
+        org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$DefaultBean
+      </implementation>
+    </component>
   </components>
 
 </component-set>

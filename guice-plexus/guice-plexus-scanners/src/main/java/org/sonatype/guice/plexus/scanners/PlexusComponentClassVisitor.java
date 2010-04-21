@@ -21,7 +21,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Strategies;
 
@@ -43,7 +42,7 @@ public class PlexusComponentClassVisitor
 
     protected final ClassSpace space;
 
-    private final PlexusComponentRegistry componentRegistry;
+    private final PlexusComponentRegistry registry;
 
     private final AnnotationVisitor componentVisitor = new ComponentAnnotationVisitor();
 
@@ -65,7 +64,7 @@ public class PlexusComponentClassVisitor
     {
         this.space = space;
 
-        componentRegistry = new PlexusComponentRegistry( space );
+        registry = new PlexusComponentRegistry( space );
     }
 
     // ----------------------------------------------------------------------
@@ -74,7 +73,7 @@ public class PlexusComponentClassVisitor
 
     public final Map<Component, DeferredClass<?>> getComponents()
     {
-        return componentRegistry.getComponents();
+        return registry.getComponents();
     }
 
     public void setRole( final String role )
@@ -131,13 +130,7 @@ public class PlexusComponentClassVisitor
     {
         if ( null != role )
         {
-            final Class<?> clazz = componentRegistry.loadRole( role, implementation );
-            if ( null != clazz )
-            {
-                hint = Hints.canonicalHint( hint );
-                final Component component = new ComponentImpl( clazz, hint, instantiationStrategy, description );
-                componentRegistry.addComponent( component, implementation );
-            }
+            registry.addComponent( role, hint, instantiationStrategy, description, implementation );
         }
     }
 

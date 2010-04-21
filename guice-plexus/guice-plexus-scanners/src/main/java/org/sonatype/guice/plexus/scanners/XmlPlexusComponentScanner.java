@@ -33,7 +33,6 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.Hints;
@@ -82,10 +81,10 @@ final class XmlPlexusComponentScanner
     public Map<Component, DeferredClass<?>> scan( final ClassSpace space, final boolean localSearch )
         throws IOException
     {
-        final PlexusComponentRegistry componentRegistry = new PlexusComponentRegistry( space );
+        final PlexusComponentRegistry registry = new PlexusComponentRegistry( space );
         if ( null != plexusXml )
         {
-            parsePlexusXml( plexusXml, componentRegistry );
+            parsePlexusXml( plexusXml, registry );
         }
 
         final Enumeration<URL> e;
@@ -102,10 +101,10 @@ final class XmlPlexusComponentScanner
 
         while ( e.hasMoreElements() )
         {
-            parseComponentsXml( e.nextElement(), componentRegistry );
+            parseComponentsXml( e.nextElement(), registry );
         }
 
-        return componentRegistry.getComponents();
+        return registry.getComponents();
     }
 
     // ----------------------------------------------------------------------
@@ -134,9 +133,9 @@ final class XmlPlexusComponentScanner
      * Parses a {@code plexus.xml} resource into load-on-start settings and Plexus bean metadata.
      * 
      * @param url The plexus.xml URL
-     * @param componentRegistry The parsed components
+     * @param registry The parsed components
      */
-    private void parsePlexusXml( final URL url, final PlexusComponentRegistry componentRegistry )
+    private void parsePlexusXml( final URL url, final PlexusComponentRegistry registry )
         throws IOException
     {
         final InputStream in = url.openStream();
@@ -155,14 +154,14 @@ final class XmlPlexusComponentScanner
                 {
                     while ( parser.nextTag() == XmlPullParser.START_TAG )
                     {
-                        parseLoadOnStart( parser, componentRegistry );
+                        parseLoadOnStart( parser, registry );
                     }
                 }
                 else if ( "components".equals( name ) )
                 {
                     while ( parser.nextTag() == XmlPullParser.START_TAG )
                     {
-                        parseComponent( parser, componentRegistry );
+                        parseComponent( parser, registry );
                     }
                 }
                 else
@@ -185,9 +184,9 @@ final class XmlPlexusComponentScanner
      * Parses a {@code components.xml} resource into a series of Plexus bean metadata.
      * 
      * @param url The components.xml URL
-     * @param componentRegistry The parsed components
+     * @param registry The parsed components
      */
-    private void parseComponentsXml( final URL url, final PlexusComponentRegistry componentRegistry )
+    private void parseComponentsXml( final URL url, final PlexusComponentRegistry registry )
         throws IOException
     {
         final InputStream in = url.openStream();
@@ -203,7 +202,7 @@ final class XmlPlexusComponentScanner
 
             while ( parser.nextTag() == XmlPullParser.START_TAG )
             {
-                parseComponent( parser, componentRegistry );
+                parseComponent( parser, registry );
             }
         }
         catch ( final XmlPullParserException e )
@@ -220,9 +219,9 @@ final class XmlPlexusComponentScanner
      * Parses a load-on-start &lt;component&gt; XML stanza into a Plexus role-hint.
      * 
      * @param parser The XML parser
-     * @param componentRegistry The parsed components
+     * @param registry The parsed components
      */
-    private void parseLoadOnStart( final MXParser parser, final PlexusComponentRegistry componentRegistry )
+    private void parseLoadOnStart( final MXParser parser, final PlexusComponentRegistry registry )
         throws XmlPullParserException, IOException
     {
         String role = null;
@@ -251,16 +250,16 @@ final class XmlPlexusComponentScanner
             throw new XmlPullParserException( "Missing <role> element.", parser, null );
         }
 
-        componentRegistry.selectStrategy( role, hint, Strategies.LOAD_ON_START );
+        registry.loadOnStart( role, hint );
     }
 
     /**
      * Parses a &lt;component&gt; XML stanza into a deferred implementation, configuration, and requirements.
      * 
      * @param parser The XML parser
-     * @param componentRegistry The parsed components
+     * @param registry The parsed components
      */
-    private void parseComponent( final MXParser parser, final PlexusComponentRegistry componentRegistry )
+    private void parseComponent( final MXParser parser, final PlexusComponentRegistry registry )
         throws XmlPullParserException, IOException
     {
         String role = null;
@@ -272,7 +271,7 @@ final class XmlPlexusComponentScanner
 
         final Map<String, Requirement> requirementMap = new HashMap<String, Requirement>();
         final Map<String, Configuration> configurationMap = new HashMap<String, Configuration>();
-        final ClassSpace space = componentRegistry.getSpace();
+        final ClassSpace space = registry.getSpace();
 
         parser.require( XmlPullParser.START_TAG, null, "component" );
 
@@ -328,14 +327,9 @@ final class XmlPlexusComponentScanner
             role = implementation;
         }
 
-        final Class<?> clazz = componentRegistry.loadRole( role, implementation );
-        if ( null != clazz )
+        implementation = registry.addComponent( role, hint, instantiationStrategy, description, implementation );
+        if ( null != implementation )
         {
-            hint = Hints.canonicalHint( hint );
-            instantiationStrategy = componentRegistry.checkStrategy( role, hint, instantiationStrategy );
-            final Component component = new ComponentImpl( clazz, hint, instantiationStrategy, description );
-            componentRegistry.addComponent( component, implementation );
-
             updatePlexusBeanMetadata( implementation, configurationMap, requirementMap );
         }
     }

@@ -6,15 +6,6 @@
         org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$DefaultBean
       </role>
     </component>
-    <component>
-      <role>
-        org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$Bean
-      </role>
-      <role-hint>
-        debug
-      </role-hint>
-      <extra-bits/>
-    </component>
   </load-on-start>
 
   <components>
@@ -41,6 +32,23 @@
       </description>
     </component>
   </components>
+
+  <load-on-start>
+    <component>
+      <role>
+        org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$Bean
+      </role>
+      <role-hint>
+        debug
+      </role-hint>
+      <extra-bits/>
+    </component>
+    <component>
+      <role>
+        org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$DefaultBean
+      </role>
+    </component>
+  </load-on-start>
 
   <dependencies>
     <dependency>

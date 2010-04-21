@@ -13,14 +13,20 @@
 package org.sonatype.guice.plexus.scanners;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.plexus.annotations.ComponentImpl;
+import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Roles;
+import org.sonatype.guice.plexus.config.Strategies;
 
 /**
  * Enhanced Plexus component map with additional book-keeping.
@@ -28,14 +34,23 @@ import org.sonatype.guice.plexus.config.Roles;
 final class PlexusComponentRegistry
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final Component LOAD_ON_START_PLACEHOLDER =
+        new ComponentImpl( Object.class, "", Strategies.LOAD_ON_START, "" );
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
     private static final Logger logger = LoggerFactory.getLogger( PlexusComponentRegistry.class );
 
-    private final Map<String, String> strategies = new HashMap<String, String>();
+    private final Map<String, Component> components = new HashMap<String, Component>();
 
-    private final Map<Component, DeferredClass<?>> components = new HashMap<Component, DeferredClass<?>>();
+    private final Map<String, DeferredClass<?>> implementations = new HashMap<String, DeferredClass<?>>();
+
+    private final Set<String> disambiguatedNames = new HashSet<String>();
 
     private final ClassSpace space;
 
@@ -61,54 +76,113 @@ final class PlexusComponentRegistry
     }
 
     /**
-     * Selects the given instantiation strategy for the given Plexus component.
+     * Records that the given Plexus component should be loaded when the container starts.
      * 
      * @param role The Plexus role
      * @param hint The Plexus hint
-     * @param instantiationStrategy The selected instantiation strategy
      */
-    void selectStrategy( final String role, final String hint, final String instantiationStrategy )
+    void loadOnStart( final String role, final String hint )
     {
-        strategies.put( Roles.canonicalRoleHint( role, hint ), instantiationStrategy );
-    }
-
-    /**
-     * Checks the selected instantiation strategy for the given Plexus component.
-     * 
-     * @param role The Plexus role
-     * @param hint The Plexus hint
-     * @param instantiationStrategy The default instantiation strategy
-     * @return Selected instantiation strategy
-     */
-    String checkStrategy( final String role, final String hint, final String instantiationStrategy )
-    {
-        final String roleHintKey = Roles.canonicalRoleHint( role, hint );
-        final String selectedStrategy = strategies.get( roleHintKey );
-        if ( null == selectedStrategy )
+        final String key = Roles.canonicalRoleHint( role, hint );
+        final Component c = components.get( key );
+        if ( null == c )
         {
-            strategies.put( roleHintKey, instantiationStrategy );
-            return instantiationStrategy;
+            components.put( key, LOAD_ON_START_PLACEHOLDER );
         }
-        return selectedStrategy;
+        else if ( !Strategies.LOAD_ON_START.equals( c.instantiationStrategy() ) )
+        {
+            components.put( key, new ComponentImpl( c.role(), c.hint(), Strategies.LOAD_ON_START, c.description() ) );
+        }
     }
 
     /**
-     * Attempts to load the given Plexus role, checking its constructor dependencies also exist.
+     * Registers the given component, automatically disambiguating between implementations bound multiple times.
      * 
      * @param role The Plexus role
-     * @param implementation The component implementation
+     * @param hint The Plexus hint
+     * @param instantiationStrategy The instantiation strategy
+     * @param description The component description
+     * @param implementation The implementation
+     * @return The implementation the component was successfully registered with; otherwise {@code null}
+     */
+    String addComponent( final String role, final String hint, final String instantiationStrategy,
+                         final String description, final String implementation )
+    {
+        final Class<?> clazz = loadRole( role, implementation );
+        if ( null == clazz )
+        {
+            return null;
+        }
+
+        final String canonicalHint = Hints.canonicalHint( hint );
+        final String key = Roles.canonicalRoleHint( role, canonicalHint );
+
+        /*
+         * COMPONENT...
+         */
+        final Component oldComponent = components.get( key );
+        if ( null == oldComponent )
+        {
+            components.put( key, new ComponentImpl( clazz, canonicalHint, instantiationStrategy, description ) );
+        }
+        else if ( LOAD_ON_START_PLACEHOLDER == oldComponent )
+        {
+            components.put( key, new ComponentImpl( clazz, canonicalHint, Strategies.LOAD_ON_START, description ) );
+        }
+
+        /*
+         * ...IMPLEMENTATION
+         */
+        final DeferredClass<?> oldImplementation = implementations.get( key );
+        if ( null == oldImplementation )
+        {
+            final DeferredClass<?> newImplementation = disambiguate( implementation );
+            implementations.put( key, newImplementation );
+            return newImplementation.getName();
+        }
+        else if ( oldImplementation.getName().equals( implementation ) )
+        {
+            return implementation; // merge configuration
+        }
+
+        logger.warn( "Duplicate implementations found for Plexus component " + key );
+        logger.warn( "Saw: " + oldImplementation.getName() + " and: " + implementation );
+
+        return null;
+    }
+
+    /**
+     * @return Plexus component map
+     */
+    Map<Component, DeferredClass<?>> getComponents()
+    {
+        final Map<Component, DeferredClass<?>> map = new HashMap<Component, DeferredClass<?>>();
+        for ( final Entry<String, DeferredClass<?>> i : implementations.entrySet() )
+        {
+            map.put( components.get( i.getKey() ), i.getValue() );
+        }
+        return map;
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Attempts to load the given Plexus role, checks constructors for concrete types.
+     * 
+     * @param role The Plexus role
+     * @param implementation The implementation
      * @return Loaded Plexus role
      */
-    Class<?> loadRole( final String role, final String implementation )
+    private Class<?> loadRole( final String role, final String implementation )
     {
-        final Class<?> clazz;
         try
         {
-            // check the role actually exists
-            clazz = space.loadClass( role );
+            final Class<?> clazz = space.loadClass( role );
             if ( implementation.equals( role ) )
             {
-                // also check constructor types
+                // check constructors will load
                 clazz.getDeclaredConstructors();
             }
             return clazz;
@@ -122,35 +196,19 @@ final class PlexusComponentRegistry
     }
 
     /**
-     * Adds the given component implementation to the map, checking for potential duplicates.
+     * Disambiguates between the same implementation used with different configurations.
      * 
-     * @param component The Plexus component
-     * @param implementation The component implementation
-     * @return {@code true} if this is a new component; otherwise {@code false}
+     * @param key The role-hint key
+     * @param implementation The implementation
+     * @return Disambiguated implementation
      */
-    boolean addComponent( final Component component, final String implementation )
+    private DeferredClass<?> disambiguate( final String implementation )
     {
-        final DeferredClass<?> oldImplementation = components.get( component );
-        if ( null != oldImplementation )
+        if ( !disambiguatedNames.add( implementation ) )
         {
-            // check for simple component clashes and report conflicts
-            if ( !oldImplementation.getName().equals( implementation ) )
-            {
-                logger.warn( "Duplicate implementations found for component key: " + component );
-                logger.warn( "Saw: " + oldImplementation.getName() + " and: " + implementation );
-            }
-            return false;
+            // same implementation has different configurations - needs disambiguation
+            logger.warn( "Component " + implementation + " requires disambiguation" );
         }
-
-        components.put( component, space.deferLoadClass( implementation ) );
-        return true;
-    }
-
-    /**
-     * @return Plexus component map
-     */
-    Map<Component, DeferredClass<?>> getComponents()
-    {
-        return components;
+        return space.deferLoadClass( implementation );
     }
 }
