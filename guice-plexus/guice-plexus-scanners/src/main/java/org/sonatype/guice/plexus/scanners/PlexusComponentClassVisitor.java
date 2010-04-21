@@ -23,6 +23,7 @@ import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.Hints;
+import org.sonatype.guice.plexus.config.Strategies;
 
 /**
  * {@link ClassVisitor} that records Plexus bean classes annotated with @{@link Component}.
@@ -113,7 +114,7 @@ public class PlexusComponentClassVisitor
         }
 
         hint = Hints.DEFAULT_HINT;
-        instantiationStrategy = "singleton";
+        instantiationStrategy = Strategies.SINGLETON;
         description = "";
 
         setImplementation( name.replace( '/', '.' ) );

@@ -38,6 +38,7 @@ import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
+import org.sonatype.guice.plexus.config.Strategies;
 
 public class AnnotatedPlexusBeanSourceTest
     extends TestCase
@@ -132,8 +133,8 @@ public class AnnotatedPlexusBeanSourceTest
         final Map<Component, DeferredClass<?>> components = source.findPlexusComponentBeans();
         assertEquals( 3, components.size() );
 
-        final Component beanComponent = new ComponentImpl( Bean.class, "default", "singleton", "" );
-        final Component testComponent = new ComponentImpl( Runnable.class, "test", "per-lookup", "Some Test" );
+        final Component beanComponent = new ComponentImpl( Bean.class, "default", Strategies.SINGLETON, "" );
+        final Component testComponent = new ComponentImpl( Runnable.class, "test", Strategies.PER_LOOKUP, "Some Test" );
 
         assertEquals( DuplicateBean.class.getName(), components.get( beanComponent ).getName() );
         assertEquals( TestBean.class, components.get( testComponent ).get() );

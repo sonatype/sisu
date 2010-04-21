@@ -14,6 +14,7 @@ package org.sonatype.guice.plexus.annotations;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.bean.reflect.DeferredClass;
@@ -41,9 +42,9 @@ public final class RequirementImpl
     // Constructors
     // ----------------------------------------------------------------------
 
-    public RequirementImpl( final DeferredClass<?> role, final boolean optional, final String... hints )
+    public RequirementImpl( final DeferredClass<?> role, final boolean optional, final List<String> hints )
     {
-        if ( null == role || null == hints || Arrays.asList( hints ).contains( null ) )
+        if ( null == role || null == hints || hints.contains( null ) )
         {
             throw new IllegalArgumentException( "@Requirement cannot contain null values" );
         }
@@ -51,26 +52,27 @@ public final class RequirementImpl
         this.role = role;
         this.optional = optional;
 
-        if ( hints.length == 0 )
+        final int length = hints.size();
+        if ( length == 0 )
         {
             hint = "";
             this.hints = Hints.NO_HINTS;
         }
-        else if ( hints.length == 1 )
+        else if ( length == 1 )
         {
-            hint = hints[0];
+            hint = hints.get( 0 );
             this.hints = Hints.NO_HINTS;
         }
         else
         {
             hint = "";
-            this.hints = hints.clone();
+            this.hints = hints.toArray( new String[length] );
         }
     }
 
     public RequirementImpl( final Class<?> role, final boolean optional, final String... hints )
     {
-        this( null == role ? null : new ExistingClass( role ), optional, hints );
+        this( null == role ? null : new ExistingClass( role ), optional, null == hints ? null : Arrays.asList( hints ) );
     }
 
     // ----------------------------------------------------------------------

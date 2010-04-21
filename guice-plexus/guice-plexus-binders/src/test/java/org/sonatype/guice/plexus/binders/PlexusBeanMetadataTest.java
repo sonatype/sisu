@@ -37,6 +37,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
+import org.sonatype.guice.plexus.config.Strategies;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
@@ -163,7 +164,8 @@ public class PlexusBeanMetadataTest
         public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
         {
             return Collections.<Component, DeferredClass<?>> singletonMap( new ComponentImpl( Bean.class, "2",
-                                                                                              "load-on-start", "A" ),
+                                                                                              Strategies.LOAD_ON_START,
+                                                                                              "A" ),
                                                                            defer( DefaultBean1.class ) );
         }
 
@@ -179,7 +181,8 @@ public class PlexusBeanMetadataTest
         public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
         {
             return Collections.<Component, DeferredClass<?>> singletonMap( new ComponentImpl( DefaultBean2.class, "",
-                                                                                              "per-lookup", "B" ),
+                                                                                              Strategies.PER_LOOKUP,
+                                                                                              "B" ),
                                                                            defer( DefaultBean2.class ) );
         }
 
@@ -195,7 +198,8 @@ public class PlexusBeanMetadataTest
         public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
         {
             return Collections.<Component, DeferredClass<?>> singletonMap( new ComponentImpl( DefaultBean2.class, "2",
-                                                                                              "per-lookup", "C" ),
+                                                                                              Strategies.PER_LOOKUP,
+                                                                                              "C" ),
                                                                            defer( DefaultBean2.class ) );
         }
 

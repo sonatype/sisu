@@ -12,6 +12,8 @@
  */
 package org.sonatype.guice.plexus.config;
 
+import java.util.List;
+
 import org.codehaus.plexus.component.annotations.Requirement;
 
 /**
@@ -84,6 +86,21 @@ public final class Hints
         for ( int i = 0; i < length; i++ )
         {
             hints[i] = canonicalHint( hints[i] );
+        }
+        return hints;
+    }
+
+    /**
+     * Returns the canonical form of the given Plexus hints.
+     * 
+     * @param hints The Plexus hints
+     * @return List of canonical hints
+     */
+    public static List<String> canonicalHints( final List<String> hints )
+    {
+        for ( int i = 0, length = hints.size(); i < length; i++ )
+        {
+            hints.set( i, canonicalHint( hints.get( i ) ) );
         }
         return hints;
     }

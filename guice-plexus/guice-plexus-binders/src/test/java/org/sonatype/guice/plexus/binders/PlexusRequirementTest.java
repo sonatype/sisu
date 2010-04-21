@@ -37,6 +37,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
+import org.sonatype.guice.plexus.config.Strategies;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
@@ -175,7 +176,7 @@ public class PlexusRequirementTest
     {
     }
 
-    @Component( role = Component1.class, instantiationStrategy = "per-lookup" )
+    @Component( role = Component1.class, instantiationStrategy = Strategies.PER_LOOKUP )
     static class Component1
     {
         @Requirement

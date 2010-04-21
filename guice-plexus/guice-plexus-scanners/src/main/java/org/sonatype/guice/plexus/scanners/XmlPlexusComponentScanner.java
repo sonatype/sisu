@@ -38,6 +38,7 @@ import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Roles;
+import org.sonatype.guice.plexus.config.Strategies;
 
 /**
  * {@link PlexusComponentScanner} that uses XML resources to discover Plexus components.
@@ -45,12 +46,6 @@ import org.sonatype.guice.plexus.config.Roles;
 final class XmlPlexusComponentScanner
     implements PlexusComponentScanner
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final String LOAD_ON_START = "load-on-start";
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -156,7 +151,7 @@ final class XmlPlexusComponentScanner
             while ( parser.nextTag() == XmlPullParser.START_TAG )
             {
                 final String name = parser.getName();
-                if ( LOAD_ON_START.equals( name ) )
+                if ( Strategies.LOAD_ON_START.equals( name ) )
                 {
                     while ( parser.nextTag() == XmlPullParser.START_TAG )
                     {
@@ -256,7 +251,7 @@ final class XmlPlexusComponentScanner
             throw new XmlPullParserException( "Missing <role> element.", parser, null );
         }
 
-        componentMap.selectStrategy( role, hint, LOAD_ON_START );
+        componentMap.selectStrategy( role, hint, Strategies.LOAD_ON_START );
     }
 
     /**
@@ -270,7 +265,7 @@ final class XmlPlexusComponentScanner
     {
         String role = null;
         String hint = "";
-        String instantiationStrategy = "singleton";
+        String instantiationStrategy = Strategies.SINGLETON;
         String description = "";
 
         String implementation = null;
@@ -442,8 +437,8 @@ final class XmlPlexusComponentScanner
             }
         }
 
-        final String[] hints = Hints.canonicalHints( hintList.toArray( new String[hintList.size()] ) );
-        requirementMap.put( fieldName, new RequirementImpl( space.deferLoadClass( role ), optional, hints ) );
+        requirementMap.put( fieldName, new RequirementImpl( space.deferLoadClass( role ), optional,
+                                                            Hints.canonicalHints( hintList ) ) );
     }
 
     /**

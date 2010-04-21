@@ -13,6 +13,7 @@
 package org.sonatype.guice.plexus.config;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import junit.framework.TestCase;
 
@@ -39,6 +40,16 @@ public class HintsTest
         assertArrayEquals( new String[] { "foo" }, Hints.canonicalHints( requirement( "foo" ) ) );
         assertArrayEquals( new String[] { "default", "foo" }, Hints.canonicalHints( requirement( "", "foo" ) ) );
         assertArrayEquals( new String[] { "foo", "default" }, Hints.canonicalHints( requirement( "foo", "" ) ) );
+    }
+
+    public void testCanonicalHintList()
+    {
+        assertEquals( Collections.emptyList(), Hints.canonicalHints( Arrays.<String> asList() ) );
+        assertEquals( Arrays.asList( Hints.DEFAULT_HINT ), Hints.canonicalHints( Arrays.asList( "" ) ) );
+        assertEquals( Arrays.asList( Hints.DEFAULT_HINT ), Hints.canonicalHints( Arrays.asList( "default" ) ) );
+        assertEquals( Arrays.asList( "foo" ), Hints.canonicalHints( Arrays.asList( "foo" ) ) );
+        assertEquals( Arrays.asList( "default", "foo" ), Hints.canonicalHints( Arrays.asList( "", "foo" ) ) );
+        assertEquals( Arrays.asList( "foo", "default" ), Hints.canonicalHints( Arrays.asList( "foo", "" ) ) );
     }
 
     public void testHintsAreInterned()

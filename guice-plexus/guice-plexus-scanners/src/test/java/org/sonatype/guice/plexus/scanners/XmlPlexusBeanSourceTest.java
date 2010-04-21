@@ -35,6 +35,7 @@ import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
+import org.sonatype.guice.plexus.config.Strategies;
 
 import com.google.inject.TypeLiteral;
 
@@ -145,10 +146,11 @@ public class XmlPlexusBeanSourceTest
 
         assertEquals( 2, componentMap.size() );
 
-        final Component component1 = new ComponentImpl( DefaultBean.class, Hints.DEFAULT_HINT, "load-on-start", "" );
+        final Component component1 =
+            new ComponentImpl( DefaultBean.class, Hints.DEFAULT_HINT, Strategies.LOAD_ON_START, "" );
         assertEquals( DefaultBean.class, componentMap.get( component1 ).get() );
 
-        final Component component2 = new ComponentImpl( Bean.class, "debug", "load-on-start", "For debugging" );
+        final Component component2 = new ComponentImpl( Bean.class, "debug", Strategies.LOAD_ON_START, "For debugging" );
         assertEquals( DebugBean.class, componentMap.get( component2 ).get() );
     }
 
@@ -237,13 +239,14 @@ public class XmlPlexusBeanSourceTest
 
         assertEquals( 3, componentMap.size() );
 
-        final Component component1 = new ComponentImpl( DefaultBean.class, Hints.DEFAULT_HINT, "per-lookup", "" );
+        final Component component1 =
+            new ComponentImpl( DefaultBean.class, Hints.DEFAULT_HINT, Strategies.PER_LOOKUP, "" );
         assertEquals( DefaultBean.class, componentMap.get( component1 ).get() );
 
-        final Component component2 = new ComponentImpl( Bean.class, "debug", "singleton", "For debugging" );
+        final Component component2 = new ComponentImpl( Bean.class, "debug", Strategies.SINGLETON, "For debugging" );
         assertEquals( DebugBean.class, componentMap.get( component2 ).get() );
 
-        final Component component3 = new ComponentImpl( Bean.class, Hints.DEFAULT_HINT, "singleton", "" );
+        final Component component3 = new ComponentImpl( Bean.class, Hints.DEFAULT_HINT, Strategies.SINGLETON, "" );
         assertEquals( AnotherBean.class, componentMap.get( component3 ).get() );
 
         final PlexusBeanMetadata metadata1 = source.getBeanMetadata( DefaultBean.class );

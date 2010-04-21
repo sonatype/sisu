@@ -19,6 +19,7 @@ import org.sonatype.guice.bean.inject.BeanListener;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.config.Roles;
+import org.sonatype.guice.plexus.config.Strategies;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Key;
@@ -102,7 +103,7 @@ public final class PlexusBindingModule
                 sbb = bind( roleKey );
             }
         }
-        else if ( "load-on-start".equals( strategy ) )
+        else if ( Strategies.LOAD_ON_START.equals( strategy ) )
         {
             // no point deferring eager components
             sbb = bind( roleKey ).to( clazz.get() );
@@ -113,11 +114,11 @@ public final class PlexusBindingModule
             sbb = bind( roleKey ).toProvider( new DeferredProvider( clazz ) );
         }
 
-        if ( "load-on-start".equals( strategy ) )
+        if ( Strategies.LOAD_ON_START.equals( strategy ) )
         {
             sbb.asEagerSingleton();
         }
-        else if ( !"per-lookup".equals( strategy ) )
+        else if ( !Strategies.PER_LOOKUP.equals( strategy ) )
         {
             // default Plexus policy
             sbb.in( Scopes.SINGLETON );

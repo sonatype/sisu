@@ -13,8 +13,9 @@
 package org.sonatype.guice.plexus.scanners;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.sonatype.guice.plexus.config.Strategies;
 
-@Component( role = Runnable.class, hint = "test", instantiationStrategy = "per-lookup", description = "Some Test", isolatedRealm = true )
+@Component( role = Runnable.class, hint = "test", instantiationStrategy = Strategies.PER_LOOKUP, description = "Some Test", isolatedRealm = true )
 public class TestBean
     implements Runnable
 {

@@ -18,6 +18,7 @@ import java.util.HashSet;
 import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.sonatype.guice.plexus.config.Strategies;
 
 public class ComponentAnnotationTest
     extends TestCase
@@ -44,13 +45,13 @@ public class ComponentAnnotationTest
     {
     }
 
-    @Component( role = A.class, instantiationStrategy = "per-lookup" )
+    @Component( role = A.class, instantiationStrategy = Strategies.PER_LOOKUP )
     static class PrototypeA
         implements A
     {
     }
 
-    @Component( role = A.class, hint = "Named", instantiationStrategy = "per-lookup" )
+    @Component( role = A.class, hint = "Named", instantiationStrategy = Strategies.PER_LOOKUP )
     static class NamedPrototypeA
         implements A
     {
