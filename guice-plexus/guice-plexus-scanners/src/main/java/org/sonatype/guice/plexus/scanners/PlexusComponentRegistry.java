@@ -13,9 +13,7 @@
 package org.sonatype.guice.plexus.scanners;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -50,7 +48,7 @@ final class PlexusComponentRegistry
 
     private final Map<String, DeferredClass<?>> implementations = new HashMap<String, DeferredClass<?>>();
 
-    private final Set<String> disambiguatedNames = new HashSet<String>();
+    private final ClassSpace implementationSpace;
 
     private final ClassSpace space;
 
@@ -60,6 +58,7 @@ final class PlexusComponentRegistry
 
     PlexusComponentRegistry( final ClassSpace space )
     {
+        implementationSpace = new DisambiguatedClassSpace( space );
         this.space = space;
     }
 
@@ -136,7 +135,7 @@ final class PlexusComponentRegistry
         final DeferredClass<?> oldImplementation = implementations.get( key );
         if ( null == oldImplementation )
         {
-            final DeferredClass<?> newImplementation = disambiguate( implementation );
+            final DeferredClass<?> newImplementation = implementationSpace.deferLoadClass( implementation );
             implementations.put( key, newImplementation );
             return newImplementation.getName();
         }
@@ -193,22 +192,5 @@ final class PlexusComponentRegistry
             logger.debug( "Ignoring Plexus role: " + role + " [" + e + "]" );
             return null;
         }
-    }
-
-    /**
-     * Disambiguates between the same implementation used with different configurations.
-     * 
-     * @param key The role-hint key
-     * @param implementation The implementation
-     * @return Disambiguated implementation
-     */
-    private DeferredClass<?> disambiguate( final String implementation )
-    {
-        if ( !disambiguatedNames.add( implementation ) )
-        {
-            // same implementation has different configurations - needs disambiguation
-            logger.warn( "Component " + implementation + " requires disambiguation" );
-        }
-        return space.deferLoadClass( implementation );
     }
 }

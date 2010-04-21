@@ -15,7 +15,7 @@ package org.sonatype.guice.bean.reflect;
 /**
  * Strong {@link DeferredClass} representing a named class from a {@link ClassSpace}.
  */
-final class StrongDeferredClass<T>
+public final class StrongDeferredClass<T>
     implements DeferredClass<T>
 {
     // ----------------------------------------------------------------------
@@ -26,14 +26,11 @@ final class StrongDeferredClass<T>
 
     private final String name;
 
-    @SuppressWarnings( "unchecked" )
-    private Class clazz;
-
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    StrongDeferredClass( final ClassSpace space, final String name )
+    public StrongDeferredClass( final ClassSpace space, final String name )
     {
         this.space = space;
         this.name = name;
@@ -46,21 +43,23 @@ final class StrongDeferredClass<T>
     @SuppressWarnings( "unchecked" )
     public Class<T> get()
     {
-        if ( null == clazz )
+        try
         {
-            try
-            {
-                clazz = space.loadClass( name );
-            }
-            catch ( final Throwable e )
-            {
-                throw new TypeNotPresentException( name, e );
-            }
+            return (Class<T>) space.loadClass( name );
         }
-        return clazz;
+        catch ( final Throwable e )
+        {
+            throw new TypeNotPresentException( name, e );
+        }
     }
 
     public String getName()
+    {
+        return name;
+    }
+
+    @Override
+    public String toString()
     {
         return name;
     }
