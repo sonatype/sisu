@@ -82,10 +82,10 @@ final class XmlPlexusComponentScanner
     public Map<Component, DeferredClass<?>> scan( final ClassSpace space, final boolean localSearch )
         throws IOException
     {
-        final PlexusComponentMap componentMap = new PlexusComponentMap( space );
+        final PlexusComponentRegistry componentRegistry = new PlexusComponentRegistry( space );
         if ( null != plexusXml )
         {
-            parsePlexusXml( plexusXml, componentMap );
+            parsePlexusXml( plexusXml, componentRegistry );
         }
 
         final Enumeration<URL> e;
@@ -102,10 +102,10 @@ final class XmlPlexusComponentScanner
 
         while ( e.hasMoreElements() )
         {
-            parseComponentsXml( e.nextElement(), componentMap );
+            parseComponentsXml( e.nextElement(), componentRegistry );
         }
 
-        return componentMap.getComponents();
+        return componentRegistry.getComponents();
     }
 
     // ----------------------------------------------------------------------
@@ -134,9 +134,9 @@ final class XmlPlexusComponentScanner
      * Parses a {@code plexus.xml} resource into load-on-start settings and Plexus bean metadata.
      * 
      * @param url The plexus.xml URL
-     * @param componentMap The parsed components
+     * @param componentRegistry The parsed components
      */
-    private void parsePlexusXml( final URL url, final PlexusComponentMap componentMap )
+    private void parsePlexusXml( final URL url, final PlexusComponentRegistry componentRegistry )
         throws IOException
     {
         final InputStream in = url.openStream();
@@ -155,14 +155,14 @@ final class XmlPlexusComponentScanner
                 {
                     while ( parser.nextTag() == XmlPullParser.START_TAG )
                     {
-                        parseLoadOnStart( parser, componentMap );
+                        parseLoadOnStart( parser, componentRegistry );
                     }
                 }
                 else if ( "components".equals( name ) )
                 {
                     while ( parser.nextTag() == XmlPullParser.START_TAG )
                     {
-                        parseComponent( parser, componentMap );
+                        parseComponent( parser, componentRegistry );
                     }
                 }
                 else
@@ -185,9 +185,9 @@ final class XmlPlexusComponentScanner
      * Parses a {@code components.xml} resource into a series of Plexus bean metadata.
      * 
      * @param url The components.xml URL
-     * @param componentMap The parsed components
+     * @param componentRegistry The parsed components
      */
-    private void parseComponentsXml( final URL url, final PlexusComponentMap componentMap )
+    private void parseComponentsXml( final URL url, final PlexusComponentRegistry componentRegistry )
         throws IOException
     {
         final InputStream in = url.openStream();
@@ -203,7 +203,7 @@ final class XmlPlexusComponentScanner
 
             while ( parser.nextTag() == XmlPullParser.START_TAG )
             {
-                parseComponent( parser, componentMap );
+                parseComponent( parser, componentRegistry );
             }
         }
         catch ( final XmlPullParserException e )
@@ -220,9 +220,9 @@ final class XmlPlexusComponentScanner
      * Parses a load-on-start &lt;component&gt; XML stanza into a Plexus role-hint.
      * 
      * @param parser The XML parser
-     * @param componentMap The parsed components
+     * @param componentRegistry The parsed components
      */
-    private void parseLoadOnStart( final MXParser parser, final PlexusComponentMap componentMap )
+    private void parseLoadOnStart( final MXParser parser, final PlexusComponentRegistry componentRegistry )
         throws XmlPullParserException, IOException
     {
         String role = null;
@@ -251,16 +251,16 @@ final class XmlPlexusComponentScanner
             throw new XmlPullParserException( "Missing <role> element.", parser, null );
         }
 
-        componentMap.selectStrategy( role, hint, Strategies.LOAD_ON_START );
+        componentRegistry.selectStrategy( role, hint, Strategies.LOAD_ON_START );
     }
 
     /**
      * Parses a &lt;component&gt; XML stanza into a deferred implementation, configuration, and requirements.
      * 
      * @param parser The XML parser
-     * @param componentMap The parsed components
+     * @param componentRegistry The parsed components
      */
-    private void parseComponent( final MXParser parser, final PlexusComponentMap componentMap )
+    private void parseComponent( final MXParser parser, final PlexusComponentRegistry componentRegistry )
         throws XmlPullParserException, IOException
     {
         String role = null;
@@ -272,7 +272,7 @@ final class XmlPlexusComponentScanner
 
         final Map<String, Requirement> requirementMap = new HashMap<String, Requirement>();
         final Map<String, Configuration> configurationMap = new HashMap<String, Configuration>();
-        final ClassSpace space = componentMap.getSpace();
+        final ClassSpace space = componentRegistry.getSpace();
 
         parser.require( XmlPullParser.START_TAG, null, "component" );
 
@@ -328,13 +328,13 @@ final class XmlPlexusComponentScanner
             role = implementation;
         }
 
-        final Class<?> clazz = componentMap.loadRole( role, implementation );
+        final Class<?> clazz = componentRegistry.loadRole( role, implementation );
         if ( null != clazz )
         {
             hint = Hints.canonicalHint( hint );
-            instantiationStrategy = componentMap.checkStrategy( role, hint, instantiationStrategy );
+            instantiationStrategy = componentRegistry.checkStrategy( role, hint, instantiationStrategy );
             final Component component = new ComponentImpl( clazz, hint, instantiationStrategy, description );
-            componentMap.addComponent( component, implementation );
+            componentRegistry.addComponent( component, implementation );
 
             updatePlexusBeanMetadata( implementation, configurationMap, requirementMap );
         }

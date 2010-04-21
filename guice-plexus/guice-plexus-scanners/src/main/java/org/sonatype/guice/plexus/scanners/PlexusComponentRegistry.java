@@ -25,13 +25,13 @@ import org.sonatype.guice.plexus.config.Roles;
 /**
  * Enhanced Plexus component map with additional book-keeping.
  */
-final class PlexusComponentMap
+final class PlexusComponentRegistry
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private static final Logger logger = LoggerFactory.getLogger( PlexusComponentMap.class );
+    private static final Logger logger = LoggerFactory.getLogger( PlexusComponentRegistry.class );
 
     private final Map<String, String> strategies = new HashMap<String, String>();
 
@@ -43,7 +43,7 @@ final class PlexusComponentMap
     // Constructors
     // ----------------------------------------------------------------------
 
-    PlexusComponentMap( final ClassSpace space )
+    PlexusComponentRegistry( final ClassSpace space )
     {
         this.space = space;
     }
