@@ -89,6 +89,8 @@ public final class DefaultPlexusContainer
 
     final ClassRealm containerRealm;
 
+    final ThreadLocal<ClassRealm> lookupRealm = new ThreadLocal<ClassRealm>();
+
     final PlexusLifecycleManager lifecycleManager;
 
     @Inject
@@ -380,14 +382,14 @@ public final class DefaultPlexusContainer
 
     public ClassRealm setLookupRealm( final ClassRealm realm )
     {
-        getLogger().warn( "TODO setLookupRealm( " + realm + " )" );
-        return containerRealm; // TODO
+        final ClassRealm oldRealm = lookupRealm.get();
+        lookupRealm.set( realm );
+        return oldRealm;
     }
 
     public ClassRealm getLookupRealm()
     {
-        getLogger().warn( "TODO getLookupRealm()" );
-        return containerRealm; // TODO
+        return lookupRealm.get();
     }
 
     // ----------------------------------------------------------------------
@@ -532,43 +534,56 @@ public final class DefaultPlexusContainer
     @SuppressWarnings( "unchecked" )
     private Class<Object> loadRoleClass( final String role )
     {
+        Throwable exception = null;
         try
         {
             // the majority of roles are found here
             return containerRealm.loadClass( role );
         }
-        catch ( final Throwable e ) // NOPMD
+        catch ( final Throwable e )
         {
-            // drop-through
+            exception = e;
+        }
+        final ClassRealm realm = getLookupRealm();
+        if ( null != realm && containerRealm != realm )
+        {
+            try
+            {
+                // Plexus per-thread lookup
+                return realm.loadClass( role );
+            }
+            catch ( final Throwable e )
+            {
+                exception = e;
+            }
         }
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         if ( null != tccl && containerRealm != tccl )
         {
             try
             {
-                // allow per-thread customized lookup
+                // standard Java per-thread lookup
                 return (Class) tccl.loadClass( role );
             }
-            catch ( final Throwable e ) // NOPMD
+            catch ( final Throwable e )
             {
-                // drop through
+                exception = e;
             }
         }
         if ( null != securityManager )
         {
             try
             {
-                // otherwise the caller should be able to see it
+                // otherwise the caller should be able to see it!
                 return securityManager.loadClassFromCaller( role );
             }
-            catch ( final Throwable e ) // NOPMD
+            catch ( final Throwable e )
             {
-                // drop-through
+                exception = e;
             }
         }
 
-        // TODO: -------- LookupRealm support? --------
-        throw new TypeNotPresentException( role, null );
+        throw new TypeNotPresentException( role, exception );
     }
 
     /**
