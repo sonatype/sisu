@@ -65,7 +65,7 @@ final class ComponentDescriptorBeanSource
     {
         for ( final ComponentDescriptor<?> descriptor : descriptors )
         {
-            if ( implementation.equals( descriptor.getImplementation() ) )
+            if ( implementation.getName().equals( descriptor.getImplementation() ) )
             {
                 if ( !descriptor.getRequirements().isEmpty() )
                 {
@@ -135,7 +135,6 @@ final class ComponentDescriptorBeanSource
                 final ComponentRequirement requirement = requirements.get( i );
                 if ( property.getName().equals( requirement.getFieldName() ) )
                 {
-                    requirements.remove( i );
                     try
                     {
                         final Class<?> role = realm.loadClass( requirement.getRole() );
