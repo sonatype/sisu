@@ -119,6 +119,19 @@ public class ComponentDescriptor<T>
         return role;
     }
 
+    @SuppressWarnings( "unchecked" )
+    public Class<T> getRoleClass()
+    {
+        try
+        {
+            return classRealm.loadClass( getRole() );
+        }
+        catch ( final Throwable e )
+        {
+            return (Class) Object.class;
+        }
+    }
+
     public String getRoleHint()
     {
         return hint;
@@ -145,6 +158,11 @@ public class ComponentDescriptor<T>
         return implementation;
     }
 
+    public final ClassRealm getRealm()
+    {
+        return classRealm;
+    }
+
     @SuppressWarnings( "unchecked" )
     public final Class<T> getImplementationClass()
     {
@@ -154,7 +172,7 @@ public class ComponentDescriptor<T>
             {
                 implementationClass = classRealm.loadClass( implementation );
             }
-            catch ( final ClassNotFoundException e ) // NOPMD
+            catch ( final Throwable e ) // NOPMD
             {
                 // follow Plexus and fall back to Object.class
             }

@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
@@ -95,6 +96,9 @@ public final class DefaultPlexusContainer
     private GuiceBeanLocator beanLocator;
 
     private ContainerSecurityManager securityManager;
+
+    private final Map<ClassRealm, List<ComponentDescriptor<?>>> descriptorMap =
+        new ConcurrentHashMap<ClassRealm, List<ComponentDescriptor<?>>>();
 
     private LoggerManager loggerManager = CONSOLE_LOGGER_MANAGER;
 
@@ -279,7 +283,19 @@ public final class DefaultPlexusContainer
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
     {
-        getLogger().warn( "TODO addComponentDescriptor( " + descriptor + " ) ---> " + descriptor.getImplementation() ); // TODO
+        final ClassRealm realm = descriptor.getRealm();
+        if ( null == realm || containerRealm == realm )
+        {
+            getLogger().warn( "Cannot add ComponentDescriptor: " + descriptor );
+            return;
+        }
+        List<ComponentDescriptor<?>> descriptors = descriptorMap.get( realm );
+        if ( null == descriptors )
+        {
+            descriptors = new ArrayList<ComponentDescriptor<?>>();
+            descriptorMap.put( realm, descriptors );
+        }
+        descriptors.add( descriptor );
     }
 
     public ComponentDescriptor<?> getComponentDescriptor( final String role, final String hint )
@@ -318,7 +334,19 @@ public final class DefaultPlexusContainer
         {
             final ClassSpace space = new URLClassSpace( classRealm );
             final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, variables );
-            final Module bindings = new PlexusBindingModule( lifecycleManager, xmlSource );
+
+            final Module bindings;
+
+            final List<ComponentDescriptor<?>> descriptors = descriptorMap.remove( classRealm );
+            if ( null != descriptors )
+            {
+                final PlexusBeanSource cmpSource = new ComponentDescriptorBeanSource( variables, descriptors );
+                bindings = new PlexusBindingModule( lifecycleManager, xmlSource, cmpSource );
+            }
+            else
+            {
+                bindings = new PlexusBindingModule( lifecycleManager, xmlSource );
+            }
 
             beanLocator.add( injector.createChildInjector( bindings ) );
         }
