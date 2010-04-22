@@ -17,13 +17,8 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Configuration;
-import org.codehaus.plexus.component.annotations.Requirement;
-import org.codehaus.plexus.util.StringUtils;
-import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 
@@ -31,15 +26,13 @@ import org.sonatype.guice.plexus.config.PlexusBeanSource;
  * {@link PlexusBeanSource} that collects {@link PlexusBeanMetadata} by scanning classes for runtime annotations.
  */
 public class AnnotatedPlexusBeanSource
-    implements PlexusBeanSource, PlexusBeanMetadata
+    extends AbstractAnnotatedPlexusBeanSource
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
     private final ClassSpace space;
-
-    private final Map<?, ?> variables;
 
     private final PlexusComponentScanner scanner;
 
@@ -57,8 +50,8 @@ public class AnnotatedPlexusBeanSource
     public AnnotatedPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables,
                                       final PlexusComponentScanner scanner )
     {
+        super( variables );
         this.space = space;
-        this.variables = variables;
         this.scanner = scanner;
     }
 
@@ -87,11 +80,6 @@ public class AnnotatedPlexusBeanSource
     // Public methods
     // ----------------------------------------------------------------------
 
-    public final boolean isEmpty()
-    {
-        return false; // metadata comes from the properties themselves
-    }
-
     public final Map<Component, DeferredClass<?>> findPlexusComponentBeans()
     {
         if ( null == space )
@@ -106,31 +94,5 @@ public class AnnotatedPlexusBeanSource
         {
             throw new RuntimeException( e.toString() );
         }
-    }
-
-    public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
-    {
-        return implementation.isAnnotationPresent( Component.class ) ? this : null;
-    }
-
-    public final Configuration getConfiguration( final BeanProperty<?> property )
-    {
-        final Configuration configuration = property.getAnnotation( Configuration.class );
-        if ( configuration != null && variables != null )
-        {
-            // support runtime interpolation of @Configuration values
-            final String uninterpolatedValue = configuration.value();
-            final String value = StringUtils.interpolate( uninterpolatedValue, variables );
-            if ( !value.equals( uninterpolatedValue ) )
-            {
-                return new ConfigurationImpl( configuration.name(), value );
-            }
-        }
-        return configuration;
-    }
-
-    public final Requirement getRequirement( final BeanProperty<?> property )
-    {
-        return property.getAnnotation( Requirement.class );
     }
 }
