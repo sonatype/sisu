@@ -69,26 +69,18 @@ public class DefaultPlexusConfiguration
 
     public final String getValue( final String defaultValue )
     {
-        if ( null == value )
-        {
-            return defaultValue;
-        }
-        return value;
+        return null != value ? value : defaultValue;
     }
 
-    public String getAttribute( final String attributeName )
+    public final String getAttribute( final String attributeName )
     {
         return attributeMap.get( attributeName );
     }
 
     public final String getAttribute( final String attributeName, final String defaultValue )
     {
-        final String attribute = attributeMap.get( attributeName );
-        if ( null == attribute )
-        {
-            return defaultValue;
-        }
-        return attribute;
+        final String attributeValue = attributeMap.get( attributeName );
+        return null != attributeValue ? attributeValue : defaultValue;
     }
 
     public final PlexusConfiguration getChild( final String childName )
@@ -139,12 +131,12 @@ public class DefaultPlexusConfiguration
         return children.toArray( new PlexusConfiguration[children.size()] );
     }
 
-    public int getChildCount()
+    public final int getChildCount()
     {
         return getChildren().length; // not optimal, but this method is not used much
     }
 
-    public PlexusConfiguration getChild( final int index )
+    public final PlexusConfiguration getChild( final int index )
     {
         return getChildren()[index]; // not optimal, but this method is not used much
     }

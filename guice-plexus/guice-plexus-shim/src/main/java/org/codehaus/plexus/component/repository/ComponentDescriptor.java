@@ -35,8 +35,7 @@ public class ComponentDescriptor<T>
 
     private ClassRealm classRealm;
 
-    @SuppressWarnings( "unchecked" )
-    private Class<T> implementationClass = (Class) Object.class;
+    private Class<?> implementationClass = Object.class;
 
     private String componentConfigurator;
 
@@ -56,7 +55,7 @@ public class ComponentDescriptor<T>
     public ComponentDescriptor( final Class<T> implementationClass, final ClassRealm classRealm )
     {
         setImplementationClass( implementationClass );
-        setRealm( classRealm );
+        this.classRealm = classRealm;
     }
 
     // ----------------------------------------------------------------------
@@ -70,7 +69,7 @@ public class ComponentDescriptor<T>
 
     public final void setRoleClass( final Class<T> roleClass )
     {
-        this.role = null != roleClass ? roleClass.getName() : null;
+        this.role = roleClass.getName();
     }
 
     public final void setRoleHint( final String hint )
@@ -91,6 +90,7 @@ public class ComponentDescriptor<T>
     public final void setImplementation( final String implementation )
     {
         this.implementation = implementation;
+        implementationClass = Object.class;
     }
 
     @SuppressWarnings( "unchecked" )
@@ -119,6 +119,11 @@ public class ComponentDescriptor<T>
         requirements.add( requirement );
     }
 
+    public String getRole()
+    {
+        return role;
+    }
+
     public String getRoleHint()
     {
         return hint;
@@ -136,7 +141,7 @@ public class ComponentDescriptor<T>
 
     public final void setRealm( final ClassRealm classRealm )
     {
-        implementationClass = null;
+        implementationClass = Object.class;
         this.classRealm = classRealm;
     }
 
@@ -159,7 +164,7 @@ public class ComponentDescriptor<T>
                 // follow Plexus and fall back to Object.class
             }
         }
-        return implementationClass;
+        return (Class) implementationClass;
     }
 
     public final String getComponentConfigurator()
@@ -179,13 +184,15 @@ public class ComponentDescriptor<T>
 
     public final String getHumanReadableKey()
     {
-        return "role: '" + role + "', implementation: '" + implementation + "', role hint: '" + hint + "'";
+        return "role: '" + getRole() + "', implementation: '" + implementation + "', role hint: '" + getRoleHint()
+            + "'";
     }
 
     @Override
     public final String toString()
     {
-        return getClass().getName() + " [role: '" + role + "', hint: '" + hint + "', realm: " + classRealm + "]";
+        return getClass().getName() + " [role: '" + getRole() + "', hint: '" + getRoleHint() + "', realm: "
+            + classRealm + "]";
     }
 
     @Override
@@ -198,7 +205,7 @@ public class ComponentDescriptor<T>
         if ( rhs instanceof ComponentDescriptor<?> )
         {
             final ComponentDescriptor<?> rhsDescriptor = (ComponentDescriptor<?>) rhs;
-            return equals( role, rhsDescriptor.role ) && equals( hint, rhsDescriptor.hint )
+            return equals( getRole(), rhsDescriptor.getRole() ) && equals( getRoleHint(), rhsDescriptor.getRoleHint() )
                 && equals( classRealm, rhsDescriptor.classRealm );
         }
         return false;
@@ -207,7 +214,7 @@ public class ComponentDescriptor<T>
     @Override
     public int hashCode()
     {
-        return ( ( 17 * 31 + hash( role ) ) * 31 + hash( hint ) ) * 31 + hash( classRealm );
+        return ( ( 17 * 31 + hash( getRole() ) ) * 31 + hash( getRoleHint() ) ) * 31 + hash( classRealm );
     }
 
     @SuppressWarnings( "unused" )

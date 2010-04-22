@@ -463,7 +463,7 @@ public final class DefaultPlexusContainer
                 }
                 if ( null == url )
                 {
-                    getLogger().warn( "Bad container configuration path: " + configurationPath );
+                    getLogger().warn( "Missing container configuration: " + configurationPath );
                 }
             }
         }

@@ -23,7 +23,7 @@ public abstract class AbstractLogger
     // Constructors
     // ----------------------------------------------------------------------
 
-    protected AbstractLogger( final int threshold, @SuppressWarnings( "unused" ) final String name )
+    public AbstractLogger( final int threshold, @SuppressWarnings( "unused" ) final String name )
     {
         if ( threshold < LEVEL_DEBUG || LEVEL_DISABLED < threshold )
         {
