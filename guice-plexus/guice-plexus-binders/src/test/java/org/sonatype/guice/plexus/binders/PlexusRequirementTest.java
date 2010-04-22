@@ -80,7 +80,8 @@ public class PlexusRequirementTest
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
 
                 bind( A.class ).annotatedWith( Jsr330.named( "AA" ) ).to( AAImpl.class );
-                bind( A.class ).annotatedWith( Jsr330.named( "broken" ) ).toProvider( new DeferredProvider<A>( deferA ) );
+                bind( A.class ).annotatedWith( Jsr330.named( "broken" ) )
+                               .toProvider( new DeferredProvider<A>( deferA ) );
                 bind( A.class ).annotatedWith( Jsr330.named( "AB" ) ).to( ABImpl.class );
                 bind( A.class ).to( AImpl.class ).in( Scopes.SINGLETON );
                 bind( A.class ).annotatedWith( Jsr330.named( "AC" ) ).to( ACImpl.class );

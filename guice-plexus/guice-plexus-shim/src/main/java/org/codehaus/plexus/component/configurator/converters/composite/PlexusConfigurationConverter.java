@@ -1,4 +1,4 @@
-package org.codehaus.plexus.component.configurator;
+package org.codehaus.plexus.component.configurator.converters.composite;
 
 /*
  * The MIT License
@@ -24,27 +24,33 @@ package org.codehaus.plexus.component.configurator;
  * SOFTWARE.
  */
 
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
+import org.codehaus.plexus.component.configurator.ConfigurationListener;
+import org.codehaus.plexus.component.configurator.converters.AbstractConfigurationConverter;
+import org.codehaus.plexus.component.configurator.converters.lookup.ConverterLookup;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
+
 /**
- * @author Jason van Zyl
- * @version $Id: ComponentConfigurator.java 7089 2007-11-25 15:19:06Z jvanzyl $
+ * Converter for  <code>org.codehaus.plexus.configuration.PlexusConfiguration</code>
+ *
+ * @author <a href="mailto:michal@codehaus.org">Michal Maczka</a>
+ * @version $Id: PlexusConfigurationConverter.java 6064 2007-03-13 12:39:55Z trygvis $
  */
-public interface ComponentConfigurator
+public class PlexusConfigurationConverter
+    extends AbstractConfigurationConverter
 {
-    String ROLE = ComponentConfigurator.class.getName();
+    public boolean canConvert( Class type )
+    {
+        return PlexusConfiguration.class.isAssignableFrom( type );
+    }
 
-    void configureComponent( Object component, PlexusConfiguration configuration, ClassRealm containerRealm )
-        throws ComponentConfigurationException;
-
-    void configureComponent( Object component, PlexusConfiguration configuration,
-                             ExpressionEvaluator expressionEvaluator, ClassRealm containerRealm )
-        throws ComponentConfigurationException;
-
-    void configureComponent( Object component, PlexusConfiguration configuration,
-                             ExpressionEvaluator expressionEvaluator, ClassRealm containerRealm,
-                             ConfigurationListener listener )
-        throws ComponentConfigurationException;
+    public Object fromConfiguration( ConverterLookup converterLookup, PlexusConfiguration configuration, Class type,
+                                     Class baseType, ClassLoader classLoader, ExpressionEvaluator expressionEvaluator,
+                                     ConfigurationListener listener )
+        throws ComponentConfigurationException
+    {
+        return configuration;
+    }
 }

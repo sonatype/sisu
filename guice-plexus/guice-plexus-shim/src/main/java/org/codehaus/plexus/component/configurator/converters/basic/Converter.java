@@ -1,9 +1,9 @@
-package org.codehaus.plexus.component.configurator;
+package org.codehaus.plexus.component.configurator.converters.basic;
 
 /*
  * The MIT License
  *
- * Copyright (c) 2004-5, The Codehaus
+ * Copyright (c) 2004, The Codehaus
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,28 +24,22 @@ package org.codehaus.plexus.component.configurator;
  * SOFTWARE.
  */
 
-
 /**
- * Listen for configuration changes on an object.
+ * Translates the String representation of a class into
+ * an instance of the class and vice versa
  *
- * @author <a href="mailto:brett@apache.org">Brett Porter</a>
- * @version $Id: ConfigurationListener.java 5127 2006-12-12 03:49:50Z jvanzyl $
  */
-public interface ConfigurationListener
+public interface Converter
 {
-    /**
-     * Notify the listener that a field has been set using its setter.
-     * @param fieldName the field
-     * @param value the value set
-     * @param target the target object
-     */
-    void notifyFieldChangeUsingSetter( String fieldName, Object value, Object target );
+    boolean canConvert( Class type );
 
     /**
-     * Notify the listener that a field has been set using private field injection.
-     * @param fieldName the field
-     * @param value the value set
-     * @param target the target object
+     * Parses a given String  and return
+     *
+     * @param str String representation of the class
+     * @return  an instance of the class
      */
-    void notifyFieldChangeUsingReflection( String fieldName, Object value, Object target );
+    Object fromString( String str );
+
+    String toString( Object obj );
 }

@@ -1,9 +1,9 @@
-package org.codehaus.plexus.component.configurator;
+package org.codehaus.plexus.component.configurator.converters.basic;
 
 /*
  * The MIT License
  *
- * Copyright (c) 2004-5, The Codehaus
+ * Copyright (c) 2004, The Codehaus
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,28 +24,32 @@ package org.codehaus.plexus.component.configurator;
  * SOFTWARE.
  */
 
+import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
- * Listen for configuration changes on an object.
- *
- * @author <a href="mailto:brett@apache.org">Brett Porter</a>
- * @version $Id: ConfigurationListener.java 5127 2006-12-12 03:49:50Z jvanzyl $
+ * @author <a href="mailto:brett@codehaus.org">Brett Porter</a>
  */
-public interface ConfigurationListener
+public class UrlConverter
+    extends AbstractBasicConverter
 {
-    /**
-     * Notify the listener that a field has been set using its setter.
-     * @param fieldName the field
-     * @param value the value set
-     * @param target the target object
-     */
-    void notifyFieldChangeUsingSetter( String fieldName, Object value, Object target );
+    public boolean canConvert( Class type )
+    {
+        return type.equals( URL.class );
+    }
 
-    /**
-     * Notify the listener that a field has been set using private field injection.
-     * @param fieldName the field
-     * @param value the value set
-     * @param target the target object
-     */
-    void notifyFieldChangeUsingReflection( String fieldName, Object value, Object target );
+    public Object fromString( String str )
+        throws ComponentConfigurationException
+    {
+        try
+        {
+            return new URL( str );
+        }
+        catch ( MalformedURLException e )
+        {
+            throw new ComponentConfigurationException( "Unable to convert '" + str + "' to an URL", e );
+        }
+    }
 }

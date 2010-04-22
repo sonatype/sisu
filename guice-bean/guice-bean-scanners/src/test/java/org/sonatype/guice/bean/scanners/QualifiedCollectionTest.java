@@ -149,8 +149,8 @@ public class QualifiedCollectionTest
 
         assertEquals( ButtonWidget.class, widgetMap.get( Jsr330.named( ButtonWidget.class.getName() ) ).getClass() );
         assertEquals( MenuWidget.class, widgetMap.get( Jsr330.named( MenuWidget.class.getName() ) ).getClass() );
-        assertEquals( ScrollBarWidget.class,
-                      widgetMap.get( Jsr330.named( ScrollBarWidget.class.getName() ) ).getClass() );
+        assertEquals( ScrollBarWidget.class, widgetMap.get( Jsr330.named( ScrollBarWidget.class.getName() ) )
+                                                      .getClass() );
     }
 
     public void testQualifiedHints()

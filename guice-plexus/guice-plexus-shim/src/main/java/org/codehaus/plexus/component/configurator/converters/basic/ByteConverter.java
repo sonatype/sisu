@@ -1,9 +1,9 @@
-package org.codehaus.plexus.component.configurator;
+package org.codehaus.plexus.component.configurator.converters.basic;
 
 /*
  * The MIT License
  *
- * Copyright (c) 2004-5, The Codehaus
+ * Copyright (c) 2004, The Codehaus
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,28 +24,17 @@ package org.codehaus.plexus.component.configurator;
  * SOFTWARE.
  */
 
-
-/**
- * Listen for configuration changes on an object.
- *
- * @author <a href="mailto:brett@apache.org">Brett Porter</a>
- * @version $Id: ConfigurationListener.java 5127 2006-12-12 03:49:50Z jvanzyl $
- */
-public interface ConfigurationListener
+public class ByteConverter extends AbstractBasicConverter
 {
-    /**
-     * Notify the listener that a field has been set using its setter.
-     * @param fieldName the field
-     * @param value the value set
-     * @param target the target object
-     */
-    void notifyFieldChangeUsingSetter( String fieldName, Object value, Object target );
 
-    /**
-     * Notify the listener that a field has been set using private field injection.
-     * @param fieldName the field
-     * @param value the value set
-     * @param target the target object
-     */
-    void notifyFieldChangeUsingReflection( String fieldName, Object value, Object target );
+    public boolean canConvert( Class type )
+    {
+        return type.equals( byte.class ) || type.equals( Byte.class );
+    }
+
+    public Object fromString( String str )
+    {
+        return new Byte( (byte) Integer.parseInt( str ) );
+    }
+
 }

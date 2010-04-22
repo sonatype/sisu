@@ -1,9 +1,9 @@
-package org.codehaus.plexus.component.configurator;
+package org.codehaus.plexus.component.configurator.converters.basic;
 
 /*
  * The MIT License
  *
- * Copyright (c) 2004-5, The Codehaus
+ * Copyright (c) 2004, The Codehaus
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,28 +24,47 @@ package org.codehaus.plexus.component.configurator;
  * SOFTWARE.
  */
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-/**
- * Listen for configuration changes on an object.
- *
- * @author <a href="mailto:brett@apache.org">Brett Porter</a>
- * @version $Id: ConfigurationListener.java 5127 2006-12-12 03:49:50Z jvanzyl $
- */
-public interface ConfigurationListener
+public class DateConverter extends AbstractBasicConverter
 {
-    /**
-     * Notify the listener that a field has been set using its setter.
-     * @param fieldName the field
-     * @param value the value set
-     * @param target the target object
+    /***
+     * @todo DateFormat is not thread safe!
      */
-    void notifyFieldChangeUsingSetter( String fieldName, Object value, Object target );
+    private static final DateFormat[] formats = {
+        new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.S a" ),
+        new SimpleDateFormat( "yyyy-MM-dd HH:mm:ssa" )
+    };
 
-    /**
-     * Notify the listener that a field has been set using private field injection.
-     * @param fieldName the field
-     * @param value the value set
-     * @param target the target object
-     */
-    void notifyFieldChangeUsingReflection( String fieldName, Object value, Object target );
+    public boolean canConvert( Class type )
+    {
+        return type.equals( Date.class );
+    }
+
+    public Object fromString( String str )
+    {
+        for ( int i = 0; i < formats.length; i++ )
+        {
+            try
+            {
+                return formats[i].parse( str );
+            }
+            catch ( ParseException e )
+            {
+                // no worries, let's try the next format.
+            }
+        }
+
+        return null;
+    }
+
+    public String toString( Object obj )
+    {
+        Date date = (Date) obj;
+        return formats[0].format( date );
+    }
+
 }

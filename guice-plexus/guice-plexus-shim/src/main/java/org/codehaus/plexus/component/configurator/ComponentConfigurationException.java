@@ -1,34 +1,59 @@
-/**
- * This program is licensed to you under the Apache License Version 2.0,
- * and you may not use this file except in compliance with the Apache License Version 2.0.
- * You may obtain a copy of the Apache License Version 2.0 at http://www.apache.org/licenses/LICENSE-2.0.
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the Apache License Version 2.0 is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
- */
 package org.codehaus.plexus.component.configurator;
 
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
-public final class ComponentConfigurationException
+/**
+ *
+ * 
+ * @author Jason van Zyl
+ *
+ * @version $Id: ComponentConfigurationException.java 7089 2007-11-25 15:19:06Z jvanzyl $
+ */
+public class ComponentConfigurationException
     extends Exception
 {
-    private static final long serialVersionUID = 1L;
+    private PlexusConfiguration failedConfiguration;
 
-    public ComponentConfigurationException( final String message )
+    public ComponentConfigurationException( String message )
     {
         super( message );
     }
 
-    public ComponentConfigurationException( final String message, final Throwable detail )
+    public ComponentConfigurationException( String message, Throwable cause )
     {
-        super( message, detail );
+        super( message, cause );
     }
 
+    public ComponentConfigurationException( Throwable cause )
+    {
+        super( cause );
+    }
+    
+    public ComponentConfigurationException( PlexusConfiguration failedConfiguration, String message )
+    {
+        super( message );
+        this.failedConfiguration = failedConfiguration;
+    }
+
+    public ComponentConfigurationException( PlexusConfiguration failedConfiguration, String message, Throwable cause )
+    {
+        super( message, cause );
+        this.failedConfiguration = failedConfiguration;
+    }
+
+    public ComponentConfigurationException( PlexusConfiguration failedConfiguration, Throwable cause )
+    {
+        super( cause );
+        this.failedConfiguration = failedConfiguration;
+    }
+    
+    public void setFailedConfiguration( PlexusConfiguration failedConfiguration )
+    {
+        this.failedConfiguration = failedConfiguration;
+    }
+    
     public PlexusConfiguration getFailedConfiguration()
     {
-        return null;
+        return failedConfiguration;
     }
 }

@@ -150,8 +150,8 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to(
-                                                                                                          DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) )
+                                                 .to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
@@ -310,8 +310,8 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to(
-                                                                                                          DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) )
+                                                 .to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
             }
@@ -515,8 +515,8 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to(
-                                                                                                          DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) )
+                                                 .to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
@@ -680,8 +680,8 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to(
-                                                                                                          DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) )
+                                                 .to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
             }

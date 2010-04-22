@@ -160,7 +160,8 @@ public class XmlPlexusBeanSourceTest
 
         try
         {
-            new XmlPlexusBeanSource( space, null, getClass().getResource( "/META-INF/plexus/bad_plexus_1.xml" ) ).findPlexusComponentBeans();
+            new XmlPlexusBeanSource( space, null, getClass().getResource( "/META-INF/plexus/bad_plexus_1.xml" ) )
+                                                                                                                 .findPlexusComponentBeans();
             fail( "Expected RuntimeException" );
         }
         catch ( final RuntimeException e )

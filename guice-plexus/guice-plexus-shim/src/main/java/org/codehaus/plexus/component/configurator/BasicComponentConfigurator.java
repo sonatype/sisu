@@ -25,26 +25,36 @@ package org.codehaus.plexus.component.configurator;
  */
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.codehaus.plexus.component.configurator.converters.composite.ObjectWithFieldsConverter;
+import org.codehaus.plexus.component.configurator.converters.special.ClassRealmConverter;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
+
 /**
  * @author Jason van Zyl
- * @version $Id: ComponentConfigurator.java 7089 2007-11-25 15:19:06Z jvanzyl $
+ * @author <a href="mailto:michal@codehaus.org">Michal Maczka</a>
+ * @version $Id: BasicComponentConfigurator.java 6992 2007-10-23 05:31:36Z jvanzyl $
  */
-public interface ComponentConfigurator
+public class BasicComponentConfigurator
+    extends AbstractComponentConfigurator
 {
-    String ROLE = ComponentConfigurator.class.getName();
+    public void configureComponent( Object component,
+                                    PlexusConfiguration configuration,
+                                    ExpressionEvaluator expressionEvaluator,
+                                    ClassRealm containerRealm,
+                                    ConfigurationListener listener )
+        throws ComponentConfigurationException
+    {
+        // ----------------------------------------------------------------------
+        // We should probably take into consideration the realm that the component
+        // came from in order to load the correct classes.
+        // ----------------------------------------------------------------------
 
-    void configureComponent( Object component, PlexusConfiguration configuration, ClassRealm containerRealm )
-        throws ComponentConfigurationException;
+        converterLookup.registerConverter( new ClassRealmConverter( containerRealm ) );
 
-    void configureComponent( Object component, PlexusConfiguration configuration,
-                             ExpressionEvaluator expressionEvaluator, ClassRealm containerRealm )
-        throws ComponentConfigurationException;
+        ObjectWithFieldsConverter converter = new ObjectWithFieldsConverter();
 
-    void configureComponent( Object component, PlexusConfiguration configuration,
-                             ExpressionEvaluator expressionEvaluator, ClassRealm containerRealm,
-                             ConfigurationListener listener )
-        throws ComponentConfigurationException;
+        converter.processConfiguration( converterLookup, component, containerRealm, configuration, expressionEvaluator, listener );
+    }
 }

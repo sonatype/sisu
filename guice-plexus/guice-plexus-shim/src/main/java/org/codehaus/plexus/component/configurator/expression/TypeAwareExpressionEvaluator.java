@@ -1,16 +1,41 @@
-/**
- * This program is licensed to you under the Apache License Version 2.0,
- * and you may not use this file except in compliance with the Apache License Version 2.0.
- * You may obtain a copy of the Apache License Version 2.0 at http://www.apache.org/licenses/LICENSE-2.0.
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the Apache License Version 2.0 is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
- */
 package org.codehaus.plexus.component.configurator.expression;
 
+/*
+ * Copyright 2001-2006 Codehaus Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Evaluate an expression.
+ *
+ * @author <a href="mailto:brett@codehaus.org">Brett Porter</a>
+ * @version $Id: TypeAwareExpressionEvaluator.java 8347 2009-08-20 17:37:19Z bentmann $
+ */
 public interface TypeAwareExpressionEvaluator
     extends ExpressionEvaluator
 {
+
+    /**
+     * Evaluate an expression. The optional type provided to this method is a hint (not a requirement) for the evaluator
+     * to resolve the expression to a compatible value. The evaluator is not expected to perform any conversion but
+     * rather filter out incompatible values from its result.
+     * 
+     * @param expression the expression
+     * @param type The expected type of expression result, may be {@code null}.
+     * @return the value of the expression
+     */
+    Object evaluate( String expression, Class<?> type )
+        throws ExpressionEvaluationException;
+
 }
