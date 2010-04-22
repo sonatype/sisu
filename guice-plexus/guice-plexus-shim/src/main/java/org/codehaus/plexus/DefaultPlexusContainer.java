@@ -255,7 +255,26 @@ public final class DefaultPlexusContainer
 
     public <T> void addComponent( final T component, final java.lang.Class<?> role, final String hint )
     {
-        getLogger().warn( "TODO addComponent( " + role + ", " + hint + " ) ---> " + component ); // TODO
+        // this method is only used in Maven3 tests, so keep it simple...
+
+        beanLocator.remove( injector );
+        beanLocator.add( Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            @SuppressWarnings( "unchecked" )
+            protected void configure()
+            {
+                if ( Hints.isDefaultHint( hint ) )
+                {
+                    bind( (Class) role ).toInstance( component );
+                }
+                else
+                {
+                    bind( (Class) role ).annotatedWith( Jsr330.named( hint ) ).toInstance( component );
+                }
+            }
+        } ) );
+        beanLocator.add( injector );
     }
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )

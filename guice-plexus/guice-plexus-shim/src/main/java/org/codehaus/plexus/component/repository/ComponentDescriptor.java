@@ -67,11 +67,6 @@ public class ComponentDescriptor<T>
         this.role = role;
     }
 
-    public final void setRoleClass( final Class<T> roleClass )
-    {
-        this.role = roleClass.getName();
-    }
-
     public final void setRoleHint( final String hint )
     {
         this.hint = Hints.canonicalHint( hint );
