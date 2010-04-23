@@ -25,8 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
-import org.codehaus.plexus.component.configurator.BasicComponentConfigurator;
-import org.codehaus.plexus.component.configurator.ComponentConfigurator;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.context.Context;
@@ -148,9 +146,6 @@ public final class DefaultPlexusContainer
                 install( new PlexusXmlBeanConverter() );
 
                 bind( Map.class ).annotatedWith( Jsr330.named( PlexusConstants.PLEXUS_KEY ) ).toInstance( variables );
-
-                bind( ComponentConfigurator.class ).annotatedWith( Jsr330.named( "basic" ) )
-                                                   .to( BasicComponentConfigurator.class );
 
                 bind( Context.class ).toInstance( context );
                 bind( ClassRealm.class ).toInstance( containerRealm );
