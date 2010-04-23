@@ -86,6 +86,16 @@ public class PlexusComponentClassVisitor
         this.hint = hint;
     }
 
+    public final String getRole()
+    {
+        return role;
+    }
+
+    public final String getHint()
+    {
+        return Hints.canonicalHint( hint );
+    }
+
     public void setInstantiationStrategy( final String instantiationStrategy )
     {
         this.instantiationStrategy = instantiationStrategy;
