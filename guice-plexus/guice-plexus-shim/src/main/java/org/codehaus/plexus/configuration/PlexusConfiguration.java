@@ -18,6 +18,8 @@ public interface PlexusConfiguration
 
     String getValue( String defaultValue );
 
+    String[] getAttributeNames();
+
     String getAttribute( String attributeName );
 
     String getAttribute( String attributeName, String defaultValue );

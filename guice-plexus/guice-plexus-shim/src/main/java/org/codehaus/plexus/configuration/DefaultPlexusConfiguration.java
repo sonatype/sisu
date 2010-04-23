@@ -72,6 +72,11 @@ public class DefaultPlexusConfiguration
         return null != value ? value : defaultValue;
     }
 
+    public final String[] getAttributeNames()
+    {
+        return attributeMap.keySet().toArray( new String[attributeMap.size()] );
+    }
+
     public final String getAttribute( final String attributeName )
     {
         return attributeMap.get( attributeName );

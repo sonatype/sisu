@@ -37,6 +37,8 @@ public class ComponentDescriptor<T>
 
     private Class<?> implementationClass = Object.class;
 
+    private String componentComposer;
+
     private String componentConfigurator;
 
     private String componentFactory;
@@ -93,6 +95,11 @@ public class ComponentDescriptor<T>
     {
         this.implementationClass = implementationClass;
         implementation = implementationClass.getName();
+    }
+
+    public final void setComponentComposer( final String componentComposer )
+    {
+        this.componentComposer = componentComposer;
     }
 
     public final void setComponentConfigurator( final String componentConfigurator )
@@ -180,6 +187,11 @@ public class ComponentDescriptor<T>
         return (Class) implementationClass;
     }
 
+    public final String getComponentComposer()
+    {
+        return componentComposer;
+    }
+
     public final String getComponentConfigurator()
     {
         return componentConfigurator;
@@ -228,11 +240,6 @@ public class ComponentDescriptor<T>
     public int hashCode()
     {
         return ( ( 17 * 31 + hash( getRole() ) ) * 31 + hash( getRoleHint() ) ) * 31 + hash( classRealm );
-    }
-
-    @SuppressWarnings( "unused" )
-    public final void setComponentComposer( final String componentComposer )
-    {
     }
 
     // ----------------------------------------------------------------------
