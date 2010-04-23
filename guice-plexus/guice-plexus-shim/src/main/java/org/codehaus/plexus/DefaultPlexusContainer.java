@@ -344,11 +344,11 @@ public final class DefaultPlexusContainer
             if ( null != descriptors )
             {
                 final PlexusBeanSource cmpSource = new ComponentDescriptorBeanSource( variables, descriptors );
-                bindings = new PlexusBindingModule( lifecycleManager, xmlSource, cmpSource );
+                bindings = new PlexusBindingModule( lifecycleManager.manageChild(), xmlSource, cmpSource );
             }
             else
             {
-                bindings = new PlexusBindingModule( lifecycleManager, xmlSource );
+                bindings = new PlexusBindingModule( lifecycleManager.manageChild(), xmlSource );
             }
 
             beanLocator.add( injector.createChildInjector( bindings ) );
