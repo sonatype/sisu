@@ -3,8 +3,6 @@ package org.sonatype.guice.plexus.scanners;
 import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -19,8 +17,6 @@ final class DisambiguatedClassSpace
 {
     private static final String PROXY_KEY = "$plexus$";
 
-    private final Set<String> implementations = new HashSet<String>();
-
     private final ClassSpace space;
 
     private int counter;
@@ -32,10 +28,6 @@ final class DisambiguatedClassSpace
 
     public DeferredClass<?> deferLoadClass( final String name )
     {
-        if ( implementations.add( name ) )
-        {
-            return space.deferLoadClass( name );
-        }
         return new StrongDeferredClass<Object>( this, encode( name ) );
     }
 

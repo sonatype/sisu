@@ -13,7 +13,9 @@
 package org.sonatype.guice.plexus.scanners;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -48,9 +50,11 @@ final class PlexusComponentRegistry
 
     private final Map<String, DeferredClass<?>> implementations = new HashMap<String, DeferredClass<?>>();
 
-    private final ClassSpace implementationSpace;
+    private final Set<String> deferredNames = new HashSet<String>();
 
     private final ClassSpace space;
+
+    private ClassSpace disambiguatedSpace;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -58,7 +62,6 @@ final class PlexusComponentRegistry
 
     PlexusComponentRegistry( final ClassSpace space )
     {
-        implementationSpace = new DisambiguatedClassSpace( space );
         this.space = space;
     }
 
@@ -135,7 +138,19 @@ final class PlexusComponentRegistry
         final DeferredClass<?> oldImplementation = implementations.get( key );
         if ( null == oldImplementation )
         {
-            final DeferredClass<?> newImplementation = implementationSpace.deferLoadClass( implementation );
+            final DeferredClass<?> newImplementation;
+            if ( deferredNames.add( implementation ) )
+            {
+                newImplementation = space.deferLoadClass( implementation );
+            }
+            else
+            {
+                if ( null == disambiguatedSpace )
+                {
+                    disambiguatedSpace = new DisambiguatedClassSpace( space );
+                }
+                newImplementation = disambiguatedSpace.deferLoadClass( implementation );
+            }
             implementations.put( key, newImplementation );
             return newImplementation.getName();
         }
