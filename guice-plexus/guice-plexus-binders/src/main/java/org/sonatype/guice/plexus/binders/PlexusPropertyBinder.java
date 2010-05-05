@@ -82,15 +82,6 @@ final class PlexusPropertyBinder
 
     public <T> PropertyBinding bindProperty( final BeanProperty<T> property )
     {
-        if ( null != manager )
-        {
-            final PropertyBinding managedBinding = manager.manage( property );
-            if ( null != managedBinding )
-            {
-                return managedBinding; // the bean manager will handle this property
-            }
-        }
-
         if ( metadata.isEmpty() )
         {
             return PropertyBinder.LAST_BINDING;
@@ -112,6 +103,14 @@ final class PlexusPropertyBinder
         final Requirement requirement = metadata.getRequirement( property );
         if ( null != requirement )
         {
+            if ( null != manager )
+            {
+                final PropertyBinding managedBinding = manager.manage( property );
+                if ( null != managedBinding )
+                {
+                    return managedBinding; // the bean manager will handle this property
+                }
+            }
             final Provider<T> roleProvider = requirements.lookup( requirement, property );
             if ( OPTIONAL_SUPPORTED && requirement.optional() )
             {
