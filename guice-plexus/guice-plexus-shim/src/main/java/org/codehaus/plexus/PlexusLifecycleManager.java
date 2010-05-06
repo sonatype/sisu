@@ -239,7 +239,7 @@ final class PlexusLifecycleManager
             final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
             descriptor.setRole( role );
             descriptor.setRoleHint( hint );
-            descriptor.setImplementationClass( clazz.get() );
+            descriptor.setImplementationClass( clazz.load() );
             descriptor.setDescription( descriptions.get( key ) );
             return descriptor;
         }

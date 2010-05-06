@@ -92,6 +92,32 @@ final class BeanPropertySetter<T>
         }
     }
 
+    @Override
+    public int hashCode()
+    {
+        return method.hashCode();
+    }
+
+    @Override
+    public boolean equals( final Object rhs )
+    {
+        if ( this == rhs )
+        {
+            return true;
+        }
+        if ( rhs instanceof BeanPropertySetter<?> )
+        {
+            return method.equals( ( (BeanPropertySetter<?>) rhs ).method );
+        }
+        return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return method.toString();
+    }
+
     // ----------------------------------------------------------------------
     // PrivilegedAction methods
     // ----------------------------------------------------------------------

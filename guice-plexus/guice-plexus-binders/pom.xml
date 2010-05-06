@@ -70,10 +70,6 @@
       <artifactId>plexus-component-annotations</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
     </dependency>
@@ -81,6 +77,10 @@
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-patches</artifactId>
       <classifier>noaop</classifier>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
@@ -93,11 +93,6 @@
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-plexus-metadata</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>

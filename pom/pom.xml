@@ -8,7 +8,7 @@
     <relativePath>../../spice-parent</relativePath>
     <groupId>org.sonatype.spice</groupId>
     <artifactId>spice-parent</artifactId>
-    <version>15</version>
+    <version>16</version>
   </parent>
 
   <packaging>pom</packaging>
@@ -76,6 +76,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>test</scope>
@@ -128,7 +133,7 @@
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
+        <artifactId>slf4j-nop</artifactId>
         <version>1.5.11</version>
       </dependency>
 

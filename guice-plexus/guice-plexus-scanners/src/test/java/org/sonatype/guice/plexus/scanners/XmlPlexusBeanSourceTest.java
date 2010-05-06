@@ -37,6 +37,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.config.Strategies;
 
+import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 
 public class XmlPlexusBeanSourceTest
@@ -103,7 +104,7 @@ public class XmlPlexusBeanSourceTest
             {
                 return new DeferredClass()
                 {
-                    public Class get()
+                    public Class load()
                     {
                         try
                         {
@@ -118,6 +119,11 @@ public class XmlPlexusBeanSourceTest
                     public String getName()
                     {
                         return name;
+                    }
+
+                    public Provider asProvider()
+                    {
+                        return null;
                     }
                 };
             }
@@ -148,10 +154,10 @@ public class XmlPlexusBeanSourceTest
 
         final Component component1 =
             new ComponentImpl( DefaultBean.class, Hints.DEFAULT_HINT, Strategies.LOAD_ON_START, "" );
-        assertEquals( DefaultBean.class, componentMap.get( component1 ).get() );
+        assertEquals( DefaultBean.class, componentMap.get( component1 ).load() );
 
         final Component component2 = new ComponentImpl( Bean.class, "debug", Strategies.LOAD_ON_START, "For debugging" );
-        assertEquals( DebugBean.class, componentMap.get( component2 ).get() );
+        assertEquals( DebugBean.class, componentMap.get( component2 ).load() );
     }
 
     public void testBadPlexusXml()
@@ -160,8 +166,7 @@ public class XmlPlexusBeanSourceTest
 
         try
         {
-            new XmlPlexusBeanSource( space, null, getClass().getResource( "/META-INF/plexus/bad_plexus_1.xml" ) )
-                                                                                                                 .findPlexusComponentBeans();
+            new XmlPlexusBeanSource( space, null, getClass().getResource( "/META-INF/plexus/bad_plexus_1.xml" ) ).findPlexusComponentBeans();
             fail( "Expected RuntimeException" );
         }
         catch ( final RuntimeException e )
@@ -184,7 +189,7 @@ public class XmlPlexusBeanSourceTest
             {
                 return new DeferredClass()
                 {
-                    public Class get()
+                    public Class load()
                     {
                         try
                         {
@@ -199,6 +204,11 @@ public class XmlPlexusBeanSourceTest
                     public String getName()
                     {
                         return name;
+                    }
+
+                    public Provider asProvider()
+                    {
+                        return null;
                     }
                 };
             }
@@ -242,13 +252,13 @@ public class XmlPlexusBeanSourceTest
 
         final Component component1 =
             new ComponentImpl( DefaultBean.class, Hints.DEFAULT_HINT, Strategies.PER_LOOKUP, "" );
-        assertEquals( DefaultBean.class, componentMap.get( component1 ).get() );
+        assertEquals( DefaultBean.class, componentMap.get( component1 ).load() );
 
         final Component component2 = new ComponentImpl( Bean.class, "debug", Strategies.SINGLETON, "For debugging" );
-        assertEquals( DebugBean.class, componentMap.get( component2 ).get() );
+        assertEquals( DebugBean.class, componentMap.get( component2 ).load() );
 
         final Component component3 = new ComponentImpl( Bean.class, Hints.DEFAULT_HINT, Strategies.SINGLETON, "" );
-        assertEquals( AnotherBean.class, componentMap.get( component3 ).get() );
+        assertEquals( AnotherBean.class, componentMap.get( component3 ).load() );
 
         final PlexusBeanMetadata metadata1 = source.getBeanMetadata( DefaultBean.class );
 
@@ -316,7 +326,7 @@ public class XmlPlexusBeanSourceTest
         {
             return new DeferredClass()
             {
-                public Class get()
+                public Class load()
                 {
                     try
                     {
@@ -331,6 +341,11 @@ public class XmlPlexusBeanSourceTest
                 public String getName()
                 {
                     return name;
+                }
+
+                public Provider asProvider()
+                {
+                    return null;
                 }
             };
         }

@@ -106,12 +106,12 @@ public final class PlexusBindingModule
         else if ( Strategies.LOAD_ON_START.equals( strategy ) )
         {
             // no point deferring eager components
-            sbb = bind( roleKey ).to( clazz.get() );
+            sbb = bind( roleKey ).to( clazz.load() );
         }
         else
         {
-            // mimic Plexus behaviour, only load component classes on demand
-            sbb = bind( roleKey ).toProvider( new DeferredProvider( clazz ) );
+            // mimic Plexus behaviour, only load classes on demand
+            sbb = bind( roleKey ).toProvider( clazz.asProvider() );
         }
 
         if ( Strategies.LOAD_ON_START.equals( strategy ) )

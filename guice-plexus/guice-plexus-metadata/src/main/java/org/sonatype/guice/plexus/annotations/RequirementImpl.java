@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.plexus.config.Hints;
 
 /**
@@ -70,9 +71,10 @@ public final class RequirementImpl
         }
     }
 
+    @SuppressWarnings( "unchecked" )
     public RequirementImpl( final Class<?> role, final boolean optional, final String... hints )
     {
-        this( null == role ? null : new ExistingClass( role ), optional, null == hints ? null : Arrays.asList( hints ) );
+        this( null == role ? null : new LoadedClass( role ), optional, null == hints ? null : Arrays.asList( hints ) );
     }
 
     // ----------------------------------------------------------------------
@@ -81,7 +83,7 @@ public final class RequirementImpl
 
     public Class<?> role()
     {
-        return role.get();
+        return role.load();
     }
 
     public boolean optional()
@@ -140,31 +142,5 @@ public final class RequirementImpl
     public Class<? extends Annotation> annotationType()
     {
         return Requirement.class;
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation classes
-    // ----------------------------------------------------------------------
-
-    @SuppressWarnings( "unchecked" )
-    private static final class ExistingClass
-        implements DeferredClass
-    {
-        private final Class clazz;
-
-        ExistingClass( final Class clazz )
-        {
-            this.clazz = clazz;
-        }
-
-        public Class get()
-        {
-            return clazz;
-        }
-
-        public String getName()
-        {
-            return clazz.getName();
-        }
     }
 }

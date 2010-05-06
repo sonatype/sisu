@@ -18,11 +18,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Set;
 import java.util.jar.Manifest;
 
@@ -107,6 +106,32 @@ public final class URLClassSpace
         return new ResourceEnumeration( path, glob, recurse, urls );
     }
 
+    @Override
+    public int hashCode()
+    {
+        return loader.hashCode(); // the loader is the primary key
+    }
+
+    @Override
+    public boolean equals( final Object rhs )
+    {
+        if ( this == rhs )
+        {
+            return true;
+        }
+        if ( rhs instanceof URLClassSpace )
+        {
+            return loader.equals( ( (URLClassSpace) rhs ).loader );
+        }
+        return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return loader.toString();
+    }
+
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
@@ -124,14 +149,14 @@ public final class URLClassSpace
             return EMPTY_URL_CLASS_PATH;
         }
 
-        final List<URL> searchURLs = new ArrayList<URL>( urls.length );
+        final LinkedList<URL> searchURLs = new LinkedList<URL>();
         Collections.addAll( searchURLs, urls );
 
         // search space may grow, so use index not iterator
         final Set<URL> reachableURLs = new LinkedHashSet<URL>();
-        for ( int i = 0; i < searchURLs.size(); i++ )
+        while ( !searchURLs.isEmpty() )
         {
-            final URL url = searchURLs.get( i );
+            final URL url = searchURLs.removeFirst();
             if ( !reachableURLs.add( url ) )
             {
                 continue; // already processed

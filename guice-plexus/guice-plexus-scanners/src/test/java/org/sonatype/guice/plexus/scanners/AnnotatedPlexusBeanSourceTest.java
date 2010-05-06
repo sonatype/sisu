@@ -137,7 +137,7 @@ public class AnnotatedPlexusBeanSourceTest
         final Component testComponent = new ComponentImpl( Runnable.class, "test", Strategies.PER_LOOKUP, "Some Test" );
 
         assertEquals( DuplicateBean.class.getName(), components.get( beanComponent ).getName() );
-        assertEquals( TestBean.class, components.get( testComponent ).get() );
+        assertEquals( TestBean.class, components.get( testComponent ).load() );
     }
 
     public void testBadClassFile()

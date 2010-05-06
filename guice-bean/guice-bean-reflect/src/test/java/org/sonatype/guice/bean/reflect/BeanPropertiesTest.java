@@ -12,7 +12,9 @@
  */
 package org.sonatype.guice.bean.reflect;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Iterator;
@@ -224,6 +226,34 @@ public class BeanPropertiesTest
         final Iterator<BeanProperty<Object>> i = new BeanProperties( D.class ).iterator();
         assertEquals( "name", i.next().getName() );
         assertFalse( i.hasNext() );
+    }
+
+    public void testHashCodeAndEquals()
+        throws Exception
+    {
+        final BeanProperty<Object> propertyField = new BeanProperties( C.class ).iterator().next();
+        final BeanProperty<Object> propertySetter = new BeanProperties( D.class ).iterator().next();
+
+        assertEquals( propertyField, propertyField );
+        assertEquals( propertySetter, propertySetter );
+
+        assertFalse( propertyField.equals( propertySetter ) );
+        assertFalse( propertySetter.equals( propertyField ) );
+
+        final Field field = C.class.getDeclaredField( "name" );
+        final Method setter = D.class.getDeclaredMethod( "setName", String.class );
+
+        assertEquals( propertyField, new BeanPropertyField<Object>( field ) );
+        assertEquals( propertySetter, new BeanPropertySetter<Object>( setter ) );
+
+        assertFalse( propertyField.equals( new BeanPropertyField<Object>( E.class.getDeclaredField( "name" ) ) ) );
+        assertFalse( propertySetter.equals( new BeanPropertySetter<Object>( E.class.getDeclaredMethod( "setName",
+                                                                                                       String.class ) ) ) );
+
+        assertEquals( field.hashCode(), propertyField.hashCode() );
+        assertEquals( setter.hashCode(), propertySetter.hashCode() );
+        assertEquals( field.toString(), propertyField.toString() );
+        assertEquals( setter.toString(), propertySetter.toString() );
     }
 
     public void testSkipInvalidSetters()

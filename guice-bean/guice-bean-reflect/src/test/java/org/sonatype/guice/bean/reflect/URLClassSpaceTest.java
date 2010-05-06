@@ -23,16 +23,60 @@ import junit.framework.TestCase;
 public class URLClassSpaceTest
     extends TestCase
 {
-    private static final URL COMMONS_LOGGING_JAR =
-        ZipEntryIteratorTest.class.getClassLoader().getResource( "commons-logging-1.1.1.jar" );
-
     private static final URL SIMPLE_JAR = ZipEntryIteratorTest.class.getClassLoader().getResource( "simple.jar" );
 
     private static final URL CLASS_PATH_JAR =
         ZipEntryIteratorTest.class.getClassLoader().getResource( "class path.jar" );
 
+    private static final URL COMMONS_LOGGING_JAR =
+        ZipEntryIteratorTest.class.getClassLoader().getResource( "commons-logging-1.1.1.jar" );
+
     private static final URL CORRUPT_MANIFEST =
         ZipEntryIteratorTest.class.getClassLoader().getResource( "corrupt.manifest/" );
+
+    public void testHashCodeAndEquals()
+    {
+        final ClassLoader systemLoader = ClassLoader.getSystemClassLoader();
+        final ClassSpace space = new URLClassSpace( systemLoader, null );
+
+        assertEquals( space, space );
+
+        assertEquals( space, new URLClassSpace( systemLoader, new URL[] { SIMPLE_JAR } ) );
+
+        assertFalse( space.equals( new ClassSpace()
+        {
+            public Class<?> loadClass( final String name )
+                throws ClassNotFoundException
+            {
+                return space.loadClass( name );
+            }
+
+            public Enumeration<URL> getResources( final String name )
+                throws IOException
+            {
+                return space.getResources( name );
+            }
+
+            public URL getResource( final String name )
+            {
+                return space.getResource( name );
+            }
+
+            public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
+                throws IOException
+            {
+                return space.findEntries( path, glob, recurse );
+            }
+
+            public DeferredClass<?> deferLoadClass( final String name )
+            {
+                return space.deferLoadClass( name );
+            }
+        } ) );
+
+        assertEquals( systemLoader.hashCode(), space.hashCode() );
+        assertEquals( systemLoader.toString(), space.toString() );
+    }
 
     public void testClassSpaceResources()
         throws IOException

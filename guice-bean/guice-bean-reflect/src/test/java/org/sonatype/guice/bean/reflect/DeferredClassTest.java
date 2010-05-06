@@ -19,6 +19,8 @@ import java.net.URLClassLoader;
 
 import junit.framework.TestCase;
 
+import com.google.inject.Provider;
+
 public class DeferredClassTest
     extends TestCase
 {
@@ -42,8 +44,61 @@ public class DeferredClassTest
         final DeferredClass<?> clazz = space.deferLoadClass( clazzName );
 
         assertEquals( clazzName, clazz.getName() );
-        assertEquals( clazzName, clazz.get().getName() );
-        assertFalse( Dummy.class.equals( clazz.get() ) );
+        assertEquals( clazzName, clazz.load().getName() );
+        assertFalse( Dummy.class.equals( clazz.load() ) );
+
+        assertEquals( ( 17 * 31 + clazzName.hashCode() ) * 31 + space.hashCode(), clazz.hashCode() );
+
+        assertEquals( clazz, clazz );
+
+        assertEquals( new StrongDeferredClass<Object>( space, clazzName ), clazz );
+
+        assertFalse( clazz.equals( new DeferredClass<Object>()
+        {
+            @SuppressWarnings( "unchecked" )
+            public Class<Object> load()
+                throws TypeNotPresentException
+            {
+                return (Class) clazz.load();
+            }
+
+            public String getName()
+            {
+                return clazz.getName();
+            }
+
+            public Provider<Object> asProvider()
+            {
+                return null;
+            }
+        } ) );
+
+        final String clazzName2 = clazzName + "$1";
+        final ClassSpace space2 = new URLClassSpace( ClassLoader.getSystemClassLoader(), null );
+
+        assertFalse( clazz.equals( new StrongDeferredClass<Object>( space, clazzName2 ) ) );
+        assertFalse( clazz.equals( new StrongDeferredClass<Object>( space2, clazzName ) ) );
+
+        assertTrue( clazz.toString().contains( clazzName ) );
+        assertTrue( clazz.toString().contains( space.toString() ) );
+    }
+
+    public void testLoadedClass()
+    {
+        final DeferredClass<?> objectClazz = new LoadedClass<Object>( Object.class );
+        final DeferredClass<?> stringClazz = new LoadedClass<String>( String.class );
+
+        assertEquals( String.class.getName(), stringClazz.getName() );
+        assertEquals( String.class.getName(), stringClazz.load().getName() );
+        assertSame( String.class, stringClazz.load() );
+
+        assertEquals( stringClazz, stringClazz );
+
+        assertFalse( stringClazz.equals( objectClazz ) );
+        assertFalse( stringClazz.equals( String.class ) );
+
+        assertEquals( String.class.hashCode(), stringClazz.hashCode() );
+        assertEquals( "Loaded " + String.class.toString(), stringClazz.toString() );
     }
 
     public void testMissingStrongDeferredClass()
@@ -51,7 +106,7 @@ public class DeferredClassTest
         try
         {
             final ClassSpace space = new URLClassSpace( testLoader );
-            new StrongDeferredClass<Object>( space, "unknown-class" ).get();
+            new StrongDeferredClass<Object>( space, "unknown-class" ).load();
             fail( "Expected TypeNotPresentException" );
         }
         catch ( final TypeNotPresentException e )

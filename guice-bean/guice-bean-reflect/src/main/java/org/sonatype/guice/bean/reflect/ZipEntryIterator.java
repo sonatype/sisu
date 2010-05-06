@@ -115,7 +115,7 @@ final class ZipEntryIterator
     {
         try
         {
-            final List<String> names = new ArrayList<String>();
+            final List<String> names = new ArrayList<String>( 64 );
             for ( ZipEntry e = zipStream.getNextEntry(); e != null; e = zipStream.getNextEntry() )
             {
                 names.add( e.getName() );

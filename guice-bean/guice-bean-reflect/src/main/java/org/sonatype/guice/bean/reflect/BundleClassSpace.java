@@ -80,4 +80,30 @@ public final class BundleClassSpace
         final Enumeration e = bundle.findEntries( path, glob, recurse );
         return null != e ? e : EMPTY_ENUMERATION;
     }
+
+    @Override
+    public int hashCode()
+    {
+        return bundle.hashCode();
+    }
+
+    @Override
+    public boolean equals( final Object rhs )
+    {
+        if ( this == rhs )
+        {
+            return true;
+        }
+        if ( rhs instanceof BundleClassSpace )
+        {
+            return bundle.equals( ( (BundleClassSpace) rhs ).bundle );
+        }
+        return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return bundle.toString();
+    }
 }

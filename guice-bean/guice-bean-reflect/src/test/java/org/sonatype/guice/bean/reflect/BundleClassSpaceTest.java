@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.bean.reflect;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -58,6 +59,51 @@ public class BundleClassSpaceTest
         super.tearDown();
     }
 
+    public void testHashCodeAndEquals()
+        throws Exception
+    {
+        final Bundle testBundle = framework.getBundleContext().installBundle( COMMONS_LOGGING_JAR.toString() );
+        final ClassSpace space = new BundleClassSpace( testBundle );
+
+        assertEquals( space, space );
+
+        assertEquals( space, new BundleClassSpace( testBundle ) );
+
+        assertFalse( space.equals( new ClassSpace()
+        {
+            public Class<?> loadClass( final String name )
+                throws ClassNotFoundException
+            {
+                return space.loadClass( name );
+            }
+
+            public Enumeration<URL> getResources( final String name )
+                throws IOException
+            {
+                return space.getResources( name );
+            }
+
+            public URL getResource( final String name )
+            {
+                return space.getResource( name );
+            }
+
+            public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
+                throws IOException
+            {
+                return space.findEntries( path, glob, recurse );
+            }
+
+            public DeferredClass<?> deferLoadClass( final String name )
+            {
+                return space.deferLoadClass( name );
+            }
+        } ) );
+
+        assertEquals( testBundle.hashCode(), space.hashCode() );
+        assertEquals( testBundle.toString(), space.toString() );
+    }
+
     public void testClassSpaceResources()
         throws Exception
     {
@@ -94,6 +140,6 @@ public class BundleClassSpaceTest
         final DeferredClass<?> clazz = space.deferLoadClass( clazzName );
 
         assertEquals( clazzName, clazz.getName() );
-        assertSame( space.loadClass( clazzName ), clazz.get() );
+        assertSame( space.loadClass( clazzName ), clazz.load() );
     }
 }

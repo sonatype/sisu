@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009 Sonatype, Inc. All rights reserved.
+ * Copyright (c) 2010 Sonatype, Inc. All rights reserved.
  *
  * This program is licensed to you under the Apache License Version 2.0,
  * and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -12,82 +12,89 @@
  */
 package org.sonatype.guice.bean.reflect;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+import javax.inject.Inject;
 
-import com.google.inject.TypeLiteral;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Injector;
+import com.google.inject.Provider;
+import com.google.inject.ProvisionException;
 
 /**
- * {@link BeanProperty} backed by a {@link Field}.
+ * Pseudo {@link DeferredClass} backed by an already loaded {@link Class}.
  */
-final class BeanPropertyField<T>
-    implements BeanProperty<T>, PrivilegedAction<Void>
+public final class LoadedClass<T>
+    implements DeferredClass<T>, DeferredProvider<T>
 {
     // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final String BEAN_FIELD_ERROR = "Error updating bean field: %s reason: %s";
+    private static final Logger LOGGER = LoggerFactory.getLogger( LoadedClass.class );
 
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Field field;
+    private final Class<T> clazz;
+
+    @Inject
+    private Injector injector;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    BeanPropertyField( final Field field )
-    {
-        this.field = field;
-    }
-
-    // ----------------------------------------------------------------------
-    // InjectableProperty methods
-    // ----------------------------------------------------------------------
-
-    public <A extends Annotation> A getAnnotation( final Class<A> annotationType )
-    {
-        return field.getAnnotation( annotationType );
-    }
-
     @SuppressWarnings( "unchecked" )
-    public TypeLiteral getType()
+    public LoadedClass( final Class<? extends T> clazz )
     {
-        return TypeLiteral.get( field.getGenericType() );
+        this.clazz = (Class<T>) clazz;
+    }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
+    public Class<T> load()
+    {
+        return clazz;
     }
 
     public String getName()
     {
-        return field.getName();
+        return clazz.getName();
     }
 
-    public <B> void set( final B bean, final T value )
+    public Provider<T> asProvider()
     {
-        if ( !field.isAccessible() )
-        {
-            // make sure we can apply the binding
-            AccessController.doPrivileged( this );
-        }
+        return this;
+    }
 
+    public T get()
+    {
         try
         {
-            field.set( bean, value );
+            // load class and bootstrap injection
+            return injector.getInstance( load() );
         }
         catch ( final Throwable e )
         {
-            throw new RuntimeException( String.format( BEAN_FIELD_ERROR, field, e ) );
+            final String message = "Broken implementation: " + getName();
+            LOGGER.error( message, e );
+            throw new ProvisionException( message, e );
         }
+    }
+
+    public DeferredClass<T> getImplementationClass()
+    {
+        return this;
     }
 
     @Override
     public int hashCode()
     {
-        return field.hashCode();
+        return clazz.hashCode();
     }
 
     @Override
@@ -97,9 +104,9 @@ final class BeanPropertyField<T>
         {
             return true;
         }
-        if ( rhs instanceof BeanPropertyField<?> )
+        if ( rhs instanceof LoadedClass<?> )
         {
-            return field.equals( ( (BeanPropertyField<?>) rhs ).field );
+            return clazz.equals( ( (LoadedClass<?>) rhs ).clazz );
         }
         return false;
     }
@@ -107,17 +114,6 @@ final class BeanPropertyField<T>
     @Override
     public String toString()
     {
-        return field.toString();
-    }
-
-    // ----------------------------------------------------------------------
-    // PrivilegedAction methods
-    // ----------------------------------------------------------------------
-
-    public Void run()
-    {
-        // enable private injection
-        field.setAccessible( true );
-        return null;
+        return "Loaded " + clazz;
     }
 }

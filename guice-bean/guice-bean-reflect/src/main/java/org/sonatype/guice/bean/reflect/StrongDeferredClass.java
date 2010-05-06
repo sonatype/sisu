@@ -12,12 +12,27 @@
  */
 package org.sonatype.guice.bean.reflect;
 
+import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Injector;
+import com.google.inject.Provider;
+import com.google.inject.ProvisionException;
+
 /**
  * Strong {@link DeferredClass} representing a named class from a {@link ClassSpace}.
  */
 public final class StrongDeferredClass<T>
-    implements DeferredClass<T>
+    implements DeferredClass<T>, DeferredProvider<T>
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final Logger LOGGER = LoggerFactory.getLogger( StrongDeferredClass.class );
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -25,6 +40,9 @@ public final class StrongDeferredClass<T>
     private final ClassSpace space;
 
     private final String name;
+
+    @Inject
+    private Injector injector;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -41,7 +59,7 @@ public final class StrongDeferredClass<T>
     // ----------------------------------------------------------------------
 
     @SuppressWarnings( "unchecked" )
-    public Class<T> get()
+    public Class<T> load()
     {
         try
         {
@@ -58,9 +76,55 @@ public final class StrongDeferredClass<T>
         return name;
     }
 
+    public Provider<T> asProvider()
+    {
+        return this;
+    }
+
+    public T get()
+    {
+        try
+        {
+            // load class and bootstrap injection
+            return injector.getInstance( load() );
+        }
+        catch ( final Throwable e )
+        {
+            final String message = "Broken implementation: " + getName();
+            LOGGER.error( message, e );
+            throw new ProvisionException( message, e );
+        }
+    }
+
+    public DeferredClass<T> getImplementationClass()
+    {
+        return this;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return ( 17 * 31 + name.hashCode() ) * 31 + space.hashCode();
+    }
+
+    @Override
+    public boolean equals( final Object rhs )
+    {
+        if ( this == rhs )
+        {
+            return true;
+        }
+        if ( rhs instanceof StrongDeferredClass<?> )
+        {
+            final StrongDeferredClass<?> clazz = (StrongDeferredClass<?>) rhs;
+            return name.equals( clazz.name ) && space.equals( clazz.space );
+        }
+        return false;
+    }
+
     @Override
     public String toString()
     {
-        return name;
+        return "Deferred " + name + " from " + space;
     }
 }

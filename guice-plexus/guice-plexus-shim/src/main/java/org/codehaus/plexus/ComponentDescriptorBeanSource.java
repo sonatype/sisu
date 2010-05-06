@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
@@ -25,10 +27,14 @@ import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.ComponentRequirement;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.DeferredProvider;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.scanners.AbstractAnnotatedPlexusBeanSource;
+
+import com.google.inject.Injector;
+import com.google.inject.Provider;
 
 final class ComponentDescriptorBeanSource
     extends AbstractAnnotatedPlexusBeanSource
@@ -78,9 +84,12 @@ final class ComponentDescriptorBeanSource
     }
 
     private static class DeferredDescriptorClass
-        implements DeferredClass<Object>
+        implements DeferredClass<Object>, DeferredProvider<Object>
     {
         private final ComponentDescriptor<?> descriptor;
+
+        @Inject
+        private Injector injector;
 
         DeferredDescriptorClass( final ComponentDescriptor<?> descriptor )
         {
@@ -93,9 +102,25 @@ final class ComponentDescriptorBeanSource
         }
 
         @SuppressWarnings( "unchecked" )
-        public Class get()
+        public Class load()
         {
             return descriptor.getImplementationClass();
+        }
+
+        public Provider<Object> asProvider()
+        {
+            return this;
+        }
+
+        public DeferredClass<Object> getImplementationClass()
+        {
+            return this;
+        }
+
+        @SuppressWarnings( "unchecked" )
+        public Object get()
+        {
+            return injector.getInstance( load() );
         }
 
         @Override
