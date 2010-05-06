@@ -32,7 +32,9 @@ public class DefaultPlexusConfiguration
 
     private final String name;
 
-    private final String value;
+    private String value;
+
+    private List<PlexusConfiguration> childIndex = Collections.emptyList();
 
     private Map<String, List<PlexusConfiguration>> childMap = Collections.emptyMap();
 
@@ -72,6 +74,11 @@ public class DefaultPlexusConfiguration
         return null != value ? value : defaultValue;
     }
 
+    public final void setValue( final String value )
+    {
+        this.value = value;
+    }
+
     public final String[] getAttributeNames()
     {
         return attributeMap.keySet().toArray( new String[attributeMap.size()] );
@@ -90,60 +97,47 @@ public class DefaultPlexusConfiguration
 
     public final PlexusConfiguration getChild( final String childName )
     {
-        final List<PlexusConfiguration> children = createChildren( childName );
-        if ( children.isEmpty() )
-        {
-            children.add( createChild( childName ) );
-        }
-        return children.get( 0 );
+        return getChild( childName, true );
     }
 
     public final PlexusConfiguration getChild( final String childName, final boolean create )
     {
-        if ( create )
-        {
-            return getChild( childName );
-        }
         final List<PlexusConfiguration> children = childMap.get( childName );
-        if ( null == children )
+        if ( null != children )
         {
-            return null;
+            return children.get( 0 );
         }
-        return children.get( 0 );
+        return create ? add( createChild( childName ) ) : null;
     }
 
     public final PlexusConfiguration[] getChildren()
     {
-        if ( childMap.isEmpty() )
-        {
-            return NO_CHILDREN;
-        }
-        final List<PlexusConfiguration> children = new ArrayList<PlexusConfiguration>();
-        for ( final List<PlexusConfiguration> siblings : childMap.values() )
-        {
-            children.addAll( siblings );
-        }
-        return children.toArray( new PlexusConfiguration[children.size()] );
+        return childIndex.toArray( new PlexusConfiguration[childIndex.size()] );
     }
 
     public final PlexusConfiguration[] getChildren( final String childName )
     {
         final List<PlexusConfiguration> children = childMap.get( childName );
-        if ( null == children )
+        if ( null != children )
         {
-            return NO_CHILDREN;
+            return children.toArray( new PlexusConfiguration[children.size()] );
         }
-        return children.toArray( new PlexusConfiguration[children.size()] );
+        return NO_CHILDREN;
     }
 
     public final int getChildCount()
     {
-        return getChildren().length; // not optimal, but this method is not used much
+        return childIndex.size();
     }
 
     public final PlexusConfiguration getChild( final int index )
     {
-        return getChildren()[index]; // not optimal, but this method is not used much
+        return childIndex.get( index );
+    }
+
+    public final void addChild( final PlexusConfiguration child )
+    {
+        add( child );
     }
 
     // ----------------------------------------------------------------------
@@ -168,27 +162,26 @@ public class DefaultPlexusConfiguration
         attributeMap.put( attributeName, attributeValue );
     }
 
-    protected final void addChild( final PlexusConfiguration child )
+    protected final PlexusConfiguration add( final PlexusConfiguration child )
     {
-        createChildren( child.getName() ).add( child );
-    }
+        final String childName = child.getName();
 
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    private final List<PlexusConfiguration> createChildren( final String childName )
-    {
         List<PlexusConfiguration> children = childMap.get( childName );
         if ( null == children )
         {
             children = new ArrayList<PlexusConfiguration>();
             if ( childMap.isEmpty() )
             {
+                // create mutable map and index at the same time
                 childMap = new LinkedHashMap<String, List<PlexusConfiguration>>();
+                childIndex = new ArrayList<PlexusConfiguration>();
             }
             childMap.put( childName, children );
         }
-        return children;
+
+        childIndex.add( child );
+        children.add( child );
+
+        return child;
     }
 }

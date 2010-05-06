@@ -19,6 +19,14 @@
         org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$DefaultBean
       </implementation>
     </component>
+    <component>
+      <role-hint>
+        again
+      </role-hint>
+      <implementation>
+        org.sonatype.guice.plexus.scanners.XmlPlexusBeanSourceTest$DefaultBean
+      </implementation>
+    </component>
   </components>
 
 </component-set>

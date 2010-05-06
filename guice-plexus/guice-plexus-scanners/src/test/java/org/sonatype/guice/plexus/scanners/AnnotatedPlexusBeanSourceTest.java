@@ -36,6 +36,7 @@ import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
+import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.config.Strategies;
@@ -44,7 +45,7 @@ public class AnnotatedPlexusBeanSourceTest
     extends TestCase
 {
     @Component( role = Bean.class )
-    static class Bean
+    protected static class Bean
     {
         @Configuration( name = "1", value = "BLANK" )
         String fixed;
@@ -197,6 +198,38 @@ public class AnnotatedPlexusBeanSourceTest
         }
     }
 
+    public void testDisambiguatedClassSpace()
+        throws IOException
+    {
+        final ClassSpace originalSpace = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
+        final ClassSpace disambiguatedSpace = new DisambiguatedClassSpace( originalSpace );
+
+        final DeferredClass<?> clazz1 = disambiguatedSpace.deferLoadClass( Bean.class.getName() );
+        final DeferredClass<?> clazz2 = disambiguatedSpace.deferLoadClass( Bean.class.getName() );
+
+        final String name1 = clazz1.getName();
+        final String name2 = clazz2.getName();
+
+        assertTrue( name1.contains( Bean.class.getName() ) );
+        assertTrue( name2.contains( Bean.class.getName() ) );
+
+        assertFalse( name1.equals( name2 ) );
+
+        assertEquals( name1.substring( 0, name1.length() - 1 ), name2.substring( 0, name2.length() - 1 ) );
+
+        assertSame( Bean.class, clazz1.load().getSuperclass() );
+        assertSame( Bean.class, clazz2.load().getSuperclass() );
+
+        try
+        {
+            disambiguatedSpace.findEntries( null, null, false );
+            fail( "Expected UnsupportedOperationException" );
+        }
+        catch ( final UnsupportedOperationException e )
+        {
+        }
+    }
+
     public void testEmptyMethods()
     {
         final AnnotationVisitor emptyAnnotationVisitor = new EmptyAnnotationVisitor();
@@ -213,5 +246,20 @@ public class AnnotatedPlexusBeanSourceTest
         emptyClassVisitor.visitAttribute( null );
         emptyClassVisitor.visitSource( null, null );
         emptyClassVisitor.visitEnd();
+    }
+
+    public void testClassVisitorAPI()
+    {
+        final PlexusComponentClassVisitor visitor = new PlexusComponentClassVisitor( null );
+
+        visitor.setHint( "foo" );
+        visitor.setRole( "bar" );
+
+        assertEquals( "foo", visitor.getHint() );
+        assertEquals( "bar", visitor.getRole() );
+
+        visitor.setHint( null );
+
+        assertSame( Hints.DEFAULT_HINT, visitor.getHint() );
     }
 }

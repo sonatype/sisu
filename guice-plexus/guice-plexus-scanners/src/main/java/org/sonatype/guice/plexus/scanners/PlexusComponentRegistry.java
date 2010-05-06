@@ -12,6 +12,8 @@
  */
 package org.sonatype.guice.plexus.scanners;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,7 +54,7 @@ final class PlexusComponentRegistry
 
     private final Set<String> deferredNames = new HashSet<String>();
 
-    private final ClassSpace space;
+    final ClassSpace space;
 
     private ClassSpace disambiguatedSpace;
 
@@ -145,11 +147,7 @@ final class PlexusComponentRegistry
             }
             else
             {
-                if ( null == disambiguatedSpace )
-                {
-                    disambiguatedSpace = new DisambiguatedClassSpace( space );
-                }
-                newImplementation = disambiguatedSpace.deferLoadClass( implementation );
+                newImplementation = getDisambiguatedClassSpace().deferLoadClass( implementation );
             }
             implementations.put( key, newImplementation );
             return newImplementation.getName();
@@ -207,5 +205,23 @@ final class PlexusComponentRegistry
             logger.debug( "Ignoring Plexus role: " + role + " [" + e + "]" );
             return null;
         }
+    }
+
+    /**
+     * @return Disambiguated class space
+     */
+    private ClassSpace getDisambiguatedClassSpace()
+    {
+        if ( null == disambiguatedSpace )
+        {
+            disambiguatedSpace = AccessController.doPrivileged( new PrivilegedAction<DisambiguatedClassSpace>()
+            {
+                public DisambiguatedClassSpace run()
+                {
+                    return new DisambiguatedClassSpace( space );
+                }
+            } );
+        }
+        return disambiguatedSpace;
     }
 }

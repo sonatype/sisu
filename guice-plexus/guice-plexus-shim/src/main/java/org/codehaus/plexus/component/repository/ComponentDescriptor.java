@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.sonatype.guice.plexus.config.Hints;
+import org.sonatype.guice.plexus.config.Strategies;
 
 public class ComponentDescriptor<T>
 {
@@ -27,15 +28,15 @@ public class ComponentDescriptor<T>
 
     private String hint = Hints.DEFAULT_HINT;
 
-    private String description;
+    private String description = "";
 
-    private String instantiationStrategy;
+    private String instantiationStrategy = Strategies.SINGLETON;
 
     private String implementation;
 
     private ClassRealm classRealm;
 
-    private Class<?> implementationClass = Object.class;
+    private Class<?> implementationClass;
 
     private String componentComposer;
 
@@ -69,6 +70,11 @@ public class ComponentDescriptor<T>
         this.role = role;
     }
 
+    public final void setRoleClass( final Class<?> roleClass )
+    {
+        role = roleClass.getName();
+    }
+
     public final void setRoleHint( final String hint )
     {
         this.hint = Hints.canonicalHint( hint );
@@ -87,7 +93,7 @@ public class ComponentDescriptor<T>
     public final void setImplementation( final String implementation )
     {
         this.implementation = implementation;
-        implementationClass = Object.class;
+        implementationClass = null;
     }
 
     @SuppressWarnings( "unchecked" )
@@ -127,7 +133,7 @@ public class ComponentDescriptor<T>
     }
 
     @SuppressWarnings( "unchecked" )
-    public Class<T> getRoleClass()
+    public final Class<T> getRoleClass()
     {
         try
         {
@@ -135,7 +141,7 @@ public class ComponentDescriptor<T>
         }
         catch ( final Throwable e )
         {
-            return (Class) Object.class;
+            throw new TypeNotPresentException( getRole(), e );
         }
     }
 
@@ -156,7 +162,7 @@ public class ComponentDescriptor<T>
 
     public final void setRealm( final ClassRealm classRealm )
     {
-        implementationClass = Object.class;
+        implementationClass = null;
         this.classRealm = classRealm;
     }
 
@@ -173,7 +179,7 @@ public class ComponentDescriptor<T>
     @SuppressWarnings( "unchecked" )
     public final Class<T> getImplementationClass()
     {
-        if ( Object.class == implementationClass && null != classRealm )
+        if ( null == implementationClass && null != classRealm )
         {
             try
             {
@@ -181,7 +187,7 @@ public class ComponentDescriptor<T>
             }
             catch ( final Throwable e ) // NOPMD
             {
-                // follow Plexus and fall back to Object.class
+                throw new TypeNotPresentException( implementation, e );
             }
         }
         return (Class) implementationClass;

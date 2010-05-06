@@ -196,7 +196,7 @@ final class XmlPlexusComponentScanner
             parser.setInput( filteredXmlReader( in, variables ) );
 
             parser.nextTag();
-            parser.require( XmlPullParser.START_TAG, null, "component-set" );
+            // this may be <component-set> or <plexus>
             parser.nextTag();
             parser.require( XmlPullParser.START_TAG, null, "components" );
 

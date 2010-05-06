@@ -171,10 +171,25 @@ public final class Roles
      */
     public static String camelizeName( final String name )
     {
-        final StringBuilder buf = new StringBuilder();
+        StringBuilder buf = null;
 
-        boolean capitalize = false;
-        for ( int i = 0, length = name.length(); i < length; i++ )
+        final int length = name.length();
+        for ( int i = 0; i < length; i++ )
+        {
+            if ( !Character.isJavaIdentifierPart( name.charAt( i ) ) )
+            {
+                buf = new StringBuilder( name.substring( 0, i ) );
+                break;
+            }
+        }
+
+        if ( null == buf )
+        {
+            return name; // nothing to camelize
+        }
+
+        boolean capitalize = true;
+        for ( int i = buf.length() + 1; i < length; i++ )
         {
             final char c = name.charAt( i );
             if ( !Character.isJavaIdentifierPart( c ) )

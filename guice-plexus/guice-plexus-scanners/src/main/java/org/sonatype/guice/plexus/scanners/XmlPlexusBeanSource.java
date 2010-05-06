@@ -97,7 +97,7 @@ public final class XmlPlexusBeanSource
     public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
     {
         final PlexusBeanMetadata beanMetadata = metadata.remove( implementation.getName() );
-        if ( metadata.isEmpty() )
+        if ( null != beanMetadata && metadata.isEmpty() )
         {
             // avoid leaving sparse maps around
             metadata = Collections.emptyMap();

@@ -40,6 +40,13 @@ public final class ComponentLookupException
         this.hint = hint;
     }
 
+    public ComponentLookupException( final Throwable cause, final String role, final String hint )
+    {
+        super( cause );
+        this.role = role;
+        this.hint = hint;
+    }
+
     @Override
     public String getMessage()
     {

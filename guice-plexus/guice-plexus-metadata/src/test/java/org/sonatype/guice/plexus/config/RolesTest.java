@@ -107,6 +107,7 @@ public class RolesTest
 
     public void testCamelization()
     {
+        assertSame( "thisIsATest", Roles.camelizeName( "thisIsATest" ) );
         assertEquals( "thisIsATest", Roles.camelizeName( "this-is-a-test" ) );
         assertEquals( "TestingA", Roles.camelizeName( "-testing-a" ) );
         assertEquals( "testingB", Roles.camelizeName( "testing-b-" ) );

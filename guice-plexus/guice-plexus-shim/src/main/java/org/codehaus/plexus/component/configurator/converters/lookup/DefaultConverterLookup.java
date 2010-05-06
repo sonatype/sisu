@@ -171,4 +171,9 @@ public class DefaultConverterLookup
         // this converter should be always registred as the last one
         registerDefaultConverter( new ObjectWithFieldsConverter() );
     }
+
+    void setCustomConverters( List<ConfigurationConverter> c )
+    {
+        customConverters.addAll( c );
+    }
 }

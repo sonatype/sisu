@@ -123,7 +123,7 @@ public class XmlPlexusBeanSourceTest
 
                     public Provider asProvider()
                     {
-                        return null;
+                        throw new UnsupportedOperationException();
                     }
                 };
             }
@@ -208,7 +208,7 @@ public class XmlPlexusBeanSourceTest
 
                     public Provider asProvider()
                     {
-                        return null;
+                        throw new UnsupportedOperationException();
                     }
                 };
             }
@@ -345,7 +345,7 @@ public class XmlPlexusBeanSourceTest
 
                 public Provider asProvider()
                 {
-                    return null;
+                    throw new UnsupportedOperationException();
                 }
             };
         }

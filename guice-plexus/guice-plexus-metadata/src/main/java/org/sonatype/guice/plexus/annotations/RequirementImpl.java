@@ -74,7 +74,7 @@ public final class RequirementImpl
     @SuppressWarnings( "unchecked" )
     public RequirementImpl( final Class<?> role, final boolean optional, final String... hints )
     {
-        this( null == role ? null : new LoadedClass( role ), optional, null == hints ? null : Arrays.asList( hints ) );
+        this( null != role ? new LoadedClass( role ) : null, optional, null != hints ? Arrays.asList( hints ) : null );
     }
 
     // ----------------------------------------------------------------------

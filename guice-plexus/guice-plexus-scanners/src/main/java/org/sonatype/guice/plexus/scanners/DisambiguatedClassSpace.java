@@ -15,7 +15,7 @@ final class DisambiguatedClassSpace
     extends ClassLoader
     implements ClassSpace
 {
-    private static final String PROXY_KEY = "$plexus$";
+    private static final String PROXY_KEY = "$__plexus";
 
     private final ClassSpace space;
 
@@ -40,7 +40,7 @@ final class DisambiguatedClassSpace
     protected synchronized Class<?> loadClass( final String name, final boolean resolve )
         throws ClassNotFoundException
     {
-        if ( !name.startsWith( PROXY_KEY ) )
+        if ( !name.contains( PROXY_KEY ) )
         {
             return space.loadClass( name );
         }
@@ -51,11 +51,6 @@ final class DisambiguatedClassSpace
     protected Class<?> findClass( final String name )
         throws ClassNotFoundException
     {
-        if ( !name.startsWith( PROXY_KEY ) )
-        {
-            throw new ClassNotFoundException();
-        }
-
         final String proxyName = name.replace( '.', '/' );
         final String superName = decode( proxyName );
 
@@ -78,11 +73,11 @@ final class DisambiguatedClassSpace
 
     private String encode( final String name )
     {
-        return PROXY_KEY + name + '$' + ++counter;
+        return name + PROXY_KEY + ++counter;
     }
 
     private String decode( final String name )
     {
-        return name.substring( PROXY_KEY.length(), name.lastIndexOf( '$' ) );
+        return name.substring( 0, name.indexOf( PROXY_KEY ) );
     }
 }

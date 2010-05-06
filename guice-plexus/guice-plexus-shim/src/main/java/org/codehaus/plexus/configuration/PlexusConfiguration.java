@@ -35,4 +35,6 @@ public interface PlexusConfiguration
     int getChildCount();
 
     PlexusConfiguration getChild( int index );
+
+    void addChild( PlexusConfiguration child );
 }
