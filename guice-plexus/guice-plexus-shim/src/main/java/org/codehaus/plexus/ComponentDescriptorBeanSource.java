@@ -52,7 +52,7 @@ final class ComponentDescriptorBeanSource
             final ComponentDescriptor<?> cd = descriptors.get( i );
             final String implementation = cd.getImplementation();
             final String factory = cd.getComponentFactory();
-            if ( "java".equals( factory ) )
+            if ( null == factory || "java".equals( factory ) )
             {
                 componentMap.put( newComponent( cd ), space.deferLoadClass( implementation ) );
             }
