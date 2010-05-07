@@ -56,13 +56,6 @@ public interface PlexusBeanManager
     boolean manage( Object bean );
 
     /**
-     * Creates a new child {@link PlexusBeanManager} with this manager as its parent.
-     * 
-     * @return Child PlexusBeanManager
-     */
-    PlexusBeanManager manageChild();
-
-    /**
      * Tells this manager to unmanage the given Plexus bean instance.
      * 
      * @param bean The Plexus bean instance

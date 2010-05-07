@@ -16,10 +16,11 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
@@ -34,6 +35,7 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.adapters.EntryListAdapter;
 import org.sonatype.guice.plexus.adapters.EntryMapAdapter;
@@ -52,8 +54,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import com.google.inject.Module;
-import com.google.inject.Provides;
+import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Jsr330;
 
@@ -73,7 +74,6 @@ public final class DefaultPlexusContainer
 
     static
     {
-        // disable parent JIT bindings + annotation checks
         System.setProperty( "guice.plexus.mode", "true" );
     }
 
@@ -81,26 +81,26 @@ public final class DefaultPlexusContainer
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    final Set<String> realmIds = new HashSet<String>();
+
+    final Map<ClassRealm, List<ComponentDescriptor<?>>> descriptorMap =
+        new ConcurrentHashMap<ClassRealm, List<ComponentDescriptor<?>>>();
+
+    final ThreadLocal<ClassRealm> lookupRealm = new ThreadLocal<ClassRealm>();
+
+    final GuiceBeanLocator beanLocator = new GuiceBeanLocator();
+
     final Context context;
 
     final Map<?, ?> variables;
 
     final ClassRealm containerRealm;
 
-    final ThreadLocal<ClassRealm> lookupRealm = new ThreadLocal<ClassRealm>();
-
     final PlexusLifecycleManager lifecycleManager;
-
-    @Inject
-    private Injector injector;
-
-    @Inject
-    private GuiceBeanLocator beanLocator;
 
     private ContainerSecurityManager securityManager;
 
-    private final Map<ClassRealm, List<ComponentDescriptor<?>>> descriptorMap =
-        new ConcurrentHashMap<ClassRealm, List<ComponentDescriptor<?>>>();
+    private final SetupModule setupModule = new SetupModule();
 
     private LoggerManager loggerManager = CONSOLE_LOGGER_MANAGER;
 
@@ -120,7 +120,7 @@ public final class DefaultPlexusContainer
         variables = new ContextMapAdapter( context );
 
         containerRealm = lookupContainerRealm( configuration );
-        lifecycleManager = new PlexusLifecycleManager();
+        lifecycleManager = new PlexusLifecycleManager( this, context );
 
         try
         {
@@ -132,37 +132,13 @@ public final class DefaultPlexusContainer
             securityManager = null;
         }
 
-        final ClassSpace space = new URLClassSpace( containerRealm );
-        final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, variables, configurationUrl );
+        realmIds.add( containerRealm.getId() );
 
-        Guice.createInjector( new AbstractModule()
-        {
-            @Override
-            protected void configure()
-            {
-                requestInjection( lifecycleManager );
+        final PlexusBeanSource xmlSource =
+            new XmlPlexusBeanSource( new URLClassSpace( containerRealm ), variables, configurationUrl );
 
-                install( new PlexusDateTypeConverter() );
-                install( new PlexusXmlBeanConverter() );
-
-                bind( Map.class ).annotatedWith( Jsr330.named( PlexusConstants.PLEXUS_KEY ) ).toInstance( variables );
-
-                bind( Context.class ).toInstance( context );
-                bind( ClassRealm.class ).toInstance( containerRealm );
-                bind( PlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
-                bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
-                bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
-                bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
-            }
-
-            @Provides
-            @SuppressWarnings( "unused" )
-            protected Logger logger()
-            {
-                return getLogger();
-            }
-
-        }, new PlexusBindingModule( lifecycleManager, xmlSource ) );
+        beanLocator.add( Guice.createInjector( setupModule, new ClassRealmModule( containerRealm ),
+                                               new PlexusBindingModule( lifecycleManager, xmlSource ) ) );
     }
 
     // ----------------------------------------------------------------------
@@ -205,14 +181,14 @@ public final class DefaultPlexusContainer
         }
         catch ( final Throwable e )
         {
-            throw new ComponentLookupException( e.toString(), role.getName(), hint );
+            throw new ComponentLookupException( e, role.getName(), hint );
         }
     }
 
     public <T> T lookup( final Class<T> type, final String role, final String hint )
         throws ComponentLookupException
     {
-        return role.equals( type.getName() ) ? lookup( type, hint ) : type.cast( lookup( role, hint ) );
+        return lookup( loadRoleClass( type, role ), hint );
     }
 
     public List<Object> lookupList( final String role )
@@ -246,14 +222,16 @@ public final class DefaultPlexusContainer
         return hasComponent( role, Hints.DEFAULT_HINT );
     }
 
+    @SuppressWarnings( "unchecked" )
     public boolean hasComponent( final Class<?> role, final String hint )
     {
-        return lookupMap( role ).containsKey( hint );
+        final Iterator<PlexusBeanLocator.Bean> i = (Iterator) locate( role, hint ).iterator();
+        return i.hasNext() && i.next().getImplementationClass() != null;
     }
 
     public boolean hasComponent( final Class<?> type, final String role, final String hint )
     {
-        return role.equals( type.getName() ) ? hasComponent( type, hint ) : hasComponent( loadRoleClass( role ), hint );
+        return hasComponent( loadRoleClass( type, role ), hint );
     }
 
     // ----------------------------------------------------------------------
@@ -262,9 +240,7 @@ public final class DefaultPlexusContainer
 
     public <T> void addComponent( final T component, final java.lang.Class<?> role, final String hint )
     {
-        // this method is only used in Maven3 tests, so keep it simple...
-
-        beanLocator.remove( injector );
+        // this is only used in Maven3 tests, so keep it simple...
         beanLocator.add( Guice.createInjector( new AbstractModule()
         {
             @Override
@@ -281,24 +257,25 @@ public final class DefaultPlexusContainer
                 }
             }
         } ) );
-        beanLocator.add( injector );
     }
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
     {
         final ClassRealm realm = descriptor.getRealm();
-        if ( null == realm || containerRealm == realm )
+        if ( null != realm )
         {
-            getLogger().warn( "Cannot add ComponentDescriptor: " + descriptor );
-            return;
+            List<ComponentDescriptor<?>> descriptors = descriptorMap.get( realm );
+            if ( null == descriptors )
+            {
+                descriptors = new ArrayList<ComponentDescriptor<?>>();
+                descriptorMap.put( realm, descriptors );
+            }
+            descriptors.add( descriptor );
+            if ( containerRealm == realm )
+            {
+                discoverComponents( containerRealm ); // for Maven3 testing
+            }
         }
-        List<ComponentDescriptor<?>> descriptors = descriptorMap.get( realm );
-        if ( null == descriptors )
-        {
-            descriptors = new ArrayList<ComponentDescriptor<?>>();
-            descriptorMap.put( realm, descriptors );
-        }
-        descriptors.add( descriptor );
     }
 
     public ComponentDescriptor<?> getComponentDescriptor( final String role, final String hint )
@@ -308,7 +285,12 @@ public final class DefaultPlexusContainer
 
     public <T> ComponentDescriptor<T> getComponentDescriptor( final Class<T> type, final String role, final String hint )
     {
-        return lifecycleManager.getComponentDescriptor( role, hint );
+        final Iterator<PlexusBeanLocator.Bean<T>> i = locate( loadRoleClass( type, role ), hint ).iterator();
+        if ( i.hasNext() )
+        {
+            return newComponentDescriptor( i.next() );
+        }
+        return null;
     }
 
     @SuppressWarnings( "unchecked" )
@@ -320,42 +302,40 @@ public final class DefaultPlexusContainer
     public <T> List<ComponentDescriptor<T>> getComponentDescriptorList( final Class<T> type, final String role )
     {
         final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
-        for ( final Entry<String, T> bean : locate( type ) )
+        for ( final PlexusBeanLocator.Bean<T> bean : locate( loadRoleClass( type, role ) ) )
         {
-            final ComponentDescriptor<T> descriptor = lifecycleManager.getComponentDescriptor( role, bean.getKey() );
-            if ( null != descriptor )
-            {
-                tempList.add( descriptor );
-            }
+            tempList.add( newComponentDescriptor( bean ) );
         }
         return tempList;
     }
 
-    public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm classRealm )
+    public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm realm )
     {
         try
         {
-            final ClassSpace space = new URLClassSpace( classRealm );
-            final PlexusBeanSource xmlSource = new XmlPlexusBeanSource( space, variables );
+            final List<PlexusBeanSource> sources = new ArrayList<PlexusBeanSource>();
+            final ClassSpace space = new URLClassSpace( realm );
 
-            final Module bindings;
-
-            final List<ComponentDescriptor<?>> descriptors = descriptorMap.remove( classRealm );
+            final List<ComponentDescriptor<?>> descriptors = descriptorMap.remove( realm );
             if ( null != descriptors )
             {
-                final PlexusBeanSource cmpSource = new ComponentDescriptorBeanSource( variables, descriptors );
-                bindings = new PlexusBindingModule( lifecycleManager.manageChild(), xmlSource, cmpSource );
-            }
-            else
-            {
-                bindings = new PlexusBindingModule( lifecycleManager.manageChild(), xmlSource );
+                sources.add( new ComponentDescriptorBeanSource( space, variables, descriptors ) );
             }
 
-            beanLocator.add( injector.createChildInjector( bindings ) );
+            if ( realmIds.add( realm.getId() ) )
+            {
+                sources.add( new XmlPlexusBeanSource( space, variables ) );
+            }
+
+            if ( !sources.isEmpty() )
+            {
+                beanLocator.add( Guice.createInjector( setupModule, new ClassRealmModule( realm ),
+                                                       new PlexusBindingModule( lifecycleManager, sources ) ) );
+            }
         }
         catch ( final Throwable e )
         {
-            getLogger().warn( classRealm.toString(), e );
+            getLogger().warn( realm.toString(), e );
         }
 
         return null; // no-one actually seems to use or check the returned component list!
@@ -520,6 +500,12 @@ public final class DefaultPlexusContainer
         return url;
     }
 
+    @SuppressWarnings( "unchecked" )
+    private <T> Class<T> loadRoleClass( final Class<T> type, final String role )
+    {
+        return null != type && role.equals( type.getName() ) ? type : (Class) loadRoleClass( role );
+    }
+
     /**
      * Loads the named Plexus role from the current container {@link ClassRealm}.
      * 
@@ -588,9 +574,58 @@ public final class DefaultPlexusContainer
      * @param hints The Plexus hints
      * @return Instances of the given role; ordered according to the given hints
      */
-    private <T> Iterable<? extends Entry<String, T>> locate( final Class<T> role, final String... hints )
+    private <T> Iterable<PlexusBeanLocator.Bean<T>> locate( final Class<T> role, final String... hints )
     {
         return beanLocator.locate( TypeLiteral.get( role ), hints );
+    }
+
+    private <T> ComponentDescriptor<T> newComponentDescriptor( final PlexusBeanLocator.Bean<T> bean )
+    {
+        final DeferredClass<T> clazz = bean.getImplementationClass();
+        final ComponentDescriptor<T> cd = new ComponentDescriptor<T>();
+        cd.setRole( clazz.getName() );
+        cd.setRoleHint( bean.getKey() );
+        cd.setImplementationClass( clazz.load() );
+        cd.setDescription( lifecycleManager.getDescription( clazz ) );
+        return cd;
+    }
+
+    final class SetupModule
+        extends AbstractModule
+    {
+        final PlexusDateTypeConverter dateConverter = new PlexusDateTypeConverter();
+
+        final PlexusXmlBeanConverter beanConverter = new PlexusXmlBeanConverter();
+
+        final LoggerProvider loggerProvider = new LoggerProvider();
+
+        @Override
+        protected void configure()
+        {
+            bind( Context.class ).toInstance( context );
+            bind( Map.class ).annotatedWith( Jsr330.named( PlexusConstants.PLEXUS_KEY ) ).toInstance( variables );
+            bind( Logger.class ).toProvider( loggerProvider );
+
+            install( dateConverter );
+            install( beanConverter );
+
+            bind( GuiceBeanLocator.class ).toInstance( beanLocator );
+            bind( MutablePlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
+            bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
+
+            bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
+            bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
+            bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
+        }
+    }
+
+    final class LoggerProvider
+        implements Provider<Logger>
+    {
+        public Logger get()
+        {
+            return getLogger();
+        }
     }
 
     /**

@@ -12,166 +12,172 @@
  */
 package org.codehaus.plexus;
 
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.component.factory.ComponentFactory;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.ComponentRequirement;
 import org.sonatype.guice.bean.reflect.BeanProperty;
+import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.reflect.DeferredProvider;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.scanners.AbstractAnnotatedPlexusBeanSource;
 
-import com.google.inject.Injector;
 import com.google.inject.Provider;
+import com.google.inject.ProvisionException;
 
 final class ComponentDescriptorBeanSource
     extends AbstractAnnotatedPlexusBeanSource
 {
-    // ------------------------
-    // TODO: work in progress !
-    // ------------------------
+    private Map<Component, DeferredClass<?>> componentMap = new HashMap<Component, DeferredClass<?>>();
 
-    private final ComponentDescriptor<?>[] descriptors;
+    private Map<String, PlexusBeanMetadata> metadataMap = new HashMap<String, PlexusBeanMetadata>();
 
-    ComponentDescriptorBeanSource( final Map<?, ?> variables, final Collection<ComponentDescriptor<?>> descriptors )
+    ComponentDescriptorBeanSource( final ClassSpace space, final Map<?, ?> variables,
+                                   final List<ComponentDescriptor<?>> descriptors )
     {
         super( variables );
-
-        this.descriptors = descriptors.toArray( new ComponentDescriptor[descriptors.size()] );
+        for ( int i = 0, size = descriptors.size(); i < size; i++ )
+        {
+            final ComponentDescriptor<?> cd = descriptors.get( i );
+            final String implementation = cd.getImplementation();
+            final String factory = cd.getComponentFactory();
+            if ( "java".equals( factory ) )
+            {
+                componentMap.put( newComponent( cd ), space.deferLoadClass( implementation ) );
+            }
+            else
+            {
+                componentMap.put( newComponent( cd ), new DeferredFactoryClass( cd, factory ) );
+            }
+            final List<ComponentRequirement> requirements = cd.getRequirements();
+            if ( !requirements.isEmpty() )
+            {
+                metadataMap.put( implementation, new ComponentMetadata( space, requirements ) );
+            }
+        }
     }
 
     public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
     {
-        final Map<Component, DeferredClass<?>> beans = new HashMap<Component, DeferredClass<?>>();
-        for ( final ComponentDescriptor<?> descriptor : descriptors )
-        {
-            final Component component =
-                new ComponentImpl( descriptor.getRoleClass(), descriptor.getRoleHint(),
-                                   descriptor.getInstantiationStrategy(), descriptor.getDescription() );
-
-            beans.put( component, new DeferredDescriptorClass( descriptor ) );
-        }
-        return beans;
+        final Map<Component, DeferredClass<?>> map = componentMap;
+        componentMap = Collections.emptyMap();
+        return map;
     }
 
     @Override
     public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
     {
-        for ( final ComponentDescriptor<?> descriptor : descriptors )
+        final PlexusBeanMetadata metadata = metadataMap.get( implementation.getName() );
+        if ( null != metadata && metadataMap.isEmpty() )
         {
-            if ( implementation.getName().equals( descriptor.getImplementation() ) )
-            {
-                if ( !descriptor.getRequirements().isEmpty() )
-                {
-                    return new DescriptorBeanMetadata( descriptor );
-                }
-                break;
-            }
+            metadataMap = Collections.emptyMap();
         }
-        return this;
+        return metadata;
     }
 
-    private static class DeferredDescriptorClass
-        implements DeferredClass<Object>, DeferredProvider<Object>
+    static Component newComponent( final ComponentDescriptor<?> cd )
     {
-        private final ComponentDescriptor<?> descriptor;
+        return new ComponentImpl( cd.getRoleClass(), cd.getRoleHint(), cd.getInstantiationStrategy(),
+                                  cd.getDescription() );
+    }
 
-        @Inject
-        private Injector injector;
+    static Requirement newRequirement( final ClassSpace space, final ComponentRequirement cr )
+    {
+        return new RequirementImpl( space.deferLoadClass( cr.getRole() ), false,
+                                    Collections.singletonList( cr.getRoleHint() ) );
+    }
 
-        DeferredDescriptorClass( final ComponentDescriptor<?> descriptor )
+    private static final class DeferredFactoryClass
+        implements DeferredClass<Object>
+    {
+        final ComponentDescriptor<?> cd;
+
+        final String hint;
+
+        DeferredFactoryClass( final ComponentDescriptor<?> cd, final String hint )
         {
-            this.descriptor = descriptor;
-        }
-
-        public String getName()
-        {
-            return descriptor.getImplementation();
+            this.cd = cd;
+            this.hint = hint;
         }
 
         @SuppressWarnings( "unchecked" )
         public Class load()
+            throws TypeNotPresentException
         {
-            return descriptor.getImplementationClass();
+            return cd.getImplementationClass();
+        }
+
+        public String getName()
+        {
+            return cd.getImplementation();
         }
 
         public Provider<Object> asProvider()
         {
-            return this;
-        }
+            return new Provider<Object>()
+            {
+                @Inject
+                PlexusContainer container;
 
-        public DeferredClass<Object> getImplementationClass()
-        {
-            return this;
-        }
-
-        @SuppressWarnings( "unchecked" )
-        public Object get()
-        {
-            return injector.getInstance( load() );
-        }
-
-        @Override
-        public String toString()
-        {
-            return getName();
+                public Object get()
+                {
+                    try
+                    {
+                        final ComponentFactory factory = container.lookup( ComponentFactory.class, hint );
+                        return factory.newInstance( cd, container.getLookupRealm(), container );
+                    }
+                    catch ( final Throwable e )
+                    {
+                        throw new ProvisionException( "Error in ComponentFactory:" + hint, e );
+                    }
+                }
+            };
         }
     }
 
-    private class DescriptorBeanMetadata
+    private static final class ComponentMetadata
         implements PlexusBeanMetadata
     {
-        private final List<ComponentRequirement> requirements;
+        private Map<String, Requirement> requirementMap = new HashMap<String, Requirement>();
 
-        private final ClassRealm realm;
-
-        DescriptorBeanMetadata( final ComponentDescriptor<?> descriptor )
+        ComponentMetadata( final ClassSpace space, final List<ComponentRequirement> requirements )
         {
-            requirements = descriptor.getRequirements();
-            realm = descriptor.getRealm();
+            for ( int i = 0, size = requirements.size(); i < size; i++ )
+            {
+                final ComponentRequirement cr = requirements.get( i );
+                requirementMap.put( cr.getFieldName(), newRequirement( space, cr ) );
+            }
         }
 
         public boolean isEmpty()
         {
-            return false;
-        }
-
-        public Configuration getConfiguration( final BeanProperty<?> property )
-        {
-            return ComponentDescriptorBeanSource.this.getConfiguration( property );
+            return requirementMap.isEmpty();
         }
 
         public Requirement getRequirement( final BeanProperty<?> property )
         {
-            for ( int i = 0, length = requirements.size(); i < length; i++ )
+            final Requirement requirement = requirementMap.get( property.getName() );
+            if ( null != requirement && requirementMap.isEmpty() )
             {
-                final ComponentRequirement requirement = requirements.get( i );
-                if ( property.getName().equals( requirement.getFieldName() ) )
-                {
-                    try
-                    {
-                        final Class<?> role = realm.loadClass( requirement.getRole() );
-                        return new RequirementImpl( role, false, requirement.getRoleHint() );
-                    }
-                    catch ( final Throwable t )
-                    {
-                        break;
-                    }
-                }
+                requirementMap = Collections.emptyMap();
             }
-            return ComponentDescriptorBeanSource.this.getRequirement( property );
+            return requirement;
+        }
+
+        public Configuration getConfiguration( final BeanProperty<?> property )
+        {
+            return null;
         }
     }
 }

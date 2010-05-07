@@ -12,6 +12,9 @@
  */
 package org.sonatype.guice.plexus.binders;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -38,6 +41,8 @@ public final class PlexusBindingModule
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    private final Set<Key<?>> boundKeys = new HashSet<Key<?>>();
+
     private final PlexusBeanManager manager;
 
     private final PlexusBeanSource[] sources;
@@ -52,6 +57,12 @@ public final class PlexusBindingModule
         this.sources = sources.clone();
     }
 
+    public PlexusBindingModule( final PlexusBeanManager manager, final Collection<PlexusBeanSource> sources )
+    {
+        this.manager = manager;
+        this.sources = sources.toArray( new PlexusBeanSource[sources.size()] );
+    }
+
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
@@ -64,13 +75,7 @@ public final class PlexusBindingModule
         {
             for ( final Entry<Component, DeferredClass<?>> e : source.findPlexusComponentBeans().entrySet() )
             {
-                // should we register this component?
-                final Component component = e.getKey();
-                final DeferredClass<?> clazz = e.getValue();
-                if ( null == manager || manager.manage( component, clazz ) )
-                {
-                    bindPlexusComponent( component, clazz );
-                }
+                bindPlexusComponent( e.getKey(), e.getValue() );
             }
         }
 
@@ -85,7 +90,16 @@ public final class PlexusBindingModule
     @SuppressWarnings( "unchecked" )
     private void bindPlexusComponent( final Component component, final DeferredClass<?> clazz )
     {
+        if ( null != manager && !manager.manage( component, clazz ) )
+        {
+            return; // ignore components that are not managed by the current manager
+        }
         final Key roleKey = Roles.componentKey( component );
+        if ( !boundKeys.add( roleKey ) )
+        {
+            return; // ignore duplicates, such as same component from different sources
+        }
+
         final String strategy = component.instantiationStrategy();
         final ScopedBindingBuilder sbb;
 
@@ -120,7 +134,6 @@ public final class PlexusBindingModule
         }
         else if ( !Strategies.PER_LOOKUP.equals( strategy ) )
         {
-            // default Plexus policy
             sbb.in( Scopes.SINGLETON );
         }
     }

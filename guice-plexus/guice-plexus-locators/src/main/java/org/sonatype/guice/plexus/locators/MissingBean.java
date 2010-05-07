@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 
 import javax.inject.Named;
 
+import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.Roles;
 
@@ -62,5 +63,16 @@ final class MissingBean<T>
     public T setValue( final T value )
     {
         throw new UnsupportedOperationException();
+    }
+
+    public DeferredClass<T> getImplementationClass()
+    {
+        return null;
+    }
+
+    @Override
+    public String toString()
+    {
+        return getKey() + "=<missing>";
     }
 }

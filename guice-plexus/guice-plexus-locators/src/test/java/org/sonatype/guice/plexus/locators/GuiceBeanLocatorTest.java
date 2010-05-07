@@ -15,12 +15,18 @@ package org.sonatype.guice.plexus.locators;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 
-import org.sonatype.guice.plexus.config.Hints;
+import org.codehaus.plexus.classworlds.ClassWorld;
+import org.codehaus.plexus.classworlds.ClassWorldException;
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
+import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
+import org.sonatype.guice.plexus.adapters.EntryMapAdapter;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -112,7 +118,6 @@ public class GuiceBeanLocatorTest
         Iterator<? extends Entry<String, Bean>> i;
 
         i = roles.iterator();
-        assertSame( Hints.DEFAULT_HINT, i.next().getKey() );
         assertEquals( "A", i.next().getKey() );
         assertEquals( "-", i.next().getKey() );
         assertEquals( "Z", i.next().getKey() );
@@ -126,7 +131,6 @@ public class GuiceBeanLocatorTest
         locator.remove( child2 );
 
         i = roles.iterator();
-        assertSame( Hints.DEFAULT_HINT, i.next().getKey() );
         assertEquals( "A", i.next().getKey() );
         assertEquals( "-", i.next().getKey() );
         assertEquals( "Z", i.next().getKey() );
@@ -141,7 +145,6 @@ public class GuiceBeanLocatorTest
         locator.add( child3 );
 
         i = roles.iterator();
-        assertSame( Hints.DEFAULT_HINT, i.next().getKey() );
         assertEquals( "A", i.next().getKey() );
         assertEquals( "-", i.next().getKey() );
         assertEquals( "Z", i.next().getKey() );
@@ -180,7 +183,6 @@ public class GuiceBeanLocatorTest
         Iterator<? extends Entry<String, Bean>> i;
 
         i = roles.iterator();
-        assertSame( Hints.DEFAULT_HINT, i.next().getKey() );
         assertEquals( "A", i.next().getKey() );
         assertEquals( "-", i.next().getKey() );
         assertEquals( "Z", i.next().getKey() );
@@ -301,6 +303,8 @@ public class GuiceBeanLocatorTest
         assertEquals( "Z", i.next().getKey() );
         assertFalse( i.hasNext() );
 
+        assertEquals( "!=<missing>", pling.toString() );
+
         try
         {
             pling.getValue();
@@ -364,11 +368,9 @@ public class GuiceBeanLocatorTest
         assertEquals( "Z", i.next().getKey() );
         assertFalse( i.hasNext() );
 
-        assertEquals( BeanImpl.class, m1.getValue().getClass() );
-        assertSame( m1.getValue(), m1.getValue() );
+        assertNull( m1.getValue() );
         assertSame( dash1.getValue(), dash2.getValue() );
-        assertSame( m3.getValue(), m3.getValue() );
-        assertEquals( BeanImpl.class, m3.getValue().getClass() );
+        assertNull( m3.getValue() );
 
         locator.remove( child1 );
         locator.add( child1 );
@@ -389,9 +391,236 @@ public class GuiceBeanLocatorTest
         assertEquals( "Z", i.next().getKey() );
         assertFalse( i.hasNext() );
 
-        assertNull( m1.getValue() );
+        assertEquals( "M1=" + m1.getValue(), m1.toString() );
+        assertEquals( BeanImpl.class, m1.getValue().getClass() );
+        assertSame( m1.getValue(), m1.getValue() );
         assertSame( dash1.getValue(), dash2.getValue() );
-        assertSame( m3.getValue(), m3.getValue() );
-        assertEquals( BeanImpl.class, m3.getValue().getClass() );
+        assertNull( m3.getValue() );
+    }
+
+    public void testInjectorVisibility()
+        throws NoSuchRealmException
+    {
+        final GuiceBeanLocator locator = new GuiceBeanLocator();
+        final ClassWorld world = new ClassWorld();
+
+        locator.add( Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                try
+                {
+                    bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( BeanImpl.class );
+                    bind( ClassRealm.class ).toInstance( world.newRealm( "A" ) );
+                }
+                catch ( final DuplicateRealmException e )
+                {
+                    throw new RuntimeException( e );
+                }
+            }
+        } ) );
+
+        locator.add( Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                try
+                {
+                    bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BeanImpl.class );
+                    bind( ClassRealm.class ).toInstance( world.newRealm( "B" ) );
+                }
+                catch ( final DuplicateRealmException e )
+                {
+                    throw new RuntimeException( e );
+                }
+            }
+        } ) );
+
+        locator.add( Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                try
+                {
+                    bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( BeanImpl.class );
+                    bind( ClassRealm.class ).toInstance( world.newRealm( "C" ) );
+                }
+                catch ( final DuplicateRealmException e )
+                {
+                    throw new RuntimeException( e );
+                }
+            }
+        } ) );
+
+        locator.add( Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                try
+                {
+                    bind( Bean.class ).annotatedWith( Jsr330.named( "B1" ) ).to( BeanImpl.class );
+                    bind( ClassRealm.class ).toInstance( world.getRealm( "B" ).createChildRealm( "B1" ) );
+                }
+                catch ( final ClassWorldException e )
+                {
+                    throw new RuntimeException( e );
+                }
+            }
+        } ) );
+
+        locator.add( Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                try
+                {
+                    bind( Bean.class ).annotatedWith( Jsr330.named( "B2" ) ).to( BeanImpl.class );
+                    bind( ClassRealm.class ).toInstance( world.getRealm( "B" ).createChildRealm( "B2" ) );
+                }
+                catch ( final ClassWorldException e )
+                {
+                    throw new RuntimeException( e );
+                }
+            }
+        } ) );
+
+        locator.add( Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                try
+                {
+                    bind( Bean.class ).annotatedWith( Jsr330.named( "B3" ) ).to( BeanImpl.class );
+                    bind( ClassRealm.class ).toInstance( world.getRealm( "B" ).createChildRealm( "B3" ) );
+                }
+                catch ( final ClassWorldException e )
+                {
+                    throw new RuntimeException( e );
+                }
+            }
+        } ) );
+
+        locator.add( Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                try
+                {
+                    bind( Bean.class ).annotatedWith( Jsr330.named( "B2B" ) ).to( BeanImpl.class );
+                    bind( ClassRealm.class ).toInstance( world.getRealm( "B2" ).createChildRealm( "B2B" ) );
+                }
+                catch ( final ClassWorldException e )
+                {
+                    throw new RuntimeException( e );
+                }
+            }
+        } ) );
+
+        locator.add( Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                try
+                {
+                    bind( Bean.class ).annotatedWith( Jsr330.named( "?" ) ).to( BeanImpl.class );
+                    bind( ClassRealm.class ).toInstance( world.newRealm( "?" ) );
+                }
+                catch ( final DuplicateRealmException e )
+                {
+                    throw new RuntimeException( e );
+                }
+            }
+        } ) );
+
+        world.getRealm( "B" ).importFrom( "A", "A" );
+        world.getRealm( "B" ).importFrom( "C", "C" );
+
+        world.getRealm( "B2" ).importFrom( "B1", "B1" );
+        world.getRealm( "B2" ).importFrom( "B3", "B3" );
+
+        locator.add( Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                bind( Bean.class ).annotatedWith( Jsr330.named( "!" ) ).to( BeanImpl.class );
+            }
+        } ) );
+
+        final Map<String, Bean> map =
+            new EntryMapAdapter<String, Bean>( locator.locate( TypeLiteral.get( Bean.class ) ) );
+
+        Thread.currentThread().setContextClassLoader( world.getClassRealm( "A" ) );
+
+        assertEquals( 2, map.size() );
+        assertEquals( BeanImpl.class, map.get( "A" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "!" ).getClass() );
+
+        Thread.currentThread().setContextClassLoader( world.getClassRealm( "B" ) );
+
+        assertEquals( 4, map.size() );
+        assertEquals( BeanImpl.class, map.get( "A" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "C" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "!" ).getClass() );
+
+        Thread.currentThread().setContextClassLoader( world.getClassRealm( "B2" ) );
+
+        assertEquals( 7, map.size() );
+        assertEquals( BeanImpl.class, map.get( "A" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "C" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B1" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B2" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B3" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "!" ).getClass() );
+
+        Thread.currentThread().setContextClassLoader( world.getClassRealm( "B2B" ) );
+
+        assertEquals( 8, map.size() );
+        assertEquals( BeanImpl.class, map.get( "A" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "C" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B1" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B2" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B3" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B2B" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "!" ).getClass() );
+
+        Thread.currentThread().setContextClassLoader( world.getClassRealm( "B3" ) );
+
+        assertEquals( 5, map.size() );
+        assertEquals( BeanImpl.class, map.get( "A" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "C" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B3" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "!" ).getClass() );
+
+        Thread.currentThread().setContextClassLoader( world.getClassRealm( "C" ) );
+
+        assertEquals( 2, map.size() );
+        assertEquals( BeanImpl.class, map.get( "C" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "!" ).getClass() );
+
+        Thread.currentThread().setContextClassLoader( null );
+
+        assertEquals( 9, map.size() );
+        assertEquals( BeanImpl.class, map.get( "A" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "C" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B1" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B2" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B3" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "B2B" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "!" ).getClass() );
+        assertEquals( BeanImpl.class, map.get( "?" ).getClass() );
     }
 }

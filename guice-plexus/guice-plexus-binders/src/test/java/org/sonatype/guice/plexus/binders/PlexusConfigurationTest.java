@@ -68,11 +68,6 @@ public class PlexusConfigurationTest
             return true;
         }
 
-        public PlexusBeanManager manageChild()
-        {
-            return this;
-        }
-
         public boolean unmanage( final Object bean )
         {
             return false;

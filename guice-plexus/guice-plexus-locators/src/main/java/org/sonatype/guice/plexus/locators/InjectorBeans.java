@@ -16,15 +16,14 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.inject.Named;
 
 import org.sonatype.guice.plexus.config.Hints;
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.Roles;
 
 import com.google.inject.Binding;
-import com.google.inject.ConfigurationException;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
@@ -33,7 +32,7 @@ import com.google.inject.TypeLiteral;
  * {@link List} of Plexus beans with the same type from the same Guice {@link Injector}.
  */
 final class InjectorBeans<T>
-    extends ArrayList<Entry<String, T>>
+    extends ArrayList<PlexusBeanLocator.Bean<T>>
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -61,37 +60,17 @@ final class InjectorBeans<T>
     {
         this.injector = injector;
 
-        final Injector parent = injector.getParent();
-        if ( null == parent )
-        {
-            try
-            {
-                // special case for root injector - try to include any default "just-in-time" binding
-                add( new LazyBean<T>( Hints.DEFAULT_HINT, injector.getProvider( Key.get( role ) ) ) );
-            }
-            catch ( final ConfigurationException e ) // NOPMD
-            {
-                // default doesn't always exist, so drop-through and search named hints
-            }
-        }
-
         // only covers explicit bindings, such as those specified in a module
         for ( final Binding<T> binding : injector.findBindingsByType( role ) )
         {
             final Annotation ann = binding.getKey().getAnnotation();
-            if ( ann instanceof Named )
+            if ( null == ann )
             {
-                final String hint = ( (Named) ann ).value();
-                if ( !Hints.isDefaultHint( hint ) )
-                {
-                    add( new LazyBean<T>( hint, binding.getProvider() ) );
-                }
+                add( 0, new LazyBean<T>( binding ) ); // default takes precedence
             }
-            else if ( null == ann && null != parent )
+            else if ( ann instanceof Named && !Hints.isDefaultHint( ( (Named) ann ).value() ) )
             {
-                // explicit default bindings must appear at the start: but only need
-                // to do this for child injectors, as root injector is handled above
-                add( 0, new LazyBean<T>( Hints.DEFAULT_HINT, binding.getProvider() ) );
+                add( new LazyBean<T>( binding ) );
             }
         }
 
@@ -110,31 +89,14 @@ final class InjectorBeans<T>
     {
         this.injector = injector;
 
-        // use hints to look up the bindings directly
-        final Injector parent = injector.getParent();
+        // only covers explicit bindings, such as those specified in a module
         final Map<Key<?>, Binding<?>> bindings = injector.getBindings();
         for ( final String hint : hints )
         {
-            if ( null == parent && Hints.isDefaultHint( hint ) )
+            final Binding binding = bindings.get( Roles.componentKey( role, hint ) );
+            if ( null != binding )
             {
-                try
-                {
-                    // special case for root injector - try to include any default "just-in-time" binding
-                    add( new LazyBean<T>( Hints.DEFAULT_HINT, injector.getProvider( Key.get( role ) ) ) );
-                }
-                catch ( final ConfigurationException e ) // NOPMD
-                {
-                    // default doesn't always exist, so move onto next hint
-                }
-            }
-            else
-            {
-                // only covers explicit bindings, such as those specified in a module
-                final Binding binding = bindings.get( Roles.componentKey( role, hint ) );
-                if ( null != binding )
-                {
-                    add( new LazyBean<T>( hint, binding.getProvider() ) );
-                }
+                add( new LazyBean<T>( binding ) );
             }
         }
 

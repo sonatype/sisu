@@ -14,10 +14,8 @@ package org.sonatype.guice.plexus.locators;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 
@@ -49,50 +47,36 @@ final class HintedGuiceBeans<T>
     }
 
     // ----------------------------------------------------------------------
-    // Public methods
+    // Customized methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
-    public synchronized Iterator<PlexusBeanLocator.Bean<T>> iterator()
+    @Override
+    InjectorBeans<T> discoverInjectorBeans( final Injector injector )
     {
-        // compile map of all known beans at this particular moment
-        // can't build map ahead of time as contributions will vary
-        final Map<String, Entry<String, T>> beanMap = new HashMap();
-        if ( null != injectorBeans )
+        return new InjectorBeans<T>( injector, role, hints );
+    }
+
+    @Override
+    List<PlexusBeanLocator.Bean<T>> getBeans( final List<InjectorBeans<T>> visibleBeans )
+    {
+        // compile map of all known visible beans at this particular moment (can't build this map ahead of time)
+        final Map<String, PlexusBeanLocator.Bean<T>> beanMap = new HashMap<String, PlexusBeanLocator.Bean<T>>();
+        for ( int i = 0, size = visibleBeans.size(); i < size; i++ )
         {
-            for ( int i = 0, size = injectorBeans.size(); i < size; i++ )
+            final InjectorBeans<T> beans = visibleBeans.get( i );
+            for ( final PlexusBeanLocator.Bean<T> b : beans )
             {
-                for ( final Entry<String, T> e : injectorBeans.get( i ) )
-                {
-                    final String key = e.getKey();
-                    if ( !beanMap.containsKey( key ) )
-                    {
-                        beanMap.put( key, e );
-                    }
-                }
+                beanMap.put( b.getKey(), b ); // later injector bindings overlay earlier ones
             }
         }
 
         // "copy-on-read" - select hinted beans from above map
-        final List selectedBeans = new ArrayList( hints.length );
+        final List<PlexusBeanLocator.Bean<T>> hintedBeans = new ArrayList<PlexusBeanLocator.Bean<T>>( hints.length );
         for ( final String hint : hints )
         {
-            final Entry bean = beanMap.get( hint );
-            if ( null != bean )
-            {
-                selectedBeans.add( bean );
-            }
-            else
-            {
-                // no-one supplies this hint, so mark it as missing
-                selectedBeans.add( new MissingBean( role, hint ) );
-            }
+            final PlexusBeanLocator.Bean<T> bean = beanMap.get( hint );
+            hintedBeans.add( null != bean ? bean : new MissingBean<T>( role, hint ) );
         }
-        return selectedBeans.iterator();
-    }
-
-    public boolean add( final Injector injector )
-    {
-        return addInjectorBeans( new InjectorBeans<T>( injector, role, hints ) );
+        return hintedBeans;
     }
 }

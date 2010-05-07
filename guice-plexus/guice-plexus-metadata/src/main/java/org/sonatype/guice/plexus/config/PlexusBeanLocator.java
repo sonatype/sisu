@@ -14,6 +14,8 @@ package org.sonatype.guice.plexus.config;
 
 import java.util.Map.Entry;
 
+import org.sonatype.guice.bean.reflect.DeferredClass;
+
 import com.google.inject.TypeLiteral;
 
 /**
@@ -27,7 +29,10 @@ public interface PlexusBeanLocator
     interface Bean<T>
         extends Entry<String, T>
     {
-        // no extra data at the moment
+        /**
+         * @return Deferred implementation class
+         */
+        DeferredClass<T> getImplementationClass();
     }
 
     /**

@@ -13,9 +13,19 @@
 package org.sonatype.guice.plexus.locators;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+
+import com.google.inject.Binding;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 
 /**
  * Base {@link GuiceBeans} implementation that manages a backing list of {@link InjectorBeans}.
@@ -24,10 +34,35 @@ abstract class AbstractGuiceBeans<T>
     implements GuiceBeans<T>
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final boolean GET_IMPORT_REALMS_SUPPORTED;
+
+    static
+    {
+        boolean getImportRealmsSupported = true;
+        try
+        {
+            // support both old and new forms of Plexus class realms
+            ClassRealm.class.getDeclaredMethod( "getImportRealms" );
+        }
+        catch ( final Throwable e )
+        {
+            getImportRealmsSupported = false;
+        }
+        GET_IMPORT_REALMS_SUPPORTED = getImportRealmsSupported;
+    }
+
+    // ----------------------------------------------------------------------
     // Common fields
     // ----------------------------------------------------------------------
 
-    List<InjectorBeans<T>> injectorBeans;
+    private List<InjectorBeans<T>> injectorBeans;
+
+    private List<PlexusBeanLocator.Bean<T>> cachedBeans;
+
+    private ClassLoader cachedTCCL;
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -43,24 +78,16 @@ abstract class AbstractGuiceBeans<T>
         {
             if ( injector == beans.injector )
             {
+                cachedBeans = null;
                 return injectorBeans.remove( beans );
             }
         }
         return false;
     }
 
-    // ----------------------------------------------------------------------
-    // Common methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * Add the given {@link InjectorBeans} sequence to the backing list.
-     * 
-     * @param newBeans The new injector beans
-     * @return {@code true} if the list changed as a result of the call; otherwise {@code false}
-     */
-    final synchronized boolean addInjectorBeans( final InjectorBeans<T> newBeans )
+    public final synchronized boolean add( final Injector injector )
     {
+        final InjectorBeans<T> newBeans = discoverInjectorBeans( injector );
         if ( newBeans.isEmpty() )
         {
             return false; // nothing to add
@@ -69,6 +96,101 @@ abstract class AbstractGuiceBeans<T>
         {
             injectorBeans = new ArrayList<InjectorBeans<T>>( 4 );
         }
+        cachedBeans = null;
         return injectorBeans.add( newBeans );
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public final synchronized Iterator<PlexusBeanLocator.Bean<T>> iterator()
+    {
+        if ( null == cachedBeans || Thread.currentThread().getContextClassLoader() != cachedTCCL )
+        {
+            cachedTCCL = Thread.currentThread().getContextClassLoader();
+            if ( null != injectorBeans )
+            {
+                cachedBeans = getVisibleBeans( getVisibleRealms( getContextRealm() ) );
+            }
+            else
+            {
+                cachedBeans = getBeans( Collections.EMPTY_LIST );
+            }
+        }
+        return cachedBeans.iterator();
+    }
+
+    // ----------------------------------------------------------------------
+    // Customizable methods
+    // ----------------------------------------------------------------------
+
+    abstract InjectorBeans<T> discoverInjectorBeans( final Injector injector );
+
+    abstract List<PlexusBeanLocator.Bean<T>> getBeans( final List<InjectorBeans<T>> visibleBeans );
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private final ClassRealm getContextRealm()
+    {
+        while ( null != cachedTCCL )
+        {
+            if ( cachedTCCL instanceof ClassRealm )
+            {
+                return (ClassRealm) cachedTCCL;
+            }
+            cachedTCCL = cachedTCCL.getParent();
+        }
+        return null;
+    }
+
+    @SuppressWarnings( "unchecked" )
+    private final static Set<ClassRealm> getVisibleRealms( final ClassRealm contextRealm )
+    {
+        if ( !GET_IMPORT_REALMS_SUPPORTED || null == contextRealm )
+        {
+            return Collections.EMPTY_SET;
+        }
+
+        final Set<ClassRealm> visibleRealms = new HashSet<ClassRealm>();
+        final LinkedList<ClassRealm> searchRealms = new LinkedList<ClassRealm>();
+
+        searchRealms.add( contextRealm );
+        while ( !searchRealms.isEmpty() )
+        {
+            final ClassRealm realm = searchRealms.removeFirst();
+            if ( visibleRealms.add( realm ) )
+            {
+                searchRealms.addAll( realm.getImportRealms() );
+                final ClassRealm parent = realm.getParentRealm();
+                if ( null != parent )
+                {
+                    searchRealms.add( parent );
+                }
+            }
+        }
+        return visibleRealms;
+    }
+
+    private final List<PlexusBeanLocator.Bean<T>> getVisibleBeans( final Set<ClassRealm> visibleRealms )
+    {
+        if ( visibleRealms.isEmpty() )
+        {
+            return getBeans( injectorBeans );
+        }
+
+        final List<InjectorBeans<T>> visibleBeans = new ArrayList<InjectorBeans<T>>();
+        for ( int i = 0, size = injectorBeans.size(); i < size; i++ )
+        {
+            final InjectorBeans<T> candidateBeans = injectorBeans.get( i );
+
+            final Binding<ClassRealm> injectorRealm =
+                candidateBeans.injector.getExistingBinding( Key.get( ClassRealm.class ) );
+
+            if ( null == injectorRealm || visibleRealms.contains( injectorRealm.getProvider().get() ) )
+            {
+                visibleBeans.add( candidateBeans );
+            }
+        }
+        return getBeans( visibleBeans );
     }
 }

@@ -15,15 +15,11 @@ package org.codehaus.plexus;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import javax.inject.Inject;
+import java.util.Map.Entry;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
@@ -34,8 +30,8 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
 import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
-import org.sonatype.guice.plexus.config.Roles;
 
 /**
  * {@link PlexusBeanManager} that manages Plexus components requiring lifecycle management.
@@ -47,40 +43,22 @@ final class PlexusLifecycleManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final PlexusLifecycleManager parent;
-
-    private final List<PlexusLifecycleManager> children = new ArrayList<PlexusLifecycleManager>();
-
-    private final Map<String, DeferredClass<?>> implementations = new HashMap<String, DeferredClass<?>>();
-
-    private final Map<String, String> descriptions = new HashMap<String, String>();
-
-    private final Set<String> localTypes = new HashSet<String>();
+    private final Map<DeferredClass<?>, String> descriptions = new HashMap<DeferredClass<?>, String>();
 
     private final List<Object> activeBeans = Collections.synchronizedList( new ArrayList<Object>() );
 
-    @Inject
-    private Context context;
+    private final PlexusContainer container;
 
-    @Inject
-    private PlexusContainer container;
+    private final Context context;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    PlexusLifecycleManager()
+    PlexusLifecycleManager( final PlexusContainer container, final Context context )
     {
-        parent = null;
-    }
-
-    private PlexusLifecycleManager( final PlexusLifecycleManager parent )
-    {
-        this.parent = parent;
-
-        // copy injected fields
-        context = parent.context;
-        container = parent.container;
+        this.container = container;
+        this.context = context;
     }
 
     // ----------------------------------------------------------------------
@@ -89,30 +67,19 @@ final class PlexusLifecycleManager
 
     public boolean manage( final Component component, final DeferredClass<?> clazz )
     {
-        final String key = Roles.canonicalRoleHint( component );
-        if ( isManaged( key ) )
-        {
-            return false; // component already exists
-        }
-        implementations.put( key, clazz );
         final String description = component.description();
-        if ( description.length() > 0 )
+        if ( null != description && description.length() > 0 )
         {
-            descriptions.put( key, description );
+            descriptions.put( clazz, description );
         }
-        localTypes.add( clazz.getName() );
         return true;
     }
 
     public boolean manage( final Class<?> clazz )
     {
-        if ( localTypes.remove( clazz.getName() ) )
-        {
-            return LogEnabled.class.isAssignableFrom( clazz ) || Contextualizable.class.isAssignableFrom( clazz )
-                || Initializable.class.isAssignableFrom( clazz ) || Startable.class.isAssignableFrom( clazz )
-                || Disposable.class.isAssignableFrom( clazz );
-        }
-        return false; // not managed by this manager
+        return LogEnabled.class.isAssignableFrom( clazz ) || Contextualizable.class.isAssignableFrom( clazz )
+            || Initializable.class.isAssignableFrom( clazz ) || Startable.class.isAssignableFrom( clazz )
+            || Disposable.class.isAssignableFrom( clazz );
     }
 
     @SuppressWarnings( "unchecked" )
@@ -179,34 +146,14 @@ final class PlexusLifecycleManager
         return true;
     }
 
-    public synchronized PlexusBeanManager manageChild()
+    public boolean unmanage( final Object bean )
     {
-        final PlexusLifecycleManager childManager = new PlexusLifecycleManager( this );
-        children.add( childManager );
-        return childManager;
-    }
-
-    public synchronized boolean unmanage( final Object bean )
-    {
-        boolean result = false;
-        for ( final PlexusLifecycleManager child : children )
-        {
-            result |= child.unmanage( bean );
-        }
-        if ( activeBeans.remove( bean ) )
-        {
-            result |= dispose( bean );
-        }
-        return result;
+        return activeBeans.remove( bean );
     }
 
     public synchronized boolean unmanage()
     {
         boolean result = false;
-        for ( final PlexusLifecycleManager child : children )
-        {
-            result |= child.unmanage();
-        }
         while ( !activeBeans.isEmpty() )
         {
             // dispose in reverse order; use index to allow concurrent growth
@@ -215,42 +162,31 @@ final class PlexusLifecycleManager
         return result;
     }
 
+    public PlexusBeanManager manageChild()
+    {
+        return this;
+    }
+
     // ----------------------------------------------------------------------
     // Shared implementation methods
     // ----------------------------------------------------------------------
 
-    boolean isManaged( final String roleHintKey )
+    String getDescription( final DeferredClass<?> clazz )
     {
-        if ( null != parent && parent.isManaged( roleHintKey ) )
+        final String description = descriptions.get( clazz );
+        if ( null != description )
         {
-            return true;
+            return description;
         }
-        return implementations.containsKey( roleHintKey );
-    }
-
-    <T> ComponentDescriptor<T> getComponentDescriptor( final String role, final String hint )
-    {
-        final String key = Roles.canonicalRoleHint( role, hint );
-
-        @SuppressWarnings( "unchecked" )
-        final DeferredClass clazz = implementations.get( key );
-        if ( null != clazz )
+        if ( clazz instanceof LoadedClass<?> )
         {
-            final ComponentDescriptor<T> descriptor = new ComponentDescriptor<T>();
-            descriptor.setRole( role );
-            descriptor.setRoleHint( hint );
-            descriptor.setImplementationClass( clazz.load() );
-            descriptor.setDescription( descriptions.get( key ) );
-            return descriptor;
-        }
-        synchronized ( this )
-        {
-            for ( final PlexusLifecycleManager child : children )
+            // can't find an exact match, need to compare using name and type equality
+            for ( final Entry<DeferredClass<?>, String> e : descriptions.entrySet() )
             {
-                final ComponentDescriptor<T> descriptor = child.getComponentDescriptor( role, hint );
-                if ( descriptor != null )
+                final DeferredClass<?> key = e.getKey();
+                if ( clazz.getName().equals( key.getName() ) && clazz.load().equals( key.load() ) )
                 {
-                    return descriptor;
+                    return e.getValue();
                 }
             }
         }

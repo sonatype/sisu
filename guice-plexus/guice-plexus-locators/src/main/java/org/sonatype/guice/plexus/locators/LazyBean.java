@@ -17,7 +17,20 @@ import java.util.Map.Entry;
 import javax.inject.Named;
 import javax.inject.Provider;
 
+import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.DeferredProvider;
+import org.sonatype.guice.bean.reflect.LoadedClass;
+import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+
+import com.google.inject.Binding;
+import com.google.inject.Key;
+import com.google.inject.spi.BindingTargetVisitor;
+import com.google.inject.spi.ConstructorBinding;
+import com.google.inject.spi.DefaultBindingTargetVisitor;
+import com.google.inject.spi.InstanceBinding;
+import com.google.inject.spi.LinkedKeyBinding;
+import com.google.inject.spi.ProviderInstanceBinding;
 
 /**
  * {@link Entry} representing a lazy @{@link Named} Plexus bean; the bean is only retrieved when the value is requested.
@@ -29,9 +42,7 @@ final class LazyBean<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final String hint;
-
-    private Provider<T> provider;
+    private final Binding<T> binding;
 
     private T bean;
 
@@ -39,10 +50,9 @@ final class LazyBean<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    LazyBean( final String hint, final Provider<T> provider )
+    LazyBean( final Binding<T> binding )
     {
-        this.hint = hint;
-        this.provider = provider;
+        this.binding = binding;
     }
 
     // ----------------------------------------------------------------------
@@ -51,22 +61,81 @@ final class LazyBean<T>
 
     public String getKey()
     {
-        return hint;
+        final Named hint = (Named) binding.getKey().getAnnotation();
+        return null != hint ? hint.value() : Hints.DEFAULT_HINT;
     }
 
     public synchronized T getValue()
     {
-        if ( null != provider )
+        if ( null == bean )
         {
-            // lazy bean creation
-            bean = provider.get();
-            provider = null;
+            bean = binding.getProvider().get();
         }
-        return bean; // from now on return same bean
+        return bean;
     }
 
     public T setValue( final T value )
     {
         throw new UnsupportedOperationException();
+    }
+
+    public DeferredClass<T> getImplementationClass()
+    {
+        final DeferredTargetVisitor<T, ?> visitor = new DeferredTargetVisitor<T, Object>();
+        binding.acceptTargetVisitor( visitor );
+        return visitor.implementationClass;
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation helpers
+    // ----------------------------------------------------------------------
+
+    /**
+     * {@link BindingTargetVisitor} that deduces the implementation class for a given {@link Binding}.
+     */
+    @SuppressWarnings( "unchecked" )
+    static final class DeferredTargetVisitor<T, V>
+        extends DefaultBindingTargetVisitor<T, V>
+    {
+        DeferredClass<T> implementationClass;
+
+        @Override
+        public V visit( final ProviderInstanceBinding<? extends T> providerInstanceBinding )
+        {
+            final Provider provider = providerInstanceBinding.getProviderInstance();
+            if ( provider instanceof DeferredProvider )
+            {
+                implementationClass = ( (DeferredProvider) provider ).getImplementationClass();
+            }
+            return null;
+        }
+
+        @Override
+        public V visit( final LinkedKeyBinding<? extends T> linkedKeyBinding )
+        {
+            final Key key = linkedKeyBinding.getLinkedKey();
+            implementationClass = new LoadedClass( key.getTypeLiteral().getRawType() );
+            return null;
+        }
+
+        @Override
+        public V visit( final ConstructorBinding<? extends T> constructorBinding )
+        {
+            implementationClass = new LoadedClass( constructorBinding.getConstructor().getDeclaringType().getRawType() );
+            return null;
+        }
+
+        @Override
+        public V visit( final InstanceBinding<? extends T> instanceBinding )
+        {
+            implementationClass = new LoadedClass( instanceBinding.getInstance().getClass() );
+            return null;
+        }
+    }
+
+    @Override
+    public String toString()
+    {
+        return getKey() + "=" + getValue();
     }
 }

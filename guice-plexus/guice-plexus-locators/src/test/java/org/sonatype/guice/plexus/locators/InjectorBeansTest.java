@@ -18,12 +18,15 @@ import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 
+import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.plexus.config.Hints;
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
+import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.google.inject.util.Jsr330;
@@ -65,7 +68,7 @@ public class InjectorBeansTest
     // ** @Named("default") bindings are _not_ considered to be default bindings **
     // ****************************************************************************
 
-    public void testRolesWithNoDefault()
+    public void testBlankOrDefaultHintNotUsed()
     {
         final Injector injector = Guice.createInjector( new AbstractModule()
         {
@@ -80,9 +83,10 @@ public class InjectorBeansTest
             }
         } );
 
-        final Iterable<Entry<String, Bean>> roles = new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+        final Iterable<? extends Entry<String, Bean>> roles =
+            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
-        Iterator<Entry<String, Bean>> i;
+        Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
         Bean aBean, bBean, cBean;
 
@@ -142,7 +146,7 @@ public class InjectorBeansTest
         }
     }
 
-    public void testRolesWithImplicitDefault()
+    public void testImplicitDefaultNotUsed()
     {
         final Injector injector = Guice.createInjector( new AbstractModule()
         {
@@ -150,30 +154,22 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) )
-                                                 .to( DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to(
+                                                                                                          DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
             }
         } );
 
-        final Iterable<Entry<String, ImplicitDefaultBean>> roles =
+        final Iterable<? extends Entry<String, ImplicitDefaultBean>> roles =
             new InjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
 
-        Iterator<Entry<String, ImplicitDefaultBean>> i;
+        Iterator<? extends Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
-        ImplicitDefaultBean defaultBean, aBean, bBean, cBean;
+        ImplicitDefaultBean aBean, bBean, cBean;
 
         i = roles.iterator();
-        assertTrue( i.hasNext() );
-        mapping = i.next();
-
-        defaultBean = mapping.getValue();
-        assertTrue( Hints.isDefaultHint( mapping.getKey() ) );
-        assertEquals( DefaultBean.class, defaultBean.getClass() );
-        assertSame( defaultBean, mapping.getValue() );
-
         assertTrue( i.hasNext() );
         mapping = i.next();
 
@@ -201,13 +197,11 @@ public class InjectorBeansTest
         assertFalse( i.hasNext() );
 
         i = roles.iterator();
-        assertTrue( Hints.isDefaultHint( i.next().getKey() ) );
         assertEquals( "C", i.next().getKey() );
         assertEquals( "A", i.next().getKey() );
         assertEquals( "B", i.next().getKey() );
 
         i = roles.iterator();
-        assertSame( defaultBean, i.next().getValue() );
         assertSame( cBean, i.next().getValue() );
         assertSame( aBean, i.next().getValue() );
         assertSame( bBean, i.next().getValue() );
@@ -222,7 +216,7 @@ public class InjectorBeansTest
         }
     }
 
-    public void testRolesWithExplicitDefault()
+    public void testExplicitDefaultUsed()
     {
         final Injector injector = Guice.createInjector( new AbstractModule()
         {
@@ -239,9 +233,10 @@ public class InjectorBeansTest
             }
         } );
 
-        final Iterable<Entry<String, Bean>> roles = new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+        final Iterable<? extends Entry<String, Bean>> roles =
+            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
-        Iterator<Entry<String, Bean>> i;
+        Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
         Bean defaultBean, aBean, bBean, cBean;
 
@@ -302,7 +297,7 @@ public class InjectorBeansTest
         }
     }
 
-    public void testChildRolesWithImplicitDefault()
+    public void testChildImplicitDefaultNotUsed()
     {
         final Injector parentInjector = Guice.createInjector( new AbstractModule()
         {
@@ -310,8 +305,8 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) )
-                                                 .to( DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to(
+                                                                                                          DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
             }
@@ -326,10 +321,10 @@ public class InjectorBeansTest
             }
         } );
 
-        final Iterable<Entry<String, ImplicitDefaultBean>> roles =
+        final Iterable<? extends Entry<String, ImplicitDefaultBean>> roles =
             new InjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
 
-        Iterator<Entry<String, ImplicitDefaultBean>> i;
+        Iterator<? extends Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
         ImplicitDefaultBean aBean;
 
@@ -360,7 +355,7 @@ public class InjectorBeansTest
         }
     }
 
-    public void testChildRolesWithExplicitDefault()
+    public void testChildExplicitDefaultUsed()
     {
         final Injector parentInjector = Guice.createInjector( new AbstractModule()
         {
@@ -384,9 +379,10 @@ public class InjectorBeansTest
             }
         } );
 
-        final Iterable<Entry<String, Bean>> roles = new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+        final Iterable<? extends Entry<String, Bean>> roles =
+            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
-        Iterator<Entry<String, Bean>> i;
+        Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
         Bean defaultBean, cBean;
 
@@ -427,7 +423,7 @@ public class InjectorBeansTest
         }
     }
 
-    public void testRoleHintsWithNoDefault()
+    public void testBlankOrDefaultHintNotUsed2()
     {
         final Injector injector = Guice.createInjector( new AbstractModule()
         {
@@ -444,10 +440,10 @@ public class InjectorBeansTest
 
         final String[] hints = new String[] { "A", "C", null, "B" };
 
-        final Iterable<Entry<String, Bean>> roles =
+        final Iterable<? extends Entry<String, Bean>> roles =
             new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
 
-        Iterator<Entry<String, Bean>> i;
+        Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
         Bean aBean, bBean, cBean;
 
@@ -507,7 +503,7 @@ public class InjectorBeansTest
         }
     }
 
-    public void testRoleHintsWithImplicitDefault()
+    public void testImplicitDefaultNotUsed2()
     {
         final Injector injector = Guice.createInjector( new AbstractModule()
         {
@@ -515,8 +511,8 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) )
-                                                 .to( DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to(
+                                                                                                          DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
@@ -525,12 +521,12 @@ public class InjectorBeansTest
 
         final String[] hints = new String[] { "A", "C", null, "B" };
 
-        final Iterable<Entry<String, ImplicitDefaultBean>> roles =
+        final Iterable<? extends Entry<String, ImplicitDefaultBean>> roles =
             new InjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ), hints );
 
-        Iterator<Entry<String, ImplicitDefaultBean>> i;
+        Iterator<? extends Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
-        ImplicitDefaultBean defaultBean, aBean, bBean, cBean;
+        ImplicitDefaultBean aBean, bBean, cBean;
 
         i = roles.iterator();
         assertTrue( i.hasNext() );
@@ -552,14 +548,6 @@ public class InjectorBeansTest
         assertTrue( i.hasNext() );
         mapping = i.next();
 
-        defaultBean = mapping.getValue();
-        assertTrue( Hints.isDefaultHint( mapping.getKey() ) );
-        assertEquals( DefaultBean.class, defaultBean.getClass() );
-        assertSame( defaultBean, mapping.getValue() );
-
-        assertTrue( i.hasNext() );
-        mapping = i.next();
-
         bBean = mapping.getValue();
         assertEquals( "B", mapping.getKey() );
         assertEquals( BBean.class, bBean.getClass() );
@@ -570,13 +558,11 @@ public class InjectorBeansTest
         i = roles.iterator();
         assertEquals( "A", i.next().getKey() );
         assertEquals( "C", i.next().getKey() );
-        assertTrue( Hints.isDefaultHint( i.next().getKey() ) );
         assertEquals( "B", i.next().getKey() );
 
         i = roles.iterator();
         assertSame( aBean, i.next().getValue() );
         assertSame( cBean, i.next().getValue() );
-        assertSame( defaultBean, i.next().getValue() );
         assertSame( bBean, i.next().getValue() );
 
         try
@@ -589,7 +575,7 @@ public class InjectorBeansTest
         }
     }
 
-    public void testRoleHintsWithExplicitDefault()
+    public void testExplicitDefaultUsed2()
     {
         final Injector injector = Guice.createInjector( new AbstractModule()
         {
@@ -608,10 +594,10 @@ public class InjectorBeansTest
 
         final String[] hints = new String[] { "A", "C", null, "B" };
 
-        final Iterable<Entry<String, Bean>> roles =
+        final Iterable<? extends Entry<String, Bean>> roles =
             new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
 
-        Iterator<Entry<String, Bean>> i;
+        Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
         Bean defaultBean, aBean, bBean, cBean;
 
@@ -672,7 +658,7 @@ public class InjectorBeansTest
         }
     }
 
-    public void testChildRoleHintsWithImplicitDefault()
+    public void testChildImplicitDefaultNotUsed2()
     {
         final Injector parentInjector = Guice.createInjector( new AbstractModule()
         {
@@ -680,8 +666,8 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) )
-                                                 .to( DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to(
+                                                                                                          DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
             }
@@ -698,10 +684,10 @@ public class InjectorBeansTest
 
         final String[] hints = new String[] { "A", "C", null, "B" };
 
-        final Iterable<Entry<String, ImplicitDefaultBean>> roles =
+        final Iterable<? extends Entry<String, ImplicitDefaultBean>> roles =
             new InjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ), hints );
 
-        Iterator<Entry<String, ImplicitDefaultBean>> i;
+        Iterator<? extends Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
         ImplicitDefaultBean aBean;
 
@@ -732,7 +718,7 @@ public class InjectorBeansTest
         }
     }
 
-    public void testChildRoleHintsWithExplicitDefault()
+    public void testChildExplicitDefaultUsed2()
     {
         final Injector parentInjector = Guice.createInjector( new AbstractModule()
         {
@@ -758,10 +744,10 @@ public class InjectorBeansTest
 
         final String[] hints = new String[] { "A", "C", null, "B" };
 
-        final Iterable<Entry<String, Bean>> roles =
+        final Iterable<? extends Entry<String, Bean>> roles =
             new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
 
-        Iterator<Entry<String, Bean>> i;
+        Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
         Bean defaultBean, cBean;
 
@@ -800,5 +786,58 @@ public class InjectorBeansTest
         catch ( final NoSuchElementException e )
         {
         }
+    }
+
+    public void testImplementationClass()
+    {
+        final Injector injector = Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                final Provider<Bean> deferredProvider = new LoadedClass<Bean>( BBean.class ).asProvider();
+
+                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).toProvider( deferredProvider );
+                bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).toInstance( new CBean() );
+                try
+                {
+                    bind( Bean.class ).annotatedWith( Jsr330.named( "D" ) ).toConstructor(
+                                                                                           DefaultBean.class.getDeclaredConstructor() );
+                }
+                catch ( final NoSuchMethodException e )
+                {
+                    throw new RuntimeException( e.toString() );
+                }
+                bind( Bean.class ).annotatedWith( Jsr330.named( "E" ) ).toProvider( new Provider<Bean>()
+                {
+                    public Bean get()
+                    {
+                        return new DefaultBean();
+                    }
+                } );
+            }
+        } );
+
+        final Iterable<PlexusBeanLocator.Bean<Bean>> roles =
+            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+
+        Iterator<PlexusBeanLocator.Bean<Bean>> i;
+
+        i = roles.iterator();
+        assertEquals( "A", i.next().getKey() );
+        assertEquals( "B", i.next().getKey() );
+        assertEquals( "C", i.next().getKey() );
+        assertEquals( "D", i.next().getKey() );
+        assertEquals( "E", i.next().getKey() );
+
+        i = roles.iterator();
+        assertSame( ABean.class, i.next().getImplementationClass().load() );
+        assertSame( BBean.class, i.next().getImplementationClass().load() );
+        assertSame( CBean.class, i.next().getImplementationClass().load() );
+        assertSame( DefaultBean.class, i.next().getImplementationClass().load() );
+        assertSame( null, i.next().getImplementationClass() );
+
+        assertNull( new MissingBean<Bean>( TypeLiteral.get( Bean.class ), "?" ).getImplementationClass() );
     }
 }

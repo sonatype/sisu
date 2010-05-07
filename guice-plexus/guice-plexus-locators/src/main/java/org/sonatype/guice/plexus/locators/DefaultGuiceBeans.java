@@ -14,7 +14,6 @@ package org.sonatype.guice.plexus.locators;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
@@ -44,27 +43,28 @@ final class DefaultGuiceBeans<T>
     }
 
     // ----------------------------------------------------------------------
-    // Public methods
+    // Customized methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
-    public synchronized Iterator<PlexusBeanLocator.Bean<T>> iterator()
+    @Override
+    InjectorBeans<T> discoverInjectorBeans( final Injector injector )
     {
-        if ( null == injectorBeans )
-        {
-            return Collections.EMPTY_LIST.iterator();
-        }
-        // "copy-on-read" - concatenate all beans
-        final List combinedBeans = new ArrayList();
-        for ( int i = 0, size = injectorBeans.size(); i < size; i++ )
-        {
-            combinedBeans.addAll( injectorBeans.get( i ) );
-        }
-        return combinedBeans.iterator();
+        return new InjectorBeans<T>( injector, role );
     }
 
-    public boolean add( final Injector injector )
+    @Override
+    List<PlexusBeanLocator.Bean<T>> getBeans( final List<InjectorBeans<T>> visibleBeans )
     {
-        return addInjectorBeans( new InjectorBeans<T>( injector, role ) );
+        if ( visibleBeans.isEmpty() )
+        {
+            return Collections.emptyList();
+        }
+        // "copy-on-read" - concatenate all beans
+        final List<PlexusBeanLocator.Bean<T>> combinedBeans = new ArrayList<PlexusBeanLocator.Bean<T>>();
+        for ( int i = 0, size = visibleBeans.size(); i < size; i++ )
+        {
+            combinedBeans.addAll( visibleBeans.get( i ) );
+        }
+        return combinedBeans;
     }
 }

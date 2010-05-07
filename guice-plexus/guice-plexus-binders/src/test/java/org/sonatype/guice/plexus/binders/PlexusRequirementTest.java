@@ -102,6 +102,9 @@ public class PlexusRequirementTest
                         componentMap.put( new ComponentImpl( Gamma.class, "", "", "" ),
                                           space.deferLoadClass( "some-broken-class" ) );
 
+                        componentMap.put( new ComponentImpl( Gamma.class, "", "", "dupe" ),
+                                          space.deferLoadClass( "some-broken-class" ) );
+
                         return componentMap;
                     }
 
