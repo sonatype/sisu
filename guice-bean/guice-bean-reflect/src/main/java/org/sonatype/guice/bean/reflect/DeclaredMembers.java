@@ -19,7 +19,7 @@ import java.util.NoSuchElementException;
 /**
  * {@link Iterable} that iterates over declared members of a class hierarchy.
  */
-public final class DeclaredMembers
+final class DeclaredMembers
     implements Iterable<Member>
 {
     // ----------------------------------------------------------------------
@@ -32,7 +32,7 @@ public final class DeclaredMembers
     // Constructors
     // ----------------------------------------------------------------------
 
-    public DeclaredMembers( final Class<?> clazz )
+    DeclaredMembers( final Class<?> clazz )
     {
         this.clazz = clazz;
     }

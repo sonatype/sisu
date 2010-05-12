@@ -33,7 +33,6 @@ import javax.inject.Provider;
 import javax.inject.Qualifier;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
-import org.sonatype.guice.bean.reflect.DeclaredMembers;
 import org.sonatype.guice.bean.reflect.Generics;
 import org.sonatype.inject.Mediator;
 import org.sonatype.inject.NamedMediator;
@@ -288,7 +287,7 @@ final class QualifiedClassBinder
      */
     private void bindQualifiedBeanCollections( final Class clazz )
     {
-        for ( final Member member : new DeclaredMembers( clazz ) )
+        for ( final Member member : clazz.getDeclaredFields() ) // FIXME: rework this
         {
             if ( member instanceof Field && ( (AnnotatedElement) member ).isAnnotationPresent( Inject.class ) )
             {

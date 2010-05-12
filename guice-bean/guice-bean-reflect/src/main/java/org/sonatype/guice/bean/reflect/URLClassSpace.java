@@ -35,9 +35,9 @@ public final class URLClassSpace
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final String[] EMPTY_CLASS_PATH = new String[0];
+    private static final String[] EMPTY_CLASS_PATH = {};
 
-    private static final URL[] EMPTY_URL_CLASS_PATH = new URL[0];
+    private static final URL[] EMPTY_URL_CLASS_PATH = {};
 
     // ----------------------------------------------------------------------
     // Implementation fields

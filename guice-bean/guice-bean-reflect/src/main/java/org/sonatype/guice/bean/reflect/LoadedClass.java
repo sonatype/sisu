@@ -12,35 +12,17 @@
  */
 package org.sonatype.guice.bean.reflect;
 
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.inject.Injector;
-import com.google.inject.Provider;
-import com.google.inject.ProvisionException;
-
 /**
  * Pseudo {@link DeferredClass} backed by an already loaded {@link Class}.
  */
 public final class LoadedClass<T>
-    implements DeferredClass<T>, DeferredProvider<T>
+    extends AbstractDeferredClass<T>
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final Logger LOGGER = LoggerFactory.getLogger( LoadedClass.class );
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
     private final Class<T> clazz;
-
-    @Inject
-    private Injector injector;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -64,31 +46,6 @@ public final class LoadedClass<T>
     public String getName()
     {
         return clazz.getName();
-    }
-
-    public Provider<T> asProvider()
-    {
-        return this;
-    }
-
-    public T get()
-    {
-        try
-        {
-            // load class and bootstrap injection
-            return injector.getInstance( load() );
-        }
-        catch ( final Throwable e )
-        {
-            final String message = "Broken implementation: " + getName();
-            LOGGER.error( message, e );
-            throw new ProvisionException( message, e );
-        }
-    }
-
-    public DeferredClass<T> getImplementationClass()
-    {
-        return this;
     }
 
     @Override
