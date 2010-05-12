@@ -15,7 +15,6 @@ package org.sonatype.guice.plexus.locators;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -26,7 +25,6 @@ import org.codehaus.plexus.classworlds.ClassWorldException;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
-import org.sonatype.guice.plexus.adapters.EntryMapAdapter;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -555,72 +553,86 @@ public class GuiceBeanLocatorTest
             }
         } ) );
 
-        final Map<String, Bean> map =
-            new EntryMapAdapter<String, Bean>( locator.locate( TypeLiteral.get( Bean.class ) ) );
+        final Iterable<? extends Entry<String, Bean>> beans = locator.locate( TypeLiteral.get( Bean.class ) );
+        Iterator<? extends Entry<String, Bean>> i;
 
         Thread.currentThread().setContextClassLoader( world.getClassRealm( "A" ) );
 
-        assertEquals( 2, map.size() );
-        assertEquals( BeanImpl.class, map.get( "A" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "!" ).getClass() );
+        i = beans.iterator();
+        assertTrue( i.hasNext() );
+        assertEquals( "A", i.next().getKey() );
+        assertEquals( "!", i.next().getKey() );
+        assertFalse( i.hasNext() );
 
         Thread.currentThread().setContextClassLoader( world.getClassRealm( "B" ) );
 
-        assertEquals( 4, map.size() );
-        assertEquals( BeanImpl.class, map.get( "A" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "C" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "!" ).getClass() );
+        i = beans.iterator();
+        assertTrue( i.hasNext() );
+        assertEquals( "A", i.next().getKey() );
+        assertEquals( "B", i.next().getKey() );
+        assertEquals( "C", i.next().getKey() );
+        assertEquals( "!", i.next().getKey() );
+        assertFalse( i.hasNext() );
 
         Thread.currentThread().setContextClassLoader( world.getClassRealm( "B2" ) );
 
-        assertEquals( 7, map.size() );
-        assertEquals( BeanImpl.class, map.get( "A" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "C" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B1" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B2" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B3" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "!" ).getClass() );
+        i = beans.iterator();
+        assertTrue( i.hasNext() );
+        assertEquals( "A", i.next().getKey() );
+        assertEquals( "B", i.next().getKey() );
+        assertEquals( "C", i.next().getKey() );
+        assertEquals( "B1", i.next().getKey() );
+        assertEquals( "B2", i.next().getKey() );
+        assertEquals( "B3", i.next().getKey() );
+        assertEquals( "!", i.next().getKey() );
+        assertFalse( i.hasNext() );
 
         Thread.currentThread().setContextClassLoader( world.getClassRealm( "B2B" ) );
 
-        assertEquals( 8, map.size() );
-        assertEquals( BeanImpl.class, map.get( "A" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "C" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B1" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B2" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B3" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B2B" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "!" ).getClass() );
+        i = beans.iterator();
+        assertTrue( i.hasNext() );
+        assertEquals( "A", i.next().getKey() );
+        assertEquals( "B", i.next().getKey() );
+        assertEquals( "C", i.next().getKey() );
+        assertEquals( "B1", i.next().getKey() );
+        assertEquals( "B2", i.next().getKey() );
+        assertEquals( "B3", i.next().getKey() );
+        assertEquals( "B2B", i.next().getKey() );
+        assertEquals( "!", i.next().getKey() );
+        assertFalse( i.hasNext() );
 
         Thread.currentThread().setContextClassLoader( world.getClassRealm( "B3" ) );
 
-        assertEquals( 5, map.size() );
-        assertEquals( BeanImpl.class, map.get( "A" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "C" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B3" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "!" ).getClass() );
+        i = beans.iterator();
+        assertTrue( i.hasNext() );
+        assertEquals( "A", i.next().getKey() );
+        assertEquals( "B", i.next().getKey() );
+        assertEquals( "C", i.next().getKey() );
+        assertEquals( "B3", i.next().getKey() );
+        assertEquals( "!", i.next().getKey() );
+        assertFalse( i.hasNext() );
 
         Thread.currentThread().setContextClassLoader( world.getClassRealm( "C" ) );
 
-        assertEquals( 2, map.size() );
-        assertEquals( BeanImpl.class, map.get( "C" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "!" ).getClass() );
+        i = beans.iterator();
+        assertTrue( i.hasNext() );
+        assertEquals( "C", i.next().getKey() );
+        assertEquals( "!", i.next().getKey() );
+        assertFalse( i.hasNext() );
 
         Thread.currentThread().setContextClassLoader( null );
 
-        assertEquals( 9, map.size() );
-        assertEquals( BeanImpl.class, map.get( "A" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "C" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B1" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B2" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B3" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "B2B" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "!" ).getClass() );
-        assertEquals( BeanImpl.class, map.get( "?" ).getClass() );
+        i = beans.iterator();
+        assertTrue( i.hasNext() );
+        assertEquals( "A", i.next().getKey() );
+        assertEquals( "B", i.next().getKey() );
+        assertEquals( "C", i.next().getKey() );
+        assertEquals( "B1", i.next().getKey() );
+        assertEquals( "B2", i.next().getKey() );
+        assertEquals( "B3", i.next().getKey() );
+        assertEquals( "B2B", i.next().getKey() );
+        assertEquals( "?", i.next().getKey() );
+        assertEquals( "!", i.next().getKey() );
+        assertFalse( i.hasNext() );
     }
 }

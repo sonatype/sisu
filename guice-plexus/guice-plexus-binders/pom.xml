@@ -92,6 +92,10 @@
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
+      <artifactId>guice-bean-locators</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-plexus-metadata</artifactId>
     </dependency>
     <dependency>

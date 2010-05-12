@@ -23,7 +23,6 @@ import javax.inject.Provider;
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
-import org.sonatype.guice.bean.locators.NamedIterableAdapter;
 
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;

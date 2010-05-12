@@ -10,7 +10,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.bean.locators;
+package org.sonatype.guice.bean.scanners;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -20,7 +20,7 @@ import com.google.inject.name.Named;
 /**
  * String mapping {@link Iterable} backed by a {@link Named} mapping {@link Iterable}.
  */
-public final class NamedIterableAdapter<V>
+final class NamedIterableAdapter<V>
     implements Iterable<Entry<String, V>>
 {
     // ----------------------------------------------------------------------
@@ -33,7 +33,7 @@ public final class NamedIterableAdapter<V>
     // Constructors
     // ----------------------------------------------------------------------
 
-    public NamedIterableAdapter( final Iterable<Entry<Named, V>> iterable )
+    NamedIterableAdapter( final Iterable<Entry<Named, V>> iterable )
     {
         this.iterable = iterable;
     }

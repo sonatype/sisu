@@ -30,13 +30,13 @@ public final class EntryListAdapter<K, V>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Iterable<Entry<K, V>> iterable;
+    private final Iterable<? extends Entry<K, V>> iterable;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    public EntryListAdapter( final Iterable<Entry<K, V>> iterable )
+    public EntryListAdapter( final Iterable<? extends Entry<K, V>> iterable )
     {
         this.iterable = iterable;
     }
@@ -76,7 +76,7 @@ public final class EntryListAdapter<K, V>
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final Iterator<Entry<K, V>> iterator;
+        private final Iterator<? extends Entry<K, V>> iterator;
 
         private final List<Entry<K, V>> entryCache = new ArrayList<Entry<K, V>>();
 
@@ -86,7 +86,7 @@ public final class EntryListAdapter<K, V>
         // Constructors
         // ----------------------------------------------------------------------
 
-        ValueIterator( final Iterable<Entry<K, V>> iterable, final int index )
+        ValueIterator( final Iterable<? extends Entry<K, V>> iterable, final int index )
         {
             if ( index < 0 )
             {

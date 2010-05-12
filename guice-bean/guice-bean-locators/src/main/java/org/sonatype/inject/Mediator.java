@@ -17,13 +17,27 @@ import java.lang.annotation.Annotation;
 import javax.inject.Provider;
 
 /**
- * Mediates updates between the {@code BeanLocator} and a bean watcher.
+ * Mediates updates between the {@code BeanLocator} and an associated watcher.
  */
 public interface Mediator<Q extends Annotation, T, W>
 {
+    /**
+     * Notifies the associated watcher that a qualified bean has been added.
+     * 
+     * @param qualifier Bean qualifier
+     * @param bean Bean provider
+     * @param watcher Associated watcher
+     */
     void add( Q qualifier, Provider<T> bean, W watcher )
         throws Exception;
 
+    /**
+     * Notifies the associated watcher that a qualified bean has been removed.
+     * 
+     * @param qualifier Bean qualifier
+     * @param bean Bean provider
+     * @param watcher Associated watcher
+     */
     void remove( Q qualifier, Provider<T> bean, W watcher )
         throws Exception;
 }
