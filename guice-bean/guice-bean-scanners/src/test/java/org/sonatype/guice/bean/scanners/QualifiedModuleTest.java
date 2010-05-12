@@ -15,7 +15,6 @@ package org.sonatype.guice.bean.scanners;
 import java.net.URLClassLoader;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import junit.framework.TestCase;
 
@@ -24,24 +23,24 @@ import org.sonatype.guice.bean.reflect.URLClassSpace;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Names;
 
 public class QualifiedModuleTest
     extends TestCase
 {
-    @Named
+    @javax.inject.Named
     static class CustomModule
         extends AbstractModule
     {
         @Override
         protected void configure()
         {
-            bindConstant().annotatedWith( Jsr330.named( "CustomConstant" ) ).to( "CustomValue" );
+            bindConstant().annotatedWith( Names.named( "CustomConstant" ) ).to( "CustomValue" );
         }
     }
 
     @Inject
-    @Named( "CustomConstant" )
+    @javax.inject.Named( "CustomConstant" )
     private String value;
 
     @Override

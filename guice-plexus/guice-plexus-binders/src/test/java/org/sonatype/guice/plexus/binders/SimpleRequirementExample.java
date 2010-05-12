@@ -22,7 +22,7 @@ import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Names;
 
 public class SimpleRequirementExample
 {
@@ -37,7 +37,7 @@ public class SimpleRequirementExample
                 bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
                 install( new PlexusBindingModule( null, new AnnotatedPlexusBeanSource( null, null ) ) );
-                bindConstant().annotatedWith( Jsr330.named( "example" ) ).to( "TEST" );
+                bindConstant().annotatedWith( Names.named( "example" ) ).to( "TEST" );
             }
         } ).getInstance( Bean.class ).requirement;
 

@@ -29,7 +29,6 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
-import com.google.inject.util.Jsr330;
 
 public class InjectorBeansTest
     extends TestCase
@@ -75,11 +74,11 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
         } );
 
@@ -153,12 +152,12 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to(
-                                                                                                          DefaultBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to(
+                                                                                                         DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
         } );
 
@@ -223,12 +222,11 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( Names.named( "!" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
                 bind( Bean.class ).to( DefaultBean.class );
             }
         } );
@@ -304,11 +302,11 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to(
-                                                                                                          DefaultBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to(
+                                                                                                         DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
         } );
 
@@ -317,7 +315,7 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
             }
         } );
 
@@ -362,10 +360,10 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
         } );
 
@@ -374,7 +372,7 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
                 bind( Bean.class ).to( DefaultBean.class );
             }
         } );
@@ -430,11 +428,11 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
         } );
 
@@ -510,12 +508,12 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to(
-                                                                                                          DefaultBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to(
+                                                                                                         DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
         } );
 
@@ -582,12 +580,12 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "!" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
                 bind( Bean.class ).to( DefaultBean.class );
             }
         } );
@@ -665,11 +663,11 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to(
-                                                                                                          DefaultBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to(
+                                                                                                         DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
         } );
 
@@ -678,7 +676,7 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
             }
         } );
 
@@ -725,10 +723,10 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "" ) ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
         } );
 
@@ -737,7 +735,7 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
                 bind( Bean.class ).to( DefaultBean.class );
             }
         } );
@@ -797,19 +795,19 @@ public class InjectorBeansTest
             {
                 final Provider<Bean> deferredProvider = new LoadedClass<Bean>( BBean.class ).asProvider();
 
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).toProvider( deferredProvider );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).toInstance( new CBean() );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "B" ) ).toProvider( deferredProvider );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).toInstance( new CBean() );
                 try
                 {
-                    bind( Bean.class ).annotatedWith( Jsr330.named( "D" ) ).toConstructor(
-                                                                                           DefaultBean.class.getDeclaredConstructor() );
+                    bind( Bean.class ).annotatedWith( Names.named( "D" ) ).toConstructor(
+                                                                                          DefaultBean.class.getDeclaredConstructor() );
                 }
                 catch ( final NoSuchMethodException e )
                 {
                     throw new RuntimeException( e.toString() );
                 }
-                bind( Bean.class ).annotatedWith( Jsr330.named( "E" ) ).toProvider( new Provider<Bean>()
+                bind( Bean.class ).annotatedWith( Names.named( "E" ) ).toProvider( new Provider<Bean>()
                 {
                     public Bean get()
                     {

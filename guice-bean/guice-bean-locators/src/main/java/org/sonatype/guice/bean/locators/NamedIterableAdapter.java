@@ -15,7 +15,7 @@ package org.sonatype.guice.bean.locators;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import javax.inject.Named;
+import com.google.inject.name.Named;
 
 /**
  * String mapping {@link Iterable} backed by a {@link Named} mapping {@link Iterable}.

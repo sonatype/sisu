@@ -35,7 +35,7 @@ import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Names;
 
 public class GuiceBeanLocatorTest
     extends TestCase
@@ -67,9 +67,9 @@ public class GuiceBeanLocatorTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( BeanImpl.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "-" ) ).to( BeanImpl.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "Z" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "-" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "Z" ) ).to( BeanImpl.class );
             }
         } );
 
@@ -78,8 +78,8 @@ public class GuiceBeanLocatorTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "M1" ) ).to( BeanImpl.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "N1" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "M1" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "N1" ) ).to( BeanImpl.class );
             }
         } );
 
@@ -96,8 +96,8 @@ public class GuiceBeanLocatorTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "M3" ) ).to( BeanImpl.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "N3" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "M3" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "N3" ) ).to( BeanImpl.class );
             }
         } );
     }
@@ -333,14 +333,14 @@ public class GuiceBeanLocatorTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "M1" ) ).toProvider( new Provider<Bean>()
+                bind( Bean.class ).annotatedWith( Names.named( "M1" ) ).toProvider( new Provider<Bean>()
                 {
                     public Bean get()
                     {
                         return null;
                     }
                 } );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "M3" ) ).toProvider( new Provider<Bean>()
+                bind( Bean.class ).annotatedWith( Names.named( "M3" ) ).toProvider( new Provider<Bean>()
                 {
                     public Bean get()
                     {
@@ -411,7 +411,7 @@ public class GuiceBeanLocatorTest
             {
                 try
                 {
-                    bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( BeanImpl.class );
+                    bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( BeanImpl.class );
                     bind( ClassRealm.class ).toInstance( world.newRealm( "A" ) );
                 }
                 catch ( final DuplicateRealmException e )
@@ -428,7 +428,7 @@ public class GuiceBeanLocatorTest
             {
                 try
                 {
-                    bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BeanImpl.class );
+                    bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BeanImpl.class );
                     bind( ClassRealm.class ).toInstance( world.newRealm( "B" ) );
                 }
                 catch ( final DuplicateRealmException e )
@@ -445,7 +445,7 @@ public class GuiceBeanLocatorTest
             {
                 try
                 {
-                    bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( BeanImpl.class );
+                    bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( BeanImpl.class );
                     bind( ClassRealm.class ).toInstance( world.newRealm( "C" ) );
                 }
                 catch ( final DuplicateRealmException e )
@@ -462,7 +462,7 @@ public class GuiceBeanLocatorTest
             {
                 try
                 {
-                    bind( Bean.class ).annotatedWith( Jsr330.named( "B1" ) ).to( BeanImpl.class );
+                    bind( Bean.class ).annotatedWith( Names.named( "B1" ) ).to( BeanImpl.class );
                     bind( ClassRealm.class ).toInstance( world.getRealm( "B" ).createChildRealm( "B1" ) );
                 }
                 catch ( final ClassWorldException e )
@@ -479,7 +479,7 @@ public class GuiceBeanLocatorTest
             {
                 try
                 {
-                    bind( Bean.class ).annotatedWith( Jsr330.named( "B2" ) ).to( BeanImpl.class );
+                    bind( Bean.class ).annotatedWith( Names.named( "B2" ) ).to( BeanImpl.class );
                     bind( ClassRealm.class ).toInstance( world.getRealm( "B" ).createChildRealm( "B2" ) );
                 }
                 catch ( final ClassWorldException e )
@@ -496,7 +496,7 @@ public class GuiceBeanLocatorTest
             {
                 try
                 {
-                    bind( Bean.class ).annotatedWith( Jsr330.named( "B3" ) ).to( BeanImpl.class );
+                    bind( Bean.class ).annotatedWith( Names.named( "B3" ) ).to( BeanImpl.class );
                     bind( ClassRealm.class ).toInstance( world.getRealm( "B" ).createChildRealm( "B3" ) );
                 }
                 catch ( final ClassWorldException e )
@@ -513,7 +513,7 @@ public class GuiceBeanLocatorTest
             {
                 try
                 {
-                    bind( Bean.class ).annotatedWith( Jsr330.named( "B2B" ) ).to( BeanImpl.class );
+                    bind( Bean.class ).annotatedWith( Names.named( "B2B" ) ).to( BeanImpl.class );
                     bind( ClassRealm.class ).toInstance( world.getRealm( "B2" ).createChildRealm( "B2B" ) );
                 }
                 catch ( final ClassWorldException e )
@@ -530,7 +530,7 @@ public class GuiceBeanLocatorTest
             {
                 try
                 {
-                    bind( Bean.class ).annotatedWith( Jsr330.named( "?" ) ).to( BeanImpl.class );
+                    bind( Bean.class ).annotatedWith( Names.named( "?" ) ).to( BeanImpl.class );
                     bind( ClassRealm.class ).toInstance( world.newRealm( "?" ) );
                 }
                 catch ( final DuplicateRealmException e )
@@ -551,7 +551,7 @@ public class GuiceBeanLocatorTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "!" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "!" ) ).to( BeanImpl.class );
             }
         } ) );
 

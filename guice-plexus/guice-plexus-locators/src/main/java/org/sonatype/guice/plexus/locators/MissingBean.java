@@ -14,13 +14,12 @@ package org.sonatype.guice.plexus.locators;
 
 import java.util.Map.Entry;
 
-import javax.inject.Named;
-
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.Roles;
 
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Named;
 
 /**
  * {@link Entry} representing a missing @{@link Named} Plexus bean.

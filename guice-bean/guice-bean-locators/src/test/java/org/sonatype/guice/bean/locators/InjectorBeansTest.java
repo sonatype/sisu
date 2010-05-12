@@ -12,12 +12,17 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
-import javax.inject.Named;
+import javax.inject.Qualifier;
 
 import junit.framework.TestCase;
 
@@ -26,12 +31,40 @@ import com.google.inject.Guice;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.name.Named;
 import com.google.inject.name.Names;
-import com.google.inject.util.Jsr330;
 
 public class InjectorBeansTest
     extends TestCase
 {
+    @Target( TYPE )
+    @Retention( RUNTIME )
+    @Qualifier
+    public @interface Fuzzy
+    {
+    }
+
+    static class FuzzyImpl
+        implements Fuzzy
+    {
+        public Class<? extends Annotation> annotationType()
+        {
+            return Fuzzy.class;
+        }
+
+        @Override
+        public boolean equals( final Object rhs )
+        {
+            return rhs instanceof Fuzzy;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return 0;
+        }
+    }
+
     interface Bean
     {
     }
@@ -73,9 +106,9 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
         } );
 
@@ -149,9 +182,9 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
         } );
 
@@ -216,10 +249,10 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( Names.named( "!" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
                 bind( Bean.class ).to( DefaultBean.class );
             }
         } );
@@ -285,8 +318,8 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
         } );
 
@@ -295,7 +328,7 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( ImplicitDefaultBean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
             }
         } );
 
@@ -340,8 +373,8 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
         } );
 
@@ -350,7 +383,7 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
                 bind( Bean.class ).to( DefaultBean.class );
             }
         } );
@@ -396,14 +429,14 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
             }
         } );
 
         final Iterable<Entry<Named, Bean>> namedBeans =
-            new InjectorBeans<Named, Bean>( injector, Key.get( Bean.class, Jsr330.named( "B" ) ) );
+            new InjectorBeans<Named, Bean>( injector, Key.get( Bean.class, Names.named( "B" ) ) );
 
         Iterator<Entry<Named, Bean>> i;
         Entry<Named, Bean> mapping;
@@ -443,11 +476,11 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
                 bind( Bean.class ).to( DefaultBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( Names.named( "!" ) ).to( CBean.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "B" ) ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
         } );
 
@@ -463,7 +496,7 @@ public class InjectorBeansTest
         mapping = i.next();
 
         cBean = mapping.getValue();
-        assertEquals( Jsr330.named( "C" ), mapping.getKey() );
+        assertEquals( Names.named( "C" ), mapping.getKey() );
         assertEquals( CBean.class, cBean.getClass() );
         assertSame( cBean, mapping.getValue() );
 
@@ -479,7 +512,7 @@ public class InjectorBeansTest
         mapping = i.next();
 
         aBean = mapping.getValue();
-        assertEquals( Jsr330.named( "A" ), mapping.getKey() );
+        assertEquals( Names.named( "A" ), mapping.getKey() );
         assertEquals( ABean.class, aBean.getClass() );
         assertSame( aBean, mapping.getValue() );
 
@@ -487,7 +520,7 @@ public class InjectorBeansTest
         mapping = i.next();
 
         pBean = mapping.getValue();
-        assertEquals( Names.named( "!" ), mapping.getKey() );
+        assertEquals( new FuzzyImpl(), mapping.getKey() );
         assertEquals( CBean.class, pBean.getClass() );
         assertSame( pBean, mapping.getValue() );
 
@@ -495,18 +528,18 @@ public class InjectorBeansTest
         mapping = i.next();
 
         bBean = mapping.getValue();
-        assertEquals( Jsr330.named( "B" ), mapping.getKey() );
+        assertEquals( Names.named( "B" ), mapping.getKey() );
         assertEquals( BBean.class, bBean.getClass() );
         assertSame( bBean, mapping.getValue() );
 
         assertFalse( i.hasNext() );
 
         i = beans.iterator();
-        assertEquals( Jsr330.named( "C" ), i.next().getKey() );
+        assertEquals( Names.named( "C" ), i.next().getKey() );
         assertNull( i.next().getKey() );
-        assertEquals( Jsr330.named( "A" ), i.next().getKey() );
-        assertEquals( Names.named( "!" ), i.next().getKey() );
-        assertEquals( Jsr330.named( "B" ), i.next().getKey() );
+        assertEquals( Names.named( "A" ), i.next().getKey() );
+        assertEquals( new FuzzyImpl(), i.next().getKey() );
+        assertEquals( Names.named( "B" ), i.next().getKey() );
 
         i = beans.iterator();
         assertSame( cBean, i.next().getValue() );

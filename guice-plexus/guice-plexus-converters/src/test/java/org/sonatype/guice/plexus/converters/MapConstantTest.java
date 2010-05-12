@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Names;
 
 public class MapConstantTest
     extends TestCase
@@ -38,7 +38,7 @@ public class MapConstantTest
         {
             private void bind( final String name, final String value )
             {
-                bindConstant().annotatedWith( Jsr330.named( name ) ).to( value );
+                bindConstant().annotatedWith( Names.named( name ) ).to( value );
             }
 
             @Override

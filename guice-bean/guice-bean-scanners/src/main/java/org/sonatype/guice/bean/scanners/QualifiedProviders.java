@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Provider;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
@@ -28,6 +27,7 @@ import org.sonatype.guice.bean.locators.NamedIterableAdapter;
 
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Named;
 
 // ----------------------------------------------------------------------
 // Generic Providers that can supply all sorts of bean sequences/mappings

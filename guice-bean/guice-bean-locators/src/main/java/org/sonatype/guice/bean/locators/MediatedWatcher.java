@@ -81,7 +81,9 @@ final class MediatedWatcher<Q extends Annotation, T, W>
         {
             try
             {
-                mediator.add( newBeans.get( i ), watcher );
+                @SuppressWarnings( "unchecked" )
+                final DeferredBeanEntry<Q, T> bean = (DeferredBeanEntry) newBeans.get( i );
+                mediator.add( bean.getKey(), bean, watcher );
             }
             catch ( final Throwable e )
             {
@@ -109,7 +111,9 @@ final class MediatedWatcher<Q extends Annotation, T, W>
         {
             try
             {
-                mediator.remove( oldBeans.get( i ), watcher );
+                @SuppressWarnings( "unchecked" )
+                final DeferredBeanEntry<Q, T> bean = (DeferredBeanEntry) oldBeans.get( i );
+                mediator.remove( bean.getKey(), bean, watcher );
             }
             catch ( final Throwable e )
             {

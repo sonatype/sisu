@@ -49,7 +49,7 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
 import com.google.inject.ProvisionException;
 import com.google.inject.Scopes;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Names;
 
 public class PlexusRequirementTest
     extends TestCase
@@ -79,15 +79,15 @@ public class PlexusRequirementTest
                 bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
 
-                bind( A.class ).annotatedWith( Jsr330.named( "AA" ) ).to( AAImpl.class );
-                bind( A.class ).annotatedWith( Jsr330.named( "broken" ) ).toProvider( deferA.asProvider() );
-                bind( A.class ).annotatedWith( Jsr330.named( "AB" ) ).to( ABImpl.class );
+                bind( A.class ).annotatedWith( Names.named( "AA" ) ).to( AAImpl.class );
+                bind( A.class ).annotatedWith( Names.named( "broken" ) ).toProvider( deferA.asProvider() );
+                bind( A.class ).annotatedWith( Names.named( "AB" ) ).to( ABImpl.class );
                 bind( A.class ).to( AImpl.class ).in( Scopes.SINGLETON );
-                bind( A.class ).annotatedWith( Jsr330.named( "AC" ) ).to( ACImpl.class );
+                bind( A.class ).annotatedWith( Names.named( "AC" ) ).to( ACImpl.class );
 
-                bind( B.class ).annotatedWith( Jsr330.named( "B" ) ).to( BImpl.class );
+                bind( B.class ).annotatedWith( Names.named( "B" ) ).to( BImpl.class );
 
-                bind( D.class ).annotatedWith( Jsr330.named( "" ) ).to( DImpl.class );
+                bind( D.class ).annotatedWith( Names.named( "" ) ).to( DImpl.class );
 
                 install( new PlexusBindingModule( null, new PlexusBeanSource()
                 {

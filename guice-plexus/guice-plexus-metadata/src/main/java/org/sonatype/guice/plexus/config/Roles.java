@@ -23,7 +23,7 @@ import org.sonatype.guice.bean.reflect.Generics;
 import com.google.inject.Key;
 import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Names;
 
 /**
  * Utility methods for dealing with Plexus roles.
@@ -37,7 +37,7 @@ public final class Roles
     private static final String MISSING_COMPONENT_ERROR = "No implementation for %s was bound.";
 
     private static final String MISSING_COMPONENT_WITH_HINT_ERROR =
-        "No implementation for %s annotated with @javax.inject.Named(value=%s) was bound.";
+        "No implementation for %s annotated with @Named(value=%s) was bound.";
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -132,7 +132,7 @@ public final class Roles
         {
             return Key.get( role );
         }
-        return Key.get( role, Jsr330.named( Hints.canonicalHint( hint ) ) );
+        return Key.get( role, Names.named( Hints.canonicalHint( hint ) ) );
     }
 
     /**

@@ -46,7 +46,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Names;
 
 public class PlexusBeanMetadataTest
     extends TestCase
@@ -72,7 +72,7 @@ public class PlexusBeanMetadataTest
                 bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
 
-                bindConstant().annotatedWith( Jsr330.named( "KEY1" ) ).to( "REQUIREMENT" );
+                bindConstant().annotatedWith( Names.named( "KEY1" ) ).to( "REQUIREMENT" );
 
                 final PlexusBeanManager manager = new TestBeanManager();
 
@@ -274,7 +274,7 @@ public class PlexusBeanMetadataTest
     {
         assertEquals( "REQUIREMENT", bean.getExtraMetadata() );
         assertEquals( "CONFIGURATION", injector.getInstance( DefaultBean2.class ).extraMetadata );
-        assertSame( bean, injector.getInstance( Key.get( Bean.class, Jsr330.named( "2" ) ) ) );
+        assertSame( bean, injector.getInstance( Key.get( Bean.class, Names.named( "2" ) ) ) );
     }
 
     static DeferredClass<?> defer( final Class<?> clazz )

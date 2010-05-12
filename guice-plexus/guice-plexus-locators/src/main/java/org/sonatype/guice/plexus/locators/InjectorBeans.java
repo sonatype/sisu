@@ -17,8 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Named;
-
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.Roles;
@@ -27,6 +25,7 @@ import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Named;
 
 /**
  * {@link List} of Plexus beans with the same type from the same Guice {@link Injector}.

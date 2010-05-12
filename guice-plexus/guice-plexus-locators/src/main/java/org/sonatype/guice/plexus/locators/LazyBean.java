@@ -14,7 +14,6 @@ package org.sonatype.guice.plexus.locators;
 
 import java.util.Map.Entry;
 
-import javax.inject.Named;
 import javax.inject.Provider;
 
 import org.sonatype.guice.bean.reflect.DeferredClass;
@@ -25,6 +24,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 
 import com.google.inject.Binding;
 import com.google.inject.Key;
+import com.google.inject.name.Named;
 import com.google.inject.spi.BindingTargetVisitor;
 import com.google.inject.spi.ConstructorBinding;
 import com.google.inject.spi.DefaultBindingTargetVisitor;

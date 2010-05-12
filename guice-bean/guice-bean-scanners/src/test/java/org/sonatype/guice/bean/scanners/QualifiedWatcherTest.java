@@ -12,13 +12,13 @@
  */
 package org.sonatype.guice.bean.scanners;
 
+import java.lang.annotation.Annotation;
 import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.inject.Inject;
-import javax.inject.Named;
+import javax.inject.Provider;
 
 import junit.framework.TestCase;
 
@@ -29,7 +29,8 @@ import org.sonatype.inject.Mediator;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 
 public class QualifiedWatcherTest
     extends TestCase
@@ -43,46 +44,46 @@ public class QualifiedWatcherTest
     {
     }
 
-    @Named
+    @javax.inject.Named
     static class ItemA
         extends SomeItem
     {
     }
 
-    @Named
+    @javax.inject.Named
     static class ItemB
         extends SomeItem
     {
     }
 
-    @Named
+    @javax.inject.Named
     static class ItemC
         extends SomeItem
     {
     }
 
-    @Named
+    @javax.inject.Named
     static class ItemWatcher
     {
         Map<Named, Item> items = new HashMap<Named, Item>();
     }
 
-    @Named
+    @javax.inject.Named
     static class ItemMediator
         implements Mediator<Named, Item, ItemWatcher>
     {
-        public void add( final Entry<Named, Item> bean, final ItemWatcher watcher )
+        public void add( final Named name, final Provider<Item> bean, final ItemWatcher watcher )
             throws Exception
         {
-            watcher.items.put( bean.getKey(), bean.getValue() );
+            watcher.items.put( name, bean.get() );
         }
 
-        public void remove( final Entry<Named, Item> bean, final ItemWatcher watcher )
+        public void remove( final Named name, final Provider<Item> bean, final ItemWatcher watcher )
             throws Exception
         {
-            if ( watcher.items.get( bean.getKey() ) == bean.getValue() )
+            if ( watcher.items.get( name ) == bean.get() )
             {
-                watcher.items.remove( bean.getKey() );
+                watcher.items.remove( name );
             }
         }
     }
@@ -91,12 +92,12 @@ public class QualifiedWatcherTest
     static class BrokenMediator
         implements Mediator
     {
-        public void add( final Entry bean, final Object watcher )
+        public void add( final Annotation ann, final Provider bean, final Object watcher )
             throws Exception
         {
         }
 
-        public void remove( final Entry bean, final Object watcher )
+        public void remove( final Annotation ann, final Provider bean, final Object watcher )
             throws Exception
         {
         }
@@ -120,9 +121,9 @@ public class QualifiedWatcherTest
     {
         assertEquals( 3, itemWatcher.items.size() );
 
-        assertTrue( itemWatcher.items.get( Jsr330.named( ItemA.class.getName() ) ) instanceof ItemA );
-        assertTrue( itemWatcher.items.get( Jsr330.named( ItemB.class.getName() ) ) instanceof ItemB );
-        assertTrue( itemWatcher.items.get( Jsr330.named( ItemC.class.getName() ) ) instanceof ItemC );
+        assertTrue( itemWatcher.items.get( Names.named( ItemA.class.getName() ) ) instanceof ItemA );
+        assertTrue( itemWatcher.items.get( Names.named( ItemB.class.getName() ) ) instanceof ItemB );
+        assertTrue( itemWatcher.items.get( Names.named( ItemC.class.getName() ) ) instanceof ItemC );
 
         injector.getInstance( MutableBeanLocator.class ).remove( injector );
 

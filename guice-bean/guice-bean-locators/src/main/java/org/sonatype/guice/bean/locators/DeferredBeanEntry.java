@@ -21,7 +21,7 @@ import javax.inject.Provider;
  * Deferred bean {@link Entry} backed by a qualified {@link Provider}.
  */
 final class DeferredBeanEntry<Q extends Annotation, T>
-    implements Entry<Q, T>
+    implements Entry<Q, T>, Provider<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -66,5 +66,10 @@ final class DeferredBeanEntry<Q extends Annotation, T>
     public T setValue( final T value )
     {
         throw new UnsupportedOperationException();
+    }
+
+    public T get()
+    {
+        return getValue();
     }
 }

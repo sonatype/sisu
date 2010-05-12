@@ -17,11 +17,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.inject.Named;
-
 import junit.framework.TestCase;
 
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 
 public class NamedIterableAdapterTest
     extends TestCase
@@ -34,11 +33,11 @@ public class NamedIterableAdapterTest
             new EntryMapAdapter<String, String>( new NamedIterableAdapter<String>( original.entrySet() ) );
 
         assertEquals( original, adapter );
-        original.put( Jsr330.named( "3" ), "C" );
+        original.put( Names.named( "3" ), "C" );
         assertEquals( original, adapter );
-        original.put( Jsr330.named( "1" ), "A" );
+        original.put( Names.named( "1" ), "A" );
         assertEquals( original, adapter );
-        original.put( Jsr330.named( "2" ), "B" );
+        original.put( Names.named( "2" ), "B" );
         assertEquals( original, adapter );
         original.clear();
         assertEquals( original, adapter );
@@ -66,7 +65,7 @@ public class NamedIterableAdapterTest
         final Map<String, String> adapter =
             new EntryMapAdapter<String, String>( new NamedIterableAdapter<String>( original.entrySet() ) );
 
-        original.put( Jsr330.named( "1" ), "A" );
+        original.put( Names.named( "1" ), "A" );
 
         try
         {

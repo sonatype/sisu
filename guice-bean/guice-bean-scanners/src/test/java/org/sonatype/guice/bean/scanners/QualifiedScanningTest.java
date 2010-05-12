@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.RandomAccess;
 
 import javax.enterprise.inject.Typed;
-import javax.inject.Named;
 import javax.inject.Qualifier;
 
 import junit.framework.TestCase;
@@ -36,49 +35,49 @@ import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Names;
 
 public class QualifiedScanningTest
     extends TestCase
 {
-    @Named
+    @javax.inject.Named
     static class DefaultB01
     {
     }
 
-    @Named( "default" )
+    @javax.inject.Named( "default" )
     @Typed( {} )
     static class B01
         extends Thread
     {
     }
 
-    @Named
+    @javax.inject.Named
     @Typed( EventListener.class )
     static class DefaultB02
         implements RandomAccess, EventListener
     {
     }
 
-    @Named
+    @javax.inject.Named
     @Typed( EventListener.class )
     static class B02
         implements RandomAccess, EventListener
     {
     }
 
-    @Named
+    @javax.inject.Named
     static class B03
         implements EventListener
     {
     }
 
-    @Named( "TEST" )
+    @javax.inject.Named( "TEST" )
     static class DefaultB04
     {
     }
 
-    @Named( "TEST" )
+    @javax.inject.Named( "TEST" )
     static class B04
     {
     }
@@ -98,44 +97,44 @@ public class QualifiedScanningTest
     {
     }
 
-    @Named
+    @javax.inject.Named
     static class SubclassB00
         extends B01
     {
     }
 
-    @Named
+    @javax.inject.Named
     static class SubclassB01
         extends AbstractB01
     {
     }
 
-    @Named
+    @javax.inject.Named
     static class SubclassB02
         extends AbstractB02
     {
     }
 
-    @Named
+    @javax.inject.Named
     static class SubclassB03
         extends AbstractB03
     {
     }
 
-    @Named( "RENAME" )
+    @javax.inject.Named( "RENAME" )
     static class SubclassB04
         extends AbstractB03
     {
     }
 
-    @Named
+    @javax.inject.Named
     @Typed( {} )
     static class SubclassB06
         extends B02
     {
     }
 
-    @Named
+    @javax.inject.Named
     @Typed( Serializable.class )
     static class SubclassB07
         extends B02
@@ -148,7 +147,7 @@ public class QualifiedScanningTest
         }
     }
 
-    @Named
+    @javax.inject.Named
     static class SubclassB08
         extends B02
         implements Serializable
@@ -193,13 +192,13 @@ public class QualifiedScanningTest
 
     private void checkDefaultBinding( final Class<?> api, final Class<?> imp )
     {
-        assertEquals( imp, bindings.get( Key.get( api, Jsr330.named( "default" ) ) ).getProvider().get().getClass() );
+        assertEquals( imp, bindings.get( Key.get( api, Names.named( "default" ) ) ).getProvider().get().getClass() );
         assertEquals( imp, bindings.get( Key.get( api ) ).getProvider().get().getClass() );
     }
 
     private void checkNamedBinding( final Class<?> api, final String name, final Class<?> imp )
     {
-        assertEquals( imp, bindings.get( Key.get( api, Jsr330.named( name ) ) ).getProvider().get().getClass() );
+        assertEquals( imp, bindings.get( Key.get( api, Names.named( name ) ) ).getProvider().get().getClass() );
     }
 
     private void checkLegacyBinding( final Class<?> api, final Class<?> imp )

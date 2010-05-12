@@ -56,7 +56,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Names;
 
 /**
  * {@link PlexusContainer} shim that delegates to a Plexus-aware Guice {@link Injector}.
@@ -253,7 +253,7 @@ public final class DefaultPlexusContainer
                 }
                 else
                 {
-                    bind( (Class) role ).annotatedWith( Jsr330.named( hint ) ).toInstance( component );
+                    bind( (Class) role ).annotatedWith( Names.named( hint ) ).toInstance( component );
                 }
             }
         } ) );
@@ -603,7 +603,7 @@ public final class DefaultPlexusContainer
         protected void configure()
         {
             bind( Context.class ).toInstance( context );
-            bind( Map.class ).annotatedWith( Jsr330.named( PlexusConstants.PLEXUS_KEY ) ).toInstance( variables );
+            bind( Map.class ).annotatedWith( Names.named( PlexusConstants.PLEXUS_KEY ) ).toInstance( variables );
             bind( Logger.class ).toProvider( loggerProvider );
 
             install( dateConverter );

@@ -29,7 +29,6 @@ import java.util.Map.Entry;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Qualifier;
 
@@ -37,12 +36,14 @@ import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.reflect.DeclaredMembers;
 import org.sonatype.guice.bean.reflect.Generics;
 import org.sonatype.inject.Mediator;
+import org.sonatype.inject.NamedMediator;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 import com.google.inject.util.Types;
 
 /**
@@ -55,7 +56,7 @@ final class QualifiedClassBinder
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final Named DEFAULT_NAMED = Jsr330.named( "default" );
+    private static final Named DEFAULT_NAMED = Names.named( "default" );
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -111,9 +112,16 @@ final class QualifiedClassBinder
         // mediation requires that we listen for instances
         for ( final Class mediatorType : mediatorTypes )
         {
-            // our listener is actually a matcher too
-            final WatcherListener listener = new WatcherListener( mediatorType );
-            binder.bindListener( listener, listener );
+            if ( NamedMediator.class.isAssignableFrom( mediatorType ) )
+            {
+                final NamedWatcherListener listener = new NamedWatcherListener( mediatorType );
+                binder.bindListener( listener, listener );
+            }
+            else if ( Mediator.class.isAssignableFrom( mediatorType ) )
+            {
+                final WatcherListener listener = new WatcherListener( mediatorType );
+                binder.bindListener( listener, listener );
+            }
         }
     }
 
@@ -177,7 +185,7 @@ final class QualifiedClassBinder
         // check fields for qualified sequences
         bindQualifiedBeanCollections( clazz );
 
-        if ( Mediator.class.isAssignableFrom( clazz ) )
+        if ( NamedMediator.class.isAssignableFrom( clazz ) || Mediator.class.isAssignableFrom( clazz ) )
         {
             mediatorTypes.add( clazz );
         }
@@ -192,23 +200,35 @@ final class QualifiedClassBinder
      */
     private static Annotation normalize( final Annotation qualifier, final Class clazz )
     {
-        if ( qualifier instanceof Named )
+        final String hint;
+        if ( qualifier instanceof javax.inject.Named )
         {
-            final String hint = ( (Named) qualifier ).value();
-            if ( hint.length() == 0 )
-            {
-                // Assume Default* types are default implementations
-                if ( clazz.getSimpleName().startsWith( "Default" ) )
-                {
-                    return DEFAULT_NAMED;
-                }
-                return Jsr330.named( clazz.getName() );
-            }
-            else if ( "default".equalsIgnoreCase( hint ) )
+            hint = ( (javax.inject.Named) qualifier ).value();
+        }
+        else if ( qualifier instanceof Named )
+        {
+            hint = ( (Named) qualifier ).value();
+        }
+        else
+        {
+            return qualifier;
+        }
+
+        if ( hint.length() == 0 )
+        {
+            // Assume Default* types are default implementations
+            if ( clazz.getSimpleName().startsWith( "Default" ) )
             {
                 return DEFAULT_NAMED;
             }
+            return Names.named( clazz.getName() );
         }
+
+        if ( "default".equalsIgnoreCase( hint ) )
+        {
+            return DEFAULT_NAMED;
+        }
+
         return qualifier;
     }
 

@@ -12,18 +12,13 @@
  */
 package org.sonatype.inject;
 
-import java.lang.annotation.Annotation;
-
 import javax.inject.Provider;
 
-/**
- * Mediates updates between the {@code BeanLocator} and a bean watcher.
- */
-public interface Mediator<Q extends Annotation, T, W>
+public interface NamedMediator<T, W>
 {
-    void add( Q qualifier, Provider<T> bean, W watcher )
+    void add( String name, Provider<T> bean, W watcher )
         throws Exception;
 
-    void remove( Q qualifier, Provider<T> bean, W watcher )
+    void remove( String name, Provider<T> bean, W watcher )
         throws Exception;
 }

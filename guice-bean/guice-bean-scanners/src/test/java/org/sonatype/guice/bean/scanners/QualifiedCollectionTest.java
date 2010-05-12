@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import junit.framework.TestCase;
 
@@ -29,7 +28,8 @@ import org.sonatype.guice.bean.reflect.URLClassSpace;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 
 public class QualifiedCollectionTest
     extends TestCase
@@ -38,31 +38,31 @@ public class QualifiedCollectionTest
     {
     }
 
-    @Named
+    @javax.inject.Named
     static class ButtonWidget
         extends Widget
     {
     }
 
-    @Named
+    @javax.inject.Named
     static class MenuWidget
         extends Widget
     {
     }
 
-    @Named
+    @javax.inject.Named
     static class DefaultWidget
         extends Widget
     {
     }
 
-    @Named
+    @javax.inject.Named
     static class ScrollBarWidget
         extends Widget
     {
     }
 
-    @Named
+    @javax.inject.Named
     static class WindowWidget
     {
         @Inject
@@ -147,10 +147,9 @@ public class QualifiedCollectionTest
         it.next();
         assertFalse( it.hasNext() );
 
-        assertEquals( ButtonWidget.class, widgetMap.get( Jsr330.named( ButtonWidget.class.getName() ) ).getClass() );
-        assertEquals( MenuWidget.class, widgetMap.get( Jsr330.named( MenuWidget.class.getName() ) ).getClass() );
-        assertEquals( ScrollBarWidget.class, widgetMap.get( Jsr330.named( ScrollBarWidget.class.getName() ) )
-                                                      .getClass() );
+        assertEquals( ButtonWidget.class, widgetMap.get( Names.named( ButtonWidget.class.getName() ) ).getClass() );
+        assertEquals( MenuWidget.class, widgetMap.get( Names.named( MenuWidget.class.getName() ) ).getClass() );
+        assertEquals( ScrollBarWidget.class, widgetMap.get( Names.named( ScrollBarWidget.class.getName() ) ).getClass() );
     }
 
     public void testQualifiedHints()

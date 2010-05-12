@@ -12,40 +12,39 @@
  */
 package org.sonatype.guice.swing.example.impl;
 
-import java.util.Map.Entry;
-
 import javax.inject.Named;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.sonatype.inject.Mediator;
+import org.sonatype.inject.NamedMediator;
 
 @Named
 @Singleton
 final class WindowMediator
-    implements Mediator<Named, JPanel, Window>
+    implements NamedMediator<JPanel, Window>
 {
-    public void add( final Entry<Named, JPanel> bean, final Window window )
+    public void add( final String name, final Provider<JPanel> bean, final Window window )
         throws Exception
     {
         SwingUtilities.invokeLater( new Runnable()
         {
             public void run()
             {
-                window.add( bean.getKey().value(), bean.getValue() );
+                window.add( name, bean.get() );
             }
         } );
     }
 
-    public void remove( final Entry<Named, JPanel> bean, final Window window )
+    public void remove( final String name, final Provider<JPanel> bean, final Window window )
         throws Exception
     {
         SwingUtilities.invokeLater( new Runnable()
         {
             public void run()
             {
-                window.remove( bean.getKey().value() );
+                window.remove( name );
             }
         } );
     }

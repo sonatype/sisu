@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.inject.Named;
+import javax.inject.Provider;
 
 import junit.framework.TestCase;
 
@@ -28,7 +28,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 
 public class DefaultBeanLocatorTest
     extends TestCase
@@ -59,9 +60,9 @@ public class DefaultBeanLocatorTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "A" ) ).to( BeanImpl.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "-" ) ).to( BeanImpl.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "Z" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "-" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "Z" ) ).to( BeanImpl.class );
             }
         } );
 
@@ -70,8 +71,8 @@ public class DefaultBeanLocatorTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "M1" ) ).to( BeanImpl.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "N1" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "M1" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "N1" ) ).to( BeanImpl.class );
             }
         } );
 
@@ -88,8 +89,8 @@ public class DefaultBeanLocatorTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Jsr330.named( "M3" ) ).to( BeanImpl.class );
-                bind( Bean.class ).annotatedWith( Jsr330.named( "N3" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "M3" ) ).to( BeanImpl.class );
+                bind( Bean.class ).annotatedWith( Names.named( "N3" ) ).to( BeanImpl.class );
             }
         } );
     }
@@ -295,12 +296,12 @@ public class DefaultBeanLocatorTest
     static class NullMediator
         implements Mediator<Named, Bean, Object>
     {
-        public void add( final Entry<Named, Bean> bean, final Object watcher )
+        public void add( final Named name, final Provider<Bean> bean, final Object watcher )
             throws Exception
         {
         }
 
-        public void remove( final Entry<Named, Bean> bean, final Object watcher )
+        public void remove( final Named name, final Provider<Bean> bean, final Object watcher )
             throws Exception
         {
         }
@@ -309,13 +310,13 @@ public class DefaultBeanLocatorTest
     static class BrokenMediator
         implements Mediator<Named, Bean, Object>
     {
-        public void add( final Entry<Named, Bean> bean, final Object watcher )
+        public void add( final Named name, final Provider<Bean> bean, final Object watcher )
             throws Exception
         {
             throw new Exception();
         }
 
-        public void remove( final Entry<Named, Bean> bean, final Object watcher )
+        public void remove( final Named name, final Provider<Bean> bean, final Object watcher )
             throws Exception
         {
             throw new Exception();

@@ -25,7 +25,7 @@ import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.util.Jsr330;
+import com.google.inject.name.Names;
 
 public class DateConstantTest
     extends TestCase
@@ -38,7 +38,7 @@ public class DateConstantTest
         {
             private void bind( final String name, final String value )
             {
-                bindConstant().annotatedWith( Jsr330.named( name ) ).to( value );
+                bindConstant().annotatedWith( Names.named( name ) ).to( value );
             }
 
             @Override
@@ -86,7 +86,7 @@ public class DateConstantTest
     {
         try
         {
-            injector.getInstance( Key.get( Date.class, Jsr330.named( "BadFormat" ) ) );
+            injector.getInstance( Key.get( Date.class, Names.named( "BadFormat" ) ) );
             fail( "Expected ConfigurationException" );
         }
         catch ( final ConfigurationException e )
