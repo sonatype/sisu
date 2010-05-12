@@ -28,7 +28,7 @@
         <configuration>
           <instructions>
             <Export-Package>
-              org.sonatype.inject;version=${project.version},
+              org.sonatype.inject;-split-package:=merge-first;version=${project.version},
               javax.*|org.aopalliance.*;version=1
             </Export-Package>
             <Private-Package/>

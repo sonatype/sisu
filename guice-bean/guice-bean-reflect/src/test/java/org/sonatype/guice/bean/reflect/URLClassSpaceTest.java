@@ -23,16 +23,15 @@ import junit.framework.TestCase;
 public class URLClassSpaceTest
     extends TestCase
 {
-    private static final URL SIMPLE_JAR = ZipEntryIteratorTest.class.getClassLoader().getResource( "simple.jar" );
+    private static final ClassLoader TEST_LOADER = URLClassSpaceTest.class.getClassLoader();
 
-    private static final URL CLASS_PATH_JAR =
-        ZipEntryIteratorTest.class.getClassLoader().getResource( "class path.jar" );
+    private static final URL SIMPLE_JAR = TEST_LOADER.getResource( "simple.jar" );
 
-    private static final URL COMMONS_LOGGING_JAR =
-        ZipEntryIteratorTest.class.getClassLoader().getResource( "commons-logging-1.1.1.jar" );
+    private static final URL CLASS_PATH_JAR = TEST_LOADER.getResource( "class path.jar" );
 
-    private static final URL CORRUPT_MANIFEST =
-        ZipEntryIteratorTest.class.getClassLoader().getResource( "corrupt.manifest/" );
+    private static final URL COMMONS_LOGGING_JAR = TEST_LOADER.getResource( "commons-logging-1.1.1.jar" );
+
+    private static final URL CORRUPT_MANIFEST = TEST_LOADER.getResource( "corrupt.manifest/" );
 
     public void testHashCodeAndEquals()
     {

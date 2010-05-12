@@ -85,7 +85,8 @@ final class PlexusLifecycleManager
     @SuppressWarnings( "unchecked" )
     public PropertyBinding manage( final BeanProperty property )
     {
-        if ( org.slf4j.Logger.class.equals( property.getType().getRawType() ) )
+        final Class clazz = property.getType().getRawType();
+        if ( "org.slf4j.Logger".equals( clazz.getName() ) )
         {
             return new PropertyBinding()
             {
@@ -95,7 +96,7 @@ final class PlexusLifecycleManager
                 }
             };
         }
-        if ( Logger.class.equals( property.getType().getRawType() ) )
+        if ( Logger.class.equals( clazz ) )
         {
             return new PropertyBinding()
             {

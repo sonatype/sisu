@@ -547,7 +547,7 @@ public class PlexusRequirementTest
         final ClassLoader legacyLoader = new URLClassLoader( urls.toArray( new URL[urls.size()] ), null )
         {
             @Override
-            protected synchronized java.lang.Class<?> loadClass( final String name, final boolean resolve )
+            protected synchronized Class<?> loadClass( final String name, final boolean resolve )
                 throws ClassNotFoundException
             {
                 if ( name.contains( "cobertura" ) )

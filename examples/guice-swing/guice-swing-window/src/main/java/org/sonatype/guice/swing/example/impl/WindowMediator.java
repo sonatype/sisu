@@ -18,12 +18,12 @@ import javax.inject.Singleton;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.sonatype.inject.NamedMediator;
+import org.sonatype.inject.NamedBeanMediator;
 
 @Named
 @Singleton
 final class WindowMediator
-    implements NamedMediator<JPanel, Window>
+    implements NamedBeanMediator<JPanel, Window>
 {
     public void add( final String name, final Provider<JPanel> bean, final Window window )
         throws Exception

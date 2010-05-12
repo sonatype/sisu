@@ -21,6 +21,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <guice.patches.version>2.1.3-SNAPSHOT</guice.patches.version>
+    <slf4j.version>1.5.11</slf4j.version>
   </properties>
 
   <build>
@@ -124,17 +125,12 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.5.11</version>
+        <version>${slf4j.version}</version>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
-        <version>1.5.11</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-nop</artifactId>
-        <version>1.5.11</version>
+        <version>${slf4j.version}</version>
       </dependency>
 
       <dependency>

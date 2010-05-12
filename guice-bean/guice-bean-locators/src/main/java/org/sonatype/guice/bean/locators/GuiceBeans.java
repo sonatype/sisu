@@ -25,7 +25,7 @@ import com.google.inject.Key;
 /**
  * {@link Iterable} sequence of qualified beans backed by bindings from one or more {@link Injector}s.
  */
-final class GuiceBeans<Q extends Annotation, T>
+class GuiceBeans<Q extends Annotation, T>
     implements Iterable<Entry<Q, T>>
 {
     // ----------------------------------------------------------------------
@@ -103,6 +103,10 @@ final class GuiceBeans<Q extends Annotation, T>
                 if ( injector == beans.injector )
                 {
                     injectorBeans.remove( beans );
+                    if ( injectorBeans.isEmpty() )
+                    {
+                        injectorBeans = null;
+                    }
                     return beans;
                 }
             }

@@ -30,6 +30,9 @@
             <Bundle-Activator>
               org.sonatype.guice.bean.extender.Activator
             </Bundle-Activator>
+            <DynamicImport-Package>
+              org.slf4j
+            </DynamicImport-Package>
             <Private-Package>
               org.objectweb.asm.*,
               org.sonatype.guice.*

@@ -19,10 +19,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
@@ -45,8 +44,6 @@ final class PlexusComponentRegistry
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
-
-    private static final Logger logger = LoggerFactory.getLogger( PlexusComponentRegistry.class );
 
     private final Map<String, Component> components = new HashMap<String, Component>();
 
@@ -157,8 +154,8 @@ final class PlexusComponentRegistry
             return implementation; // merge configuration
         }
 
-        logger.warn( "Duplicate implementations found for Plexus component " + key );
-        logger.warn( "Saw: " + oldImplementation.getName() + " and: " + implementation );
+        debug( "Duplicate implementations found for Plexus component " + key );
+        debug( "Saw: " + oldImplementation.getName() + " and: " + implementation );
 
         return null;
     }
@@ -201,8 +198,8 @@ final class PlexusComponentRegistry
         }
         catch ( final Throwable e )
         {
-            // not all roles are needed, so just note those we couldn't load
-            logger.debug( "Ignoring Plexus role: " + role + " [" + e + "]" );
+            // not all roles are needed, so just note any we can't load
+            debug( "Ignoring Plexus role: " + role + " [" + e + "]" );
             return null;
         }
     }
@@ -223,5 +220,22 @@ final class PlexusComponentRegistry
             } );
         }
         return disambiguatedSpace;
+    }
+
+    /**
+     * Logs the given debug message to the SLF4J logger if available; otherwise to JUL.
+     * 
+     * @param message The debug message
+     */
+    private static void debug( final String message )
+    {
+        try
+        {
+            org.slf4j.LoggerFactory.getLogger( PlexusComponentRegistry.class ).debug( message );
+        }
+        catch ( final Throwable ignore )
+        {
+            Logger.getLogger( PlexusComponentRegistry.class.getName() ).fine( message );
+        }
     }
 }

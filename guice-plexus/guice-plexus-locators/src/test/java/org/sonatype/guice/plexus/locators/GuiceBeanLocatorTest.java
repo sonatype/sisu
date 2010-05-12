@@ -213,9 +213,7 @@ public class GuiceBeanLocatorTest
         b.iterator();
         c.iterator();
 
-        System.gc();
-        System.gc();
-        System.gc();
+        forceGC();
 
         assertEquals( 3, guiceBeans.size() );
         locator.add( child2 );
@@ -223,9 +221,7 @@ public class GuiceBeanLocatorTest
 
         b.iterator();
         b = null;
-        System.gc();
-        System.gc();
-        System.gc();
+        forceGC();
 
         assertEquals( 3, guiceBeans.size() );
         locator.remove( child2 );
@@ -233,9 +229,7 @@ public class GuiceBeanLocatorTest
 
         a.iterator();
         a = null;
-        System.gc();
-        System.gc();
-        System.gc();
+        forceGC();
 
         assertEquals( 2, guiceBeans.size() );
         locator.add( child2 );
@@ -243,9 +237,7 @@ public class GuiceBeanLocatorTest
 
         c.iterator();
         c = null;
-        System.gc();
-        System.gc();
-        System.gc();
+        forceGC();
 
         assertEquals( 1, guiceBeans.size() );
         locator.locate( TypeLiteral.get( Bean.class ) );
@@ -634,5 +626,24 @@ public class GuiceBeanLocatorTest
         assertEquals( "?", i.next().getKey() );
         assertEquals( "!", i.next().getKey() );
         assertFalse( i.hasNext() );
+    }
+
+    private static String[] forceGC()
+    {
+        String[] buf;
+        System.gc();
+        buf = new String[8 * 1024 * 1024];
+        buf = null;
+        System.gc();
+        buf = new String[8 * 1024 * 1024];
+        buf = null;
+        System.gc();
+        buf = new String[8 * 1024 * 1024];
+        buf = null;
+        System.gc();
+        buf = new String[8 * 1024 * 1024];
+        buf = null;
+        System.gc();
+        return buf;
     }
 }

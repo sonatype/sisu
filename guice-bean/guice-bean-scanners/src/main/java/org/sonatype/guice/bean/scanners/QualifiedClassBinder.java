@@ -34,8 +34,8 @@ import javax.inject.Qualifier;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.reflect.Generics;
-import org.sonatype.inject.Mediator;
-import org.sonatype.inject.NamedMediator;
+import org.sonatype.inject.BeanMediator;
+import org.sonatype.inject.NamedBeanMediator;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
@@ -111,12 +111,12 @@ final class QualifiedClassBinder
         // mediation requires that we listen for instances
         for ( final Class mediatorType : mediatorTypes )
         {
-            if ( NamedMediator.class.isAssignableFrom( mediatorType ) )
+            if ( NamedBeanMediator.class.isAssignableFrom( mediatorType ) )
             {
                 final NamedWatcherListener listener = new NamedWatcherListener( mediatorType );
                 binder.bindListener( listener, listener );
             }
-            else if ( Mediator.class.isAssignableFrom( mediatorType ) )
+            else if ( BeanMediator.class.isAssignableFrom( mediatorType ) )
             {
                 final WatcherListener listener = new WatcherListener( mediatorType );
                 binder.bindListener( listener, listener );
@@ -184,7 +184,7 @@ final class QualifiedClassBinder
         // check fields for qualified sequences
         bindQualifiedBeanCollections( clazz );
 
-        if ( NamedMediator.class.isAssignableFrom( clazz ) || Mediator.class.isAssignableFrom( clazz ) )
+        if ( NamedBeanMediator.class.isAssignableFrom( clazz ) || BeanMediator.class.isAssignableFrom( clazz ) )
         {
             mediatorTypes.add( clazz );
         }

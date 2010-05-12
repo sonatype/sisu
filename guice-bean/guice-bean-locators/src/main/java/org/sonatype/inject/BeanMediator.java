@@ -12,31 +12,32 @@
  */
 package org.sonatype.inject;
 
-import javax.inject.Named;
+import java.lang.annotation.Annotation;
+
 import javax.inject.Provider;
 
 /**
- * Mediates {@link Named} updates between the {@code BeanLocator} and an associated watcher.
+ * Mediates qualified bean updates between the {@code BeanLocator} and an associated watcher.
  */
-public interface NamedMediator<T, W>
+public interface BeanMediator<Q extends Annotation, T, W>
 {
     /**
-     * Notifies the associated watcher that a {@link Named} bean has been added.
+     * Notifies the associated watcher that a qualified bean has been added.
      * 
-     * @param name Bean name
-     * @param bean Bean provider
-     * @param watcher Associated watcher
+     * @param qualifier The bean qualifier
+     * @param bean The bean provider
+     * @param watcher The associated watcher
      */
-    void add( String name, Provider<T> bean, W watcher )
+    void add( Q qualifier, Provider<T> bean, W watcher )
         throws Exception;
 
     /**
-     * Notifies the associated watcher that a {@link Named} bean has been removed.
+     * Notifies the associated watcher that a qualified bean has been removed.
      * 
-     * @param name Bean name
-     * @param bean Bean provider
-     * @param watcher Associated watcher
+     * @param qualifier The bean qualifier
+     * @param bean The bean provider
+     * @param watcher The associated watcher
      */
-    void remove( String name, Provider<T> bean, W watcher )
+    void remove( Q qualifier, Provider<T> bean, W watcher )
         throws Exception;
 }

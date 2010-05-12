@@ -12,19 +12,16 @@
  */
 package org.sonatype.guice.bean.locators;
 
-import java.lang.annotation.Annotation;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import org.sonatype.inject.Mediator;
+import org.sonatype.inject.BeanMediator;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -40,9 +37,7 @@ public final class DefaultBeanLocator
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final List<Reference<GuiceBeans<?, ?>>> exposedBeans = new ArrayList<Reference<GuiceBeans<?, ?>>>();
-
-    private final List<MediatedWatcher<?, ?, ?>> mediatedWatchers = new ArrayList<MediatedWatcher<?, ?, ?>>();
+    private final List<Provider<GuiceBeans<?, ?>>> exposedBeans = new ArrayList<Provider<GuiceBeans<?, ?>>>();
 
     private final Set<Injector> injectors = new LinkedHashSet<Injector>();
 
@@ -65,48 +60,18 @@ public final class DefaultBeanLocator
     // Public methods
     // ----------------------------------------------------------------------
 
-    public synchronized <Q extends Annotation, T> Iterable<Entry<Q, T>> locate( final Key<T> key )
+    @SuppressWarnings( "unchecked" )
+    public synchronized Iterable locate( final Key key )
     {
-        final GuiceBeans<Q, T> beans = new GuiceBeans<Q, T>( key );
-        for ( final Injector injector : injectors )
-        {
-            beans.add( injector );
-        }
-
-        // check for any unused (GC'd) bean sequences
-        for ( int i = 0; i < exposedBeans.size(); i++ )
-        {
-            if ( null == exposedBeans.get( i ).get() )
-            {
-                exposedBeans.remove( i-- ); // sequence GC'd, so no need to track anymore
-            }
-        }
-
-        // remember exposed sequences so we can update them in the future
-        exposedBeans.add( new WeakReference<GuiceBeans<?, ?>>( beans ) );
-
+        final GuiceBeans beans = initialize( new GuiceBeans( key ) );
+        exposedBeans.add( new WeakBeanReference( beans ) );
         return beans;
     }
 
-    public synchronized <Q extends Annotation, T, W> void watch( final Key<T> key, final Mediator<Q, T, W> mediator,
-                                                                 final W watcher )
+    @SuppressWarnings( "unchecked" )
+    public synchronized void watch( final Key key, final BeanMediator mediator, final Object watcher )
     {
-        final MediatedWatcher<Q, T, W> mediatedWatcher = new MediatedWatcher<Q, T, W>( key, mediator, watcher );
-        for ( final Injector injector : injectors )
-        {
-            mediatedWatcher.push( injector );
-        }
-
-        // check for any unused (GC'd) mediated watchers
-        for ( int i = 0; i < mediatedWatchers.size(); i++ )
-        {
-            if ( !mediatedWatchers.get( i ).isWatching() )
-            {
-                mediatedWatchers.remove( i-- ); // watcher GC'd, so no need to notify anymore
-            }
-        }
-
-        mediatedWatchers.add( mediatedWatcher );
+        exposedBeans.add( initialize( new WatchedBeans( key, mediator, watcher ) ) );
     }
 
     public synchronized void add( final Injector injector )
@@ -125,14 +90,6 @@ public final class DefaultBeanLocator
             else
             {
                 exposedBeans.remove( i-- ); // sequence GC'd, so no need to track anymore
-            }
-        }
-        for ( int i = 0; i < mediatedWatchers.size(); i++ )
-        {
-            final MediatedWatcher<?, ?, ?> watcher = mediatedWatchers.get( i );
-            if ( !watcher.push( injector ) )
-            {
-                mediatedWatchers.remove( i-- ); // watcher GC'd, so no need to notify anymore
             }
         }
     }
@@ -155,13 +112,32 @@ public final class DefaultBeanLocator
                 exposedBeans.remove( i-- ); // sequence GC'd, so no need to track anymore
             }
         }
-        for ( int i = 0; i < mediatedWatchers.size(); i++ )
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Initializes a sequence of qualified beans based on the current list of {@link Injector}s.
+     * 
+     * @param beans The beans to initialize
+     * @return Initialize beans
+     */
+    private <B extends GuiceBeans<?, ?>> B initialize( final B beans )
+    {
+        for ( final Injector injector : injectors )
         {
-            final MediatedWatcher<?, ?, ?> watcher = mediatedWatchers.get( i );
-            if ( !watcher.pull( injector ) )
+            beans.add( injector );
+        }
+        // take a moment to check previous sequences
+        for ( int i = 0; i < exposedBeans.size(); i++ )
+        {
+            if ( null == exposedBeans.get( i ).get() )
             {
-                mediatedWatchers.remove( i-- ); // watcher GC'd, so no need to notify anymore
+                exposedBeans.remove( i-- ); // sequence GC'd, so no need to track anymore
             }
         }
+        return beans;
     }
 }

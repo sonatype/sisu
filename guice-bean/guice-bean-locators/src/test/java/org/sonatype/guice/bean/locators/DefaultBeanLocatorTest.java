@@ -18,11 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.inject.Provider;
-
 import junit.framework.TestCase;
-
-import org.sonatype.inject.Mediator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -224,9 +220,7 @@ public class DefaultBeanLocatorTest
         b.iterator();
         c.iterator();
 
-        System.gc();
-        System.gc();
-        System.gc();
+        forceGC();
 
         assertEquals( 3, exposedBeans.size() );
         locator.add( child2 );
@@ -234,9 +228,7 @@ public class DefaultBeanLocatorTest
 
         b.iterator();
         b = null;
-        System.gc();
-        System.gc();
-        System.gc();
+        forceGC();
 
         assertEquals( 3, exposedBeans.size() );
         locator.remove( child2 );
@@ -244,9 +236,7 @@ public class DefaultBeanLocatorTest
 
         a.iterator();
         a = null;
-        System.gc();
-        System.gc();
-        System.gc();
+        forceGC();
 
         assertEquals( 2, exposedBeans.size() );
         locator.add( child2 );
@@ -254,9 +244,7 @@ public class DefaultBeanLocatorTest
 
         c.iterator();
         c = null;
-        System.gc();
-        System.gc();
-        System.gc();
+        forceGC();
 
         assertEquals( 1, exposedBeans.size() );
         locator.locate( Key.get( Bean.class ) );
@@ -290,96 +278,22 @@ public class DefaultBeanLocatorTest
         assertEquals( 1, injectors.size() );
     }
 
-    static class NullMediator
-        implements Mediator<Named, Bean, Object>
+    private static String[] forceGC()
     {
-        public void add( final Named name, final Provider<Bean> bean, final Object watcher )
-            throws Exception
-        {
-        }
-
-        public void remove( final Named name, final Provider<Bean> bean, final Object watcher )
-            throws Exception
-        {
-        }
-    }
-
-    static class BrokenMediator
-        implements Mediator<Named, Bean, Object>
-    {
-        public void add( final Named name, final Provider<Bean> bean, final Object watcher )
-            throws Exception
-        {
-            throw new Exception();
-        }
-
-        public void remove( final Named name, final Provider<Bean> bean, final Object watcher )
-            throws Exception
-        {
-            throw new Exception();
-        }
-    }
-
-    public void testWeakMediation()
-        throws Exception
-    {
-        final MutableBeanLocator locator = new DefaultBeanLocator();
-
-        final Field mediatedWatchersField = DefaultBeanLocator.class.getDeclaredField( "mediatedWatchers" );
-        mediatedWatchersField.setAccessible( true );
-
-        final List<?> mediatedWatchers = (List<?>) mediatedWatchersField.get( locator );
-
-        final Mediator<Named, Bean, Object> nullMediator = new NullMediator();
-        final Mediator<Named, Bean, Object> brokenMediator = new BrokenMediator();
-
-        Object a = new Object();
-        Object b = new Object();
-        Object c = new Object();
-
-        assertEquals( 0, mediatedWatchers.size() );
-        locator.watch( Key.get( Bean.class, Named.class ), nullMediator, a );
-        assertEquals( 1, mediatedWatchers.size() );
-        locator.watch( Key.get( Bean.class, Named.class ), nullMediator, b );
-        assertEquals( 2, mediatedWatchers.size() );
-        locator.watch( Key.get( Bean.class, Named.class ), brokenMediator, c );
-        assertEquals( 3, mediatedWatchers.size() );
-
+        String[] buf;
         System.gc();
+        buf = new String[8 * 1024 * 1024];
+        buf = null;
         System.gc();
+        buf = new String[8 * 1024 * 1024];
+        buf = null;
         System.gc();
-
-        assertEquals( 3, mediatedWatchers.size() );
-        locator.add( child1 );
-        assertEquals( 3, mediatedWatchers.size() );
-
-        b = null;
+        buf = new String[8 * 1024 * 1024];
+        buf = null;
         System.gc();
+        buf = new String[8 * 1024 * 1024];
+        buf = null;
         System.gc();
-        System.gc();
-
-        assertEquals( 3, mediatedWatchers.size() );
-        locator.remove( child1 );
-        assertEquals( 2, mediatedWatchers.size() );
-
-        a = null;
-        System.gc();
-        System.gc();
-        System.gc();
-
-        assertEquals( 2, mediatedWatchers.size() );
-        locator.add( child2 );
-        assertEquals( 1, mediatedWatchers.size() );
-
-        c = null;
-        System.gc();
-        System.gc();
-        System.gc();
-
-        a = new Object();
-
-        assertEquals( 1, mediatedWatchers.size() );
-        locator.watch( Key.get( Bean.class, Named.class ), nullMediator, a );
-        assertEquals( 1, mediatedWatchers.size() );
+        return buf;
     }
 }

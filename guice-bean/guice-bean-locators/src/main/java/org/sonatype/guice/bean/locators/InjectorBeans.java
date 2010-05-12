@@ -17,15 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.inject.Provider;
-
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 /**
- * Fixed {@link List} of qualified beans found by querying bindings from a single {@link Injector}.
+ * Fixed {@link List} of qualified beans found by querying explicit bindings from a single {@link Injector}.
  */
 final class InjectorBeans<Q extends Annotation, T>
     extends ArrayList<Entry<Q, T>>
@@ -51,7 +49,7 @@ final class InjectorBeans<Q extends Annotation, T>
         this.injector = injector;
         if ( key.hasAttributes() )
         {
-            addQualifiedBean( key.getAnnotation(), injector.getProvider( key ) );
+            addQualifiedBean( key.getAnnotation(), injector.getBindings().get( key ) );
         }
         else
         {
@@ -71,9 +69,9 @@ final class InjectorBeans<Q extends Annotation, T>
      * @param provider The bean provider
      */
     @SuppressWarnings( "unchecked" )
-    private void addQualifiedBean( final Annotation qualifier, final Provider<T> provider )
+    private void addQualifiedBean( final Annotation qualifier, final Binding binding )
     {
-        add( new DeferredBeanEntry( qualifier, provider ) );
+        add( new DeferredBeanEntry( qualifier, binding.getProvider() ) );
     }
 
     /**
@@ -89,7 +87,7 @@ final class InjectorBeans<Q extends Annotation, T>
             final Annotation ann = binding.getKey().getAnnotation();
             if ( null == qualifierType || qualifierType.isInstance( ann ) )
             {
-                addQualifiedBean( ann, binding.getProvider() );
+                addQualifiedBean( ann, binding );
             }
         }
     }

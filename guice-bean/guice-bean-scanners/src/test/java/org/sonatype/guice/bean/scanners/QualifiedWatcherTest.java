@@ -25,7 +25,7 @@ import junit.framework.TestCase;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
-import org.sonatype.inject.Mediator;
+import org.sonatype.inject.BeanMediator;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -70,7 +70,7 @@ public class QualifiedWatcherTest
 
     @javax.inject.Named
     static class ItemMediator
-        implements Mediator<Named, Item, ItemWatcher>
+        implements BeanMediator<Named, Item, ItemWatcher>
     {
         public void add( final Named name, final Provider<Item> bean, final ItemWatcher watcher )
             throws Exception
@@ -90,7 +90,7 @@ public class QualifiedWatcherTest
 
     @SuppressWarnings( "unchecked" )
     static class BrokenMediator
-        implements Mediator
+        implements BeanMediator
     {
         public void add( final Annotation ann, final Provider bean, final Object watcher )
             throws Exception

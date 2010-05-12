@@ -16,7 +16,7 @@ import javax.inject.Provider;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.reflect.Generics;
-import org.sonatype.inject.Mediator;
+import org.sonatype.inject.BeanMediator;
 
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
@@ -27,7 +27,7 @@ import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
 
 /**
- * {@link TypeListener} and {@link Matcher} that automatically applies {@link Mediator}s to mediated watchers.
+ * {@link TypeListener} and {@link Matcher} that automatically applies {@link BeanMediator}s to mediated watchers.
  */
 final class WatcherListener
     extends AbstractMatcher<TypeLiteral<?>>
@@ -38,7 +38,7 @@ final class WatcherListener
     // ----------------------------------------------------------------------
 
     @SuppressWarnings( "unchecked" )
-    private final Class<Mediator> mediatorType;
+    private final Class<BeanMediator> mediatorType;
 
     private final Key<?> qualifiedKey;
 
@@ -52,7 +52,7 @@ final class WatcherListener
     WatcherListener( final Class mediatorType )
     {
         this.mediatorType = mediatorType;
-        final TypeLiteral superType = TypeLiteral.get( mediatorType ).getSupertype( Mediator.class );
+        final TypeLiteral superType = TypeLiteral.get( mediatorType ).getSupertype( BeanMediator.class );
         final TypeLiteral[] params = Generics.typeArguments( superType );
         if ( params.length != 3 )
         {
@@ -74,7 +74,7 @@ final class WatcherListener
     public <I> void hear( final TypeLiteral<I> watchedType, final TypeEncounter<I> encounter )
     {
         @SuppressWarnings( "unchecked" )
-        final Provider<Mediator> mediator = encounter.getProvider( mediatorType );
+        final Provider<BeanMediator> mediator = encounter.getProvider( mediatorType );
         final Provider<BeanLocator> locator = encounter.getProvider( BeanLocator.class );
         encounter.register( new Autowatcher<I>( locator, mediator, qualifiedKey ) );
     }
@@ -84,7 +84,7 @@ final class WatcherListener
     // ----------------------------------------------------------------------
 
     /**
-     * {@link InjectionListener} that applies {@link Mediator}s to watcher instances.
+     * {@link InjectionListener} that applies {@link BeanMediator}s to watcher instances.
      */
     @SuppressWarnings( "unchecked" )
     private static final class Autowatcher<I>
@@ -96,7 +96,7 @@ final class WatcherListener
 
         private final Provider<BeanLocator> locator;
 
-        private final Provider<Mediator> mediator;
+        private final Provider<BeanMediator> mediator;
 
         private final Key qualifiedKey;
 
@@ -104,7 +104,7 @@ final class WatcherListener
         // Constructors
         // ----------------------------------------------------------------------
 
-        Autowatcher( final Provider<BeanLocator> locator, final Provider<Mediator> mediator, final Key qualifiedKey )
+        Autowatcher( final Provider<BeanLocator> locator, final Provider<BeanMediator> mediator, final Key qualifiedKey )
         {
             this.locator = locator;
             this.mediator = mediator;
