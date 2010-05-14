@@ -12,10 +12,6 @@
  */
 package org.sonatype.guice.bean.scanners;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Enumeration;
-
 import org.sonatype.guice.bean.reflect.ClassSpace;
 
 import com.google.inject.Binder;
@@ -48,41 +44,15 @@ public final class QualifiedScannerModule
 
     public void configure( final Binder binder )
     {
-        final Enumeration<URL> e = findClasses( space );
-        final QualifiedClassVisitor visitor = new QualifiedClassVisitor( space );
-        while ( e.hasMoreElements() )
-        {
-            try
-            {
-                visitor.scan( e.nextElement() );
-            }
-            catch ( final Throwable t )
-            {
-                binder.addError( t );
-            }
-        }
-        new QualifiedClassBinder( binder ).bind( visitor.getQualifiedTypes() );
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * Scans for all class-files in the given {@link ClassSpace}.
-     * 
-     * @param space The containing class space
-     * @return Enumeration of all class-files in the class space
-     */
-    private static Enumeration<URL> findClasses( final ClassSpace space )
-    {
+        final QualifiedBeanRegistry registry = new QualifiedBeanRegistry();
         try
         {
-            return space.findEntries( "", "*.class", true );
+            ClassSpaceScanner.accept( new QualifiedBeanScanner( registry ), space );
         }
-        catch ( final IOException e )
+        catch ( final Throwable e )
         {
-            throw new RuntimeException( e.toString() );
+            binder.addError( e );
         }
+        registry.apply( binder );
     }
 }

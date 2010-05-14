@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.plexus.scanners;
 
+import java.lang.annotation.Annotation;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.HashMap;
@@ -24,15 +25,21 @@ import java.util.logging.Logger;
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.LoadedClass;
+import org.sonatype.guice.bean.scanners.QualifiedBeanRegistry;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Roles;
 import org.sonatype.guice.plexus.config.Strategies;
 
+import com.google.inject.Key;
+import com.google.inject.name.Named;
+
 /**
  * Enhanced Plexus component map with additional book-keeping.
  */
 final class PlexusComponentRegistry
+    extends QualifiedBeanRegistry
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -67,6 +74,32 @@ final class PlexusComponentRegistry
     // ----------------------------------------------------------------------
     // Locally-shared methods
     // ----------------------------------------------------------------------
+
+    @Override
+    public void add( final Key<?> key, final Class<?> beanType )
+    {
+        final Annotation qualifier = key.getAnnotation();
+        if ( qualifier instanceof Named )
+        {
+            final Class<?> role = key.getTypeLiteral().getRawType();
+            final String hint = ( (Named) qualifier ).value();
+
+            final Component component;
+            if ( beanType.isAnnotationPresent( javax.inject.Singleton.class )
+                || beanType.isAnnotationPresent( com.google.inject.Singleton.class ) )
+            {
+                component = new ComponentImpl( role, hint, Strategies.SINGLETON, "" );
+            }
+            else
+            {
+                component = new ComponentImpl( role, hint, Strategies.PER_LOOKUP, "" );
+            }
+
+            final String roleHint = Roles.canonicalRoleHint( component );
+            implementations.put( roleHint, new LoadedClass<Object>( beanType ) );
+            components.put( roleHint, component );
+        }
+    }
 
     /**
      * @return Current class space

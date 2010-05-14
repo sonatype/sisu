@@ -21,7 +21,7 @@ import org.objectweb.asm.MethodVisitor;
 /**
  * Skeletal {@link ClassVisitor} that helps minimize the effort required to implement bytecode scanners.
  */
-class EmptyClassVisitor
+public class EmptyClassVisitor
     implements ClassVisitor
 {
     // ----------------------------------------------------------------------

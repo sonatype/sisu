@@ -21,13 +21,13 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.inject.Named;
+
 import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassVisitor;
 import org.sonatype.guice.bean.reflect.BeanProperties;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.ClassSpace;
@@ -69,6 +69,12 @@ public class AnnotatedPlexusBeanSourceTest
 
     @Component( role = AnotherBean.class )
     static class AnotherBean
+    {
+    }
+
+    @Named( "qualified" )
+    static class QualifiedBean
+        extends Bean
     {
     }
 
@@ -132,13 +138,16 @@ public class AnnotatedPlexusBeanSourceTest
             new AnnotatedPlexusBeanSource( new URLClassSpace( (URLClassLoader) getClass().getClassLoader() ), null );
 
         final Map<Component, DeferredClass<?>> components = source.findPlexusComponentBeans();
-        assertEquals( 3, components.size() );
+        assertEquals( 4, components.size() );
 
         final Component beanComponent = new ComponentImpl( Bean.class, "default", Strategies.SINGLETON, "" );
         final Component testComponent = new ComponentImpl( Runnable.class, "test", Strategies.PER_LOOKUP, "Some Test" );
 
         assertEquals( DuplicateBean.class.getName(), components.get( beanComponent ).getName() );
         assertEquals( TestBean.class, components.get( testComponent ).load() );
+
+        final Component qualfiedComponent = new ComponentImpl( Bean.class, "qualified", Strategies.PER_LOOKUP, "" );
+        assertEquals( QualifiedBean.class, components.get( qualfiedComponent ).load() );
     }
 
     public void testBadClassFile()
@@ -230,27 +239,9 @@ public class AnnotatedPlexusBeanSourceTest
         }
     }
 
-    public void testEmptyMethods()
-    {
-        final AnnotationVisitor emptyAnnotationVisitor = new EmptyAnnotationVisitor();
-
-        emptyAnnotationVisitor.visit( null, null );
-        emptyAnnotationVisitor.visitEnum( null, null, null );
-        emptyAnnotationVisitor.visitAnnotation( null, null );
-        emptyAnnotationVisitor.visitArray( null );
-
-        final ClassVisitor emptyClassVisitor = new EmptyClassVisitor();
-
-        emptyClassVisitor.visit( 0, 0, null, null, null, null );
-        emptyClassVisitor.visitAnnotation( null, false );
-        emptyClassVisitor.visitAttribute( null );
-        emptyClassVisitor.visitSource( null, null );
-        emptyClassVisitor.visitEnd();
-    }
-
     public void testClassVisitorAPI()
     {
-        final PlexusComponentClassVisitor visitor = new PlexusComponentClassVisitor( null );
+        final PlexusBeanScanner visitor = new PlexusBeanScanner( null );
 
         visitor.setHint( "foo" );
         visitor.setRole( "bar" );

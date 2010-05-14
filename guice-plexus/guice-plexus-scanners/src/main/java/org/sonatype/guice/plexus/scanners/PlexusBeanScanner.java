@@ -16,19 +16,20 @@ import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.scanners.EmptyAnnotationVisitor;
+import org.sonatype.guice.bean.scanners.QualifiedBeanScanner;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Strategies;
 
 /**
- * {@link ClassVisitor} that records Plexus bean classes annotated with @{@link Component}.
+ * {@link BeanScanner} that records Plexus bean classes annotated with @{@link Component}.
  */
-public class PlexusComponentClassVisitor
-    extends EmptyClassVisitor
+public class PlexusBeanScanner
+    extends QualifiedBeanScanner
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -40,11 +41,9 @@ public class PlexusComponentClassVisitor
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    protected final ClassSpace space;
+    private final AnnotationVisitor componentVisitor = new ComponentAnnotationVisitor();
 
     private final PlexusComponentRegistry registry;
-
-    private final AnnotationVisitor componentVisitor = new ComponentAnnotationVisitor();
 
     private String role;
 
@@ -60,11 +59,11 @@ public class PlexusComponentClassVisitor
     // Constructors
     // ----------------------------------------------------------------------
 
-    public PlexusComponentClassVisitor( final ClassSpace space )
+    protected PlexusBeanScanner( final PlexusComponentRegistry registry )
     {
-        this.space = space;
+        super( registry );
 
-        registry = new PlexusComponentRegistry( space );
+        this.registry = registry;
     }
 
     // ----------------------------------------------------------------------
@@ -112,27 +111,35 @@ public class PlexusComponentClassVisitor
     }
 
     @Override
-    public void visit( final int version, final int access, final String name, final String signature,
-                       final String superName, final String[] interfaces )
+    public void visit( final ClassSpace space )
     {
         role = null;
-
-        if ( ( access & ( Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_SYNTHETIC ) ) != 0 )
-        {
-            return;
-        }
-
         hint = Hints.DEFAULT_HINT;
         instantiationStrategy = Strategies.SINGLETON;
         description = "";
 
-        setImplementation( name.replace( '/', '.' ) );
+        super.visit( space );
+    }
+
+    @Override
+    public void visit( final int version, final int access, final String name, final String signature,
+                       final String superName, final String[] interfaces )
+    {
+        if ( ( access & ( Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_SYNTHETIC ) ) == 0 )
+        {
+            setImplementation( name.replace( '/', '.' ) );
+        }
+        super.visit( version, access, name, signature, superName, interfaces );
     }
 
     @Override
     public AnnotationVisitor visitAnnotation( final String desc, final boolean visible )
     {
-        return COMPONENT_DESC.equals( desc ) ? componentVisitor : null;
+        if ( COMPONENT_DESC.equals( desc ) )
+        {
+            return componentVisitor;
+        }
+        return super.visitAnnotation( desc, visible );
     }
 
     @Override
@@ -141,6 +148,11 @@ public class PlexusComponentClassVisitor
         if ( null != role )
         {
             registry.addComponent( role, hint, instantiationStrategy, description, implementation );
+            role = null;
+        }
+        else
+        {
+            super.visitEnd();
         }
     }
 

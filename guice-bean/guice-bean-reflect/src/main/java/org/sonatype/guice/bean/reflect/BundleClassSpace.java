@@ -77,7 +77,7 @@ public final class BundleClassSpace
     @SuppressWarnings( "unchecked" )
     public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
     {
-        final Enumeration e = bundle.findEntries( path, glob, recurse );
+        final Enumeration e = bundle.findEntries( null != path ? path : "/", glob, recurse );
         return null != e ? e : EMPTY_ENUMERATION;
     }
 

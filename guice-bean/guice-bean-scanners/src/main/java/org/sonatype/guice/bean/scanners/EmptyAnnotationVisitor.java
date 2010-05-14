@@ -17,7 +17,7 @@ import org.objectweb.asm.AnnotationVisitor;
 /**
  * Skeletal {@link AnnotationVisitor} that helps minimize the effort required to implement bytecode scanners.
  */
-class EmptyAnnotationVisitor
+public class EmptyAnnotationVisitor
     implements AnnotationVisitor
 {
     // ----------------------------------------------------------------------

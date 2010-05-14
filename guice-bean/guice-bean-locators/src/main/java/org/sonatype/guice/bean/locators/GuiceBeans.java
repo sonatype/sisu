@@ -50,7 +50,7 @@ class GuiceBeans<Q extends Annotation, T>
     // ----------------------------------------------------------------------
 
     @SuppressWarnings( "unchecked" )
-    public synchronized Iterator<Entry<Q, T>> iterator()
+    public final synchronized Iterator<Entry<Q, T>> iterator()
     {
         if ( null == injectorBeans )
         {

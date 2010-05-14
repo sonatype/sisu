@@ -29,7 +29,8 @@
             <configuration>
               <outputDirectory>${project.build.directory}/lib</outputDirectory>
               <excludeArtifactIds>
-                org.osgi.core,org.osgi.compendium,org.osgi.foundation,javax.servlet
+                org.osgi.core,org.osgi.compendium,org.osgi.foundation,
+                aopalliance,javax.inject,javax.servlet
               </excludeArtifactIds>
               <includeScope>runtime</includeScope>
             </configuration>
