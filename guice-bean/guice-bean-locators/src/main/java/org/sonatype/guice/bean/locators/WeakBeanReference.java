@@ -16,11 +16,14 @@ import java.lang.ref.WeakReference;
 
 import javax.inject.Provider;
 
-public final class WeakBeanReference
+/**
+ * {@link WeakReference} that can also act as a {@link Provider} of qualified beans.
+ */
+final class WeakBeanReference
     extends WeakReference<GuiceBeans<?, ?>>
     implements Provider<GuiceBeans<?, ?>>
 {
-    public WeakBeanReference( final GuiceBeans<?, ?> beans )
+    WeakBeanReference( final GuiceBeans<?, ?> beans )
     {
         super( beans );
     }

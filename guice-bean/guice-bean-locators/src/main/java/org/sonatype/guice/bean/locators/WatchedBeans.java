@@ -61,6 +61,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
 
     public GuiceBeans<Q, T> get()
     {
+        // bean sequence disappears when watcher does
         return null != watcherRef.get() ? this : null;
     }
 
