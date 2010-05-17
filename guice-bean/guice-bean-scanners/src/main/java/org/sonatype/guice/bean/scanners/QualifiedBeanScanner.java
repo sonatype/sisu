@@ -14,6 +14,7 @@ package org.sonatype.guice.bean.scanners;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,7 +71,7 @@ public class QualifiedBeanScanner
         space = _space;
     }
 
-    public ClassVisitor visitClass()
+    public ClassVisitor visitClass( final URL url )
     {
         beanName = null;
         qualifierType = null;

@@ -34,7 +34,7 @@ public final class AnnotatedPlexusComponentScanner
         throws IOException
     {
         final PlexusBeanScanner scanner = new PlexusBeanScanner( new PlexusComponentRegistry( space ) );
-        ClassSpaceScanner.accept( scanner, space );
+        new ClassSpaceScanner( space ).accept( scanner );
         return scanner.getComponents();
     }
 }

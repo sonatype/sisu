@@ -21,6 +21,9 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 
+/**
+ * Class-path scanner that makes a {@link ClassSpaceVisitor} visit an existing {@link ClassSpace}.
+ */
 public final class ClassSpaceScanner
 {
     // ----------------------------------------------------------------------
@@ -31,21 +34,53 @@ public final class ClassSpaceScanner
         ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES;
 
     // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final ClassSpace space;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    public ClassSpaceScanner( final ClassSpace space )
+    {
+        this.space = space;
+    }
+
+    // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public static void accept( final ClassSpaceVisitor visitor, final ClassSpace space )
+    /**
+     * Makes the given {@link ClassSpaceVisitor} visit the {@link ClassSpace} of this scanner.
+     * 
+     * @param visitor The class space visitor
+     * @param space The class space to visit
+     */
+    public void accept( final ClassSpaceVisitor visitor )
         throws IOException
     {
         visitor.visit( space );
         final Enumeration<URL> e = space.findEntries( null, "*.class", true );
         while ( e.hasMoreElements() )
         {
-            accept( visitor.visitClass(), e.nextElement() );
+            final URL url = e.nextElement();
+            final ClassVisitor cv = visitor.visitClass( url );
+            if ( null != cv )
+            {
+                accept( cv, url );
+            }
         }
         visitor.visitEnd();
     }
 
+    /**
+     * Makes the given {@link ClassVisitor} visit the class contained in the resource {@link URL}.
+     * 
+     * @param visitor The class space visitor
+     * @param url The class resource URL
+     */
     public static void accept( final ClassVisitor visitor, final URL url )
         throws IOException
     {

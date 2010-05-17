@@ -47,7 +47,7 @@ public final class QualifiedScannerModule
         final QualifiedBeanRegistry registry = new QualifiedBeanRegistry();
         try
         {
-            ClassSpaceScanner.accept( new QualifiedBeanScanner( registry ), space );
+            new ClassSpaceScanner( space ).accept( new QualifiedBeanScanner( registry ) );
         }
         catch ( final Throwable e )
         {

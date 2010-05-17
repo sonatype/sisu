@@ -12,14 +12,34 @@
  */
 package org.sonatype.guice.bean.scanners;
 
+import java.net.URL;
+
 import org.objectweb.asm.ClassVisitor;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 
+/**
+ * Visitor that visits a {@link ClassSpace}.<br>
+ * The methods of this interface must be called in the following order:<br>{@code visit ( visitClass )* visitEnd}.
+ */
 public interface ClassSpaceVisitor
 {
+    /**
+     * Visits the start of the class space.
+     * 
+     * @param space The class space
+     */
     void visit( final ClassSpace space );
 
-    ClassVisitor visitClass();
+    /**
+     * Visits a class resource in the class space.
+     * 
+     * @param url The class resource URL
+     * @return Class visitor; {@code null} if this visitor is not interested in visiting the class
+     */
+    ClassVisitor visitClass( final URL url );
 
+    /**
+     * Visits the end of the class space.
+     */
     void visitEnd();
 }
