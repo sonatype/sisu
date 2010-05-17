@@ -19,7 +19,7 @@ import java.util.NoSuchElementException;
 /**
  * {@link Iterable} that iterates over declared members of a class hierarchy.
  */
-final class DeclaredMembers
+public final class DeclaredMembers
     implements Iterable<Member>
 {
     // ----------------------------------------------------------------------
@@ -28,13 +28,16 @@ final class DeclaredMembers
 
     private final Class<?> clazz;
 
+    private final View[] views;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    DeclaredMembers( final Class<?> clazz )
+    public DeclaredMembers( final Class<?> clazz, final View... views )
     {
         this.clazz = clazz;
+        this.views = views.length == 0 ? View.values() : views;
     }
 
     // ----------------------------------------------------------------------
@@ -43,7 +46,7 @@ final class DeclaredMembers
 
     public Iterator<Member> iterator()
     {
-        return new MemberIterator( clazz );
+        return new MemberIterator( clazz, views );
     }
 
     // ----------------------------------------------------------------------
@@ -60,8 +63,6 @@ final class DeclaredMembers
         // Constants
         // ----------------------------------------------------------------------
 
-        private static final View[] VIEWS = View.values();
-
         private static final Member[] NO_MEMBERS = new Member[0];
 
         // ----------------------------------------------------------------------
@@ -69,6 +70,8 @@ final class DeclaredMembers
         // ----------------------------------------------------------------------
 
         private Class<?> clazz;
+
+        private final View[] views;
 
         private int viewIndex;
 
@@ -80,9 +83,10 @@ final class DeclaredMembers
         // Constructors
         // ----------------------------------------------------------------------
 
-        MemberIterator( final Class<?> clazz )
+        MemberIterator( final Class<?> clazz, final View[] views )
         {
             this.clazz = filterClass( clazz );
+            this.views = views;
         }
 
         // ----------------------------------------------------------------------
@@ -93,7 +97,7 @@ final class DeclaredMembers
         {
             while ( memberIndex >= members.length )
             {
-                if ( viewIndex >= VIEWS.length )
+                if ( viewIndex >= views.length )
                 {
                     // no more views, time to move up hierarchy
                     clazz = filterClass( clazz.getSuperclass() );
@@ -106,7 +110,7 @@ final class DeclaredMembers
                 }
 
                 // load each view in turn to get next members
-                members = VIEWS[viewIndex++].members( clazz );
+                members = views[viewIndex++].members( clazz );
                 memberIndex = 0;
             }
 
@@ -142,19 +146,16 @@ final class DeclaredMembers
     /**
      * {@link Enum} implementation that provides different views of a class's members.
      */
-    private static enum View
+    public static enum View
     {
-        // ignore constructors for the moment...
-        //
-        // CONSTRUCTORS
-        // {
-        // @Override
-        // final Member[] elements( final Class<?> clazz )
-        // {
-        // return clazz.getDeclaredConstructors();
-        // }
-        // },
-        //
+        CONSTRUCTORS
+        {
+            @Override
+            final Member[] members( final Class<?> clazz )
+            {
+                return clazz.getDeclaredConstructors();
+            }
+        },
         METHODS
         {
             @Override

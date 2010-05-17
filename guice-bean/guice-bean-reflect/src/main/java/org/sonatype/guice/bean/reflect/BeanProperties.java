@@ -23,6 +23,8 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.sonatype.guice.bean.reflect.DeclaredMembers.View;
+
 /**
  * {@link Iterable} that iterates over potential bean properties in a class hierarchy.
  */
@@ -47,7 +49,7 @@ public final class BeanProperties
 
     public BeanProperties( final Class<?> clazz )
     {
-        this( new DeclaredMembers( clazz ) );
+        this( new DeclaredMembers( clazz, View.METHODS, View.FIELDS ) );
     }
 
     BeanProperties( final Iterable<Member> members )
