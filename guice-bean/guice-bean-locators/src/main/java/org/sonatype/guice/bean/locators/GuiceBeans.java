@@ -61,6 +61,7 @@ class GuiceBeans<Q extends Annotation, T>
         {
             combinedBeans.addAll( injectorBeans.get( i ) );
         }
+        Collections.sort( combinedBeans );
         return combinedBeans.iterator();
     }
 

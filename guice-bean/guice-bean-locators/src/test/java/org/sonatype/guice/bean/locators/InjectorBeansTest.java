@@ -95,10 +95,6 @@ public class InjectorBeansTest
     {
     }
 
-    // ****************************************************************************
-    // ** @Named("default") bindings are _not_ considered to be default bindings **
-    // ****************************************************************************
-
     public void testRolesWithNoDefault()
     {
         final Injector injector = Guice.createInjector( new AbstractModule()
