@@ -19,6 +19,9 @@ import javax.inject.Provider;
 
 import junit.framework.TestCase;
 
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
+
 public class DeferredBeanEntryTest
     extends TestCase
 {
@@ -78,5 +81,25 @@ public class DeferredBeanEntryTest
         catch ( final UnsupportedOperationException e )
         {
         }
+    }
+
+    public void testToString()
+    {
+        final Entry<Named, String> textEntry =
+            new DeferredBeanEntry<Named, String>( Names.named( "KEY" ), new Provider<String>()
+            {
+                public String get()
+                {
+                    throw new UnsupportedOperationException();
+                }
+
+                @Override
+                public String toString()
+                {
+                    return "VALUE";
+                }
+            } );
+
+        assertEquals( Names.named( "KEY" ) + "=VALUE", textEntry.toString() );
     }
 }

@@ -133,29 +133,10 @@ final class NamedIterableAdapter<V>
         }
 
         @Override
-        public int hashCode()
-        {
-            return entry.hashCode();
-        }
-
-        @Override
-        public boolean equals( final Object rhs )
-        {
-            if ( this == rhs )
-            {
-                return true;
-            }
-            if ( rhs instanceof NamedEntryAdapter<?> )
-            {
-                return entry.equals( ( (NamedEntryAdapter<?>) rhs ).entry );
-            }
-            return false;
-        }
-
-        @Override
         public String toString()
         {
-            return getKey() + '=' + getValue();
+            final String text = entry.toString();
+            return getKey() + '=' + text.substring( text.indexOf( '=' ) + 1 );
         }
     }
 }

@@ -72,4 +72,10 @@ final class DeferredBeanEntry<Q extends Annotation, T>
     {
         return getValue();
     }
+
+    @Override
+    public String toString()
+    {
+        return qualifier + "=" + provider;
+    }
 }
