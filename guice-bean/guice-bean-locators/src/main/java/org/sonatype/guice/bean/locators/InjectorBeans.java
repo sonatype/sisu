@@ -71,7 +71,10 @@ final class InjectorBeans<Q extends Annotation, T>
     @SuppressWarnings( "unchecked" )
     private void addQualifiedBean( final Annotation qualifier, final Binding binding )
     {
-        add( new DeferredBeanEntry( qualifier, binding.getProvider() ) );
+        if ( BeanLocator.HIDDEN_SOURCE != binding.getSource() )
+        {
+            add( new DeferredBeanEntry( qualifier, binding.getProvider() ) );
+        }
     }
 
     /**

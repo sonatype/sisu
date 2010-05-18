@@ -27,6 +27,7 @@ import javax.inject.Qualifier;
 import junit.framework.TestCase;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
@@ -102,8 +103,11 @@ public class InjectorBeansTest
             @Override
             protected void configure()
             {
+                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
         } );
