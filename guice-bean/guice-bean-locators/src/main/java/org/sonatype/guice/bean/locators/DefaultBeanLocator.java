@@ -27,7 +27,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 
 /**
- * {@link BeanLocator} that locates qualified beans across a dynamic group of {@link Injector}s.
+ * Default {@link BeanLocator} that locates qualified beans across a dynamic group of {@link Injector}s.
  */
 @Singleton
 public final class DefaultBeanLocator
@@ -47,7 +47,7 @@ public final class DefaultBeanLocator
 
     public DefaultBeanLocator()
     {
-        // no injectors
+        // created outside injector
     }
 
     @Inject

@@ -18,8 +18,8 @@ import org.objectweb.asm.ClassVisitor;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 
 /**
- * Visitor that visits a {@link ClassSpace}.<br>
- * The methods of this interface must be called in the following order:<br>{@code visit ( visitClass )* visitEnd}.
+ * ASM-style visitor that visits a {@link ClassSpace}. The methods of this interface must be called in the following
+ * order: {@code visit ( visitClass )* visitEnd}.
  */
 public interface ClassSpaceVisitor
 {

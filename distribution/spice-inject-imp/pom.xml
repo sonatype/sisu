@@ -28,10 +28,11 @@
         <configuration>
           <instructions>
             <Bundle-Activator>
-              org.sonatype.guice.bean.extender.Activator
+              org.sonatype.guice.bean.containers.Activator
             </Bundle-Activator>
             <DynamicImport-Package>
-              org.slf4j
+              org.slf4j,
+              junit.framework
             </DynamicImport-Package>
             <Private-Package>
               org.objectweb.asm.*,
@@ -69,7 +70,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.sonatype.guice.bean.extender.Main</mainClass>
+              <mainClass>org.sonatype.guice.bean.containers.Main</mainClass>
             </manifest>
           </archive>
         </configuration>
@@ -147,7 +148,7 @@
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-bean-extender</artifactId>
+      <artifactId>guice-bean-containers</artifactId>
       <optional>true</optional>
     </dependency>
   </dependencies>

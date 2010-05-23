@@ -12,147 +12,44 @@
  */
 package org.sonatype.guice.bean.scanners;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.EventListener;
-import java.util.Map;
-import java.util.RandomAccess;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
-import javax.enterprise.inject.Typed;
+import javax.inject.Named;
 import javax.inject.Qualifier;
+import javax.inject.Singleton;
 
 import junit.framework.TestCase;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
-
-import com.google.inject.Binding;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
 
 public class QualifiedScanningTest
     extends TestCase
 {
-    @javax.inject.Named
-    static class DefaultB01
+    @Named
+    interface A
     {
     }
 
-    @javax.inject.Named( "default" )
-    @Typed( {} )
-    static class B01
-        extends Thread
+    @Named
+    static abstract class B
     {
     }
 
-    @javax.inject.Named
-    @Typed( EventListener.class )
-    static class DefaultB02
-        implements RandomAccess, EventListener
+    @Named
+    static class C
     {
-    }
-
-    @javax.inject.Named
-    @Typed( EventListener.class )
-    static class B02
-        implements RandomAccess, EventListener
-    {
-    }
-
-    @javax.inject.Named
-    static class B03
-        implements EventListener
-    {
-    }
-
-    @javax.inject.Named( "TEST" )
-    static class DefaultB04
-    {
-    }
-
-    @javax.inject.Named( "TEST" )
-    static class B04
-    {
-    }
-
-    static abstract class AbstractB01
-    {
-    }
-
-    @Typed( EventListener.class )
-    static abstract class AbstractB02
-        implements RandomAccess, EventListener
-    {
-    }
-
-    static abstract class AbstractB03
-        implements EventListener
-    {
-    }
-
-    @javax.inject.Named
-    static class SubclassB00
-        extends B01
-    {
-    }
-
-    @javax.inject.Named
-    static class SubclassB01
-        extends AbstractB01
-    {
-    }
-
-    @javax.inject.Named
-    static class SubclassB02
-        extends AbstractB02
-    {
-    }
-
-    @javax.inject.Named
-    static class SubclassB03
-        extends AbstractB03
-    {
-    }
-
-    @javax.inject.Named( "RENAME" )
-    static class SubclassB04
-        extends AbstractB03
-    {
-    }
-
-    @javax.inject.Named
-    @Typed( {} )
-    static class SubclassB06
-        extends B02
-    {
-    }
-
-    @javax.inject.Named
-    @Typed( Serializable.class )
-    static class SubclassB07
-        extends B02
-        implements Runnable, Serializable
-    {
-        private static final long serialVersionUID = 1L;
-
-        public void run()
-        {
-        }
-    }
-
-    @javax.inject.Named
-    static class SubclassB08
-        extends B02
-        implements Serializable
-    {
-        private static final long serialVersionUID = 1L;
     }
 
     @Qualifier
@@ -161,74 +58,177 @@ public class QualifiedScanningTest
     {
     }
 
-    static class LegacyImpl
-        implements Legacy
+    @Named
+    @Legacy
+    static class D
     {
-        public Class<? extends Annotation> annotationType()
-        {
-            return Legacy.class;
-        }
     }
 
     @Legacy
-    static class LegacyRunnable
-        implements Runnable
+    @Named
+    static class E
     {
-        public void run()
+    }
+
+    static class F
+        extends B
+    {
+    }
+
+    @Singleton
+    static class G
+    {
+    }
+
+    static class TestListener
+        implements QualifiedTypeListener
+    {
+        final List<String> ids = new ArrayList<String>();
+
+        public void hear( final Annotation qualifier, final Class<?> clazz )
         {
+            ids.add( qualifier + ":" + clazz );
         }
     }
 
-    private Map<Key<?>, Binding<?>> bindings;
-
-    @Override
-    protected void setUp()
-        throws Exception
+    public void testQualifiedScanning()
+        throws IOException
     {
+        final TestListener listener = new TestListener();
         final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
-        final Injector injector = Guice.createInjector( new QualifiedScannerModule( space ) );
-        bindings = injector.getBindings();
+        new ClassSpaceScanner( space ).accept( new QualifiedTypeVisitor( listener ) );
+        assertEquals( 5, listener.ids.size() );
+
+        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + C.class ) );
+        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + D.class ) );
+        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + E.class ) );
+
+        assertTrue( listener.ids.contains( "@" + Legacy.class.getName() + "():" + D.class ) );
+        assertTrue( listener.ids.contains( "@" + Legacy.class.getName() + "():" + E.class ) );
     }
 
-    private void checkDefaultBinding( final Class<?> api, final Class<?> imp )
+    public void testFilteredScanning()
+        throws IOException
     {
-        assertEquals( imp, bindings.get( Key.get( api, Names.named( "default" ) ) ).getProvider().get().getClass() );
-        assertEquals( imp, bindings.get( Key.get( api ) ).getProvider().get().getClass() );
+        final TestListener listener = new TestListener();
+        final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
+        final ClassSpaceVisitor visitor = new QualifiedTypeVisitor( listener );
+        new ClassSpaceScanner( space ).accept( new ClassSpaceVisitor()
+        {
+            public void visit( final ClassSpace _space )
+            {
+                visitor.visit( _space );
+            }
+
+            public ClassVisitor visitClass( final URL url )
+            {
+                if ( url.toString().contains( "$D.class" ) )
+                {
+                    return null;
+                }
+                return visitor.visitClass( url );
+            }
+
+            public void visitEnd()
+            {
+                visitor.visitEnd();
+            }
+        } );
+        assertEquals( 3, listener.ids.size() );
+
+        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + C.class ) );
+        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + E.class ) );
+
+        assertTrue( listener.ids.contains( "@" + Legacy.class.getName() + "():" + E.class ) );
     }
 
-    private void checkNamedBinding( final Class<?> api, final String name, final Class<?> imp )
+    public void testBrokenScanning()
+        throws IOException
     {
-        assertEquals( imp, bindings.get( Key.get( api, Names.named( name ) ) ).getProvider().get().getClass() );
-    }
+        System.setProperty( "java.protocol.handler.pkgs", getClass().getPackage().getName() );
+        final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
 
-    private void checkLegacyBinding( final Class<?> api, final Class<?> imp )
-    {
-        assertEquals( imp, bindings.get( Key.get( api, new LegacyImpl() ) ).getProvider().get().getClass() );
-    }
+        final URL badURL = new URL( "barf:up/" );
+        final ClassSpace brokenResourceSpace = new ClassSpace()
+        {
+            public Class<?> loadClass( final String name )
+                throws ClassNotFoundException
+            {
+                return space.loadClass( name );
+            }
 
-    public void testComponentScanning()
-    {
-        checkDefaultBinding( DefaultB01.class, DefaultB01.class );
-        checkDefaultBinding( Thread.class, B01.class );
-        checkDefaultBinding( EventListener.class, DefaultB02.class );
+            public DeferredClass<?> deferLoadClass( final String name )
+            {
+                return space.deferLoadClass( name );
+            }
 
-        checkNamedBinding( EventListener.class, B02.class.getName(), B02.class );
-        checkNamedBinding( EventListener.class, B03.class.getName(), B03.class );
-        checkNamedBinding( DefaultB04.class, "TEST", DefaultB04.class );
-        checkNamedBinding( B04.class, "TEST", B04.class );
+            public Enumeration<URL> getResources( final String name )
+                throws IOException
+            {
+                return space.getResources( name );
+            }
 
-        checkNamedBinding( Thread.class, SubclassB00.class.getName(), SubclassB00.class );
-        checkNamedBinding( AbstractB01.class, SubclassB01.class.getName(), SubclassB01.class );
+            public URL getResource( final String name )
+            {
+                return badURL;
+            }
 
-        checkNamedBinding( EventListener.class, SubclassB02.class.getName(), SubclassB02.class );
-        checkNamedBinding( EventListener.class, SubclassB03.class.getName(), SubclassB03.class );
-        checkNamedBinding( EventListener.class, "RENAME", SubclassB04.class );
-        checkNamedBinding( EventListener.class, SubclassB06.class.getName(), SubclassB06.class );
+            public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
+                throws IOException
+            {
+                return space.findEntries( path, glob, recurse );
+            }
+        };
 
-        checkNamedBinding( Serializable.class, SubclassB07.class.getName(), SubclassB07.class );
-        checkNamedBinding( Serializable.class, SubclassB08.class.getName(), SubclassB08.class );
+        try
+        {
+            new ClassSpaceScanner( brokenResourceSpace ).accept( new QualifiedTypeVisitor( null ) );
+            fail( "Expected RuntimeException" );
+        }
+        catch ( final RuntimeException e )
+        {
+            assertTrue( e.getMessage().contains( "IOException" ) );
+        }
 
-        checkLegacyBinding( Runnable.class, LegacyRunnable.class );
+        final ClassSpace brokenLoadSpace = new ClassSpace()
+        {
+            public Class<?> loadClass( final String name )
+                throws ClassNotFoundException
+            {
+                throw new ClassNotFoundException( "name" );
+            }
+
+            public DeferredClass<?> deferLoadClass( final String name )
+            {
+                return space.deferLoadClass( name );
+            }
+
+            public Enumeration<URL> getResources( final String name )
+                throws IOException
+            {
+                return space.getResources( name );
+            }
+
+            public URL getResource( final String name )
+            {
+                return space.getResource( name );
+            }
+
+            public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
+                throws IOException
+            {
+                return space.findEntries( path, glob, recurse );
+            }
+        };
+
+        try
+        {
+            new ClassSpaceScanner( brokenLoadSpace ).accept( new QualifiedTypeVisitor( null ) );
+            fail( "Expected TypeNotPresentException" );
+        }
+        catch ( final TypeNotPresentException e )
+        {
+        }
     }
 
     public void testEmptyMethods()

@@ -30,7 +30,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.guice.bean.reflect.BeanProperties;
 import org.sonatype.guice.bean.reflect.BeanProperty;
-import org.sonatype.guice.bean.reflect.Generics;
+import org.sonatype.guice.bean.reflect.TypeParameters;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.Roles;
 
@@ -167,15 +167,15 @@ public final class PlexusXmlBeanConverter
         }
         if ( Map.class.isAssignableFrom( rawType ) )
         {
-            return parseMap( parser, Generics.typeArgument( toType, 1 ) );
+            return parseMap( parser, TypeParameters.get( toType.getSupertype( Map.class ), 1 ) );
         }
         if ( Collection.class.isAssignableFrom( rawType ) )
         {
-            return parseCollection( parser, Generics.typeArgument( toType, 0 ) );
+            return parseCollection( parser, TypeParameters.get( toType.getSupertype( Collection.class ), 0 ) );
         }
         if ( rawType.isArray() )
         {
-            return parseArray( parser, Generics.componentType( toType ) );
+            return parseArray( parser, TypeParameters.get( toType, 0 ) );
         }
         return parseBean( parser, toType, rawType );
     }

@@ -22,7 +22,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 
 /**
- * Class-path scanner that makes a {@link ClassSpaceVisitor} visit an existing {@link ClassSpace}.
+ * ASM-style scanner that makes a {@link ClassSpaceVisitor} visit an existing {@link ClassSpace}.
  */
 public final class ClassSpaceScanner
 {

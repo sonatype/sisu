@@ -12,16 +12,19 @@
  */
 package org.sonatype.guice.plexus.scanners;
 
+import java.net.URL;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.scanners.ClassSpaceVisitor;
 import org.sonatype.guice.bean.scanners.EmptyAnnotationVisitor;
-import org.sonatype.guice.bean.scanners.QualifiedBeanScanner;
+import org.sonatype.guice.bean.scanners.EmptyClassVisitor;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Strategies;
 
@@ -29,7 +32,8 @@ import org.sonatype.guice.plexus.config.Strategies;
  * {@link BeanScanner} that records Plexus bean classes annotated with @{@link Component}.
  */
 public class PlexusBeanScanner
-    extends QualifiedBeanScanner
+    extends EmptyClassVisitor
+    implements ClassSpaceVisitor
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -61,8 +65,6 @@ public class PlexusBeanScanner
 
     protected PlexusBeanScanner( final PlexusComponentRegistry registry )
     {
-        super( registry );
-
         this.registry = registry;
     }
 
@@ -110,15 +112,17 @@ public class PlexusBeanScanner
         this.implementation = implementation;
     }
 
-    @Override
     public void visit( final ClassSpace space )
     {
         role = null;
         hint = Hints.DEFAULT_HINT;
         instantiationStrategy = Strategies.SINGLETON;
         description = "";
+    }
 
-        super.visit( space );
+    public ClassVisitor visitClass( URL url )
+    {
+        return this;
     }
 
     @Override

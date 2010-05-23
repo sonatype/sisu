@@ -17,7 +17,7 @@ import java.lang.annotation.Annotation;
 import javax.inject.Provider;
 
 /**
- * Mediates qualified bean updates between the {@code BeanLocator} and an associated watcher.
+ * Mediates qualified bean updates between the {@code BeanLocator} and associated watchers.
  */
 public interface BeanMediator<Q extends Annotation, T, W>
 {

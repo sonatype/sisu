@@ -100,8 +100,8 @@ public class DefaultBeanLocatorTest
         final Iterable<Entry<Named, Bean>> roles = locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
 
         final Iterator<Entry<Named, Bean>> i = roles.iterator();
-        assertEquals( Names.named( "-" ), i.next().getKey() );
         assertEquals( Names.named( "A" ), i.next().getKey() );
+        assertEquals( Names.named( "-" ), i.next().getKey() );
         assertEquals( Names.named( "Z" ), i.next().getKey() );
         assertFalse( i.hasNext() );
     }
@@ -123,13 +123,13 @@ public class DefaultBeanLocatorTest
 
         i = roles.iterator();
         assertEquals( Names.named( "default" ), i.next().getKey() );
-        assertEquals( Names.named( "-" ), i.next().getKey() );
         assertEquals( Names.named( "A" ), i.next().getKey() );
-        assertEquals( Names.named( "M1" ), i.next().getKey() );
-        assertEquals( Names.named( "M3" ), i.next().getKey() );
-        assertEquals( Names.named( "N1" ), i.next().getKey() );
-        assertEquals( Names.named( "N3" ), i.next().getKey() );
+        assertEquals( Names.named( "-" ), i.next().getKey() );
         assertEquals( Names.named( "Z" ), i.next().getKey() );
+        assertEquals( Names.named( "M3" ), i.next().getKey() );
+        assertEquals( Names.named( "N3" ), i.next().getKey() );
+        assertEquals( Names.named( "M1" ), i.next().getKey() );
+        assertEquals( Names.named( "N1" ), i.next().getKey() );
         assertFalse( i.hasNext() );
 
         locator.remove( child2 );
@@ -137,13 +137,13 @@ public class DefaultBeanLocatorTest
 
         i = roles.iterator();
         assertEquals( Names.named( "default" ), i.next().getKey() );
-        assertEquals( Names.named( "-" ), i.next().getKey() );
         assertEquals( Names.named( "A" ), i.next().getKey() );
-        assertEquals( Names.named( "M1" ), i.next().getKey() );
-        assertEquals( Names.named( "M3" ), i.next().getKey() );
-        assertEquals( Names.named( "N1" ), i.next().getKey() );
-        assertEquals( Names.named( "N3" ), i.next().getKey() );
+        assertEquals( Names.named( "-" ), i.next().getKey() );
         assertEquals( Names.named( "Z" ), i.next().getKey() );
+        assertEquals( Names.named( "M3" ), i.next().getKey() );
+        assertEquals( Names.named( "N3" ), i.next().getKey() );
+        assertEquals( Names.named( "M1" ), i.next().getKey() );
+        assertEquals( Names.named( "N1" ), i.next().getKey() );
         assertFalse( i.hasNext() );
 
         locator.remove( child3 );
@@ -152,13 +152,13 @@ public class DefaultBeanLocatorTest
 
         i = roles.iterator();
         assertEquals( Names.named( "default" ), i.next().getKey() );
-        assertEquals( Names.named( "-" ), i.next().getKey() );
         assertEquals( Names.named( "A" ), i.next().getKey() );
-        assertEquals( Names.named( "M1" ), i.next().getKey() );
-        assertEquals( Names.named( "M3" ), i.next().getKey() );
-        assertEquals( Names.named( "N1" ), i.next().getKey() );
-        assertEquals( Names.named( "N3" ), i.next().getKey() );
+        assertEquals( Names.named( "-" ), i.next().getKey() );
         assertEquals( Names.named( "Z" ), i.next().getKey() );
+        assertEquals( Names.named( "M1" ), i.next().getKey() );
+        assertEquals( Names.named( "N1" ), i.next().getKey() );
+        assertEquals( Names.named( "M3" ), i.next().getKey() );
+        assertEquals( Names.named( "N3" ), i.next().getKey() );
         assertFalse( i.hasNext() );
 
         locator.remove( parent );
@@ -166,8 +166,8 @@ public class DefaultBeanLocatorTest
         i = roles.iterator();
         assertEquals( Names.named( "default" ), i.next().getKey() );
         assertEquals( Names.named( "M1" ), i.next().getKey() );
-        assertEquals( Names.named( "M3" ), i.next().getKey() );
         assertEquals( Names.named( "N1" ), i.next().getKey() );
+        assertEquals( Names.named( "M3" ), i.next().getKey() );
         assertEquals( Names.named( "N3" ), i.next().getKey() );
         assertFalse( i.hasNext() );
 
@@ -194,13 +194,13 @@ public class DefaultBeanLocatorTest
 
         i = roles.iterator();
         assertEquals( Names.named( "default" ), i.next().getKey() );
-        assertEquals( Names.named( "-" ), i.next().getKey() );
         assertEquals( Names.named( "A" ), i.next().getKey() );
-        assertEquals( Names.named( "M1" ), i.next().getKey() );
-        assertEquals( Names.named( "M3" ), i.next().getKey() );
-        assertEquals( Names.named( "N1" ), i.next().getKey() );
-        assertEquals( Names.named( "N3" ), i.next().getKey() );
+        assertEquals( Names.named( "-" ), i.next().getKey() );
         assertEquals( Names.named( "Z" ), i.next().getKey() );
+        assertEquals( Names.named( "M1" ), i.next().getKey() );
+        assertEquals( Names.named( "N1" ), i.next().getKey() );
+        assertEquals( Names.named( "M3" ), i.next().getKey() );
+        assertEquals( Names.named( "N3" ), i.next().getKey() );
         assertFalse( i.hasNext() );
     }
 

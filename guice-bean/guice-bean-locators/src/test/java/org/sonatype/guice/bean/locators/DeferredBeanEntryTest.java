@@ -83,24 +83,6 @@ public class DeferredBeanEntryTest
         }
     }
 
-    public void testHashCodeEquals()
-    {
-        final Entry<Named, String> lhs = new DeferredBeanEntry<Named, String>( Names.named( "lhs" ), null );
-        final Entry<Named, String> rhs = new DeferredBeanEntry<Named, String>( Names.named( "rhs" ), null );
-
-        assertTrue( lhs.equals( lhs ) );
-        assertTrue( rhs.equals( rhs ) );
-
-        assertFalse( lhs.equals( rhs ) );
-        assertFalse( rhs.equals( lhs ) );
-
-        assertFalse( lhs.equals( "lhs" ) );
-        assertFalse( rhs.equals( "rhs" ) );
-
-        assertEquals( Names.named( "lhs" ).hashCode(), lhs.hashCode() );
-        assertEquals( Names.named( "rhs" ).hashCode(), rhs.hashCode() );
-    }
-
     public void testToString()
     {
         final Entry<Named, String> textEntry =

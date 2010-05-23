@@ -72,7 +72,7 @@ public final class BeanListener
             }
             catch ( final Throwable e )
             {
-                encounter.addError( e );
+                encounter.addError( "Error binding bean property: " + property + " reason: " + e );
             }
         }
 

@@ -17,7 +17,7 @@ import java.util.List;
 import com.google.inject.MembersInjector;
 
 /**
- * {@link MembersInjector} that takes {@link PropertyBinding}s and applies them to beans.
+ * {@link MembersInjector} that takes {@link PropertyBinding}s and applies them to bean instances.
  */
 final class BeanInjector<B>
     implements MembersInjector<B>

@@ -41,7 +41,7 @@ public final class DeclaredMembers
     }
 
     // ----------------------------------------------------------------------
-    // Standard iterable behaviour
+    // Public methods
     // ----------------------------------------------------------------------
 
     public Iterator<Member> iterator()
@@ -50,7 +50,7 @@ public final class DeclaredMembers
     }
 
     // ----------------------------------------------------------------------
-    // Helper classes
+    // Implementation types
     // ----------------------------------------------------------------------
 
     /**

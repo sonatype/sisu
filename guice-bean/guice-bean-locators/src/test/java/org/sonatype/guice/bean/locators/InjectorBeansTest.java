@@ -557,4 +557,14 @@ public class InjectorBeansTest
         {
         }
     }
+
+    public void testEmptySearch()
+    {
+        final Injector injector = Guice.createInjector();
+
+        final Iterable<Entry<Annotation, Bean>> beans =
+            new InjectorBeans<Annotation, Bean>( injector, Key.get( Bean.class, Names.named( "A" ) ) );
+
+        assertFalse( beans.iterator().hasNext() );
+    }
 }

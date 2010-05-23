@@ -15,6 +15,7 @@ package org.sonatype.guice.bean.reflect;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
@@ -91,12 +92,13 @@ final class ZipEntryIterator
     {
         try
         {
-            final List<String> names = new ArrayList<String>( zipFile.size() );
-            for ( final Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements(); )
+            final String names[] = new String[zipFile.size()];
+            final Enumeration<? extends ZipEntry> e = zipFile.entries();
+            for ( int i = 0; i < names.length; i++ )
             {
-                names.add( e.nextElement().getName() );
+                names[i] = e.nextElement().getName();
             }
-            return names.iterator();
+            return Arrays.asList( names ).iterator();
         }
         finally
         {

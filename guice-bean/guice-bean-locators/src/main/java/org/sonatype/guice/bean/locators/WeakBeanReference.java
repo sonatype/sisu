@@ -23,6 +23,10 @@ final class WeakBeanReference
     extends WeakReference<GuiceBeans<?, ?>>
     implements Provider<GuiceBeans<?, ?>>
 {
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
     WeakBeanReference( final GuiceBeans<?, ?> beans )
     {
         super( beans );

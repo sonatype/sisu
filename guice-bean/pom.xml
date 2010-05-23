@@ -26,9 +26,10 @@
   <modules>
     <module>guice-bean-reflect</module>
     <module>guice-bean-inject</module>
-    <module>guice-bean-locators</module>
     <module>guice-bean-scanners</module>
-    <module>guice-bean-extender</module>
+    <module>guice-bean-locators</module>
+    <module>guice-bean-binders</module>
+    <module>guice-bean-containers</module>
   </modules>
 
   <dependencyManagement>
@@ -56,7 +57,12 @@
       </dependency>
       <dependency>
         <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-bean-extender</artifactId>
+        <artifactId>guice-bean-binders</artifactId>
+        <version>${guice.bean.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonatype.spice.inject</groupId>
+        <artifactId>guice-bean-containers</artifactId>
         <version>${guice.bean.version}</version>
       </dependency>
 

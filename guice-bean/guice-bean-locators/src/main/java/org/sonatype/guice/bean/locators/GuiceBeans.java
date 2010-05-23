@@ -49,24 +49,33 @@ class GuiceBeans<Q extends Annotation, T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
     public final synchronized Iterator<Entry<Q, T>> iterator()
     {
         if ( null == injectorBeans )
         {
-            return Collections.EMPTY_LIST.iterator();
+            return Collections.<Entry<Q, T>> emptyList().iterator();
         }
-        final List combinedBeans = new ArrayList();
-        for ( int i = 0, size = injectorBeans.size(); i < size; i++ )
+        int defaultIndex = 0;
+        final List<Entry<Q, T>> combinedBeans = new ArrayList<Entry<Q, T>>();
+        for ( final InjectorBeans<Q, T> beans : injectorBeans )
         {
-            combinedBeans.addAll( injectorBeans.get( i ) );
+            for ( final Entry<Q, T> entry : beans )
+            {
+                if ( BeanLocator.DEFAULT == entry.getKey() )
+                {
+                    combinedBeans.add( defaultIndex++, entry );
+                }
+                else
+                {
+                    combinedBeans.add( entry );
+                }
+            }
         }
-        Collections.sort( combinedBeans );
         return combinedBeans.iterator();
     }
 
     // ----------------------------------------------------------------------
-    // Shared methods
+    // Locally-shared methods
     // ----------------------------------------------------------------------
 
     /**

@@ -18,7 +18,7 @@ import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.sonatype.guice.bean.reflect.Generics;
+import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Key;
 import com.google.inject.ProvisionException;
@@ -98,12 +98,12 @@ public final class Roles
         if ( Map.class == rawType )
         {
             // Map<String, T> --> T
-            return Generics.typeArgument( asType, 1 );
+            return TypeParameters.get( asType, 1 );
         }
         if ( List.class == rawType )
         {
             // List<T> --> T
-            return Generics.typeArgument( asType, 0 );
+            return TypeParameters.get( asType, 0 );
         }
         return asType;
     }

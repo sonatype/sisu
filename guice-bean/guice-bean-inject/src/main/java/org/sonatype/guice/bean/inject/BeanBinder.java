@@ -16,7 +16,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeEncounter;
 
 /**
- * Auto-binds beans that contain one or more properties.
+ * Provides custom {@link PropertyBinder}s for beans that contain one or more properties.
  */
 public interface BeanBinder
 {

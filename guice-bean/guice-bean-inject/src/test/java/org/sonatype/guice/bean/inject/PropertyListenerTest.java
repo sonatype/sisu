@@ -182,6 +182,7 @@ public class PropertyListenerTest
         }
         catch ( final ConfigurationException e )
         {
+            e.printStackTrace();
         }
     }
 

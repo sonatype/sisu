@@ -339,6 +339,7 @@ public class BeanPropertiesTest
         }
         catch ( final RuntimeException e )
         {
+            e.printStackTrace();
         }
 
         try
@@ -355,6 +356,7 @@ public class BeanPropertiesTest
         }
         catch ( final RuntimeException e )
         {
+            e.printStackTrace();
         }
     }
 
@@ -392,6 +394,7 @@ public class BeanPropertiesTest
         }
         catch ( final RuntimeException e )
         {
+            e.printStackTrace();
         }
     }
 

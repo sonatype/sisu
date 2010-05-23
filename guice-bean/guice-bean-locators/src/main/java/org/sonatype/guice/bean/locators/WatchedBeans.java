@@ -28,7 +28,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 
 /**
- * {@link Iterable} sequence of qualified beans that uses a {@link BeanMediator} to send updates to a watching object.
+ * {@link Iterable} sequence of qualified beans that uses a {@link BeanMediator} to send updates to watching objects.
  */
 final class WatchedBeans<Q extends Annotation, T, W>
     extends GuiceBeans<Q, T>
@@ -66,7 +66,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
     }
 
     // ----------------------------------------------------------------------
-    // Shared methods
+    // Locally-shared methods
     // ----------------------------------------------------------------------
 
     @Override

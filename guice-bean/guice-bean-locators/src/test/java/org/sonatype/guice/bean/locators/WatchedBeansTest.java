@@ -25,6 +25,7 @@ import javax.inject.Provider;
 import junit.framework.TestCase;
 
 import org.sonatype.inject.BeanMediator;
+import org.sonatype.inject.NamedBeanMediator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -145,6 +146,24 @@ public class WatchedBeansTest
         }
     }
 
+    static class NamedTrackingMediator
+        implements NamedBeanMediator<Bean, Object>
+    {
+        final Map<String, Bean> beans = new HashMap<String, Bean>();
+
+        public void add( final String name, final Provider<Bean> bean, final Object watcher )
+            throws Exception
+        {
+            assertNull( beans.put( name, bean.get() ) );
+        }
+
+        public void remove( final String name, final Provider<Bean> bean, final Object watcher )
+            throws Exception
+        {
+            assertSame( beans.remove( name ), bean.get() );
+        }
+    }
+
     public void testOptionalLogging()
         throws Exception
     {
@@ -193,7 +212,10 @@ public class WatchedBeansTest
 
         final BeanMediator<Named, Bean, Object> noOpMediator = new NoOpMediator();
         final BeanMediator<Named, Bean, Object> brokenMediator = new BrokenMediator();
-        final BeanMediator<Named, Bean, Object> trackingMediator = new TrackingMediator();
+
+        final BeanMediator<Named, Bean, Object> trackingMediator1 = new TrackingMediator();
+        final BeanMediator<Named, Bean, Object> trackingMediator2 =
+            new NamedBeanMediatorAdapter<Bean, Object>( new NamedTrackingMediator() );
 
         Object a = new Object();
         Object b = new Object();
@@ -204,38 +226,45 @@ public class WatchedBeansTest
         assertEquals( 1, mediatedWatchers.size() );
         locator.watch( Key.get( Bean.class, Named.class ), brokenMediator, b );
         assertEquals( 2, mediatedWatchers.size() );
-        locator.watch( Key.get( Bean.class, Named.class ), trackingMediator, c );
+        locator.watch( Key.get( Bean.class, Named.class ), trackingMediator1, c );
         assertEquals( 3, mediatedWatchers.size() );
+        locator.watch( Key.get( Bean.class, Named.class ), trackingMediator2, c );
+        assertEquals( 4, mediatedWatchers.size() );
 
         forceGC();
 
-        assertEquals( 3, mediatedWatchers.size() );
+        assertEquals( 4, mediatedWatchers.size() );
         locator.add( child1 );
         locator.add( child2 );
         locator.remove( child1 );
-        assertEquals( 3, mediatedWatchers.size() );
+        assertEquals( 4, mediatedWatchers.size() );
 
         b = null;
         forceGC();
 
-        assertEquals( 3, mediatedWatchers.size() );
+        assertEquals( 4, mediatedWatchers.size() );
         locator.remove( child2 );
         locator.add( child1 );
-        assertEquals( 2, mediatedWatchers.size() );
+        assertEquals( 3, mediatedWatchers.size() );
 
         a = null;
         forceGC();
 
-        assertEquals( 2, mediatedWatchers.size() );
+        assertEquals( 3, mediatedWatchers.size() );
         locator.add( child2 );
-        assertEquals( 1, mediatedWatchers.size() );
+        assertEquals( 2, mediatedWatchers.size() );
 
         c = null;
         forceGC();
 
+        assertEquals( 2, mediatedWatchers.size() );
+        locator.remove( child1 );
+        locator.add( child1 );
+        assertEquals( 0, mediatedWatchers.size() );
+
         a = new Object();
 
-        assertEquals( 1, mediatedWatchers.size() );
+        assertEquals( 0, mediatedWatchers.size() );
         locator.watch( Key.get( Bean.class, Named.class ), noOpMediator, a );
         assertEquals( 1, mediatedWatchers.size() );
 

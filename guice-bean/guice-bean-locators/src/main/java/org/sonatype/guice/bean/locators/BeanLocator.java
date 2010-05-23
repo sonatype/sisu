@@ -31,12 +31,12 @@ import com.google.inject.name.Names;
 public interface BeanLocator
 {
     /**
-     * Default qualifier.
+     * Default {@link Qualifier}.
      */
     Annotation DEFAULT = Names.named( "default" );
 
     /**
-     * Marks bean bindings that are supposed to be hidden.
+     * Marks bean bindings that are hidden from the {@link BeanLocator}.
      * 
      * @see Binder#withSource(Object)
      */

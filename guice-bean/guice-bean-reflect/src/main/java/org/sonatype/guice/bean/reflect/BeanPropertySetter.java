@@ -48,7 +48,7 @@ final class BeanPropertySetter<T>
     }
 
     // ----------------------------------------------------------------------
-    // InjectableProperty methods
+    // Public methods
     // ----------------------------------------------------------------------
 
     public <A extends Annotation> A getAnnotation( final Class<A> annotationType )

@@ -15,7 +15,7 @@ package org.sonatype.guice.bean.inject;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 
 /**
- * Auto-binds bean properties such as fields or setter methods.
+ * Provides custom {@link PropertyBinding}s for bean properties such as fields or setter methods.
  */
 public interface PropertyBinder
 {

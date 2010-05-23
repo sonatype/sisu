@@ -169,7 +169,7 @@ public final class URLClassSpace
             }
             catch ( final IOException e ) // NOPMD
             {
-                continue; // corrupt manifest
+                continue; // missing manifest
             }
             for ( final String entry : classPath )
             {
@@ -179,7 +179,7 @@ public final class URLClassSpace
                 }
                 catch ( final IOException e ) // NOPMD
                 {
-                    // invalid Class-Path entry
+                    // missing Class-Path entry
                 }
             }
         }

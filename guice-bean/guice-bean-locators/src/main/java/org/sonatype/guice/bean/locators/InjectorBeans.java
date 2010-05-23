@@ -49,7 +49,11 @@ final class InjectorBeans<Q extends Annotation, T>
         this.injector = injector;
         if ( key.hasAttributes() )
         {
-            addQualifiedBean( key.getAnnotation(), injector.getBindings().get( key ) );
+            final Binding<?> binding = injector.getBindings().get( key );
+            if ( null != binding )
+            {
+                addQualifiedBean( key.getAnnotation(), binding );
+            }
         }
         else
         {

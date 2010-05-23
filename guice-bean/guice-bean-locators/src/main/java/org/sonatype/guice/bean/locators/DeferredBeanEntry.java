@@ -21,7 +21,7 @@ import javax.inject.Provider;
  * Deferred caching bean {@link Entry} backed by a qualified {@link Provider}.
  */
 final class DeferredBeanEntry<Q extends Annotation, T>
-    implements Entry<Q, T>, Provider<T>, Comparable<DeferredBeanEntry<?, ?>>
+    implements Entry<Q, T>, Provider<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -74,41 +74,9 @@ final class DeferredBeanEntry<Q extends Annotation, T>
     }
 
     @Override
-    public boolean equals( final Object rhs )
-    {
-        if ( rhs instanceof DeferredBeanEntry<?, ?> )
-        {
-            return 0 == compareTo( (DeferredBeanEntry<?, ?>) rhs );
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return qualifier.hashCode();
-    }
-
-    public int compareTo( final DeferredBeanEntry<?, ?> rhs )
-    {
-        if ( qualifier == rhs.qualifier )
-        {
-            return 0;
-        }
-        if ( BeanLocator.DEFAULT == qualifier )
-        {
-            return -1;
-        }
-        if ( BeanLocator.DEFAULT == rhs.qualifier )
-        {
-            return 1;
-        }
-        return this.qualifier.toString().compareTo( rhs.qualifier.toString() );
-    }
-
-    @Override
     public String toString()
     {
+        // don't instantiate deferred value
         return qualifier + "=" + provider;
     }
 }

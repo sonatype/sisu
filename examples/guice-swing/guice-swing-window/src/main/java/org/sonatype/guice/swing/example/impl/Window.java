@@ -15,13 +15,14 @@ package org.sonatype.guice.swing.example.impl;
 import java.awt.BorderLayout;
 
 import javax.inject.Named;
-import javax.inject.Singleton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-@Singleton
+import org.sonatype.inject.EagerSingleton;
+
+@EagerSingleton
 @Named( "default" )
 final class Window
     implements Runnable
