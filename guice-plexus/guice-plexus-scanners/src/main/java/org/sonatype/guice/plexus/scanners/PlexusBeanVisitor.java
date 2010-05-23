@@ -29,9 +29,9 @@ import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Strategies;
 
 /**
- * {@link BeanScanner} that records Plexus bean classes annotated with @{@link Component}.
+ * {@link ClassSpaceVisitor} that reports Plexus bean classes annotated with @{@link Component}.
  */
-public class PlexusBeanScanner
+public final class PlexusBeanVisitor
     extends EmptyClassVisitor
     implements ClassSpaceVisitor
 {
@@ -63,7 +63,7 @@ public class PlexusBeanScanner
     // Constructors
     // ----------------------------------------------------------------------
 
-    protected PlexusBeanScanner( final PlexusComponentRegistry registry )
+    protected PlexusBeanVisitor( final PlexusComponentRegistry registry )
     {
         this.registry = registry;
     }

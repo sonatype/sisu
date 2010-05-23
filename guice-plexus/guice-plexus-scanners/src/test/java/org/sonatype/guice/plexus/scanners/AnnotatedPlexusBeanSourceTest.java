@@ -241,7 +241,7 @@ public class AnnotatedPlexusBeanSourceTest
 
     public void testClassVisitorAPI()
     {
-        final PlexusBeanScanner visitor = new PlexusBeanScanner( null );
+        final PlexusBeanVisitor visitor = new PlexusBeanVisitor( null );
 
         visitor.setHint( "foo" );
         visitor.setRole( "bar" );
