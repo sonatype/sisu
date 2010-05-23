@@ -88,12 +88,7 @@ public final class TypeParameters
         final Type type = genericType.getType();
         if ( type instanceof ParameterizedType )
         {
-            final Type[] arguments = ( (ParameterizedType) type ).getActualTypeArguments();
-            if ( 0 <= index && index < arguments.length )
-            {
-                return expand( arguments[index] );
-            }
-            throw new IndexOutOfBoundsException( "Index: " + index + " Size: " + arguments.length );
+            return expand( ( (ParameterizedType) type ).getActualTypeArguments()[index] );
         }
         if ( type instanceof GenericArrayType )
         {
@@ -101,7 +96,7 @@ public final class TypeParameters
             {
                 return expand( ( (GenericArrayType) type ).getGenericComponentType() );
             }
-            throw new IndexOutOfBoundsException( "Index: " + index + " Size: 1" );
+            throw new ArrayIndexOutOfBoundsException( index );
         }
         return OBJECT_TYPE_LITERAL;
     }
