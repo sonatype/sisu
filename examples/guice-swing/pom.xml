@@ -8,7 +8,7 @@
     <relativePath>../../pom</relativePath>
     <groupId>org.sonatype.spice</groupId>
     <artifactId>spice-inject</artifactId>
-    <version>8</version>
+    <version>9-SNAPSHOT</version>
   </parent>
 
   <packaging>pom</packaging>
@@ -50,12 +50,12 @@
       <dependency>
         <groupId>org.sonatype.spice.inject</groupId>
         <artifactId>spice-inject-api</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.2.1-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.sonatype.spice.inject</groupId>
         <artifactId>spice-inject-imp</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.2.1-SNAPSHOT</version>
       </dependency>
 
       <dependency>
