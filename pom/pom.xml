@@ -20,7 +20,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <guice.patches.version>2.1.4-SNAPSHOT</guice.patches.version>
     <slf4j.version>1.5.11</slf4j.version>
   </properties>
 
@@ -101,20 +100,6 @@
         <groupId>aopalliance</groupId>
         <artifactId>aopalliance</artifactId>
         <version>1.0</version>
-      </dependency>
-
-      <!-- patched locally -->
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-patches</artifactId>
-        <version>${guice.patches.version}</version>
-      </dependency>
-      <!-- patched (no-AOP) -->
-      <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-patches</artifactId>
-        <version>${guice.patches.version}</version>
-        <classifier>noaop</classifier>
       </dependency>
 
       <dependency>
