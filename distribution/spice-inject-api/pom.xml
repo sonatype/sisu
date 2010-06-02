@@ -88,7 +88,7 @@
   <dependencies>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-bean-binders</artifactId>
+      <artifactId>guice-bean-containers</artifactId>
       <optional>true</optional>
     </dependency>
   </dependencies>

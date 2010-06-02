@@ -65,7 +65,7 @@ final class DependencyAnalyzer<T>
      */
     private static Set<Key<?>> analyze( final TypeLiteral<?> type )
     {
-        final Set<Key<?>> dependencies = new HashSet<Key<?>>();
+        final DependencySet dependencies = new DependencySet();
         for ( final Member m : new DeclaredMembers( type.getRawType() ) )
         {
             if ( false == ( (AnnotatedElement) m ).isAnnotationPresent( Inject.class ) )
@@ -79,7 +79,7 @@ final class DependencyAnalyzer<T>
                 final Annotation[][] paramAnnotations = ctor.getParameterAnnotations();
                 for ( int i = 0; i < paramAnnotations.length; i++ )
                 {
-                    dependencies.add( getDependencyKey( paramTypes.get( i ), paramAnnotations[i] ) );
+                    dependencies.addDependency( paramTypes.get( i ), paramAnnotations[i] );
                 }
             }
             else if ( m instanceof Method )
@@ -89,34 +89,37 @@ final class DependencyAnalyzer<T>
                 final Annotation[][] paramAnnotations = method.getParameterAnnotations();
                 for ( int i = 0; i < paramAnnotations.length; i++ )
                 {
-                    dependencies.add( getDependencyKey( paramTypes.get( i ), paramAnnotations[i] ) );
+                    dependencies.addDependency( paramTypes.get( i ), paramAnnotations[i] );
                 }
             }
             else
             {
                 final Field f = (Field) m;
-                dependencies.add( getDependencyKey( type.getFieldType( f ), f.getAnnotations() ) );
+                dependencies.addDependency( type.getFieldType( f ), f.getAnnotations() );
             }
         }
         return dependencies;
     }
 
-    /**
-     * Determines the dependency key based on the given injection point type and annotations.
-     * 
-     * @param type The injection point type
-     * @param annotations The injection point annotations
-     * @return Dependency key for the injection point
-     */
-    private static <B> Key<B> getDependencyKey( final TypeLiteral<B> type, final Annotation[] annotations )
+    final static class DependencySet
+        extends HashSet<Key<?>>
     {
-        for ( final Annotation a : annotations )
+        private static final long serialVersionUID = 1L;
+
+        public boolean addDependency( final TypeLiteral<?> type, final Annotation[] annotations )
         {
-            if ( a.annotationType().isAnnotationPresent( Qualifier.class ) )
+            if ( type.getRawType().getName().startsWith( "com.google.inject" ) )
             {
-                return Key.get( type, a );
+                return false; // ignore core Guice types
             }
+            for ( final Annotation a : annotations )
+            {
+                if ( a.annotationType().isAnnotationPresent( Qualifier.class ) )
+                {
+                    return add( Key.get( type, a ) );
+                }
+            }
+            return add( Key.get( type ) );
         }
-        return Key.get( type );
     }
 }
