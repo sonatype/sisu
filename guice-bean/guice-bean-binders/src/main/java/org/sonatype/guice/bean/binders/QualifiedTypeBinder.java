@@ -29,7 +29,6 @@ import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
-import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
@@ -178,11 +177,15 @@ public final class QualifiedTypeBinder
         final Class bindingType = getBindingType( qualifiedType );
         if ( null != bindingType )
         {
-            final Key bindingKey = Key.get( bindingType, normalize( qualifier, qualifiedType ) );
-            final ScopedBindingBuilder builder = binder.bind( bindingKey ).to( qualifiedType );
+            final Annotation normalizedQualifier = normalize( qualifier, qualifiedType );
+            binder.bind( Key.get( bindingType, normalizedQualifier ) ).to( qualifiedType );
+            if ( BeanLocator.DEFAULT == normalizedQualifier && bindingType != qualifiedType )
+            {
+                binder.bind( bindingType ).to( qualifiedType );
+            }
             if ( qualifiedType.isAnnotationPresent( EagerSingleton.class ) )
             {
-                builder.asEagerSingleton();
+                binder.bind( qualifiedType ).asEagerSingleton();
             }
         }
     }

@@ -18,7 +18,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.URLClassLoader;
 import java.util.EventListener;
-import java.util.Map;
 import java.util.RandomAccess;
 
 import javax.enterprise.inject.Typed;
@@ -37,7 +36,6 @@ import org.sonatype.inject.NamedBeanMediator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
-import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
@@ -189,32 +187,32 @@ public class QualifiedTypesTest
 
     private BeanLocator locator;
 
-    private Map<Key<?>, Binding<?>> bindings;
+    private Injector injector;
 
     @Override
     protected void setUp()
         throws Exception
     {
         final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
-        final Injector injector = Guice.createInjector( new BeanSpaceModule( space ) );
+        injector = Guice.createInjector( new BeanSpaceModule( space ) );
         locator = injector.getInstance( BeanLocator.class );
-        bindings = injector.getBindings();
     }
 
     private void checkDefaultBinding( final Class<?> api, final Class<?> imp )
     {
-        assertEquals( imp, bindings.get( Key.get( api, Names.named( "default" ) ) ).getProvider().get().getClass() );
+        assertEquals( imp, injector.getInstance( Key.get( api ) ).getClass() );
+        assertEquals( imp, injector.getInstance( Key.get( api, Names.named( "default" ) ) ).getClass() );
         assertEquals( imp, locator.locate( Key.get( api, Named.class ) ).iterator().next().getValue().getClass() );
     }
 
     private void checkNamedBinding( final Class<?> api, final String name, final Class<?> imp )
     {
-        assertEquals( imp, bindings.get( Key.get( api, Names.named( name ) ) ).getProvider().get().getClass() );
+        assertEquals( imp, injector.getInstance( Key.get( api, Names.named( name ) ) ).getClass() );
     }
 
     private void checkLegacyBinding( final Class<?> api, final Class<?> imp )
     {
-        assertEquals( imp, bindings.get( Key.get( api, new LegacyImpl() ) ).getProvider().get().getClass() );
+        assertEquals( imp, injector.getInstance( Key.get( api, new LegacyImpl() ) ).getClass() );
     }
 
     public void testQualifiedBindings()
