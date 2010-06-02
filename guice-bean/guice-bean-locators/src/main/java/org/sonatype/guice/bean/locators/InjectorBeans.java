@@ -52,7 +52,7 @@ final class InjectorBeans<Q extends Annotation, T>
             final Binding<?> binding = injector.getBindings().get( key );
             if ( null != binding )
             {
-                addQualifiedBean( key.getAnnotation(), binding );
+                addQualifiedBean( binding );
             }
         }
         else
@@ -73,11 +73,11 @@ final class InjectorBeans<Q extends Annotation, T>
      * @param provider The bean provider
      */
     @SuppressWarnings( "unchecked" )
-    private void addQualifiedBean( final Annotation qualifier, final Binding binding )
+    private void addQualifiedBean( final Binding binding )
     {
         if ( BeanLocator.HIDDEN_SOURCE != binding.getSource() )
         {
-            add( new DeferredBeanEntry( qualifier, binding.getProvider() ) );
+            add( new DeferredBeanEntry( binding ) );
         }
     }
 
@@ -91,10 +91,9 @@ final class InjectorBeans<Q extends Annotation, T>
     {
         for ( final Binding<T> binding : injector.findBindingsByType( beanType ) )
         {
-            final Annotation ann = binding.getKey().getAnnotation();
-            if ( null == qualifierType || qualifierType.isInstance( ann ) )
+            if ( null == qualifierType || qualifierType == binding.getKey().getAnnotationType() )
             {
-                addQualifiedBean( ann, binding );
+                addQualifiedBean( binding );
             }
         }
     }

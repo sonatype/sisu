@@ -15,10 +15,13 @@ package org.sonatype.guice.bean.locators;
 import java.lang.annotation.Annotation;
 import java.util.Map.Entry;
 
-import javax.inject.Provider;
-
 import junit.framework.TestCase;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
@@ -33,14 +36,23 @@ public class DeferredBeanEntryTest
         public Object get()
         {
             count++;
-            return null;
+            return "";
         }
     }
 
     public void testGetContention()
     {
+        final Injector injector = Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                bind( Object.class ).toProvider( CountingProvider.class );
+            }
+        } );
+
         final Entry<Annotation, Object> countingEntry =
-            new DeferredBeanEntry<Annotation, Object>( null, new CountingProvider() );
+            new DeferredBeanEntry<Annotation, Object>( injector.getBinding( Object.class ) );
 
         final Thread[] pool = new Thread[8];
         for ( int i = 0; i < pool.length; i++ )
@@ -83,22 +95,34 @@ public class DeferredBeanEntryTest
         }
     }
 
+    static class ToStringProvider
+        implements Provider<String>
+    {
+        public String get()
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String toString()
+        {
+            return "VALUE";
+        }
+    }
+
     public void testToString()
     {
-        final Entry<Named, String> textEntry =
-            new DeferredBeanEntry<Named, String>( Names.named( "KEY" ), new Provider<String>()
+        final Injector injector = Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
             {
-                public String get()
-                {
-                    throw new UnsupportedOperationException();
-                }
+                bind( String.class ).annotatedWith( Names.named( "KEY" ) ).toProvider( new ToStringProvider() );
+            }
+        } );
 
-                @Override
-                public String toString()
-                {
-                    return "VALUE";
-                }
-            } );
+        final Entry<Named, String> textEntry =
+            new DeferredBeanEntry<Named, String>( injector.getBinding( Key.get( String.class, Names.named( "KEY" ) ) ) );
 
         assertEquals( Names.named( "KEY" ) + "=VALUE", textEntry.toString() );
     }

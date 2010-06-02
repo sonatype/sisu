@@ -17,6 +17,8 @@ import java.util.Map.Entry;
 
 import javax.inject.Provider;
 
+import com.google.inject.Binding;
+
 /**
  * Deferred caching bean {@link Entry} backed by a qualified {@link Provider}.
  */
@@ -27,9 +29,7 @@ final class DeferredBeanEntry<Q extends Annotation, T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Q qualifier;
-
-    private Provider<T> provider;
+    private final Binding<T> binding;
 
     private T bean;
 
@@ -37,28 +37,26 @@ final class DeferredBeanEntry<Q extends Annotation, T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    DeferredBeanEntry( final Q qualifier, final Provider<T> provider )
+    DeferredBeanEntry( final Binding<T> binding )
     {
-        this.qualifier = qualifier;
-        this.provider = provider;
+        this.binding = binding;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
+    @SuppressWarnings( "unchecked" )
     public Q getKey()
     {
-        return qualifier;
+        return (Q) binding.getKey().getAnnotation();
     }
 
     public synchronized T getValue()
     {
-        if ( null != provider )
+        if ( null == bean )
         {
-            // cache bean result
-            bean = provider.get();
-            provider = null;
+            bean = binding.getProvider().get();
         }
         return bean;
     }
@@ -76,7 +74,7 @@ final class DeferredBeanEntry<Q extends Annotation, T>
     @Override
     public String toString()
     {
-        // don't instantiate deferred value
-        return qualifier + "=" + provider;
+        // try to avoid triggering the deferred value
+        return getKey() + "=" + binding.getProvider();
     }
 }

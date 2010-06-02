@@ -26,12 +26,19 @@ import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 
 /**
  * Adds {@link BeanLocator}-backed bindings for non-local bean dependencies.
  */
 final class ImportBinder
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static Named WILDCARD_NAME = Names.named( "" );
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -129,9 +136,9 @@ final class ImportBinder
     @SuppressWarnings( "unchecked" )
     private void bindBeanImport( final Key key )
     {
-        // special case for "wildcard" @Named dependencies: match any @Named bean regardless of actual name
-        if ( key.getAnnotation() instanceof Named && 0 == ( (Named) key.getAnnotation() ).value().length() )
+        if ( WILDCARD_NAME.equals( key.getAnnotation() ) )
         {
+            // special case for wildcard @Named dependencies: match any @Named bean regardless of actual name
             binder.bind( key ).toProvider( new BeanProvider( Key.get( key.getTypeLiteral(), Named.class ) ) );
         }
         else
