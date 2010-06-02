@@ -18,6 +18,7 @@ import java.lang.annotation.RetentionPolicy;
 
 import javax.inject.Named;
 import javax.inject.Qualifier;
+import javax.inject.Singleton;
 
 // various qualified types for testing
 
@@ -52,6 +53,7 @@ class NamedAndTaggedFoo
 }
 
 @Named
+@Singleton
 class DefaultFoo
     implements Foo
 {

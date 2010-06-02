@@ -29,8 +29,10 @@ import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
 import com.google.inject.InjectorBuilder;
 import com.google.inject.Key;
+import com.google.inject.Module;
 import com.google.inject.name.Names;
 
 /**
@@ -38,6 +40,7 @@ import com.google.inject.name.Names;
  */
 public abstract class InjectedTestCase
     extends TestCase
+    implements Module
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -66,7 +69,12 @@ public abstract class InjectedTestCase
                 bindConstant().annotatedWith( Names.named( "basedir" ) ).to( getBasedir() );
                 bind( TestCase.class ).annotatedWith( Names.named( testClass.getName() ) ).to( testClass );
             }
-        }, new BeanSpaceModule( space ) ) ).build().injectMembers( this );
+        }, this, new BeanSpaceModule( space ) ) ).build().injectMembers( this );
+    }
+
+    public void configure( final Binder binder )
+    {
+        // place any per-test bindings here...
     }
 
     // ----------------------------------------------------------------------
@@ -88,22 +96,17 @@ public abstract class InjectedTestCase
 
     public final <T> T lookup( final Class<T> type )
     {
-        return lookup( locator.locate( Key.get( type ) ).iterator() );
-    }
-
-    public final <T> T lookup( final Class<T> type, final Class<? extends Annotation> qualifier )
-    {
-        return lookup( locator.locate( Key.get( type, qualifier ) ).iterator() );
-    }
-
-    public final <T> T lookup( final Class<T> type, final Annotation qualifier )
-    {
-        return lookup( locator.locate( Key.get( type, qualifier ) ).iterator() );
+        return lookup( Key.get( type ) );
     }
 
     public final <T> T lookup( final Class<T> type, final String name )
     {
-        return lookup( locator.locate( Key.get( type, Names.named( name ) ) ).iterator() );
+        return lookup( Key.get( type, Names.named( name ) ) );
+    }
+
+    public final <T> T lookup( final Key<T> key )
+    {
+        return lookup( locator.locate( key ).iterator() );
     }
 
     // ----------------------------------------------------------------------
