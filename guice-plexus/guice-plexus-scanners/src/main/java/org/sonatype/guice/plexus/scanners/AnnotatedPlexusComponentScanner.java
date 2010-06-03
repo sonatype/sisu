@@ -33,7 +33,7 @@ public final class AnnotatedPlexusComponentScanner
     public Map<Component, DeferredClass<?>> scan( final ClassSpace space, final boolean localSearch )
         throws IOException
     {
-        final PlexusBeanVisitor visitor = new PlexusBeanVisitor( new PlexusComponentRegistry( space ) );
+        final PlexusTypeVisitor visitor = new PlexusTypeVisitor( new PlexusTypeBinder( space ) );
         new ClassSpaceScanner( space ).accept( visitor );
         return visitor.getComponents();
     }

@@ -26,7 +26,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanSource;
 /**
  * Abstract {@link PlexusBeanSource} that collects {@link PlexusBeanMetadata} from runtime annotations.
  */
-public abstract class AbstractAnnotatedPlexusBeanSource
+public abstract class AbstractPlexusAnnotatedBeanSource
     implements PlexusBeanSource, PlexusBeanMetadata
 {
     // ----------------------------------------------------------------------
@@ -44,7 +44,7 @@ public abstract class AbstractAnnotatedPlexusBeanSource
      * 
      * @param variables The filter variables
      */
-    public AbstractAnnotatedPlexusBeanSource( final Map<?, ?> variables )
+    public AbstractPlexusAnnotatedBeanSource( final Map<?, ?> variables )
     {
         this.variables = variables;
     }

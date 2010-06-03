@@ -42,7 +42,7 @@ import org.sonatype.guice.plexus.config.Strategies;
 /**
  * {@link PlexusComponentScanner} that uses XML resources to discover Plexus components.
  */
-final class XmlPlexusComponentScanner
+final class PlexusXmlScanner
     implements PlexusComponentScanner
 {
     // ----------------------------------------------------------------------
@@ -53,7 +53,7 @@ final class XmlPlexusComponentScanner
 
     private final URL plexusXml;
 
-    private final Map<String, NamedPlexusBeanMetadata> metadata;
+    private final Map<String, PlexusXmlMetadata> metadata;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -66,8 +66,7 @@ final class XmlPlexusComponentScanner
      * @param plexusXml The plexus.xml URL
      * @param metadata The metadata map
      */
-    XmlPlexusComponentScanner( final Map<?, ?> variables, final URL plexusXml,
-                               final Map<String, NamedPlexusBeanMetadata> metadata )
+    PlexusXmlScanner( final Map<?, ?> variables, final URL plexusXml, final Map<String, PlexusXmlMetadata> metadata )
     {
         this.variables = variables;
         this.plexusXml = plexusXml;
@@ -81,7 +80,7 @@ final class XmlPlexusComponentScanner
     public Map<Component, DeferredClass<?>> scan( final ClassSpace space, final boolean localSearch )
         throws IOException
     {
-        final PlexusComponentRegistry registry = new PlexusComponentRegistry( space );
+        final PlexusTypeBinder registry = new PlexusTypeBinder( space );
         if ( null != plexusXml )
         {
             parsePlexusXml( plexusXml, registry );
@@ -135,7 +134,7 @@ final class XmlPlexusComponentScanner
      * @param url The plexus.xml URL
      * @param registry The parsed components
      */
-    private void parsePlexusXml( final URL url, final PlexusComponentRegistry registry )
+    private void parsePlexusXml( final URL url, final PlexusTypeBinder registry )
         throws IOException
     {
         final InputStream in = url.openStream();
@@ -186,7 +185,7 @@ final class XmlPlexusComponentScanner
      * @param url The components.xml URL
      * @param registry The parsed components
      */
-    private void parseComponentsXml( final URL url, final PlexusComponentRegistry registry )
+    private void parseComponentsXml( final URL url, final PlexusTypeBinder registry )
         throws IOException
     {
         final InputStream in = url.openStream();
@@ -221,7 +220,7 @@ final class XmlPlexusComponentScanner
      * @param parser The XML parser
      * @param registry The parsed components
      */
-    private void parseLoadOnStart( final MXParser parser, final PlexusComponentRegistry registry )
+    private void parseLoadOnStart( final MXParser parser, final PlexusTypeBinder registry )
         throws XmlPullParserException, IOException
     {
         String role = null;
@@ -259,7 +258,7 @@ final class XmlPlexusComponentScanner
      * @param parser The XML parser
      * @param registry The parsed components
      */
-    private void parseComponent( final MXParser parser, final PlexusComponentRegistry registry )
+    private void parseComponent( final MXParser parser, final PlexusTypeBinder registry )
         throws XmlPullParserException, IOException
     {
         String role = null;
@@ -349,14 +348,14 @@ final class XmlPlexusComponentScanner
         {
             synchronized ( metadata )
             {
-                final NamedPlexusBeanMetadata beanMetadata = metadata.get( implementation );
+                final PlexusXmlMetadata beanMetadata = metadata.get( implementation );
                 if ( beanMetadata != null )
                 {
                     beanMetadata.merge( configurationMap, requirementMap );
                 }
                 else
                 {
-                    metadata.put( implementation, new NamedPlexusBeanMetadata( configurationMap, requirementMap ) );
+                    metadata.put( implementation, new PlexusXmlMetadata( configurationMap, requirementMap ) );
                 }
             }
         }

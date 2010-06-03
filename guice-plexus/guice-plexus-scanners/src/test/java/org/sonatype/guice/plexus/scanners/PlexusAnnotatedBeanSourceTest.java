@@ -41,7 +41,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.config.Strategies;
 
-public class AnnotatedPlexusBeanSourceTest
+public class PlexusAnnotatedBeanSourceTest
     extends TestCase
 {
     @Component( role = Bean.class )
@@ -80,7 +80,7 @@ public class AnnotatedPlexusBeanSourceTest
 
     public void testNonComponent()
     {
-        final PlexusBeanSource source = new AnnotatedPlexusBeanSource( null );
+        final PlexusBeanSource source = new PlexusAnnotatedBeanSource( null );
         assertTrue( source.findPlexusComponentBeans().isEmpty() );
         assertNull( source.getBeanMetadata( String.class ) );
         assertNotNull( source.getBeanMetadata( Bean.class ) );
@@ -91,7 +91,7 @@ public class AnnotatedPlexusBeanSourceTest
     {
         Iterator<BeanProperty<Object>> propertyIterator;
 
-        final PlexusBeanSource uninterpolatedSource = new AnnotatedPlexusBeanSource( null );
+        final PlexusBeanSource uninterpolatedSource = new PlexusAnnotatedBeanSource( null );
         final PlexusBeanMetadata metadata1 = uninterpolatedSource.getBeanMetadata( Bean.class );
 
         propertyIterator = new BeanProperties( Bean.class ).iterator();
@@ -112,7 +112,7 @@ public class AnnotatedPlexusBeanSourceTest
 
         final Map<?, ?> variables = Collections.singletonMap( "some.value", "INTERPOLATED" );
 
-        final PlexusBeanSource interpolatedSource = new AnnotatedPlexusBeanSource( variables );
+        final PlexusBeanSource interpolatedSource = new PlexusAnnotatedBeanSource( variables );
         final PlexusBeanMetadata metadata2 = interpolatedSource.getBeanMetadata( Bean.class );
 
         propertyIterator = new BeanProperties( Bean.class ).iterator();
@@ -135,7 +135,7 @@ public class AnnotatedPlexusBeanSourceTest
     public void testComponentScanning()
     {
         final PlexusBeanSource source =
-            new AnnotatedPlexusBeanSource( new URLClassSpace( (URLClassLoader) getClass().getClassLoader() ), null );
+            new PlexusAnnotatedBeanSource( new URLClassSpace( (URLClassLoader) getClass().getClassLoader() ), null );
 
         final Map<Component, DeferredClass<?>> components = source.findPlexusComponentBeans();
         assertEquals( 3, components.size() ); // TODO: 4
@@ -155,7 +155,7 @@ public class AnnotatedPlexusBeanSourceTest
     {
         final URL badClassURL = new File( "bad.class" ).toURL();
 
-        final PlexusBeanSource source = new AnnotatedPlexusBeanSource( new ClassSpace()
+        final PlexusBeanSource source = new PlexusAnnotatedBeanSource( new ClassSpace()
         {
             public Class<?> loadClass( final String name )
                 throws ClassNotFoundException
@@ -241,7 +241,7 @@ public class AnnotatedPlexusBeanSourceTest
 
     public void testClassVisitorAPI()
     {
-        final PlexusBeanVisitor visitor = new PlexusBeanVisitor( null );
+        final PlexusTypeVisitor visitor = new PlexusTypeVisitor( null );
 
         visitor.setHint( "foo" );
         visitor.setRole( "bar" );

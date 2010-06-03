@@ -25,8 +25,8 @@ import org.sonatype.guice.plexus.config.PlexusBeanSource;
 /**
  * {@link PlexusBeanSource} that collects {@link PlexusBeanMetadata} by scanning classes for runtime annotations.
  */
-public class AnnotatedPlexusBeanSource
-    extends AbstractAnnotatedPlexusBeanSource
+public class PlexusAnnotatedBeanSource
+    extends AbstractPlexusAnnotatedBeanSource
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -47,7 +47,7 @@ public class AnnotatedPlexusBeanSource
      * @param variables The filter variables
      * @param scanner The component scanner
      */
-    public AnnotatedPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables,
+    public PlexusAnnotatedBeanSource( final ClassSpace space, final Map<?, ?> variables,
                                       final PlexusComponentScanner scanner )
     {
         super( variables );
@@ -61,7 +61,7 @@ public class AnnotatedPlexusBeanSource
      * @param space The containing class space
      * @param variables The filter variables
      */
-    public AnnotatedPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables )
+    public PlexusAnnotatedBeanSource( final ClassSpace space, final Map<?, ?> variables )
     {
         this( space, variables, new AnnotatedPlexusComponentScanner() );
     }
@@ -71,7 +71,7 @@ public class AnnotatedPlexusBeanSource
      * 
      * @param variables The filter variables
      */
-    public AnnotatedPlexusBeanSource( final Map<?, ?> variables )
+    public PlexusAnnotatedBeanSource( final Map<?, ?> variables )
     {
         this( null, variables, null );
     }

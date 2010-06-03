@@ -31,13 +31,13 @@ import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
-import org.sonatype.guice.plexus.scanners.AbstractAnnotatedPlexusBeanSource;
+import org.sonatype.guice.plexus.scanners.AbstractPlexusAnnotatedBeanSource;
 
 import com.google.inject.Provider;
 import com.google.inject.ProvisionException;
 
 final class ComponentDescriptorBeanSource
-    extends AbstractAnnotatedPlexusBeanSource
+    extends AbstractPlexusAnnotatedBeanSource
 {
     private Map<Component, DeferredClass<?>> componentMap = new HashMap<Component, DeferredClass<?>>();
 

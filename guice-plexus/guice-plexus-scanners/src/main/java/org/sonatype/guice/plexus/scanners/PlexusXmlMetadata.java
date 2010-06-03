@@ -24,7 +24,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 /**
  * Consumable {@link PlexusBeanMetadata} that uses {@link BeanProperty} names as keys.
  */
-final class NamedPlexusBeanMetadata
+final class PlexusXmlMetadata
     implements PlexusBeanMetadata
 {
     // ----------------------------------------------------------------------
@@ -39,8 +39,7 @@ final class NamedPlexusBeanMetadata
     // Constructors
     // ----------------------------------------------------------------------
 
-    NamedPlexusBeanMetadata( final Map<String, Configuration> configurationMap,
-                             final Map<String, Requirement> requirementMap )
+    PlexusXmlMetadata( final Map<String, Configuration> configurationMap, final Map<String, Requirement> requirementMap )
     {
         merge( configurationMap, requirementMap );
     }

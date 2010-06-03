@@ -49,7 +49,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
-import org.sonatype.guice.plexus.scanners.XmlPlexusBeanSource;
+import org.sonatype.guice.plexus.scanners.PlexusXmlBeanSource;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -136,7 +136,7 @@ public final class DefaultPlexusContainer
         realmIds.add( containerRealm.getId() );
 
         final PlexusBeanSource xmlSource =
-            new XmlPlexusBeanSource( new URLClassSpace( containerRealm ), variables, configurationUrl );
+            new PlexusXmlBeanSource( new URLClassSpace( containerRealm ), variables, configurationUrl );
 
         beanLocator.add( Guice.createInjector( new BeanImportModule( setupModule,
                                                                      new ClassRealmModule( containerRealm ),
@@ -327,7 +327,7 @@ public final class DefaultPlexusContainer
 
             if ( realmIds.add( realm.getId() ) )
             {
-                sources.add( new XmlPlexusBeanSource( space, variables ) );
+                sources.add( new PlexusXmlBeanSource( space, variables ) );
             }
 
             if ( !sources.isEmpty() )

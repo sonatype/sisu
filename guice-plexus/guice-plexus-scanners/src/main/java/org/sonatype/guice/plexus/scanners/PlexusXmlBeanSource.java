@@ -27,7 +27,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanSource;
 /**
  * {@link PlexusBeanSource} that collects {@link PlexusBeanMetadata} by scanning XML resources.
  */
-public final class XmlPlexusBeanSource
+public final class PlexusXmlBeanSource
     implements PlexusBeanSource
 {
     // ----------------------------------------------------------------------
@@ -42,7 +42,7 @@ public final class XmlPlexusBeanSource
 
     private final boolean localSearch;
 
-    private Map<String, NamedPlexusBeanMetadata> metadata;
+    private Map<String, PlexusXmlMetadata> metadata;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -55,7 +55,7 @@ public final class XmlPlexusBeanSource
      * @param variables The filter variables
      * @param plexusXml The plexus.xml URL
      */
-    public XmlPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables, final URL plexusXml )
+    public PlexusXmlBeanSource( final ClassSpace space, final Map<?, ?> variables, final URL plexusXml )
     {
         this.space = space;
         this.variables = variables;
@@ -69,7 +69,7 @@ public final class XmlPlexusBeanSource
      * @param space The local class space
      * @param variables The filter variables
      */
-    public XmlPlexusBeanSource( final ClassSpace space, final Map<?, ?> variables )
+    public PlexusXmlBeanSource( final ClassSpace space, final Map<?, ?> variables )
     {
         this.space = space;
         this.variables = variables;
@@ -85,8 +85,8 @@ public final class XmlPlexusBeanSource
     {
         try
         {
-            metadata = new HashMap<String, NamedPlexusBeanMetadata>();
-            return new XmlPlexusComponentScanner( variables, plexusXml, metadata ).scan( space, localSearch );
+            metadata = new HashMap<String, PlexusXmlMetadata>();
+            return new PlexusXmlScanner( variables, plexusXml, metadata ).scan( space, localSearch );
         }
         catch ( final IOException e )
         {

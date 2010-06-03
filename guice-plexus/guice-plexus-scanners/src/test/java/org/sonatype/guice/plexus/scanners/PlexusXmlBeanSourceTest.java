@@ -40,7 +40,7 @@ import org.sonatype.guice.plexus.config.Strategies;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 
-public class XmlPlexusBeanSourceTest
+public class PlexusXmlBeanSourceTest
     extends TestCase
 {
     static class NamedProperty
@@ -147,7 +147,7 @@ public class XmlPlexusBeanSourceTest
         };
 
         final URL plexusXml = getClass().getResource( "/META-INF/plexus/plexus.xml" );
-        final PlexusBeanSource source = new XmlPlexusBeanSource( space, null, plexusXml );
+        final PlexusBeanSource source = new PlexusXmlBeanSource( space, null, plexusXml );
         final Map<Component, DeferredClass<?>> componentMap = source.findPlexusComponentBeans();
 
         assertEquals( 2, componentMap.size() );
@@ -162,11 +162,11 @@ public class XmlPlexusBeanSourceTest
 
     public void testBadPlexusXml()
     {
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) XmlPlexusBeanSourceTest.class.getClassLoader() );
+        final ClassSpace space = new URLClassSpace( (URLClassLoader) PlexusXmlBeanSourceTest.class.getClassLoader() );
 
         try
         {
-            new XmlPlexusBeanSource( space, null, getClass().getResource( "/META-INF/plexus/bad_plexus_1.xml" ) ).findPlexusComponentBeans();
+            new PlexusXmlBeanSource( space, null, getClass().getResource( "/META-INF/plexus/bad_plexus_1.xml" ) ).findPlexusComponentBeans();
             fail( "Expected RuntimeException" );
         }
         catch ( final RuntimeException e )
@@ -233,7 +233,7 @@ public class XmlPlexusBeanSourceTest
 
         try
         {
-            new XmlPlexusBeanSource( space, null ).findPlexusComponentBeans();
+            new PlexusXmlBeanSource( space, null ).findPlexusComponentBeans();
             fail( "Expected RuntimeException" );
         }
         catch ( final RuntimeException e )
@@ -243,9 +243,9 @@ public class XmlPlexusBeanSourceTest
 
     public void testComponents()
     {
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) XmlPlexusBeanSourceTest.class.getClassLoader() );
+        final ClassSpace space = new URLClassSpace( (URLClassLoader) PlexusXmlBeanSourceTest.class.getClassLoader() );
 
-        final PlexusBeanSource source = new XmlPlexusBeanSource( space, null );
+        final PlexusBeanSource source = new PlexusXmlBeanSource( space, null );
         final Map<Component, DeferredClass<?>> componentMap = source.findPlexusComponentBeans();
 
         assertEquals( 3, componentMap.size() );
@@ -371,7 +371,7 @@ public class XmlPlexusBeanSourceTest
         try
         {
             final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_1.xml" );
-            new XmlPlexusBeanSource( space, null ).findPlexusComponentBeans();
+            new PlexusXmlBeanSource( space, null ).findPlexusComponentBeans();
             fail( "Expected RuntimeException" );
         }
         catch ( final RuntimeException e )
@@ -381,7 +381,7 @@ public class XmlPlexusBeanSourceTest
         try
         {
             final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_2.xml" );
-            new XmlPlexusBeanSource( space, null ).findPlexusComponentBeans();
+            new PlexusXmlBeanSource( space, null ).findPlexusComponentBeans();
             fail( "Expected RuntimeException" );
         }
         catch ( final RuntimeException e )
@@ -391,7 +391,7 @@ public class XmlPlexusBeanSourceTest
         try
         {
             final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_3.xml" );
-            new XmlPlexusBeanSource( space, null ).findPlexusComponentBeans();
+            new PlexusXmlBeanSource( space, null ).findPlexusComponentBeans();
             fail( "Expected RuntimeException" );
         }
         catch ( final RuntimeException e )
@@ -400,14 +400,14 @@ public class XmlPlexusBeanSourceTest
 
         {
             final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_4.xml" );
-            final PlexusBeanSource source = new XmlPlexusBeanSource( space, null );
+            final PlexusBeanSource source = new PlexusXmlBeanSource( space, null );
             assertTrue( source.findPlexusComponentBeans().isEmpty() );
         }
 
         try
         {
             final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_5.xml" );
-            final PlexusBeanSource source = new XmlPlexusBeanSource( space, null );
+            final PlexusBeanSource source = new PlexusXmlBeanSource( space, null );
             source.findPlexusComponentBeans();
             final PlexusBeanMetadata metadata = source.getBeanMetadata( DefaultBean.class );
             final Requirement badReq = metadata.getRequirement( new NamedProperty( "class" ) );
@@ -424,14 +424,14 @@ public class XmlPlexusBeanSourceTest
     {
         final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/variable_components.xml" );
 
-        final PlexusBeanSource uninterpolatedSource = new XmlPlexusBeanSource( space, null );
+        final PlexusBeanSource uninterpolatedSource = new PlexusXmlBeanSource( space, null );
         uninterpolatedSource.findPlexusComponentBeans();
         final PlexusBeanMetadata metadata1 = uninterpolatedSource.getBeanMetadata( DefaultBean.class );
         assertEquals( "${some.value}", metadata1.getConfiguration( new NamedProperty( "variable" ) ).value() );
 
         final Map<?, ?> variables = Collections.singletonMap( "some.value", "INTERPOLATED" );
 
-        final PlexusBeanSource interpolatedSource = new XmlPlexusBeanSource( space, variables );
+        final PlexusBeanSource interpolatedSource = new PlexusXmlBeanSource( space, variables );
         interpolatedSource.findPlexusComponentBeans();
         final PlexusBeanMetadata metadata2 = interpolatedSource.getBeanMetadata( DefaultBean.class );
         assertEquals( "INTERPOLATED", metadata2.getConfiguration( new NamedProperty( "variable" ) ).value() );
@@ -439,9 +439,9 @@ public class XmlPlexusBeanSourceTest
 
     public void testLocalizedXmlScanning()
     {
-        final ClassLoader parent = XmlPlexusBeanSourceTest.class.getClassLoader();
+        final ClassLoader parent = PlexusXmlBeanSourceTest.class.getClassLoader();
         final ClassSpace space = new URLClassSpace( parent, null );
-        final PlexusBeanSource source = new XmlPlexusBeanSource( space, null );
+        final PlexusBeanSource source = new PlexusXmlBeanSource( space, null );
         final Map<Component, DeferredClass<?>> componentMap = source.findPlexusComponentBeans();
         assertTrue( componentMap.isEmpty() );
     }

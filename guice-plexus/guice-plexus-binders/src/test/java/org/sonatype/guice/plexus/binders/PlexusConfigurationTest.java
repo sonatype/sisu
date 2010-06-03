@@ -26,7 +26,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
-import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
+import org.sonatype.guice.plexus.scanners.PlexusAnnotatedBeanSource;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -93,7 +93,7 @@ public class PlexusConfigurationTest
                 bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
 
-                install( new PlexusBindingModule( new ComponentManager(), new AnnotatedPlexusBeanSource( null, null ) ) );
+                install( new PlexusBindingModule( new ComponentManager(), new PlexusAnnotatedBeanSource( null, null ) ) );
 
                 requestInjection( PlexusConfigurationTest.this );
             }

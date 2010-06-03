@@ -41,7 +41,7 @@ import org.sonatype.guice.plexus.config.Strategies;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
-import org.sonatype.guice.plexus.scanners.AnnotatedPlexusBeanSource;
+import org.sonatype.guice.plexus.scanners.PlexusAnnotatedBeanSource;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -112,7 +112,7 @@ public class PlexusRequirementTest
                     {
                         return null;
                     }
-                }, new AnnotatedPlexusBeanSource( null, null ) ) );
+                }, new PlexusAnnotatedBeanSource( null, null ) ) );
 
                 requestInjection( PlexusRequirementTest.this );
             }

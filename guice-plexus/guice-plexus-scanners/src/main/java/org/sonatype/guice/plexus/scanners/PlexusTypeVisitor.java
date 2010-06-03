@@ -31,7 +31,7 @@ import org.sonatype.guice.plexus.config.Strategies;
 /**
  * {@link ClassSpaceVisitor} that reports Plexus bean classes annotated with @{@link Component}.
  */
-public final class PlexusBeanVisitor
+public final class PlexusTypeVisitor
     extends EmptyClassVisitor
     implements ClassSpaceVisitor
 {
@@ -47,7 +47,7 @@ public final class PlexusBeanVisitor
 
     private final AnnotationVisitor componentVisitor = new ComponentAnnotationVisitor();
 
-    private final PlexusComponentRegistry registry;
+    private final PlexusTypeBinder registry;
 
     private String role;
 
@@ -63,7 +63,7 @@ public final class PlexusBeanVisitor
     // Constructors
     // ----------------------------------------------------------------------
 
-    protected PlexusBeanVisitor( final PlexusComponentRegistry registry )
+    protected PlexusTypeVisitor( final PlexusTypeBinder registry )
     {
         this.registry = registry;
     }
@@ -120,7 +120,7 @@ public final class PlexusBeanVisitor
         description = "";
     }
 
-    public ClassVisitor visitClass( URL url )
+    public ClassVisitor visitClass( final URL url )
     {
         return this;
     }
