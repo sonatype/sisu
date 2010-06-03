@@ -6,16 +6,16 @@
 
   <parent>
     <groupId>org.sonatype.spice.inject</groupId>
-    <artifactId>guice-bean</artifactId>
+    <artifactId>guice-plexus</artifactId>
     <version>1.2.1-SNAPSHOT</version>
   </parent>
 
   <packaging>bundle</packaging>
 
   <groupId>org.sonatype.spice</groupId>
-  <artifactId>spice-inject-bean</artifactId>
+  <artifactId>spice-inject-plexus</artifactId>
 
-  <name>Spice - Inject (bean components)</name>
+  <name>Spice - Inject (plexus components)</name>
 
   <build>
     <plugins>
@@ -24,22 +24,20 @@
         <artifactId>maven-bundle-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
+          <!-- for the moment we don't embed content from external plexus jars -->
+          <excludeDependencies>*;groupId=org.codehaus.plexus</excludeDependencies>
           <instructions>
             <Bundle-SymbolicName>
-              org.sonatype.spice.inject.bean
+              org.sonatype.spice.inject.plexus
             </Bundle-SymbolicName>
-            <Bundle-Activator>
-              org.sonatype.guice.bean.containers.Activator
-            </Bundle-Activator>
-            <DynamicImport-Package>
-              org.slf4j,junit.framework
-            </DynamicImport-Package>
+            <Fragment-Host>
+              org.sonatype.spice.inject.bean
+            </Fragment-Host>
             <Export-Package>
-              org.sonatype.inject;-noimport:=true;-split-package:=merge-first;version=${project.version},
-              javax.*|org.aopalliance.*;version=1
+              org.codehaus.plexus.*;-noimport:=true;-split-package:=merge-first
             </Export-Package>
             <Private-Package>
-              org.sonatype.guice.bean.*,org.objectweb.asm.*
+              META-INF.plexus,org.sonatype.guice.plexus.*
             </Private-Package>
           </instructions>
         </configuration>
@@ -64,19 +62,16 @@
                   <shadedPattern>org.sonatype.guice</shadedPattern>
                 </relocation>
               </relocations>
+              <filter>
+                <artifact>*:*</artifact>
+                <excludes>
+                  <!-- bean bundle already has these classes -->
+                  <exclude>org/sonatype/guice/asm/**</exclude>
+                </excludes>
+              </filter>
             </configuration>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>org.sonatype.guice.bean.containers.Main</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -99,8 +94,9 @@
                   <classifier>sources</classifier>
                   <failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
                   <outputDirectory>${project.build.directory}/sources</outputDirectory>
+                  <excludeGroupIds>org.codehaus.plexus</excludeGroupIds>
                   <includes>
-                    javax/**,org/aopalliance/**,org/sonatype/inject/**,org/sonatype/guice/bean/**
+                    org/codehaus/plexus/**,org/sonatype/guice/plexus/**
                   </includes>
                   <silent>true</silent>
                 </configuration>
@@ -132,23 +128,24 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-patches</artifactId>
-      <classifier>noaop</classifier>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.inject</groupId>
-          <artifactId>javax.inject</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>aopalliance</groupId>
-          <artifactId>aopalliance</artifactId>
-        </exclusion>
-      </exclusions>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-component-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-classworlds</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.spice</groupId>
+      <artifactId>spice-inject-bean</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-bean-containers</artifactId>
+      <artifactId>guice-plexus-shim</artifactId>
       <optional>true</optional>
     </dependency>
   </dependencies>

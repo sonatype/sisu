@@ -10,32 +10,9 @@
     <version>1.2.1-SNAPSHOT</version>
   </parent>
 
-  <packaging>bundle</packaging>
-
   <artifactId>guice-plexus-shim</artifactId>
 
   <name>Guice - Plexus shim</name>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <!-- stop the contents of split-packages from leaking into the final bundle -->
-          <excludeDependencies>*;artifactId=!guice-*</excludeDependencies>
-          <instructions>
-            <_exportcontents>org.codehaus.plexus.*;-noimport:=true</_exportcontents>
-            <Embed-Dependency>
-              *;artifactId=guice-*;optional=true;inline=org/**
-            </Embed-Dependency>
-            <Embed-Transitive>true</Embed-Transitive>
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
   <dependencies>
     <dependency>
@@ -59,52 +36,42 @@
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-bean-reflect</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-bean-inject</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-bean-locators</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-bean-scanners</artifactId>
-      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.sonatype.spice.inject</groupId>
+      <artifactId>guice-bean-locators</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-bean-binders</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-plexus-metadata</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-plexus-scanners</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-plexus-converters</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-plexus-locators</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-plexus-binders</artifactId>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
@@ -113,10 +80,6 @@
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-utils</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>asm</groupId>
-      <artifactId>asm</artifactId>
     </dependency>
     <dependency>
       <groupId>junit</groupId>

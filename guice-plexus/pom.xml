@@ -29,6 +29,7 @@
     <module>guice-plexus-locators</module>
     <module>guice-plexus-binders</module>
     <module>guice-plexus-shim</module>
+    <module>spice-inject-plexus</module>
   </modules>
 
   <dependencyManagement>
