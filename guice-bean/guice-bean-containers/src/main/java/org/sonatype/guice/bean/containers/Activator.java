@@ -45,9 +45,11 @@ public final class Activator
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final int BASE_BINDINGS_SIZE = Guice.createInjector().getBindings().size() + 1;
+    static final MutableBeanLocator LOCATOR = new DefaultBeanLocator();
 
     private static final String INJECTOR_CLASS = Injector.class.getName();
+
+    private static final int BASE_BINDINGS_SIZE = Guice.createInjector().getBindings().size() + 1;
 
     private static final LocatorModule LOCATOR_MODULE = new LocatorModule();
 
@@ -128,7 +130,7 @@ public final class Activator
     public Object addingService( final ServiceReference reference )
     {
         final Object service = bundleContext.getService( reference );
-        LOCATOR_MODULE.add( (Injector) service );
+        LOCATOR.add( (Injector) service );
         return service;
     }
 
@@ -139,39 +141,23 @@ public final class Activator
 
     public void removedService( final ServiceReference reference, final Object service )
     {
-        LOCATOR_MODULE.remove( (Injector) service );
+        LOCATOR.remove( (Injector) service );
     }
 
     // ----------------------------------------------------------------------
     // Implementation types
     // ----------------------------------------------------------------------
 
+    /**
+     * {@link Module} that makes sure everyone uses the same global {@link BeanLocator}.
+     */
     static final class LocatorModule
         implements Module
     {
-        // ----------------------------------------------------------------------
-        // Implementation fields
-        // ----------------------------------------------------------------------
-
-        private final MutableBeanLocator locator = new DefaultBeanLocator();
-
-        // ----------------------------------------------------------------------
-        // Public methods
-        // ----------------------------------------------------------------------
-
         public void configure( final Binder binder )
         {
-            binder.bind( BeanLocator.class ).toInstance( locator );
-        }
-
-        public void add( final Injector injector )
-        {
-            locator.add( injector );
-        }
-
-        public void remove( final Injector injector )
-        {
-            locator.remove( injector );
+            binder.bind( MutableBeanLocator.class ).toInstance( LOCATOR );
+            binder.bind( BeanLocator.class ).to( MutableBeanLocator.class );
         }
     }
 }

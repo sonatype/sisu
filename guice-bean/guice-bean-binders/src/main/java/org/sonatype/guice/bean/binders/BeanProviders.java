@@ -41,15 +41,27 @@ import com.google.inject.name.Named;
 final class BeanListProvider<K extends Annotation, V>
     implements Provider<List<V>>
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     @Inject
     private BeanLocator locator;
 
     private final Key<V> key;
 
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
     BeanListProvider( final Key<V> key )
     {
         this.key = key;
     }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
     public List<V> get()
     {
@@ -66,15 +78,27 @@ final class BeanListProvider<K extends Annotation, V>
 final class BeanMapProvider<K extends Annotation, V>
     implements Provider<Map<K, V>>
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     @Inject
     private BeanLocator locator;
 
     private final Key<V> key;
 
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
     BeanMapProvider( final Key<V> key )
     {
         this.key = key;
     }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
     public Map<K, V> get()
     {
@@ -91,15 +115,27 @@ final class BeanMapProvider<K extends Annotation, V>
 final class NamedBeanMapProvider<V>
     implements Provider<Map<String, V>>
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     @Inject
     private BeanLocator locator;
 
     private final Key key;
 
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
     NamedBeanMapProvider( final Type valueType )
     {
         this.key = Key.get( valueType, Named.class );
     }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
     public Map<String, V> get()
     {
@@ -115,15 +151,27 @@ final class NamedBeanMapProvider<V>
 final class BeanProvider<V>
     implements Provider<V>
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     @Inject
     private BeanLocator locator;
 
     private final Key<V> key;
 
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
     BeanProvider( final Key<V> key )
     {
         this.key = key;
     }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
     public V get()
     {

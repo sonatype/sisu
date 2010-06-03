@@ -72,6 +72,9 @@ public abstract class InjectedTestCase
         }, this, new BeanSpaceModule( space ) ) ).build().injectMembers( this );
     }
 
+    /**
+     * Custom per-test bindings.
+     */
     public void configure( final Binder binder )
     {
         // place any per-test bindings here...

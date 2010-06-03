@@ -50,6 +50,13 @@ final class QualifierCache
     // Public methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Attempts to load the potential {@link Qualifier} annotation and return its class.
+     * 
+     * @param space The class space
+     * @param desc The annotation descriptor
+     * @return Qualified annotation class; {@code null} if the annotation is not a qualifier
+     */
     @SuppressWarnings( "unchecked" )
     public Class<Annotation> qualify( final ClassSpace space, final String desc )
     {
@@ -59,7 +66,7 @@ final class QualifierCache
             try
             {
                 ClassSpaceScanner.accept( this, space.getResource( name + ".class" ) );
-                cachedResults.put( desc, isQualified ? load( space, name ) : null );
+                cachedResults.put( desc, isQualified ? loadSlashedClass( space, name ) : null );
             }
             catch ( final IOException e )
             {
@@ -87,15 +94,22 @@ final class QualifierCache
     // Locally-shared methods
     // ----------------------------------------------------------------------
 
-    static Class<?> load( final ClassSpace space, final String name )
+    /**
+     * Attempts to load the class identified by the given slashed name from the given class space.
+     * 
+     * @param space The class space
+     * @param slashedName The slashed name
+     * @return Loaded class
+     */
+    static Class<?> loadSlashedClass( final ClassSpace space, final String slashedName )
     {
         try
         {
-            return space.loadClass( name.replace( '/', '.' ) );
+            return space.loadClass( slashedName.replace( '/', '.' ) );
         }
         catch ( final ClassNotFoundException e )
         {
-            throw new TypeNotPresentException( name, e );
+            throw new TypeNotPresentException( slashedName, e );
         }
     }
 }

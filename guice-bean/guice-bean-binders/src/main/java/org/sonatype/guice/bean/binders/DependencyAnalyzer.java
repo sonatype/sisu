@@ -31,9 +31,13 @@ import org.sonatype.guice.bean.reflect.DeclaredMembers;
 import com.google.inject.Binding;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
+import com.google.inject.spi.BindingTargetVisitor;
 import com.google.inject.spi.DefaultBindingTargetVisitor;
 import com.google.inject.spi.LinkedKeyBinding;
 
+/**
+ * {@link BindingTargetVisitor} that collects the {@link Key}s of any injected dependencies.
+ */
 final class DependencyAnalyzer<T>
     extends DefaultBindingTargetVisitor<T, Set<Key<?>>>
 {
@@ -101,12 +105,33 @@ final class DependencyAnalyzer<T>
         return dependencies;
     }
 
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    /**
+     * {@link Set} of qualified dependency {@link Key}s.
+     */
     final static class DependencySet
         extends HashSet<Key<?>>
     {
+        // ----------------------------------------------------------------------
+        // Constants
+        // ----------------------------------------------------------------------
+
         private static final long serialVersionUID = 1L;
 
-        public boolean addDependency( final TypeLiteral<?> type, final Annotation[] annotations )
+        // ----------------------------------------------------------------------
+        // Implementation methods
+        // ----------------------------------------------------------------------
+
+        /**
+         * Adds the appropriate qualified {@link Key} for the given dependency.
+         * 
+         * @param type The dependency type
+         * @param annotations The dependency annotations
+         */
+        boolean addDependency( final TypeLiteral<?> type, final Annotation[] annotations )
         {
             if ( type.getRawType().getName().startsWith( "com.google.inject" ) )
             {

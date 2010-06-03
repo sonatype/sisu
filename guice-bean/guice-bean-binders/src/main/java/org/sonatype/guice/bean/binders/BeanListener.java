@@ -89,11 +89,19 @@ final class BeanListener
      */
     private static final class Mediation
     {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
         final Key watchedKey;
 
         final BeanMediator mediator;
 
         final Class watcherType;
+
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
 
         Mediation( final Key watchedKey, final BeanMediator mediator, final Class watcherType )
         {

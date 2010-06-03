@@ -62,6 +62,9 @@ final class ElementAnalyzer
     // Public methods
     // ----------------------------------------------------------------------
 
+    /**
+     * @return Imported (non-local) dependency keys
+     */
     public Set<Key<?>> getImportedKeys()
     {
         return importedKeys;
