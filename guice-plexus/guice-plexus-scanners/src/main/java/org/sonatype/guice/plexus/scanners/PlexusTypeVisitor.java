@@ -114,14 +114,15 @@ public final class PlexusTypeVisitor
 
     public void visit( final ClassSpace space )
     {
-        role = null;
-        hint = Hints.DEFAULT_HINT;
-        instantiationStrategy = Strategies.SINGLETON;
-        description = "";
     }
 
     public ClassVisitor visitClass( final URL url )
     {
+        role = null;
+        hint = Hints.DEFAULT_HINT;
+        instantiationStrategy = Strategies.SINGLETON;
+        description = "";
+
         return this;
     }
 
