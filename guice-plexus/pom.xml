@@ -29,7 +29,6 @@
     <module>guice-plexus-locators</module>
     <module>guice-plexus-binders</module>
     <module>guice-plexus-shim</module>
-    <module>guice-plexus-tck</module>
   </modules>
 
   <dependencyManagement>
