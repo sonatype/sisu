@@ -5,19 +5,17 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <relativePath>../../guice-bean</relativePath>
     <groupId>org.sonatype.spice.inject</groupId>
     <artifactId>guice-bean</artifactId>
     <version>1.2.1-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.sonatype.spice.inject</groupId>
-  <artifactId>spice-inject-api</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-
   <packaging>bundle</packaging>
 
-  <name>Spice - Inject API</name>
+  <groupId>org.sonatype.spice</groupId>
+  <artifactId>spice-inject-bean</artifactId>
+
+  <name>Spice - Inject (bean components)</name>
 
   <build>
     <plugins>
@@ -27,12 +25,54 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
+            <Bundle-Activator>
+              org.sonatype.guice.bean.containers.Activator
+            </Bundle-Activator>
+            <DynamicImport-Package>
+              org.slf4j,junit.framework
+            </DynamicImport-Package>
             <Export-Package>
               org.sonatype.inject;-split-package:=merge-first;version=${project.version},
               javax.*|org.aopalliance.*;version=1
             </Export-Package>
-            <Private-Package />
+            <Private-Package>
+              org.objectweb.asm.*,org.sonatype.guice.*
+            </Private-Package>
           </instructions>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>${project.groupId}:${project.artifactId}</include>
+                </includes>
+              </artifactSet>
+              <relocations>
+                <relocation>
+                  <pattern>org.objectweb</pattern>
+                  <shadedPattern>org.sonatype.guice</shadedPattern>
+                </relocation>
+              </relocations>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>org.sonatype.guice.bean.containers.Main</mainClass>
+            </manifest>
+          </archive>
         </configuration>
       </plugin>
     </plugins>
@@ -56,7 +96,9 @@
                   <classifier>sources</classifier>
                   <failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
                   <outputDirectory>${project.build.directory}/sources</outputDirectory>
-                  <includes>javax/**,org/aopalliance/**,org/sonatype/inject/**</includes>
+                  <includes>
+                    javax/**,org/aopalliance/**,org/sonatype/inject/**,org/sonatype/guice/**
+                  </includes>
                   <silent>true</silent>
                 </configuration>
               </execution>
@@ -86,6 +128,21 @@
   </profiles>
 
   <dependencies>
+    <dependency>
+      <groupId>org.sonatype.spice.inject</groupId>
+      <artifactId>guice-patches</artifactId>
+      <classifier>noaop</classifier>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.inject</groupId>
+          <artifactId>javax.inject</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>aopalliance</groupId>
+          <artifactId>aopalliance</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-bean-containers</artifactId>

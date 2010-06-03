@@ -29,8 +29,7 @@
             <configuration>
               <outputDirectory>${project.build.directory}/lib</outputDirectory>
               <excludeArtifactIds>
-                org.osgi.core,org.osgi.compendium,org.osgi.foundation,
-                aopalliance,javax.inject,javax.servlet
+                org.osgi.core,org.osgi.compendium,org.osgi.foundation,aopalliance,javax.inject,javax.servlet
               </excludeArtifactIds>
               <includeScope>runtime</includeScope>
             </configuration>
@@ -83,8 +82,8 @@
       <scope>runtime</scope>
     </dependency>
     <dependency>
-      <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>spice-inject-imp</artifactId>
+      <groupId>org.sonatype.spice</groupId>
+      <artifactId>spice-inject-bean</artifactId>
       <scope>runtime</scope>
     </dependency>
     <dependency>

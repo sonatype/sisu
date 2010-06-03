@@ -31,6 +31,7 @@
     <module>guice-bean-locators</module>
     <module>guice-bean-binders</module>
     <module>guice-bean-containers</module>
+    <module>spice-inject-bean</module>
   </modules>
 
   <dependencyManagement>
@@ -78,6 +79,12 @@
       <dependency>
         <groupId>org.sonatype.spice.inject</groupId>
         <artifactId>guice-bean-containers</artifactId>
+        <version>${guice.bean.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>org.sonatype.spice</groupId>
+        <artifactId>spice-inject-bean</artifactId>
         <version>${guice.bean.version}</version>
       </dependency>
 
