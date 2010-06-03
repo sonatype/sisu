@@ -39,7 +39,7 @@
               javax.*|org.aopalliance.*;version=1
             </Export-Package>
             <Private-Package>
-              org.sonatype.guice.bean.*,org.objectweb.asm.*
+              org.sonatype.guice.*,org.objectweb.asm.*
             </Private-Package>
           </instructions>
         </configuration>
