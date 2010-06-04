@@ -74,7 +74,6 @@ final class DeferredBeanEntry<Q extends Annotation, T>
     @Override
     public String toString()
     {
-        // try to avoid triggering the deferred value
-        return getKey() + "=" + binding.getProvider();
+        return getKey() + "=" + getValue();
     }
 }

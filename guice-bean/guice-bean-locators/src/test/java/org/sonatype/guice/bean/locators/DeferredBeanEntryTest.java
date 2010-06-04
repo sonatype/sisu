@@ -100,12 +100,6 @@ public class DeferredBeanEntryTest
     {
         public String get()
         {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public String toString()
-        {
             return "VALUE";
         }
     }
