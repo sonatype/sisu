@@ -14,12 +14,8 @@ package org.codehaus.plexus;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
@@ -29,8 +25,6 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
 import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
-import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 
 /**
@@ -42,8 +36,6 @@ final class PlexusLifecycleManager
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
-
-    private final Map<DeferredClass<?>, String> descriptions = new HashMap<DeferredClass<?>, String>();
 
     private final List<Object> activeBeans = Collections.synchronizedList( new ArrayList<Object>() );
 
@@ -64,16 +56,6 @@ final class PlexusLifecycleManager
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
-
-    public boolean manage( final Component component, final DeferredClass<?> clazz )
-    {
-        final String description = component.description();
-        if ( null != description && description.length() > 0 )
-        {
-            descriptions.put( clazz, description );
-        }
-        return true;
-    }
 
     public boolean manage( final Class<?> clazz )
     {
@@ -171,28 +153,6 @@ final class PlexusLifecycleManager
     // ----------------------------------------------------------------------
     // Shared implementation methods
     // ----------------------------------------------------------------------
-
-    String getDescription( final DeferredClass<?> clazz )
-    {
-        final String description = descriptions.get( clazz );
-        if ( null != description )
-        {
-            return description;
-        }
-        if ( clazz instanceof LoadedClass<?> )
-        {
-            // can't find an exact match, need to compare using name and type equality
-            for ( final Entry<DeferredClass<?>, String> e : descriptions.entrySet() )
-            {
-                final DeferredClass<?> key = e.getKey();
-                if ( clazz.getName().equals( key.getName() ) && clazz.load().equals( key.load() ) )
-                {
-                    return e.getValue();
-                }
-            }
-        }
-        return null;
-    }
 
     Logger getLogger( final String name )
     {

@@ -591,7 +591,7 @@ public final class DefaultPlexusContainer
         cd.setRole( clazz.getName() );
         cd.setRoleHint( bean.getKey() );
         cd.setImplementationClass( clazz.load() );
-        cd.setDescription( lifecycleManager.getDescription( clazz ) );
+        cd.setDescription( bean.getDescription() );
         return cd;
     }
 

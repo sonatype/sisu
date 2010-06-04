@@ -25,6 +25,7 @@ import org.sonatype.guice.plexus.config.Roles;
 import org.sonatype.guice.plexus.config.Strategies;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Scopes;
@@ -90,14 +91,17 @@ public final class PlexusBindingModule
     @SuppressWarnings( "unchecked" )
     private void bindPlexusComponent( final Component component, final DeferredClass<?> clazz )
     {
-        if ( null != manager && !manager.manage( component, clazz ) )
-        {
-            return; // ignore components that are not managed by the current manager
-        }
         final Key roleKey = Roles.componentKey( component );
         if ( !boundKeys.add( roleKey ) )
         {
             return; // ignore duplicates, such as same component from different sources
+        }
+
+        Binder binder = binder();
+        final String description = component.description();
+        if ( null != description && description.length() > 0 )
+        {
+            binder = binder.withSource( description );
         }
 
         final String strategy = component.instantiationStrategy();
@@ -109,23 +113,23 @@ public final class PlexusBindingModule
             if ( roleKey.getAnnotation() != null )
             {
                 // wire annotated role to the plain role type
-                sbb = bind( roleKey ).to( component.role() );
+                sbb = binder.bind( roleKey ).to( component.role() );
             }
             else
             {
                 // simple wire to self
-                sbb = bind( roleKey );
+                sbb = binder.bind( roleKey );
             }
         }
         else if ( Strategies.LOAD_ON_START.equals( strategy ) )
         {
             // no point deferring eager components
-            sbb = bind( roleKey ).to( clazz.load() );
+            sbb = binder.bind( roleKey ).to( clazz.load() );
         }
         else
         {
             // mimic Plexus behaviour, only load classes on demand
-            sbb = bind( roleKey ).toProvider( clazz.asProvider() );
+            sbb = binder.bind( roleKey ).toProvider( clazz.asProvider() );
         }
 
         if ( Strategies.LOAD_ON_START.equals( strategy ) )

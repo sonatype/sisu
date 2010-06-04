@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
-import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
@@ -39,11 +38,6 @@ public class PlexusLoggingTest
     static class LoggerManager
         implements PlexusBeanManager
     {
-        public boolean manage( final Component component, final DeferredClass<?> clazz )
-        {
-            return true;
-        }
-
         public boolean manage( final Class<?> clazz )
         {
             return false;

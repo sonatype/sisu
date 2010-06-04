@@ -14,9 +14,7 @@ package org.sonatype.guice.plexus.binders;
 
 import java.net.URLClassLoader;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -78,7 +76,6 @@ public class PlexusBeanMetadataTest
 
                 install( new PlexusBindingModule( null, new BeanSourceA() ) );
                 install( new PlexusBindingModule( manager, new BeanSourceB() ) );
-                install( new PlexusBindingModule( manager, new BeanSourceB() ) );
                 install( new PlexusBindingModule( null, new BeanSourceC() ) );
                 install( new PlexusBindingModule( null, new CustomizedBeanSource() ) );
 
@@ -90,13 +87,6 @@ public class PlexusBeanMetadataTest
     static class TestBeanManager
         implements PlexusBeanManager
     {
-        private final Set<Component> seen = new HashSet<Component>();
-
-        public boolean manage( final Component component, final DeferredClass<?> clazz )
-        {
-            return !seen.add( component );
-        }
-
         public boolean manage( final Class<?> clazz )
         {
             return false;

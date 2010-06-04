@@ -20,7 +20,6 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
-import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
@@ -46,11 +45,6 @@ public class PlexusConfigurationTest
         implements PlexusBeanManager
     {
         static int SEEN;
-
-        public boolean manage( final Component component, final DeferredClass<?> clazz )
-        {
-            return true;
-        }
 
         public boolean manage( final Class<?> clazz )
         {
