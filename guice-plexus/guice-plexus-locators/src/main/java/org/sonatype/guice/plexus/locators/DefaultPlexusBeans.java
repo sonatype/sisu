@@ -22,10 +22,10 @@ import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
- * Default {@link GuiceBeans} implementation that iterates over all beans of a given type.
+ * Default {@link PlexusBeans} implementation that iterates over all beans of a given type.
  */
-final class DefaultGuiceBeans<T>
-    extends AbstractGuiceBeans<T>
+final class DefaultPlexusBeans<T>
+    extends AbstractPlexusBeans<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -37,23 +37,23 @@ final class DefaultGuiceBeans<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    DefaultGuiceBeans( final TypeLiteral<T> role )
+    DefaultPlexusBeans( final TypeLiteral<T> role )
     {
         this.role = role;
     }
 
     // ----------------------------------------------------------------------
-    // Customized methods
+    // Implementation methods
     // ----------------------------------------------------------------------
 
     @Override
-    InjectorBeans<T> discoverInjectorBeans( final Injector injector )
+    PlexusInjectorBeans<T> discoverInjectorBeans( final Injector injector )
     {
-        return new InjectorBeans<T>( injector, role );
+        return new PlexusInjectorBeans<T>( injector, role );
     }
 
     @Override
-    List<PlexusBeanLocator.Bean<T>> getBeans( final List<InjectorBeans<T>> visibleBeans )
+    List<PlexusBeanLocator.Bean<T>> getBeans( final List<PlexusInjectorBeans<T>> visibleBeans )
     {
         if ( visibleBeans.isEmpty() )
         {

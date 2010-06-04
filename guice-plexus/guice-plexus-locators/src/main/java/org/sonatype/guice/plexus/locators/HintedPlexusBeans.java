@@ -23,10 +23,10 @@ import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
- * Specialized {@link GuiceBeans} implementation that iterates over beans of a given type according to named hints.
+ * Specialized {@link PlexusBeans} implementation that iterates over beans of a given type according to named hints.
  */
-final class HintedGuiceBeans<T>
-    extends AbstractGuiceBeans<T>
+final class HintedPlexusBeans<T>
+    extends AbstractPlexusBeans<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -40,30 +40,30 @@ final class HintedGuiceBeans<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    HintedGuiceBeans( final TypeLiteral<T> role, final String[] hints )
+    HintedPlexusBeans( final TypeLiteral<T> role, final String[] hints )
     {
         this.role = role;
         this.hints = hints;
     }
 
     // ----------------------------------------------------------------------
-    // Customized methods
+    // Implementation methods
     // ----------------------------------------------------------------------
 
     @Override
-    InjectorBeans<T> discoverInjectorBeans( final Injector injector )
+    PlexusInjectorBeans<T> discoverInjectorBeans( final Injector injector )
     {
-        return new InjectorBeans<T>( injector, role, hints );
+        return new PlexusInjectorBeans<T>( injector, role, hints );
     }
 
     @Override
-    List<PlexusBeanLocator.Bean<T>> getBeans( final List<InjectorBeans<T>> visibleBeans )
+    List<PlexusBeanLocator.Bean<T>> getBeans( final List<PlexusInjectorBeans<T>> visibleBeans )
     {
         // compile map of all known visible beans at this particular moment (can't build this map ahead of time)
         final Map<String, PlexusBeanLocator.Bean<T>> beanMap = new HashMap<String, PlexusBeanLocator.Bean<T>>();
         for ( int i = 0, size = visibleBeans.size(); i < size; i++ )
         {
-            final InjectorBeans<T> beans = visibleBeans.get( i );
+            final PlexusInjectorBeans<T> beans = visibleBeans.get( i );
             for ( final PlexusBeanLocator.Bean<T> b : beans )
             {
                 beanMap.put( b.getKey(), b ); // later injector bindings overlay earlier ones
@@ -75,7 +75,7 @@ final class HintedGuiceBeans<T>
         for ( final String hint : hints )
         {
             final PlexusBeanLocator.Bean<T> bean = beanMap.get( hint );
-            hintedBeans.add( null != bean ? bean : new MissingBean<T>( role, hint ) );
+            hintedBeans.add( null != bean ? bean : new MissingPlexusBean<T>( role, hint ) );
         }
         return hintedBeans;
     }

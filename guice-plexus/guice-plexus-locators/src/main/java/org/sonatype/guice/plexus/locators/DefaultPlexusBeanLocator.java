@@ -28,10 +28,10 @@ import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
- * {@link PlexusBeanLocator} that locates beans of various types from zero or more Guice {@link Injector}s.
+ * {@link PlexusBeanLocator} that locates beans of various types from zero or more {@link Injector}s.
  */
 @Singleton
-public final class GuiceBeanLocator
+public final class DefaultPlexusBeanLocator
     implements PlexusBeanLocator
 {
     // ----------------------------------------------------------------------
@@ -40,12 +40,47 @@ public final class GuiceBeanLocator
 
     private final Set<Injector> injectors = new LinkedHashSet<Injector>();
 
-    // keep track of all bean sequences that we've returned out in the past
-    private final List<Reference<GuiceBeans<?>>> guiceBeans = new ArrayList<Reference<GuiceBeans<?>>>();
+    // track all bean sequences returned to clients, so we can clean up when they become eligible for GC
+    private final List<Reference<PlexusBeans<?>>> exposedBeans = new ArrayList<Reference<PlexusBeans<?>>>();
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
+
+    public synchronized <T> Iterable<Bean<T>> locate( final TypeLiteral<T> role, final String... hints )
+    {
+        final PlexusBeans<T> beans;
+        if ( hints.length == 0 )
+        {
+            // sequence of all beans with this type
+            beans = new DefaultPlexusBeans<T>( role );
+        }
+        else
+        {
+            // sequence of hinted beans with this type
+            beans = new HintedPlexusBeans<T>( role, hints );
+        }
+
+        // build up the current bean sequence
+        for ( final Injector injector : injectors )
+        {
+            beans.add( injector );
+        }
+
+        for ( int i = 0; i < exposedBeans.size(); i++ )
+        {
+            // remove any previous GCd sequences
+            if ( null == exposedBeans.get( i ).get() )
+            {
+                exposedBeans.remove( i-- );
+            }
+        }
+
+        // record sequence so we can update it later on if necessary
+        exposedBeans.add( new WeakReference<PlexusBeans<?>>( beans ) );
+
+        return beans;
+    }
 
     @Inject
     public synchronized void add( final Injector injector )
@@ -54,10 +89,10 @@ public final class GuiceBeanLocator
         {
             return; // not a new injector, nothing to do
         }
-        for ( int i = 0; i < guiceBeans.size(); i++ )
+        for ( int i = 0; i < exposedBeans.size(); i++ )
         {
             // inform existing sequences about the added injector
-            final GuiceBeans<?> beans = guiceBeans.get( i ).get();
+            final PlexusBeans<?> beans = exposedBeans.get( i ).get();
             if ( null != beans )
             {
                 beans.add( injector );
@@ -65,7 +100,7 @@ public final class GuiceBeanLocator
             else
             {
                 // sequence has been GCd
-                guiceBeans.remove( i-- );
+                exposedBeans.remove( i-- );
             }
         }
     }
@@ -76,10 +111,10 @@ public final class GuiceBeanLocator
         {
             return; // not an old injector, nothing to do
         }
-        for ( int i = 0; i < guiceBeans.size(); i++ )
+        for ( int i = 0; i < exposedBeans.size(); i++ )
         {
             // inform existing sequences about the removed injector
-            final GuiceBeans<?> beans = guiceBeans.get( i ).get();
+            final PlexusBeans<?> beans = exposedBeans.get( i ).get();
             if ( null != beans )
             {
                 beans.remove( injector );
@@ -87,43 +122,8 @@ public final class GuiceBeanLocator
             else
             {
                 // sequence has been GCd
-                guiceBeans.remove( i-- );
+                exposedBeans.remove( i-- );
             }
         }
-    }
-
-    public synchronized <T> Iterable<Bean<T>> locate( final TypeLiteral<T> role, final String... hints )
-    {
-        final GuiceBeans<T> beans;
-        if ( hints.length == 0 )
-        {
-            // sequence of all beans with this type
-            beans = new DefaultGuiceBeans<T>( role );
-        }
-        else
-        {
-            // sequence of hinted beans with this type
-            beans = new HintedGuiceBeans<T>( role, hints );
-        }
-
-        // build up the current bean sequence
-        for ( final Injector injector : injectors )
-        {
-            beans.add( injector );
-        }
-
-        for ( int i = 0; i < guiceBeans.size(); i++ )
-        {
-            // remove any previous GCd sequences
-            if ( null == guiceBeans.get( i ).get() )
-            {
-                guiceBeans.remove( i-- );
-            }
-        }
-
-        // record sequence so we can update it later on if necessary
-        guiceBeans.add( new WeakReference<GuiceBeans<?>>( beans ) );
-
-        return beans;
     }
 }

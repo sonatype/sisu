@@ -24,7 +24,7 @@ import com.google.inject.name.Named;
 /**
  * {@link Entry} representing a missing @{@link Named} Plexus bean.
  */
-final class MissingBean<T>
+final class MissingPlexusBean<T>
     implements PlexusBeanLocator.Bean<T>
 {
     // ----------------------------------------------------------------------
@@ -39,7 +39,7 @@ final class MissingBean<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    MissingBean( final TypeLiteral<T> role, final String hint )
+    MissingPlexusBean( final TypeLiteral<T> role, final String hint )
     {
         this.role = role;
         this.hint = hint;
@@ -62,6 +62,11 @@ final class MissingBean<T>
     public T setValue( final T value )
     {
         throw new UnsupportedOperationException();
+    }
+
+    public String getDescription()
+    {
+        return null;
     }
 
     public DeferredClass<T> getImplementationClass()

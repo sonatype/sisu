@@ -35,7 +35,7 @@ import com.google.inject.spi.ProviderInstanceBinding;
 /**
  * {@link Entry} representing a lazy @{@link Named} Plexus bean; the bean is only retrieved when the value is requested.
  */
-final class LazyBean<T>
+final class LazyPlexusBean<T>
     implements PlexusBeanLocator.Bean<T>
 {
     // ----------------------------------------------------------------------
@@ -50,7 +50,7 @@ final class LazyBean<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    LazyBean( final Binding<T> binding )
+    LazyPlexusBean( final Binding<T> binding )
     {
         this.binding = binding;
     }
@@ -79,6 +79,12 @@ final class LazyBean<T>
         throw new UnsupportedOperationException();
     }
 
+    public String getDescription()
+    {
+        final Object source = binding.getSource();
+        return source instanceof String ? source.toString() : null;
+    }
+
     public DeferredClass<T> getImplementationClass()
     {
         final DeferredTargetVisitor<T, ?> visitor = new DeferredTargetVisitor<T, Object>();
@@ -86,8 +92,14 @@ final class LazyBean<T>
         return visitor.implementationClass;
     }
 
+    @Override
+    public String toString()
+    {
+        return getKey() + "=" + getValue();
+    }
+
     // ----------------------------------------------------------------------
-    // Implementation helpers
+    // Implementation types
     // ----------------------------------------------------------------------
 
     /**
@@ -97,7 +109,15 @@ final class LazyBean<T>
     static final class DeferredTargetVisitor<T, V>
         extends DefaultBindingTargetVisitor<T, V>
     {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
         DeferredClass<T> implementationClass;
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
 
         @Override
         public V visit( final ProviderInstanceBinding<? extends T> providerInstanceBinding )
@@ -131,11 +151,5 @@ final class LazyBean<T>
             implementationClass = new LoadedClass( instanceBinding.getInstance().getClass() );
             return null;
         }
-    }
-
-    @Override
-    public String toString()
-    {
-        return getKey() + "=" + getValue();
     }
 }

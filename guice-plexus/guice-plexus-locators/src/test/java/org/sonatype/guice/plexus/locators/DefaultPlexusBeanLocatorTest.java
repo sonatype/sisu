@@ -25,8 +25,10 @@ import org.codehaus.plexus.classworlds.ClassWorldException;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
+import org.sonatype.guice.bean.locators.BeanLocator;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
@@ -35,7 +37,7 @@ import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
-public class GuiceBeanLocatorTest
+public class DefaultPlexusBeanLocatorTest
     extends TestCase
 {
     @ImplementedBy( BeanImpl.class )
@@ -77,6 +79,8 @@ public class GuiceBeanLocatorTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "M1" ) ).to( BeanImpl.class );
+                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "!" ) ).to( BeanImpl.class );
                 bind( Bean.class ).annotatedWith( Names.named( "N1" ) ).to( BeanImpl.class );
             }
         } );
@@ -102,7 +106,7 @@ public class GuiceBeanLocatorTest
 
     public void testInjectorOrdering()
     {
-        final GuiceBeanLocator locator = new GuiceBeanLocator();
+        final DefaultPlexusBeanLocator locator = new DefaultPlexusBeanLocator();
 
         final Iterable<? extends Entry<String, Bean>> roles = locator.locate( TypeLiteral.get( Bean.class ) );
 
@@ -170,7 +174,7 @@ public class GuiceBeanLocatorTest
 
     public void testExistingInjectors()
     {
-        final GuiceBeanLocator locator = new GuiceBeanLocator();
+        final DefaultPlexusBeanLocator locator = new DefaultPlexusBeanLocator();
 
         locator.add( parent );
         locator.add( child1 );
@@ -194,20 +198,20 @@ public class GuiceBeanLocatorTest
     public void testWeakInjectors()
         throws Exception
     {
-        final GuiceBeanLocator locator = new GuiceBeanLocator();
+        final DefaultPlexusBeanLocator locator = new DefaultPlexusBeanLocator();
 
-        final Field guiceBeansField = GuiceBeanLocator.class.getDeclaredField( "guiceBeans" );
-        guiceBeansField.setAccessible( true );
+        final Field exposedBeansField = DefaultPlexusBeanLocator.class.getDeclaredField( "exposedBeans" );
+        exposedBeansField.setAccessible( true );
 
-        final List<?> guiceBeans = (List<?>) guiceBeansField.get( locator );
+        final List<?> exposedBeans = (List<?>) exposedBeansField.get( locator );
 
-        assertEquals( 0, guiceBeans.size() );
+        assertEquals( 0, exposedBeans.size() );
         Iterable<?> a = locator.locate( TypeLiteral.get( Bean.class ) );
-        assertEquals( 1, guiceBeans.size() );
+        assertEquals( 1, exposedBeans.size() );
         Iterable<?> b = locator.locate( TypeLiteral.get( Bean.class ) );
-        assertEquals( 2, guiceBeans.size() );
+        assertEquals( 2, exposedBeans.size() );
         Iterable<?> c = locator.locate( TypeLiteral.get( Bean.class ) );
-        assertEquals( 3, guiceBeans.size() );
+        assertEquals( 3, exposedBeans.size() );
 
         a.iterator();
         b.iterator();
@@ -215,41 +219,41 @@ public class GuiceBeanLocatorTest
 
         forceGC();
 
-        assertEquals( 3, guiceBeans.size() );
+        assertEquals( 3, exposedBeans.size() );
         locator.add( child2 );
-        assertEquals( 3, guiceBeans.size() );
+        assertEquals( 3, exposedBeans.size() );
 
         b.iterator();
         b = null;
         forceGC();
 
-        assertEquals( 3, guiceBeans.size() );
+        assertEquals( 3, exposedBeans.size() );
         locator.remove( child2 );
-        assertEquals( 2, guiceBeans.size() );
+        assertEquals( 2, exposedBeans.size() );
 
         a.iterator();
         a = null;
         forceGC();
 
-        assertEquals( 2, guiceBeans.size() );
+        assertEquals( 2, exposedBeans.size() );
         locator.add( child2 );
-        assertEquals( 1, guiceBeans.size() );
+        assertEquals( 1, exposedBeans.size() );
 
         c.iterator();
         c = null;
         forceGC();
 
-        assertEquals( 1, guiceBeans.size() );
+        assertEquals( 1, exposedBeans.size() );
         locator.locate( TypeLiteral.get( Bean.class ) );
-        assertEquals( 1, guiceBeans.size() );
+        assertEquals( 1, exposedBeans.size() );
     }
 
     public void testInjectorManagement()
         throws Exception
     {
-        final GuiceBeanLocator locator = new GuiceBeanLocator();
+        final DefaultPlexusBeanLocator locator = new DefaultPlexusBeanLocator();
 
-        final Field injectorsField = GuiceBeanLocator.class.getDeclaredField( "injectors" );
+        final Field injectorsField = DefaultPlexusBeanLocator.class.getDeclaredField( "injectors" );
         injectorsField.setAccessible( true );
 
         final Set<?> injectors = (Set<?>) injectorsField.get( locator );
@@ -273,7 +277,7 @@ public class GuiceBeanLocatorTest
 
     public void testRoleHintLookup()
     {
-        final GuiceBeanLocator locator = new GuiceBeanLocator();
+        final DefaultPlexusBeanLocator locator = new DefaultPlexusBeanLocator();
 
         final Iterable<? extends Entry<String, Bean>> roles =
             locator.locate( TypeLiteral.get( Bean.class ), "A", "M1", "N3", "-", "!", "-", "M3", "N1", "Z" );
@@ -391,7 +395,7 @@ public class GuiceBeanLocatorTest
     public void testInjectorVisibility()
         throws NoSuchRealmException
     {
-        final GuiceBeanLocator locator = new GuiceBeanLocator();
+        final DefaultPlexusBeanLocator locator = new DefaultPlexusBeanLocator();
         final ClassWorld world = new ClassWorld();
 
         locator.add( Guice.createInjector( new AbstractModule()

@@ -17,23 +17,23 @@ import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import com.google.inject.Injector;
 
 /**
- * Dynamic {@link Iterable} sequence of beans backed by bindings from zero or more Guice {@link Injector}s.
+ * Dynamic {@link Iterable} sequence of beans backed by bindings from zero or more {@link Injector}s.
  */
-interface GuiceBeans<T>
+interface PlexusBeans<T>
     extends Iterable<PlexusBeanLocator.Bean<T>>
 {
     /**
-     * Adds the given Guice {@link Injector} to the backing list.
+     * Adds the given {@link Injector} to the backing list.
      * 
-     * @param injector The Guice injector
+     * @param injector The new injector
      * @return {@code true} if the sequence changed as a result of the call; otherwise {@code false}
      */
     boolean add( Injector injector );
 
     /**
-     * Removes the given Guice {@link Injector} from the backing list.
+     * Removes the given {@link Injector} from the backing list.
      * 
-     * @param injector The Guice injector
+     * @param injector The old injector
      * @return {@code true} if the sequence changed as a result of the call; otherwise {@code false}
      */
     boolean remove( Injector injector );

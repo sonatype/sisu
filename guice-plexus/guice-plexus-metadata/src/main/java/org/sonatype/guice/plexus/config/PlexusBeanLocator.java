@@ -30,6 +30,11 @@ public interface PlexusBeanLocator
         extends Entry<String, T>
     {
         /**
+         * @return Human readable bean description
+         */
+        String getDescription();
+
+        /**
          * @return Deferred implementation class
          */
         DeferredClass<T> getImplementationClass();

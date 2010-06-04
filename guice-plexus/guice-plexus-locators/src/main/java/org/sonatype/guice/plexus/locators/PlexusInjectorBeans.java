@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.Roles;
@@ -28,9 +29,9 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 
 /**
- * {@link List} of Plexus beans with the same type from the same Guice {@link Injector}.
+ * {@link List} of Plexus beans with the same type from the same {@link Injector}.
  */
-final class InjectorBeans<T>
+final class PlexusInjectorBeans<T>
     extends ArrayList<PlexusBeanLocator.Bean<T>>
 {
     // ----------------------------------------------------------------------
@@ -55,21 +56,25 @@ final class InjectorBeans<T>
      * @param injector The injector
      * @param role The Plexus role
      */
-    InjectorBeans( final Injector injector, final TypeLiteral<T> role )
+    PlexusInjectorBeans( final Injector injector, final TypeLiteral<T> role )
     {
         this.injector = injector;
 
         // only covers explicit bindings, such as those specified in a module
         for ( final Binding<T> binding : injector.findBindingsByType( role ) )
         {
+            if ( BeanLocator.HIDDEN_SOURCE == binding.getSource() )
+            {
+                continue;
+            }
             final Annotation ann = binding.getKey().getAnnotation();
             if ( null == ann )
             {
-                add( 0, new LazyBean<T>( binding ) ); // default takes precedence
+                add( 0, new LazyPlexusBean<T>( binding ) ); // default takes precedence
             }
             else if ( ann instanceof Named && !Hints.isDefaultHint( ( (Named) ann ).value() ) )
             {
-                add( new LazyBean<T>( binding ) );
+                add( new LazyPlexusBean<T>( binding ) );
             }
         }
 
@@ -84,8 +89,10 @@ final class InjectorBeans<T>
      * @param hints The Plexus hints
      */
     @SuppressWarnings( "unchecked" )
-    InjectorBeans( final Injector injector, final TypeLiteral<T> role, final String[] hints )
+    PlexusInjectorBeans( final Injector injector, final TypeLiteral<T> role, final String[] hints )
     {
+        super( hints.length ); // minimize memory usage
+
         this.injector = injector;
 
         // only covers explicit bindings, such as those specified in a module
@@ -93,12 +100,10 @@ final class InjectorBeans<T>
         for ( final String hint : hints )
         {
             final Binding binding = bindings.get( Roles.componentKey( role, hint ) );
-            if ( null != binding )
+            if ( null != binding && BeanLocator.HIDDEN_SOURCE != binding.getSource() )
             {
-                add( new LazyBean<T>( binding ) );
+                add( new LazyPlexusBean<T>( binding ) );
             }
         }
-
-        trimToSize(); // minimize memory usage
     }
 }

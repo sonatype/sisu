@@ -40,7 +40,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.config.Strategies;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
-import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
+import org.sonatype.guice.plexus.locators.DefaultPlexusBeanLocator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -69,7 +69,7 @@ public class PlexusBeanMetadataTest
                 install( new PlexusDateTypeConverter() );
                 install( new PlexusXmlBeanConverter() );
 
-                bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
+                bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
 
                 bindConstant().annotatedWith( Names.named( "KEY1" ) ).to( "REQUIREMENT" );

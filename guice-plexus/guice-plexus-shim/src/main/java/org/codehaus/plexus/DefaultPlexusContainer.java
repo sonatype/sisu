@@ -48,7 +48,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
-import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
+import org.sonatype.guice.plexus.locators.DefaultPlexusBeanLocator;
 import org.sonatype.guice.plexus.scanners.PlexusXmlBeanSource;
 
 import com.google.inject.AbstractModule;
@@ -89,7 +89,7 @@ public final class DefaultPlexusContainer
 
     final ThreadLocal<ClassRealm> lookupRealm = new ThreadLocal<ClassRealm>();
 
-    final GuiceBeanLocator beanLocator = new GuiceBeanLocator();
+    final DefaultPlexusBeanLocator beanLocator = new DefaultPlexusBeanLocator();
 
     final Context context;
 
@@ -611,16 +611,16 @@ public final class DefaultPlexusContainer
             bind( Map.class ).annotatedWith( Names.named( PlexusConstants.PLEXUS_KEY ) ).toInstance( variables );
             bind( Logger.class ).toProvider( loggerProvider );
 
+            bind( MutablePlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
+            bind( DefaultPlexusBeanLocator.class ).toInstance( beanLocator );
+            bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
+
             install( dateConverter );
             install( beanConverter );
 
-            bind( GuiceBeanLocator.class ).toInstance( beanLocator );
-            bind( MutablePlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
-            bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
-
-            bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
-            bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
             bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
+            bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
+            bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
         }
     }
 

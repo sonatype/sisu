@@ -17,7 +17,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
-import org.sonatype.guice.plexus.locators.GuiceBeanLocator;
+import org.sonatype.guice.plexus.locators.DefaultPlexusBeanLocator;
 import org.sonatype.guice.plexus.scanners.PlexusAnnotatedBeanSource;
 
 import com.google.inject.AbstractModule;
@@ -34,7 +34,7 @@ public class SimpleRequirementExample
             protected void configure()
             {
                 install( new PlexusXmlBeanConverter() );
-                bind( PlexusBeanLocator.class ).to( GuiceBeanLocator.class );
+                bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
                 install( new PlexusBindingModule( null, new PlexusAnnotatedBeanSource( null, null ) ) );
                 bindConstant().annotatedWith( Names.named( "example" ) ).to( "TEST" );

@@ -12,17 +12,27 @@
  */
 package org.sonatype.guice.plexus.locators;
 
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 
+import javax.inject.Qualifier;
+
 import junit.framework.TestCase;
 
+import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
@@ -30,9 +40,37 @@ import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
-public class InjectorBeansTest
+public class PlexusInjectorBeansTest
     extends TestCase
 {
+    @Target( TYPE )
+    @Retention( RUNTIME )
+    @Qualifier
+    public @interface Fuzzy
+    {
+    }
+
+    static class FuzzyImpl
+        implements Fuzzy
+    {
+        public Class<? extends Annotation> annotationType()
+        {
+            return Fuzzy.class;
+        }
+
+        @Override
+        public boolean equals( final Object rhs )
+        {
+            return rhs instanceof Fuzzy;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return 0;
+        }
+    }
+
     interface Bean
     {
     }
@@ -75,6 +113,10 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
@@ -83,7 +125,7 @@ public class InjectorBeansTest
         } );
 
         final Iterable<? extends Entry<String, Bean>> roles =
-            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
         Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -153,6 +195,10 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
+                hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to(
                                                                                                          DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
@@ -162,7 +208,7 @@ public class InjectorBeansTest
         } );
 
         final Iterable<? extends Entry<String, ImplicitDefaultBean>> roles =
-            new InjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
+            new PlexusInjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
 
         Iterator<? extends Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
@@ -223,6 +269,10 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
@@ -232,7 +282,7 @@ public class InjectorBeansTest
         } );
 
         final Iterable<? extends Entry<String, Bean>> roles =
-            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
         Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -303,6 +353,10 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
+                hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to(
                                                                                                          DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
@@ -320,7 +374,7 @@ public class InjectorBeansTest
         } );
 
         final Iterable<? extends Entry<String, ImplicitDefaultBean>> roles =
-            new InjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
+            new PlexusInjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
 
         Iterator<? extends Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
@@ -361,6 +415,10 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
+                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
@@ -378,7 +436,7 @@ public class InjectorBeansTest
         } );
 
         final Iterable<? extends Entry<String, Bean>> roles =
-            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
         Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -429,6 +487,10 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
@@ -439,7 +501,7 @@ public class InjectorBeansTest
         final String[] hints = new String[] { "A", "C", null, "B" };
 
         final Iterable<? extends Entry<String, Bean>> roles =
-            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
+            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
 
         Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -509,6 +571,10 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
+                hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to(
                                                                                                          DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
@@ -520,7 +586,7 @@ public class InjectorBeansTest
         final String[] hints = new String[] { "A", "C", null, "B" };
 
         final Iterable<? extends Entry<String, ImplicitDefaultBean>> roles =
-            new InjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ), hints );
+            new PlexusInjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ), hints );
 
         Iterator<? extends Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
@@ -581,6 +647,10 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "!" ) ).to( ABean.class );
@@ -593,7 +663,7 @@ public class InjectorBeansTest
         final String[] hints = new String[] { "A", "C", null, "B" };
 
         final Iterable<? extends Entry<String, Bean>> roles =
-            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
+            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
 
         Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -664,6 +734,10 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
+                hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to(
                                                                                                          DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
@@ -683,7 +757,7 @@ public class InjectorBeansTest
         final String[] hints = new String[] { "A", "C", null, "B" };
 
         final Iterable<? extends Entry<String, ImplicitDefaultBean>> roles =
-            new InjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ), hints );
+            new PlexusInjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ), hints );
 
         Iterator<? extends Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
@@ -724,6 +798,10 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
+                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
@@ -743,7 +821,7 @@ public class InjectorBeansTest
         final String[] hints = new String[] { "A", "C", null, "B" };
 
         final Iterable<? extends Entry<String, Bean>> roles =
-            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
+            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
 
         Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -796,6 +874,10 @@ public class InjectorBeansTest
                 final Provider<Bean> deferredProvider = new LoadedClass<Bean>( BBean.class ).asProvider();
 
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "B" ) ).toProvider( deferredProvider );
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).toInstance( new CBean() );
                 try
@@ -818,7 +900,7 @@ public class InjectorBeansTest
         } );
 
         final Iterable<PlexusBeanLocator.Bean<Bean>> roles =
-            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
         Iterator<PlexusBeanLocator.Bean<Bean>> i;
 
@@ -836,6 +918,29 @@ public class InjectorBeansTest
         assertSame( DefaultBean.class, i.next().getImplementationClass().load() );
         assertSame( null, i.next().getImplementationClass() );
 
-        assertNull( new MissingBean<Bean>( TypeLiteral.get( Bean.class ), "?" ).getImplementationClass() );
+        assertNull( new MissingPlexusBean<Bean>( TypeLiteral.get( Bean.class ), "?" ).getImplementationClass() );
+    }
+
+    public void testDescription()
+    {
+        final Injector injector = Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                final Binder docBinder = binder().withSource( "some sort of descriptive text" );
+                docBinder.bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
+            }
+        } );
+
+        final Iterable<PlexusBeanLocator.Bean<Bean>> roles =
+            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+
+        final Iterator<PlexusBeanLocator.Bean<Bean>> i = roles.iterator();
+        assertEquals( "some sort of descriptive text", i.next().getDescription() );
+        assertNull( i.next().getDescription() );
+
+        assertNull( new MissingPlexusBean<Bean>( TypeLiteral.get( Bean.class ), "?" ).getDescription() );
     }
 }

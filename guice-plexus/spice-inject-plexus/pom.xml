@@ -15,7 +15,7 @@
   <groupId>org.sonatype.spice</groupId>
   <artifactId>spice-inject-plexus</artifactId>
 
-  <name>Spice - Inject (plexus components)</name>
+  <name>Spice - Inject (Plexus bean support)</name>
 
   <build>
     <plugins>
