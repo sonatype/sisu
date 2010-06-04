@@ -74,17 +74,13 @@ class GuiceBeans<Q extends Annotation, T>
         return combinedBeans.iterator();
     }
 
-    // ----------------------------------------------------------------------
-    // Locally-shared methods
-    // ----------------------------------------------------------------------
-
     /**
      * Adds qualified beans from the given injector to the current sequence.
      * 
      * @param injector The new injector
      * @return Added beans
      */
-    synchronized List<Entry<Q, T>> add( final Injector injector )
+    public synchronized List<Entry<Q, T>> add( final Injector injector )
     {
         final InjectorBeans<Q, T> newBeans = new InjectorBeans<Q, T>( injector, key );
         if ( !newBeans.isEmpty() )
@@ -104,7 +100,7 @@ class GuiceBeans<Q extends Annotation, T>
      * @param injector The old injector
      * @return Removed beans
      */
-    synchronized List<Entry<Q, T>> remove( final Injector injector )
+    public synchronized List<Entry<Q, T>> remove( final Injector injector )
     {
         if ( null != injectorBeans )
         {

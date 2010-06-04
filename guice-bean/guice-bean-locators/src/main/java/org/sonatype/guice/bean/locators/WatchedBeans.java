@@ -65,12 +65,8 @@ final class WatchedBeans<Q extends Annotation, T, W>
         return null != watcherRef.get() ? this : null;
     }
 
-    // ----------------------------------------------------------------------
-    // Locally-shared methods
-    // ----------------------------------------------------------------------
-
     @Override
-    synchronized List<Entry<Q, T>> add( final Injector injector )
+    public synchronized List<Entry<Q, T>> add( final Injector injector )
     {
         final List<Entry<Q, T>> newBeans = super.add( injector );
         final W watcher = watcherRef.get();
@@ -94,7 +90,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
     }
 
     @Override
-    synchronized List<Entry<Q, T>> remove( final Injector injector )
+    public synchronized List<Entry<Q, T>> remove( final Injector injector )
     {
         final List<Entry<Q, T>> oldBeans = super.remove( injector );
         final W watcher = watcherRef.get();

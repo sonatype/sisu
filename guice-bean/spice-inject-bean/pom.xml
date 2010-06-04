@@ -15,7 +15,7 @@
   <groupId>org.sonatype.spice</groupId>
   <artifactId>spice-inject-bean</artifactId>
 
-  <name>Spice - Inject (bean components)</name>
+  <name>Spice - Inject (JSR330 bean support)</name>
 
   <build>
     <plugins>

@@ -32,6 +32,7 @@ import org.sonatype.inject.BeanMediator;
 import com.google.inject.AbstractModule;
 import com.google.inject.CreationException;
 import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
@@ -60,6 +61,9 @@ public class AutoBinderTest
     abstract static class Abstract
         implements X
     {
+        @Inject
+        Injector injector;
+
         @Inject
         @Named( "local" )
         Y local;
