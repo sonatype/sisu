@@ -19,7 +19,7 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 
 /**
- * {@link Iterator} that iterates over entries beneath a file-system directory.
+ * {@link Iterator} that iterates over named entries beneath a file-system directory.
  */
 final class FileEntryIterator
     implements Iterator<String>
@@ -30,7 +30,7 @@ final class FileEntryIterator
 
     private final String rootPath;
 
-    private final LinkedList<String> entries = new LinkedList<String>();
+    private final LinkedList<String> entryNames = new LinkedList<String>();
 
     private final boolean recurse;
 
@@ -49,7 +49,7 @@ final class FileEntryIterator
     {
         rootPath = normalizePath( toFile( url ).getAbsoluteFile() );
         this.recurse = recurse;
-        includeEntries( subPath );
+        appendEntries( subPath );
     }
 
     // ----------------------------------------------------------------------
@@ -58,20 +58,19 @@ final class FileEntryIterator
 
     public boolean hasNext()
     {
-        return !entries.isEmpty();
+        return !entryNames.isEmpty();
     }
 
     public String next()
     {
         if ( hasNext() )
         {
-            final String entry = entries.removeFirst();
-            if ( recurse && entry.endsWith( "/" ) )
+            final String name = entryNames.removeFirst();
+            if ( recurse && name.endsWith( "/" ) )
             {
-                // include its contents
-                includeEntries( entry );
+                appendEntries( name );
             }
-            return entry;
+            return name;
         }
         throw new NoSuchElementException();
     }
@@ -120,18 +119,18 @@ final class FileEntryIterator
     // ----------------------------------------------------------------------
 
     /**
-     * Includes entries from the given sub-path.
+     * Appends entries from the given sub-path to the cached list of named entries.
      * 
      * @param subPath The sub path
      */
-    private void includeEntries( final String subPath )
+    private void appendEntries( final String subPath )
     {
         final File[] listing = new File( rootPath + subPath ).listFiles();
         if ( null != listing )
         {
             for ( final File f : listing )
             {
-                entries.add( normalizePath( f ).substring( rootPath.length() ) );
+                entryNames.add( normalizePath( f ).substring( rootPath.length() ) );
             }
         }
     }

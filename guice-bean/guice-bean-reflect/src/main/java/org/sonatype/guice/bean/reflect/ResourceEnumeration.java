@@ -31,8 +31,7 @@ final class ResourceEnumeration
     // Constants
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
-    static final Iterator<String> NO_ENTRIES = Collections.EMPTY_LIST.iterator();
+    private static final Iterator<String> NO_ENTRIES = Collections.<String> emptyList().iterator();
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -48,9 +47,9 @@ final class ResourceEnumeration
 
     private URL currentURL;
 
-    private Iterator<String> entries = NO_ENTRIES;
+    private Iterator<String> entryNames = NO_ENTRIES;
 
-    private String nextEntry;
+    private String nextEntryName;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -79,20 +78,20 @@ final class ResourceEnumeration
 
     public boolean hasMoreElements()
     {
-        while ( null == nextEntry )
+        while ( null == nextEntryName )
         {
-            if ( entries.hasNext() )
+            if ( entryNames.hasNext() )
             {
-                final String entry = entries.next();
-                if ( matchesRequest( entry ) )
+                final String name = entryNames.next();
+                if ( matchesRequest( name ) )
                 {
-                    nextEntry = entry;
+                    nextEntryName = name;
                 }
             }
             else if ( urls.hasNext() )
             {
                 currentURL = urls.next();
-                entries = scan( currentURL );
+                entryNames = scan( currentURL );
             }
             else
             {
@@ -107,12 +106,12 @@ final class ResourceEnumeration
         if ( hasMoreElements() )
         {
             // initialized by hasMoreElements()
-            final String entry = nextEntry;
-            nextEntry = null;
+            final String name = nextEntryName;
+            nextEntryName = null;
 
             try
             {
-                return entryURL( currentURL, entry );
+                return entryURL( currentURL, name );
             }
             catch ( final MalformedURLException e )
             {
@@ -131,17 +130,17 @@ final class ResourceEnumeration
      * Returns a {@link URL} that points to the given entry inside the containing URL.
      * 
      * @param url The containing URL
-     * @param path The entry path
+     * @param name The entry name
      * @return URL pointing to the entry
      */
-    static URL entryURL( final URL url, final String path )
+    static URL entryURL( final URL url, final String name )
         throws MalformedURLException
     {
         if ( null == url )
         {
             throw new MalformedURLException( "null" );
         }
-        return url.getPath().endsWith( "/" ) ? new URL( url, path ) : new URL( "jar:" + url + "!/" + path );
+        return url.getPath().endsWith( "/" ) ? new URL( url, name ) : new URL( "jar:" + url + "!/" + name );
     }
 
     // ----------------------------------------------------------------------
@@ -198,18 +197,18 @@ final class ResourceEnumeration
     }
 
     /**
-     * Compares the given entry path against the normalized search path and compiled glob pattern.
+     * Compares the given entry name against the normalized search path and compiled glob pattern.
      * 
-     * @param entryPath The entry path
-     * @return {@code true} if the given path matches the search criteria; otherwise {@code false}
+     * @param entryName The entry name
+     * @return {@code true} if the given name matches the search criteria; otherwise {@code false}
      */
-    private boolean matchesRequest( final String entryPath )
+    private boolean matchesRequest( final String entryName )
     {
-        if ( entryPath.endsWith( "/" ) || entryPath.length() <= subPath.length() || !entryPath.startsWith( subPath ) )
+        if ( entryName.endsWith( "/" ) || entryName.length() <= subPath.length() || !entryName.startsWith( subPath ) )
         {
             return false; // not inside the search scope
         }
-        if ( !recurse && entryPath.indexOf( '/', subPath.length() ) > 0 )
+        if ( !recurse && entryName.indexOf( '/', subPath.length() ) > 0 )
         {
             return false; // inside a sub-directory
         }
@@ -218,8 +217,8 @@ final class ResourceEnumeration
             return true; // null pattern always matches
         }
 
-        // globbed pattern only applies to the last segment of the entry path
-        final int basenameIndex = 1 + entryPath.lastIndexOf( '/', entryPath.length() - 2 );
-        return globPattern.matcher( entryPath.substring( basenameIndex ) ).matches();
+        // globbed pattern only applies to the last path segment of the entry name
+        final int basenameIndex = 1 + entryName.lastIndexOf( '/', entryName.length() - 2 );
+        return globPattern.matcher( entryName.substring( basenameIndex ) ).matches();
     }
 }

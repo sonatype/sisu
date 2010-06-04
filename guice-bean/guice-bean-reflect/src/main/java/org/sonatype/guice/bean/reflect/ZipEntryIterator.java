@@ -15,25 +15,33 @@ package org.sonatype.guice.bean.reflect;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 /**
- * {@link Iterator} that iterates over entries inside JAR or ZIP resources.
+ * {@link Iterator} that iterates over named entries inside JAR or ZIP resources.
  */
 final class ZipEntryIterator
     implements Iterator<String>
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final String[] NO_ENTRIES = {};
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private Iterator<String> iterator;
+    private String[] entryNames;
+
+    private int index;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -45,16 +53,16 @@ final class ZipEntryIterator
         {
             if ( "file".equals( url.getProtocol() ) )
             {
-                iterator = iterator( new ZipFile( FileEntryIterator.toFile( url ) ) );
+                entryNames = getEntryNames( new ZipFile( FileEntryIterator.toFile( url ) ) );
             }
             else
             {
-                iterator = iterator( new ZipInputStream( url.openStream() ) );
+                entryNames = getEntryNames( new ZipInputStream( url.openStream() ) );
             }
         }
         catch ( final IOException e )
         {
-            iterator = ResourceEnumeration.NO_ENTRIES;
+            entryNames = NO_ENTRIES;
         }
     }
 
@@ -64,12 +72,16 @@ final class ZipEntryIterator
 
     public boolean hasNext()
     {
-        return iterator.hasNext();
+        return index < entryNames.length;
     }
 
     public String next()
     {
-        return iterator.next();
+        if ( hasNext() )
+        {
+            return entryNames[index++];
+        }
+        throw new NoSuchElementException();
     }
 
     public void remove()
@@ -82,12 +94,12 @@ final class ZipEntryIterator
     // ----------------------------------------------------------------------
 
     /**
-     * Returns an {@link Iterator} that iterates over the contents of the given zip file.
+     * Returns a string array listing the entries in the given zip file.
      * 
      * @param zipFile The zip file
-     * @return Iterator that iterates over resources contained inside the given zip file
+     * @return Array of entry names
      */
-    private static Iterator<String> iterator( final ZipFile zipFile )
+    private static String[] getEntryNames( final ZipFile zipFile )
         throws IOException
     {
         try
@@ -98,7 +110,7 @@ final class ZipEntryIterator
             {
                 names[i] = e.nextElement().getName();
             }
-            return Arrays.asList( names ).iterator();
+            return names;
         }
         finally
         {
@@ -107,12 +119,12 @@ final class ZipEntryIterator
     }
 
     /**
-     * Returns an {@link Iterator} that iterates over the contents of the given zip stream.
+     * Returns a string array listing the entries in the given zip stream.
      * 
      * @param zipStream The zip stream
-     * @return Iterator that iterates over resources contained inside the given zip stream
+     * @return Array of entry names
      */
-    private static Iterator<String> iterator( final ZipInputStream zipStream )
+    private static String[] getEntryNames( final ZipInputStream zipStream )
         throws IOException
     {
         try
@@ -122,7 +134,7 @@ final class ZipEntryIterator
             {
                 names.add( e.getName() );
             }
-            return names.iterator();
+            return names.toArray( new String[names.size()] );
         }
         finally
         {
