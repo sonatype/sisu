@@ -16,6 +16,7 @@ import static org.sonatype.guice.bean.reflect.ResourceEnumeration.entryURL;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
@@ -189,9 +190,9 @@ public final class URLClassSpace
                 {
                     searchURLs.add( new URL( url, entry ) );
                 }
-                catch ( final IOException e ) // NOPMD
+                catch ( final MalformedURLException e ) // NOPMD
                 {
-                    // missing Class-Path entry
+                    // invalid Class-Path entry
                 }
             }
         }

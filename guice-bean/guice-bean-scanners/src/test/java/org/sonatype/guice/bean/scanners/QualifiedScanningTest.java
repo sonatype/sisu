@@ -21,6 +21,8 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.inject.Named;
 import javax.inject.Qualifier;
@@ -92,7 +94,6 @@ public class QualifiedScanningTest
     }
 
     public void testQualifiedScanning()
-        throws IOException
     {
         final TestListener listener = new TestListener();
         final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
@@ -108,7 +109,6 @@ public class QualifiedScanningTest
     }
 
     public void testFilteredScanning()
-        throws IOException
     {
         final TestListener listener = new TestListener();
         final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
@@ -177,15 +177,7 @@ public class QualifiedScanningTest
             }
         };
 
-        try
-        {
-            new ClassSpaceScanner( brokenResourceSpace ).accept( new QualifiedTypeVisitor( null ) );
-            fail( "Expected RuntimeException" );
-        }
-        catch ( final RuntimeException e )
-        {
-            assertTrue( e.getMessage().contains( "IOException" ) );
-        }
+        new ClassSpaceScanner( brokenResourceSpace ).accept( new QualifiedTypeVisitor( null ) );
 
         final ClassSpace brokenLoadSpace = new ClassSpace()
         {
@@ -222,6 +214,42 @@ public class QualifiedScanningTest
         }
         catch ( final TypeNotPresentException e )
         {
+        }
+    }
+
+    public void testOptionalLogging()
+        throws Exception
+    {
+        final Level level = Logger.getLogger( "" ).getLevel();
+        try
+        {
+            Logger.getLogger( "" ).setLevel( Level.SEVERE );
+
+            // check everything still works without any SLF4J jars
+            final ClassLoader noLoggingLoader =
+                new URLClassLoader( ( (URLClassLoader) getClass().getClassLoader() ).getURLs(), null )
+                {
+                    @Override
+                    protected synchronized Class<?> loadClass( final String name, final boolean resolve )
+                        throws ClassNotFoundException
+                    {
+                        if ( name.contains( "slf4j" ) )
+                        {
+                            throw new ClassNotFoundException( name );
+                        }
+                        if ( name.contains( "cobertura" ) )
+                        {
+                            return QualifiedScanningTest.class.getClassLoader().loadClass( name );
+                        }
+                        return super.loadClass( name, resolve );
+                    }
+                };
+
+            noLoggingLoader.loadClass( BrokenScanningExample.class.getName() ).newInstance();
+        }
+        finally
+        {
+            Logger.getLogger( "" ).setLevel( level );
         }
     }
 

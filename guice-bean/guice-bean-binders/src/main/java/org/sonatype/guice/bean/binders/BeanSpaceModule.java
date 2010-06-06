@@ -12,8 +12,6 @@
  */
 package org.sonatype.guice.bean.binders;
 
-import java.io.IOException;
-
 import javax.inject.Qualifier;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
@@ -50,13 +48,6 @@ public final class BeanSpaceModule
 
     public void configure( final Binder binder )
     {
-        try
-        {
-            new ClassSpaceScanner( space ).accept( new QualifiedTypeVisitor( new QualifiedTypeBinder( binder ) ) );
-        }
-        catch ( final IOException e )
-        {
-            binder.addError( "Error scanning class space: " + space + " reason: " + e );
-        }
+        new ClassSpaceScanner( space ).accept( new QualifiedTypeVisitor( new QualifiedTypeBinder( binder ) ) );
     }
 }

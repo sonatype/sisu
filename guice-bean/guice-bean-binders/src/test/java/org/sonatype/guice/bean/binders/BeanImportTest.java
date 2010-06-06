@@ -37,7 +37,7 @@ import com.google.inject.Key;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 
-public class AutoBinderTest
+public class BeanImportTest
     extends TestCase
 {
     @Retention( RetentionPolicy.RUNTIME )

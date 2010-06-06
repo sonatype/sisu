@@ -137,5 +137,15 @@ public class BundleClassSpaceTest
 
         assertEquals( clazzName, clazz.getName() );
         assertSame( space.loadClass( clazzName ), clazz.load() );
+
+        final DeferredClass<?> missingClazz = space.deferLoadClass( "missing.class" );
+        try
+        {
+            missingClazz.load();
+            fail( "Expected TypeNotPresentException" );
+        }
+        catch ( final TypeNotPresentException e )
+        {
+        }
     }
 }

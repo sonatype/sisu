@@ -154,7 +154,6 @@ public class PlexusAnnotatedBeanSourceTest
         throws IOException
     {
         final URL badClassURL = new File( "bad.class" ).toURL();
-
         final PlexusBeanSource source = new PlexusAnnotatedBeanSource( new ClassSpace()
         {
             public Class<?> loadClass( final String name )
@@ -174,18 +173,7 @@ public class PlexusAnnotatedBeanSourceTest
 
             public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
             {
-                return new Enumeration<URL>()
-                {
-                    public boolean hasMoreElements()
-                    {
-                        return true;
-                    }
-
-                    public URL nextElement()
-                    {
-                        return badClassURL;
-                    }
-                };
+                return Collections.enumeration( Collections.singleton( badClassURL ) );
             }
 
             public DeferredClass<?> deferLoadClass( final String name )
@@ -194,14 +182,7 @@ public class PlexusAnnotatedBeanSourceTest
             }
         }, null );
 
-        try
-        {
-            source.findPlexusComponentBeans();
-            fail( "Expected RuntimeException" );
-        }
-        catch ( final RuntimeException e )
-        {
-        }
+        assertEquals( 0, source.findPlexusComponentBeans().size() );
     }
 
     public void testClassVisitorAPI()

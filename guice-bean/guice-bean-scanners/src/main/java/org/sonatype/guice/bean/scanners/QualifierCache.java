@@ -12,11 +12,9 @@
  */
 package org.sonatype.guice.bean.scanners;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.MissingResourceException;
 
 import javax.inject.Qualifier;
 
@@ -63,15 +61,8 @@ final class QualifierCache
         if ( !cachedResults.containsKey( desc ) )
         {
             final String name = desc.substring( 1, desc.length() - 1 );
-            try
-            {
-                ClassSpaceScanner.accept( this, space.getResource( name + ".class" ) );
-                cachedResults.put( desc, isQualified ? space.loadClass( name.replace( '/', '.' ) ) : null );
-            }
-            catch ( final IOException e )
-            {
-                throw new MissingResourceException( e.toString(), name, "" );
-            }
+            ClassSpaceScanner.accept( this, space.getResource( name + ".class" ) );
+            cachedResults.put( desc, isQualified ? space.loadClass( name.replace( '/', '.' ) ) : null );
         }
         return cachedResults.get( desc );
     }

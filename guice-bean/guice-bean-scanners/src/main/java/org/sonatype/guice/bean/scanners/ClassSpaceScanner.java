@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -59,7 +61,6 @@ public final class ClassSpaceScanner
      * @param space The class space to visit
      */
     public void accept( final ClassSpaceVisitor visitor )
-        throws IOException
     {
         visitor.visit( space );
         final Enumeration<URL> e = space.findEntries( null, "*.class", true );
@@ -82,16 +83,45 @@ public final class ClassSpaceScanner
      * @param url The class resource URL
      */
     public static void accept( final ClassVisitor visitor, final URL url )
-        throws IOException
     {
-        final InputStream in = url.openStream();
         try
         {
-            new ClassReader( in ).accept( visitor, CLASS_READER_FLAGS );
+            final InputStream in = url.openStream();
+            try
+            {
+                new ClassReader( in ).accept( visitor, CLASS_READER_FLAGS );
+            }
+            finally
+            {
+                in.close();
+            }
         }
-        finally
+        catch ( final IOException e )
         {
-            in.close();
+            reportResourceException( url, e );
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Reports the given resource exception to the SLF4J logger if available; otherwise to JUL.
+     * 
+     * @param url The resource URL
+     * @param exception The exception
+     */
+    private static void reportResourceException( final URL url, final Throwable exception )
+    {
+        final String message = "Problem accessing resource: " + url;
+        try
+        {
+            org.slf4j.LoggerFactory.getLogger( ClassSpaceScanner.class ).warn( message, exception );
+        }
+        catch ( final Throwable ignore )
+        {
+            Logger.getLogger( ClassSpaceScanner.class.getName() ).log( Level.WARNING, message, exception );
         }
     }
 }
