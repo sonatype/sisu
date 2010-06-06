@@ -28,12 +28,12 @@ import org.codehaus.plexus.component.repository.ComponentRequirement;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.DeferredProvider;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.scanners.AbstractPlexusAnnotatedBeanSource;
 
-import com.google.inject.Provider;
 import com.google.inject.ProvisionException;
 
 final class ComponentDescriptorBeanSource
@@ -99,11 +99,14 @@ final class ComponentDescriptorBeanSource
     }
 
     private static final class DeferredFactoryClass
-        implements DeferredClass<Object>
+        implements DeferredClass<Object>, DeferredProvider<Object>
     {
-        final ComponentDescriptor<?> cd;
+        @Inject
+        private PlexusContainer container;
 
-        final String hint;
+        private final ComponentDescriptor<?> cd;
+
+        private final String hint;
 
         DeferredFactoryClass( final ComponentDescriptor<?> cd, final String hint )
         {
@@ -123,26 +126,27 @@ final class ComponentDescriptorBeanSource
             return cd.getImplementation();
         }
 
-        public Provider<Object> asProvider()
+        public DeferredProvider<Object> asProvider()
         {
-            return new Provider<Object>()
-            {
-                @Inject
-                PlexusContainer container;
+            return this;
+        }
 
-                public Object get()
-                {
-                    try
-                    {
-                        final ComponentFactory factory = container.lookup( ComponentFactory.class, hint );
-                        return factory.newInstance( cd, container.getLookupRealm(), container );
-                    }
-                    catch ( final Throwable e )
-                    {
-                        throw new ProvisionException( "Error in ComponentFactory:" + hint, e );
-                    }
-                }
-            };
+        public Object get()
+        {
+            try
+            {
+                final ComponentFactory factory = container.lookup( ComponentFactory.class, hint );
+                return factory.newInstance( cd, container.getLookupRealm(), container );
+            }
+            catch ( final Throwable e )
+            {
+                throw new ProvisionException( "Error in ComponentFactory:" + hint, e );
+            }
+        }
+
+        public DeferredClass<Object> getImplementationClass()
+        {
+            return this;
         }
     }
 

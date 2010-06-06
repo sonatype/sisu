@@ -12,7 +12,6 @@
  */
 package org.sonatype.guice.bean.reflect;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 
@@ -31,7 +30,7 @@ public interface ClassSpace
      * @see ClassLoader#loadClass(String)
      */
     Class<?> loadClass( String name )
-        throws ClassNotFoundException;
+        throws TypeNotPresentException;
 
     /**
      * Defers loading of the named class from the surrounding class space.
@@ -58,8 +57,7 @@ public interface ClassSpace
      * @return Sequence of URLs, one for each matching resource
      * @see ClassLoader#getResources(String)
      */
-    Enumeration<URL> getResources( String name )
-        throws IOException;
+    Enumeration<URL> getResources( String name );
 
     /**
      * Queries local class space content for entries matching the given pattern.
@@ -70,6 +68,5 @@ public interface ClassSpace
      * @return Sequence of URLs, one for each matching entry
      * @see Bundle#findEntries(String, String, boolean)
      */
-    Enumeration<URL> findEntries( String path, String glob, boolean recurse )
-        throws IOException;
+    Enumeration<URL> findEntries( String path, String glob, boolean recurse );
 }

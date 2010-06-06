@@ -45,13 +45,11 @@ public class URLClassSpaceTest
         assertFalse( space.equals( new ClassSpace()
         {
             public Class<?> loadClass( final String name )
-                throws ClassNotFoundException
             {
                 return space.loadClass( name );
             }
 
             public Enumeration<URL> getResources( final String name )
-                throws IOException
             {
                 return space.getResources( name );
             }
@@ -62,7 +60,6 @@ public class URLClassSpaceTest
             }
 
             public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
-                throws IOException
             {
                 return space.findEntries( path, glob, recurse );
             }
@@ -132,7 +129,6 @@ public class URLClassSpaceTest
     }
 
     public void testNullSearchPath()
-        throws IOException
     {
         final ClassSpace space = new URLClassSpace( getClass().getClassLoader(), null );
         final Enumeration<URL> e = space.findEntries( null, null, true );
@@ -142,7 +138,6 @@ public class URLClassSpaceTest
     }
 
     public void testEmptySearchPath()
-        throws IOException
     {
         final ClassSpace space = new URLClassSpace( getClass().getClassLoader(), new URL[0] );
         final Enumeration<URL> e = space.findEntries( null, null, true );

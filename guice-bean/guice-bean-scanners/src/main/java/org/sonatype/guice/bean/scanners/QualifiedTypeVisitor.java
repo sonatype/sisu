@@ -12,8 +12,6 @@
  */
 package org.sonatype.guice.bean.scanners;
 
-import static org.sonatype.guice.bean.scanners.QualifierCache.loadSlashedClass;
-
 import java.lang.annotation.Annotation;
 import java.net.URL;
 
@@ -90,7 +88,7 @@ public final class QualifiedTypeVisitor
             {
                 if ( null == clazz )
                 {
-                    clazz = loadSlashedClass( space, clazzName );
+                    clazz = space.loadClass( clazzName.replace( '/', '.' ) );
                 }
                 listener.hear( clazz.getAnnotation( qualifierType ), clazz );
             }

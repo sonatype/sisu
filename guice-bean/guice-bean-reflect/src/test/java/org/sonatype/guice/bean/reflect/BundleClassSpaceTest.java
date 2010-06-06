@@ -12,7 +12,6 @@
  */
 package org.sonatype.guice.bean.reflect;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -72,13 +71,11 @@ public class BundleClassSpaceTest
         assertFalse( space.equals( new ClassSpace()
         {
             public Class<?> loadClass( final String name )
-                throws ClassNotFoundException
             {
                 return space.loadClass( name );
             }
 
             public Enumeration<URL> getResources( final String name )
-                throws IOException
             {
                 return space.getResources( name );
             }
@@ -89,7 +86,6 @@ public class BundleClassSpaceTest
             }
 
             public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
-                throws IOException
             {
                 return space.findEntries( path, glob, recurse );
             }

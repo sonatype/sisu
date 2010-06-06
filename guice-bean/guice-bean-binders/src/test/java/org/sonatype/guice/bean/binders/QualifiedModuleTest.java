@@ -12,21 +12,16 @@
  */
 package org.sonatype.guice.bean.binders;
 
-import java.io.IOException;
-import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Enumeration;
 
 import javax.inject.Inject;
 
 import junit.framework.TestCase;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.CreationException;
 import com.google.inject.Guice;
 import com.google.inject.name.Names;
 
@@ -53,49 +48,5 @@ public class QualifiedModuleTest
         final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
         Guice.createInjector( new BeanSpaceModule( space ) ).injectMembers( this );
         assertEquals( "CustomValue", value );
-    }
-
-    public void testBrokenSpace()
-    {
-        final ClassSpace space = new ClassSpace()
-        {
-            public Class<?> loadClass( final String name )
-                throws ClassNotFoundException
-            {
-                throw new ClassNotFoundException( name );
-            }
-
-            public Enumeration<URL> getResources( final String name )
-                throws IOException
-            {
-                throw new IOException();
-            }
-
-            public URL getResource( final String name )
-            {
-                return null;
-            }
-
-            public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
-                throws IOException
-            {
-                throw new IOException();
-            }
-
-            public DeferredClass<?> deferLoadClass( final String name )
-            {
-                return null;
-            }
-        };
-
-        try
-        {
-            Guice.createInjector( new BeanSpaceModule( space ) );
-            fail( "Expected CreationException" );
-        }
-        catch ( final CreationException e )
-        {
-            assertTrue( e.toString().contains( "IOException" ) );
-        }
     }
 }

@@ -19,8 +19,6 @@ import java.net.URLClassLoader;
 
 import junit.framework.TestCase;
 
-import com.google.inject.Provider;
-
 public class DeferredClassTest
     extends TestCase
 {
@@ -67,9 +65,9 @@ public class DeferredClassTest
                 return clazz.getName();
             }
 
-            public Provider<Object> asProvider()
+            public DeferredProvider<Object> asProvider()
             {
-                return null;
+                throw new UnsupportedOperationException();
             }
         } ) );
 

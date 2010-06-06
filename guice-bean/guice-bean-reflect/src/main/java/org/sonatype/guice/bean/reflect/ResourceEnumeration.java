@@ -33,6 +33,8 @@ final class ResourceEnumeration
 
     private static final Iterator<String> NO_ENTRIES = Collections.<String> emptyList().iterator();
 
+    static final Enumeration<URL> NO_RESOURCES = Collections.enumeration( Collections.<URL> emptyList() );
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------

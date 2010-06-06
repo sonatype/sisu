@@ -12,8 +12,6 @@
  */
 package org.sonatype.guice.plexus.scanners;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -28,6 +26,7 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.DeferredProvider;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
@@ -37,7 +36,6 @@ import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.config.Strategies;
 
-import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 
 public class PlexusXmlBeanSourceTest
@@ -94,9 +92,15 @@ public class PlexusXmlBeanSourceTest
         final ClassSpace space = new ClassSpace()
         {
             public Class<?> loadClass( final String name )
-                throws ClassNotFoundException
             {
-                return Class.forName( name );
+                try
+                {
+                    return Class.forName( name );
+                }
+                catch ( final ClassNotFoundException e )
+                {
+                    throw new TypeNotPresentException( name, e );
+                }
             }
 
             @SuppressWarnings( "unchecked" )
@@ -106,14 +110,7 @@ public class PlexusXmlBeanSourceTest
                 {
                     public Class load()
                     {
-                        try
-                        {
-                            return loadClass( name );
-                        }
-                        catch ( final ClassNotFoundException e )
-                        {
-                            throw new TypeNotPresentException( name, e );
-                        }
+                        return loadClass( name );
                     }
 
                     public String getName()
@@ -121,7 +118,7 @@ public class PlexusXmlBeanSourceTest
                         return name;
                     }
 
-                    public Provider asProvider()
+                    public DeferredProvider asProvider()
                     {
                         throw new UnsupportedOperationException();
                     }
@@ -167,73 +164,6 @@ public class PlexusXmlBeanSourceTest
         try
         {
             new PlexusXmlBeanSource( space, null, getClass().getResource( "/META-INF/plexus/bad_plexus_1.xml" ) ).findPlexusComponentBeans();
-            fail( "Expected RuntimeException" );
-        }
-        catch ( final RuntimeException e )
-        {
-        }
-    }
-
-    public void testBadIO()
-    {
-        final ClassSpace space = new ClassSpace()
-        {
-            public Class<?> loadClass( final String name )
-                throws ClassNotFoundException
-            {
-                return Class.forName( name );
-            }
-
-            @SuppressWarnings( "unchecked" )
-            public DeferredClass<?> deferLoadClass( final String name )
-            {
-                return new DeferredClass()
-                {
-                    public Class load()
-                    {
-                        try
-                        {
-                            return loadClass( name );
-                        }
-                        catch ( final ClassNotFoundException e )
-                        {
-                            throw new TypeNotPresentException( name, e );
-                        }
-                    }
-
-                    public String getName()
-                    {
-                        return name;
-                    }
-
-                    public Provider asProvider()
-                    {
-                        throw new UnsupportedOperationException();
-                    }
-                };
-            }
-
-            public URL getResource( final String name )
-            {
-                return null;
-            }
-
-            public Enumeration<URL> getResources( final String name )
-                throws IOException
-            {
-                throw new FileNotFoundException( "UNKNOWN" );
-            }
-
-            public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
-                throws IOException
-            {
-                throw new FileNotFoundException( "UNKNOWN" );
-            }
-        };
-
-        try
-        {
-            new PlexusXmlBeanSource( space, null ).findPlexusComponentBeans();
             fail( "Expected RuntimeException" );
         }
         catch ( final RuntimeException e )
@@ -316,9 +246,15 @@ public class PlexusXmlBeanSourceTest
         }
 
         public Class<?> loadClass( final String name )
-            throws ClassNotFoundException
         {
-            return Class.forName( name );
+            try
+            {
+                return Class.forName( name );
+            }
+            catch ( final ClassNotFoundException e )
+            {
+                throw new TypeNotPresentException( name, e );
+            }
         }
 
         @SuppressWarnings( "unchecked" )
@@ -328,14 +264,7 @@ public class PlexusXmlBeanSourceTest
             {
                 public Class load()
                 {
-                    try
-                    {
-                        return loadClass( name );
-                    }
-                    catch ( final ClassNotFoundException e )
-                    {
-                        throw new TypeNotPresentException( name, e );
-                    }
+                    return loadClass( name );
                 }
 
                 public String getName()
@@ -343,7 +272,7 @@ public class PlexusXmlBeanSourceTest
                     return name;
                 }
 
-                public Provider asProvider()
+                public DeferredProvider asProvider()
                 {
                     throw new UnsupportedOperationException();
                 }

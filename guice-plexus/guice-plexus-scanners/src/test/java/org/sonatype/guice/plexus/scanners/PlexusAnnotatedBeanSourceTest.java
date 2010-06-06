@@ -158,9 +158,8 @@ public class PlexusAnnotatedBeanSourceTest
         final PlexusBeanSource source = new PlexusAnnotatedBeanSource( new ClassSpace()
         {
             public Class<?> loadClass( final String name )
-                throws ClassNotFoundException
             {
-                throw new ClassNotFoundException();
+                throw new TypeNotPresentException( name, new ClassNotFoundException( name ) );
             }
 
             public URL getResource( final String name )
@@ -169,13 +168,11 @@ public class PlexusAnnotatedBeanSourceTest
             }
 
             public Enumeration<URL> getResources( final String name )
-                throws IOException
             {
-                throw new IOException();
+                throw new UnsupportedOperationException();
             }
 
             public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
-                throws IOException
             {
                 return new Enumeration<URL>()
                 {
@@ -203,38 +200,6 @@ public class PlexusAnnotatedBeanSourceTest
             fail( "Expected RuntimeException" );
         }
         catch ( final RuntimeException e )
-        {
-        }
-    }
-
-    public void testDisambiguatedClassSpace()
-        throws IOException
-    {
-        final ClassSpace originalSpace = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
-        final ClassSpace disambiguatedSpace = new DisambiguatedClassSpace( originalSpace );
-
-        final DeferredClass<?> clazz1 = disambiguatedSpace.deferLoadClass( Bean.class.getName() );
-        final DeferredClass<?> clazz2 = disambiguatedSpace.deferLoadClass( Bean.class.getName() );
-
-        final String name1 = clazz1.getName();
-        final String name2 = clazz2.getName();
-
-        assertTrue( name1.contains( Bean.class.getName() ) );
-        assertTrue( name2.contains( Bean.class.getName() ) );
-
-        assertFalse( name1.equals( name2 ) );
-
-        assertEquals( name1.substring( 0, name1.length() - 1 ), name2.substring( 0, name2.length() - 1 ) );
-
-        assertSame( Bean.class, clazz1.load().getSuperclass() );
-        assertSame( Bean.class, clazz2.load().getSuperclass() );
-
-        try
-        {
-            disambiguatedSpace.findEntries( null, null, false );
-            fail( "Expected UnsupportedOperationException" );
-        }
-        catch ( final UnsupportedOperationException e )
         {
         }
     }

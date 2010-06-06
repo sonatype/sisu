@@ -52,9 +52,15 @@ public final class BundleClassSpace
     // ----------------------------------------------------------------------
 
     public Class<?> loadClass( final String name )
-        throws ClassNotFoundException
     {
-        return bundle.loadClass( name );
+        try
+        {
+            return bundle.loadClass( name );
+        }
+        catch ( final ClassNotFoundException e )
+        {
+            throw new TypeNotPresentException( name, e );
+        }
     }
 
     public DeferredClass<?> deferLoadClass( final String name )
@@ -69,9 +75,15 @@ public final class BundleClassSpace
 
     @SuppressWarnings( "unchecked" )
     public Enumeration<URL> getResources( final String name )
-        throws IOException
     {
-        return bundle.getResources( name );
+        try
+        {
+            return bundle.getResources( name );
+        }
+        catch ( final IOException e )
+        {
+            return ResourceEnumeration.NO_RESOURCES;
+        }
     }
 
     @SuppressWarnings( "unchecked" )

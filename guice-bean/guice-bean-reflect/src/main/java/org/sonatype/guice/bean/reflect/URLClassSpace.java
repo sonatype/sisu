@@ -80,9 +80,15 @@ public final class URLClassSpace
     // ----------------------------------------------------------------------
 
     public Class<?> loadClass( final String name )
-        throws ClassNotFoundException
     {
-        return loader.loadClass( name );
+        try
+        {
+            return loader.loadClass( name );
+        }
+        catch ( final ClassNotFoundException e )
+        {
+            throw new TypeNotPresentException( name, e );
+        }
     }
 
     public DeferredClass<?> deferLoadClass( final String name )
@@ -96,9 +102,15 @@ public final class URLClassSpace
     }
 
     public Enumeration<URL> getResources( final String name )
-        throws IOException
     {
-        return loader.getResources( name );
+        try
+        {
+            return loader.getResources( name );
+        }
+        catch ( final IOException e )
+        {
+            return ResourceEnumeration.NO_RESOURCES;
+        }
     }
 
     public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )

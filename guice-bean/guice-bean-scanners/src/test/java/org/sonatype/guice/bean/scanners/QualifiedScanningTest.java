@@ -152,7 +152,6 @@ public class QualifiedScanningTest
         final ClassSpace brokenResourceSpace = new ClassSpace()
         {
             public Class<?> loadClass( final String name )
-                throws ClassNotFoundException
             {
                 return space.loadClass( name );
             }
@@ -163,7 +162,6 @@ public class QualifiedScanningTest
             }
 
             public Enumeration<URL> getResources( final String name )
-                throws IOException
             {
                 return space.getResources( name );
             }
@@ -174,7 +172,6 @@ public class QualifiedScanningTest
             }
 
             public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
-                throws IOException
             {
                 return space.findEntries( path, glob, recurse );
             }
@@ -193,9 +190,8 @@ public class QualifiedScanningTest
         final ClassSpace brokenLoadSpace = new ClassSpace()
         {
             public Class<?> loadClass( final String name )
-                throws ClassNotFoundException
             {
-                throw new ClassNotFoundException( "name" );
+                throw new TypeNotPresentException( name, new ClassNotFoundException( name ) );
             }
 
             public DeferredClass<?> deferLoadClass( final String name )
@@ -204,7 +200,6 @@ public class QualifiedScanningTest
             }
 
             public Enumeration<URL> getResources( final String name )
-                throws IOException
             {
                 return space.getResources( name );
             }
@@ -215,7 +210,6 @@ public class QualifiedScanningTest
             }
 
             public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
-                throws IOException
             {
                 return space.findEntries( path, glob, recurse );
             }

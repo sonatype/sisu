@@ -43,14 +43,7 @@ public final class StrongDeferredClass<T>
     @SuppressWarnings( "unchecked" )
     public Class<T> load()
     {
-        try
-        {
-            return (Class<T>) space.loadClass( name );
-        }
-        catch ( final Throwable e )
-        {
-            throw new TypeNotPresentException( name, e );
-        }
+        return (Class<T>) space.loadClass( name );
     }
 
     public String getName()

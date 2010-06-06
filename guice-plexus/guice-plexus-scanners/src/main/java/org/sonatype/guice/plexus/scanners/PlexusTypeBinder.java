@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Roles;
@@ -53,7 +54,9 @@ final class PlexusTypeBinder
 
     final ClassSpace space;
 
-    private ClassSpace disambiguatedSpace;
+    private ClassSpace cloningClassSpace;
+
+    private int cloneCounter;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -144,7 +147,7 @@ final class PlexusTypeBinder
             }
             else
             {
-                newImplementation = getDisambiguatedClassSpace().deferLoadClass( implementation );
+                newImplementation = cloneImplementation( implementation );
             }
             implementations.put( key, newImplementation );
             return newImplementation.getName();
@@ -204,22 +207,19 @@ final class PlexusTypeBinder
         }
     }
 
-    /**
-     * @return Disambiguated class space
-     */
-    private ClassSpace getDisambiguatedClassSpace()
+    private DeferredClass<?> cloneImplementation( final String implementation )
     {
-        if ( null == disambiguatedSpace )
+        if ( null == cloningClassSpace )
         {
-            disambiguatedSpace = AccessController.doPrivileged( new PrivilegedAction<DisambiguatedClassSpace>()
+            cloningClassSpace = new URLClassSpace( AccessController.doPrivileged( new PrivilegedAction<ClassLoader>()
             {
-                public DisambiguatedClassSpace run()
+                public ClassLoader run()
                 {
-                    return new DisambiguatedClassSpace( space );
+                    return new CloningClassLoader( space );
                 }
-            } );
+            } ), null );
         }
-        return disambiguatedSpace;
+        return cloningClassSpace.deferLoadClass( implementation + CloningClassLoader.CLONE_MARKER + ++cloneCounter );
     }
 
     /**

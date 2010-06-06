@@ -15,7 +15,6 @@ package org.sonatype.guice.bean.reflect;
 import javax.inject.Inject;
 
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import com.google.inject.ProvisionException;
 
 /**
@@ -35,7 +34,7 @@ abstract class AbstractDeferredClass<T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    public final Provider<T> asProvider()
+    public final DeferredProvider<T> asProvider()
     {
         return this;
     }

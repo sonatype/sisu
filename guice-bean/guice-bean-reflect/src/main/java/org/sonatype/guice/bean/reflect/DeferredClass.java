@@ -12,8 +12,6 @@
  */
 package org.sonatype.guice.bean.reflect;
 
-import com.google.inject.Provider;
-
 /**
  * Simple {@link Class} reference that supports deferred loading.
  */
@@ -39,5 +37,5 @@ public interface DeferredClass<T>
      * 
      * @return Deferred provider
      */
-    Provider<T> asProvider();
+    DeferredProvider<T> asProvider();
 }
