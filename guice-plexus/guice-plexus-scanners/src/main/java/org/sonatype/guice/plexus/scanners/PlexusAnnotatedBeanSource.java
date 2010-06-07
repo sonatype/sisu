@@ -12,13 +12,13 @@
  */
 package org.sonatype.guice.plexus.scanners;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 
@@ -36,8 +36,6 @@ public class PlexusAnnotatedBeanSource
 
     private final PlexusAnnotatedMetadata metadata;
 
-    private final PlexusComponentScanner scanner;
-
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -47,35 +45,12 @@ public class PlexusAnnotatedBeanSource
      * 
      * @param space The local class space
      * @param variables The filter variables
-     * @param scanner The component scanner
-     */
-    public PlexusAnnotatedBeanSource( final ClassSpace space, final Map<?, ?> variables,
-                                      final PlexusComponentScanner scanner )
-    {
-        this.space = space;
-        metadata = new PlexusAnnotatedMetadata( variables );
-        this.scanner = scanner;
-    }
-
-    /**
-     * Creates a bean source that scans the given class space for Plexus annotations using the default scanner.
-     * 
-     * @param space The containing class space
-     * @param variables The filter variables
      */
     public PlexusAnnotatedBeanSource( final ClassSpace space, final Map<?, ?> variables )
     {
-        this( space, variables, new AnnotatedPlexusComponentScanner() );
-    }
+        this.space = space;
 
-    /**
-     * Provides runtime Plexus metadata based on simple property annotations, no scanning.
-     * 
-     * @param variables The filter variables
-     */
-    public PlexusAnnotatedBeanSource( final Map<?, ?> variables )
-    {
-        this( null, variables, null );
+        metadata = new PlexusAnnotatedMetadata( variables );
     }
 
     // ----------------------------------------------------------------------
@@ -84,18 +59,13 @@ public class PlexusAnnotatedBeanSource
 
     public final Map<Component, DeferredClass<?>> findPlexusComponentBeans()
     {
-        if ( null == space )
+        if ( null != space )
         {
-            return Collections.emptyMap();
+            final PlexusTypeVisitor visitor = new PlexusTypeVisitor( new PlexusTypeRegistry( space ) );
+            new ClassSpaceScanner( space ).accept( visitor );
+            return visitor.getComponents();
         }
-        try
-        {
-            return scanner.scan( space, false );
-        }
-        catch ( final IOException e )
-        {
-            throw new RuntimeException( e.toString() );
-        }
+        return Collections.emptyMap();
     }
 
     public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )

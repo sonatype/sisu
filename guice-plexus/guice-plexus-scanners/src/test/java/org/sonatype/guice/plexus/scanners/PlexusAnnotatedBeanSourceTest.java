@@ -80,7 +80,7 @@ public class PlexusAnnotatedBeanSourceTest
 
     public void testNonComponent()
     {
-        final PlexusBeanSource source = new PlexusAnnotatedBeanSource( null );
+        final PlexusBeanSource source = new PlexusAnnotatedBeanSource( null, null );
         assertTrue( source.findPlexusComponentBeans().isEmpty() );
         assertNull( source.getBeanMetadata( String.class ) );
         assertNotNull( source.getBeanMetadata( Bean.class ) );
@@ -91,7 +91,7 @@ public class PlexusAnnotatedBeanSourceTest
     {
         Iterator<BeanProperty<Object>> propertyIterator;
 
-        final PlexusBeanSource uninterpolatedSource = new PlexusAnnotatedBeanSource( null );
+        final PlexusBeanSource uninterpolatedSource = new PlexusAnnotatedBeanSource( null, null );
         final PlexusBeanMetadata metadata1 = uninterpolatedSource.getBeanMetadata( Bean.class );
 
         propertyIterator = new BeanProperties( Bean.class ).iterator();
@@ -112,7 +112,7 @@ public class PlexusAnnotatedBeanSourceTest
 
         final Map<?, ?> variables = Collections.singletonMap( "some.value", "INTERPOLATED" );
 
-        final PlexusBeanSource interpolatedSource = new PlexusAnnotatedBeanSource( variables );
+        final PlexusBeanSource interpolatedSource = new PlexusAnnotatedBeanSource( null, variables );
         final PlexusBeanMetadata metadata2 = interpolatedSource.getBeanMetadata( Bean.class );
 
         propertyIterator = new BeanProperties( Bean.class ).iterator();

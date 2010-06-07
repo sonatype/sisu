@@ -39,11 +39,7 @@ import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Roles;
 import org.sonatype.guice.plexus.config.Strategies;
 
-/**
- * {@link PlexusComponentScanner} that uses XML resources to discover Plexus components.
- */
 final class PlexusXmlScanner
-    implements PlexusComponentScanner
 {
     // ----------------------------------------------------------------------
     // Implementation fields
