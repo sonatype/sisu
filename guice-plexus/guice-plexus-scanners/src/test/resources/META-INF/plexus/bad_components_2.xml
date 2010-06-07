@@ -3,7 +3,7 @@
   <components>
     <component>
       <implementation>
-        org.sonatype.guice.plexus.scanners.PlexusXmlBeanSourceTest$DefaultBean
+        org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$DefaultBean
       </implementation>
       <requirements>
         <requirement>

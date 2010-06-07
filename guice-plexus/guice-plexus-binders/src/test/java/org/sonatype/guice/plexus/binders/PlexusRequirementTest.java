@@ -17,7 +17,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
-import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
@@ -41,9 +39,9 @@ import org.sonatype.guice.plexus.config.Strategies;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 import org.sonatype.guice.plexus.locators.DefaultPlexusBeanLocator;
-import org.sonatype.guice.plexus.scanners.PlexusAnnotatedBeanSource;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
@@ -91,21 +89,16 @@ public class PlexusRequirementTest
 
                 install( new PlexusBindingModule( null, new PlexusBeanSource()
                 {
-                    public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
+                    public void configure( final Binder binder )
                     {
-                        final Map<Component, DeferredClass<?>> componentMap =
-                            new HashMap<Component, DeferredClass<?>>();
+                        binder.bind( Alpha.class ).to( AlphaImpl.class ).in( Scopes.SINGLETON );
+                        binder.bind( Omega.class ).to( OmegaImpl.class ).in( Scopes.SINGLETON );
 
-                        componentMap.put( new ComponentImpl( Alpha.class, "", "", "" ), defer( AlphaImpl.class ) );
-                        componentMap.put( new ComponentImpl( Omega.class, "", "", "" ), defer( OmegaImpl.class ) );
+                        @SuppressWarnings( "unchecked" )
+                        final DeferredClass<Gamma> gammaProvider =
+                            (DeferredClass) space.deferLoadClass( "some-broken-class" ).asProvider();
 
-                        componentMap.put( new ComponentImpl( Gamma.class, "", "", "" ),
-                                          space.deferLoadClass( "some-broken-class" ) );
-
-                        componentMap.put( new ComponentImpl( Gamma.class, "", "", "dupe" ),
-                                          space.deferLoadClass( "some-broken-class" ) );
-
-                        return componentMap;
+                        binder.bind( Gamma.class ).toProvider( gammaProvider.asProvider() ).in( Scopes.SINGLETON );
                     }
 
                     public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
@@ -560,8 +553,9 @@ public class PlexusRequirementTest
         legacyLoader.loadClass( SimpleRequirementExample.class.getName() ).newInstance();
     }
 
-    static DeferredClass<?> defer( final Class<?> clazz )
+    @SuppressWarnings( "unchecked" )
+    static <S, T extends S> DeferredClass<T> defer( final Class<S> clazz )
     {
-        return new URLClassSpace( (URLClassLoader) TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
+        return (DeferredClass) new URLClassSpace( (URLClassLoader) TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
     }
 }

@@ -51,12 +51,12 @@ public final class PlexusAnnotatedMetadata
     // Public methods
     // ----------------------------------------------------------------------
 
-    public final boolean isEmpty()
+    public boolean isEmpty()
     {
         return false; // metadata comes from the properties themselves
     }
 
-    public final Configuration getConfiguration( final BeanProperty<?> property )
+    public Configuration getConfiguration( final BeanProperty<?> property )
     {
         final Configuration configuration = property.getAnnotation( Configuration.class );
         if ( configuration != null && variables != null )
@@ -72,7 +72,7 @@ public final class PlexusAnnotatedMetadata
         return configuration;
     }
 
-    public final Requirement getRequirement( final BeanProperty<?> property )
+    public Requirement getRequirement( final BeanProperty<?> property )
     {
         return property.getAnnotation( Requirement.class );
     }

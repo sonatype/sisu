@@ -40,8 +40,10 @@ import org.sonatype.guice.bean.locators.EntryMapAdapter;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
+import org.sonatype.guice.plexus.binders.PlexusAnnotatedBeanSource;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
+import org.sonatype.guice.plexus.binders.PlexusXmlBeanSource;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
@@ -49,7 +51,6 @@ import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 import org.sonatype.guice.plexus.locators.DefaultPlexusBeanLocator;
-import org.sonatype.guice.plexus.scanners.PlexusXmlBeanSource;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -328,6 +329,7 @@ public final class DefaultPlexusContainer
             if ( realmIds.add( realm.getId() ) )
             {
                 sources.add( new PlexusXmlBeanSource( space, variables ) );
+                sources.add( new PlexusAnnotatedBeanSource( space, variables ) );
             }
 
             if ( !sources.isEmpty() )

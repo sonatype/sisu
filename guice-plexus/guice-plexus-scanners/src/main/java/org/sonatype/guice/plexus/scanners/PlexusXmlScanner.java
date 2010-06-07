@@ -36,10 +36,11 @@ import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.Hints;
+import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.Roles;
 import org.sonatype.guice.plexus.config.Strategies;
 
-final class PlexusXmlScanner
+public final class PlexusXmlScanner
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -49,7 +50,7 @@ final class PlexusXmlScanner
 
     private final URL plexusXml;
 
-    private final Map<String, PlexusXmlMetadata> metadata;
+    private final Map<String, PlexusBeanMetadata> metadata;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -62,7 +63,8 @@ final class PlexusXmlScanner
      * @param plexusXml The plexus.xml URL
      * @param metadata The metadata map
      */
-    PlexusXmlScanner( final Map<?, ?> variables, final URL plexusXml, final Map<String, PlexusXmlMetadata> metadata )
+    public PlexusXmlScanner( final Map<?, ?> variables, final URL plexusXml,
+                             final Map<String, PlexusBeanMetadata> metadata )
     {
         this.variables = variables;
         this.plexusXml = plexusXml;
@@ -340,11 +342,11 @@ final class PlexusXmlScanner
                                            final Map<String, Configuration> configurationMap,
                                            final Map<String, Requirement> requirementMap )
     {
-        if ( !configurationMap.isEmpty() || !requirementMap.isEmpty() )
+        if ( null != metadata && ( !configurationMap.isEmpty() || !requirementMap.isEmpty() ) )
         {
             synchronized ( metadata )
             {
-                final PlexusXmlMetadata beanMetadata = metadata.get( implementation );
+                final PlexusXmlMetadata beanMetadata = (PlexusXmlMetadata) metadata.get( implementation );
                 if ( beanMetadata != null )
                 {
                     beanMetadata.merge( configurationMap, requirementMap );

@@ -13,23 +13,12 @@
 package org.sonatype.guice.plexus.binders;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Map.Entry;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.inject.BeanListener;
-import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.config.Roles;
-import org.sonatype.guice.plexus.config.Strategies;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Binder;
-import com.google.inject.Key;
 import com.google.inject.Module;
-import com.google.inject.Scopes;
-import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.matcher.Matchers;
 
 /**
@@ -41,8 +30,6 @@ public final class PlexusBindingModule
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
-
-    private final Set<Key<?>> boundKeys = new HashSet<Key<?>>();
 
     private final PlexusBeanManager manager;
 
@@ -71,74 +58,13 @@ public final class PlexusBindingModule
     @Override
     protected void configure()
     {
-        // attempt to register all known Plexus components
+        // attempt to register known Plexus components
         for ( final PlexusBeanSource source : sources )
         {
-            for ( final Entry<Component, DeferredClass<?>> e : source.findPlexusComponentBeans().entrySet() )
-            {
-                bindPlexusComponent( e.getKey(), e.getValue() );
-            }
+            install( source );
         }
 
-        // attach custom bean listener that performs injection of Plexus requirements/configuration
+        // attach custom bean listener to perform injection of Plexus requirements/configuration
         bindListener( Matchers.any(), new BeanListener( new PlexusBeanBinder( manager, sources ) ) );
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    @SuppressWarnings( "unchecked" )
-    private void bindPlexusComponent( final Component component, final DeferredClass<?> clazz )
-    {
-        final Key roleKey = Roles.componentKey( component );
-        if ( !boundKeys.add( roleKey ) )
-        {
-            return; // ignore duplicates, such as same component from different sources
-        }
-
-        Binder binder = binder();
-        final String description = component.description();
-        if ( null != description && description.length() > 0 )
-        {
-            binder = binder.withSource( description );
-        }
-
-        final String strategy = component.instantiationStrategy();
-        final ScopedBindingBuilder sbb;
-
-        // simple case when role and implementation are identical
-        if ( component.role().getName().equals( clazz.getName() ) )
-        {
-            if ( roleKey.getAnnotation() != null )
-            {
-                // wire annotated role to the plain role type
-                sbb = binder.bind( roleKey ).to( component.role() );
-            }
-            else
-            {
-                // simple wire to self
-                sbb = binder.bind( roleKey );
-            }
-        }
-        else if ( Strategies.LOAD_ON_START.equals( strategy ) )
-        {
-            // no point deferring eager components
-            sbb = binder.bind( roleKey ).to( clazz.load() );
-        }
-        else
-        {
-            // mimic Plexus behaviour, only load classes on demand
-            sbb = binder.bind( roleKey ).toProvider( clazz.asProvider() );
-        }
-
-        if ( Strategies.LOAD_ON_START.equals( strategy ) )
-        {
-            sbb.asEagerSingleton();
-        }
-        else if ( !Strategies.PER_LOOKUP.equals( strategy ) )
-        {
-            sbb.in( Scopes.SINGLETON );
-        }
     }
 }

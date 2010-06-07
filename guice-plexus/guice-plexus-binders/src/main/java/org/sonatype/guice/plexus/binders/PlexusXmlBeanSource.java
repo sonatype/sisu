@@ -10,19 +10,23 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.plexus.scanners;
+package org.sonatype.guice.plexus.binders;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
+import org.sonatype.guice.plexus.scanners.PlexusXmlScanner;
+
+import com.google.inject.Binder;
 
 /**
  * {@link PlexusBeanSource} that collects {@link PlexusBeanMetadata} by scanning XML resources.
@@ -42,7 +46,7 @@ public final class PlexusXmlBeanSource
 
     private final boolean localSearch;
 
-    private Map<String, PlexusXmlMetadata> metadata;
+    private Map<String, PlexusBeanMetadata> metadata = new HashMap<String, PlexusBeanMetadata>();
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -81,16 +85,21 @@ public final class PlexusXmlBeanSource
     // Public methods
     // ----------------------------------------------------------------------
 
-    public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
+    public void configure( final Binder binder )
     {
+        final PlexusTypeBinder plexusTypeBinder = new PlexusTypeBinder( binder );
         try
         {
-            metadata = new HashMap<String, PlexusXmlMetadata>();
-            return new PlexusXmlScanner( variables, plexusXml, metadata ).scan( space, localSearch );
+            final PlexusXmlScanner scanner = new PlexusXmlScanner( variables, plexusXml, metadata );
+            final Map<Component, DeferredClass<?>> components = scanner.scan( space, localSearch );
+            for ( final Entry<Component, DeferredClass<?>> entry : components.entrySet() )
+            {
+                plexusTypeBinder.hear( entry.getKey(), entry.getValue() );
+            }
         }
         catch ( final IOException e )
         {
-            throw new RuntimeException( e.toString() );
+            binder.addError( e );
         }
     }
 

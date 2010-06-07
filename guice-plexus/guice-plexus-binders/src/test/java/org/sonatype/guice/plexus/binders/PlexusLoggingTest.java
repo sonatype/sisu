@@ -27,7 +27,6 @@ import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 import org.sonatype.guice.plexus.locators.DefaultPlexusBeanLocator;
-import org.sonatype.guice.plexus.scanners.PlexusAnnotatedBeanSource;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;

@@ -13,7 +13,6 @@
 package org.sonatype.guice.plexus.scanners;
 
 import java.net.URL;
-import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.objectweb.asm.AnnotationVisitor;
@@ -21,10 +20,11 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.scanners.ClassSpaceVisitor;
 import org.sonatype.guice.bean.scanners.EmptyAnnotationVisitor;
 import org.sonatype.guice.bean.scanners.EmptyClassVisitor;
+import org.sonatype.guice.bean.scanners.QualifiedTypeVisitor;
+import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Strategies;
 
@@ -45,84 +45,41 @@ public final class PlexusTypeVisitor
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final AnnotationVisitor componentVisitor = new ComponentAnnotationVisitor();
+    private final ComponentAnnotationVisitor componentVisitor = new ComponentAnnotationVisitor();
 
-    private final PlexusTypeRegistry registry;
+    private final PlexusTypeListener plexusTypeListener;
 
-    private String role;
-
-    private String hint;
-
-    private String instantiationStrategy;
-
-    private String description;
+    private final QualifiedTypeVisitor qualifiedTypeVisitor;
 
     private String implementation;
+
+    ClassSpace space;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    protected PlexusTypeVisitor( final PlexusTypeRegistry registry )
+    public PlexusTypeVisitor( final PlexusTypeListener listener )
     {
-        this.registry = registry;
+        plexusTypeListener = listener;
+        qualifiedTypeVisitor = new QualifiedTypeVisitor( listener );
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public final Map<Component, DeferredClass<?>> getComponents()
+    public void visit( final ClassSpace _space )
     {
-        return registry.getComponents();
-    }
-
-    public void setRole( final String role )
-    {
-        this.role = role;
-    }
-
-    public void setHint( final String hint )
-    {
-        this.hint = hint;
-    }
-
-    public final String getRole()
-    {
-        return role;
-    }
-
-    public final String getHint()
-    {
-        return Hints.canonicalHint( hint );
-    }
-
-    public void setInstantiationStrategy( final String instantiationStrategy )
-    {
-        this.instantiationStrategy = instantiationStrategy;
-    }
-
-    public void setDescription( final String description )
-    {
-        this.description = description;
-    }
-
-    public void setImplementation( final String implementation )
-    {
-        this.implementation = implementation;
-    }
-
-    public void visit( final ClassSpace space )
-    {
+        space = _space;
+        qualifiedTypeVisitor.visit( _space );
     }
 
     public ClassVisitor visitClass( final URL url )
     {
-        role = null;
-        hint = Hints.DEFAULT_HINT;
-        instantiationStrategy = Strategies.SINGLETON;
-        description = "";
-
+        componentVisitor.reset();
+        implementation = null;
+        qualifiedTypeVisitor.visitClass( url );
         return this;
     }
 
@@ -132,9 +89,9 @@ public final class PlexusTypeVisitor
     {
         if ( ( access & ( Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_SYNTHETIC ) ) == 0 )
         {
-            setImplementation( name.replace( '/', '.' ) );
+            implementation = name.replace( '/', '.' );
         }
-        super.visit( version, access, name, signature, superName, interfaces );
+        qualifiedTypeVisitor.visit( version, access, name, signature, superName, interfaces );
     }
 
     @Override
@@ -144,20 +101,20 @@ public final class PlexusTypeVisitor
         {
             return componentVisitor;
         }
-        return super.visitAnnotation( desc, visible );
+        return qualifiedTypeVisitor.visitAnnotation( desc, visible );
     }
 
     @Override
     public void visitEnd()
     {
-        if ( null != role )
+        if ( null != implementation )
         {
-            registry.addComponent( role, hint, instantiationStrategy, description, implementation );
-            role = null;
-        }
-        else
-        {
-            super.visitEnd();
+            final Component component = componentVisitor.getComponent();
+            if ( null != component )
+            {
+                plexusTypeListener.hear( component, space.deferLoadClass( implementation ) );
+            }
+            implementation = null;
         }
     }
 
@@ -168,25 +125,46 @@ public final class PlexusTypeVisitor
     final class ComponentAnnotationVisitor
         extends EmptyAnnotationVisitor
     {
+        private String role;
+
+        private String hint;
+
+        private String strategy;
+
+        private String description;
+
+        public void reset()
+        {
+            role = null;
+            hint = Hints.DEFAULT_HINT;
+            strategy = Strategies.SINGLETON;
+            description = "";
+        }
+
         @Override
         public void visit( final String name, final Object value )
         {
             if ( "role".equals( name ) )
             {
-                setRole( ( (Type) value ).getClassName() );
+                role = ( (Type) value ).getClassName();
             }
             else if ( "hint".equals( name ) )
             {
-                setHint( (String) value );
+                hint = Hints.canonicalHint( (String) value );
             }
             else if ( "instantiationStrategy".equals( name ) )
             {
-                setInstantiationStrategy( (String) value );
+                strategy = (String) value;
             }
             else if ( "description".equals( name ) )
             {
-                setDescription( (String) value );
+                description = (String) value;
             }
+        }
+
+        public Component getComponent()
+        {
+            return null != role ? new ComponentImpl( space.loadClass( role ), hint, strategy, description ) : null;
         }
     }
 }

@@ -3,7 +3,7 @@
   <components>
     <component>
       <implementation>
-        org.sonatype.guice.plexus.scanners.PlexusXmlBeanSourceTest$DefaultBean
+        org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$DefaultBean
       </implementation>
       <instantiation-strategy>
         per-lookup
@@ -16,7 +16,7 @@
     </component>
     <component>
       <role>
-        org.sonatype.guice.plexus.scanners.PlexusXmlBeanSourceTest$Bean
+        org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$Bean
       </role>
       <role-hint>
         debug
@@ -25,13 +25,13 @@
         For debugging
       </description>
       <implementation>
-        org.sonatype.guice.plexus.scanners.PlexusXmlBeanSourceTest$DebugBean
+        org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$DebugBean
       </implementation>
       <extra-bits/>
     </component>
     <component>
       <implementation>
-        org.sonatype.guice.plexus.scanners.PlexusXmlBeanSourceTest$DefaultBean
+        org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$DefaultBean
       </implementation>
       <configuration>
         <foo/><simple >value</simple  ><value with="attribute"></value><empty.value1 with="attribute" /><empty.value2/><foo/>
@@ -42,7 +42,7 @@
       <requirements>
         <requirement>
           <role>
-            org.sonatype.guice.plexus.scanners.PlexusXmlBeanSourceTest$Bean
+            org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$Bean
           </role>
           <role-hint>
             debug
@@ -54,7 +54,7 @@
         </requirement>
         <requirement>
           <role>
-            org.sonatype.guice.plexus.scanners.PlexusXmlBeanSourceTest$Bean
+            org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$Bean
           </role>
           <role-hints>
             <role-hint>
@@ -72,12 +72,12 @@
     </component>
     <component>
       <implementation>
-        org.sonatype.guice.plexus.scanners.PlexusXmlBeanSourceTest$DefaultBean
+        org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$DefaultBean
       </implementation>
       <requirements>
         <requirement>
           <role>
-            org.sonatype.guice.plexus.scanners.PlexusXmlBeanSourceTest$Bean
+            org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$Bean
           </role>
           <field-name>
             beanField
@@ -87,18 +87,37 @@
     </component>
     <component>
       <role>
-        org.sonatype.guice.plexus.scanners.PlexusXmlBeanSourceTest$Bean
+        org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$Bean
       </role>
       <implementation>
-        org.sonatype.guice.plexus.scanners.PlexusXmlBeanSourceTest$AnotherBean
+        org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$AnotherBean
       </implementation>
       <requirements>
         <requirement>
           <role>
-            org.sonatype.guice.plexus.scanners.PlexusXmlBeanSourceTest$Bean
+            org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$Bean
           </role>
         </requirement>
       </requirements>
+    </component>
+    <component>
+      <role>
+        org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$Bean
+      </role>
+      <implementation>
+        org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$DefaultBean
+      </implementation>
+    </component>
+    <component>
+      <role>
+        org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$Bean
+      </role>
+      <role-hint>
+        clone
+      </role-hint>
+      <implementation>
+        org.sonatype.guice.plexus.scanners.PlexusXmlScannerTest$DefaultBean
+      </implementation>
     </component>
   </components>
 

@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
@@ -31,9 +32,11 @@ import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.DeferredProvider;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
+import org.sonatype.guice.plexus.binders.PlexusTypeBinder;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 
+import com.google.inject.Binder;
 import com.google.inject.ProvisionException;
 
 final class ComponentDescriptorBeanSource
@@ -66,11 +69,14 @@ final class ComponentDescriptorBeanSource
         }
     }
 
-    public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
+    public void configure( final Binder binder )
     {
-        final Map<Component, DeferredClass<?>> map = componentMap;
+        final PlexusTypeBinder plexusTypeBinder = new PlexusTypeBinder( binder );
+        for ( final Entry<Component, DeferredClass<?>> entry : componentMap.entrySet() )
+        {
+            plexusTypeBinder.hear( entry.getKey(), entry.getValue() );
+        }
         componentMap = Collections.emptyMap();
-        return map;
     }
 
     public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )

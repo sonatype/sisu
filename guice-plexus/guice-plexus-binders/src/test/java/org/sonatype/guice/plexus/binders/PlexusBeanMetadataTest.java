@@ -13,34 +13,30 @@
 package org.sonatype.guice.plexus.binders;
 
 import java.net.URLClassLoader;
-import java.util.Collections;
-import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import junit.framework.TestCase;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
-import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.guice.plexus.config.Strategies;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 import org.sonatype.guice.plexus.locators.DefaultPlexusBeanLocator;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -146,12 +142,9 @@ public class PlexusBeanMetadataTest
     static class BeanSourceA
         implements PlexusBeanSource
     {
-        public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
+        public void configure( final Binder binder )
         {
-            return Collections.<Component, DeferredClass<?>> singletonMap( new ComponentImpl( Bean.class, "2",
-                                                                                              Strategies.LOAD_ON_START,
-                                                                                              "A" ),
-                                                                           defer( DefaultBean1.class ) );
+            binder.withSource( "A" ).bind( Bean.class ).annotatedWith( Names.named( "2" ) ).to( DefaultBean1.class ).asEagerSingleton();
         }
 
         public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
@@ -163,12 +156,9 @@ public class PlexusBeanMetadataTest
     static class BeanSourceB
         implements PlexusBeanSource
     {
-        public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
+        public void configure( final Binder binder )
         {
-            return Collections.<Component, DeferredClass<?>> singletonMap( new ComponentImpl( DefaultBean2.class, "",
-                                                                                              Strategies.PER_LOOKUP,
-                                                                                              "B" ),
-                                                                           defer( DefaultBean2.class ) );
+            binder.withSource( "B" ).bind( DefaultBean2.class );
         }
 
         public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
@@ -180,12 +170,10 @@ public class PlexusBeanMetadataTest
     static class BeanSourceC
         implements PlexusBeanSource
     {
-        public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
+        public void configure( final Binder binder )
         {
-            return Collections.<Component, DeferredClass<?>> singletonMap( new ComponentImpl( DefaultBean2.class, "2",
-                                                                                              Strategies.PER_LOOKUP,
-                                                                                              "C" ),
-                                                                           defer( DefaultBean2.class ) );
+            binder.withSource( "C" ).bind( DefaultBean2.class ).annotatedWith( Names.named( "2" ) ).to(
+                                                                                                        DefaultBean2.class );
         }
 
         public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
@@ -197,9 +185,8 @@ public class PlexusBeanMetadataTest
     static class CustomizedBeanSource
         implements PlexusBeanSource
     {
-        public Map<Component, DeferredClass<?>> findPlexusComponentBeans()
+        public void configure( final Binder binder )
         {
-            return Collections.emptyMap();
         }
 
         public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )

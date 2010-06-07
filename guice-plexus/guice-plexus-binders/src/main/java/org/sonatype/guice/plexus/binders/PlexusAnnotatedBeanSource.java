@@ -10,22 +10,24 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.plexus.scanners;
+package org.sonatype.guice.plexus.binders;
 
-import java.util.Collections;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
+import org.sonatype.guice.plexus.scanners.PlexusAnnotatedMetadata;
+import org.sonatype.guice.plexus.scanners.PlexusTypeVisitor;
+
+import com.google.inject.Binder;
 
 /**
- * {@link PlexusBeanSource} that collects {@link PlexusBeanMetadata} by scanning classes for runtime annotations.
+ * {@link PlexusBeanSource} that registers Plexus beans by scanning classes for runtime annotations.
  */
-public class PlexusAnnotatedBeanSource
+public final class PlexusAnnotatedBeanSource
     implements PlexusBeanSource
 {
     // ----------------------------------------------------------------------
@@ -57,15 +59,12 @@ public class PlexusAnnotatedBeanSource
     // Public methods
     // ----------------------------------------------------------------------
 
-    public final Map<Component, DeferredClass<?>> findPlexusComponentBeans()
+    public void configure( final Binder binder )
     {
         if ( null != space )
         {
-            final PlexusTypeVisitor visitor = new PlexusTypeVisitor( new PlexusTypeRegistry( space ) );
-            new ClassSpaceScanner( space ).accept( visitor );
-            return visitor.getComponents();
+            new ClassSpaceScanner( space ).accept( new PlexusTypeVisitor( new PlexusTypeBinder( binder ) ) );
         }
-        return Collections.emptyMap();
     }
 
     public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
