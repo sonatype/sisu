@@ -33,7 +33,7 @@ import org.sonatype.guice.plexus.config.Strategies;
 /**
  * Enhanced Plexus component map with additional book-keeping.
  */
-final class PlexusTypeBinder
+final class PlexusTypeRegistry
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -62,7 +62,7 @@ final class PlexusTypeBinder
     // Constructors
     // ----------------------------------------------------------------------
 
-    PlexusTypeBinder( final ClassSpace space )
+    PlexusTypeRegistry( final ClassSpace space )
     {
         this.space = space;
     }
@@ -231,11 +231,11 @@ final class PlexusTypeBinder
     {
         try
         {
-            org.slf4j.LoggerFactory.getLogger( PlexusTypeBinder.class ).debug( message );
+            org.slf4j.LoggerFactory.getLogger( PlexusTypeRegistry.class ).debug( message );
         }
         catch ( final Throwable ignore )
         {
-            Logger.getLogger( PlexusTypeBinder.class.getName() ).fine( message );
+            Logger.getLogger( PlexusTypeRegistry.class.getName() ).fine( message );
         }
     }
 }

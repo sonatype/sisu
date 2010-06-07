@@ -80,7 +80,7 @@ final class PlexusXmlScanner
     public Map<Component, DeferredClass<?>> scan( final ClassSpace space, final boolean localSearch )
         throws IOException
     {
-        final PlexusTypeBinder registry = new PlexusTypeBinder( space );
+        final PlexusTypeRegistry registry = new PlexusTypeRegistry( space );
         if ( null != plexusXml )
         {
             parsePlexusXml( plexusXml, registry );
@@ -134,7 +134,7 @@ final class PlexusXmlScanner
      * @param url The plexus.xml URL
      * @param registry The parsed components
      */
-    private void parsePlexusXml( final URL url, final PlexusTypeBinder registry )
+    private void parsePlexusXml( final URL url, final PlexusTypeRegistry registry )
         throws IOException
     {
         final InputStream in = url.openStream();
@@ -185,7 +185,7 @@ final class PlexusXmlScanner
      * @param url The components.xml URL
      * @param registry The parsed components
      */
-    private void parseComponentsXml( final URL url, final PlexusTypeBinder registry )
+    private void parseComponentsXml( final URL url, final PlexusTypeRegistry registry )
         throws IOException
     {
         final InputStream in = url.openStream();
@@ -220,7 +220,7 @@ final class PlexusXmlScanner
      * @param parser The XML parser
      * @param registry The parsed components
      */
-    private void parseLoadOnStart( final MXParser parser, final PlexusTypeBinder registry )
+    private void parseLoadOnStart( final MXParser parser, final PlexusTypeRegistry registry )
         throws XmlPullParserException, IOException
     {
         String role = null;
@@ -258,7 +258,7 @@ final class PlexusXmlScanner
      * @param parser The XML parser
      * @param registry The parsed components
      */
-    private void parseComponent( final MXParser parser, final PlexusTypeBinder registry )
+    private void parseComponent( final MXParser parser, final PlexusTypeRegistry registry )
         throws XmlPullParserException, IOException
     {
         String role = null;

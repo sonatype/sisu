@@ -14,20 +14,18 @@ package org.sonatype.guice.plexus.scanners;
 
 import java.util.Map;
 
-import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.util.StringUtils;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
-import org.sonatype.guice.plexus.config.PlexusBeanSource;
 
 /**
- * Abstract {@link PlexusBeanSource} that collects {@link PlexusBeanMetadata} from runtime annotations.
+ * Runtime {@link PlexusBeanMetadata} based on {@link BeanProperty} annotations.
  */
-public abstract class AbstractPlexusAnnotatedBeanSource
-    implements PlexusBeanSource, PlexusBeanMetadata
+public final class PlexusAnnotatedMetadata
+    implements PlexusBeanMetadata
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -40,11 +38,11 @@ public abstract class AbstractPlexusAnnotatedBeanSource
     // ----------------------------------------------------------------------
 
     /**
-     * Provides runtime Plexus metadata based on simple property annotations, no scanning.
+     * Provides runtime Plexus metadata based on simple property annotations.
      * 
      * @param variables The filter variables
      */
-    public AbstractPlexusAnnotatedBeanSource( final Map<?, ?> variables )
+    public PlexusAnnotatedMetadata( final Map<?, ?> variables )
     {
         this.variables = variables;
     }
@@ -56,11 +54,6 @@ public abstract class AbstractPlexusAnnotatedBeanSource
     public final boolean isEmpty()
     {
         return false; // metadata comes from the properties themselves
-    }
-
-    public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
-    {
-        return implementation.isAnnotationPresent( Component.class ) ? this : null;
     }
 
     public final Configuration getConfiguration( final BeanProperty<?> property )

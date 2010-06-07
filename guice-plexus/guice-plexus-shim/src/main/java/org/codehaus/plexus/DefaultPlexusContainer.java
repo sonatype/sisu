@@ -322,7 +322,7 @@ public final class DefaultPlexusContainer
             final List<ComponentDescriptor<?>> descriptors = descriptorMap.remove( realm );
             if ( null != descriptors )
             {
-                sources.add( new ComponentDescriptorBeanSource( space, variables, descriptors ) );
+                sources.add( new ComponentDescriptorBeanSource( space, descriptors ) );
             }
 
             if ( realmIds.add( realm.getId() ) )

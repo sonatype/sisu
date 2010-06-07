@@ -32,21 +32,19 @@ import org.sonatype.guice.bean.reflect.DeferredProvider;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
-import org.sonatype.guice.plexus.scanners.AbstractPlexusAnnotatedBeanSource;
+import org.sonatype.guice.plexus.config.PlexusBeanSource;
 
 import com.google.inject.ProvisionException;
 
 final class ComponentDescriptorBeanSource
-    extends AbstractPlexusAnnotatedBeanSource
+    implements PlexusBeanSource
 {
     private Map<Component, DeferredClass<?>> componentMap = new HashMap<Component, DeferredClass<?>>();
 
     private Map<String, PlexusBeanMetadata> metadataMap = new HashMap<String, PlexusBeanMetadata>();
 
-    ComponentDescriptorBeanSource( final ClassSpace space, final Map<?, ?> variables,
-                                   final List<ComponentDescriptor<?>> descriptors )
+    ComponentDescriptorBeanSource( final ClassSpace space, final List<ComponentDescriptor<?>> descriptors )
     {
-        super( variables );
         for ( int i = 0, size = descriptors.size(); i < size; i++ )
         {
             final ComponentDescriptor<?> cd = descriptors.get( i );
@@ -75,7 +73,6 @@ final class ComponentDescriptorBeanSource
         return map;
     }
 
-    @Override
     public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
     {
         final PlexusBeanMetadata metadata = metadataMap.get( implementation.getName() );

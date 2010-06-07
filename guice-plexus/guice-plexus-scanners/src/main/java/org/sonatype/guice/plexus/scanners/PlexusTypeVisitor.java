@@ -47,7 +47,7 @@ public final class PlexusTypeVisitor
 
     private final AnnotationVisitor componentVisitor = new ComponentAnnotationVisitor();
 
-    private final PlexusTypeBinder registry;
+    private final PlexusTypeRegistry registry;
 
     private String role;
 
@@ -63,7 +63,7 @@ public final class PlexusTypeVisitor
     // Constructors
     // ----------------------------------------------------------------------
 
-    protected PlexusTypeVisitor( final PlexusTypeBinder registry )
+    protected PlexusTypeVisitor( final PlexusTypeRegistry registry )
     {
         this.registry = registry;
     }
