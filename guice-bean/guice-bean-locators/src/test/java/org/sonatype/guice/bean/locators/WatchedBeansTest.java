@@ -268,7 +268,7 @@ public class WatchedBeansTest
         locator.watch( Key.get( Bean.class, Named.class ), noOpMediator, a );
         assertEquals( 1, mediatedWatchers.size() );
 
-        GuiceBeans<Named, Bean> beans;
+        QualifiedBeans<Named, Bean> beans;
 
         a = new Object();
         beans = new WatchedBeans<Named, Bean, Object>( Key.get( Bean.class, Named.class ), noOpMediator, a );

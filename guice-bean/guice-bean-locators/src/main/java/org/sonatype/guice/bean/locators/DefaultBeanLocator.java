@@ -37,7 +37,7 @@ public final class DefaultBeanLocator
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final List<Provider<GuiceBeans<?, ?>>> exposedBeans = new ArrayList<Provider<GuiceBeans<?, ?>>>();
+    private final List<Provider<QualifiedBeans<?, ?>>> exposedBeans = new ArrayList<Provider<QualifiedBeans<?, ?>>>();
 
     private final Set<Injector> injectors = new LinkedHashSet<Injector>();
 
@@ -63,7 +63,7 @@ public final class DefaultBeanLocator
     @SuppressWarnings( "unchecked" )
     public synchronized Iterable locate( final Key key )
     {
-        final GuiceBeans beans = initialize( new GuiceBeans( key ) );
+        final QualifiedBeans beans = initialize( new QualifiedBeans( key ) );
         exposedBeans.add( new WeakBeanReference( beans ) );
         return beans;
     }
@@ -82,7 +82,7 @@ public final class DefaultBeanLocator
         }
         for ( int i = 0; i < exposedBeans.size(); i++ )
         {
-            final GuiceBeans<?, ?> beans = exposedBeans.get( i ).get();
+            final QualifiedBeans<?, ?> beans = exposedBeans.get( i ).get();
             if ( null != beans )
             {
                 beans.add( injector ); // update exposed sequence to include new injector
@@ -102,7 +102,7 @@ public final class DefaultBeanLocator
         }
         for ( int i = 0; i < exposedBeans.size(); i++ )
         {
-            final GuiceBeans<?, ?> beans = exposedBeans.get( i ).get();
+            final QualifiedBeans<?, ?> beans = exposedBeans.get( i ).get();
             if ( null != beans )
             {
                 beans.remove( injector ); // update exposed sequence to ignore old injector
@@ -124,7 +124,7 @@ public final class DefaultBeanLocator
      * @param beans The beans to initialize
      * @return Initialize beans
      */
-    private <B extends GuiceBeans<?, ?>> B initialize( final B beans )
+    private <B extends QualifiedBeans<?, ?>> B initialize( final B beans )
     {
         for ( final Injector injector : injectors )
         {

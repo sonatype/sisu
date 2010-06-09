@@ -35,7 +35,7 @@ import com.google.inject.Key;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
-public class InjectorBeansTest
+public class QualifiedBeansTest
     extends TestCase
 {
     @Target( TYPE )
@@ -112,8 +112,10 @@ public class InjectorBeansTest
             }
         } );
 
-        final Iterable<Entry<Named, Bean>> namedBeans =
-            new InjectorBeans<Named, Bean>( injector, Key.get( Bean.class, Named.class ) );
+        final QualifiedBeans<Named, Bean> namedBeans =
+            new QualifiedBeans<Named, Bean>( Key.get( Bean.class, Named.class ) );
+
+        namedBeans.add( injector );
 
         Iterator<Entry<Named, Bean>> i;
         Entry<Named, Bean> mapping;
@@ -188,8 +190,10 @@ public class InjectorBeansTest
             }
         } );
 
-        final Iterable<Entry<Named, ImplicitDefaultBean>> namedBeans =
-            new InjectorBeans<Named, ImplicitDefaultBean>( injector, Key.get( ImplicitDefaultBean.class, Named.class ) );
+        final QualifiedBeans<Named, ImplicitDefaultBean> namedBeans =
+            new QualifiedBeans<Named, ImplicitDefaultBean>( Key.get( ImplicitDefaultBean.class, Named.class ) );
+
+        namedBeans.add( injector );
 
         Iterator<Entry<Named, ImplicitDefaultBean>> i;
         Entry<Named, ImplicitDefaultBean> mapping;
@@ -257,8 +261,10 @@ public class InjectorBeansTest
             }
         } );
 
-        final Iterable<Entry<Named, Bean>> namedBeans =
-            new InjectorBeans<Named, Bean>( injector, Key.get( Bean.class, Named.class ) );
+        final QualifiedBeans<Named, Bean> namedBeans =
+            new QualifiedBeans<Named, Bean>( Key.get( Bean.class, Named.class ) );
+
+        namedBeans.add( injector );
 
         Iterator<Entry<Named, Bean>> i;
         Entry<Named, Bean> mapping;
@@ -332,8 +338,10 @@ public class InjectorBeansTest
             }
         } );
 
-        final Iterable<Entry<Named, ImplicitDefaultBean>> namedBeans =
-            new InjectorBeans<Named, ImplicitDefaultBean>( injector, Key.get( ImplicitDefaultBean.class, Named.class ) );
+        final QualifiedBeans<Named, ImplicitDefaultBean> namedBeans =
+            new QualifiedBeans<Named, ImplicitDefaultBean>( Key.get( ImplicitDefaultBean.class, Named.class ) );
+
+        namedBeans.add( injector );
 
         Iterator<Entry<Named, ImplicitDefaultBean>> i;
         Entry<Named, ImplicitDefaultBean> mapping;
@@ -388,8 +396,10 @@ public class InjectorBeansTest
             }
         } );
 
-        final Iterable<Entry<Named, Bean>> namedBeans =
-            new InjectorBeans<Named, Bean>( injector, Key.get( Bean.class, Named.class ) );
+        final QualifiedBeans<Named, Bean> namedBeans =
+            new QualifiedBeans<Named, Bean>( Key.get( Bean.class, Named.class ) );
+
+        namedBeans.add( injector );
 
         Iterator<Entry<Named, Bean>> i;
         Entry<Named, Bean> mapping;
@@ -435,8 +445,10 @@ public class InjectorBeansTest
             }
         } );
 
-        final Iterable<Entry<Named, Bean>> namedBeans =
-            new InjectorBeans<Named, Bean>( injector, Key.get( Bean.class, Names.named( "B" ) ) );
+        final QualifiedBeans<Named, Bean> namedBeans =
+            new QualifiedBeans<Named, Bean>( Key.get( Bean.class, Names.named( "B" ) ) );
+
+        namedBeans.add( injector );
 
         Iterator<Entry<Named, Bean>> i;
         Entry<Named, Bean> mapping;
@@ -467,6 +479,42 @@ public class InjectorBeansTest
         catch ( final NoSuchElementException e )
         {
         }
+
+        // check iterator safety
+        i = namedBeans.iterator();
+        assertTrue( i.hasNext() );
+        namedBeans.remove( injector );
+        assertTrue( i.hasNext() );
+        i = namedBeans.iterator();
+        assertFalse( i.hasNext() );
+        namedBeans.add( injector );
+        assertFalse( i.hasNext() );
+        i = namedBeans.iterator();
+        assertTrue( i.hasNext() );
+        namedBeans.remove( injector );
+        assertTrue( i.hasNext() );
+    }
+
+    public void testHiddenQualifierInstance()
+    {
+        final Injector injector = Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+            }
+        } );
+
+        final QualifiedBeans<Named, Bean> namedBeans =
+            new QualifiedBeans<Named, Bean>( Key.get( Bean.class, Names.named( "B" ) ) );
+
+        namedBeans.add( injector );
+
+        assertFalse( namedBeans.iterator().hasNext() );
     }
 
     public void testUnrestrictedSearch()
@@ -484,8 +532,9 @@ public class InjectorBeansTest
             }
         } );
 
-        final Iterable<Entry<Annotation, Bean>> beans =
-            new InjectorBeans<Annotation, Bean>( injector, Key.get( Bean.class ) );
+        final QualifiedBeans<Annotation, Bean> beans = new QualifiedBeans<Annotation, Bean>( Key.get( Bean.class ) );
+
+        beans.add( injector );
 
         Iterator<Entry<Annotation, Bean>> i;
         Entry<Annotation, Bean> mapping;
@@ -562,8 +611,10 @@ public class InjectorBeansTest
     {
         final Injector injector = Guice.createInjector();
 
-        final Iterable<Entry<Annotation, Bean>> beans =
-            new InjectorBeans<Annotation, Bean>( injector, Key.get( Bean.class, Names.named( "A" ) ) );
+        final QualifiedBeans<Annotation, Bean> beans =
+            new QualifiedBeans<Annotation, Bean>( Key.get( Bean.class, Names.named( "A" ) ) );
+
+        beans.add( injector );
 
         assertFalse( beans.iterator().hasNext() );
     }

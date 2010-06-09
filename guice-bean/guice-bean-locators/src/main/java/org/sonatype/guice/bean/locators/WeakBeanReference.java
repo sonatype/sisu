@@ -20,14 +20,14 @@ import javax.inject.Provider;
  * {@link WeakReference} that can also act as a {@link Provider} of qualified beans.
  */
 final class WeakBeanReference
-    extends WeakReference<GuiceBeans<?, ?>>
-    implements Provider<GuiceBeans<?, ?>>
+    extends WeakReference<QualifiedBeans<?, ?>>
+    implements Provider<QualifiedBeans<?, ?>>
 {
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    WeakBeanReference( final GuiceBeans<?, ?> beans )
+    WeakBeanReference( final QualifiedBeans<?, ?> beans )
     {
         super( beans );
     }

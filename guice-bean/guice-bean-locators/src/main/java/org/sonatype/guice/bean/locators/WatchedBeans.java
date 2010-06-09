@@ -31,8 +31,8 @@ import com.google.inject.Key;
  * {@link Iterable} sequence of qualified beans that uses a {@link BeanMediator} to send updates to watching objects.
  */
 final class WatchedBeans<Q extends Annotation, T, W>
-    extends GuiceBeans<Q, T>
-    implements Provider<GuiceBeans<Q, T>>
+    extends QualifiedBeans<Q, T>
+    implements Provider<QualifiedBeans<Q, T>>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -59,7 +59,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
     // Public methods
     // ----------------------------------------------------------------------
 
-    public GuiceBeans<Q, T> get()
+    public QualifiedBeans<Q, T> get()
     {
         // bean sequence disappears when watcher does
         return null != watcherRef.get() ? this : null;

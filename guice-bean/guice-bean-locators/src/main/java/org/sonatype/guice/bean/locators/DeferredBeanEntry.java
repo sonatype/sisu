@@ -29,7 +29,7 @@ final class DeferredBeanEntry<Q extends Annotation, T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Binding<T> binding;
+    final Binding<T> binding;
 
     private T bean;
 
