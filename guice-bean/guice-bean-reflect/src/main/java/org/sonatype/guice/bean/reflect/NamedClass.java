@@ -13,9 +13,9 @@
 package org.sonatype.guice.bean.reflect;
 
 /**
- * Strong {@link DeferredClass} representing a named class from a {@link ClassSpace}.
+ * {@link DeferredClass} representing a named class from a {@link ClassSpace}.
  */
-public final class StrongDeferredClass<T>
+final class NamedClass<T>
     extends AbstractDeferredClass<T>
 {
     // ----------------------------------------------------------------------
@@ -30,7 +30,7 @@ public final class StrongDeferredClass<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    public StrongDeferredClass( final ClassSpace space, final String name )
+    public NamedClass( final ClassSpace space, final String name )
     {
         this.space = space;
         this.name = name;
@@ -64,9 +64,9 @@ public final class StrongDeferredClass<T>
         {
             return true;
         }
-        if ( rhs instanceof StrongDeferredClass<?> )
+        if ( rhs instanceof NamedClass<?> )
         {
-            final StrongDeferredClass<?> clazz = (StrongDeferredClass<?>) rhs;
+            final NamedClass<?> clazz = (NamedClass<?>) rhs;
             return name.equals( clazz.name ) && space.equals( clazz.space );
         }
         return false;

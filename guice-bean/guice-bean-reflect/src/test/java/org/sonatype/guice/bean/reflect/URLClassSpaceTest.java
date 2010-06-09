@@ -145,4 +145,19 @@ public class URLClassSpaceTest
         // local search should see nothing
         assertFalse( e.hasMoreElements() );
     }
+
+    public void testBrokenResources()
+    {
+        final ClassSpace space = new URLClassSpace( new ClassLoader()
+        {
+            @Override
+            public Enumeration<URL> getResources( final String name )
+                throws IOException
+            {
+                throw new IOException();
+            }
+        }, null );
+
+        assertFalse( space.getResources( "error" ).hasMoreElements() );
+    }
 }

@@ -65,7 +65,7 @@ public final class BundleClassSpace
 
     public DeferredClass<?> deferLoadClass( final String name )
     {
-        return new StrongDeferredClass<Object>( this, name );
+        return new NamedClass<Object>( this, name );
     }
 
     public URL getResource( final String name )

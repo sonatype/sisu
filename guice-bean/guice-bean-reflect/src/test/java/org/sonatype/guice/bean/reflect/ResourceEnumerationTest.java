@@ -63,10 +63,19 @@ public class ResourceEnumerationTest
         assertEquals( 33, n );
     }
 
-    public void testGlobbedEnumerationStart()
+    public void testNoStarEnumeration()
     {
         final Enumeration<URL> e =
-            new ResourceEnumeration( null, "**$2.class", true, new URL[] { COMMONS_LOGGING_JAR } );
+            new ResourceEnumeration( "/", "LogFactory.class", true, new URL[] { COMMONS_LOGGING_JAR } );
+
+        final String prefix = COMMONS_LOGGING_JAR + "!/";
+        assertEquals( prefix + "org/apache/commons/logging/LogFactory.class", e.nextElement().getPath() );
+        assertFalse( e.hasMoreElements() );
+    }
+
+    public void testGlobbedEnumerationStart()
+    {
+        final Enumeration<URL> e = new ResourceEnumeration( null, "*$2.class", true, new URL[] { COMMONS_LOGGING_JAR } );
 
         final String prefix = COMMONS_LOGGING_JAR + "!/";
         assertEquals( prefix + "org/apache/commons/logging/impl/LogFactoryImpl$2.class", e.nextElement().getPath() );
@@ -77,10 +86,30 @@ public class ResourceEnumerationTest
     public void testGlobbedEnumerationEnd()
     {
         final Enumeration<URL> e =
-            new ResourceEnumeration( null, "SimpleLog.**", true, new URL[] { COMMONS_LOGGING_JAR } );
+            new ResourceEnumeration( null, "SimpleLog.*", true, new URL[] { COMMONS_LOGGING_JAR } );
 
         final String prefix = COMMONS_LOGGING_JAR + "!/";
         assertEquals( prefix + "org/apache/commons/logging/impl/SimpleLog.class", e.nextElement().getPath() );
+        assertFalse( e.hasMoreElements() );
+    }
+
+    public void testGlobbedEnumerationMiddle()
+    {
+        final Enumeration<URL> e =
+            new ResourceEnumeration( null, "LogFactory*.class", true, new URL[] { COMMONS_LOGGING_JAR } );
+
+        final String prefix = COMMONS_LOGGING_JAR + "!/";
+        assertEquals( prefix + "org/apache/commons/logging/impl/LogFactoryImpl$1.class", e.nextElement().getPath() );
+        assertEquals( prefix + "org/apache/commons/logging/impl/LogFactoryImpl$2.class", e.nextElement().getPath() );
+        assertEquals( prefix + "org/apache/commons/logging/impl/LogFactoryImpl$3.class", e.nextElement().getPath() );
+        assertEquals( prefix + "org/apache/commons/logging/impl/LogFactoryImpl.class", e.nextElement().getPath() );
+        assertEquals( prefix + "org/apache/commons/logging/LogFactory$1.class", e.nextElement().getPath() );
+        assertEquals( prefix + "org/apache/commons/logging/LogFactory$2.class", e.nextElement().getPath() );
+        assertEquals( prefix + "org/apache/commons/logging/LogFactory$3.class", e.nextElement().getPath() );
+        assertEquals( prefix + "org/apache/commons/logging/LogFactory$4.class", e.nextElement().getPath() );
+        assertEquals( prefix + "org/apache/commons/logging/LogFactory$5.class", e.nextElement().getPath() );
+        assertEquals( prefix + "org/apache/commons/logging/LogFactory$6.class", e.nextElement().getPath() );
+        assertEquals( prefix + "org/apache/commons/logging/LogFactory.class", e.nextElement().getPath() );
         assertFalse( e.hasMoreElements() );
     }
 

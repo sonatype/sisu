@@ -49,7 +49,7 @@ public class DeferredClassTest
 
         assertEquals( clazz, clazz );
 
-        assertEquals( new StrongDeferredClass<Object>( space, clazzName ), clazz );
+        assertEquals( new NamedClass<Object>( space, clazzName ), clazz );
 
         assertFalse( clazz.equals( new DeferredClass<Object>()
         {
@@ -74,8 +74,8 @@ public class DeferredClassTest
         final String clazzName2 = clazzName + "$1";
         final ClassSpace space2 = new URLClassSpace( ClassLoader.getSystemClassLoader(), null );
 
-        assertFalse( clazz.equals( new StrongDeferredClass<Object>( space, clazzName2 ) ) );
-        assertFalse( clazz.equals( new StrongDeferredClass<Object>( space2, clazzName ) ) );
+        assertFalse( clazz.equals( new NamedClass<Object>( space, clazzName2 ) ) );
+        assertFalse( clazz.equals( new NamedClass<Object>( space2, clazzName ) ) );
 
         assertTrue( clazz.toString().contains( clazzName ) );
         assertTrue( clazz.toString().contains( space.toString() ) );
@@ -104,7 +104,7 @@ public class DeferredClassTest
         try
         {
             final ClassSpace space = new URLClassSpace( testLoader );
-            new StrongDeferredClass<Object>( space, "unknown-class" ).load();
+            new NamedClass<Object>( space, "unknown-class" ).load();
             fail( "Expected TypeNotPresentException" );
         }
         catch ( final TypeNotPresentException e )

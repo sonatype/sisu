@@ -31,7 +31,7 @@ import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.DeferredProvider;
-import org.sonatype.guice.bean.reflect.StrongDeferredClass;
+import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
@@ -109,7 +109,7 @@ public class PlexusXmlScannerTest
         @SuppressWarnings( "unchecked" )
         public DeferredClass<?> deferLoadClass( final String name )
         {
-            return new StrongDeferredClass( this, name );
+            return new LoadedClass( loadClass( name ) );
         }
 
         public URL getResource( final String name )

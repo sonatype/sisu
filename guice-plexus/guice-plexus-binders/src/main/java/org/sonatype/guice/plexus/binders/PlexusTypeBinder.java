@@ -17,6 +17,7 @@ import java.lang.annotation.Annotation;
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.binders.QualifiedTypeBinder;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
 import org.sonatype.guice.plexus.config.Roles;
 import org.sonatype.guice.plexus.config.Strategies;
@@ -81,14 +82,12 @@ public final class PlexusTypeBinder
                 sbb = binder.bind( roleKey );
             }
         }
-        else if ( Strategies.LOAD_ON_START.equals( strategy ) )
+        else if ( Strategies.LOAD_ON_START.equals( strategy ) || clazz instanceof LoadedClass<?> )
         {
-            // no point deferring eager components
-            sbb = binder.bind( roleKey ).to( clazz.load() );
+            sbb = binder.bind( roleKey ).to( clazz.load() ); // no need to defer
         }
         else
         {
-            // mimic Plexus behaviour, only load classes on demand
             sbb = binder.bind( roleKey ).toProvider( clazz.asProvider() );
         }
 

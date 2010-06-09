@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.regex.Pattern;
 
 /**
  * {@link Enumeration} of resources found by scanning JARs and directories.
@@ -43,11 +42,17 @@ final class ResourceEnumeration
 
     private final String subPath;
 
-    private final Pattern globPattern;
+    private final int subPathLength;
+
+    private final Globber globber;
+
+    private final Object globPattern;
 
     private final boolean recurse;
 
     private URL currentURL;
+
+    private boolean isJar;
 
     private Iterator<String> entryNames = NO_ENTRIES;
 
@@ -68,7 +73,9 @@ final class ResourceEnumeration
     ResourceEnumeration( final String subPath, final String glob, final boolean recurse, final URL[] urls )
     {
         this.subPath = normalizeSearchPath( subPath );
-        globPattern = compileGlobPattern( glob );
+        subPathLength = this.subPath.length();
+        globber = selectGlobber( glob );
+        globPattern = globber.compile( glob );
         this.recurse = recurse;
 
         this.urls = Arrays.asList( urls ).iterator();
@@ -113,7 +120,7 @@ final class ResourceEnumeration
 
             try
             {
-                return entryURL( currentURL, name );
+                return isJar ? new URL( "jar:" + currentURL + "!/" + name ) : new URL( currentURL, name );
             }
             catch ( final MalformedURLException e )
             {
@@ -122,27 +129,6 @@ final class ResourceEnumeration
             }
         }
         throw new NoSuchElementException();
-    }
-
-    // ----------------------------------------------------------------------
-    // Locally-shared methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * Returns a {@link URL} that points to the given entry inside the containing URL.
-     * 
-     * @param url The containing URL
-     * @param name The entry name
-     * @return URL pointing to the entry
-     */
-    static URL entryURL( final URL url, final String name )
-        throws MalformedURLException
-    {
-        if ( null == url )
-        {
-            throw new MalformedURLException( "null" );
-        }
-        return url.getPath().endsWith( "/" ) ? new URL( url, name ) : new URL( "jar:" + url + "!/" + name );
     }
 
     // ----------------------------------------------------------------------
@@ -165,18 +151,35 @@ final class ResourceEnumeration
     }
 
     /**
-     * Compiles the given globbed pattern into a regular expression pattern.
+     * Selects the best globber strategy for the given plain-text glob;
      * 
-     * @param glob The globbed pattern
-     * @return The matching regular expression
+     * @param glob The plain-text glob
+     * @return Globber strategy
      */
-    private static Pattern compileGlobPattern( final String glob )
+    private static Globber selectGlobber( final String glob )
     {
         if ( null == glob || "*".equals( glob ) )
         {
-            return null;
+            return Globber.ANYTHING;
         }
-        return Pattern.compile( glob.replaceAll( "[^*]+", "\\\\Q$0\\\\E" ).replaceAll( "\\*+", ".*" ) );
+        final int firstWildcard = glob.indexOf( '*' );
+        if ( firstWildcard < 0 )
+        {
+            return Globber.EXACT;
+        }
+        final int lastWildcard = glob.lastIndexOf( '*' );
+        if ( firstWildcard == lastWildcard )
+        {
+            if ( firstWildcard == 0 )
+            {
+                return Globber.SUFFIX;
+            }
+            if ( lastWildcard == glob.length() - 1 )
+            {
+                return Globber.PREFIX;
+            }
+        }
+        return Globber.PATTERN;
     }
 
     /**
@@ -187,14 +190,12 @@ final class ResourceEnumeration
      */
     private Iterator<String> scan( final URL url )
     {
-        if ( null == url )
-        {
-            return NO_ENTRIES;
-        }
         if ( url.getPath().endsWith( "/" ) )
         {
+            isJar = false;
             return new FileEntryIterator( url, subPath, recurse );
         }
+        isJar = true;
         return new ZipEntryIterator( url );
     }
 
@@ -206,21 +207,14 @@ final class ResourceEnumeration
      */
     private boolean matchesRequest( final String entryName )
     {
-        if ( entryName.endsWith( "/" ) || entryName.length() <= subPath.length() || !entryName.startsWith( subPath ) )
+        if ( entryName.endsWith( "/" ) || entryName.length() <= subPathLength || !entryName.startsWith( subPath ) )
         {
             return false; // not inside the search scope
         }
-        if ( !recurse && entryName.indexOf( '/', subPath.length() ) > 0 )
+        if ( !recurse && entryName.indexOf( '/', subPathLength ) > 0 )
         {
             return false; // inside a sub-directory
         }
-        if ( null == globPattern )
-        {
-            return true; // null pattern always matches
-        }
-
-        // globbed pattern only applies to the last path segment of the entry name
-        final int basenameIndex = 1 + entryName.lastIndexOf( '/', entryName.length() - 2 );
-        return globPattern.matcher( entryName.substring( basenameIndex ) ).matches();
+        return globber.match( globPattern, entryName );
     }
 }

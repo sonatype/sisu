@@ -129,7 +129,7 @@ public class DeferredProviderTest
                 @Override
                 protected void configure()
                 {
-                    bind( C.class ).toProvider( new StrongDeferredClass<C>( space, CImpl.class.getName() ).asProvider() );
+                    bind( C.class ).toProvider( new NamedClass<C>( space, CImpl.class.getName() ).asProvider() );
                     bind( CImpl.class ).toProvider( new Provider<CImpl>()
                     {
                         public CImpl get()
@@ -151,7 +151,7 @@ public class DeferredProviderTest
     {
         final ClassSpace space = new URLClassSpace( C.class.getClassLoader(), null );
 
-        final DeferredClass<C> clazz1 = new StrongDeferredClass<C>( space, CImpl.class.getName() );
+        final DeferredClass<C> clazz1 = new NamedClass<C>( space, CImpl.class.getName() );
         final DeferredClass<C> clazz2 = new LoadedClass<C>( CImpl.class );
 
         final DeferredProvider<C> provider1 = clazz1.asProvider();

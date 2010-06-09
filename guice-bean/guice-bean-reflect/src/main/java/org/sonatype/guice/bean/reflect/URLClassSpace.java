@@ -12,8 +12,6 @@
  */
 package org.sonatype.guice.bean.reflect;
 
-import static org.sonatype.guice.bean.reflect.ResourceEnumeration.entryURL;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -35,6 +33,8 @@ public final class URLClassSpace
     // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
+
+    private static final String MANIFEST_PATH = "META-INF/MANIFEST.MF";
 
     private static final String[] EMPTY_CLASS_PATH = {};
 
@@ -94,7 +94,7 @@ public final class URLClassSpace
 
     public DeferredClass<?> deferLoadClass( final String name )
     {
-        return new StrongDeferredClass<Object>( this, name );
+        return new NamedClass<Object>( this, name );
     }
 
     public URL getResource( final String name )
@@ -170,17 +170,16 @@ public final class URLClassSpace
         while ( !searchURLs.isEmpty() )
         {
             final URL url = searchURLs.removeFirst();
-            if ( !reachableURLs.add( url ) )
+            if ( null == url || !reachableURLs.add( url ) )
             {
                 continue; // already processed
             }
             final String[] classPath;
             try
             {
-                // search Class-Path entries in manifest in case they refer to other JARs/folders
-                classPath = getClassPath( entryURL( url, "META-INF/MANIFEST.MF" ).openStream() );
+                classPath = getClassPath( url );
             }
-            catch ( final IOException e ) // NOPMD
+            catch ( final IOException e )
             {
                 continue; // missing manifest
             }
@@ -201,14 +200,25 @@ public final class URLClassSpace
     }
 
     /**
-     * Looks for Class-Path entries in the given manifest stream; returns empty array if none are found.
+     * Looks for a manifest Class-Path in the given resource; returns empty array if none are found.
      * 
-     * @param in The manifest input stream
+     * @param url The resource to inspect
      * @return Array of class-path entries
      */
-    private static String[] getClassPath( final InputStream in )
+    private static String[] getClassPath( final URL url )
         throws IOException
     {
+        final URL manifestURL;
+        if ( url.getPath().endsWith( "/" ) )
+        {
+            manifestURL = new URL( url, MANIFEST_PATH );
+        }
+        else
+        {
+            manifestURL = new URL( "jar:" + url + "!/" + MANIFEST_PATH );
+        }
+
+        final InputStream in = manifestURL.openStream();
         try
         {
             final String classPath = new Manifest( in ).getMainAttributes().getValue( "Class-Path" );
