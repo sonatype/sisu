@@ -34,12 +34,10 @@ import org.sonatype.guice.bean.reflect.TypeParameters;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.Roles;
 
-import com.google.inject.Binder;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
-import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.spi.TypeConverter;
 import com.google.inject.spi.TypeConverterBinding;
 
@@ -48,8 +46,7 @@ import com.google.inject.spi.TypeConverterBinding;
  */
 @Singleton
 public final class PlexusXmlBeanConverter
-    extends AbstractMatcher<TypeLiteral<?>>
-    implements PlexusBeanConverter, TypeConverter, Module
+    implements PlexusBeanConverter
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -61,63 +58,14 @@ public final class PlexusXmlBeanConverter
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private TypeConverterBinding[] otherConverterBindings;
-
-    // ----------------------------------------------------------------------
-    // Guice binding
-    // ----------------------------------------------------------------------
-
-    public void configure( final Binder binder )
-    {
-        // we're both matcher and converter
-        binder.convertToTypes( this, this );
-
-        // used by the primary module, also bootstraps injection
-        binder.bind( PlexusXmlBeanConverter.class ).toInstance( this );
-    }
-
-    // ----------------------------------------------------------------------
-    // Guice setter
-    // ----------------------------------------------------------------------
-
-    /**
-     * Records all the other {@link TypeConverterBinding}s registered with the {@link Injector}.
-     * 
-     * @param injector The injector
-     */
-    @Inject
-    void recordOtherConverterBindings( final Injector injector )
-    {
-        final List<TypeConverterBinding> tempBindings = new ArrayList<TypeConverterBinding>();
-        for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
-        {
-            // play safe: don't want to get into any sort of recursion!
-            if ( !( b.getTypeConverter() instanceof PlexusXmlBeanConverter ) )
-            {
-                tempBindings.add( b );
-            }
-        }
-        otherConverterBindings = tempBindings.toArray( new TypeConverterBinding[tempBindings.size()] );
-    }
+    private List<TypeConverterBinding> typeConverterBindings;
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public boolean matches( final TypeLiteral<?> type )
-    {
-        // basic idea: we handle any conversion that the others don't
-        for ( final TypeConverterBinding b : otherConverterBindings )
-        {
-            if ( b.getTypeMatcher().matches( type ) )
-            {
-                return false; // another converter can handle this
-            }
-        }
-        return true;
-    }
-
-    public Object convert( final String value, final TypeLiteral<?> toType )
+    @SuppressWarnings( "unchecked" )
+    public Object convert( final TypeLiteral role, final String value )
     {
         if ( value.trim().startsWith( "<" ) )
         {
@@ -127,26 +75,31 @@ public final class PlexusXmlBeanConverter
                 parser.setInput( new StringReader( value ) );
                 parser.nextTag();
 
-                return parse( parser, toType );
+                return parse( parser, role );
             }
             catch ( final Throwable e )
             {
-                throw new IllegalArgumentException( String.format( CONVERSION_ERROR, value, toType ), e );
+                throw new IllegalArgumentException( String.format( CONVERSION_ERROR, value, role ), e );
             }
         }
 
-        return convertText( value, toType );
-    }
-
-    @SuppressWarnings( "unchecked" )
-    public Object convert( final TypeLiteral role, final String value )
-    {
-        return convert( value, role );
+        return convertText( value, role );
     }
 
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
+
+    /**
+     * Records all {@link TypeConverterBinding}s registered with the {@link Injector}.
+     * 
+     * @param injector The injector
+     */
+    @Inject
+    void setTypeConverterBindings( final Injector injector )
+    {
+        typeConverterBindings = injector.getTypeConverterBindings();
+    }
 
     /**
      * Parses a sequence of XML elements and converts them to the given target type.
@@ -456,7 +409,7 @@ public final class PlexusXmlBeanConverter
         // use temporary Key as quick way to auto-box primitive types into their equivalent object types
         final TypeLiteral<?> boxedType = rawType.isPrimitive() ? Key.get( rawType ).getTypeLiteral() : toType;
 
-        for ( final TypeConverterBinding b : otherConverterBindings )
+        for ( final TypeConverterBinding b : typeConverterBindings )
         {
             if ( b.getTypeMatcher().matches( boxedType ) )
             {

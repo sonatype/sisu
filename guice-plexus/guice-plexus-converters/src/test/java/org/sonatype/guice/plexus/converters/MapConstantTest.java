@@ -23,6 +23,8 @@ import javax.inject.Named;
 
 import junit.framework.TestCase;
 
+import org.sonatype.guice.plexus.config.PlexusBeanConverter;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.name.Names;
@@ -55,7 +57,8 @@ public class MapConstantTest
                 bind( "Properties", "<items><property><name>key1</name><value>value1</value></property>"
                     + "<property><value>value2</value><name>key2</name></property></items>" );
 
-                install( new PlexusXmlBeanConverter() );
+                bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
+                install( new ConfigurationConverter() );
             }
         } ).injectMembers( this );
     }

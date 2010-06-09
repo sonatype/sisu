@@ -72,7 +72,6 @@ public class PlexusRequirementTest
                 final DeferredClass<A> deferA = (DeferredClass) space.deferLoadClass( BrokenAImpl.class.getName() );
 
                 install( new PlexusDateTypeConverter() );
-                install( new PlexusXmlBeanConverter() );
 
                 bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );

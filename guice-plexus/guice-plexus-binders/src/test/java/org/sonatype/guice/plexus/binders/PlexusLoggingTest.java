@@ -83,7 +83,6 @@ public class PlexusLoggingTest
             protected void configure()
             {
                 install( new PlexusDateTypeConverter() );
-                install( new PlexusXmlBeanConverter() );
 
                 bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );

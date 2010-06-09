@@ -34,8 +34,6 @@ import com.google.inject.name.Names;
 public class BeanConstantTest
     extends TestCase
 {
-    final PlexusXmlBeanConverter xmlConverter = new PlexusXmlBeanConverter();
-
     @Override
     protected void setUp()
         throws Exception
@@ -67,9 +65,8 @@ public class BeanConstantTest
                 bindConstant().annotatedWith( Names.named( "DATE" ) ).to( "2009-11-15 18:02:00" );
 
                 install( new PlexusDateTypeConverter() );
-                install( xmlConverter );
-
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
+                install( new ConfigurationConverter() );
             }
         } ).injectMembers( this );
     }
@@ -210,7 +207,6 @@ public class BeanConstantTest
     public void testConfigurator()
     {
         final PlexusBeanConverter configurator = injector.getInstance( PlexusBeanConverter.class );
-        assertSame( xmlConverter, configurator );
         final float value = configurator.convert( TypeLiteral.get( float.class ), "4.2" );
         assertEquals( 4.2f, value, 0 );
     }

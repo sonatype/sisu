@@ -32,7 +32,6 @@ public class SimpleRequirementExample
             @Override
             protected void configure()
             {
-                install( new PlexusXmlBeanConverter() );
                 bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
                 install( new PlexusBindingModule( null, new PlexusAnnotatedBeanSource( null, null ) ) );

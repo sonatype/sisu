@@ -58,6 +58,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 /**
@@ -73,6 +74,8 @@ public final class DefaultPlexusContainer
     private static final String DEFAULT_REALM_NAME = "plexus.core";
 
     private static final LoggerManager CONSOLE_LOGGER_MANAGER = new ConsoleLoggerManager();
+
+    static final Named PLEXUS_NAME = Names.named( PlexusConstants.PLEXUS_KEY );
 
     static
     {
@@ -610,19 +613,18 @@ public final class DefaultPlexusContainer
         protected void configure()
         {
             bind( Context.class ).toInstance( context );
-            bind( Map.class ).annotatedWith( Names.named( PlexusConstants.PLEXUS_KEY ) ).toInstance( variables );
+            bind( Map.class ).annotatedWith( PLEXUS_NAME ).toInstance( variables );
             bind( Logger.class ).toProvider( loggerProvider );
 
             bind( MutablePlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
             bind( DefaultPlexusBeanLocator.class ).toInstance( beanLocator );
+            bind( PlexusBeanConverter.class ).toInstance( beanConverter );
             bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
 
             install( dateConverter );
-            install( beanConverter );
 
             bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
             bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
-            bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
         }
     }
 
