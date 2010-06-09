@@ -28,7 +28,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 
 /**
- * Base {@link PlexusBeans} implementation that manages a backing list of {@link PlexusInjectorBeans}.
+ * Base {@link PlexusBeans} implementation that manages a backing list of {@link InjectorBeans}.
  */
 abstract class AbstractPlexusBeans<T>
     implements PlexusBeans<T>
@@ -58,7 +58,7 @@ abstract class AbstractPlexusBeans<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private List<PlexusInjectorBeans<T>> injectorBeans;
+    private List<InjectorBeans<T>> trackedBeans;
 
     private List<PlexusBeanLocator.Bean<T>> cachedBeans;
 
@@ -74,13 +74,13 @@ abstract class AbstractPlexusBeans<T>
         if ( null == cachedBeans || Thread.currentThread().getContextClassLoader() != cachedTCCL )
         {
             cachedTCCL = Thread.currentThread().getContextClassLoader();
-            if ( null != injectorBeans )
+            if ( null != trackedBeans )
             {
                 cachedBeans = getVisibleBeans( getVisibleRealms( getContextRealm() ) );
             }
             else
             {
-                cachedBeans = getBeans( Collections.EMPTY_LIST );
+                cachedBeans = sequenceBeans( Collections.EMPTY_LIST );
             }
         }
         return cachedBeans.iterator();
@@ -88,31 +88,31 @@ abstract class AbstractPlexusBeans<T>
 
     public final synchronized boolean add( final Injector injector )
     {
-        final PlexusInjectorBeans<T> newBeans = discoverInjectorBeans( injector );
+        final InjectorBeans<T> newBeans = lookupInjectorBeans( injector );
         if ( newBeans.isEmpty() )
         {
             return false; // nothing to add
         }
-        if ( null == injectorBeans )
+        if ( null == trackedBeans )
         {
-            injectorBeans = new ArrayList<PlexusInjectorBeans<T>>( 4 );
+            trackedBeans = new ArrayList<InjectorBeans<T>>( 4 );
         }
         cachedBeans = null;
-        return injectorBeans.add( newBeans );
+        return trackedBeans.add( newBeans );
     }
 
     public final synchronized boolean remove( final Injector injector )
     {
-        if ( null == injectorBeans )
+        if ( null == trackedBeans )
         {
             return false; // nothing to remove
         }
-        for ( final PlexusInjectorBeans<T> beans : injectorBeans )
+        for ( final InjectorBeans<T> beans : trackedBeans )
         {
             if ( injector == beans.injector )
             {
                 cachedBeans = null;
-                return injectorBeans.remove( beans );
+                return trackedBeans.remove( beans );
             }
         }
         return false;
@@ -122,9 +122,9 @@ abstract class AbstractPlexusBeans<T>
     // Abstract methods
     // ----------------------------------------------------------------------
 
-    abstract PlexusInjectorBeans<T> discoverInjectorBeans( final Injector injector );
+    abstract InjectorBeans<T> lookupInjectorBeans( final Injector injector );
 
-    abstract List<PlexusBeanLocator.Bean<T>> getBeans( final List<PlexusInjectorBeans<T>> visibleBeans );
+    abstract List<PlexusBeanLocator.Bean<T>> sequenceBeans( final List<InjectorBeans<T>> beans );
 
     // ----------------------------------------------------------------------
     // Implementation methods
@@ -190,14 +190,14 @@ abstract class AbstractPlexusBeans<T>
     {
         if ( visibleRealms.isEmpty() )
         {
-            return getBeans( injectorBeans );
+            return sequenceBeans( trackedBeans );
         }
 
         final Key<ClassRealm> realmKey = Key.get( ClassRealm.class );
-        final List<PlexusInjectorBeans<T>> visibleBeans = new ArrayList<PlexusInjectorBeans<T>>();
-        for ( int i = 0, size = injectorBeans.size(); i < size; i++ )
+        final List<InjectorBeans<T>> visibleBeans = new ArrayList<InjectorBeans<T>>();
+        for ( int i = 0, size = trackedBeans.size(); i < size; i++ )
         {
-            final PlexusInjectorBeans<T> candidateBeans = injectorBeans.get( i );
+            final InjectorBeans<T> candidateBeans = trackedBeans.get( i );
             final Binding<ClassRealm> injectorRealm = candidateBeans.injector.getExistingBinding( realmKey );
             if ( null == injectorRealm || visibleRealms.contains( injectorRealm.getProvider().get() ) )
             {
@@ -205,6 +205,6 @@ abstract class AbstractPlexusBeans<T>
             }
         }
 
-        return getBeans( visibleBeans );
+        return sequenceBeans( visibleBeans );
     }
 }

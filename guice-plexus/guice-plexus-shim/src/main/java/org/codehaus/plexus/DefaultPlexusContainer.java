@@ -45,6 +45,7 @@ import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.binders.PlexusXmlBeanSource;
 import org.sonatype.guice.plexus.config.Hints;
+import org.sonatype.guice.plexus.config.MutablePlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
@@ -93,7 +94,7 @@ public final class DefaultPlexusContainer
 
     final ThreadLocal<ClassRealm> lookupRealm = new ThreadLocal<ClassRealm>();
 
-    final DefaultPlexusBeanLocator beanLocator = new DefaultPlexusBeanLocator();
+    final MutablePlexusBeanLocator beanLocator = new DefaultPlexusBeanLocator();
 
     final Context context;
 
@@ -616,15 +617,17 @@ public final class DefaultPlexusContainer
             bind( Map.class ).annotatedWith( PLEXUS_NAME ).toInstance( variables );
             bind( Logger.class ).toProvider( loggerProvider );
 
+            bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
             bind( MutablePlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
-            bind( DefaultPlexusBeanLocator.class ).toInstance( beanLocator );
+
+            bind( PlexusBeanLocator.class ).to( MutablePlexusBeanLocator.class );
+            bind( MutablePlexusBeanLocator.class ).toInstance( beanLocator );
+
             bind( PlexusBeanConverter.class ).toInstance( beanConverter );
             bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
 
             install( dateConverter );
 
-            bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
-            bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
         }
     }
 

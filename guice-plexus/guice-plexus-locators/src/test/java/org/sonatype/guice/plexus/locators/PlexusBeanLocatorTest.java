@@ -37,7 +37,7 @@ import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
-public class DefaultPlexusBeanLocatorTest
+public class PlexusBeanLocatorTest
     extends TestCase
 {
     @ImplementedBy( BeanImpl.class )

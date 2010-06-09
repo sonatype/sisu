@@ -51,20 +51,19 @@ final class HintedPlexusBeans<T>
     // ----------------------------------------------------------------------
 
     @Override
-    PlexusInjectorBeans<T> discoverInjectorBeans( final Injector injector )
+    InjectorBeans<T> lookupInjectorBeans( final Injector injector )
     {
-        return new PlexusInjectorBeans<T>( injector, role, hints );
+        return new InjectorBeans<T>( injector, role, hints );
     }
 
     @Override
-    List<PlexusBeanLocator.Bean<T>> getBeans( final List<PlexusInjectorBeans<T>> visibleBeans )
+    List<PlexusBeanLocator.Bean<T>> sequenceBeans( final List<InjectorBeans<T>> beans )
     {
         // compile map of all known visible beans at this particular moment (can't build this map ahead of time)
         final Map<String, PlexusBeanLocator.Bean<T>> beanMap = new HashMap<String, PlexusBeanLocator.Bean<T>>();
-        for ( int i = 0, size = visibleBeans.size(); i < size; i++ )
+        for ( int i = 0, size = beans.size(); i < size; i++ )
         {
-            final PlexusInjectorBeans<T> beans = visibleBeans.get( i );
-            for ( final PlexusBeanLocator.Bean<T> b : beans )
+            for ( final PlexusBeanLocator.Bean<T> b : beans.get( i ) )
             {
                 beanMap.put( b.getKey(), b ); // later injector bindings overlay earlier ones
             }

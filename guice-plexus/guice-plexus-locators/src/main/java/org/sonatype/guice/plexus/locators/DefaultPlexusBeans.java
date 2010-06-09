@@ -47,23 +47,23 @@ final class DefaultPlexusBeans<T>
     // ----------------------------------------------------------------------
 
     @Override
-    PlexusInjectorBeans<T> discoverInjectorBeans( final Injector injector )
+    InjectorBeans<T> lookupInjectorBeans( final Injector injector )
     {
-        return new PlexusInjectorBeans<T>( injector, role );
+        return new InjectorBeans<T>( injector, role );
     }
 
     @Override
-    List<PlexusBeanLocator.Bean<T>> getBeans( final List<PlexusInjectorBeans<T>> visibleBeans )
+    List<PlexusBeanLocator.Bean<T>> sequenceBeans( final List<InjectorBeans<T>> beans )
     {
-        if ( visibleBeans.isEmpty() )
+        if ( beans.isEmpty() )
         {
             return Collections.emptyList();
         }
         // "copy-on-read" - concatenate all beans
         final List<PlexusBeanLocator.Bean<T>> combinedBeans = new ArrayList<PlexusBeanLocator.Bean<T>>();
-        for ( int i = 0, size = visibleBeans.size(); i < size; i++ )
+        for ( int i = 0, size = beans.size(); i < size; i++ )
         {
-            combinedBeans.addAll( visibleBeans.get( i ) );
+            combinedBeans.addAll( beans.get( i ) );
         }
         return combinedBeans;
     }

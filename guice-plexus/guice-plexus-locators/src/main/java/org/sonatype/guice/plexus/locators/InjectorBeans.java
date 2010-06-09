@@ -31,7 +31,7 @@ import com.google.inject.name.Named;
 /**
  * {@link List} of Plexus beans with the same type from the same {@link Injector}.
  */
-final class PlexusInjectorBeans<T>
+final class InjectorBeans<T>
     extends ArrayList<PlexusBeanLocator.Bean<T>>
 {
     // ----------------------------------------------------------------------
@@ -56,7 +56,7 @@ final class PlexusInjectorBeans<T>
      * @param injector The injector
      * @param role The Plexus role
      */
-    PlexusInjectorBeans( final Injector injector, final TypeLiteral<T> role )
+    InjectorBeans( final Injector injector, final TypeLiteral<T> role )
     {
         this.injector = injector;
 
@@ -89,7 +89,7 @@ final class PlexusInjectorBeans<T>
      * @param hints The Plexus hints
      */
     @SuppressWarnings( "unchecked" )
-    PlexusInjectorBeans( final Injector injector, final TypeLiteral<T> role, final String[] hints )
+    InjectorBeans( final Injector injector, final TypeLiteral<T> role, final String[] hints )
     {
         super( hints.length ); // minimize memory usage
 

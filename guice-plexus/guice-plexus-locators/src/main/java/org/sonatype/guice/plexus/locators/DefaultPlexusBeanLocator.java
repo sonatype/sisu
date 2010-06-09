@@ -22,17 +22,17 @@ import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+import org.sonatype.guice.plexus.config.MutablePlexusBeanLocator;
 
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
- * {@link PlexusBeanLocator} that locates beans of various types from zero or more {@link Injector}s.
+ * {@link MutablePlexusBeanLocator} that locates beans of various types from zero or more {@link Injector}s.
  */
 @Singleton
 public final class DefaultPlexusBeanLocator
-    implements PlexusBeanLocator
+    implements MutablePlexusBeanLocator
 {
     // ----------------------------------------------------------------------
     // Implementation fields

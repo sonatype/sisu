@@ -40,7 +40,7 @@ import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
-public class PlexusInjectorBeansTest
+public class InjectorBeansTest
     extends TestCase
 {
     @Target( TYPE )
@@ -125,7 +125,7 @@ public class PlexusInjectorBeansTest
         } );
 
         final Iterable<? extends Entry<String, Bean>> roles =
-            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
         Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -208,7 +208,7 @@ public class PlexusInjectorBeansTest
         } );
 
         final Iterable<? extends Entry<String, ImplicitDefaultBean>> roles =
-            new PlexusInjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
+            new InjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
 
         Iterator<? extends Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
@@ -282,7 +282,7 @@ public class PlexusInjectorBeansTest
         } );
 
         final Iterable<? extends Entry<String, Bean>> roles =
-            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
         Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -374,7 +374,7 @@ public class PlexusInjectorBeansTest
         } );
 
         final Iterable<? extends Entry<String, ImplicitDefaultBean>> roles =
-            new PlexusInjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
+            new InjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ) );
 
         Iterator<? extends Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
@@ -436,7 +436,7 @@ public class PlexusInjectorBeansTest
         } );
 
         final Iterable<? extends Entry<String, Bean>> roles =
-            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
         Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -501,7 +501,7 @@ public class PlexusInjectorBeansTest
         final String[] hints = new String[] { "A", "C", null, "B" };
 
         final Iterable<? extends Entry<String, Bean>> roles =
-            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
+            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
 
         Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -586,7 +586,7 @@ public class PlexusInjectorBeansTest
         final String[] hints = new String[] { "A", "C", null, "B" };
 
         final Iterable<? extends Entry<String, ImplicitDefaultBean>> roles =
-            new PlexusInjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ), hints );
+            new InjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ), hints );
 
         Iterator<? extends Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
@@ -663,7 +663,7 @@ public class PlexusInjectorBeansTest
         final String[] hints = new String[] { "A", "C", null, "B" };
 
         final Iterable<? extends Entry<String, Bean>> roles =
-            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
+            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
 
         Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -757,7 +757,7 @@ public class PlexusInjectorBeansTest
         final String[] hints = new String[] { "A", "C", null, "B" };
 
         final Iterable<? extends Entry<String, ImplicitDefaultBean>> roles =
-            new PlexusInjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ), hints );
+            new InjectorBeans<ImplicitDefaultBean>( injector, TypeLiteral.get( ImplicitDefaultBean.class ), hints );
 
         Iterator<? extends Entry<String, ImplicitDefaultBean>> i;
         Entry<String, ImplicitDefaultBean> mapping;
@@ -821,7 +821,7 @@ public class PlexusInjectorBeansTest
         final String[] hints = new String[] { "A", "C", null, "B" };
 
         final Iterable<? extends Entry<String, Bean>> roles =
-            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
+            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ), hints );
 
         Iterator<? extends Entry<String, Bean>> i;
         Entry<String, Bean> mapping;
@@ -900,7 +900,7 @@ public class PlexusInjectorBeansTest
         } );
 
         final Iterable<PlexusBeanLocator.Bean<Bean>> roles =
-            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
         Iterator<PlexusBeanLocator.Bean<Bean>> i;
 
@@ -935,7 +935,7 @@ public class PlexusInjectorBeansTest
         } );
 
         final Iterable<PlexusBeanLocator.Bean<Bean>> roles =
-            new PlexusInjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
         final Iterator<PlexusBeanLocator.Bean<Bean>> i = roles.iterator();
         assertEquals( "some sort of descriptive text", i.next().getDescription() );
