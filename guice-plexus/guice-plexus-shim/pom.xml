@@ -26,7 +26,6 @@
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-patches</artifactId>
-      <classifier>noaop</classifier>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -43,10 +42,6 @@
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-bean-scanners</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-bean-locators</artifactId>
     </dependency>
     <dependency>
@@ -56,10 +51,6 @@
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-plexus-metadata</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-plexus-scanners</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>

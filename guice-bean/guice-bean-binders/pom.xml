@@ -16,6 +16,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>aopalliance</groupId>
+      <artifactId>aopalliance</artifactId>
+    </dependency>
+    <dependency>
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
     </dependency>
@@ -34,10 +38,6 @@
     <dependency>
       <groupId>org.sonatype.spice.inject</groupId>
       <artifactId>guice-bean-locators</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>asm</groupId>
-      <artifactId>asm</artifactId>
     </dependency>
   </dependencies>
 
