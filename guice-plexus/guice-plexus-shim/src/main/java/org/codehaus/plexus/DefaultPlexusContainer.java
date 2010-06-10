@@ -78,11 +78,6 @@ public final class DefaultPlexusContainer
 
     static final Named PLEXUS_NAME = Names.named( PlexusConstants.PLEXUS_KEY );
 
-    static
-    {
-        System.setProperty( "guice.plexus.mode", "true" );
-    }
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
