@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.bean.binders;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -136,11 +137,16 @@ final class ImportBinder
     @SuppressWarnings( "unchecked" )
     private void bindBeanImport( final Key key )
     {
-        if ( WILDCARD_NAME.equals( key.getAnnotation() ) )
+        final Annotation annotation = key.getAnnotation();
+        if ( WILDCARD_NAME.equals( annotation ) )
         {
             // special case for wildcard @Named dependencies: match any @Named bean regardless of actual name
             binder.bind( key ).toProvider( new BeanProvider( Key.get( key.getTypeLiteral(), Named.class ) ) );
         }
+        // else if ( annotation instanceof Named && ( (Named) annotation ).value().contains( "$" ) )
+        // {
+        // binder.bind( key ).toProvider( new PlaceholderBeanProvider( key ) );
+        // }
         else
         {
             binder.bind( key ).toProvider( new BeanProvider( key ) );

@@ -26,9 +26,14 @@ import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
 import org.sonatype.guice.bean.locators.NamedIterableAdapter;
 
+import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Provider;
+import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
+import com.google.inject.name.Names;
+import com.google.inject.spi.TypeConverter;
+import com.google.inject.spi.TypeConverterBinding;
 
 // ----------------------------------------------------------------------
 // BeanLocator-backed Providers that can provide dynamic bean lookups
@@ -175,8 +180,88 @@ final class BeanProvider<V>
 
     public V get()
     {
-        final Iterator<Entry<Annotation, V>> i = locator.locate( key ).iterator();
+        return get( locator, key );
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    static <T> T get( final BeanLocator locator, final Key<T> key )
+    {
+        final Iterator<Entry<Annotation, T>> i = locator.locate( key ).iterator();
         return i.hasNext() ? i.next().getValue() : null; // TODO: dynamic proxy??
+    }
+}
+
+// ----------------------------------------------------------------------
+
+/**
+ * Provides a single bean; the name used to lookup/convert the bean is selected at runtime.
+ */
+final class PlaceholderBeanProvider<V>
+    implements Provider<V>
+{
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    @Inject
+    private BeanLocator locator;
+
+    // @Inject
+    // @Named( ...? )
+    // private Map<String, ?> configSource;
+
+    private TypeConverter typeConverter;
+
+    private final Key<V> placeholderKey;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    PlaceholderBeanProvider( final Key<V> key )
+    {
+        placeholderKey = key;
+    }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
+    @SuppressWarnings( "unchecked" )
+    public V get()
+    {
+        final TypeLiteral<V> beanType = placeholderKey.getTypeLiteral();
+        final String config = interpolate( ( (Named) placeholderKey.getAnnotation() ).value() );
+        if ( null == typeConverter )
+        {
+            return BeanProvider.get( locator, Key.get( beanType, Names.named( config ) ) );
+        }
+        return (V) typeConverter.convert( config, beanType );
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    @Inject
+    void setTypeConverterBindings( final Injector injector )
+    {
+        for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
+        {
+            if ( b.getTypeMatcher().matches( placeholderKey.getTypeLiteral() ) )
+            {
+                typeConverter = b.getTypeConverter();
+                break;
+            }
+        }
+    }
+
+    private String interpolate( final String placeholder )
+    {
+        return "default"; // FIXME: interpolate using configSource
     }
 }
 
