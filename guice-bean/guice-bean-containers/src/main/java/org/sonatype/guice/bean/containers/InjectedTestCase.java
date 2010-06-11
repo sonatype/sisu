@@ -15,10 +15,13 @@ package org.sonatype.guice.bean.containers;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.net.URLClassLoader;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import junit.framework.TestCase;
 
@@ -33,6 +36,7 @@ import com.google.inject.Binder;
 import com.google.inject.InjectorBuilder;
 import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.Provides;
 import com.google.inject.name.Names;
 
 /**
@@ -73,11 +77,22 @@ public abstract class InjectedTestCase
     }
 
     /**
-     * Custom per-test bindings.
+     * Custom injection bindings.
      */
     public void configure( final Binder binder )
     {
         // place any per-test bindings here...
+    }
+
+    /**
+     * Custom property values.
+     */
+    @Provides
+    @Named( "org.sonatype.inject" )
+    public Map<String, ?> properties()
+    {
+        // put any per-test properties here...
+        return Collections.emptyMap();
     }
 
     // ----------------------------------------------------------------------

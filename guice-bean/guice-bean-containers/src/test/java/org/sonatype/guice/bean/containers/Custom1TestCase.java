@@ -13,35 +13,24 @@
 package org.sonatype.guice.bean.containers;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import com.google.inject.Binder;
-import com.google.inject.name.Names;
 
-public final class CustomTestCase1
+public final class Custom1TestCase
     extends InjectedTestCase
 {
     @Override
     public void configure( final Binder binder )
     {
-        // custom setting
-        binder.bindConstant().annotatedWith( Names.named( "SETTING" ) ).to( "1" );
-
         // override automatic binding
         binder.bind( Foo.class ).to( NamedFoo.class );
     }
-
-    @Inject
-    @Named( "SETTING" )
-    int setting;
 
     @Inject
     Foo bean;
 
     public void testPerTestCaseCustomization()
     {
-        assertEquals( 1, setting );
-
         assertTrue( bean instanceof NamedFoo );
     }
 }

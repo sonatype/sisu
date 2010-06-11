@@ -214,7 +214,7 @@ final class PlaceholderBeanProvider<V>
 
     @Inject( optional = true )
     @Named( "org.sonatype.inject" )
-    private Map<String, ?> configSource = Collections.emptyMap();
+    Map<String, ?> configSource = Collections.emptyMap();
 
     @Inject
     private BeanLocator locator;
