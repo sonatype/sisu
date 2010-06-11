@@ -14,18 +14,18 @@ package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.inject.Inject;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
 import org.sonatype.guice.bean.locators.NamedIterableAdapter;
 
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Provider;
@@ -203,15 +203,21 @@ final class PlaceholderBeanProvider<V>
     implements Provider<V>
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final int EXPRESSION_RECURSION_LIMIT = 8;
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    @Inject( optional = true )
+    @Named( "org.sonatype.inject" )
+    private Map<String, ?> configSource = Collections.emptyMap();
+
     @Inject
     private BeanLocator locator;
-
-    // @Inject
-    // @Named( ...? )
-    // private Map<String, ?> configSource;
 
     private TypeConverter typeConverter;
 
@@ -261,7 +267,28 @@ final class PlaceholderBeanProvider<V>
 
     private String interpolate( final String placeholder )
     {
-        return "default"; // FIXME: interpolate using configSource
+        final StringBuilder buf = new StringBuilder( placeholder );
+        int x = 0, y, expressionEnd = 0, expressionNum = 0;
+        while ( ( x = buf.indexOf( "${", x ) ) >= 0 && ( y = buf.indexOf( "}", x ) + 1 ) > 0 )
+        {
+            if ( y > expressionEnd ) // making progress
+            {
+                expressionNum = 0;
+                expressionEnd = y;
+            }
+            final Object value = configSource.get( buf.substring( x + 2, y - 1 ) );
+            if ( value != null && expressionNum++ < EXPRESSION_RECURSION_LIMIT )
+            {
+                final int len = buf.length();
+                buf.replace( x, y, value.toString() );
+                expressionEnd += buf.length() - len;
+            }
+            else
+            {
+                x = y; // skip past missing placeholder
+            }
+        }
+        return buf.toString();
     }
 }
 

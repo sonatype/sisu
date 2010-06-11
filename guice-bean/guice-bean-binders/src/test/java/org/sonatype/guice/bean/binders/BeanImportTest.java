@@ -12,28 +12,20 @@
  */
 package org.sonatype.guice.bean.binders;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 import junit.framework.TestCase;
 
-import org.sonatype.guice.bean.locators.BeanLocator;
-import org.sonatype.inject.BeanMediator;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.CreationException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 
@@ -93,8 +85,8 @@ public class BeanImportTest
         @Inject
         NamedType( @Named( "local" ) final Y local, @Nullable @Named final Y single )
         {
-            this.local = local;
             this.single = single;
+            this.local = local;
         }
     }
 
@@ -108,24 +100,28 @@ public class BeanImportTest
         {
             this.single = single;
         }
-    }
-
-    static class NamedList
-        extends Abstract
-    {
-        List<Y> list;
-
-        @Inject
-        void setList( final List<Y> _list )
-        {
-            list = _list;
-        }
 
         @Inject
         void setLocal( final @Named( "local" ) Y local )
         {
             this.local = local;
         }
+    }
+
+    static class PlaceholderInstance
+        extends Abstract
+    {
+        @Inject
+        @Nullable
+        @Named( "${name}" )
+        Y single;
+    }
+
+    static class NamedList
+        extends Abstract
+    {
+        @Inject
+        List<Y> namedList;
     }
 
     static class HintMap
@@ -169,6 +165,7 @@ public class BeanImportTest
             bind( X.class ).annotatedWith( Names.named( "U" ) ).to( Unrestricted.class ).asEagerSingleton();
             bind( X.class ).annotatedWith( Names.named( "NT" ) ).to( NamedType.class ).asEagerSingleton();
             bind( X.class ).annotatedWith( Names.named( "NI" ) ).to( NamedInstance.class ).asEagerSingleton();
+            bind( X.class ).annotatedWith( Names.named( "NP" ) ).to( PlaceholderInstance.class ).asEagerSingleton();
             bind( X.class ).annotatedWith( Names.named( "NL" ) ).to( NamedList.class ).asEagerSingleton();
             bind( X.class ).annotatedWith( Names.named( "H" ) ).to( HintMap.class ).asEagerSingleton();
 
@@ -176,38 +173,9 @@ public class BeanImportTest
         }
     }
 
-    static class TestLocator
-        implements BeanLocator
-    {
-        static List<Key<?>> locatedKeys = new ArrayList<Key<?>>();
-
-        public <Q extends Annotation, T> Iterable<Entry<Q, T>> locate( final Key<T> key )
-        {
-            locatedKeys.add( key );
-            return Collections.emptyList();
-        }
-
-        public <Q extends Annotation, T, W> void watch( final Key<T> key, final BeanMediator<Q, T, W> mediator,
-                                                        final W watcher )
-        {
-        }
-    }
-
-    static class LocatorModule
-        extends AbstractModule
-    {
-        @Override
-        protected void configure()
-        {
-            bind( BeanLocator.class ).to( TestLocator.class );
-        }
-    }
-
     public void testAutoImports()
     {
-        TestLocator.locatedKeys.clear();
         Guice.createInjector( new BeanImportModule( new TestModule() ) );
-        System.out.println( TestLocator.locatedKeys );
     }
 
     public void testDuplicatesAreIgnored()
@@ -217,7 +185,6 @@ public class BeanImportTest
 
     public void testInvalidTypeParameters()
     {
-        TestLocator.locatedKeys.clear();
         try
         {
             Guice.createInjector( new BeanImportModule( new AbstractModule()
@@ -235,6 +202,5 @@ public class BeanImportTest
         catch ( final CreationException e )
         {
         }
-        assertTrue( TestLocator.locatedKeys.isEmpty() );
     }
 }

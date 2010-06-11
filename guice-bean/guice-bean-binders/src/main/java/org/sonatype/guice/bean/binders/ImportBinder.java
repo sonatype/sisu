@@ -27,19 +27,12 @@ import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 
 /**
  * Adds {@link BeanLocator}-backed bindings for non-local bean dependencies.
  */
 final class ImportBinder
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static Named WILDCARD_NAME = Names.named( "" );
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -137,16 +130,17 @@ final class ImportBinder
     @SuppressWarnings( "unchecked" )
     private void bindBeanImport( final Key key )
     {
-        final Annotation annotation = key.getAnnotation();
-        if ( WILDCARD_NAME.equals( annotation ) )
+        final Annotation qualifier = key.getAnnotation();
+        final String name = qualifier instanceof Named ? ( (Named) qualifier ).value() : "CUSTOM";
+        if ( name.length() == 0 )
         {
             // special case for wildcard @Named dependencies: match any @Named bean regardless of actual name
             binder.bind( key ).toProvider( new BeanProvider( Key.get( key.getTypeLiteral(), Named.class ) ) );
         }
-        // else if ( annotation instanceof Named && ( (Named) annotation ).value().contains( "$" ) )
-        // {
-        // binder.bind( key ).toProvider( new PlaceholderBeanProvider( key ) );
-        // }
+        else if ( name.contains( "${" ) )
+        {
+            binder.bind( key ).toProvider( new PlaceholderBeanProvider( key ) );
+        }
         else
         {
             binder.bind( key ).toProvider( new BeanProvider( key ) );
