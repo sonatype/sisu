@@ -132,18 +132,21 @@ final class ImportBinder
     {
         final Annotation qualifier = key.getAnnotation();
         final String name = qualifier instanceof Named ? ( (Named) qualifier ).value() : "CUSTOM";
-        if ( name.length() == 0 )
-        {
-            // special case for wildcard @Named dependencies: match any @Named bean regardless of actual name
-            binder.bind( key ).toProvider( new BeanProvider( Key.get( key.getTypeLiteral(), Named.class ) ) );
-        }
-        else if ( name.contains( "${" ) )
+        if ( name.contains( "${" ) )
         {
             binder.bind( key ).toProvider( new PlaceholderBeanProvider( key ) );
         }
-        else
+        else if ( key.getTypeLiteral().getRawType().isInterface() )
         {
-            binder.bind( key ).toProvider( new BeanProvider( key ) );
+            if ( name.length() == 0 )
+            {
+                // special case for wildcard @Named dependencies: match any @Named bean regardless of actual name
+                binder.bind( key ).toProvider( new BeanProvider( Key.get( key.getTypeLiteral(), Named.class ) ) );
+            }
+            else
+            {
+                binder.bind( key ).toProvider( new BeanProvider( key ) );
+            }
         }
     }
 }
