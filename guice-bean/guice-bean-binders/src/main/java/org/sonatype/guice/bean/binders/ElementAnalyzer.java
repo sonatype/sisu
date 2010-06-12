@@ -23,6 +23,7 @@ import com.google.inject.Key;
 import com.google.inject.spi.DefaultElementVisitor;
 import com.google.inject.spi.Element;
 import com.google.inject.spi.ElementVisitor;
+import com.google.inject.spi.InjectionRequest;
 
 /**
  * {@link ElementVisitor} that analyzes linked {@link Binding}s for non-local injection dependencies.
@@ -76,9 +77,7 @@ final class ElementAnalyzer
         // silently remove duplicate bindings
         if ( localKeys.add( binding.getKey() ) )
         {
-            // expose original binding
             binding.applyTo( binder );
-
             importedKeys.addAll( binding.acceptTargetVisitor( DEPENDENCY_ANALYZER ) );
             importedKeys.removeAll( localKeys );
         }
@@ -86,9 +85,17 @@ final class ElementAnalyzer
     }
 
     @Override
+    public Void visit( final InjectionRequest<?> injectionRequest )
+    {
+        injectionRequest.applyTo( binder );
+        importedKeys.addAll( DependencyAnalyzer.analyze( injectionRequest.getType() ) );
+        importedKeys.removeAll( localKeys );
+        return null;
+    }
+
+    @Override
     public Void visitOther( final Element element )
     {
-        // expose original element
         element.applyTo( binder );
         return null;
     }

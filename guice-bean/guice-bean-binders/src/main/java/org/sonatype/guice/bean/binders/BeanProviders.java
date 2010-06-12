@@ -241,11 +241,15 @@ final class PlaceholderBeanProvider<V>
     {
         final TypeLiteral<V> beanType = placeholderKey.getTypeLiteral();
         final String config = interpolate( ( (Named) placeholderKey.getAnnotation() ).value() );
-        if ( null == typeConverter )
+        if ( null != typeConverter )
         {
-            return BeanProvider.get( locator, Key.get( beanType, Names.named( config ) ) );
+            return (V) typeConverter.convert( config, beanType );
         }
-        return (V) typeConverter.convert( config, beanType );
+        if ( String.class == beanType.getRawType() )
+        {
+            return (V) config;
+        }
+        return BeanProvider.get( locator, Key.get( beanType, Names.named( config ) ) );
     }
 
     // ----------------------------------------------------------------------
@@ -255,9 +259,10 @@ final class PlaceholderBeanProvider<V>
     @Inject
     void setTypeConverterBindings( final Injector injector )
     {
+        final TypeLiteral<V> beanType = placeholderKey.getTypeLiteral();
         for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
         {
-            if ( b.getTypeMatcher().matches( placeholderKey.getTypeLiteral() ) )
+            if ( b.getTypeMatcher().matches( beanType ) )
             {
                 typeConverter = b.getTypeConverter();
                 break;

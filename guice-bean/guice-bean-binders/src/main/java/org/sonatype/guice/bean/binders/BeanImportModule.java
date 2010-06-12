@@ -12,6 +12,8 @@
  */
 package org.sonatype.guice.bean.binders;
 
+import org.sonatype.guice.bean.converters.FileTypeConverter;
+import org.sonatype.guice.bean.converters.URLTypeConverter;
 import org.sonatype.guice.bean.locators.BeanLocator;
 
 import com.google.inject.Binder;
@@ -46,6 +48,9 @@ public final class BeanImportModule
 
     public void configure( final Binder binder )
     {
+        binder.install( new FileTypeConverter() );
+        binder.install( new URLTypeConverter() );
+
         final ElementAnalyzer analyzer = new ElementAnalyzer( binder );
         for ( final Module m : modules )
         {

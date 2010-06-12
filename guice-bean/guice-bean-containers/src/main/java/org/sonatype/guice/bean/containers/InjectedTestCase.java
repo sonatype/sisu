@@ -15,7 +15,7 @@ package org.sonatype.guice.bean.containers;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.net.URLClassLoader;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -63,18 +63,34 @@ public abstract class InjectedTestCase
     protected void setUp()
         throws Exception
     {
-        final Class<? extends TestCase> testClass = getClass();
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) testClass.getClassLoader() );
-        new InjectorBuilder().addModules( new BeanImportModule( new AbstractModule()
-        {
-            @Override
-            protected void configure()
-            {
-                bindConstant().annotatedWith( Names.named( "basedir" ) ).to( getBasedir() );
-                bind( TestCase.class ).annotatedWith( Names.named( testClass.getName() ) ).to( testClass );
-            }
-        }, this, new BeanSpaceModule( space ) ) ).build().injectMembers( this );
+        final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
+        new InjectorBuilder().addModules( new BeanImportModule( new BootModule(), new BeanSpaceModule( space ) ) ).build();
     }
+
+    final class BootModule
+        extends AbstractModule
+    {
+        @Override
+        protected void configure()
+        {
+            install( InjectedTestCase.this );
+            requestInjection( InjectedTestCase.this );
+        }
+    }
+
+    @Provides
+    @Named( "org.sonatype.inject" )
+    final Map<String, ?> properties()
+    {
+        final Map<String, Object> properties = new HashMap<String, Object>();
+        properties.put( "basedir", getBasedir() );
+        configure( properties );
+        return properties;
+    }
+
+    // ----------------------------------------------------------------------
+    // Container configuration methods
+    // ----------------------------------------------------------------------
 
     /**
      * Custom injection bindings.
@@ -87,25 +103,9 @@ public abstract class InjectedTestCase
     /**
      * Custom property values.
      */
-    @Provides
-    @Named( "org.sonatype.inject" )
-    public Map<String, ?> properties()
+    public void configure( final Map<String, Object> properties )
     {
         // put any per-test properties here...
-        return Collections.emptyMap();
-    }
-
-    // ----------------------------------------------------------------------
-    // Container configuration methods
-    // ----------------------------------------------------------------------
-
-    public final String getBasedir()
-    {
-        if ( null == basedir )
-        {
-            basedir = System.getProperty( "basedir", new File( "" ).getAbsolutePath() );
-        }
-        return basedir;
     }
 
     // ----------------------------------------------------------------------
@@ -125,6 +125,19 @@ public abstract class InjectedTestCase
     public final <T> T lookup( final Key<T> key )
     {
         return lookup( locator.locate( key ).iterator() );
+    }
+
+    // ----------------------------------------------------------------------
+    // Container resource methods
+    // ----------------------------------------------------------------------
+
+    public final String getBasedir()
+    {
+        if ( null == basedir )
+        {
+            basedir = System.getProperty( "basedir", new File( "" ).getAbsolutePath() );
+        }
+        return basedir;
     }
 
     // ----------------------------------------------------------------------

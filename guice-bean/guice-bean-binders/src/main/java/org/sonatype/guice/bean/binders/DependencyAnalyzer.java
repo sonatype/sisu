@@ -67,7 +67,7 @@ final class DependencyAnalyzer<T>
      * @param type The bean type
      * @return Set of dependency keys
      */
-    private static Set<Key<?>> analyze( final TypeLiteral<?> type )
+    static Set<Key<?>> analyze( final TypeLiteral<?> type )
     {
         final DependencySet dependencies = new DependencySet();
         for ( final Member m : new DeclaredMembers( type.getRawType() ) )

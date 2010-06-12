@@ -25,7 +25,7 @@ public final class ExampleTestCase
     extends InjectedTestCase
 {
     @Inject
-    @Named( "basedir" )
+    @Named( "${basedir}" )
     String basedir;
 
     public void testBasedir()

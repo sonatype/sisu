@@ -10,35 +10,26 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.bean.containers;
+package org.sonatype.guice.bean.converters;
 
-import java.util.Map;
+import java.io.File;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import com.google.inject.Binder;
+import com.google.inject.Module;
+import com.google.inject.TypeLiteral;
+import com.google.inject.matcher.Matchers;
+import com.google.inject.spi.TypeConverter;
 
-public final class Custom3TestCase
-    extends InjectedTestCase
+public final class FileTypeConverter
+    implements TypeConverter, Module
 {
-    @Override
-    public void configure( final Map<String, Object> properties )
+    public void configure( final Binder binder )
     {
-        properties.put( "hint", "NameTag" );
-        properties.put( "port", "8080" );
+        binder.convertToTypes( Matchers.only( TypeLiteral.get( File.class ) ), this );
     }
 
-    @Inject
-    @Named( "${hint}" )
-    Foo bean;
-
-    @Inject
-    @Named( "${port}" )
-    int port;
-
-    public void testPerTestCaseCustomization()
+    public Object convert( final String value, final TypeLiteral<?> toType )
     {
-        assertTrue( bean instanceof NamedAndTaggedFoo );
-
-        assertEquals( 8080, port );
+        return new File( value );
     }
 }
