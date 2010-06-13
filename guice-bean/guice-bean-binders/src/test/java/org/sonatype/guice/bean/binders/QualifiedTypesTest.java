@@ -194,7 +194,7 @@ public class QualifiedTypesTest
         throws Exception
     {
         final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
-        injector = Guice.createInjector( new BeanSpaceModule( space ) );
+        injector = Guice.createInjector( new SpaceModule( space ) );
         locator = injector.getInstance( BeanLocator.class );
     }
 

@@ -12,21 +12,38 @@
  */
 package org.sonatype.guice.bean.binders;
 
+import java.lang.reflect.Type;
+import java.util.Map;
+
 import org.sonatype.guice.bean.converters.FileTypeConverter;
 import org.sonatype.guice.bean.converters.URLTypeConverter;
 import org.sonatype.guice.bean.locators.BeanLocator;
 
 import com.google.inject.Binder;
+import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.name.Names;
 import com.google.inject.spi.Element;
 import com.google.inject.spi.Elements;
+import com.google.inject.util.Types;
 
 /**
  * Guice {@link Module} that automatically adds {@link BeanLocator}-backed bindings for non-local bean dependencies.
  */
-public final class BeanImportModule
+public final class WireModule
     implements Module
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    static final Type CONFIG_TYPE = Types.mapOf( String.class, Types.subtypeOf( Object.class ) );
+
+    static final String CONFIG_ID = "org.sonatype.inject";
+
+    @SuppressWarnings( "unchecked" )
+    public static final Key<Map<String, ?>> CONFIG_KEY = (Key) Key.get( CONFIG_TYPE, Names.named( CONFIG_ID ) );
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -37,7 +54,7 @@ public final class BeanImportModule
     // Constructors
     // ----------------------------------------------------------------------
 
-    public BeanImportModule( final Module... modules )
+    public WireModule( final Module... modules )
     {
         this.modules = modules.clone();
     }

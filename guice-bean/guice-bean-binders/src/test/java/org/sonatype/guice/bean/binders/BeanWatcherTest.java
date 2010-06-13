@@ -147,7 +147,7 @@ public class BeanWatcherTest
         throws Exception
     {
         final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
-        Guice.createInjector( new BeanSpaceModule( space ) ).injectMembers( this );
+        Guice.createInjector( new SpaceModule( space ) ).injectMembers( this );
     }
 
     public void testNamedWatcher()

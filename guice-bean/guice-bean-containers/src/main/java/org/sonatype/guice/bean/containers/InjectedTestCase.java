@@ -21,22 +21,20 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import junit.framework.TestCase;
 
-import org.sonatype.guice.bean.binders.BeanImportModule;
-import org.sonatype.guice.bean.binders.BeanSpaceModule;
+import org.sonatype.guice.bean.binders.SpaceModule;
+import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
-import com.google.inject.InjectorBuilder;
+import com.google.inject.Guice;
 import com.google.inject.Key;
 import com.google.inject.Module;
-import com.google.inject.Provides;
 import com.google.inject.name.Names;
 
 /**
@@ -64,28 +62,24 @@ public abstract class InjectedTestCase
         throws Exception
     {
         final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
-        new InjectorBuilder().addModules( new BeanImportModule( new BootModule(), new BeanSpaceModule( space ) ) ).build();
+        Guice.createInjector( new WireModule( new TestModule(), new SpaceModule( space ) ) );
     }
 
-    final class BootModule
+    final class TestModule
         extends AbstractModule
     {
         @Override
         protected void configure()
         {
             install( InjectedTestCase.this );
+
+            final Map<String, Object> properties = new HashMap<String, Object>();
+            properties.put( "basedir", getBasedir() );
+            InjectedTestCase.this.configure( properties );
+            bind( WireModule.CONFIG_KEY ).toInstance( properties );
+
             requestInjection( InjectedTestCase.this );
         }
-    }
-
-    @Provides
-    @Named( "org.sonatype.inject" )
-    final Map<String, ?> properties()
-    {
-        final Map<String, Object> properties = new HashMap<String, Object>();
-        properties.put( "basedir", getBasedir() );
-        configure( properties );
-        return properties;
     }
 
     // ----------------------------------------------------------------------

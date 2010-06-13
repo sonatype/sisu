@@ -213,7 +213,7 @@ final class PlaceholderBeanProvider<V>
     // ----------------------------------------------------------------------
 
     @Inject( optional = true )
-    @Named( "org.sonatype.inject" )
+    @Named( WireModule.CONFIG_ID )
     Map<String, ?> configSource = Collections.emptyMap();
 
     @Inject

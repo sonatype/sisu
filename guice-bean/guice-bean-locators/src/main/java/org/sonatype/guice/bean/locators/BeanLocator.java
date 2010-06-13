@@ -27,7 +27,7 @@ import com.google.inject.name.Names;
 /**
  * Dynamic locator of beans annotated with {@link Qualifier} annotations.
  */
-@ImplementedBy( DefaultBeanLocator.class )
+@ImplementedBy( MutableBeanLocator.class )
 public interface BeanLocator
 {
     /**

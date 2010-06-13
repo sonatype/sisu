@@ -24,7 +24,7 @@ import com.google.inject.Module;
 /**
  * Guice {@link Module} that automatically binds types annotated with {@link Qualifier} annotations.
  */
-public final class BeanSpaceModule
+public final class SpaceModule
     implements Module
 {
     // ----------------------------------------------------------------------
@@ -37,7 +37,7 @@ public final class BeanSpaceModule
     // Constructors
     // ----------------------------------------------------------------------
 
-    public BeanSpaceModule( final ClassSpace space )
+    public SpaceModule( final ClassSpace space )
     {
         this.space = space;
     }

@@ -30,10 +30,10 @@
           </excludeDependencies>
           <instructions>
             <Bundle-SymbolicName>
-              org.sonatype.spice.inject.plexus
+              org.sonatype.inject.plexus
             </Bundle-SymbolicName>
             <Fragment-Host>
-              org.sonatype.spice.inject.bean
+              org.sonatype.inject
             </Fragment-Host>
             <DynamicImport-Package>
               org.slf4j,junit.framework

@@ -34,7 +34,7 @@ import org.codehaus.plexus.context.DefaultContext;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
-import org.sonatype.guice.bean.binders.BeanImportModule;
+import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
 import org.sonatype.guice.bean.reflect.ClassSpace;
@@ -138,10 +138,8 @@ public final class DefaultPlexusContainer
         final PlexusBeanSource xmlSource =
             new PlexusXmlBeanSource( new URLClassSpace( containerRealm ), variables, configurationUrl );
 
-        beanLocator.add( Guice.createInjector( new BeanImportModule( setupModule,
-                                                                     new ClassRealmModule( containerRealm ),
-                                                                     new PlexusBindingModule( lifecycleManager,
-                                                                                              xmlSource ) ) ) );
+        beanLocator.add( Guice.createInjector( new WireModule( setupModule, new ClassRealmModule( containerRealm ),
+                                                               new PlexusBindingModule( lifecycleManager, xmlSource ) ) ) );
     }
 
     // ----------------------------------------------------------------------
@@ -333,10 +331,9 @@ public final class DefaultPlexusContainer
 
             if ( !sources.isEmpty() )
             {
-                beanLocator.add( Guice.createInjector( new BeanImportModule( setupModule,
-                                                                             new ClassRealmModule( realm ),
-                                                                             new PlexusBindingModule( lifecycleManager,
-                                                                                                      sources ) ) ) );
+                beanLocator.add( Guice.createInjector( new WireModule( setupModule, new ClassRealmModule( realm ),
+                                                                       new PlexusBindingModule( lifecycleManager,
+                                                                                                sources ) ) ) );
             }
         }
         catch ( final Throwable e )

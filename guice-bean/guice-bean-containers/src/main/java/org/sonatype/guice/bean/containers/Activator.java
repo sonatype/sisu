@@ -12,27 +12,33 @@
  */
 package org.sonatype.guice.bean.containers;
 
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import org.sonatype.guice.bean.binders.BeanImportModule;
-import org.sonatype.guice.bean.binders.BeanSpaceModule;
-import org.sonatype.guice.bean.locators.BeanLocator;
+import org.sonatype.guice.bean.binders.SpaceModule;
+import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.DefaultBeanLocator;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.BundleClassSpace;
+import org.sonatype.guice.bean.reflect.ClassSpace;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.InjectorBuilder;
 import com.google.inject.Module;
 
 /**
@@ -45,13 +51,9 @@ public final class Activator
     // Constants
     // ----------------------------------------------------------------------
 
+    static final String BUNDLE_INJECTOR_CLASS = BundleInjector.class.getName();
+
     static final MutableBeanLocator LOCATOR = new DefaultBeanLocator();
-
-    private static final String INJECTOR_CLASS = Injector.class.getName();
-
-    private static final int BASE_BINDINGS_SIZE = Guice.createInjector().getBindings().size() + 1;
-
-    private static final LocatorModule LOCATOR_MODULE = new LocatorModule();
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -70,7 +72,7 @@ public final class Activator
     public void start( final BundleContext context )
     {
         bundleContext = context;
-        serviceTracker = new ServiceTracker( context, INJECTOR_CLASS, this );
+        serviceTracker = new ServiceTracker( context, BUNDLE_INJECTOR_CLASS, this );
         serviceTracker.open();
         bundleTracker = new BundleTracker( context, Bundle.ACTIVE, this );
         bundleTracker.open();
@@ -88,28 +90,33 @@ public final class Activator
 
     public Object addingBundle( final Bundle bundle, final BundleEvent event )
     {
-        final String importPackage = (String) bundle.getHeaders().get( Constants.IMPORT_PACKAGE );
-        if ( null == importPackage || !importPackage.contains( "javax.inject" ) )
+        final String symbolicName = bundle.getSymbolicName();
+        if ( "com.google.inject".equals( symbolicName ) || "org.sonatype.inject".equals( symbolicName ) )
+        {
+            return null; // don't bother scanning either of these infrastructure bundles
+        }
+
+        final String imports = (String) bundle.getHeaders().get( Constants.IMPORT_PACKAGE );
+        if ( null == imports || !imports.contains( "javax.inject" ) )
         {
             return null; // bundle doesn't import @Inject, so won't have any beans
         }
+
         final ServiceReference[] serviceReferences = bundle.getRegisteredServices();
         if ( null != serviceReferences )
         {
             for ( final ServiceReference ref : serviceReferences )
             {
-                if ( INJECTOR_CLASS.equals( ( (String[]) ref.getProperty( Constants.OBJECTCLASS ) )[0] ) )
+                if ( Arrays.asList( ref.getProperty( Constants.OBJECTCLASS ) ).contains( BUNDLE_INJECTOR_CLASS ) )
                 {
                     return null; // this bundle already has an injector registered
                 }
             }
         }
-        final Module beanModule = new BeanImportModule( new BeanSpaceModule( new BundleClassSpace( bundle ) ) );
-        final Injector bundleInjector = new InjectorBuilder().addModules( LOCATOR_MODULE, beanModule ).build();
-        if ( bundleInjector.getBindings().size() > BASE_BINDINGS_SIZE )
-        {
-            bundle.getBundleContext().registerService( INJECTOR_CLASS, bundleInjector, null );
-        }
+
+        // bootstrap new injector
+        new BundleInjector( bundle );
+
         return null;
     }
 
@@ -130,7 +137,7 @@ public final class Activator
     public Object addingService( final ServiceReference reference )
     {
         final Object service = bundleContext.getService( reference );
-        LOCATOR.add( (Injector) service );
+        LOCATOR.add( ( (BundleInjector) service ).getInjector() );
         return service;
     }
 
@@ -141,23 +148,112 @@ public final class Activator
 
     public void removedService( final ServiceReference reference, final Object service )
     {
-        LOCATOR.remove( (Injector) service );
+        LOCATOR.remove( ( (BundleInjector) service ).getInjector() );
     }
 
     // ----------------------------------------------------------------------
     // Implementation types
     // ----------------------------------------------------------------------
 
-    /**
-     * {@link Module} that makes sure everyone uses the same global {@link BeanLocator}.
-     */
-    static final class LocatorModule
-        implements Module
+    @SuppressWarnings( "unchecked" )
+    private static final class BundleInjector
+        implements /* TODO:ManagedService, */Module
     {
+        // ----------------------------------------------------------------------
+        // Constants
+        // ----------------------------------------------------------------------
+
+        private static final String[] API = { BUNDLE_INJECTOR_CLASS /* TODO:, ManagedService.class.getName() */};
+
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
+        private final Map<String, ?> config;
+
+        private final Injector injector;
+
+        private final ServiceRegistration registration;
+
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
+        BundleInjector( final Bundle bundle )
+        {
+            config = new BundleConfig( bundle );
+
+            final ClassSpace space = new BundleClassSpace( bundle );
+            injector = Guice.createInjector( new WireModule( this, new SpaceModule( space ) ) );
+            final Dictionary<Object, Object> metadata = new Hashtable<Object, Object>();
+            metadata.put( Constants.SERVICE_PID, WireModule.CONFIG_KEY );
+
+            registration = bundle.getBundleContext().registerService( API, this, metadata );
+        }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
+
         public void configure( final Binder binder )
         {
+            binder.bind( WireModule.CONFIG_KEY ).toInstance( config );
             binder.bind( MutableBeanLocator.class ).toInstance( LOCATOR );
-            binder.bind( BeanLocator.class ).to( MutableBeanLocator.class );
+        }
+
+        public Injector getInjector()
+        {
+            return injector;
+        }
+
+        @SuppressWarnings( "unused" )
+        public void updated( final Dictionary newConfig )
+        {
+            config.clear();
+
+            if ( null != newConfig )
+            {
+                config.putAll( (Map) newConfig );
+                // TODO: reconstruct injector?
+            }
+
+            registration.setProperties( new Hashtable( config ) );
+        }
+    }
+
+    private static final class BundleConfig
+        extends HashMap<String, Object>
+    {
+        // ----------------------------------------------------------------------
+        // Constants
+        // ----------------------------------------------------------------------
+
+        private static final long serialVersionUID = 1L;
+
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
+        private final BundleContext context;
+
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
+        BundleConfig( final Bundle bundle )
+        {
+            context = bundle.getBundleContext();
+        }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
+
+        @Override
+        public Object get( final Object key )
+        {
+            final Object value = super.get( key );
+            return null != value ? value : context.getProperty( String.valueOf( key ) );
         }
     }
 }

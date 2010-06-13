@@ -175,19 +175,19 @@ public class BeanImportTest
 
     public void testAutoImports()
     {
-        Guice.createInjector( new BeanImportModule( new TestModule() ) );
+        Guice.createInjector( new WireModule( new TestModule() ) );
     }
 
     public void testDuplicatesAreIgnored()
     {
-        Guice.createInjector( new BeanImportModule( new TestModule(), new TestModule() ) );
+        Guice.createInjector( new WireModule( new TestModule(), new TestModule() ) );
     }
 
     public void testInvalidTypeParameters()
     {
         try
         {
-            Guice.createInjector( new BeanImportModule( new AbstractModule()
+            Guice.createInjector( new WireModule( new AbstractModule()
             {
                 @Override
                 protected void configure()

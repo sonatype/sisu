@@ -16,9 +16,9 @@
  *
  * <p>The principal members of this package are:
  * <dl>
- * <dt>{@link org.sonatype.guice.bean.binders.BeanSpaceModule}
+ * <dt>{@link org.sonatype.guice.bean.binders.SpaceModule}
  * <dd>Scans a {@link org.sonatype.guice.bean.reflect.ClassSpace} for beans and adds any qualified bindings.
- * <dt>{@link org.sonatype.guice.bean.binders.BeanImportModule}
+ * <dt>{@link org.sonatype.guice.bean.binders.WireModule}
  * <dd>Adds {@link org.sonatype.guice.bean.locators.BeanLocator} bindings for any non-local bean dependencies.
  * </dl>
  */

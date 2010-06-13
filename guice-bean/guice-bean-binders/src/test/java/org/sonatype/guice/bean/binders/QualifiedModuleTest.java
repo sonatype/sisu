@@ -46,7 +46,7 @@ public class QualifiedModuleTest
     public void testQualifiedModule()
     {
         final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
-        Guice.createInjector( new BeanSpaceModule( space ) ).injectMembers( this );
+        Guice.createInjector( new SpaceModule( space ) ).injectMembers( this );
         assertEquals( "CustomValue", value );
     }
 }
