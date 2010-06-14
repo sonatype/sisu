@@ -25,7 +25,7 @@
         <extensions>true</extensions>
         <configuration>
           <excludeDependencies>
-            <!-- fragment host and external plexus deps -->
+            <!-- fragment host and external dependencies -->
             spice-inject-bean,*;groupId=org.codehaus.plexus
           </excludeDependencies>
           <instructions>
@@ -35,9 +35,6 @@
             <Fragment-Host>
               org.sonatype.inject
             </Fragment-Host>
-            <DynamicImport-Package>
-              org.slf4j,junit.framework
-            </DynamicImport-Package>
             <Export-Package>
               org.codehaus.plexus.*;-noimport:=true;-split-package:=merge-first
             </Export-Package>
@@ -71,7 +68,7 @@
                 <filter>
                   <artifact>*:*</artifact>
                   <excludes>
-                    <!-- bean bundle already has these classes -->
+                    <!-- host bundle already has these classes -->
                     <exclude>org/sonatype/guice/bean/**</exclude>
                     <exclude>org/objectweb/**</exclude>
                   </excludes>
