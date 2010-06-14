@@ -214,7 +214,8 @@ final class PlaceholderBeanProvider<V>
 
     @Inject( optional = true )
     @Named( WireModule.CONFIG_ID )
-    Map<String, ?> configSource = Collections.emptyMap();
+    @SuppressWarnings( "unchecked" )
+    Map configSource = Collections.EMPTY_MAP;
 
     @Inject
     private BeanLocator locator;

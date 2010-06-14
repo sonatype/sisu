@@ -24,7 +24,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
-import org.osgi.framework.ServiceRegistration;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 import org.osgi.util.tracker.ServiceTracker;
@@ -155,7 +154,6 @@ public final class Activator
     // Implementation types
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
     private static final class BundleInjector
         implements /* TODO:ManagedService, */Module
     {
@@ -169,11 +167,9 @@ public final class Activator
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final Map<String, ?> config;
+        private final Map<?, ?> config;
 
         private final Injector injector;
-
-        private final ServiceRegistration registration;
 
         // ----------------------------------------------------------------------
         // Constructors
@@ -188,7 +184,7 @@ public final class Activator
             final Dictionary<Object, Object> metadata = new Hashtable<Object, Object>();
             metadata.put( Constants.SERVICE_PID, WireModule.CONFIG_KEY );
 
-            registration = bundle.getBundleContext().registerService( API, this, metadata );
+            bundle.getBundleContext().registerService( API, this, metadata );
         }
 
         // ----------------------------------------------------------------------
@@ -205,24 +201,10 @@ public final class Activator
         {
             return injector;
         }
-
-        @SuppressWarnings( "unused" )
-        public void updated( final Dictionary newConfig )
-        {
-            config.clear();
-
-            if ( null != newConfig )
-            {
-                config.putAll( (Map) newConfig );
-                // TODO: reconstruct injector?
-            }
-
-            registration.setProperties( new Hashtable( config ) );
-        }
     }
 
     private static final class BundleConfig
-        extends HashMap<String, Object>
+        extends HashMap<Object, Object>
     {
         // ----------------------------------------------------------------------
         // Constants

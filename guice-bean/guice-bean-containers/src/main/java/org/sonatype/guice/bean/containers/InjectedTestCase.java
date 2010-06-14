@@ -118,7 +118,8 @@ public abstract class InjectedTestCase
 
     public final <T> T lookup( final Key<T> key )
     {
-        return lookup( locator.locate( key ).iterator() );
+        final Iterator<Entry<Annotation, T>> i = locator.locate( key ).iterator();
+        return i.hasNext() ? i.next().getValue() : null;
     }
 
     // ----------------------------------------------------------------------
@@ -132,14 +133,5 @@ public abstract class InjectedTestCase
             basedir = System.getProperty( "basedir", new File( "" ).getAbsolutePath() );
         }
         return basedir;
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    private final <T> T lookup( final Iterator<Entry<Annotation, T>> i )
-    {
-        return i.hasNext() ? i.next().getValue() : null;
     }
 }

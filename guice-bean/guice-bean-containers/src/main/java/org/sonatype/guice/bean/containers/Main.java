@@ -23,7 +23,9 @@ import org.sonatype.guice.bean.reflect.URLClassSpace;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.name.Names;
 
 /**
  * Bootstrap class that creates a static {@link Injector} by scanning the current class-path for beans.
@@ -35,13 +37,13 @@ public final class Main
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<String, ?> config;
+    private final Map<?, ?> config;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    private Main( final Map<String, ?> config )
+    private Main( final Map<?, ?> config )
     {
         this.config = config;
     }
@@ -50,13 +52,27 @@ public final class Main
     // Public entry points
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
     public static void main( final String[] args )
     {
-        boot( (Map) System.getProperties() );
+        boot( System.getProperties() );
     }
 
-    public static Injector boot( final Map<String, ?> config )
+    public static <T> T boot( final Class<T> type )
+    {
+        return boot( Key.get( type ), System.getProperties() );
+    }
+
+    public static <T> T boot( final Class<T> type, final String name )
+    {
+        return boot( Key.get( type, Names.named( name ) ), System.getProperties() );
+    }
+
+    public static <T> T boot( final Key<T> key, final Map<?, ?> config )
+    {
+        return boot( config ).getInstance( key );
+    }
+
+    public static Injector boot( final Map<?, ?> config )
     {
         final ClassSpace space = new URLClassSpace( (URLClassLoader) Main.class.getClassLoader() );
         return Guice.createInjector( new WireModule( new Main( config ), new SpaceModule( space ) ) );
