@@ -16,6 +16,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -57,6 +58,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Module;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
@@ -114,7 +116,7 @@ public final class DefaultPlexusContainer
     public DefaultPlexusContainer( final ContainerConfiguration configuration )
         throws PlexusContainerException
     {
-        final URL configurationUrl = lookupConfigurationUrl( configuration );
+        final URL plexusXml = lookupPlexusXml( configuration );
 
         context = new DefaultContext( configuration.getContext() );
         context.put( PlexusConstants.PLEXUS_KEY, this );
@@ -135,11 +137,9 @@ public final class DefaultPlexusContainer
 
         realmIds.add( containerRealm.getId() );
 
-        final PlexusBeanSource xmlSource =
-            new PlexusXmlBeanSource( new URLClassSpace( containerRealm ), variables, configurationUrl );
-
-        beanLocator.add( Guice.createInjector( new WireModule( setupModule, new ClassRealmModule( containerRealm ),
-                                                               new PlexusBindingModule( lifecycleManager, xmlSource ) ) ) );
+        final ClassSpace space = new URLClassSpace( containerRealm );
+        final PlexusBeanSource xmlSource = new PlexusXmlBeanSource( space, variables, plexusXml );
+        addPlexusInjector( containerRealm, Collections.singletonList( xmlSource ) );
     }
 
     // ----------------------------------------------------------------------
@@ -331,9 +331,7 @@ public final class DefaultPlexusContainer
 
             if ( !sources.isEmpty() )
             {
-                beanLocator.add( Guice.createInjector( new WireModule( setupModule, new ClassRealmModule( realm ),
-                                                                       new PlexusBindingModule( lifecycleManager,
-                                                                                                sources ) ) ) );
+                addPlexusInjector( realm, sources );
             }
         }
         catch ( final Throwable e )
@@ -342,6 +340,25 @@ public final class DefaultPlexusContainer
         }
 
         return null; // no-one actually seems to use or check the returned component list!
+    }
+
+    public void addPlexusInjector( final ClassRealm realm, final List<PlexusBeanSource> sources,
+                                   final Module... customModules )
+    {
+        final Module[] plexusModules = new Module[customModules.length + 2];
+
+        plexusModules[0] = setupModule;
+        System.arraycopy( customModules, 0, plexusModules, 1, customModules.length );
+        plexusModules[customModules.length + 1] = new PlexusBindingModule( lifecycleManager, sources );
+
+        if ( null != realm )
+        {
+            beanLocator.add( Guice.createInjector( new ClassRealmModule( realm ), new WireModule( plexusModules ) ) );
+        }
+        else
+        {
+            beanLocator.add( Guice.createInjector( new WireModule( plexusModules ) ) );
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -464,7 +481,7 @@ public final class DefaultPlexusContainer
      * @param configuration The container configuration
      * @return Local or remote URL
      */
-    private URL lookupConfigurationUrl( final ContainerConfiguration configuration )
+    private URL lookupPlexusXml( final ContainerConfiguration configuration )
     {
         URL url = configuration.getContainerConfigurationURL();
         if ( null == url )
@@ -619,7 +636,6 @@ public final class DefaultPlexusContainer
             bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
 
             install( dateConverter );
-
         }
     }
 
