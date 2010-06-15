@@ -60,18 +60,14 @@ final class QualifierCache
     {
         if ( !cachedResults.containsKey( desc ) )
         {
+            isQualified = false;
+
             final String name = desc.substring( 1, desc.length() - 1 );
             ClassSpaceScanner.accept( this, space.getResource( name + ".class" ) );
+
             cachedResults.put( desc, isQualified ? space.loadClass( name.replace( '/', '.' ) ) : null );
         }
         return cachedResults.get( desc );
-    }
-
-    @Override
-    public void visit( final int version, final int access, final String name, final String signature,
-                       final String superName, final String[] interfaces )
-    {
-        isQualified = false;
     }
 
     @Override

@@ -51,9 +51,9 @@ public final class PlexusTypeVisitor
 
     private final QualifiedTypeVisitor qualifiedTypeVisitor;
 
-    private String implementation;
+    private ClassSpace space;
 
-    ClassSpace space;
+    private String implementation;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -109,7 +109,7 @@ public final class PlexusTypeVisitor
     {
         if ( null != implementation )
         {
-            final Component component = componentVisitor.getComponent();
+            final Component component = componentVisitor.getComponent( space );
             if ( null != component )
             {
                 plexusTypeListener.hear( component, space.deferLoadClass( implementation ) );
@@ -122,7 +122,7 @@ public final class PlexusTypeVisitor
     // Component annotation scanner
     // ----------------------------------------------------------------------
 
-    final class ComponentAnnotationVisitor
+    static final class ComponentAnnotationVisitor
         extends EmptyAnnotationVisitor
     {
         private String role;
@@ -162,7 +162,7 @@ public final class PlexusTypeVisitor
             }
         }
 
-        public Component getComponent()
+        public Component getComponent( final ClassSpace space )
         {
             return null != role ? new ComponentImpl( space.loadClass( role ), hint, strategy, description ) : null;
         }

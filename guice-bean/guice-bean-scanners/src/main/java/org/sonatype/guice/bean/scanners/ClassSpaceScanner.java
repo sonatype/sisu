@@ -84,6 +84,10 @@ public final class ClassSpaceScanner
      */
     public static void accept( final ClassVisitor visitor, final URL url )
     {
+        if ( null == url )
+        {
+            return;
+        }
         try
         {
             final InputStream in = url.openStream();
