@@ -35,6 +35,7 @@ import org.codehaus.plexus.context.DefaultContext;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
+import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
@@ -139,7 +140,9 @@ public final class DefaultPlexusContainer
 
         final ClassSpace space = new URLClassSpace( containerRealm );
         final PlexusBeanSource xmlSource = new PlexusXmlBeanSource( space, variables, plexusXml );
-        addPlexusInjector( containerRealm, Collections.singletonList( xmlSource ) );
+        final Module spaceModule = new SpaceModule( space );
+
+        addPlexusInjector( containerRealm, Collections.singletonList( xmlSource ), spaceModule );
     }
 
     // ----------------------------------------------------------------------
@@ -624,6 +627,7 @@ public final class DefaultPlexusContainer
         {
             bind( Context.class ).toInstance( context );
             bind( Map.class ).annotatedWith( PLEXUS_NAME ).toInstance( variables );
+            bind( WireModule.CONFIG_KEY ).toInstance( variables );
             bind( Logger.class ).toProvider( loggerProvider );
 
             bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
