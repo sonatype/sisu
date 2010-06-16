@@ -14,7 +14,6 @@ package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -171,8 +170,6 @@ public class BeanImportTest
             bind( X.class ).annotatedWith( Names.named( "H" ) ).to( HintMap.class ).asEagerSingleton();
 
             bind( Y.class ).annotatedWith( Names.named( "local" ) ).toInstance( new YImpl() );
-
-            bind( ParameterKeys.PROPERTIES ).toInstance( Collections.<String, String> emptyMap() );
         }
     }
 

@@ -57,6 +57,9 @@ final class ElementAnalyzer
 
         // must avoid adding an import for the locator
         localKeys.add( Key.get( BeanLocator.class ) );
+
+        // properties parameter is implicitly required
+        importedKeys.add( ParameterKeys.PROPERTIES );
     }
 
     // ----------------------------------------------------------------------

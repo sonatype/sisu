@@ -14,6 +14,7 @@ package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,14 @@ import com.google.inject.name.Named;
  */
 final class ImportBinder
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final Map<String, String> DEFAULT_PROPERTIES = Collections.emptyMap();
+
+    private static final String[] DEFAULT_ARGUMENTS = {};
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -62,13 +71,21 @@ final class ImportBinder
         for ( final Key<?> key : importedKeys )
         {
             final Class<?> clazz = key.getTypeLiteral().getRawType();
-            if ( Map.class == clazz )
+            if ( ParameterKeys.PROPERTIES.equals( key ) )
+            {
+                binder.bind( ParameterKeys.PROPERTIES ).toInstance( DEFAULT_PROPERTIES );
+            }
+            else if ( Map.class == clazz )
             {
                 bindMapImport( key );
             }
             else if ( List.class == clazz )
             {
                 bindListImport( key );
+            }
+            else if ( ParameterKeys.ARGUMENTS.equals( key ) )
+            {
+                binder.bind( ParameterKeys.ARGUMENTS ).toInstance( DEFAULT_ARGUMENTS );
             }
             else
             {
