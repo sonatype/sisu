@@ -28,10 +28,14 @@ public final class ExampleTestCase
     @Named( "${basedir}" )
     String basedir;
 
+    @Inject
+    @Named( "${basedir}/target/test-classes/inject.properties" )
+    File propertiesFile;
+
     public void testBasedir()
     {
-        assertEquals( basedir, getBasedir() );
-        assertTrue( new File( getBasedir(), "target/test-classes/inject.properties" ).isFile() );
+        assertEquals( getBasedir(), basedir );
+        assertTrue( propertiesFile.isFile() );
     }
 
     @Inject

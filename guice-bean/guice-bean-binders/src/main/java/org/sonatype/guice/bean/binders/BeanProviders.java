@@ -14,18 +14,19 @@ package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.inject.Inject;
+
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
 import org.sonatype.guice.bean.locators.NamedIterableAdapter;
+import org.sonatype.inject.Parameters;
 
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Provider;
@@ -212,10 +213,9 @@ final class PlaceholderBeanProvider<V>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    @Inject( optional = true )
-    @Named( WireModule.CONFIG_ID )
-    @SuppressWarnings( "unchecked" )
-    Map configSource = Collections.EMPTY_MAP;
+    @Inject
+    @Parameters
+    Map<String, String> properties;
 
     @Inject
     private BeanLocator locator;
@@ -282,7 +282,7 @@ final class PlaceholderBeanProvider<V>
                 expressionNum = 0;
                 expressionEnd = y;
             }
-            final Object value = configSource.get( buf.substring( x + 2, y - 1 ) );
+            final Object value = properties.get( buf.substring( x + 2, y - 1 ) );
             if ( value != null && expressionNum++ < EXPRESSION_RECURSION_LIMIT )
             {
                 final int len = buf.length();

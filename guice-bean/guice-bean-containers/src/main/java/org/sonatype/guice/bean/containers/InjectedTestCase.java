@@ -15,15 +15,16 @@ package org.sonatype.guice.bean.containers;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.net.URLClassLoader;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
 import junit.framework.TestCase;
 
+import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.BeanLocator;
@@ -69,14 +70,16 @@ public abstract class InjectedTestCase
         extends AbstractModule
     {
         @Override
+        @SuppressWarnings( "unchecked" )
         protected void configure()
         {
             install( InjectedTestCase.this );
 
-            final Map<String, Object> properties = new HashMap<String, Object>();
+            final Properties properties = new Properties();
             properties.put( "basedir", getBasedir() );
             InjectedTestCase.this.configure( properties );
-            bind( WireModule.CONFIG_KEY ).toInstance( properties );
+
+            bind( ParameterKeys.PROPERTIES ).toInstance( (Map) properties );
 
             requestInjection( InjectedTestCase.this );
         }
@@ -97,7 +100,7 @@ public abstract class InjectedTestCase
     /**
      * Custom property values.
      */
-    public void configure( final Map<String, Object> properties )
+    public void configure( final Properties properties )
     {
         // put any per-test properties here...
     }

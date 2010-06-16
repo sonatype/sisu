@@ -12,7 +12,7 @@
  */
 package org.sonatype.guice.bean.containers;
 
-import java.util.Map;
+import java.util.Properties;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -21,7 +21,7 @@ public final class Custom3TestCase
     extends InjectedTestCase
 {
     @Override
-    public void configure( final Map<String, Object> properties )
+    public void configure( final Properties properties )
     {
         properties.put( "hint", "NameTag" );
         properties.put( "port", "8080" );

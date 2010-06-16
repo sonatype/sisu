@@ -10,20 +10,19 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.inject;
+package org.sonatype.guice.bean.binders;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.Map;
 
-/**
- * Identifies beans that should be created as soon as the Injector starts.
- */
-@Target( value = { ElementType.TYPE } )
-@Retention( RetentionPolicy.RUNTIME )
-@Documented
-public @interface EagerSingleton
+import org.sonatype.inject.Parameters;
+
+import com.google.inject.Key;
+import com.google.inject.util.Types;
+
+public interface ParameterKeys
 {
+    @SuppressWarnings( "unchecked" )
+    Key<Map<String, String>> PROPERTIES = (Key) Key.get( Types.mapOf( String.class, String.class ), Parameters.class );
+
+    Key<String[]> ARGUMENTS = Key.get( String[].class, Parameters.class );
 }

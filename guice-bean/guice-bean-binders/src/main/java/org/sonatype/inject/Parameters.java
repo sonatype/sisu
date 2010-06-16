@@ -12,18 +12,29 @@
  */
 package org.sonatype.inject;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.inject.Qualifier;
+
 /**
- * Identifies beans that should be created as soon as the Injector starts.
+ * Marks dependencies to external runtime parameters, for example:
+ * 
+ * <pre>
+ * &#064;Inject
+ * &#064;Parameters
+ * String[] args;
+ * 
+ * &#064;Inject
+ * &#064;Parameters
+ * Map&lt;String, String&gt; properties;
+ * </pre>
  */
-@Target( value = { ElementType.TYPE } )
+@Target( value = { ElementType.FIELD, ElementType.PARAMETER, ElementType.METHOD } )
 @Retention( RetentionPolicy.RUNTIME )
-@Documented
-public @interface EagerSingleton
+@Qualifier
+public @interface Parameters
 {
 }

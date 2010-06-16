@@ -28,6 +28,7 @@ import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
+import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.DefaultBeanLocator;
@@ -89,10 +90,9 @@ public final class Activator
 
     public Object addingBundle( final Bundle bundle, final BundleEvent event )
     {
-        final String symbolicName = bundle.getSymbolicName();
-        if ( "com.google.inject".equals( symbolicName ) || "org.sonatype.inject".equals( symbolicName ) )
+        if ( "org.sonatype.inject".equals( bundle.getSymbolicName() ) )
         {
-            return null; // don't bother scanning either of these infrastructure bundles
+            return null; // don't bother scanning the primary infrastructure bundle
         }
 
         final String imports = (String) bundle.getHeaders().get( Constants.IMPORT_PACKAGE );
@@ -167,7 +167,7 @@ public final class Activator
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final Map<?, ?> config;
+        private final Map<String, String> properties;
 
         private final Injector injector;
 
@@ -177,12 +177,12 @@ public final class Activator
 
         BundleInjector( final Bundle bundle )
         {
-            config = new BundleConfig( bundle );
+            properties = new BundleProperties( bundle );
 
             final ClassSpace space = new BundleClassSpace( bundle );
             injector = Guice.createInjector( new WireModule( this, new SpaceModule( space ) ) );
             final Dictionary<Object, Object> metadata = new Hashtable<Object, Object>();
-            metadata.put( Constants.SERVICE_PID, WireModule.CONFIG_KEY );
+            metadata.put( Constants.SERVICE_PID, "org.sonatype.inject" );
 
             bundle.getBundleContext().registerService( API, this, metadata );
         }
@@ -193,7 +193,7 @@ public final class Activator
 
         public void configure( final Binder binder )
         {
-            binder.bind( WireModule.CONFIG_KEY ).toInstance( config );
+            binder.bind( ParameterKeys.PROPERTIES ).toInstance( properties );
             binder.bind( MutableBeanLocator.class ).toInstance( LOCATOR );
         }
 
@@ -203,8 +203,8 @@ public final class Activator
         }
     }
 
-    private static final class BundleConfig
-        extends HashMap<Object, Object>
+    private static final class BundleProperties
+        extends HashMap<String, String>
     {
         // ----------------------------------------------------------------------
         // Constants
@@ -222,7 +222,7 @@ public final class Activator
         // Constructors
         // ----------------------------------------------------------------------
 
-        BundleConfig( final Bundle bundle )
+        BundleProperties( final Bundle bundle )
         {
             context = bundle.getBundleContext();
         }
@@ -232,9 +232,9 @@ public final class Activator
         // ----------------------------------------------------------------------
 
         @Override
-        public Object get( final Object key )
+        public String get( final Object key )
         {
-            final Object value = super.get( key );
+            final String value = super.get( key );
             return null != value ? value : context.getProperty( String.valueOf( key ) );
         }
     }

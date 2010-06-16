@@ -13,19 +13,22 @@
 package org.sonatype.guice.bean.containers;
 
 import java.net.URLClassLoader;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Properties;
 
+import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
+import org.sonatype.inject.Parameters;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.google.inject.Module;
-import com.google.inject.name.Names;
+import com.google.inject.Provides;
 
 /**
  * Bootstrap class that creates a static {@link Injector} by scanning the current class-path for beans.
@@ -37,45 +40,44 @@ public final class Main
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<?, ?> config;
+    private final Map<String, String> properties;
+
+    private final String[] args;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    private Main( final Map<?, ?> config )
+    private Main( final Map<String, String> properties, final String... args )
     {
-        this.config = config;
+        this.properties = Collections.unmodifiableMap( properties );
+        this.args = args;
     }
 
     // ----------------------------------------------------------------------
     // Public entry points
     // ----------------------------------------------------------------------
 
-    public static void main( final String[] args )
+    public static void main( final String... args )
     {
-        boot( System.getProperties() );
+        boot( System.getProperties(), args );
     }
 
-    public static <T> T boot( final Class<T> type )
+    public static <T> T boot( final Class<T> type, final String... args )
     {
-        return boot( Key.get( type ), System.getProperties() );
+        return boot( System.getProperties(), args ).getInstance( type );
     }
 
-    public static <T> T boot( final Class<T> type, final String name )
+    @SuppressWarnings( "unchecked" )
+    public static Injector boot( final Properties properties, final String... args )
     {
-        return boot( Key.get( type, Names.named( name ) ), System.getProperties() );
+        return boot( (Map) properties, args );
     }
 
-    public static <T> T boot( final Key<T> key, final Map<?, ?> config )
-    {
-        return boot( config ).getInstance( key );
-    }
-
-    public static Injector boot( final Map<?, ?> config )
+    public static Injector boot( final Map<String, String> properties, final String... args )
     {
         final ClassSpace space = new URLClassSpace( (URLClassLoader) Main.class.getClassLoader() );
-        return Guice.createInjector( new WireModule( new Main( config ), new SpaceModule( space ) ) );
+        return Guice.createInjector( new WireModule( new Main( properties, args ), new SpaceModule( space ) ) );
     }
 
     // ----------------------------------------------------------------------
@@ -84,6 +86,17 @@ public final class Main
 
     public void configure( final Binder binder )
     {
-        binder.bind( WireModule.CONFIG_KEY ).toInstance( config );
+        binder.bind( ParameterKeys.PROPERTIES ).toInstance( properties );
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    @Provides
+    @Parameters
+    String[] parameters()
+    {
+        return args.clone();
     }
 }

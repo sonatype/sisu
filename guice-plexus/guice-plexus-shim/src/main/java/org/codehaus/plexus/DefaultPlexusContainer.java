@@ -35,6 +35,7 @@ import org.codehaus.plexus.context.DefaultContext;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
+import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
@@ -62,7 +63,6 @@ import com.google.inject.Injector;
 import com.google.inject.Module;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
-import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 /**
@@ -79,8 +79,6 @@ public final class DefaultPlexusContainer
 
     private static final LoggerManager CONSOLE_LOGGER_MANAGER = new ConsoleLoggerManager();
 
-    static final Named PLEXUS_NAME = Names.named( PlexusConstants.PLEXUS_KEY );
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -96,7 +94,7 @@ public final class DefaultPlexusContainer
 
     final Context context;
 
-    final Map<?, ?> variables;
+    final Map<String, String> variables;
 
     final ClassRealm containerRealm;
 
@@ -114,6 +112,7 @@ public final class DefaultPlexusContainer
     // Constructors
     // ----------------------------------------------------------------------
 
+    @SuppressWarnings( "unchecked" )
     public DefaultPlexusContainer( final ContainerConfiguration configuration )
         throws PlexusContainerException
     {
@@ -121,7 +120,7 @@ public final class DefaultPlexusContainer
 
         context = new DefaultContext( configuration.getContext() );
         context.put( PlexusConstants.PLEXUS_KEY, this );
-        variables = new ContextMapAdapter( context );
+        variables = (Map) new ContextMapAdapter( context );
 
         containerRealm = lookupContainerRealm( configuration );
         lifecycleManager = new PlexusLifecycleManager( this, context );
@@ -626,8 +625,7 @@ public final class DefaultPlexusContainer
         protected void configure()
         {
             bind( Context.class ).toInstance( context );
-            bind( Map.class ).annotatedWith( PLEXUS_NAME ).toInstance( variables );
-            bind( WireModule.CONFIG_KEY ).toInstance( variables );
+            bind( ParameterKeys.PROPERTIES ).toInstance( variables );
             bind( Logger.class ).toProvider( loggerProvider );
 
             bind( PlexusContainer.class ).to( MutablePlexusContainer.class );

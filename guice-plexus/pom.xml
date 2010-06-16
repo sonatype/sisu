@@ -87,6 +87,12 @@
         <version>${guice.plexus.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.sonatype.spice</groupId>
+        <artifactId>spice-inject-plexus</artifactId>
+        <version>${guice.plexus.version}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 

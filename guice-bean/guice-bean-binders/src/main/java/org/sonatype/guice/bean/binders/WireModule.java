@@ -12,16 +12,12 @@
  */
 package org.sonatype.guice.bean.binders;
 
-import java.util.Map;
-
 import org.sonatype.guice.bean.converters.FileTypeConverter;
 import org.sonatype.guice.bean.converters.URLTypeConverter;
 import org.sonatype.guice.bean.locators.BeanLocator;
 
 import com.google.inject.Binder;
-import com.google.inject.Key;
 import com.google.inject.Module;
-import com.google.inject.name.Names;
 import com.google.inject.spi.Element;
 import com.google.inject.spi.Elements;
 
@@ -31,15 +27,6 @@ import com.google.inject.spi.Elements;
 public final class WireModule
     implements Module
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    static final String CONFIG_ID = "org.sonatype.inject";
-
-    @SuppressWarnings( "unchecked" )
-    public static final Key<Map> CONFIG_KEY = Key.get( Map.class, Names.named( CONFIG_ID ) );
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------

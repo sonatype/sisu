@@ -12,6 +12,9 @@
  */
 package org.sonatype.guice.bean.binders;
 
+import java.util.Collections;
+import java.util.Map;
+
 import javax.inject.Qualifier;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
@@ -27,6 +30,14 @@ import com.google.inject.Module;
 public final class SpaceModule
     implements Module
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final Map<String, String> DEFAULT_PROPERTIES = Collections.emptyMap();
+
+    private static final String[] DEFAULT_ARGUMENTS = {};
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -49,5 +60,8 @@ public final class SpaceModule
     public void configure( final Binder binder )
     {
         new ClassSpaceScanner( space ).accept( new QualifiedTypeVisitor( new QualifiedTypeBinder( binder ) ) );
+
+        binder.bind( ParameterKeys.PROPERTIES ).toInstance( DEFAULT_PROPERTIES );
+        binder.bind( ParameterKeys.ARGUMENTS ).toInstance( DEFAULT_ARGUMENTS );
     }
 }
