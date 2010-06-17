@@ -39,7 +39,7 @@
               javax.*|org.aopalliance.*;version=1
             </Export-Package>
             <Private-Package>
-              org.sonatype.guice.*,org.objectweb.asm.*
+              org.sonatype.guice.*,org.objectweb.asm
             </Private-Package>
           </instructions>
         </configuration>
@@ -64,6 +64,15 @@
                   <shadedPattern>org.sonatype.guice</shadedPattern>
                 </relocation>
               </relocations>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>org/objectweb/asm/*Adapter*</exclude>
+                    <exclude>org/objectweb/asm/*Writer*</exclude>
+                  </excludes>
+                </filter>
+              </filters>
             </configuration>
           </execution>
         </executions>
