@@ -16,7 +16,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -36,7 +35,6 @@ import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 import org.sonatype.guice.bean.binders.ParameterKeys;
-import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
@@ -137,11 +135,12 @@ public final class DefaultPlexusContainer
 
         realmIds.add( containerRealm.getId() );
 
+        final List<PlexusBeanSource> sources = new ArrayList<PlexusBeanSource>();
         final ClassSpace space = new URLClassSpace( containerRealm );
-        final PlexusBeanSource xmlSource = new PlexusXmlBeanSource( space, variables, plexusXml );
-        final Module spaceModule = new SpaceModule( space );
+        sources.add( new PlexusXmlBeanSource( space, variables, plexusXml ) );
+        sources.add( new PlexusAnnotatedBeanSource( space, variables ) );
 
-        addPlexusInjector( containerRealm, Collections.singletonList( xmlSource ), spaceModule );
+        addPlexusInjector( containerRealm, sources );
     }
 
     // ----------------------------------------------------------------------
