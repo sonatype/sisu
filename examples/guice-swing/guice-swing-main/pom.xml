@@ -41,7 +41,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.sonatype.guice.swing.example.Main</mainClass>
+              <mainClass>org.sonatype.examples.guice.swing.Main</mainClass>
               <classpathPrefix>lib</classpathPrefix>
               <addClasspath>true</addClasspath>
             </manifest>

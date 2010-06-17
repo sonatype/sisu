@@ -10,45 +10,20 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.swing.example.impl;
+package org.sonatype.examples.guice.swing.impl;
 
-import java.awt.Graphics;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.inject.Inject;
 import javax.inject.Named;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 
-@Named( "Nested" )
-final class NestedTab
+@Named( "Checkbox" )
+final class CheckboxTab
     extends JPanel
 {
     static int instanceCount;
 
-    final JTabbedPane pane = new JTabbedPane();
-
-    @Inject
-    Map<String, JPanel> tabs;
-
-    NestedTab()
+    CheckboxTab()
     {
-        setName( "NestedTab instance #" + ++instanceCount );
-        add( pane );
-    }
-
-    @Override
-    public void paint( final Graphics g )
-    {
-        if ( pane.getTabCount() == 0 )
-        {
-            pane.setPreferredSize( getSize() );
-            for ( final Entry<String, JPanel> e : tabs.entrySet() )
-            {
-                pane.addTab( e.getKey(), e.getValue() );
-            }
-        }
-        super.paint( g );
+        add( new JCheckBox( "Checkbox #" + ++instanceCount ) );
     }
 }
