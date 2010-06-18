@@ -15,6 +15,7 @@ package org.sonatype.guice.bean.binders;
 import org.sonatype.guice.bean.converters.FileTypeConverter;
 import org.sonatype.guice.bean.converters.URLTypeConverter;
 import org.sonatype.guice.bean.locators.BeanLocator;
+import org.sonatype.guice.bean.locators.HiddenSource;
 
 import com.google.inject.Binder;
 import com.google.inject.Module;
@@ -27,6 +28,19 @@ import com.google.inject.spi.Elements;
 public final class WireModule
     implements Module
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final HiddenSource HIDDEN_SOURCE = new HiddenSource()
+    {
+        @Override
+        public String toString()
+        {
+            return ImportBinder.class.getName();
+        }
+    };
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -59,6 +73,6 @@ public final class WireModule
                 e.acceptVisitor( analyzer );
             }
         }
-        new ImportBinder( binder.withSource( BeanLocator.HIDDEN_SOURCE ) ).bind( analyzer.getImportedKeys() );
+        new ImportBinder( binder.withSource( HIDDEN_SOURCE ) ).bind( analyzer.getImportedKeys() );
     }
 }

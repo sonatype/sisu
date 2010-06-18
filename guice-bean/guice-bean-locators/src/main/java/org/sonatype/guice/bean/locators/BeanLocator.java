@@ -19,7 +19,6 @@ import javax.inject.Qualifier;
 
 import org.sonatype.inject.BeanMediator;
 
-import com.google.inject.Binder;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
@@ -34,13 +33,6 @@ public interface BeanLocator
      * Default {@link Qualifier}.
      */
     Annotation DEFAULT = Names.named( "default" );
-
-    /**
-     * Marks bean bindings that are hidden from the {@link BeanLocator}.
-     * 
-     * @see Binder#withSource(Object)
-     */
-    Object HIDDEN_SOURCE = "[hidden]";
 
     /**
      * Locates beans that match the given qualified binding {@link Key}.

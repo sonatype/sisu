@@ -107,13 +107,17 @@ final class ImportBinder
     private void bindMapImport( final Key key )
     {
         final TypeLiteral[] parameters = TypeParameters.get( key.getTypeLiteral() );
-        if ( 2 == parameters.length )
+        if ( 2 == parameters.length && null == key.getAnnotation() )
         {
             final Class qualifierType = parameters[0].getRawType();
             final Type bindingType = parameters[1].getType();
             if ( qualifierType == String.class )
             {
                 binder.bind( key ).toProvider( new NamedBeanMapProvider( bindingType ) );
+            }
+            else if ( qualifierType == Annotation.class )
+            {
+                binder.bind( key ).toProvider( new BeanMapProvider( Key.get( bindingType ) ) );
             }
             else if ( qualifierType.isAnnotationPresent( Qualifier.class ) )
             {
@@ -130,12 +134,11 @@ final class ImportBinder
     @SuppressWarnings( "unchecked" )
     private void bindListImport( final Key key )
     {
-        // this assumes that imported lists should just contain @Named beans
         final TypeLiteral[] parameters = TypeParameters.get( key.getTypeLiteral() );
-        if ( 1 == parameters.length )
+        if ( 1 == parameters.length && null == key.getAnnotation() )
         {
             final Type bindingType = parameters[0].getType();
-            binder.bind( key ).toProvider( new BeanListProvider( Key.get( bindingType, Named.class ) ) );
+            binder.bind( key ).toProvider( new BeanListProvider( Key.get( bindingType ) ) );
         }
     }
 

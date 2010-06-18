@@ -26,7 +26,7 @@ import javax.inject.Qualifier;
 
 import junit.framework.TestCase;
 
-import org.sonatype.guice.bean.locators.BeanLocator;
+import org.sonatype.guice.bean.locators.HiddenSource;
 import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
@@ -43,6 +43,10 @@ import com.google.inject.name.Names;
 public class InjectorBeansTest
     extends TestCase
 {
+    static final HiddenSource TEST_HIDDEN_SOURCE = new HiddenSource()
+    {
+    };
+
     @Target( TYPE )
     @Retention( RUNTIME )
     @Qualifier
@@ -113,7 +117,7 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
-                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                final Binder hiddenBinder = binder().withSource( TEST_HIDDEN_SOURCE );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
@@ -195,7 +199,7 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
-                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                final Binder hiddenBinder = binder().withSource( TEST_HIDDEN_SOURCE );
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
@@ -269,7 +273,7 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
-                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                final Binder hiddenBinder = binder().withSource( TEST_HIDDEN_SOURCE );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
@@ -353,7 +357,7 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
-                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                final Binder hiddenBinder = binder().withSource( TEST_HIDDEN_SOURCE );
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
@@ -415,7 +419,7 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
-                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                final Binder hiddenBinder = binder().withSource( TEST_HIDDEN_SOURCE );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
@@ -487,7 +491,7 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
-                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                final Binder hiddenBinder = binder().withSource( TEST_HIDDEN_SOURCE );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
@@ -571,7 +575,7 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
-                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                final Binder hiddenBinder = binder().withSource( TEST_HIDDEN_SOURCE );
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
@@ -647,7 +651,7 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
-                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                final Binder hiddenBinder = binder().withSource( TEST_HIDDEN_SOURCE );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
@@ -734,7 +738,7 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
-                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                final Binder hiddenBinder = binder().withSource( TEST_HIDDEN_SOURCE );
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
@@ -798,7 +802,7 @@ public class InjectorBeansTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
-                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                final Binder hiddenBinder = binder().withSource( TEST_HIDDEN_SOURCE );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
@@ -874,7 +878,7 @@ public class InjectorBeansTest
                 final Provider<Bean> deferredProvider = new LoadedClass<Bean>( BBean.class ).asProvider();
 
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
-                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                final Binder hiddenBinder = binder().withSource( TEST_HIDDEN_SOURCE );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );

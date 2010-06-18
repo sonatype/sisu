@@ -76,24 +76,26 @@ class QualifiedBeans<Q extends Annotation, T>
         {
             // optimization for looking up a specific qualified bean
             final Binding binding = injector.getBindings().get( key );
-            if ( null != binding && BeanLocator.HIDDEN_SOURCE != binding.getSource() )
+            if ( null == binding || binding.getSource() instanceof HiddenSource )
             {
-                return Collections.singletonList( insertQualifiedBean( binding ) );
+                return Collections.EMPTY_LIST;
             }
-            return Collections.EMPTY_LIST;
+            return Collections.singletonList( insertQualifiedBean( binding ) );
         }
 
         final TypeLiteral<T> beanType = key.getTypeLiteral();
         final Class<?> qualifierType = key.getAnnotationType();
+        final boolean unrestrictedSearch = qualifierType == null;
 
         final List<Entry<Q, T>> newBeans = new ArrayList<Entry<Q, T>>();
         for ( final Binding<T> binding : injector.findBindingsByType( beanType ) )
         {
-            if ( BeanLocator.HIDDEN_SOURCE == binding.getSource() )
+            if ( binding.getSource() instanceof HiddenSource )
             {
                 continue; // ignore any hidden bindings
             }
-            if ( null == qualifierType || qualifierType == binding.getKey().getAnnotationType() )
+            final Class<?> keyAnnotationType = binding.getKey().getAnnotationType();
+            if ( null != keyAnnotationType && ( unrestrictedSearch || qualifierType == keyAnnotationType ) )
             {
                 newBeans.add( insertQualifiedBean( binding ) );
             }

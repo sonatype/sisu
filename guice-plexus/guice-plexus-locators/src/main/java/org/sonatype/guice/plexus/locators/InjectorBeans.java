@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.sonatype.guice.bean.locators.BeanLocator;
+import org.sonatype.guice.bean.locators.HiddenSource;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.Roles;
@@ -63,9 +63,9 @@ final class InjectorBeans<T>
         // only covers explicit bindings, such as those specified in a module
         for ( final Binding<T> binding : injector.findBindingsByType( role ) )
         {
-            if ( BeanLocator.HIDDEN_SOURCE == binding.getSource() )
+            if ( binding.getSource() instanceof HiddenSource )
             {
-                continue;
+                continue; // ignore any hidden bindings
             }
             final Annotation ann = binding.getKey().getAnnotation();
             if ( null == ann )
@@ -100,7 +100,7 @@ final class InjectorBeans<T>
         for ( final String hint : hints )
         {
             final Binding binding = bindings.get( Roles.componentKey( role, hint ) );
-            if ( null != binding && BeanLocator.HIDDEN_SOURCE != binding.getSource() )
+            if ( null != binding && false == binding.getSource() instanceof HiddenSource )
             {
                 add( new LazyPlexusBean<T>( binding ) );
             }

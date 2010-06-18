@@ -25,7 +25,6 @@ import org.codehaus.plexus.classworlds.ClassWorldException;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
-import org.sonatype.guice.bean.locators.BeanLocator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
@@ -79,7 +78,7 @@ public class PlexusBeanLocatorTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "M1" ) ).to( BeanImpl.class );
-                final Binder hiddenBinder = binder().withSource( BeanLocator.HIDDEN_SOURCE );
+                final Binder hiddenBinder = binder().withSource( InjectorBeansTest.TEST_HIDDEN_SOURCE );
                 hiddenBinder.bind( Bean.class ).annotatedWith( Names.named( "!" ) ).to( BeanImpl.class );
                 bind( Bean.class ).annotatedWith( Names.named( "N1" ) ).to( BeanImpl.class );
             }
