@@ -39,7 +39,7 @@
               org.codehaus.plexus.*;-noimport:=true;-split-package:=merge-first
             </Export-Package>
             <Private-Package>
-              META-INF.plexus,org.sonatype.guice.*,org.objectweb.asm.*
+              META-INF.plexus,org.sonatype.guice.*,org.objectweb.asm
             </Private-Package>
           </instructions>
         </configuration>
@@ -67,11 +67,12 @@
               <filters>
                 <filter>
                   <artifact>*:*</artifact>
-                  <excludes>
-                    <!-- host bundle already has these classes -->
-                    <exclude>org/sonatype/guice/bean/**</exclude>
-                    <exclude>org/objectweb/**</exclude>
-                  </excludes>
+                  <includes>
+                    <include>META-INF/**</include>
+                    <include>org/codehaus/plexus/**</include>
+                    <include>org/sonatype/guice/plexus/**</include>
+                    <include>org/objectweb/asm/*Writer*</include>
+                  </includes>
                 </filter>
               </filters>
             </configuration>
