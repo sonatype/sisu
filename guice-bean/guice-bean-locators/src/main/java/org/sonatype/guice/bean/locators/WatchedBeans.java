@@ -72,19 +72,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
         final W watcher = watcherRef.get();
         if ( null != watcher )
         {
-            for ( int i = 0, size = newBeans.size(); i < size; i++ )
-            {
-                try
-                {
-                    @SuppressWarnings( "unchecked" )
-                    final DeferredBeanEntry<Q, T> bean = (DeferredBeanEntry) newBeans.get( i );
-                    mediator.add( bean.getKey(), bean, watcher );
-                }
-                catch ( final Throwable e )
-                {
-                    reportWatcherException( watcher, e );
-                }
-            }
+            reportBeans( watcher, newBeans, BeanEvent.ADD );
         }
         return newBeans;
     }
@@ -96,26 +84,71 @@ final class WatchedBeans<Q extends Annotation, T, W>
         final W watcher = watcherRef.get();
         if ( null != watcher )
         {
-            for ( int i = 0, size = oldBeans.size(); i < size; i++ )
-            {
-                try
-                {
-                    @SuppressWarnings( "unchecked" )
-                    final DeferredBeanEntry<Q, T> bean = (DeferredBeanEntry) oldBeans.get( i );
-                    mediator.remove( bean.getKey(), bean, watcher );
-                }
-                catch ( final Throwable e )
-                {
-                    reportWatcherException( watcher, e );
-                }
-            }
+            reportBeans( watcher, oldBeans, BeanEvent.REMOVE );
+        }
+        return oldBeans;
+    }
+
+    @Override
+    public synchronized List<Entry<Q, T>> clear()
+    {
+        final List<Entry<Q, T>> oldBeans = super.clear();
+        final W watcher = watcherRef.get();
+        if ( null != watcher )
+        {
+            reportBeans( watcher, oldBeans, BeanEvent.REMOVE );
         }
         return oldBeans;
     }
 
     // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    @SuppressWarnings( "unchecked" )
+    private enum BeanEvent
+    {
+        ADD
+        {
+            @Override
+            public void send( final BeanMediator mediator, final DeferredBeanEntry bean, final Object watcher )
+                throws Exception
+            {
+                mediator.add( bean.getKey(), bean, watcher );
+            }
+        },
+        REMOVE
+        {
+            @Override
+            public void send( final BeanMediator mediator, final DeferredBeanEntry bean, final Object watcher )
+                throws Exception
+            {
+                mediator.remove( bean.getKey(), bean, watcher );
+            }
+        };
+
+        abstract void send( final BeanMediator mediator, DeferredBeanEntry bean, Object watcher )
+            throws Exception;
+    }
+
+    // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
+
+    private void reportBeans( final W watcher, final List<Entry<Q, T>> beans, final BeanEvent event )
+    {
+        for ( int i = 0, size = beans.size(); i < size; i++ )
+        {
+            try
+            {
+                event.send( mediator, (DeferredBeanEntry<Q, T>) beans.get( i ), watcher );
+            }
+            catch ( final Throwable e )
+            {
+                reportWatcherException( watcher, e );
+            }
+        }
+    }
 
     /**
      * Reports the given watcher exception to the SLF4J logger if available; otherwise to JUL.

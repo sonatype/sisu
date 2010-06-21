@@ -35,4 +35,9 @@ public interface MutableBeanLocator
      * @param injector The old injector
      */
     void remove( Injector injector );
+
+    /**
+     * Removes all known qualified beans from any exposed/watched sequences.
+     */
+    void clear();
 }

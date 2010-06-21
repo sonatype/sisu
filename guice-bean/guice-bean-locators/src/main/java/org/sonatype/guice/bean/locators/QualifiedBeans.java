@@ -76,28 +76,30 @@ class QualifiedBeans<Q extends Annotation, T>
         {
             // optimization for looking up a specific qualified bean
             final Binding binding = injector.getBindings().get( key );
-            if ( null == binding || binding.getSource() instanceof HiddenSource )
+            if ( null != binding && isVisible( binding ) )
             {
-                return Collections.EMPTY_LIST;
+                return Collections.singletonList( insertQualifiedBean( binding ) );
             }
-            return Collections.singletonList( insertQualifiedBean( binding ) );
+            return Collections.EMPTY_LIST;
         }
 
         final TypeLiteral<T> beanType = key.getTypeLiteral();
         final Class<?> qualifierType = key.getAnnotationType();
-        final boolean unrestrictedSearch = qualifierType == null;
+        final boolean anyQualifier = qualifierType == null;
 
+        // looking for any explicit binding that implements this type
         final List<Entry<Q, T>> newBeans = new ArrayList<Entry<Q, T>>();
         for ( final Binding<T> binding : injector.findBindingsByType( beanType ) )
         {
-            if ( binding.getSource() instanceof HiddenSource )
+            if ( isVisible( binding ) )
             {
-                continue; // ignore any hidden bindings
-            }
-            final Class<?> keyAnnotationType = binding.getKey().getAnnotationType();
-            if ( null != keyAnnotationType && ( unrestrictedSearch || qualifierType == keyAnnotationType ) )
-            {
-                newBeans.add( insertQualifiedBean( binding ) );
+                // ignore unqualified bindings to avoid duplicating @Named defaults
+                // @see QualifiedTypeBinder -> bindQualifiedType(Annotation, Class)
+                final Class<?> annType = binding.getKey().getAnnotationType();
+                if ( null != annType && ( anyQualifier || qualifierType == annType ) )
+                {
+                    newBeans.add( insertQualifiedBean( binding ) );
+                }
             }
         }
         return newBeans;
@@ -128,6 +130,14 @@ class QualifiedBeans<Q extends Annotation, T>
         {
             beans = Collections.emptyList();
         }
+        return oldBeans;
+    }
+
+    public synchronized List<Entry<Q, T>> clear()
+    {
+        @SuppressWarnings( "unchecked" )
+        final List<Entry<Q, T>> oldBeans = (List) beans;
+        beans = Collections.emptyList();
         return oldBeans;
     }
 
@@ -170,7 +180,7 @@ class QualifiedBeans<Q extends Annotation, T>
      */
     private Entry<Q, T> extractQualifiedBean( final int index )
     {
-        if ( exposed /* we know it's not empty */)
+        if ( exposed )
         {
             // swap in defensive copy so we don't disturb iterators
             beans = new ArrayList<DeferredBeanEntry<Q, T>>( beans );
@@ -182,5 +192,10 @@ class QualifiedBeans<Q extends Annotation, T>
             defaultIndex--; // one less default
         }
         return bean;
+    }
+
+    private static boolean isVisible( final Binding<?> binding )
+    {
+        return false == binding.getSource() instanceof HiddenSource;
     }
 }
