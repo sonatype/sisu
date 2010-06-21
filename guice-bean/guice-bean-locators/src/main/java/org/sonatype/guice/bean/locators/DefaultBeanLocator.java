@@ -123,8 +123,11 @@ public final class DefaultBeanLocator
             {
                 beans.clear();
             }
+            else
+            {
+                exposedBeans.remove( i-- ); // sequence GC'd, so no need to track anymore
+            }
         }
-        exposedBeans.clear();
         injectors.clear();
     }
 

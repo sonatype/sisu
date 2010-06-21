@@ -17,9 +17,12 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.inject.Inject;
+
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
+import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.inject.Parameters;
@@ -87,6 +90,7 @@ public final class Main
     public void configure( final Binder binder )
     {
         binder.bind( ParameterKeys.PROPERTIES ).toInstance( properties );
+        binder.bind( ShutdownThread.class ).asEagerSingleton();
     }
 
     // ----------------------------------------------------------------------
@@ -98,5 +102,29 @@ public final class Main
     String[] parameters()
     {
         return args.clone();
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    static final class ShutdownThread
+        extends Thread
+    {
+        private final MutableBeanLocator locator;
+
+        @Inject
+        ShutdownThread( final MutableBeanLocator locator )
+        {
+            this.locator = locator;
+
+            Runtime.getRuntime().addShutdownHook( this );
+        }
+
+        @Override
+        public void run()
+        {
+            locator.clear();
+        }
     }
 }

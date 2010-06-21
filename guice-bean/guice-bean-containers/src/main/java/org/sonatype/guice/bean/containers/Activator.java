@@ -12,7 +12,6 @@
  */
 package org.sonatype.guice.bean.containers;
 
-import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -51,7 +50,7 @@ public final class Activator
     // Constants
     // ----------------------------------------------------------------------
 
-    static final String BUNDLE_INJECTOR_CLASS = BundleInjector.class.getName();
+    static final String BUNDLE_INJECTOR_CLASS_NAME = BundleInjector.class.getName();
 
     static final MutableBeanLocator LOCATOR = new DefaultBeanLocator();
 
@@ -72,7 +71,7 @@ public final class Activator
     public void start( final BundleContext context )
     {
         bundleContext = context;
-        serviceTracker = new ServiceTracker( context, BUNDLE_INJECTOR_CLASS, this );
+        serviceTracker = new ServiceTracker( context, BUNDLE_INJECTOR_CLASS_NAME, this );
         serviceTracker.open();
         bundleTracker = new BundleTracker( context, Bundle.ACTIVE, this );
         bundleTracker.open();
@@ -82,6 +81,7 @@ public final class Activator
     {
         bundleTracker.close();
         serviceTracker.close();
+        LOCATOR.clear();
     }
 
     // ----------------------------------------------------------------------
@@ -106,9 +106,12 @@ public final class Activator
         {
             for ( final ServiceReference ref : serviceReferences )
             {
-                if ( Arrays.asList( ref.getProperty( Constants.OBJECTCLASS ) ).contains( BUNDLE_INJECTOR_CLASS ) )
+                for ( final String name : (String[]) ref.getProperty( Constants.OBJECTCLASS ) )
                 {
-                    return null; // this bundle already has an injector registered
+                    if ( BUNDLE_INJECTOR_CLASS_NAME.equals( name ) )
+                    {
+                        return null; // this bundle already has an injector registered
+                    }
                 }
             }
         }
@@ -161,7 +164,7 @@ public final class Activator
         // Constants
         // ----------------------------------------------------------------------
 
-        private static final String[] API = { BUNDLE_INJECTOR_CLASS /* TODO:, ManagedService.class.getName() */};
+        private static final String[] API = { BUNDLE_INJECTOR_CLASS_NAME /* TODO:, ManagedService.class.getName() */};
 
         // ----------------------------------------------------------------------
         // Implementation fields

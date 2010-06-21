@@ -138,6 +138,8 @@ class QualifiedBeans<Q extends Annotation, T>
         @SuppressWarnings( "unchecked" )
         final List<Entry<Q, T>> oldBeans = (List) beans;
         beans = Collections.emptyList();
+        defaultIndex = 0;
+        exposed = false;
         return oldBeans;
     }
 

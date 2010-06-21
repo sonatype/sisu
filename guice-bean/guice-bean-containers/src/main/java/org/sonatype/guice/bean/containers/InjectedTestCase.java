@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
-import org.sonatype.guice.bean.locators.BeanLocator;
+import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 
@@ -52,7 +52,7 @@ public abstract class InjectedTestCase
     private String basedir;
 
     @Inject
-    private BeanLocator locator;
+    private MutableBeanLocator locator;
 
     // ----------------------------------------------------------------------
     // Setup
@@ -64,6 +64,13 @@ public abstract class InjectedTestCase
     {
         final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
         Guice.createInjector( new WireModule( new TestModule(), new SpaceModule( space ) ) );
+    }
+
+    @Override
+    protected void tearDown()
+        throws Exception
+    {
+        locator.clear();
     }
 
     final class TestModule
