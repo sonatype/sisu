@@ -15,7 +15,7 @@ package org.sonatype.guice.bean.locators;
 import org.sonatype.guice.bean.locators.WatchedBeansTest.Bean;
 import org.sonatype.guice.bean.locators.WatchedBeansTest.BeanImpl;
 import org.sonatype.guice.bean.locators.WatchedBeansTest.BrokenMediator;
-import org.sonatype.inject.BeanMediator;
+import org.sonatype.inject.Mediator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -30,7 +30,7 @@ public class BrokenMediationExample
         final MutableBeanLocator locator = new DefaultBeanLocator();
 
         final Object watcher = new Object();
-        final BeanMediator<Named, Bean, Object> brokenMediator = new BrokenMediator();
+        final Mediator<Named, Bean, Object> brokenMediator = new BrokenMediator();
         locator.watch( Key.get( Bean.class, Named.class ), brokenMediator, watcher );
 
         locator.add( Guice.createInjector( new AbstractModule()

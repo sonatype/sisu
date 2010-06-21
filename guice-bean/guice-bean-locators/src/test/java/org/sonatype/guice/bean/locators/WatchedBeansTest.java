@@ -24,8 +24,7 @@ import javax.inject.Provider;
 
 import junit.framework.TestCase;
 
-import org.sonatype.inject.BeanMediator;
-import org.sonatype.inject.NamedBeanMediator;
+import org.sonatype.inject.Mediator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -99,7 +98,7 @@ public class WatchedBeansTest
     }
 
     static class NoOpMediator
-        implements BeanMediator<Named, Bean, Object>
+        implements Mediator<Named, Bean, Object>
     {
         public void add( final Named name, final Provider<Bean> bean, final Object watcher )
             throws Exception
@@ -113,7 +112,7 @@ public class WatchedBeansTest
     }
 
     static class BrokenMediator
-        implements BeanMediator<Named, Bean, Object>
+        implements Mediator<Named, Bean, Object>
     {
         public void add( final Named name, final Provider<Bean> bean, final Object watcher )
             throws Exception
@@ -128,8 +127,8 @@ public class WatchedBeansTest
         }
     }
 
-    static class TrackingMediator
-        implements BeanMediator<Named, Bean, Object>
+    static class NamedTrackingMediator
+        implements Mediator<Named, Bean, Object>
     {
         final Map<String, Bean> beans = new HashMap<String, Bean>();
 
@@ -146,8 +145,8 @@ public class WatchedBeansTest
         }
     }
 
-    static class NamedTrackingMediator
-        implements NamedBeanMediator<Bean, Object>
+    static class StringTrackingMediator
+        implements Mediator<String, Bean, Object>
     {
         final Map<String, Bean> beans = new HashMap<String, Bean>();
 
@@ -210,12 +209,12 @@ public class WatchedBeansTest
 
         final List<?> mediatedWatchers = (List<?>) mediatedWatchersField.get( locator );
 
-        final BeanMediator<Named, Bean, Object> noOpMediator = new NoOpMediator();
-        final BeanMediator<Named, Bean, Object> brokenMediator = new BrokenMediator();
+        final Mediator<Named, Bean, Object> noOpMediator = new NoOpMediator();
+        final Mediator<Named, Bean, Object> brokenMediator = new BrokenMediator();
 
-        final BeanMediator<Named, Bean, Object> trackingMediator1 = new TrackingMediator();
-        final BeanMediator<Named, Bean, Object> trackingMediator2 =
-            new NamedBeanMediatorAdapter<Bean, Object>( new NamedTrackingMediator() );
+        final Mediator<Named, Bean, Object> trackingMediator1 = new NamedTrackingMediator();
+        final Mediator<Named, Bean, Object> trackingMediator2 =
+            new NamedMediatorAdapter<Bean, Object>( new StringTrackingMediator() );
 
         Object a = new Object();
         Object b = new Object();

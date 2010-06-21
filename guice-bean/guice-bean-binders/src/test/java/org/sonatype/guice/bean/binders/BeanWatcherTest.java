@@ -27,9 +27,8 @@ import junit.framework.TestCase;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
-import org.sonatype.inject.BeanMediator;
 import org.sonatype.inject.EagerSingleton;
-import org.sonatype.inject.NamedBeanMediator;
+import org.sonatype.inject.Mediator;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -101,7 +100,7 @@ public class BeanWatcherTest
 
     @javax.inject.Named
     static class NamedItemMediator
-        implements NamedBeanMediator<Item, NamedItemWatcher>
+        implements Mediator<String, Item, NamedItemWatcher>
     {
         public void add( final String name, final Provider<Item> bean, final NamedItemWatcher watcher )
             throws Exception
@@ -118,7 +117,7 @@ public class BeanWatcherTest
 
     @javax.inject.Named
     static class MarkedItemMediator
-        implements BeanMediator<Marked, Item, MarkedItemWatcher>
+        implements Mediator<Marked, Item, MarkedItemWatcher>
     {
         public void add( final Marked mark, final Provider<Item> bean, final MarkedItemWatcher watcher )
             throws Exception

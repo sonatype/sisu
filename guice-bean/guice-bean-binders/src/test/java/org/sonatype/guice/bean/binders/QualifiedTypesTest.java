@@ -31,8 +31,7 @@ import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
-import org.sonatype.inject.BeanMediator;
-import org.sonatype.inject.NamedBeanMediator;
+import org.sonatype.inject.Mediator;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
@@ -267,42 +266,27 @@ public class QualifiedTypesTest
     }
 
     @SuppressWarnings( "unchecked" )
-    static class RawBeanMediator
-        implements BeanMediator
+    static class RawMediator
+        implements Mediator
     {
-        public void add( final Annotation qualifier, final Provider bean, final Object watcher )
+        public void add( final Object qualifier, final Provider bean, final Object watcher )
             throws Exception
         {
         }
 
-        public void remove( final Annotation qualifier, final Provider bean, final Object watcher )
+        public void remove( final Object qualifier, final Provider bean, final Object watcher )
             throws Exception
         {
         }
     }
 
-    @SuppressWarnings( "unchecked" )
-    static class RawNamedBeanMediator
-        implements NamedBeanMediator
-    {
-        public void add( final String name, final Provider bean, final Object watcher )
-            throws Exception
-        {
-        }
-
-        public void remove( final String name, final Provider bean, final Object watcher )
-            throws Exception
-        {
-        }
-    }
-
-    abstract class AbstractBeanMediator
-        implements BeanMediator<Named, Object, Object>
+    abstract class AbstractNamedMediator
+        implements Mediator<Named, Object, Object>
     {
     }
 
-    abstract class AbstractNamedBeanMediator
-        implements NamedBeanMediator<Object, Object>
+    abstract class AbstractStringMediator
+        implements Mediator<String, Object, Object>
     {
     }
 
@@ -315,11 +299,10 @@ public class QualifiedTypesTest
 
             listener.hear( Names.named( "ambiguous" ), Ambiguous.class );
 
-            listener.hear( Names.named( "raw" ), RawBeanMediator.class );
-            listener.hear( Names.named( "raw" ), RawNamedBeanMediator.class );
+            listener.hear( Names.named( "raw" ), RawMediator.class );
 
-            listener.hear( Names.named( "abstract" ), AbstractBeanMediator.class );
-            listener.hear( Names.named( "abstract" ), AbstractNamedBeanMediator.class );
+            listener.hear( Names.named( "abstract" ), AbstractNamedMediator.class );
+            listener.hear( Names.named( "abstract" ), AbstractStringMediator.class );
             listener.hear( Names.named( "abstract" ), AbstractModule.class );
         }
     }

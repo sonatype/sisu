@@ -21,7 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import org.sonatype.inject.BeanMediator;
+import org.sonatype.inject.Mediator;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -69,7 +69,7 @@ public final class DefaultBeanLocator
     }
 
     @SuppressWarnings( "unchecked" )
-    public synchronized void watch( final Key key, final BeanMediator mediator, final Object watcher )
+    public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )
     {
         exposedBeans.add( initialize( new WatchedBeans( key, mediator, watcher ) ) );
     }

@@ -14,28 +14,27 @@ package org.sonatype.guice.bean.locators;
 
 import javax.inject.Provider;
 
-import org.sonatype.inject.BeanMediator;
-import org.sonatype.inject.NamedBeanMediator;
+import org.sonatype.inject.Mediator;
 
 import com.google.inject.name.Named;
 
 /**
- * {@link Named} {@link BeanMediator} that delegates to a {@link NamedBeanMediator}.
+ * Delegating {@link Mediator} that automatically unwraps {@link Named} values.
  */
-public final class NamedBeanMediatorAdapter<T, W>
-    implements BeanMediator<Named, T, W>
+public final class NamedMediatorAdapter<T, W>
+    implements Mediator<Named, T, W>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final NamedBeanMediator<T, W> delegate;
+    private final Mediator<String, T, W> delegate;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    public NamedBeanMediatorAdapter( final NamedBeanMediator<T, W> delegate )
+    public NamedMediatorAdapter( final Mediator<String, T, W> delegate )
     {
         this.delegate = delegate;
     }

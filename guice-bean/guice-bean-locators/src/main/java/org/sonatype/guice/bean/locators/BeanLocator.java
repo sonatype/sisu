@@ -17,7 +17,7 @@ import java.util.Map.Entry;
 
 import javax.inject.Qualifier;
 
-import org.sonatype.inject.BeanMediator;
+import org.sonatype.inject.Mediator;
 
 import com.google.inject.ImplementedBy;
 import com.google.inject.Key;
@@ -44,11 +44,11 @@ public interface BeanLocator
 
     /**
      * Watches out for beans that match the given qualified binding {@link Key}. <br>
-     * Uses the {@link BeanMediator} to mediate between locator and watcher.
+     * The {@link Mediator} mediates bean events between locator and watcher.
      * 
      * @param key The qualified key
      * @param mediator The update mediator
      * @param watcher The bean watcher
      */
-    <Q extends Annotation, T, W> void watch( Key<T> key, BeanMediator<Q, T, W> mediator, W watcher );
+    <Q extends Annotation, T, W> void watch( Key<T> key, Mediator<Q, T, W> mediator, W watcher );
 }

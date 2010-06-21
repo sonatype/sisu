@@ -22,13 +22,13 @@ import java.util.logging.Logger;
 
 import javax.inject.Provider;
 
-import org.sonatype.inject.BeanMediator;
+import org.sonatype.inject.Mediator;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
 
 /**
- * {@link Iterable} sequence of qualified beans that uses a {@link BeanMediator} to send updates to watching objects.
+ * {@link Iterable} sequence of qualified beans that uses a {@link Mediator} to send updates to watching objects.
  */
 final class WatchedBeans<Q extends Annotation, T, W>
     extends QualifiedBeans<Q, T>
@@ -40,13 +40,13 @@ final class WatchedBeans<Q extends Annotation, T, W>
 
     private final Reference<W> watcherRef;
 
-    private final BeanMediator<Q, T, W> mediator;
+    private final Mediator<Q, T, W> mediator;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    WatchedBeans( final Key<T> key, final BeanMediator<Q, T, W> mediator, final W watcher )
+    WatchedBeans( final Key<T> key, final Mediator<Q, T, W> mediator, final W watcher )
     {
         super( key );
 
@@ -111,7 +111,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
         ADD
         {
             @Override
-            public void send( final BeanMediator mediator, final DeferredBeanEntry bean, final Object watcher )
+            public void send( final Mediator mediator, final DeferredBeanEntry bean, final Object watcher )
                 throws Exception
             {
                 mediator.add( bean.getKey(), bean, watcher );
@@ -120,14 +120,14 @@ final class WatchedBeans<Q extends Annotation, T, W>
         REMOVE
         {
             @Override
-            public void send( final BeanMediator mediator, final DeferredBeanEntry bean, final Object watcher )
+            public void send( final Mediator mediator, final DeferredBeanEntry bean, final Object watcher )
                 throws Exception
             {
                 mediator.remove( bean.getKey(), bean, watcher );
             }
         };
 
-        abstract void send( final BeanMediator mediator, DeferredBeanEntry bean, Object watcher )
+        abstract void send( final Mediator mediator, DeferredBeanEntry bean, Object watcher )
             throws Exception;
     }
 
@@ -156,16 +156,17 @@ final class WatchedBeans<Q extends Annotation, T, W>
      * @param watcher The bean watcher
      * @param exception The exception
      */
-    private static void reportWatcherException( final Object watcher, final Throwable exception )
+    private void reportWatcherException( final Object watcher, final Throwable exception )
     {
         final String message = "Problem notifying watcher: " + watcher;
+        final Class<?> mediatorType = mediator.getClass();
         try
         {
-            org.slf4j.LoggerFactory.getLogger( BeanMediator.class ).warn( message, exception );
+            org.slf4j.LoggerFactory.getLogger( mediatorType ).warn( message, exception );
         }
         catch ( final Throwable ignore )
         {
-            Logger.getLogger( BeanMediator.class.getName() ).log( Level.WARNING, message, exception );
+            Logger.getLogger( mediatorType.getName() ).log( Level.WARNING, message, exception );
         }
     }
 }

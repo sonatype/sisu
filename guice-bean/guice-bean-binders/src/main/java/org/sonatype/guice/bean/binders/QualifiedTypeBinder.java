@@ -18,12 +18,11 @@ import java.lang.reflect.Constructor;
 import javax.enterprise.inject.Typed;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
-import org.sonatype.guice.bean.locators.NamedBeanMediatorAdapter;
+import org.sonatype.guice.bean.locators.NamedMediatorAdapter;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
-import org.sonatype.inject.BeanMediator;
 import org.sonatype.inject.EagerSingleton;
-import org.sonatype.inject.NamedBeanMediator;
+import org.sonatype.inject.Mediator;
 
 import com.google.inject.Binder;
 import com.google.inject.Key;
@@ -34,7 +33,7 @@ import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 /**
- * {@link QualifiedTypeListener} that installs {@link Module}s, registers {@link BeanMediator}s, and binds types.
+ * {@link QualifiedTypeListener} that installs {@link Module}s, registers {@link Mediator}s, and binds types.
  */
 public final class QualifiedTypeBinder
     implements QualifiedTypeListener
@@ -67,11 +66,7 @@ public final class QualifiedTypeBinder
         {
             installModule( qualifiedType );
         }
-        else if ( NamedBeanMediator.class.isAssignableFrom( qualifiedType ) )
-        {
-            registerNamedMediator( qualifiedType );
-        }
-        else if ( BeanMediator.class.isAssignableFrom( qualifiedType ) )
+        else if ( Mediator.class.isAssignableFrom( qualifiedType ) )
         {
             registerMediator( qualifiedType );
         }
@@ -100,48 +95,31 @@ public final class QualifiedTypeBinder
     }
 
     /**
-     * Registers an instance of the given {@link BeanMediator} using its generic type parameters as configuration.
+     * Registers an instance of the given {@link Mediator} using its generic type parameters as configuration.
      * 
      * @param mediatorType The mediator type
      */
     @SuppressWarnings( "unchecked" )
-    private void registerMediator( final Class<BeanMediator> mediatorType )
+    private void registerMediator( final Class<Mediator> mediatorType )
     {
-        final TypeLiteral[] params = getSuperTypeParameters( mediatorType, BeanMediator.class );
+        final TypeLiteral[] params = getSuperTypeParameters( mediatorType, Mediator.class );
         if ( params.length != 3 )
         {
             binder.addError( mediatorType + " has wrong number of type arguments" );
         }
         else
         {
-            final BeanMediator mediator = newInstance( mediatorType );
+            Mediator mediator = newInstance( mediatorType );
             if ( null != mediator )
             {
-                mediate( Key.get( params[1], params[0].getRawType() ), mediator, params[2].getRawType() );
-            }
-        }
-    }
-
-    /**
-     * Registers an instance of the given {@link NamedBeanMediator} using its generic type parameters as configuration.
-     * 
-     * @param mediatorType The mediator type
-     */
-    @SuppressWarnings( "unchecked" )
-    private void registerNamedMediator( final Class<NamedBeanMediator> mediatorType )
-    {
-        final TypeLiteral[] params = getSuperTypeParameters( mediatorType, NamedBeanMediator.class );
-        if ( params.length != 2 )
-        {
-            binder.addError( mediatorType + " has wrong number of type arguments" );
-        }
-        else
-        {
-            final NamedBeanMediator namedMediator = newInstance( mediatorType );
-            if ( null != namedMediator )
-            {
-                final BeanMediator mediator = new NamedBeanMediatorAdapter( namedMediator );
-                mediate( Key.get( params[0], Named.class ), mediator, params[1].getRawType() );
+                Class qualifierType = params[0].getRawType();
+                if ( String.class == qualifierType )
+                {
+                    // wrap delegating mediator around the original
+                    mediator = new NamedMediatorAdapter( mediator );
+                    qualifierType = Named.class;
+                }
+                mediate( Key.get( params[1], qualifierType ), mediator, params[2].getRawType() );
             }
         }
     }
@@ -154,7 +132,7 @@ public final class QualifiedTypeBinder
      * @param watcherType The watcher type
      */
     @SuppressWarnings( "unchecked" )
-    private void mediate( final Key watchedKey, final BeanMediator mediator, final Class watcherType )
+    private void mediate( final Key watchedKey, final Mediator mediator, final Class watcherType )
     {
         if ( null == beanListener )
         {

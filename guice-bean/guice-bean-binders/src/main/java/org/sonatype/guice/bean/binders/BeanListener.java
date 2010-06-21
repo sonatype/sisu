@@ -18,7 +18,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
-import org.sonatype.inject.BeanMediator;
+import org.sonatype.inject.Mediator;
 
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
@@ -53,7 +53,7 @@ final class BeanListener
      * @param mediator The bean mediator
      * @param watcherType The watcher type
      */
-    public void mediate( final Key watchedKey, final BeanMediator mediator, final Class watcherType )
+    public void mediate( final Key watchedKey, final Mediator mediator, final Class watcherType )
     {
         mediation.add( new Mediation( watchedKey, mediator, watcherType ) );
     }
@@ -95,7 +95,7 @@ final class BeanListener
 
         final Key watchedKey;
 
-        final BeanMediator mediator;
+        final Mediator mediator;
 
         final Class watcherType;
 
@@ -103,7 +103,7 @@ final class BeanListener
         // Constructors
         // ----------------------------------------------------------------------
 
-        Mediation( final Key watchedKey, final BeanMediator mediator, final Class watcherType )
+        Mediation( final Key watchedKey, final Mediator mediator, final Class watcherType )
         {
             this.watchedKey = watchedKey;
             this.mediator = mediator;

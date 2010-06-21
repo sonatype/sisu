@@ -12,14 +12,12 @@
  */
 package org.sonatype.inject;
 
-import java.lang.annotation.Annotation;
-
 import javax.inject.Provider;
 
 /**
- * Mediates qualified bean updates between the {@code BeanLocator} and associated watchers.
+ * Mediates bean events sent from the {@code BeanLocator} to associated watchers.
  */
-public interface BeanMediator<Q extends Annotation, T, W>
+public interface Mediator<Q, T, W>
 {
     /**
      * Notifies the associated watcher that a qualified bean has been added.
