@@ -25,7 +25,9 @@ import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binder;
+import com.google.inject.ImplementedBy;
 import com.google.inject.Key;
+import com.google.inject.ProvidedBy;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 
@@ -87,7 +89,7 @@ final class ImportBinder
             {
                 binder.bind( ParameterKeys.ARGUMENTS ).toInstance( DEFAULT_ARGUMENTS );
             }
-            else
+            else if ( !isRestricted( clazz ) )
             {
                 bindBeanImport( key );
             }
@@ -156,17 +158,50 @@ final class ImportBinder
         {
             binder.bind( key ).toProvider( new PlaceholderBeanProvider( key ) );
         }
-        else if ( key.getTypeLiteral().getRawType().isInterface() )
+        else if ( name.length() == 0 )
         {
-            if ( name.length() == 0 )
-            {
-                // special case for wildcard @Named dependencies: match any @Named bean regardless of actual name
-                binder.bind( key ).toProvider( new BeanProvider( Key.get( key.getTypeLiteral(), Named.class ) ) );
-            }
-            else
-            {
-                binder.bind( key ).toProvider( new BeanProvider( key ) );
-            }
+            // special case for wildcard @Named dependencies: match any @Named bean regardless of actual name
+            binder.bind( key ).toProvider( new BeanProvider( Key.get( key.getTypeLiteral(), Named.class ) ) );
         }
+        else if ( !isImplicit( key ) )
+        {
+            // avoid messing with any unqualified implicit bindings
+            binder.bind( key ).toProvider( new BeanProvider( key ) );
+        }
+    }
+
+    /**
+     * Determines whether the given type is restricted and therefore can never be overridden by the import binder.
+     * 
+     * @param clazz The binding type
+     * @return {@code true} if the given type is restricted; otherwise {@code false}
+     */
+    private static boolean isRestricted( final Class<?> clazz )
+    {
+        return clazz.getName().startsWith( "com.google.inject" );
+    }
+
+    /**
+     * Determines whether the given key is an implicit binding which shouldn't be overridden by the import binder.
+     * 
+     * @param key The binding key
+     * @return {@code true} if the implementation of the given type is implicit; otherwise {@code false}
+     */
+    private static boolean isImplicit( final Key<?> key )
+    {
+        if ( null != key.getAnnotationType() )
+        {
+            return false; // qualified key, so implicit rules aren't applied
+        }
+        final Class<?> clazz = key.getTypeLiteral().getRawType();
+        if ( clazz.getName().equals( "org.slf4j.Logger" ) )
+        {
+            return true; // automatically handled by our patched Guice build
+        }
+        if ( clazz.isInterface() )
+        {
+            return clazz.isAnnotationPresent( ImplementedBy.class ) || clazz.isAnnotationPresent( ProvidedBy.class );
+        }
+        return false;
     }
 }

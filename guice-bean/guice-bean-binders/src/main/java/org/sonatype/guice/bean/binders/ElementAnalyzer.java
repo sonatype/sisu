@@ -15,8 +15,6 @@ package org.sonatype.guice.bean.binders;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.sonatype.guice.bean.locators.BeanLocator;
-
 import com.google.inject.Binder;
 import com.google.inject.Binding;
 import com.google.inject.Key;
@@ -55,9 +53,6 @@ final class ElementAnalyzer
     {
         this.binder = binder;
 
-        // must avoid adding an import for the locator
-        localKeys.add( Key.get( BeanLocator.class ) );
-
         // properties parameter is implicitly required
         importedKeys.add( ParameterKeys.PROPERTIES );
     }
@@ -71,6 +66,9 @@ final class ElementAnalyzer
      */
     public Set<Key<?>> getImportedKeys()
     {
+        // finally remove all local bindings
+        importedKeys.removeAll( localKeys );
+
         return importedKeys;
     }
 
@@ -82,7 +80,6 @@ final class ElementAnalyzer
         {
             binding.applyTo( binder );
             importedKeys.addAll( binding.acceptTargetVisitor( DEPENDENCY_ANALYZER ) );
-            importedKeys.removeAll( localKeys );
         }
         return null;
     }
@@ -92,7 +89,6 @@ final class ElementAnalyzer
     {
         injectionRequest.applyTo( binder );
         importedKeys.addAll( DependencyAnalyzer.analyze( injectionRequest.getType() ) );
-        importedKeys.removeAll( localKeys );
         return null;
     }
 

@@ -29,6 +29,7 @@ import javax.inject.Qualifier;
 import org.sonatype.guice.bean.reflect.DeclaredMembers;
 
 import com.google.inject.Binding;
+import com.google.inject.BindingAnnotation;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.BindingTargetVisitor;
@@ -133,18 +134,16 @@ final class DependencyAnalyzer<T>
          */
         boolean addDependency( final TypeLiteral<?> type, final Annotation[] annotations )
         {
-            if ( type.getRawType().getName().startsWith( "com.google.inject" ) )
+            for ( final Annotation ann : annotations )
             {
-                return false; // ignore core Guice types
-            }
-            for ( final Annotation a : annotations )
-            {
-                if ( a.annotationType().isAnnotationPresent( Qualifier.class ) )
+                final Class<? extends Annotation> annType = ann.annotationType();
+                if ( annType.isAnnotationPresent( Qualifier.class )
+                    || annType.isAnnotationPresent( BindingAnnotation.class ) )
                 {
-                    return add( Key.get( type, a ) );
+                    return add( Key.get( type, ann ) ); // qualified binding
                 }
             }
-            return add( Key.get( type ) );
+            return add( Key.get( type ) ); // wildcard (unqualified) binding
         }
     }
 }
