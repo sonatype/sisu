@@ -13,6 +13,7 @@
 package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
@@ -202,6 +203,6 @@ final class ImportBinder
         {
             return clazz.isAnnotationPresent( ImplementedBy.class ) || clazz.isAnnotationPresent( ProvidedBy.class );
         }
-        return false;
+        return !Modifier.isAbstract( clazz.getModifiers() ); // concrete types are implicit
     }
 }
