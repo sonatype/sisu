@@ -50,9 +50,19 @@ public class PlexusXmlScannerTest
     {
         final String name;
 
+        final TypeLiteral<Object> type;
+
         public NamedProperty( final String name )
         {
             this.name = name;
+            type = TypeLiteral.get( Object.class );
+        }
+
+        @SuppressWarnings( "unchecked" )
+        public NamedProperty( final String name, final TypeLiteral type )
+        {
+            this.name = name;
+            this.type = type;
         }
 
         public <A extends Annotation> A getAnnotation( final Class<A> annotationType )
@@ -67,7 +77,7 @@ public class PlexusXmlScannerTest
 
         public TypeLiteral<Object> getType()
         {
-            return TypeLiteral.get( Object.class );
+            return type;
         }
 
         public <B> void set( final B bean, final Object value )
@@ -211,7 +221,7 @@ public class PlexusXmlScannerTest
         assertFalse( metadata1.isEmpty() );
 
         assertEquals( new RequirementImpl( Bean.class, true, "debug" ),
-                      metadata1.getRequirement( new NamedProperty( "bean" ) ) );
+                      metadata1.getRequirement( new NamedProperty( "bean", TypeLiteral.get( Bean.class ) ) ) );
 
         assertFalse( metadata1.isEmpty() );
 
@@ -317,10 +327,18 @@ public class PlexusXmlScannerTest
         try
         {
             final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_3.xml" );
-            new PlexusXmlScanner( null, null, null ).scan( space, true );
-            fail( "Expected IOException" );
+            final Map<String, PlexusBeanMetadata> metadata = new HashMap<String, PlexusBeanMetadata>();
+            final PlexusXmlScanner scanner = new PlexusXmlScanner( null, null, metadata );
+
+            scanner.scan( space, true );
+
+            final Requirement badReq =
+                metadata.get( DefaultBean.class.getName() ).getRequirement( new NamedProperty( "no.such.class" ) );
+
+            badReq.role();
+            fail( "Expected TypeNotPresentException" );
         }
-        catch ( final IOException e )
+        catch ( final TypeNotPresentException e )
         {
         }
 
@@ -328,24 +346,6 @@ public class PlexusXmlScannerTest
             final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_4.xml" );
             final PlexusXmlScanner scanner = new PlexusXmlScanner( null, null, null );
             assertTrue( scanner.scan( space, true ).isEmpty() );
-        }
-
-        try
-        {
-            final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_5.xml" );
-            final Map<String, PlexusBeanMetadata> metadata = new HashMap<String, PlexusBeanMetadata>();
-            final PlexusXmlScanner scanner = new PlexusXmlScanner( null, null, metadata );
-
-            scanner.scan( space, true );
-
-            final Requirement badReq =
-                metadata.get( DefaultBean.class.getName() ).getRequirement( new NamedProperty( "class" ) );
-
-            badReq.role();
-            fail( "Expected TypeNotPresentException" );
-        }
-        catch ( final TypeNotPresentException e )
-        {
         }
     }
 

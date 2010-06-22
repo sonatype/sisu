@@ -416,16 +416,7 @@ public final class PlexusXmlScanner
 
         if ( null == fieldName )
         {
-            // missing name, try and use simple role class name as the basis for the field name
-            final int cursor = Math.max( role.lastIndexOf( '.' ), role.lastIndexOf( '$' ) ) + 1;
-            if ( cursor < role.length() )
-            {
-                fieldName = Character.toLowerCase( role.charAt( cursor ) ) + role.substring( cursor + 1 );
-            }
-            else
-            {
-                throw new XmlPullParserException( "Missing <field-name> element.", parser, null );
-            }
+            fieldName = role; // use fully-qualified role as the field name (see PlexusXmlMetadata)
         }
 
         requirementMap.put( fieldName, new RequirementImpl( space.deferLoadClass( role ), optional,

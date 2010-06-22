@@ -60,7 +60,13 @@ final class PlexusXmlMetadata
 
     public Requirement getRequirement( final BeanProperty<?> property )
     {
-        return requirementMap.remove( property.getName() );
+        Requirement requirement = requirementMap.remove( property.getName() );
+        if ( null == requirement )
+        {
+            // perhaps requirement uses the fully-qualified role name (see PlexusXmlScanner)
+            requirement = requirementMap.remove( property.getType().getRawType().getName() );
+        }
+        return requirement;
     }
 
     // ----------------------------------------------------------------------
