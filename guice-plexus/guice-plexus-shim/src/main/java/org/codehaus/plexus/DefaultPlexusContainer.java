@@ -16,6 +16,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -346,20 +347,18 @@ public final class DefaultPlexusContainer
     public void addPlexusInjector( final ClassRealm realm, final List<PlexusBeanSource> sources,
                                    final Module... customModules )
     {
-        final Module[] plexusModules = new Module[customModules.length + 2];
-
-        plexusModules[0] = setupModule;
-        System.arraycopy( customModules, 0, plexusModules, 1, customModules.length );
-        plexusModules[customModules.length + 1] = new PlexusBindingModule( lifecycleManager, sources );
+        final List<Module> modules = new ArrayList<Module>();
 
         if ( null != realm )
         {
-            beanLocator.add( Guice.createInjector( new ClassRealmModule( realm ), new WireModule( plexusModules ) ) );
+            modules.add( new ClassRealmModule( realm ) );
         }
-        else
-        {
-            beanLocator.add( Guice.createInjector( new WireModule( plexusModules ) ) );
-        }
+
+        modules.add( setupModule );
+        Collections.addAll( modules, customModules );
+        modules.add( new PlexusBindingModule( lifecycleManager, sources ) );
+
+        beanLocator.add( Guice.createInjector( new WireModule( modules.toArray( new Module[modules.size()] ) ) ) );
     }
 
     // ----------------------------------------------------------------------
