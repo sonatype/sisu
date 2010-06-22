@@ -19,9 +19,9 @@
  * <dt>{@link org.sonatype.guice.bean.inject.BeanListener}
  * <dd>{@link com.google.inject.spi.TypeListener} that listens for bean types and wires up their properties.
  * <dt>{@link org.sonatype.guice.bean.inject.BeanBinder}
- * <dd>Provides custom {@link PropertyBinder}s for bean types.
+ * <dd>Provides custom {@link org.sonatype.guice.bean.inject.PropertyBinder}s for bean types.
  * <dt>{@link org.sonatype.guice.bean.inject.PropertyBinder}
- * <dd>Provides custom {@link PropertyBinding}s for bean properties.
+ * <dd>Provides custom {@link org.sonatype.guice.bean.inject.PropertyBinding}s for bean properties.
  * <dt>{@link org.sonatype.guice.bean.inject.PropertyBinding}
  * <dd>Injects a customized bean property into bean instances.
  * </dl>

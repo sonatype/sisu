@@ -19,11 +19,11 @@
  * <dt>{@link org.sonatype.guice.bean.scanners.ClassSpaceVisitor}
  * <dd>ASM-style visitor that can visit a {@link org.sonatype.guice.bean.reflect.ClassSpace}.
  * <dt>{@link org.sonatype.guice.bean.scanners.ClassSpaceScanner}
- * <dd>Makes a {@link ClassSpaceVisitor} visit a {@link org.sonatype.guice.bean.reflect.ClassSpace}.
+ * <dd>Makes a {@link org.sonatype.guice.bean.scanners.ClassSpaceVisitor} visit a {@link org.sonatype.guice.bean.reflect.ClassSpace}.
  * <dt>{@link org.sonatype.guice.bean.scanners.QualifiedTypeListener}
  * <dd>Listens out for types annotated with {@link javax.inject.Qualifier} annotations.
  * <dt>{@link org.sonatype.guice.bean.scanners.QualifiedTypeVisitor}
- * <dd>{@link ClassSpaceVisitor} that reports types with {@link javax.inject.Qualifier} annotations.
+ * <dd>{@link org.sonatype.guice.bean.scanners.ClassSpaceVisitor} that reports types with {@link javax.inject.Qualifier} annotations.
  * </dl>
  */
 package org.sonatype.guice.bean.scanners;

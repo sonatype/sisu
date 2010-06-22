@@ -58,7 +58,6 @@ public final class ClassSpaceScanner
      * Makes the given {@link ClassSpaceVisitor} visit the {@link ClassSpace} of this scanner.
      * 
      * @param visitor The class space visitor
-     * @param space The class space to visit
      */
     public void accept( final ClassSpaceVisitor visitor )
     {

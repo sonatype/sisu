@@ -19,9 +19,9 @@
  * <dt>{@link org.sonatype.guice.bean.locators.BeanLocator}
  * <dd>Dynamic locator of beans annotated with {@link javax.inject.Qualifier} annotations.
  * <dt>{@link org.sonatype.guice.bean.locators.MutableBeanLocator}
- * <dd>Mutable {@link BeanLocator} that tracks zero or more {@link com.google.inject.Injector}s.
+ * <dd>Mutable {@link org.sonatype.guice.bean.locators.BeanLocator} that tracks zero or more {@link com.google.inject.Injector}s.
  * <dt>{@link org.sonatype.guice.bean.locators.DefaultBeanLocator}
- * <dd>Default {@link BeanLocator} that locates qualified beans across a dynamic group of {@link com.google.inject.Injector}s.
+ * <dd>Default {@link org.sonatype.guice.bean.locators.BeanLocator} that locates qualified beans across a dynamic group of {@link com.google.inject.Injector}s.
  * </dl>
  */
 package org.sonatype.guice.bean.locators;
