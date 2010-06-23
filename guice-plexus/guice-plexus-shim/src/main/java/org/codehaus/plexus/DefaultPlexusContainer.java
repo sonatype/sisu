@@ -37,8 +37,10 @@ import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.WireModule;
+import org.sonatype.guice.bean.locators.DefaultBeanLocator;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
+import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
@@ -89,7 +91,9 @@ public final class DefaultPlexusContainer
 
     final ThreadLocal<ClassRealm> lookupRealm = new ThreadLocal<ClassRealm>();
 
-    final MutablePlexusBeanLocator beanLocator = new DefaultPlexusBeanLocator();
+    final MutablePlexusBeanLocator plexusBeanLocator = new DefaultPlexusBeanLocator();
+
+    final MutableBeanLocator qualifiedBeanLocator = new DefaultBeanLocator();
 
     final Context context;
 
@@ -244,7 +248,7 @@ public final class DefaultPlexusContainer
     public <T> void addComponent( final T component, final java.lang.Class<?> role, final String hint )
     {
         // this is only used in Maven3 tests, so keep it simple...
-        beanLocator.add( Guice.createInjector( new AbstractModule()
+        plexusBeanLocator.add( Guice.createInjector( new AbstractModule()
         {
             @Override
             @SuppressWarnings( "unchecked" )
@@ -358,7 +362,7 @@ public final class DefaultPlexusContainer
         Collections.addAll( modules, customModules );
         modules.add( new PlexusBindingModule( lifecycleManager, sources ) );
 
-        beanLocator.add( Guice.createInjector( new WireModule( modules.toArray( new Module[modules.size()] ) ) ) );
+        Guice.createInjector( new WireModule( modules.toArray( new Module[modules.size()] ) ) );
     }
 
     // ----------------------------------------------------------------------
@@ -432,6 +436,8 @@ public final class DefaultPlexusContainer
     {
         lifecycleManager.unmanage();
         containerRealm.setParentRealm( null );
+        qualifiedBeanLocator.clear();
+        plexusBeanLocator.clear();
     }
 
     // ----------------------------------------------------------------------
@@ -596,7 +602,7 @@ public final class DefaultPlexusContainer
      */
     private <T> Iterable<PlexusBeanLocator.Bean<T>> locate( final Class<T> role, final String... hints )
     {
-        return beanLocator.locate( TypeLiteral.get( role ), hints );
+        return plexusBeanLocator.locate( TypeLiteral.get( role ), hints );
     }
 
     private <T> ComponentDescriptor<T> newComponentDescriptor( final PlexusBeanLocator.Bean<T> bean )
@@ -629,8 +635,8 @@ public final class DefaultPlexusContainer
             bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
             bind( MutablePlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
 
-            bind( PlexusBeanLocator.class ).to( MutablePlexusBeanLocator.class );
-            bind( MutablePlexusBeanLocator.class ).toInstance( beanLocator );
+            bind( MutablePlexusBeanLocator.class ).toInstance( plexusBeanLocator );
+            bind( MutableBeanLocator.class ).toInstance( qualifiedBeanLocator );
 
             bind( PlexusBeanConverter.class ).toInstance( beanConverter );
             bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
