@@ -118,6 +118,12 @@ abstract class AbstractPlexusBeans<T>
         return false;
     }
 
+    public final synchronized void clear()
+    {
+        trackedBeans = null;
+        cachedBeans = null;
+    }
+
     // ----------------------------------------------------------------------
     // Abstract methods
     // ----------------------------------------------------------------------

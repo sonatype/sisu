@@ -16,11 +16,13 @@ import java.util.Map.Entry;
 
 import org.sonatype.guice.bean.reflect.DeferredClass;
 
+import com.google.inject.ImplementedBy;
 import com.google.inject.TypeLiteral;
 
 /**
  * Service that locates beans of various types, using optional Plexus hints as a guide.
  */
+@ImplementedBy( MutablePlexusBeanLocator.class )
 public interface PlexusBeanLocator
 {
     /**

@@ -23,7 +23,7 @@ interface PlexusBeans<T>
     extends Iterable<PlexusBeanLocator.Bean<T>>
 {
     /**
-     * Adds the given {@link Injector} to the backing list.
+     * Adds bindings from the given {@link Injector} to the backing list.
      * 
      * @param injector The new injector
      * @return {@code true} if the sequence changed as a result of the call; otherwise {@code false}
@@ -31,10 +31,15 @@ interface PlexusBeans<T>
     boolean add( Injector injector );
 
     /**
-     * Removes the given {@link Injector} from the backing list.
+     * Removes bindings from the given {@link Injector} from the backing list.
      * 
      * @param injector The old injector
      * @return {@code true} if the sequence changed as a result of the call; otherwise {@code false}
      */
     boolean remove( Injector injector );
+
+    /**
+     * Removes all bindings from the backing list.
+     */
+    void clear();
 }

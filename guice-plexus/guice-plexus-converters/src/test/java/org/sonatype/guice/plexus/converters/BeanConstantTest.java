@@ -106,7 +106,6 @@ public class BeanConstantTest
 
     static class BrokenStringConstructor
     {
-        @SuppressWarnings( "unused" )
         public BrokenStringConstructor( final String text )
         {
             throw new RuntimeException();

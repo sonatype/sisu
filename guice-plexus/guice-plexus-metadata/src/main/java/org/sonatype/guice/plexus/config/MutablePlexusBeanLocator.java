@@ -33,4 +33,9 @@ public interface MutablePlexusBeanLocator
      * @param injector The old injector
      */
     void remove( Injector injector );
+
+    /**
+     * Removes all known Plexus beans from any exposed sequences.
+     */
+    void clear();
 }

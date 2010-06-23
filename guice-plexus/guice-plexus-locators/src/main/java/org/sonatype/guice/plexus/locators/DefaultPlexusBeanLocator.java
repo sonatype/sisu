@@ -126,4 +126,19 @@ public final class DefaultPlexusBeanLocator
             }
         }
     }
+
+    public synchronized void clear()
+    {
+        for ( int i = 0; i < exposedBeans.size(); i++ )
+        {
+            final PlexusBeans<?> beans = exposedBeans.get( i ).get();
+            if ( null != beans )
+            {
+                beans.clear();
+            }
+        }
+
+        exposedBeans.clear();
+        injectors.clear();
+    }
 }
