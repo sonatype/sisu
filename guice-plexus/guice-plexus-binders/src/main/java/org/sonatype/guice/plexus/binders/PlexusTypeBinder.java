@@ -56,7 +56,14 @@ public final class PlexusTypeBinder
 
     public void hear( final Annotation qualifier, final Class<?> qualifiedType )
     {
-        qualifiedTypeBinder.hear( qualifier, qualifiedType );
+        if ( Component.class == qualifier.annotationType() )
+        {
+            hear( (Component) qualifier, new LoadedClass<Object>( qualifiedType ) );
+        }
+        else
+        {
+            qualifiedTypeBinder.hear( qualifier, qualifiedType );
+        }
     }
 
     @SuppressWarnings( "unchecked" )
@@ -64,21 +71,20 @@ public final class PlexusTypeBinder
     {
         final Key roleKey = Roles.componentKey( component );
         final String strategy = component.instantiationStrategy();
+        final Class role = component.role();
         final ScopedBindingBuilder sbb;
 
         final Binder binder = componentBinder( component.description() );
 
-        // simple case when role and implementation are identical
-        if ( component.role().getName().equals( clazz.getName() ) )
+        // special case when role is the implementation
+        if ( role.getName().equals( clazz.getName() ) )
         {
             if ( roleKey.getAnnotation() != null )
             {
-                // wire annotated role to the plain role type
-                sbb = binder.bind( roleKey ).to( component.role() );
+                sbb = binder.bind( roleKey ).to( role );
             }
             else
             {
-                // simple wire to self
                 sbb = binder.bind( roleKey );
             }
         }
