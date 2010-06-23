@@ -42,21 +42,6 @@ public final class DefaultBeanLocator
     private final Set<Injector> injectors = new LinkedHashSet<Injector>();
 
     // ----------------------------------------------------------------------
-    // Constructors
-    // ----------------------------------------------------------------------
-
-    public DefaultBeanLocator()
-    {
-        // created outside injector
-    }
-
-    @Inject
-    public DefaultBeanLocator( final Injector injector )
-    {
-        add( injector );
-    }
-
-    // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
@@ -74,6 +59,7 @@ public final class DefaultBeanLocator
         exposedBeans.add( initialize( new WatchedBeans( key, mediator, watcher ) ) );
     }
 
+    @Inject
     public synchronized void add( final Injector injector )
     {
         if ( null == injector || !injectors.add( injector ) )
