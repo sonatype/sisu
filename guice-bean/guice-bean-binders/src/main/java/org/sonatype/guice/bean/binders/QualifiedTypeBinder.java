@@ -155,15 +155,23 @@ public final class QualifiedTypeBinder
         final Class bindingType = getBindingType( qualifiedType );
         if ( null != bindingType )
         {
+            final boolean isEagerSingleton = qualifiedType.isAnnotationPresent( EagerSingleton.class );
+            if ( isEagerSingleton )
+            {
+                binder.bind( qualifiedType ).asEagerSingleton();
+            }
             final Annotation normalizedQualifier = normalize( qualifier, qualifiedType );
-            binder.bind( Key.get( bindingType, normalizedQualifier ) ).to( qualifiedType );
-            if ( BeanLocator.DEFAULT == normalizedQualifier && bindingType != qualifiedType )
+            if ( null != normalizedQualifier )
+            {
+                binder.bind( Key.get( bindingType, normalizedQualifier ) ).to( qualifiedType );
+            }
+            else if ( bindingType != qualifiedType )
             {
                 binder.bind( bindingType ).to( qualifiedType );
             }
-            if ( qualifiedType.isAnnotationPresent( EagerSingleton.class ) )
+            else if ( !isEagerSingleton )
             {
-                binder.bind( qualifiedType ).asEagerSingleton();
+                binder.bind( qualifiedType );
             }
         }
     }
@@ -250,7 +258,7 @@ public final class QualifiedTypeBinder
      */
     private static Annotation normalize( final Annotation qualifier, final Class<?> qualifiedType )
     {
-        String name = "CUSTOM";
+        final String name;
         if ( qualifier instanceof javax.inject.Named )
         {
             name = ( (javax.inject.Named) qualifier ).value();
@@ -258,6 +266,10 @@ public final class QualifiedTypeBinder
         else if ( qualifier instanceof Named )
         {
             name = ( (Named) qualifier ).value();
+        }
+        else
+        {
+            return qualifier; // not @Named
         }
 
         if ( name.length() == 0 )
@@ -267,13 +279,13 @@ public final class QualifiedTypeBinder
             {
                 return Names.named( qualifiedType.getName() );
             }
-            return BeanLocator.DEFAULT;
+            return null;
         }
         if ( "default".equalsIgnoreCase( name ) )
         {
-            return BeanLocator.DEFAULT;
+            return null;
         }
 
-        return qualifier;
+        return qualifier; // keep current name
     }
 }

@@ -68,7 +68,7 @@ public class DefaultBeanLocatorTest
             protected void configure()
             {
                 bind( Bean.class ).annotatedWith( Names.named( "M1" ) ).to( BeanImpl.class );
-                bind( Bean.class ).annotatedWith( BeanLocator.DEFAULT ).to( BeanImpl.class );
+                bind( Bean.class ).to( BeanImpl.class );
                 bind( Bean.class ).annotatedWith( Names.named( "N1" ) ).to( BeanImpl.class );
             }
         } );

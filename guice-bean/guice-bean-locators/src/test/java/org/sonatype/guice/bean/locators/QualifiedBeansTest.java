@@ -272,9 +272,17 @@ public class QualifiedBeansTest
 
         Iterator<Entry<Named, Bean>> i;
         Entry<Named, Bean> mapping;
-        Bean aBean, bBean, cBean;
+        Bean defaultBean, aBean, bBean, cBean;
 
         i = namedBeans.iterator();
+        assertTrue( i.hasNext() );
+        mapping = i.next();
+
+        defaultBean = mapping.getValue();
+        assertEquals( "default", mapping.getKey().value() );
+        assertEquals( DefaultBean.class, defaultBean.getClass() );
+        assertSame( defaultBean, mapping.getValue() );
+
         assertTrue( i.hasNext() );
         mapping = i.next();
 
@@ -302,11 +310,13 @@ public class QualifiedBeansTest
         assertFalse( i.hasNext() );
 
         i = namedBeans.iterator();
+        assertEquals( "default", i.next().getKey().value() );
         assertEquals( "C", i.next().getKey().value() );
         assertEquals( "A", i.next().getKey().value() );
         assertEquals( "B", i.next().getKey().value() );
 
         i = namedBeans.iterator();
+        assertSame( defaultBean, i.next().getValue() );
         assertSame( cBean, i.next().getValue() );
         assertSame( aBean, i.next().getValue() );
         assertSame( bBean, i.next().getValue() );
@@ -407,9 +417,17 @@ public class QualifiedBeansTest
 
         Iterator<Entry<Named, Bean>> i;
         Entry<Named, Bean> mapping;
-        Bean cBean;
+        Bean defaultBean, cBean;
 
         i = namedBeans.iterator();
+        assertTrue( i.hasNext() );
+        mapping = i.next();
+
+        defaultBean = mapping.getValue();
+        assertEquals( "default", mapping.getKey().value() );
+        assertEquals( DefaultBean.class, defaultBean.getClass() );
+        assertSame( defaultBean, mapping.getValue() );
+
         assertTrue( i.hasNext() );
         mapping = i.next();
 
@@ -421,9 +439,11 @@ public class QualifiedBeansTest
         assertFalse( i.hasNext() );
 
         i = namedBeans.iterator();
+        assertEquals( "default", i.next().getKey().value() );
         assertEquals( "C", i.next().getKey().value() );
 
         i = namedBeans.iterator();
+        assertSame( defaultBean, i.next().getValue() );
         assertSame( cBean, i.next().getValue() );
 
         try
@@ -542,9 +562,17 @@ public class QualifiedBeansTest
 
         Iterator<Entry<Annotation, Bean>> i;
         Entry<Annotation, Bean> mapping;
-        Bean aBean, bBean, cBean, fBean;
+        Bean defaultBean, aBean, bBean, cBean, fBean;
 
         i = beans.iterator();
+        assertTrue( i.hasNext() );
+        mapping = i.next();
+
+        defaultBean = mapping.getValue();
+        assertEquals( Names.named( "default" ), mapping.getKey() );
+        assertEquals( DefaultBean.class, defaultBean.getClass() );
+        assertSame( defaultBean, mapping.getValue() );
+
         assertTrue( i.hasNext() );
         mapping = i.next();
 
@@ -580,12 +608,14 @@ public class QualifiedBeansTest
         assertFalse( i.hasNext() );
 
         i = beans.iterator();
+        assertEquals( Names.named( "default" ), i.next().getKey() );
         assertEquals( Names.named( "C" ), i.next().getKey() );
         assertEquals( Names.named( "A" ), i.next().getKey() );
         assertEquals( new FuzzyImpl(), i.next().getKey() );
         assertEquals( Names.named( "B" ), i.next().getKey() );
 
         i = beans.iterator();
+        assertSame( defaultBean, i.next().getValue() );
         assertSame( cBean, i.next().getValue() );
         assertSame( aBean, i.next().getValue() );
         assertSame( fBean, i.next().getValue() );

@@ -21,7 +21,6 @@ import org.sonatype.inject.Mediator;
 
 import com.google.inject.ImplementedBy;
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 
 /**
  * Dynamic locator of beans annotated with {@link Qualifier} annotations.
@@ -29,11 +28,6 @@ import com.google.inject.name.Names;
 @ImplementedBy( MutableBeanLocator.class )
 public interface BeanLocator
 {
-    /**
-     * Default {@link Qualifier}.
-     */
-    Annotation DEFAULT = Names.named( "default" );
-
     /**
      * Locates beans that match the given qualified binding {@link Key}.
      * 

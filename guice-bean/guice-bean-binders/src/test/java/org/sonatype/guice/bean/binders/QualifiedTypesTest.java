@@ -200,8 +200,12 @@ public class QualifiedTypesTest
     private void checkDefaultBinding( final Class<?> api, final Class<?> imp )
     {
         assertEquals( imp, injector.getInstance( Key.get( api ) ).getClass() );
-        assertEquals( imp, injector.getInstance( Key.get( api, Names.named( "default" ) ) ).getClass() );
+
+        final Annotation defaultName = Names.named( "default" );
+
+        assertEquals( imp, locator.locate( Key.get( api ) ).iterator().next().getValue().getClass() );
         assertEquals( imp, locator.locate( Key.get( api, Named.class ) ).iterator().next().getValue().getClass() );
+        assertEquals( imp, locator.locate( Key.get( api, defaultName ) ).iterator().next().getValue().getClass() );
     }
 
     private void checkNamedBinding( final Class<?> api, final String name, final Class<?> imp )

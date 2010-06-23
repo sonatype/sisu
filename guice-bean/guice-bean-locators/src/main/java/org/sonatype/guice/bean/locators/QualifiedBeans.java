@@ -23,6 +23,8 @@ import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 
 /**
  * {@link Iterable} sequence of qualified beans backed by bindings from one or more {@link Injector}s.
@@ -30,6 +32,12 @@ import com.google.inject.TypeLiteral;
 class QualifiedBeans<Q extends Annotation, T>
     implements Iterable<Entry<Q, T>>
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    static final Annotation DEFAULT_QUALIFIER = Names.named( "default" );
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -74,8 +82,8 @@ class QualifiedBeans<Q extends Annotation, T>
     {
         if ( key.hasAttributes() )
         {
-            // optimization for looking up a specific qualified bean
-            final Binding binding = injector.getBindings().get( key );
+            // optimization for looking up a specific (unique) qualified bean
+            final Binding binding = injector.getBindings().get( normalize( key ) );
             if ( null != binding && isVisible( binding ) )
             {
                 return Collections.singletonList( insertQualifiedBean( binding ) );
@@ -85,7 +93,6 @@ class QualifiedBeans<Q extends Annotation, T>
 
         final TypeLiteral<T> beanType = key.getTypeLiteral();
         final Class<?> qualifierType = key.getAnnotationType();
-        final boolean anyQualifier = qualifierType == null;
 
         // looking for any explicit binding that implements this type
         final List<Entry<Q, T>> newBeans = new ArrayList<Entry<Q, T>>();
@@ -93,10 +100,8 @@ class QualifiedBeans<Q extends Annotation, T>
         {
             if ( isVisible( binding ) )
             {
-                // ignore unqualified bindings to avoid duplicating @Named defaults
-                // @see QualifiedTypeBinder -> bindQualifiedType(Annotation, Class)
-                final Class<?> annType = binding.getKey().getAnnotationType();
-                if ( null != annType && ( anyQualifier || qualifierType == annType ) )
+                final Class<?> aType = binding.getKey().getAnnotationType();
+                if ( qualifierType == null || qualifierType == aType || qualifierType == Named.class && aType == null )
                 {
                     newBeans.add( insertQualifiedBean( binding ) );
                 }
@@ -162,7 +167,7 @@ class QualifiedBeans<Q extends Annotation, T>
             exposed = false;
         }
         final DeferredBeanEntry<Q, T> bean = new DeferredBeanEntry<Q, T>( binding );
-        if ( BeanLocator.DEFAULT == bean.getKey() )
+        if ( DEFAULT_QUALIFIER.equals( bean.getKey() ) )
         {
             // defaults always go at the front
             beans.add( defaultIndex++, bean );
@@ -189,11 +194,16 @@ class QualifiedBeans<Q extends Annotation, T>
             exposed = false;
         }
         final DeferredBeanEntry<Q, T> bean = beans.remove( index );
-        if ( BeanLocator.DEFAULT == bean.getKey() )
+        if ( DEFAULT_QUALIFIER.equals( bean.getKey() ) )
         {
             defaultIndex--; // one less default
         }
         return bean;
+    }
+
+    private static <T> Key<T> normalize( final Key<T> key )
+    {
+        return DEFAULT_QUALIFIER.equals( key.getAnnotation() ) ? Key.get( key.getTypeLiteral() ) : key;
     }
 
     private static boolean isVisible( final Binding<?> binding )

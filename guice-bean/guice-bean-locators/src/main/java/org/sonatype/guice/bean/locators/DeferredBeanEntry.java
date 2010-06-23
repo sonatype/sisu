@@ -49,7 +49,8 @@ final class DeferredBeanEntry<Q extends Annotation, T>
     @SuppressWarnings( "unchecked" )
     public Q getKey()
     {
-        return (Q) binding.getKey().getAnnotation();
+        final Annotation ann = binding.getKey().getAnnotation();
+        return (Q) ( null != ann ? ann : QualifiedBeans.DEFAULT_QUALIFIER );
     }
 
     public synchronized T getValue()
