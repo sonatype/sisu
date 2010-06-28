@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * Read-only {@link Iterator} that picks out potential bean properties from declared members.
@@ -29,12 +28,6 @@ import java.util.regex.Pattern;
 final class BeanPropertyIterator<T>
     implements Iterator<BeanProperty<T>>
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final Pattern SETTER_PATTERN = Pattern.compile( "set\\p{javaUpperCase}" );
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -81,7 +74,7 @@ final class BeanPropertyIterator<T>
             if ( member instanceof Method )
             {
                 final Method m = (Method) member;
-                if ( m.getParameterTypes().length == 1 && SETTER_PATTERN.matcher( m.getName() ).lookingAt() )
+                if ( isSetter( m.getName() ) && m.getParameterTypes().length == 1 )
                 {
                     nextProperty = new BeanPropertySetter<T>( m );
                 }
@@ -121,6 +114,11 @@ final class BeanPropertyIterator<T>
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
+
+    private static boolean isSetter( final String name )
+    {
+        return name.startsWith( "set" ) && name.length() > 3 && Character.isUpperCase( name.charAt( 3 ) );
+    }
 
     private static boolean atInject( final Member member )
     {

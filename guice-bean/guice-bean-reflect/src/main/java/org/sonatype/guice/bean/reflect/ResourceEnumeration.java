@@ -142,7 +142,25 @@ final class ResourceEnumeration
         {
             return "";
         }
-        return ( '/' + path + '/' ).replaceAll( "//+", "/" ).substring( 1 );
+        boolean echoSlash = false;
+        final StringBuilder buf = new StringBuilder();
+        for ( int i = 0, length = path.length(); i < length; i++ )
+        {
+            // ignore any duplicate slashes
+            final char c = path.charAt( i );
+            final boolean isNotSlash = '/' != c;
+            if ( echoSlash || isNotSlash )
+            {
+                echoSlash = isNotSlash;
+                buf.append( c );
+            }
+        }
+        if ( echoSlash )
+        {
+            // add final slash
+            buf.append( '/' );
+        }
+        return buf.toString();
     }
 
     /**

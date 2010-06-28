@@ -231,11 +231,7 @@ public final class URLClassSpace
         try
         {
             final String classPath = new Manifest( in ).getMainAttributes().getValue( "Class-Path" );
-            if ( null != classPath )
-            {
-                return classPath.split( " " );
-            }
-            return NO_ENTRIES;
+            return null != classPath ? classPath.split( " " ) : NO_ENTRIES;
         }
         finally
         {
