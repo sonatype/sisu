@@ -53,17 +53,26 @@ public final class URLClassSpace
     // ----------------------------------------------------------------------
 
     /**
-     * Creates a {@link ClassSpace} backed by a {@link URLClassLoader}.
+     * Creates a {@link ClassSpace} backed by a {@link ClassLoader} with the default search space. For
+     * {@link URLClassLoader}s this is their expanded class path; for other class loaders it is empty.
      * 
-     * @param loader The URL class loader
+     * @param loader The class loader to use when getting/finding resources
      */
-    public URLClassSpace( final URLClassLoader loader )
+    public URLClassSpace( final ClassLoader loader )
     {
-        this( loader, loader.getURLs() );
+        this.loader = loader;
+        if ( loader instanceof URLClassLoader )
+        {
+            urls = expandClassPath( ( (URLClassLoader) loader ).getURLs() );
+        }
+        else
+        {
+            urls = NO_URLS; // no detectable search space
+        }
     }
 
     /**
-     * Creates a {@link ClassSpace} with custom 'get' and 'find' search spaces.
+     * Creates a {@link ClassSpace} backed by a {@link ClassLoader} with a customized search space.
      * 
      * @param loader The class loader to use when getting resources
      * @param urls The path of URLs to search when finding resources
