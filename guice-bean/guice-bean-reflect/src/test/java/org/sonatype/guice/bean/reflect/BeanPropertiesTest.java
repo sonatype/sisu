@@ -328,8 +328,7 @@ public class BeanPropertiesTest
     {
         try
         {
-            @SuppressWarnings( "unchecked" )
-            final BeanProperty<Object> p = new BeanPropertyField( A.class.getDeclaredField( "name" ) );
+            final BeanProperty<Object> p = new BeanPropertyField<Object>( A.class.getDeclaredField( "name" ) );
             p.set( new Object(), "test" );
             fail( "Expected RuntimeException" );
         }
@@ -344,9 +343,8 @@ public class BeanPropertiesTest
 
         try
         {
-            @SuppressWarnings( "unchecked" )
             final BeanProperty<Object> p =
-                new BeanPropertySetter( A.class.getDeclaredMethod( "setName", String.class ) );
+                new BeanPropertySetter<Object>( A.class.getDeclaredMethod( "setName", String.class ) );
             p.set( new Object(), "test" );
             fail( "Expected RuntimeException" );
         }

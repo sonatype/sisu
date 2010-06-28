@@ -56,9 +56,9 @@ final class BeanPropertyField<T>
     }
 
     @SuppressWarnings( "unchecked" )
-    public TypeLiteral getType()
+    public TypeLiteral<T> getType()
     {
-        return TypeLiteral.get( field.getGenericType() );
+        return (TypeLiteral<T>) TypeLiteral.get( field.getGenericType() );
     }
 
     public String getName()

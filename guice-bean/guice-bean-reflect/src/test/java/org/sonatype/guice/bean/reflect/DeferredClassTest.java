@@ -57,7 +57,7 @@ public class DeferredClassTest
             public Class<Object> load()
                 throws TypeNotPresentException
             {
-                return (Class) clazz.load();
+                return (Class<Object>) clazz.load();
             }
 
             public String getName()

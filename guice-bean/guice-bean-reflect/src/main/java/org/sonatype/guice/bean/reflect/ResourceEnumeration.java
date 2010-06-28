@@ -32,8 +32,6 @@ final class ResourceEnumeration
 
     private static final Iterator<String> NO_ENTRIES = Collections.<String> emptyList().iterator();
 
-    static final Enumeration<URL> NO_RESOURCES = Collections.enumeration( Collections.<URL> emptyList() );
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -41,8 +39,6 @@ final class ResourceEnumeration
     private final Iterator<URL> urls;
 
     private final String subPath;
-
-    private final int subPathLength;
 
     private final Globber globber;
 
@@ -52,7 +48,7 @@ final class ResourceEnumeration
 
     private URL currentURL;
 
-    private boolean isJar;
+    private boolean isFolder;
 
     private Iterator<String> entryNames = NO_ENTRIES;
 
@@ -73,7 +69,6 @@ final class ResourceEnumeration
     ResourceEnumeration( final String subPath, final String glob, final boolean recurse, final URL[] urls )
     {
         this.subPath = normalizeSearchPath( subPath );
-        subPathLength = this.subPath.length();
         globber = selectGlobber( glob );
         globPattern = globber.compile( glob );
         this.recurse = recurse;
@@ -120,7 +115,7 @@ final class ResourceEnumeration
 
             try
             {
-                return isJar ? new URL( "jar:" + currentURL + "!/" + name ) : new URL( currentURL, name );
+                return isFolder ? new URL( currentURL, name ) : new URL( "jar:" + currentURL + "!/" + name );
             }
             catch ( final MalformedURLException e )
             {
@@ -190,13 +185,9 @@ final class ResourceEnumeration
      */
     private Iterator<String> scan( final URL url )
     {
-        if ( url.getPath().endsWith( "/" ) )
-        {
-            isJar = false;
-            return new FileEntryIterator( url, subPath, recurse );
-        }
-        isJar = true;
-        return new ZipEntryIterator( url );
+        isFolder = url.getPath().endsWith( "/" );
+
+        return isFolder ? new FileEntryIterator( url, subPath, recurse ) : new ZipEntryIterator( url );
     }
 
     /**
@@ -207,11 +198,11 @@ final class ResourceEnumeration
      */
     private boolean matchesRequest( final String entryName )
     {
-        if ( entryName.endsWith( "/" ) || entryName.length() <= subPathLength || !entryName.startsWith( subPath ) )
+        if ( !entryName.startsWith( subPath ) || entryName.endsWith( "/" ) )
         {
             return false; // not inside the search scope
         }
-        if ( !recurse && entryName.indexOf( '/', subPathLength ) > 0 )
+        if ( !recurse && entryName.indexOf( '/', subPath.length() ) > 0 )
         {
             return false; // inside a sub-directory
         }

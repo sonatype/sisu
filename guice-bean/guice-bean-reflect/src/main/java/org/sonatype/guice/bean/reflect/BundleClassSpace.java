@@ -29,8 +29,7 @@ public final class BundleClassSpace
     // Constants
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
-    private static final Enumeration EMPTY_ENUMERATION = Collections.enumeration( Collections.EMPTY_LIST );
+    private static final Enumeration<URL> NO_URLS = Collections.enumeration( Collections.<URL> emptyList() );
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -82,15 +81,15 @@ public final class BundleClassSpace
         }
         catch ( final IOException e )
         {
-            return ResourceEnumeration.NO_RESOURCES;
+            return NO_URLS;
         }
     }
 
-    @SuppressWarnings( "unchecked" )
     public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
     {
-        final Enumeration e = bundle.findEntries( null != path ? path : "/", glob, recurse );
-        return null != e ? e : EMPTY_ENUMERATION;
+        @SuppressWarnings( "unchecked" )
+        final Enumeration<URL> e = bundle.findEntries( null != path ? path : "/", glob, recurse );
+        return null != e ? e : NO_URLS;
     }
 
     @Override

@@ -36,9 +36,9 @@ public final class URLClassSpace
 
     private static final String MANIFEST_PATH = "META-INF/MANIFEST.MF";
 
-    private static final String[] EMPTY_CLASS_PATH = {};
+    private static final String[] NO_ENTRIES = {};
 
-    private static final URL[] EMPTY_URL_CLASS_PATH = {};
+    private static final URL[] NO_URLS = {};
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -110,7 +110,7 @@ public final class URLClassSpace
         }
         catch ( final IOException e )
         {
-            return ResourceEnumeration.NO_RESOURCES;
+            return Collections.enumeration( Collections.<URL> emptyList() );
         }
     }
 
@@ -159,7 +159,7 @@ public final class URLClassSpace
     {
         if ( null == urls || urls.length == 0 )
         {
-            return EMPTY_URL_CLASS_PATH;
+            return NO_URLS;
         }
 
         final LinkedList<URL> searchURLs = new LinkedList<URL>();
@@ -226,7 +226,7 @@ public final class URLClassSpace
             {
                 return classPath.split( " " );
             }
-            return EMPTY_CLASS_PATH;
+            return NO_ENTRIES;
         }
         finally
         {

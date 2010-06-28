@@ -57,9 +57,9 @@ final class BeanPropertySetter<T>
     }
 
     @SuppressWarnings( "unchecked" )
-    public TypeLiteral getType()
+    public TypeLiteral<T> getType()
     {
-        return TypeLiteral.get( method.getGenericParameterTypes()[0] );
+        return (TypeLiteral<T>) TypeLiteral.get( method.getGenericParameterTypes()[0] );
     }
 
     public String getName()

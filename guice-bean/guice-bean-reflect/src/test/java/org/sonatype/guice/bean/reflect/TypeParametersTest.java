@@ -30,7 +30,7 @@ public class TypeParametersTest
 
     static TypeLiteral<Short> SHORT_TYPE = TypeLiteral.get( Short.class );
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     List rawList;
 
     List<Short> shortList;
@@ -39,7 +39,7 @@ public class TypeParametersTest
 
     List<? extends String> wildcardStringList;
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     Map rawMap;
 
     Map<String, Float> stringFloatMap;
@@ -98,7 +98,7 @@ public class TypeParametersTest
         assertEquals( SHORT_TYPE, types[1] );
     }
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     List[] rawListArray;
 
     List<Short>[] shortListArray;
@@ -107,7 +107,7 @@ public class TypeParametersTest
 
     List<? extends String>[] wildcardStringListArray;
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     Map[] rawMapArray;
 
     Map<String, Float>[] stringFloatMapArray;

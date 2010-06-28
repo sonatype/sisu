@@ -38,7 +38,7 @@ enum Globber
         @Override
         final Object compile( final String glob )
         {
-            return glob.substring( 1 );
+            return glob.substring( 1 ); // remove leading asterisk
         }
 
         @Override
@@ -52,7 +52,7 @@ enum Globber
         @Override
         final Object compile( final String glob )
         {
-            return glob.substring( 0, glob.length() - 1 );
+            return glob.substring( 0, glob.length() - 1 ); // remove trailing asterisk
         }
 
         @Override
@@ -115,6 +115,6 @@ enum Globber
      */
     static final String basename( final String filename )
     {
-        return filename.substring( 1 + filename.lastIndexOf( '/', filename.length() - 2 ) );
+        return filename.substring( 1 + filename.lastIndexOf( '/' ) );
     }
 }
