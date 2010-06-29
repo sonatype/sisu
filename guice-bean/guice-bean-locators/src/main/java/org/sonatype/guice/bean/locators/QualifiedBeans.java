@@ -14,10 +14,10 @@ package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import com.google.inject.Binding;
 import com.google.inject.Injector;
@@ -30,7 +30,7 @@ import com.google.inject.name.Names;
  * {@link Iterable} sequence of qualified beans backed by bindings from one or more {@link Injector}s.
  */
 class QualifiedBeans<Q extends Annotation, T>
-    implements Iterable<Entry<Q, T>>
+    implements Iterable<QualifiedBean<Q, T>>
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -44,7 +44,7 @@ class QualifiedBeans<Q extends Annotation, T>
 
     private final Key<T> key;
 
-    private List<DeferredBeanEntry<Q, T>> beans = Collections.emptyList();
+    private List<QualifiedBean<Q, T>> beans = Collections.emptyList();
 
     private int defaultIndex;
 
@@ -63,12 +63,10 @@ class QualifiedBeans<Q extends Annotation, T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
-    public final synchronized Iterator<Entry<Q, T>> iterator()
+    public final synchronized Iterator<QualifiedBean<Q, T>> iterator()
     {
         exposed = true; // flag that someone is using the beans
-
-        return (Iterator) beans.iterator();
+        return beans.iterator();
     }
 
     /**
@@ -77,14 +75,14 @@ class QualifiedBeans<Q extends Annotation, T>
      * @param injector The new injector
      * @return Added beans
      */
-    @SuppressWarnings( "unchecked" )
-    public synchronized List<Entry<Q, T>> add( final Injector injector )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
+    public synchronized List<QualifiedBean<Q, T>> add( final Injector injector )
     {
         if ( key.hasAttributes() )
         {
             // optimization for looking up a specific (unique) qualified bean
             final Binding binding = injector.getBindings().get( normalize( key ) );
-            if ( null != binding && isVisible( binding ) )
+            if ( isVisible( null, binding ) )
             {
                 return Collections.singletonList( insertQualifiedBean( binding ) );
             }
@@ -92,19 +90,15 @@ class QualifiedBeans<Q extends Annotation, T>
         }
 
         final TypeLiteral<T> beanType = key.getTypeLiteral();
-        final Class<?> qualifierType = key.getAnnotationType();
+        final Class<? extends Annotation> qualifierType = key.getAnnotationType();
 
-        // looking for any explicit binding that implements this type
-        final List<Entry<Q, T>> newBeans = new ArrayList<Entry<Q, T>>();
+        // looking for any explicit default/qualified binding that implements this type
+        final List<QualifiedBean<Q, T>> newBeans = new ArrayList<QualifiedBean<Q, T>>();
         for ( final Binding<T> binding : injector.findBindingsByType( beanType ) )
         {
-            if ( isVisible( binding ) )
+            if ( isVisible( qualifierType, binding ) )
             {
-                final Class<?> aType = binding.getKey().getAnnotationType();
-                if ( qualifierType == null || qualifierType == aType || qualifierType == Named.class && aType == null )
-                {
-                    newBeans.add( insertQualifiedBean( binding ) );
-                }
+                newBeans.add( insertQualifiedBean( binding ) );
             }
         }
         return newBeans;
@@ -116,17 +110,18 @@ class QualifiedBeans<Q extends Annotation, T>
      * @param injector The old injector
      * @return Removed beans
      */
-    public synchronized List<Entry<Q, T>> remove( final Injector injector )
+    public synchronized List<QualifiedBean<Q, T>> remove( final Injector injector )
     {
         if ( beans.isEmpty() )
         {
             return Collections.emptyList();
         }
-        final List<Entry<Q, T>> oldBeans = new ArrayList<Entry<Q, T>>();
-        final List<Binding<T>> bindings = injector.findBindingsByType( key.getTypeLiteral() );
+        // use binding membership to identify which beans belong to removed injector
+        final List<QualifiedBean<Q, T>> oldBeans = new ArrayList<QualifiedBean<Q, T>>();
+        final Collection<Binding<?>> bindings = injector.getBindings().values();
         for ( int i = 0; i < beans.size(); i++ )
         {
-            if ( bindings.contains( beans.get( i ).binding ) )
+            if ( bindings.contains( beans.get( i ).getBinding() ) )
             {
                 oldBeans.add( extractQualifiedBean( i-- ) );
             }
@@ -138,10 +133,14 @@ class QualifiedBeans<Q extends Annotation, T>
         return oldBeans;
     }
 
-    public synchronized List<Entry<Q, T>> clear()
+    /**
+     * Clears all qualified beans from the current sequence.
+     * 
+     * @return Cleared beans
+     */
+    public synchronized List<QualifiedBean<Q, T>> clear()
     {
-        @SuppressWarnings( "unchecked" )
-        final List<Entry<Q, T>> oldBeans = (List) beans;
+        final List<QualifiedBean<Q, T>> oldBeans = beans;
         beans = Collections.emptyList();
         defaultIndex = 0;
         exposed = false;
@@ -153,20 +152,20 @@ class QualifiedBeans<Q extends Annotation, T>
     // ----------------------------------------------------------------------
 
     /**
-     * Inserts a qualified bean entry for the given binding into this bean sequence.
+     * Inserts a qualified bean for the given binding into this bean sequence.
      * 
      * @param binding The Guice binding
-     * @return Qualified bean entry
+     * @return Qualified bean
      */
-    private Entry<Q, T> insertQualifiedBean( final Binding<T> binding )
+    private QualifiedBean<Q, T> insertQualifiedBean( final Binding<T> binding )
     {
         if ( exposed || beans.isEmpty() )
         {
-            // swap in defensive copy so we don't disturb iterators
-            beans = new ArrayList<DeferredBeanEntry<Q, T>>( beans );
+            // take defensive copy to avoid disturbing iterators
+            beans = new ArrayList<QualifiedBean<Q, T>>( beans );
             exposed = false;
         }
-        final DeferredBeanEntry<Q, T> bean = new DeferredBeanEntry<Q, T>( binding );
+        final QualifiedBean<Q, T> bean = new QualifiedBean<Q, T>( binding );
         if ( DEFAULT_QUALIFIER.equals( bean.getKey() ) )
         {
             // defaults always go at the front
@@ -180,20 +179,20 @@ class QualifiedBeans<Q extends Annotation, T>
     }
 
     /**
-     * Extracts a qualified bean entry from the given position in this bean sequence.
+     * Extracts a qualified bean from the given position in this bean sequence.
      * 
-     * @param index The entry position
-     * @return Qualified bean entry
+     * @param index The bean position
+     * @return Qualified bean
      */
-    private Entry<Q, T> extractQualifiedBean( final int index )
+    private QualifiedBean<Q, T> extractQualifiedBean( final int index )
     {
         if ( exposed )
         {
-            // swap in defensive copy so we don't disturb iterators
-            beans = new ArrayList<DeferredBeanEntry<Q, T>>( beans );
+            // take defensive copy to avoid disturbing iterators
+            beans = new ArrayList<QualifiedBean<Q, T>>( beans );
             exposed = false;
         }
-        final DeferredBeanEntry<Q, T> bean = beans.remove( index );
+        final QualifiedBean<Q, T> bean = beans.remove( index );
         if ( DEFAULT_QUALIFIER.equals( bean.getKey() ) )
         {
             defaultIndex--; // one less default
@@ -201,13 +200,39 @@ class QualifiedBeans<Q extends Annotation, T>
         return bean;
     }
 
+    /**
+     * Normalizes the given binding key by mapping the default qualifier to no qualifier.
+     * 
+     * @param key The binding key
+     * @return Normalized key
+     */
     private static <T> Key<T> normalize( final Key<T> key )
     {
         return DEFAULT_QUALIFIER.equals( key.getAnnotation() ) ? Key.get( key.getTypeLiteral() ) : key;
     }
 
-    private static boolean isVisible( final Binding<?> binding )
+    /**
+     * Determines whether the given bean binding is visible to the {@link BeanLocator}.
+     * 
+     * @param qualifierType The expected qualifier type
+     * @param binding The bean binding
+     * @return {@code true} if the binding is visible; otherwise {@code false}
+     */
+    private static boolean isVisible( final Class<? extends Annotation> qualifierType, final Binding<?> binding )
     {
-        return false == binding.getSource() instanceof HiddenSource;
+        if ( null == binding || binding.getSource() instanceof HiddenSource )
+        {
+            return false; // exclude hidden bindings (avoids recursion)
+        }
+        final Annotation qualifier = binding.getKey().getAnnotation();
+        if ( DEFAULT_QUALIFIER.equals( qualifier ) )
+        {
+            return false; // exclude explicit @Named("default") beans
+        }
+        if ( null == qualifierType || qualifierType == Named.class && null == qualifier )
+        {
+            return true; // @Named search should also match defaults
+        }
+        return null != qualifier && qualifierType == qualifier.annotationType();
     }
 }

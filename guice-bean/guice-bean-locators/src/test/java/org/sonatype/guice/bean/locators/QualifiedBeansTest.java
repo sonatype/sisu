@@ -19,8 +19,8 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import javax.inject.Qualifier;
 
@@ -121,7 +121,7 @@ public class QualifiedBeansTest
 
         namedBeans.add( injector );
 
-        Iterator<Entry<Named, Bean>> i;
+        Iterator<? extends Entry<Named, Bean>> i;
         Entry<Named, Bean> mapping;
         Bean aBean, bBean, cBean;
 
@@ -199,7 +199,7 @@ public class QualifiedBeansTest
 
         namedBeans.add( injector );
 
-        Iterator<Entry<Named, ImplicitDefaultBean>> i;
+        Iterator<? extends Entry<Named, ImplicitDefaultBean>> i;
         Entry<Named, ImplicitDefaultBean> mapping;
         ImplicitDefaultBean aBean, bBean, cBean;
 
@@ -270,7 +270,7 @@ public class QualifiedBeansTest
 
         namedBeans.add( injector );
 
-        Iterator<Entry<Named, Bean>> i;
+        Iterator<? extends Entry<Named, Bean>> i;
         Entry<Named, Bean> mapping;
         Bean defaultBean, aBean, bBean, cBean;
 
@@ -357,7 +357,7 @@ public class QualifiedBeansTest
 
         namedBeans.add( injector );
 
-        Iterator<Entry<Named, ImplicitDefaultBean>> i;
+        Iterator<? extends Entry<Named, ImplicitDefaultBean>> i;
         Entry<Named, ImplicitDefaultBean> mapping;
         ImplicitDefaultBean aBean;
 
@@ -415,7 +415,7 @@ public class QualifiedBeansTest
 
         namedBeans.add( injector );
 
-        Iterator<Entry<Named, Bean>> i;
+        Iterator<? extends Entry<Named, Bean>> i;
         Entry<Named, Bean> mapping;
         Bean defaultBean, cBean;
 
@@ -456,16 +456,18 @@ public class QualifiedBeansTest
         }
     }
 
-    public void testQualifierInstance()
+    public void testNamedQualifierInstance()
     {
         final Injector injector = Guice.createInjector( new AbstractModule()
         {
             @Override
             protected void configure()
             {
+                bind( Bean.class ).annotatedWith( Names.named( "default" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).to( DefaultBean.class );
             }
         } );
 
@@ -474,7 +476,7 @@ public class QualifiedBeansTest
 
         namedBeans.add( injector );
 
-        Iterator<Entry<Named, Bean>> i;
+        Iterator<? extends Entry<Named, Bean>> i;
         Entry<Named, Bean> mapping;
         Bean bBean;
 
@@ -515,8 +517,96 @@ public class QualifiedBeansTest
         assertFalse( i.hasNext() );
         i = namedBeans.iterator();
         assertTrue( i.hasNext() );
-        namedBeans.remove( injector );
+        namedBeans.clear();
         assertTrue( i.hasNext() );
+        i = namedBeans.iterator();
+        assertFalse( i.hasNext() );
+    }
+
+    public void testDefaultQualifierInstance()
+    {
+        final Injector injector = Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                // explicit @Named("default") should be ignored in preference to real default
+                bind( Bean.class ).annotatedWith( Names.named( "default" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).to( DefaultBean.class );
+            }
+        } );
+
+        Iterator<? extends Entry<Named, Bean>> i;
+        Entry<Named, Bean> mapping;
+
+        QualifiedBeans<Named, Bean> defaultBeans =
+            new QualifiedBeans<Named, Bean>( Key.get( Bean.class, Names.named( "default" ) ) );
+
+        defaultBeans.add( injector );
+
+        i = defaultBeans.iterator();
+        assertTrue( i.hasNext() );
+        mapping = i.next();
+        assertEquals( "default", mapping.getKey().value() );
+        assertEquals( DefaultBean.class, mapping.getValue().getClass() );
+
+        defaultBeans = new QualifiedBeans<Named, Bean>( Key.get( Bean.class, Named.class ) );
+
+        defaultBeans.add( injector );
+
+        i = defaultBeans.iterator();
+        assertTrue( i.hasNext() );
+        mapping = i.next();
+        assertEquals( "default", mapping.getKey().value() );
+        assertEquals( DefaultBean.class, mapping.getValue().getClass() );
+
+        defaultBeans = new QualifiedBeans<Named, Bean>( Key.get( Bean.class ) );
+
+        defaultBeans.add( injector );
+
+        i = defaultBeans.iterator();
+        assertTrue( i.hasNext() );
+        mapping = i.next();
+        assertEquals( "default", mapping.getKey().value() );
+        assertEquals( DefaultBean.class, mapping.getValue().getClass() );
+    }
+
+    public void testFuzzyQualifierInstance()
+    {
+        final Injector injector = Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                bind( Bean.class ).annotatedWith( Names.named( "default" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).to( DefaultBean.class );
+            }
+        } );
+
+        final QualifiedBeans<Fuzzy, Bean> fuzzyBeans =
+            new QualifiedBeans<Fuzzy, Bean>( Key.get( Bean.class, Fuzzy.class ) );
+
+        fuzzyBeans.add( injector );
+
+        Iterator<? extends Entry<Fuzzy, Bean>> i;
+        Entry<Fuzzy, Bean> mapping;
+        Bean bBean;
+
+        i = fuzzyBeans.iterator();
+        assertTrue( i.hasNext() );
+        mapping = i.next();
+
+        bBean = mapping.getValue();
+        assertEquals( Fuzzy.class, mapping.getKey().annotationType() );
+        assertEquals( BBean.class, bBean.getClass() );
+        assertSame( bBean, mapping.getValue() );
+        assertFalse( i.hasNext() );
     }
 
     public void testHiddenQualifierInstance()
@@ -560,7 +650,7 @@ public class QualifiedBeansTest
 
         beans.add( injector );
 
-        Iterator<Entry<Annotation, Bean>> i;
+        Iterator<? extends Entry<Annotation, Bean>> i;
         Entry<Annotation, Bean> mapping;
         Bean defaultBean, aBean, bBean, cBean, fBean;
 

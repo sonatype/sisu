@@ -15,8 +15,8 @@ package org.sonatype.guice.bean.locators;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -97,9 +97,10 @@ public class DefaultBeanLocatorTest
         final BeanLocator locator = parent.getInstance( BeanLocator.class );
         assertSame( locator, parent.getInstance( MutableBeanLocator.class ) );
 
-        final Iterable<Entry<Named, Bean>> roles = locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
+        final Iterable<? extends Entry<Named, Bean>> roles =
+            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
 
-        final Iterator<Entry<Named, Bean>> i = roles.iterator();
+        final Iterator<? extends Entry<Named, Bean>> i = roles.iterator();
         assertEquals( Names.named( "A" ), i.next().getKey() );
         assertEquals( Names.named( "-" ), i.next().getKey() );
         assertEquals( Names.named( "Z" ), i.next().getKey() );
@@ -110,7 +111,8 @@ public class DefaultBeanLocatorTest
     {
         final MutableBeanLocator locator = new DefaultBeanLocator();
 
-        final Iterable<Entry<Named, Bean>> roles = locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
+        final Iterable<? extends Entry<Named, Bean>> roles =
+            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
 
         locator.add( parent );
         locator.add( child1 );
@@ -119,7 +121,7 @@ public class DefaultBeanLocatorTest
         locator.remove( child1 );
         locator.add( child1 );
 
-        Iterator<Entry<Named, Bean>> i;
+        Iterator<? extends Entry<Named, Bean>> i;
 
         i = roles.iterator();
         assertEquals( Names.named( "default" ), i.next().getKey() );
@@ -185,12 +187,13 @@ public class DefaultBeanLocatorTest
         locator.add( parent );
         locator.add( child1 );
 
-        final Iterable<Entry<Named, Bean>> roles = locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
+        final Iterable<? extends Entry<Named, Bean>> roles =
+            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
 
         locator.add( child2 );
         locator.add( child3 );
 
-        Iterator<Entry<Named, Bean>> i;
+        Iterator<? extends Entry<Named, Bean>> i;
 
         i = roles.iterator();
         assertEquals( Names.named( "default" ), i.next().getKey() );

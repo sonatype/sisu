@@ -12,7 +12,6 @@
  */
 package org.sonatype.guice.bean.containers;
 
-import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
@@ -71,7 +70,7 @@ public final class Main
         return boot( System.getProperties(), args ).getInstance( type );
     }
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     public static Injector boot( final Properties properties, final String... args )
     {
         return boot( (Map) properties, args );
@@ -79,7 +78,7 @@ public final class Main
 
     public static Injector boot( final Map<String, String> properties, final String... args )
     {
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) Main.class.getClassLoader() );
+        final ClassSpace space = new URLClassSpace( Main.class.getClassLoader() );
         return Guice.createInjector( new WireModule( new Main( properties, args ), new SpaceModule( space ) ) );
     }
 

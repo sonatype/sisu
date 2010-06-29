@@ -16,7 +16,6 @@ import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.net.URLClassLoader;
 import java.util.EventListener;
 import java.util.RandomAccess;
 
@@ -192,7 +191,7 @@ public class QualifiedTypesTest
     protected void setUp()
         throws Exception
     {
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
         injector = Guice.createInjector( new SpaceModule( space ) );
         locator = injector.getInstance( BeanLocator.class );
     }
@@ -269,7 +268,7 @@ public class QualifiedTypesTest
         private static final long serialVersionUID = 1L;
     }
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     static class RawMediator
         implements Mediator
     {

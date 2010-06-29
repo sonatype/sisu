@@ -53,8 +53,8 @@ public final class URLClassSpace
     // ----------------------------------------------------------------------
 
     /**
-     * Creates a {@link ClassSpace} backed by a {@link ClassLoader} with the default search space. For
-     * {@link URLClassLoader}s this is their expanded class path; for other class loaders it is empty.
+     * Creates a {@link ClassSpace} backed by a {@link ClassLoader} and the default search space.<br>
+     * For {@link URLClassLoader}s this is their expanded class-path; otherwise it is empty.
      * 
      * @param loader The class loader to use when getting/finding resources
      */

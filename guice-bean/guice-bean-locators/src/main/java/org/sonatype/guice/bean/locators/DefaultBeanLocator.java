@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -45,15 +46,14 @@ public final class DefaultBeanLocator
     // Public methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
-    public synchronized Iterable locate( final Key key )
+    public synchronized <Q extends Annotation, T> Iterable<QualifiedBean<Q, T>> locate( final Key<T> key )
     {
-        final QualifiedBeans beans = initialize( new QualifiedBeans( key ) );
+        final QualifiedBeans<Q, T> beans = initialize( new QualifiedBeans<Q, T>( key ) );
         exposedBeans.add( new WeakBeanReference( beans ) );
         return beans;
     }
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )
     {
         exposedBeans.add( initialize( new WatchedBeans( key, mediator, watcher ) ) );

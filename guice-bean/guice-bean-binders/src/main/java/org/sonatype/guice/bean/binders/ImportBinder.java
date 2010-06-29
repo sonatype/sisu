@@ -106,7 +106,7 @@ final class ImportBinder
      * 
      * @param key The dependency key
      */
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     private void bindMapImport( final Key key )
     {
         final TypeLiteral[] parameters = TypeParameters.get( key.getTypeLiteral() );
@@ -134,7 +134,7 @@ final class ImportBinder
      * 
      * @param key The dependency key
      */
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     private void bindListImport( final Key key )
     {
         final TypeLiteral[] parameters = TypeParameters.get( key.getTypeLiteral() );
@@ -150,7 +150,7 @@ final class ImportBinder
      * 
      * @param key The dependency key
      */
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     private void bindBeanImport( final Key key )
     {
         final Annotation qualifier = key.getAnnotation();

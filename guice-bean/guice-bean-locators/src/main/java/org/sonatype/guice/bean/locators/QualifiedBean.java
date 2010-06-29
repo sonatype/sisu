@@ -20,16 +20,16 @@ import javax.inject.Provider;
 import com.google.inject.Binding;
 
 /**
- * Deferred caching bean {@link Entry} backed by a qualified {@link Provider}.
+ * Qualified bean {@link Entry} and {@link Provider} backed by an injector {@link Binding}.
  */
-final class DeferredBeanEntry<Q extends Annotation, T>
+public final class QualifiedBean<Q extends Annotation, T>
     implements Entry<Q, T>, Provider<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    final Binding<T> binding;
+    private final Binding<T> binding;
 
     private T bean;
 
@@ -37,7 +37,7 @@ final class DeferredBeanEntry<Q extends Annotation, T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    DeferredBeanEntry( final Binding<T> binding )
+    QualifiedBean( final Binding<T> binding )
     {
         this.binding = binding;
     }
@@ -45,6 +45,14 @@ final class DeferredBeanEntry<Q extends Annotation, T>
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
+
+    /**
+     * @return Qualified bean binding
+     */
+    public Binding<T> getBinding()
+    {
+        return binding;
+    }
 
     @SuppressWarnings( "unchecked" )
     public Q getKey()

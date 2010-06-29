@@ -14,11 +14,10 @@ package org.sonatype.guice.bean.containers;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.net.URLClassLoader;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.inject.Inject;
 
@@ -62,7 +61,7 @@ public abstract class InjectedTestCase
     protected void setUp()
         throws Exception
     {
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
         Guice.createInjector( new WireModule( new TestModule(), new SpaceModule( space ) ) );
     }
 
@@ -77,7 +76,7 @@ public abstract class InjectedTestCase
         extends AbstractModule
     {
         @Override
-        @SuppressWarnings( "unchecked" )
+        @SuppressWarnings( { "unchecked", "rawtypes" } )
         protected void configure()
         {
             install( InjectedTestCase.this );
@@ -128,7 +127,7 @@ public abstract class InjectedTestCase
 
     public final <T> T lookup( final Key<T> key )
     {
-        final Iterator<Entry<Annotation, T>> i = locator.locate( key ).iterator();
+        final Iterator<? extends Entry<Annotation, T>> i = locator.locate( key ).iterator();
         return i.hasNext() ? i.next().getValue() : null;
     }
 

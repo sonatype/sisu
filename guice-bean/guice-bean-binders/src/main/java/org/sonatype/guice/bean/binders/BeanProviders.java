@@ -43,7 +43,6 @@ import com.google.inject.spi.TypeConverterBinding;
 /**
  * Provides a {@link List} of qualified beans.
  */
-@SuppressWarnings( "unchecked" )
 final class BeanListProvider<K extends Annotation, V>
     implements Provider<List<V>>
 {
@@ -71,7 +70,7 @@ final class BeanListProvider<K extends Annotation, V>
 
     public List<V> get()
     {
-        return new EntryListAdapter( locator.locate( key ) );
+        return new EntryListAdapter<Annotation, V>( locator.locate( key ) );
     }
 }
 
@@ -80,7 +79,7 @@ final class BeanListProvider<K extends Annotation, V>
 /**
  * Provides a {@link Map} of qualified beans.
  */
-@SuppressWarnings( "unchecked" )
+@SuppressWarnings( { "unchecked", "rawtypes" } )
 final class BeanMapProvider<K extends Annotation, V>
     implements Provider<Map<K, V>>
 {
@@ -117,7 +116,7 @@ final class BeanMapProvider<K extends Annotation, V>
 /**
  * Provides a {@link Map} of named beans.
  */
-@SuppressWarnings( "unchecked" )
+@SuppressWarnings( { "unchecked", "rawtypes" } )
 final class NamedBeanMapProvider<V>
     implements Provider<Map<String, V>>
 {
@@ -190,7 +189,7 @@ final class BeanProvider<V>
 
     static <T> T get( final BeanLocator locator, final Key<T> key )
     {
-        final Iterator<Entry<Annotation, T>> i = locator.locate( key ).iterator();
+        final Iterator<? extends Entry<Annotation, T>> i = locator.locate( key ).iterator();
         return i.hasNext() ? i.next().getValue() : null; // TODO: dynamic proxy??
     }
 }

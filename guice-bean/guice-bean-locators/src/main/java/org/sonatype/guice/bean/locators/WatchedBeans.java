@@ -16,7 +16,6 @@ import java.lang.annotation.Annotation;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,37 +65,37 @@ final class WatchedBeans<Q extends Annotation, T, W>
     }
 
     @Override
-    public synchronized List<Entry<Q, T>> add( final Injector injector )
+    public synchronized List<QualifiedBean<Q, T>> add( final Injector injector )
     {
-        final List<Entry<Q, T>> newBeans = super.add( injector );
+        final List<QualifiedBean<Q, T>> newBeans = super.add( injector );
         final W watcher = watcherRef.get();
         if ( null != watcher )
         {
-            reportBeans( watcher, newBeans, BeanEvent.ADD );
+            reportBeans( BeanEvent.ADD, newBeans, watcher );
         }
         return newBeans;
     }
 
     @Override
-    public synchronized List<Entry<Q, T>> remove( final Injector injector )
+    public synchronized List<QualifiedBean<Q, T>> remove( final Injector injector )
     {
-        final List<Entry<Q, T>> oldBeans = super.remove( injector );
+        final List<QualifiedBean<Q, T>> oldBeans = super.remove( injector );
         final W watcher = watcherRef.get();
         if ( null != watcher )
         {
-            reportBeans( watcher, oldBeans, BeanEvent.REMOVE );
+            reportBeans( BeanEvent.REMOVE, oldBeans, watcher );
         }
         return oldBeans;
     }
 
     @Override
-    public synchronized List<Entry<Q, T>> clear()
+    public synchronized List<QualifiedBean<Q, T>> clear()
     {
-        final List<Entry<Q, T>> oldBeans = super.clear();
+        final List<QualifiedBean<Q, T>> oldBeans = super.clear();
         final W watcher = watcherRef.get();
         if ( null != watcher )
         {
-            reportBeans( watcher, oldBeans, BeanEvent.REMOVE );
+            reportBeans( BeanEvent.REMOVE, oldBeans, watcher );
         }
         return oldBeans;
     }
@@ -105,13 +104,16 @@ final class WatchedBeans<Q extends Annotation, T, W>
     // Implementation types
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
-    private enum BeanEvent
+    /**
+     * Enumerate the various bean events that can be sent via the {@link Mediator}.
+     */
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
+    private static enum BeanEvent
     {
         ADD
         {
             @Override
-            public void send( final Mediator mediator, final DeferredBeanEntry bean, final Object watcher )
+            public void send( final Mediator mediator, final QualifiedBean bean, final Object watcher )
                 throws Exception
             {
                 mediator.add( bean.getKey(), bean, watcher );
@@ -120,14 +122,14 @@ final class WatchedBeans<Q extends Annotation, T, W>
         REMOVE
         {
             @Override
-            public void send( final Mediator mediator, final DeferredBeanEntry bean, final Object watcher )
+            public void send( final Mediator mediator, final QualifiedBean bean, final Object watcher )
                 throws Exception
             {
                 mediator.remove( bean.getKey(), bean, watcher );
             }
         };
 
-        abstract void send( final Mediator mediator, DeferredBeanEntry bean, Object watcher )
+        abstract void send( final Mediator mediator, QualifiedBean bean, Object watcher )
             throws Exception;
     }
 
@@ -135,13 +137,20 @@ final class WatchedBeans<Q extends Annotation, T, W>
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private void reportBeans( final W watcher, final List<Entry<Q, T>> beans, final BeanEvent event )
+    /**
+     * Uses the given event to report a series of qualified beans to a watcher via the {@link Mediator}.
+     * 
+     * @param event The bean event
+     * @param beans The qualified beans
+     * @param watcher The bean watcher
+     */
+    private void reportBeans( final BeanEvent event, final List<QualifiedBean<Q, T>> beans, final W watcher )
     {
         for ( int i = 0, size = beans.size(); i < size; i++ )
         {
             try
             {
-                event.send( mediator, (DeferredBeanEntry<Q, T>) beans.get( i ), watcher );
+                event.send( mediator, beans.get( i ), watcher );
             }
             catch ( final Throwable e )
             {

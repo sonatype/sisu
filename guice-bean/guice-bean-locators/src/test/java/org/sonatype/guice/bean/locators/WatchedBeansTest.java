@@ -242,7 +242,7 @@ public class WatchedBeansTest
         forceGC();
 
         assertEquals( 4, mediatedWatchers.size() );
-        locator.remove( child2 );
+        locator.clear();
         locator.add( child1 );
         assertEquals( 3, mediatedWatchers.size() );
 
@@ -282,6 +282,8 @@ public class WatchedBeansTest
         a = null;
         forceGC();
         beans.remove( parent );
+
+        beans.clear();
     }
 
     private static String[] forceGC()

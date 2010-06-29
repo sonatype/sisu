@@ -142,7 +142,7 @@ public class BeanImportTest
         implements X
     {
         @Inject
-        @SuppressWarnings( "unchecked" )
+        @SuppressWarnings( "rawtypes" )
         Map rawMap;
     }
 
@@ -150,7 +150,7 @@ public class BeanImportTest
         implements X
     {
         @Inject
-        @SuppressWarnings( "unchecked" )
+        @SuppressWarnings( "rawtypes" )
         List rawList;
     }
 

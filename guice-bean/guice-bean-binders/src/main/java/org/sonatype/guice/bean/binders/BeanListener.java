@@ -29,7 +29,7 @@ import com.google.inject.spi.TypeListener;
 /**
  * {@link InjectionListener} that listens for mediated watchers and registers them with the {@link BeanLocator}.
  */
-@SuppressWarnings( "unchecked" )
+@SuppressWarnings( { "unchecked", "rawtypes" } )
 final class BeanListener
     implements TypeListener, InjectionListener
 {

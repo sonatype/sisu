@@ -21,7 +21,7 @@ import com.google.inject.util.Types;
 
 public interface ParameterKeys
 {
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     Key<Map<String, String>> PROPERTIES = (Key) Key.get( Types.mapOf( String.class, String.class ), Parameters.class );
 
     Key<String[]> ARGUMENTS = Key.get( String[].class, Parameters.class );

@@ -14,7 +14,6 @@ package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.net.URLClassLoader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -145,7 +144,7 @@ public class BeanWatcherTest
     protected void setUp()
         throws Exception
     {
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
         Guice.createInjector( new SpaceModule( space ) ).injectMembers( this );
     }
 

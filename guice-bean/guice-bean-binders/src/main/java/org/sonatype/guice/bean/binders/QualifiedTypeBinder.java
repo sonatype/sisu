@@ -59,7 +59,7 @@ public final class QualifiedTypeBinder
     // Public methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     public void hear( final Annotation qualifier, final Class qualifiedType )
     {
         if ( Module.class.isAssignableFrom( qualifiedType ) )
@@ -99,7 +99,7 @@ public final class QualifiedTypeBinder
      * 
      * @param mediatorType The mediator type
      */
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     private void registerMediator( final Class<Mediator> mediatorType )
     {
         final TypeLiteral[] params = getSuperTypeParameters( mediatorType, Mediator.class );
@@ -131,7 +131,7 @@ public final class QualifiedTypeBinder
      * @param mediator The bean mediator
      * @param watcherType The watcher type
      */
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     private void mediate( final Key watchedKey, final Mediator mediator, final Class watcherType )
     {
         if ( null == beanListener )
@@ -149,7 +149,7 @@ public final class QualifiedTypeBinder
      * @param qualifier The qualifier
      * @param qualifiedType The qualified type
      */
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     private void bindQualifiedType( final Annotation qualifier, final Class<?> qualifiedType )
     {
         final Class bindingType = getBindingType( qualifiedType );

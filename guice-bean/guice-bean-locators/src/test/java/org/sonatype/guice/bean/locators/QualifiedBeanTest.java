@@ -25,7 +25,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
-public class DeferredBeanEntryTest
+public class QualifiedBeanTest
     extends TestCase
 {
     static class CountingProvider
@@ -52,7 +52,7 @@ public class DeferredBeanEntryTest
         } );
 
         final Entry<Annotation, Object> countingEntry =
-            new DeferredBeanEntry<Annotation, Object>( injector.getBinding( Object.class ) );
+            new QualifiedBean<Annotation, Object>( injector.getBinding( Object.class ) );
 
         final Thread[] pool = new Thread[8];
         for ( int i = 0; i < pool.length; i++ )
@@ -116,7 +116,7 @@ public class DeferredBeanEntryTest
         } );
 
         final Entry<Named, String> textEntry =
-            new DeferredBeanEntry<Named, String>( injector.getBinding( Key.get( String.class, Names.named( "KEY" ) ) ) );
+            new QualifiedBean<Named, String>( injector.getBinding( Key.get( String.class, Names.named( "KEY" ) ) ) );
 
         assertEquals( Names.named( "KEY" ) + "=VALUE", textEntry.toString() );
     }

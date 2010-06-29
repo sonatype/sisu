@@ -12,8 +12,6 @@
  */
 package org.sonatype.guice.bean.binders;
 
-import java.net.URLClassLoader;
-
 import javax.inject.Inject;
 
 import junit.framework.TestCase;
@@ -45,7 +43,7 @@ public class QualifiedModuleTest
 
     public void testQualifiedModule()
     {
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
         Guice.createInjector( new SpaceModule( space ) ).injectMembers( this );
         assertEquals( "CustomValue", value );
     }

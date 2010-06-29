@@ -215,6 +215,8 @@ public class QualifiedScanningTest
         catch ( final TypeNotPresentException e )
         {
         }
+
+        ClassSpaceScanner.accept( null, null );
     }
 
     public void testOptionalLogging()
