@@ -14,7 +14,6 @@ package org.sonatype.guice.bean.scanners;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Enumeration;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
@@ -27,7 +26,7 @@ public class BrokenScanningExample
         throws MalformedURLException
     {
         System.setProperty( "java.protocol.handler.pkgs", getClass().getPackage().getName() );
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
 
         final URL badURL = new URL( "barf:up/" );
         final ClassSpace brokenResourceSpace = new ClassSpace()

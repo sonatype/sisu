@@ -32,8 +32,7 @@ public final class ClassSpaceScanner
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final int CLASS_READER_FLAGS =
-        ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES;
+    private static final int ASM_FLAGS = ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES;
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -85,14 +84,14 @@ public final class ClassSpaceScanner
     {
         if ( null == url )
         {
-            return;
+            return; // nothing to visit
         }
         try
         {
             final InputStream in = url.openStream();
             try
             {
-                new ClassReader( in ).accept( visitor, CLASS_READER_FLAGS );
+                new ClassReader( in ).accept( visitor, ASM_FLAGS );
             }
             finally
             {

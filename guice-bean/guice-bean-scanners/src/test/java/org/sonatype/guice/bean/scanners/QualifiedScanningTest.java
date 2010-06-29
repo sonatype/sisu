@@ -96,7 +96,7 @@ public class QualifiedScanningTest
     public void testQualifiedScanning()
     {
         final TestListener listener = new TestListener();
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
         new ClassSpaceScanner( space ).accept( new QualifiedTypeVisitor( listener ) );
         assertEquals( 5, listener.ids.size() );
 
@@ -111,7 +111,7 @@ public class QualifiedScanningTest
     public void testFilteredScanning()
     {
         final TestListener listener = new TestListener();
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
         final ClassSpaceVisitor visitor = new QualifiedTypeVisitor( listener );
         new ClassSpaceScanner( space ).accept( new ClassSpaceVisitor()
         {
@@ -146,7 +146,7 @@ public class QualifiedScanningTest
         throws IOException
     {
         System.setProperty( "java.protocol.handler.pkgs", getClass().getPackage().getName() );
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
 
         final URL badURL = new URL( "barf:up/" );
         final ClassSpace brokenResourceSpace = new ClassSpace()

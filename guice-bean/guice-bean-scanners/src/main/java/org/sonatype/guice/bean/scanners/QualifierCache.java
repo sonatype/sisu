@@ -39,8 +39,7 @@ final class QualifierCache
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
-    private final Map<String, Class> cachedResults = new HashMap<String, Class>();
+    private final Map<String, Class<?>> cachedResults = new HashMap<String, Class<?>>();
 
     private boolean isQualified;
 
@@ -67,7 +66,7 @@ final class QualifierCache
 
             cachedResults.put( desc, isQualified ? space.loadClass( name.replace( '/', '.' ) ) : null );
         }
-        return cachedResults.get( desc );
+        return (Class<Annotation>) cachedResults.get( desc );
     }
 
     @Override
