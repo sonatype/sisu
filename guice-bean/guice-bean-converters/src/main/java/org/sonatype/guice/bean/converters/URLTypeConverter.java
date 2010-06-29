@@ -22,6 +22,9 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.spi.TypeConverter;
 
+/**
+ * {@link TypeConverter} {@link Module} that converts constants to {@link URL}s.
+ */
 public final class URLTypeConverter
     implements TypeConverter, Module
 {

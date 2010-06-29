@@ -180,7 +180,7 @@ public final class Activator
 
         BundleInjector( final Bundle bundle )
         {
-            properties = new BundleProperties( bundle );
+            properties = new BundleProperties( bundle.getBundleContext() );
 
             final ClassSpace space = new BundleClassSpace( bundle );
             injector = Guice.createInjector( new WireModule( this, new SpaceModule( space ) ) );
@@ -219,15 +219,15 @@ public final class Activator
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final BundleContext context;
+        private transient final BundleContext context;
 
         // ----------------------------------------------------------------------
         // Constructors
         // ----------------------------------------------------------------------
 
-        BundleProperties( final Bundle bundle )
+        BundleProperties( final BundleContext context )
         {
-            context = bundle.getBundleContext();
+            this.context = context;
         }
 
         // ----------------------------------------------------------------------

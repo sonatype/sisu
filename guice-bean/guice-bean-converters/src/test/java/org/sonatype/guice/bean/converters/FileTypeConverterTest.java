@@ -14,25 +14,27 @@ package org.sonatype.guice.bean.converters;
 
 import java.io.File;
 
-import com.google.inject.Binder;
-import com.google.inject.Module;
-import com.google.inject.TypeLiteral;
-import com.google.inject.matcher.Matchers;
-import com.google.inject.spi.TypeConverter;
+import junit.framework.TestCase;
 
-/**
- * {@link TypeConverter} {@link Module} that converts constants to {@link File}s.
- */
-public final class FileTypeConverter
-    implements TypeConverter, Module
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+
+public class FileTypeConverterTest
+    extends TestCase
 {
-    public void configure( final Binder binder )
+    public void testFileConversion()
     {
-        binder.convertToTypes( Matchers.only( TypeLiteral.get( File.class ) ), this );
-    }
+        final File file = Guice.createInjector( new FileTypeConverter(), new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                bindConstant().annotatedWith( Names.named( "file" ) ).to( "work/temp" );
+            }
+        } ).getInstance( Key.get( File.class, Names.named( "file" ) ) );
 
-    public Object convert( final String value, final TypeLiteral<?> toType )
-    {
-        return new File( value );
+        assertEquals( "work" + File.separator + "temp", file.getPath() );
     }
 }
