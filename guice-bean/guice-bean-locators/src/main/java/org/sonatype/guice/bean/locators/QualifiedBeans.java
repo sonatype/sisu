@@ -80,7 +80,7 @@ class QualifiedBeans<Q extends Annotation, T>
     {
         if ( key.hasAttributes() )
         {
-            // optimization for looking up a specific (unique) qualified bean
+            // looking for a very specific bean
             final Binding binding = injector.getBindings().get( normalize( key ) );
             if ( isVisible( null, binding ) )
             {
@@ -92,7 +92,7 @@ class QualifiedBeans<Q extends Annotation, T>
         final TypeLiteral<T> beanType = key.getTypeLiteral();
         final Class<? extends Annotation> qualifierType = key.getAnnotationType();
 
-        // looking for any explicit default/qualified binding that implements this type
+        // looking for zero or more matching beans
         final List<QualifiedBean<Q, T>> newBeans = new ArrayList<QualifiedBean<Q, T>>();
         for ( final Binding<T> binding : injector.findBindingsByType( beanType ) )
         {
@@ -201,7 +201,7 @@ class QualifiedBeans<Q extends Annotation, T>
     }
 
     /**
-     * Normalizes the given binding key by mapping the default qualifier to no qualifier.
+     * Normalizes the given binding key by mapping the {@code @Named("default")} qualifier to no qualifier.
      * 
      * @param key The binding key
      * @return Normalized key
@@ -222,17 +222,18 @@ class QualifiedBeans<Q extends Annotation, T>
     {
         if ( null == binding || binding.getSource() instanceof HiddenSource )
         {
-            return false; // exclude hidden bindings (avoids recursion)
+            return false; // exclude hidden bindings (helps avoids any unwanted recursion)
         }
-        final Annotation qualifier = binding.getKey().getAnnotation();
-        if ( DEFAULT_QUALIFIER.equals( qualifier ) )
+        final Key<?> key = binding.getKey();
+        if ( null == key.getAnnotationType() && ( null == qualifierType || Named.class == qualifierType ) )
         {
-            return false; // exclude explicit @Named("default") beans
+            return true; // include unqualified defaults in unrestricted or @Named searches
         }
-        if ( null == qualifierType || qualifierType == Named.class && null == qualifier )
+        final Annotation annotation = key.getAnnotation();
+        if ( null == annotation || DEFAULT_QUALIFIER.equals( annotation ) )
         {
-            return true; // @Named search should also match defaults
+            return false; // exclude type-only qualifiers or duplicate @Named("default")'s
         }
-        return null != qualifier && qualifierType == qualifier.annotationType();
+        return null == qualifierType || qualifierType == annotation.annotationType();
     }
 }
