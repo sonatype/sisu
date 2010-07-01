@@ -13,6 +13,8 @@
 package org.sonatype.guice.bean.reflect;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.AccessController;
@@ -53,7 +55,25 @@ final class BeanPropertySetter<T>
 
     public <A extends Annotation> A getAnnotation( final Class<A> annotationType )
     {
-        return method.getAnnotation( annotationType );
+        final A annotation = method.getAnnotation( annotationType );
+        if ( null != annotation )
+        {
+            return annotation;
+        }
+        final Target target = annotationType.getAnnotation( Target.class );
+        if ( null != target && target.value().length == 1 && ElementType.FIELD == target.value()[0] )
+        {
+            try
+            {
+                // annotation couldn't possibly be on this method, but maybe we're shadowing a property field?
+                return method.getDeclaringClass().getDeclaredField( getName() ).getAnnotation( annotationType );
+            }
+            catch ( final Throwable e ) // NOPMD
+            {
+                // no such field
+            }
+        }
+        return null;
     }
 
     @SuppressWarnings( "unchecked" )
