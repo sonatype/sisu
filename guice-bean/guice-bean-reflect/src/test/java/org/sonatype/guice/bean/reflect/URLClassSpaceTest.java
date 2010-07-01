@@ -160,6 +160,5 @@ public class URLClassSpaceTest
 
         // should see nothing, and not throw any exceptions
         assertFalse( space.getResources( "error" ).hasMoreElements() );
-        assertFalse( space.findEntries( null, null, true ).hasMoreElements() );
     }
 }

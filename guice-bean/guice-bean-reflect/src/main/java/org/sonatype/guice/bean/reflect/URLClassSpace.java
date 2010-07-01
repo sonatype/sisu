@@ -17,15 +17,16 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.Manifest;
 
 /**
- * {@link ClassSpace} backed by a strongly-referenced {@link ClassLoader} and a search path of {@link URL}s.
+ * {@link ClassSpace} backed by a strongly-referenced {@link ClassLoader} and a {@link URL} class path.
  */
 public final class URLClassSpace
     implements ClassSpace
@@ -34,7 +35,7 @@ public final class URLClassSpace
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final String MANIFEST_PATH = "META-INF/MANIFEST.MF";
+    private static final String MANIFEST_ENTRY = "META-INF/MANIFEST.MF";
 
     private static final String[] NO_ENTRIES = {};
 
@@ -46,43 +47,49 @@ public final class URLClassSpace
 
     private final ClassLoader loader;
 
-    private final URL[] urls;
+    private final URL[] classPath;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
     /**
-     * Creates a {@link ClassSpace} backed by a {@link ClassLoader} and the default search space.<br>
-     * For {@link URLClassLoader}s this is their expanded class-path; otherwise it is empty.
+     * Creates a {@link ClassSpace} backed by a {@link ClassLoader} and its default class path.<br>
+     * For {@link URLClassLoader}s this is their expanded Class-Path; otherwise it is empty.
      * 
      * @param loader The class loader to use when getting/finding resources
      */
     public URLClassSpace( final ClassLoader loader )
     {
         this.loader = loader;
-        if ( loader instanceof URLClassLoader )
+        for ( ClassLoader l = loader; l != null; l = l.getParent() )
         {
-            urls = expandClassPath( ( (URLClassLoader) loader ).getURLs() );
+            if ( l instanceof URLClassLoader )
+            {
+                // pick first class loader with non-empty class path
+                final URL[] path = ( (URLClassLoader) l ).getURLs();
+                if ( null != path && path.length > 0 )
+                {
+                    classPath = expandClassPath( path );
+                    return;
+                }
+            }
         }
-        else
-        {
-            urls = NO_URLS; // no detectable search space
-        }
+        classPath = NO_URLS; // no detectable Class-Path
     }
 
     /**
-     * Creates a {@link ClassSpace} backed by a {@link ClassLoader} with a customized search space.
+     * Creates a {@link ClassSpace} backed by a {@link ClassLoader} with a custom class path.
      * 
      * @param loader The class loader to use when getting resources
-     * @param urls The path of URLs to search when finding resources
+     * @param path The class path to use when finding resources
      * @see #getResources(String)
      * @see #findEntries(String, String, boolean)
      */
-    public URLClassSpace( final ClassLoader loader, final URL[] urls )
+    public URLClassSpace( final ClassLoader loader, final URL[] path )
     {
         this.loader = loader;
-        this.urls = expandClassPath( urls );
+        classPath = expandClassPath( path );
     }
 
     // ----------------------------------------------------------------------
@@ -125,7 +132,7 @@ public final class URLClassSpace
 
     public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
     {
-        return new ResourceEnumeration( path, glob, recurse, urls );
+        return new ResourceEnumeration( path, glob, recurse, classPath );
     }
 
     @Override
@@ -159,44 +166,44 @@ public final class URLClassSpace
     // ----------------------------------------------------------------------
 
     /**
-     * Expands the given URL search path to include Class-Path entries from local manifests.
+     * Expands the given {@link URL} class path to include Class-Path entries from local manifests.
      * 
-     * @param urls The URL search path
-     * @return Expanded URL search path
+     * @param classPath The URL class path
+     * @return Expanded URL class path
      */
-    private static URL[] expandClassPath( final URL[] urls )
+    private static URL[] expandClassPath( final URL[] classPath )
     {
-        if ( null == urls || urls.length == 0 )
+        if ( null == classPath || classPath.length == 0 )
         {
             return NO_URLS;
         }
 
-        final LinkedList<URL> searchURLs = new LinkedList<URL>();
-        Collections.addAll( searchURLs, urls );
+        final List<URL> searchPath = new ArrayList<URL>();
+        Collections.addAll( searchPath, classPath );
 
-        // search space may grow, so use index not iterator
-        final Set<URL> reachableURLs = new LinkedHashSet<URL>();
-        while ( !searchURLs.isEmpty() )
+        // search path may grow, so use index not iterator
+        final Set<URL> expandedPath = new LinkedHashSet<URL>();
+        for ( int i = 0; i < searchPath.size(); i++ )
         {
-            final URL url = searchURLs.removeFirst();
-            if ( null == url || !reachableURLs.add( url ) )
+            final URL url = searchPath.get( i );
+            if ( null == url || !expandedPath.add( url ) )
             {
                 continue; // already processed
             }
-            final String[] classPath;
+            final String[] classPathEntries;
             try
             {
-                classPath = getClassPath( url );
+                classPathEntries = getClassPathEntries( url );
             }
             catch ( final IOException e )
             {
                 continue; // missing manifest
             }
-            for ( final String entry : classPath )
+            for ( final String entry : classPathEntries )
             {
                 try
                 {
-                    searchURLs.add( new URL( url, entry ) );
+                    searchPath.add( new URL( url, entry ) );
                 }
                 catch ( final MalformedURLException e ) // NOPMD
                 {
@@ -205,26 +212,26 @@ public final class URLClassSpace
             }
         }
 
-        return reachableURLs.toArray( new URL[reachableURLs.size()] );
+        return expandedPath.toArray( new URL[expandedPath.size()] );
     }
 
     /**
-     * Looks for a manifest Class-Path in the given resource; returns empty array if none are found.
+     * Looks for Class-Path entries in the given jar or directory; returns empty array if none are found.
      * 
-     * @param url The resource to inspect
-     * @return Array of class-path entries
+     * @param url The jar or directory to inspect
+     * @return Array of Class-Path entries
      */
-    private static String[] getClassPath( final URL url )
+    private static String[] getClassPathEntries( final URL url )
         throws IOException
     {
         final URL manifestURL;
         if ( url.getPath().endsWith( "/" ) )
         {
-            manifestURL = new URL( url, MANIFEST_PATH );
+            manifestURL = new URL( url, MANIFEST_ENTRY );
         }
         else
         {
-            manifestURL = new URL( "jar:" + url + "!/" + MANIFEST_PATH );
+            manifestURL = new URL( "jar:" + url + "!/" + MANIFEST_ENTRY );
         }
 
         final InputStream in = manifestURL.openStream();
