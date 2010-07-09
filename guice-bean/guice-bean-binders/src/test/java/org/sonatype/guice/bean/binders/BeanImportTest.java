@@ -12,7 +12,7 @@
  */
 package org.sonatype.guice.bean.binders;
 
-import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Annotation;
@@ -20,18 +20,19 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Qualifier;
 
 import junit.framework.TestCase;
 
 import org.slf4j.Logger;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.BindingAnnotation;
 import com.google.inject.CreationException;
 import com.google.inject.Guice;
 import com.google.inject.ImplementedBy;
@@ -45,9 +46,9 @@ import com.google.inject.name.Names;
 public class BeanImportTest
     extends TestCase
 {
-    @Target( TYPE )
+    @Target( FIELD )
     @Retention( RUNTIME )
-    @Qualifier
+    @BindingAnnotation
     public @interface Fuzzy
     {
     }
@@ -109,7 +110,13 @@ public class BeanImportTest
         }
     }
 
+    static abstract class AbstractY
+        implements Y
+    {
+    }
+
     static class YImpl
+        extends AbstractY
         implements ImplicitY
     {
     }
@@ -128,6 +135,17 @@ public class BeanImportTest
 
         @Inject
         ImplicitY implicitY;
+
+        @Inject
+        YImpl concreteY;
+
+        @Inject
+        @Nullable
+        AbstractY abstractY;
+
+        @Inject
+        @Fuzzy
+        Y fuzzy;
 
         @Inject
         @Named( "local" )
@@ -225,7 +243,7 @@ public class BeanImportTest
     {
         @Inject
         @Nullable
-        @Named( "${value}" )
+        @Named( "4${value}2" )
         int single;
     }
 
@@ -268,6 +286,8 @@ public class BeanImportTest
         Map<Named, Y> map;
     }
 
+    static Map<String, String> PROPS = new HashMap<String, String>();
+
     class TestModule
         extends AbstractModule
     {
@@ -291,6 +311,8 @@ public class BeanImportTest
 
             bind( Y.class ).annotatedWith( Names.named( "local" ) ).toInstance( new YImpl() );
             bind( Y.class ).annotatedWith( new FuzzyImpl() ).toInstance( new YImpl() );
+
+            bind( ParameterKeys.PROPERTIES ).toInstance( PROPS );
         }
     }
 
@@ -306,17 +328,23 @@ public class BeanImportTest
         final UnrestrictedList unrestrictedList =
             (UnrestrictedList) injector.getInstance( Key.get( X.class, Names.named( "UL" ) ) );
 
+        assertEquals( 2, unrestrictedList.list.size() );
+
         assertSame( unrestrictedInstance.local, unrestrictedList.list.get( 0 ) );
         assertSame( unrestrictedList.local, unrestrictedList.list.get( 0 ) );
+
+        assertSame( unrestrictedInstance.fuzzy, unrestrictedList.list.get( 1 ) );
+        assertSame( unrestrictedList.fuzzy, unrestrictedList.list.get( 1 ) );
+
         assertNotSame( unrestrictedList.list.get( 0 ), unrestrictedList.list.get( 1 ) );
-        assertEquals( 2, unrestrictedList.list.size() );
 
         final UnrestrictedMap unrestrictedMap =
             (UnrestrictedMap) injector.getInstance( Key.get( X.class, Names.named( "UM" ) ) );
 
+        assertEquals( 2, unrestrictedMap.map.size() );
+
         assertSame( unrestrictedList.list.get( 0 ), unrestrictedMap.map.get( Names.named( "local" ) ) );
         assertSame( unrestrictedList.list.get( 1 ), unrestrictedMap.map.get( new FuzzyImpl() ) );
-        assertEquals( 2, unrestrictedMap.map.size() );
     }
 
     public void testNamedImports()
@@ -328,10 +356,8 @@ public class BeanImportTest
             (NamedInstance) injector.getInstance( Key.get( X.class, Names.named( "NI" ) ) );
 
         assertNotNull( namedType.single );
-        assertNull( namedInstance.single );
-
         assertSame( namedType.local, namedType.single );
-        assertSame( namedType.local, namedInstance.local );
+        assertNull( namedInstance.single );
 
         final HintMap hintMap = (HintMap) injector.getInstance( Key.get( X.class, Names.named( "HM" ) ) );
         assertEquals( Collections.singletonMap( Names.named( "local" ), hintMap.local ), hintMap.namedMap );
@@ -340,9 +366,66 @@ public class BeanImportTest
         assertEquals( 1, hintMap.map.size() );
     }
 
+    public void testPlaceholderImports()
+    {
+        final Injector injector = Guice.createInjector( new WireModule( new TestModule() ) );
+
+        PlaceholderInstance placeholderInstance;
+        placeholderInstance = (PlaceholderInstance) injector.getInstance( Key.get( X.class, Names.named( "PI" ) ) );
+        assertNull( placeholderInstance.single );
+
+        PROPS.put( "name", "local" );
+
+        placeholderInstance = (PlaceholderInstance) injector.getInstance( Key.get( X.class, Names.named( "PI" ) ) );
+        assertSame( placeholderInstance.local, placeholderInstance.single );
+
+        PlaceholderString placeholderString;
+        placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
+        assertEquals( "${text}", placeholderString.single );
+
+        PROPS.put( "text", "Hello, world!" );
+
+        placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
+        assertEquals( "Hello, world!", placeholderString.single );
+
+        PROPS.put( "text", ">${one}{" );
+        PROPS.put( "one", "-${two}=" );
+        PROPS.put( "two", "<${three}}" );
+        PROPS.put( "three", "|${text}|" );
+
+        placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
+        assertEquals( ">-<|>-<|${text}|}={|}={", placeholderString.single );
+
+        PROPS.put( "text", ">${text" );
+
+        placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
+        assertEquals( ">${text", placeholderString.single );
+
+        try
+        {
+            injector.getInstance( Key.get( X.class, Names.named( "PC" ) ) );
+            fail( "Expected RuntimeException" );
+        }
+        catch ( final RuntimeException e )
+        {
+            System.out.println( e );
+        }
+
+        PROPS.put( "value", "53" );
+
+        assertEquals( 4532,
+                      ( (PlaceholderConfig) injector.getInstance( Key.get( X.class, Names.named( "PC" ) ) ) ).single );
+    }
+
     public void testDuplicatesAreIgnored()
     {
         Guice.createInjector( new WireModule( new TestModule(), new TestModule(), new TestModule() ) );
+    }
+
+    public void testImportSource()
+    {
+        final Injector injector = Guice.createInjector( new WireModule( new TestModule() ) );
+        assertEquals( ImportBinder.class.getName(), injector.getBinding( Y.class ).getSource().toString() );
     }
 
     public void testInvalidTypeParameters()

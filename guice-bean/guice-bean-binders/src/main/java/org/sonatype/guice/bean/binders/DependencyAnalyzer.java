@@ -35,6 +35,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.spi.BindingTargetVisitor;
 import com.google.inject.spi.DefaultBindingTargetVisitor;
 import com.google.inject.spi.LinkedKeyBinding;
+import com.google.inject.spi.UntargettedBinding;
 
 /**
  * {@link BindingTargetVisitor} that collects the {@link Key}s of any injected dependencies.
@@ -50,6 +51,12 @@ final class DependencyAnalyzer<T>
     public Set<Key<?>> visit( final LinkedKeyBinding<? extends T> binding )
     {
         return analyze( binding.getLinkedKey().getTypeLiteral() );
+    }
+
+    @Override
+    public Set<Key<?>> visit( final UntargettedBinding<? extends T> binding )
+    {
+        return analyze( binding.getKey().getTypeLiteral() );
     }
 
     @Override
