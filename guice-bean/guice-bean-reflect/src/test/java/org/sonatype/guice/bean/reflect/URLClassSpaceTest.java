@@ -161,4 +161,34 @@ public class URLClassSpaceTest
         // should see nothing, and not throw any exceptions
         assertFalse( space.getResources( "error" ).hasMoreElements() );
     }
+
+    public void testClassPathDetection()
+    {
+        final ClassLoader parent = URLClassLoader.newInstance( new URL[] { CLASS_PATH_JAR } );
+        final ClassLoader child = URLClassLoader.newInstance( new URL[0], parent );
+        final ClassLoader grandchild = new URLClassLoader( new URL[0], child )
+        {
+            @Override
+            public URL[] getURLs()
+            {
+                return null;
+            }
+        };
+
+        final Enumeration<URL> e = new URLClassSpace( grandchild ).findEntries( "META-INF", "*.MF", false );
+
+        // expect to see three results
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().getPath().startsWith( CLASS_PATH_JAR.toString() ) );
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().getPath().startsWith( COMMONS_LOGGING_JAR.toString() ) );
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().getPath().startsWith( SIMPLE_JAR.toString() ) );
+        assertFalse( e.hasMoreElements() );
+
+        final ClassLoader orphan = URLClassLoader.newInstance( new URL[0], null );
+
+        // expect to see no results
+        assertFalse( new URLClassSpace( orphan ).findEntries( "META-INF", "*.MF", false ).hasMoreElements() );
+    }
 }

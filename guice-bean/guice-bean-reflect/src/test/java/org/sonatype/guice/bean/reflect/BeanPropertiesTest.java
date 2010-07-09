@@ -12,6 +12,10 @@
  */
 package org.sonatype.guice.bean.reflect;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -34,6 +38,33 @@ import com.google.inject.util.Types;
 public class BeanPropertiesTest
     extends TestCase
 {
+    @Retention( RetentionPolicy.RUNTIME )
+    @interface Metadata
+    {
+        String value();
+    }
+
+    @Target( ElementType.METHOD )
+    @Retention( RetentionPolicy.RUNTIME )
+    @interface MethodMetadata
+    {
+        String value();
+    }
+
+    @Target( ElementType.FIELD )
+    @Retention( RetentionPolicy.RUNTIME )
+    @interface FieldMetadata
+    {
+        String value();
+    }
+
+    @Target( { ElementType.FIELD, ElementType.METHOD } )
+    @Retention( RetentionPolicy.RUNTIME )
+    @interface MultiMetadata
+    {
+        String value();
+    }
+
     static interface A
     {
         String name = "";
@@ -195,6 +226,25 @@ public class BeanPropertiesTest
     {
         void set( final String value )
         {
+        }
+    }
+
+    static class N
+    {
+        @Metadata( "Field1" )
+        @MultiMetadata( "A" )
+        @FieldMetadata( "1" )
+        int value;
+
+        @MethodMetadata( "1" )
+        void init()
+        {
+        }
+
+        @MethodMetadata( "2" )
+        void setValue( final int value )
+        {
+            this.value = value;
         }
     }
 
@@ -401,5 +451,22 @@ public class BeanPropertiesTest
     {
         assertFalse( new BeanProperties( L.class ).iterator().hasNext() );
         assertFalse( new BeanProperties( M.class ).iterator().hasNext() );
+    }
+
+    public void testFieldPropertyDelegation()
+    {
+        BeanProperty<?> property;
+
+        property = new BeanProperties( D.class ).iterator().next();
+        assertNull( property.getAnnotation( Metadata.class ) );
+        assertNull( property.getAnnotation( FieldMetadata.class ) );
+        assertNull( property.getAnnotation( MethodMetadata.class ) );
+        assertNull( property.getAnnotation( MultiMetadata.class ) );
+
+        property = new BeanProperties( N.class ).iterator().next();
+        assertNull( property.getAnnotation( Metadata.class ) );
+        assertEquals( "1", property.getAnnotation( FieldMetadata.class ).value() );
+        assertEquals( "2", property.getAnnotation( MethodMetadata.class ).value() );
+        assertNull( property.getAnnotation( MultiMetadata.class ) );
     }
 }
