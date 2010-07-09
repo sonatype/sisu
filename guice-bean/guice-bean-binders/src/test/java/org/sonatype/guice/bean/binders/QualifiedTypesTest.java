@@ -20,6 +20,7 @@ import java.util.EventListener;
 import java.util.RandomAccess;
 
 import javax.enterprise.inject.Typed;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Qualifier;
@@ -30,6 +31,7 @@ import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
+import org.sonatype.inject.EagerSingleton;
 import org.sonatype.inject.Mediator;
 
 import com.google.inject.AbstractModule;
@@ -74,6 +76,19 @@ public class QualifiedTypesTest
     static class B03
         implements EventListener
     {
+    }
+
+    @Named
+    @EagerSingleton
+    static class DefaultB03
+    {
+        static boolean initialized;
+
+        @Inject
+        void initialize()
+        {
+            initialized = true;
+        }
     }
 
     @Named( "TEST" )
@@ -194,6 +209,8 @@ public class QualifiedTypesTest
         final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
         injector = Guice.createInjector( new SpaceModule( space ) );
         locator = injector.getInstance( BeanLocator.class );
+
+        assertTrue( DefaultB03.initialized );
     }
 
     private void checkDefaultBinding( final Class<?> api, final Class<?> imp )
