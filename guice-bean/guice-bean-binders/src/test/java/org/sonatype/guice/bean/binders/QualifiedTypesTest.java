@@ -52,7 +52,6 @@ public class QualifiedTypesTest
     }
 
     @Named( "default" )
-    @Typed( {} )
     static class B01
         extends Thread
     {
@@ -101,6 +100,29 @@ public class QualifiedTypesTest
     {
     }
 
+    @Named
+    static class B05EventListener
+        implements Runnable, EventListener, Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public void run()
+        {
+        }
+    }
+
+    @Named
+    @Typed( { EventListener.class, Runnable.class } )
+    static class B06
+        implements Runnable, EventListener, Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public void run()
+        {
+        }
+    }
+
     static abstract class AbstractB01
     {
     }
@@ -147,7 +169,6 @@ public class QualifiedTypesTest
     }
 
     @Named
-    @Typed( {} )
     static class SubclassB06
         extends B02
     {
@@ -244,6 +265,10 @@ public class QualifiedTypesTest
         checkNamedBinding( EventListener.class, B03.class.getName(), B03.class );
         checkNamedBinding( DefaultB04.class, "TEST", DefaultB04.class );
         checkNamedBinding( B04.class, "TEST", B04.class );
+
+        checkNamedBinding( EventListener.class, B05EventListener.class.getName(), B05EventListener.class );
+        checkNamedBinding( EventListener.class, B06.class.getName(), B06.class );
+        checkNamedBinding( Runnable.class, B06.class.getName(), B06.class );
 
         checkNamedBinding( Thread.class, SubclassB00.class.getName(), SubclassB00.class );
         checkNamedBinding( AbstractB01.class, SubclassB01.class.getName(), SubclassB01.class );

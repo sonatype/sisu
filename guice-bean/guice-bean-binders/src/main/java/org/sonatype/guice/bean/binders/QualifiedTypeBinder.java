@@ -39,6 +39,12 @@ public final class QualifiedTypeBinder
     implements QualifiedTypeListener
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final Class<?>[] NO_BINDING_TYPES = {};
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
@@ -152,15 +158,14 @@ public final class QualifiedTypeBinder
     @SuppressWarnings( { "unchecked", "rawtypes" } )
     private void bindQualifiedType( final Annotation qualifier, final Class<?> qualifiedType )
     {
-        final Class bindingType = getBindingType( qualifiedType );
-        if ( null != bindingType )
+        final boolean isEagerSingleton = qualifiedType.isAnnotationPresent( EagerSingleton.class );
+        if ( isEagerSingleton )
         {
-            final boolean isEagerSingleton = qualifiedType.isAnnotationPresent( EagerSingleton.class );
-            if ( isEagerSingleton )
-            {
-                binder.bind( qualifiedType ).asEagerSingleton();
-            }
-            final Annotation normalizedQualifier = normalize( qualifier, qualifiedType );
+            binder.bind( qualifiedType ).asEagerSingleton();
+        }
+        final Annotation normalizedQualifier = normalize( qualifier, qualifiedType );
+        for ( final Class bindingType : getBindingTypes( qualifiedType ) )
+        {
             if ( null != normalizedQualifier )
             {
                 binder.bind( Key.get( bindingType, normalizedQualifier ) ).to( qualifiedType );
@@ -211,39 +216,47 @@ public final class QualifiedTypeBinder
     }
 
     /**
-     * Determines the binding type to be used for the given qualified type.
+     * Determines the binding types to be used for the given qualified type.
      * 
      * @param qualifiedType The qualified type
-     * @return Binding type
+     * @return Array of binding types
      */
-    private Class<?> getBindingType( final Class<?> qualifiedType )
+    private Class<?>[] getBindingTypes( final Class<?> qualifiedType )
     {
         if ( qualifiedType.isInterface() )
         {
-            return qualifiedType;
+            return new Class<?>[] { qualifiedType };
         }
-
         Class<?> clazz = qualifiedType;
         while ( true )
         {
-            // @Typed annotation overrides any declared interfaces
             final Typed typed = clazz.getAnnotation( Typed.class );
-            final Class<?>[] interfaces = null != typed ? typed.value() : clazz.getInterfaces();
+            if ( null != typed )
+            {
+                return typed.value();
+            }
+            final Class<?>[] interfaces = clazz.getInterfaces();
             if ( interfaces.length == 1 )
             {
-                return interfaces[0];
+                return interfaces;
             }
             if ( interfaces.length > 1 )
             {
-                binder.addError( qualifiedType + " has ambiguous interfaces, use @Typed to pick one" );
-                return null;
+                final String name = qualifiedType.getSimpleName();
+                for ( final Class<?> i : interfaces )
+                {
+                    if ( name.endsWith( i.getSimpleName() ) )
+                    {
+                        return new Class<?>[] { i };
+                    }
+                }
+                binder.addError( qualifiedType + " is ambiguous, use @Typed to select binding type(s)" );
+                return NO_BINDING_TYPES;
             }
-            // no interfaces yet, move up the type hierarchy
             final Class<?> superClazz = clazz.getSuperclass();
             if ( superClazz.getName().startsWith( "java" ) )
             {
-                // no interfaces left, resort to top-most abstract type
-                return Object.class != superClazz ? superClazz : clazz;
+                return new Class<?>[] { Object.class != superClazz ? superClazz : clazz };
             }
             clazz = superClazz;
         }
