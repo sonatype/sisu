@@ -17,8 +17,8 @@ import java.security.PrivilegedAction;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -39,8 +39,8 @@ final class PlexusTypeRegistry
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final Component LOAD_ON_START_PLACEHOLDER =
-        new ComponentImpl( Object.class, "", Strategies.LOAD_ON_START, "" );
+    private static final Component LOAD_ON_START_PLACEHOLDER = new ComponentImpl( Object.class, "",
+                                                                                  Strategies.LOAD_ON_START, "" );
 
     // ----------------------------------------------------------------------
     // Implementation fields

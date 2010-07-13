@@ -24,19 +24,20 @@ import org.codehaus.plexus.component.configurator.ComponentConfigurationExceptio
 public class ClassConverter
     extends AbstractBasicConverter
 {
-    public boolean canConvert( Class type )
+    public boolean canConvert( final Class type )
     {
         return type.equals( Class.class );
     }
 
-    public Object fromString( String str )
+    @Override
+    public Object fromString( final String str )
         throws ComponentConfigurationException
     {
         try
         {
             return Class.forName( str );
         }
-        catch ( ClassNotFoundException e )
+        catch ( final ClassNotFoundException e )
         {
             throw new ComponentConfigurationException( "Unable to find class in conversion", e );
         }

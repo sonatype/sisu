@@ -12,7 +12,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 /**
  * ConfigurationConverter to set up ClassRealm component fields.
- *
+ * 
  * @author <a href="mailto:kenney@neonics.com">Kenney Westerhof</a>
  */
 public class ClassRealmConverter
@@ -23,32 +23,31 @@ public class ClassRealmConverter
     private ClassRealm classRealm;
 
     /**
-     * Constructs this ClassRealmConverter with the given ClassRealm.
-     * If there's a way to automatically configure this component
-     * using the current classrealm, this method can go away.
-     *
+     * Constructs this ClassRealmConverter with the given ClassRealm. If there's a way to automatically configure this
+     * component using the current classrealm, this method can go away.
+     * 
      * @param classRealm
      */
-    public ClassRealmConverter( ClassRealm classRealm )
+    public ClassRealmConverter( final ClassRealm classRealm )
     {
         setClassRealm( classRealm );
     }
 
-    public void setClassRealm( ClassRealm classRealm )
+    public void setClassRealm( final ClassRealm classRealm )
     {
         this.classRealm = classRealm;
     }
 
-    public boolean canConvert( Class type )
+    public boolean canConvert( final Class type )
     {
         // backwards compatibility for old ClassWorld fields
         return org.codehaus.classworlds.ClassRealm.class.isAssignableFrom( type )
             || ClassRealm.class.isAssignableFrom( type );
     }
 
-    public Object fromConfiguration( ConverterLookup converterLookup, PlexusConfiguration configuration, Class type,
-                                     Class baseType, ClassLoader classLoader, ExpressionEvaluator expressionEvaluator,
-                                     ConfigurationListener listener )
+    public Object fromConfiguration( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
+                                     final Class type, final Class baseType, final ClassLoader classLoader,
+                                     final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
         Object retValue = fromExpression( configuration, expressionEvaluator, type );

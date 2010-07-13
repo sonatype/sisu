@@ -16,10 +16,10 @@ package org.codehaus.plexus.component;
  * limitations under the License.
  */
 
+import java.util.Map;
+
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.codehaus.plexus.component.repository.ComponentRequirement;
-
-import java.util.Map;
 
 public interface MapOrientedComponent
 {

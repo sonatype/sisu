@@ -24,15 +24,6 @@ package org.codehaus.plexus.component.configurator.converters.composite;
  * SOFTWARE.
  */
 
-import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
-import org.codehaus.plexus.component.configurator.ConfigurationListener;
-import org.codehaus.plexus.component.configurator.converters.AbstractConfigurationConverter;
-import org.codehaus.plexus.component.configurator.converters.ConfigurationConverter;
-import org.codehaus.plexus.component.configurator.converters.lookup.ConverterLookup;
-import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
-import org.codehaus.plexus.configuration.PlexusConfiguration;
-import org.codehaus.plexus.util.StringUtils;
-
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +34,14 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
+import org.codehaus.plexus.component.configurator.ConfigurationListener;
+import org.codehaus.plexus.component.configurator.converters.AbstractConfigurationConverter;
+import org.codehaus.plexus.component.configurator.converters.ConfigurationConverter;
+import org.codehaus.plexus.component.configurator.converters.lookup.ConverterLookup;
+import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.codehaus.plexus.util.StringUtils;
 
 /**
  * @author <a href="mailto:michal@codehaus.org">Michal Maczka</a>
@@ -51,14 +50,14 @@ import java.util.TreeSet;
 public class CollectionConverter
     extends AbstractConfigurationConverter
 {
-    public boolean canConvert( Class type )
+    public boolean canConvert( final Class type )
     {
         return Collection.class.isAssignableFrom( type ) && !Map.class.isAssignableFrom( type );
     }
 
-    public Object fromConfiguration( ConverterLookup converterLookup, PlexusConfiguration configuration, Class type,
-                                     Class baseType, ClassLoader classLoader, ExpressionEvaluator expressionEvaluator,
-                                     ConfigurationListener listener )
+    public Object fromConfiguration( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
+                                     final Class type, final Class baseType, final ClassLoader classLoader,
+                                     final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
         Object retValue = fromExpression( configuration, expressionEvaluator, type );
@@ -67,7 +66,7 @@ public class CollectionConverter
             return retValue;
         }
 
-        Class implementation = getClassForImplementationHint( null, configuration, classLoader );
+        final Class implementation = getClassForImplementationHint( null, configuration, classLoader );
 
         if ( implementation != null )
         {
@@ -76,10 +75,10 @@ public class CollectionConverter
         else
         {
             // we can have 2 cases here:
-            //  - provided collection class which is not abstract
-            //     like Vector, ArrayList, HashSet - so we will just instantantiate it
+            // - provided collection class which is not abstract
+            // like Vector, ArrayList, HashSet - so we will just instantantiate it
             // - we have an abtract class so we have to use default collection type
-            int modifiers = type.getModifiers();
+            final int modifiers = type.getModifiers();
 
             if ( Modifier.isAbstract( modifiers ) )
             {
@@ -91,17 +90,19 @@ public class CollectionConverter
                 {
                     retValue = type.newInstance();
                 }
-                catch ( IllegalAccessException e )
+                catch ( final IllegalAccessException e )
                 {
-                    String msg = "An attempt to convert configuration entry " + configuration.getName() + "' into " +
-                        type + " object failed: " + e.getMessage();
+                    final String msg =
+                        "An attempt to convert configuration entry " + configuration.getName() + "' into " + type
+                            + " object failed: " + e.getMessage();
 
                     throw new ComponentConfigurationException( msg, e );
                 }
-                catch ( InstantiationException e )
+                catch ( final InstantiationException e )
                 {
-                    String msg = "An attempt to convert configuration entry " + configuration.getName() + "' into " +
-                        type + " object failed: " + e.getMessage();
+                    final String msg =
+                        "An attempt to convert configuration entry " + configuration.getName() + "' into " + type
+                            + " object failed: " + e.getMessage();
 
                     throw new ComponentConfigurationException( msg, e );
                 }
@@ -111,12 +112,12 @@ public class CollectionConverter
 
         for ( int i = 0; i < configuration.getChildCount(); i++ )
         {
-            PlexusConfiguration c = configuration.getChild( i );
-            //Object o = null;
+            final PlexusConfiguration c = configuration.getChild( i );
+            // Object o = null;
 
-            String configEntry = c.getName();
+            final String configEntry = c.getName();
 
-            String name = fromXML( configEntry );
+            final String name = fromXML( configEntry );
 
             Class childType = getClassForImplementationHint( null, c, classLoader );
 
@@ -126,7 +127,7 @@ public class CollectionConverter
                 {
                     childType = classLoader.loadClass( name );
                 }
-                catch ( ClassNotFoundException e )
+                catch ( final ClassNotFoundException e )
                 {
                     // not found, continue processing
                 }
@@ -137,9 +138,9 @@ public class CollectionConverter
                 // Some classloaders don't create Package objects for classes
                 // so we have to resort to slicing up the class name
 
-                String baseTypeName = baseType.getName();
+                final String baseTypeName = baseType.getName();
 
-                int lastDot = baseTypeName.lastIndexOf( '.' );
+                final int lastDot = baseTypeName.lastIndexOf( '.' );
 
                 String className;
 
@@ -149,7 +150,7 @@ public class CollectionConverter
                 }
                 else
                 {
-                    String basePackage = baseTypeName.substring( 0, lastDot );
+                    final String basePackage = baseTypeName.substring( 0, lastDot );
 
                     className = basePackage + "." + StringUtils.capitalizeFirstLetter( name );
                 }
@@ -158,12 +159,13 @@ public class CollectionConverter
                 {
                     childType = classLoader.loadClass( className );
                 }
-                catch ( ClassNotFoundException e )
+                catch ( final ClassNotFoundException e )
                 {
                     if ( c.getChildCount() == 0 )
                     {
                         // If no children, try a String.
-                        // TODO: If we had generics we could try that instead - or could the component descriptor list an impl?
+                        // TODO: If we had generics we could try that instead - or could the component descriptor list
+                        // an impl?
                         childType = String.class;
                     }
                     else
@@ -173,19 +175,20 @@ public class CollectionConverter
                 }
             }
 
-            ConfigurationConverter converter = converterLookup.lookupConverterForType( childType );
+            final ConfigurationConverter converter = converterLookup.lookupConverterForType( childType );
 
-            Object object = converter.fromConfiguration( converterLookup, c, childType, baseType, classLoader,
-                                                         expressionEvaluator, listener );
+            final Object object =
+                converter.fromConfiguration( converterLookup, c, childType, baseType, classLoader, expressionEvaluator,
+                                             listener );
 
-            Collection collection = (Collection) retValue;
+            final Collection collection = (Collection) retValue;
             collection.add( object );
         }
 
         return retValue;
     }
 
-    protected Collection getDefaultCollection( Class collectionType )
+    protected Collection getDefaultCollection( final Class collectionType )
     {
         Collection retValue = null;
 

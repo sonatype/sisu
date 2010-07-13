@@ -12,8 +12,6 @@
  */
 package org.sonatype.guice.plexus.binders;
 
-import java.net.URLClassLoader;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -171,8 +169,7 @@ public class PlexusBeanMetadataTest
     {
         public void configure( final Binder binder )
         {
-            binder.withSource( "C" ).bind( DefaultBean2.class ).annotatedWith( Names.named( "2" ) ).to(
-                                                                                                        DefaultBean2.class );
+            binder.withSource( "C" ).bind( DefaultBean2.class ).annotatedWith( Names.named( "2" ) ).to( DefaultBean2.class );
         }
 
         public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
@@ -255,6 +252,6 @@ public class PlexusBeanMetadataTest
 
     static DeferredClass<?> defer( final Class<?> clazz )
     {
-        return new URLClassSpace( (URLClassLoader) TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
+        return new URLClassSpace( TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
     }
 }

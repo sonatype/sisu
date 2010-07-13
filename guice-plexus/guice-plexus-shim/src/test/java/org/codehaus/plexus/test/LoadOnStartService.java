@@ -17,10 +17,7 @@ package org.codehaus.plexus.test;
  */
 
 /**
- *
- *
  * @author Jason van Zyl
- *
  * @version $Id: LoadOnStartService.java 7089 2007-11-25 15:19:06Z jvanzyl $
  */
 public interface LoadOnStartService

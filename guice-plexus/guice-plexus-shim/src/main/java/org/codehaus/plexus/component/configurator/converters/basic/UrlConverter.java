@@ -24,10 +24,10 @@ package org.codehaus.plexus.component.configurator.converters.basic;
  * SOFTWARE.
  */
 
-import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
-
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 
 /**
  * @author <a href="mailto:brett@codehaus.org">Brett Porter</a>
@@ -35,19 +35,20 @@ import java.net.URL;
 public class UrlConverter
     extends AbstractBasicConverter
 {
-    public boolean canConvert( Class type )
+    public boolean canConvert( final Class type )
     {
         return type.equals( URL.class );
     }
 
-    public Object fromString( String str )
+    @Override
+    public Object fromString( final String str )
         throws ComponentConfigurationException
     {
         try
         {
             return new URL( str );
         }
-        catch ( MalformedURLException e )
+        catch ( final MalformedURLException e )
         {
             throw new ComponentConfigurationException( "Unable to convert '" + str + "' to an URL", e );
         }

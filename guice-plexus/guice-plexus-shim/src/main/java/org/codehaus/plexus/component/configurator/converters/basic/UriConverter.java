@@ -23,26 +23,32 @@ import org.codehaus.plexus.component.configurator.ComponentConfigurationExceptio
 
 /**
  * Converter for {@link URI} objects.
- *
+ * 
  * @version $Id: UriConverter.java 6935 2007-10-06 08:15:56Z user57 $
  */
 public class UriConverter
     extends AbstractBasicConverter
 {
-    public boolean canConvert(final Class type) {
+    public boolean canConvert( final Class type )
+    {
         assert type != null;
 
-        return type.equals(URI.class);
+        return type.equals( URI.class );
     }
 
-    public Object fromString(final String str) throws ComponentConfigurationException {
+    @Override
+    public Object fromString( final String str )
+        throws ComponentConfigurationException
+    {
         assert str != null;
 
-        try {
-            return new URI(str);
+        try
+        {
+            return new URI( str );
         }
-        catch (URISyntaxException e) {
-            throw new ComponentConfigurationException("Unable to convert to URI: " + str, e);
+        catch ( final URISyntaxException e )
+        {
+            throw new ComponentConfigurationException( "Unable to convert to URI: " + str, e );
         }
     }
 }

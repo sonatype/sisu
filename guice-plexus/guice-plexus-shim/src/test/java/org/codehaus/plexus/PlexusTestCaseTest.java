@@ -16,12 +16,13 @@ package org.codehaus.plexus;
  * limitations under the License.
  */
 
+import java.io.File;
+
 import junit.framework.TestCase;
+
 import org.codehaus.plexus.component.discovery.DiscoveredComponent;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.test.DefaultLoadOnStartService;
-
-import java.io.File;
 
 /**
  * @author <a href="mailto:jason@maven.org">Jason van Zyl</a>
@@ -32,6 +33,7 @@ public class PlexusTestCaseTest
 {
     private String basedir;
 
+    @Override
     public void setUp()
     {
         basedir = System.getProperty( "basedir" );
@@ -45,9 +47,10 @@ public class PlexusTestCaseTest
     public void testPlexusTestCase()
         throws Exception
     {
-        PlexusTestCase tc = new PlexusTestCase()
+        final PlexusTestCase tc = new PlexusTestCase()
         {
-            protected String getConfigurationName( String subname )
+            @Override
+            protected String getConfigurationName( final String subname )
             {
                 return null;
             }
@@ -61,13 +64,13 @@ public class PlexusTestCaseTest
 
             fail( "Expected ComponentLookupException." );
         }
-        catch ( ComponentLookupException ex )
+        catch ( final ComponentLookupException ex )
         {
             assertTrue( true );
         }
 
         // This component is discovered from src/test/META-INF/plexus/components.xml
-        DiscoveredComponent component = tc.lookup( DiscoveredComponent.class );
+        final DiscoveredComponent component = tc.lookup( DiscoveredComponent.class );
 
         assertNotNull( component );
 
@@ -79,8 +82,9 @@ public class PlexusTestCaseTest
     public void testLoadOnStartComponents()
         throws Exception
     {
-        PlexusTestCase tc = new PlexusTestCase()
+        final PlexusTestCase tc = new PlexusTestCase()
         {
+            @Override
             protected String getCustomConfigurationName()
             {
                 return PlexusTestCase.getTestConfiguration( getClass() );

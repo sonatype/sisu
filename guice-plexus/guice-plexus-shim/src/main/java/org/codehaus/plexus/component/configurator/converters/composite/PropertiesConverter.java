@@ -24,6 +24,8 @@ package org.codehaus.plexus.component.configurator.converters.composite;
  * SOFTWARE.
  */
 
+import java.util.Properties;
+
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.codehaus.plexus.component.configurator.ConfigurationListener;
 import org.codehaus.plexus.component.configurator.converters.AbstractConfigurationConverter;
@@ -31,46 +33,42 @@ import org.codehaus.plexus.component.configurator.converters.lookup.ConverterLoo
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
-import java.util.Properties;
-
 /**
  * Converter for <code>java.util.Properties</code>.
- *
+ * 
  * @author <a href="mailto:michal@codehaus.org">Michal Maczka</a>
  * @version $Id: PropertiesConverter.java 8516 2009-10-26 12:54:02Z bentmann $
  */
 public class PropertiesConverter
     extends AbstractConfigurationConverter
 {
-    public boolean canConvert( Class type )
+    public boolean canConvert( final Class type )
     {
         return Properties.class.isAssignableFrom( type );
     }
 
-    public Object fromConfiguration( ConverterLookup converterLookup, PlexusConfiguration configuration, Class type,
-                                     Class baseType, ClassLoader classLoader, ExpressionEvaluator expressionEvaluator,
-                                     ConfigurationListener listener )
+    public Object fromConfiguration( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
+                                     final Class type, final Class baseType, final ClassLoader classLoader,
+                                     final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
 
-        Object retValueInterpolated = fromExpression( configuration, expressionEvaluator, type );
+        final Object retValueInterpolated = fromExpression( configuration, expressionEvaluator, type );
         if ( retValueInterpolated != null )
         {
             return retValueInterpolated;
         }
 
-        String element = configuration.getName();
+        final String element = configuration.getName();
 
-        Properties retValue = new Properties();
+        final Properties retValue = new Properties();
 
-        PlexusConfiguration[] children = configuration.getChildren( "property" );
+        final PlexusConfiguration[] children = configuration.getChildren( "property" );
 
         if ( children != null && children.length > 0 )
         {
-            for ( int i = 0; i < children.length; i++ )
+            for ( final PlexusConfiguration child : children )
             {
-                PlexusConfiguration child = children[i];
-
                 addEntry( retValue, element, child, expressionEvaluator );
             }
         }
@@ -78,22 +76,22 @@ public class PropertiesConverter
         return retValue;
     }
 
-    private void addEntry( Properties properties, String element, PlexusConfiguration property,
-                           ExpressionEvaluator expressionEvaluator )
+    private void addEntry( final Properties properties, final String element, final PlexusConfiguration property,
+                           final ExpressionEvaluator expressionEvaluator )
         throws ComponentConfigurationException
     {
-        Object name = fromExpression( property.getChild( "name" ), expressionEvaluator );
+        final Object name = fromExpression( property.getChild( "name" ), expressionEvaluator );
 
         if ( name == null )
         {
-            String msg =
+            final String msg =
                 "Trying to convert the configuration element: '" + element
                     + "', missing child element 'name' for property.";
 
             throw new ComponentConfigurationException( msg );
         }
 
-        Object value = fromExpression( property.getChild( "value" ), expressionEvaluator );
+        final Object value = fromExpression( property.getChild( "value" ), expressionEvaluator );
 
         if ( value == null )
         {

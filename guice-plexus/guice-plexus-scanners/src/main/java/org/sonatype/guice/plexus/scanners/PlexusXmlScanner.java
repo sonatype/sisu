@@ -419,8 +419,9 @@ public final class PlexusXmlScanner
             fieldName = role; // use fully-qualified role as the field name (see PlexusXmlMetadata)
         }
 
-        requirementMap.put( fieldName, new RequirementImpl( space.deferLoadClass( role ), optional,
-                                                            Hints.canonicalHints( hintList ) ) );
+        requirementMap.put( fieldName,
+                            new RequirementImpl( space.deferLoadClass( role ), optional,
+                                                 Hints.canonicalHints( hintList ) ) );
     }
 
     /**

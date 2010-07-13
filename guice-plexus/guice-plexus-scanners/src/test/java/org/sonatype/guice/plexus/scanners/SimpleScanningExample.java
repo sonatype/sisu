@@ -13,7 +13,6 @@
 package org.sonatype.guice.plexus.scanners;
 
 import java.io.IOException;
-import java.net.URLClassLoader;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
@@ -23,7 +22,7 @@ public class SimpleScanningExample
     public SimpleScanningExample()
         throws IOException
     {
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) getClass().getClassLoader() );
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
         new PlexusXmlScanner( null, null, null ).scan( space, true );
     }
 }

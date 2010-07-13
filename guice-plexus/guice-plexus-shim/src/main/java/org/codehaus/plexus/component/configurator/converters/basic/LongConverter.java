@@ -24,15 +24,17 @@ package org.codehaus.plexus.component.configurator.converters.basic;
  * SOFTWARE.
  */
 
-public class LongConverter extends AbstractBasicConverter
+public class LongConverter
+    extends AbstractBasicConverter
 {
 
-    public boolean canConvert( Class type )
+    public boolean canConvert( final Class type )
     {
         return type.equals( long.class ) || type.equals( Long.class );
     }
 
-    public Object fromString( String str )
+    @Override
+    public Object fromString( final String str )
     {
         return Long.valueOf( str );
     }

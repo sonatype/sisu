@@ -160,7 +160,7 @@ public class PlexusXmlScannerTest
 
     public void testBadPlexusXml()
     {
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) PlexusXmlScannerTest.class.getClassLoader() );
+        final ClassSpace space = new URLClassSpace( PlexusXmlScannerTest.class.getClassLoader() );
 
         try
         {
@@ -176,7 +176,7 @@ public class PlexusXmlScannerTest
     public void testComponents()
         throws IOException
     {
-        final ClassSpace space = new URLClassSpace( (URLClassLoader) PlexusXmlScannerTest.class.getClassLoader() );
+        final ClassSpace space = new URLClassSpace( PlexusXmlScannerTest.class.getClassLoader() );
 
         final Map<String, PlexusBeanMetadata> metadata = new HashMap<String, PlexusBeanMetadata>();
         final PlexusXmlScanner scanner = new PlexusXmlScanner( null, null, metadata );
@@ -202,8 +202,7 @@ public class PlexusXmlScannerTest
 
         assertFalse( metadata1.isEmpty() );
 
-        assertEquals(
-                      new ConfigurationImpl( "someFieldName", "<some-field.name><item>PRIMARY</item></some-field.name>" ),
+        assertEquals( new ConfigurationImpl( "someFieldName", "<some-field.name><item>PRIMARY</item></some-field.name>" ),
                       metadata1.getConfiguration( new NamedProperty( "someFieldName" ) ) );
 
         assertEquals( new ConfigurationImpl( "simple", "value" ),
@@ -358,16 +357,14 @@ public class PlexusXmlScannerTest
 
         new PlexusXmlScanner( null, null, metadata ).scan( space, true );
 
-        assertEquals(
-                      "${some.value}",
+        assertEquals( "${some.value}",
                       metadata.get( DefaultBean.class.getName() ).getConfiguration( new NamedProperty( "variable" ) ).value() );
 
         final Map<?, ?> variables = Collections.singletonMap( "some.value", "INTERPOLATED" );
 
         new PlexusXmlScanner( variables, null, metadata ).scan( space, true );
 
-        assertEquals(
-                      "INTERPOLATED",
+        assertEquals( "INTERPOLATED",
                       metadata.get( DefaultBean.class.getName() ).getConfiguration( new NamedProperty( "variable" ) ).value() );
     }
 

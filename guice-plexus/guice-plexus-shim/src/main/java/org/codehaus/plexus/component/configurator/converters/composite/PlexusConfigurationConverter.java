@@ -31,24 +31,23 @@ import org.codehaus.plexus.component.configurator.converters.lookup.ConverterLoo
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
-
 /**
- * Converter for  <code>org.codehaus.plexus.configuration.PlexusConfiguration</code>
- *
+ * Converter for <code>org.codehaus.plexus.configuration.PlexusConfiguration</code>
+ * 
  * @author <a href="mailto:michal@codehaus.org">Michal Maczka</a>
  * @version $Id: PlexusConfigurationConverter.java 6064 2007-03-13 12:39:55Z trygvis $
  */
 public class PlexusConfigurationConverter
     extends AbstractConfigurationConverter
 {
-    public boolean canConvert( Class type )
+    public boolean canConvert( final Class type )
     {
         return PlexusConfiguration.class.isAssignableFrom( type );
     }
 
-    public Object fromConfiguration( ConverterLookup converterLookup, PlexusConfiguration configuration, Class type,
-                                     Class baseType, ClassLoader classLoader, ExpressionEvaluator expressionEvaluator,
-                                     ConfigurationListener listener )
+    public Object fromConfiguration( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
+                                     final Class type, final Class baseType, final ClassLoader classLoader,
+                                     final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
         return configuration;

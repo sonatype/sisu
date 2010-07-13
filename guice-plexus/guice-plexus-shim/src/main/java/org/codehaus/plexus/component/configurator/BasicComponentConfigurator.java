@@ -30,7 +30,6 @@ import org.codehaus.plexus.component.configurator.converters.special.ClassRealmC
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
-
 /**
  * @author Jason van Zyl
  * @author <a href="mailto:michal@codehaus.org">Michal Maczka</a>
@@ -39,11 +38,10 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 public class BasicComponentConfigurator
     extends AbstractComponentConfigurator
 {
-    public void configureComponent( Object component,
-                                    PlexusConfiguration configuration,
-                                    ExpressionEvaluator expressionEvaluator,
-                                    ClassRealm containerRealm,
-                                    ConfigurationListener listener )
+    @Override
+    public void configureComponent( final Object component, final PlexusConfiguration configuration,
+                                    final ExpressionEvaluator expressionEvaluator, final ClassRealm containerRealm,
+                                    final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
         // ----------------------------------------------------------------------
@@ -53,8 +51,9 @@ public class BasicComponentConfigurator
 
         converterLookup.registerConverter( new ClassRealmConverter( containerRealm ) );
 
-        ObjectWithFieldsConverter converter = new ObjectWithFieldsConverter();
+        final ObjectWithFieldsConverter converter = new ObjectWithFieldsConverter();
 
-        converter.processConfiguration( converterLookup, component, containerRealm, configuration, expressionEvaluator, listener );
+        converter.processConfiguration( converterLookup, component, containerRealm, configuration, expressionEvaluator,
+                                        listener );
     }
 }

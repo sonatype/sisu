@@ -15,8 +15,8 @@ package org.sonatype.guice.plexus.locators;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import junit.framework.TestCase;
 

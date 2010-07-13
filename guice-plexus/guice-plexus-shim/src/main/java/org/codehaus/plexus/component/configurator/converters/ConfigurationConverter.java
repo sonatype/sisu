@@ -30,7 +30,6 @@ import org.codehaus.plexus.component.configurator.converters.lookup.ConverterLoo
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
-
 public interface ConfigurationConverter
 {
     boolean canConvert( Class type );
@@ -44,7 +43,8 @@ public interface ConfigurationConverter
      * @param expressionEvaluator the expression evaluator to use for expressions
      * @return the object
      * @throws ComponentConfigurationException
-     * @todo a better way, instead of baseType, would be to pass in a factory for new classes that could be based from the given package
+     * @todo a better way, instead of baseType, would be to pass in a factory for new classes that could be based from
+     *       the given package
      */
     Object fromConfiguration( ConverterLookup converterLookup, PlexusConfiguration configuration, Class type,
                               Class baseType, ClassLoader classLoader, ExpressionEvaluator expressionEvaluator )
@@ -59,7 +59,8 @@ public interface ConfigurationConverter
      * @param expressionEvaluator the expression evaluator to use for expressions
      * @return the object
      * @throws ComponentConfigurationException
-     * @todo a better way, instead of baseType, would be to pass in a factory for new classes that could be based from the given package
+     * @todo a better way, instead of baseType, would be to pass in a factory for new classes that could be based from
+     *       the given package
      */
     Object fromConfiguration( ConverterLookup converterLookup, PlexusConfiguration configuration, Class type,
                               Class baseType, ClassLoader classLoader, ExpressionEvaluator expressionEvaluator,

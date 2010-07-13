@@ -67,11 +67,12 @@ public class RolesTest
         assertEquals( STRING_LITERAL, Roles.roleType( requirement( String.class ), OBJECT_LITERAL ) );
         assertEquals( STRING_LITERAL, Roles.roleType( requirement( Object.class ), STRING_LITERAL ) );
 
-        assertEquals( STRING_LITERAL, Roles.roleType( requirement( Object.class ),
-                                                      TypeLiteral.get( Types.listOf( String.class ) ) ) );
+        assertEquals( STRING_LITERAL,
+                      Roles.roleType( requirement( Object.class ), TypeLiteral.get( Types.listOf( String.class ) ) ) );
 
-        assertEquals( STRING_LITERAL, Roles.roleType( requirement( Object.class ),
-                                                      TypeLiteral.get( Types.mapOf( Object.class, String.class ) ) ) );
+        assertEquals( STRING_LITERAL,
+                      Roles.roleType( requirement( Object.class ),
+                                      TypeLiteral.get( Types.mapOf( Object.class, String.class ) ) ) );
     }
 
     private static Component component( final String hint )

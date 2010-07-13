@@ -24,6 +24,10 @@ package org.codehaus.plexus.component.configurator.converters.composite;
  * SOFTWARE.
  */
 
+import java.util.Map;
+import java.util.Properties;
+import java.util.TreeMap;
+
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.codehaus.plexus.component.configurator.ConfigurationListener;
 import org.codehaus.plexus.component.configurator.converters.AbstractConfigurationConverter;
@@ -31,27 +35,23 @@ import org.codehaus.plexus.component.configurator.converters.lookup.ConverterLoo
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
-import java.util.Map;
-import java.util.Properties;
-import java.util.TreeMap;
-
 /**
  * Converter for <code>java.util.Properties</code>.
- *
+ * 
  * @author <a href="mailto:michal@codehaus.org">Michal Maczka</a>
  * @version $Id: MapConverter.java 7285 2008-04-14 20:27:40Z jdcasey $
  */
 public class MapConverter
     extends AbstractConfigurationConverter
 {
-    public boolean canConvert( Class type )
+    public boolean canConvert( final Class type )
     {
         return Map.class.isAssignableFrom( type ) && !Properties.class.isAssignableFrom( type );
     }
 
-    public Object fromConfiguration( ConverterLookup converterLookup, PlexusConfiguration configuration, Class type,
-                                     Class baseType, ClassLoader classLoader, ExpressionEvaluator expressionEvaluator,
-                                     ConfigurationListener listener )
+    public Object fromConfiguration( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
+                                     final Class type, final Class baseType, final ClassLoader classLoader,
+                                     final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
         Object retValue;
@@ -65,15 +65,13 @@ public class MapConverter
 
         if ( expression == null )
         {
-            Map map = new TreeMap();
+            final Map map = new TreeMap();
 
-            PlexusConfiguration[] children = configuration.getChildren();
+            final PlexusConfiguration[] children = configuration.getChildren();
 
-            for ( int i = 0; i < children.length; i++ )
+            for ( final PlexusConfiguration child : children )
             {
-                PlexusConfiguration child = children[i];
-
-                String name = child.getName();
+                final String name = child.getName();
 
                 map.put( name, fromExpression( child, expressionEvaluator ) );
             }

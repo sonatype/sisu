@@ -29,30 +29,30 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class DateConverter extends AbstractBasicConverter
+public class DateConverter
+    extends AbstractBasicConverter
 {
     /***
      * @todo DateFormat is not thread safe!
      */
-    private static final DateFormat[] formats = {
-        new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.S a" ),
-        new SimpleDateFormat( "yyyy-MM-dd HH:mm:ssa" )
-    };
+    private static final DateFormat[] formats = { new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.S a" ),
+        new SimpleDateFormat( "yyyy-MM-dd HH:mm:ssa" ) };
 
-    public boolean canConvert( Class type )
+    public boolean canConvert( final Class type )
     {
         return type.equals( Date.class );
     }
 
-    public Object fromString( String str )
+    @Override
+    public Object fromString( final String str )
     {
-        for ( int i = 0; i < formats.length; i++ )
+        for ( final DateFormat format : formats )
         {
             try
             {
-                return formats[i].parse( str );
+                return format.parse( str );
             }
-            catch ( ParseException e )
+            catch ( final ParseException e )
             {
                 // no worries, let's try the next format.
             }
@@ -61,9 +61,9 @@ public class DateConverter extends AbstractBasicConverter
         return null;
     }
 
-    public String toString( Object obj )
+    public String toString( final Object obj )
     {
-        Date date = (Date) obj;
+        final Date date = (Date) obj;
         return formats[0].format( date );
     }
 

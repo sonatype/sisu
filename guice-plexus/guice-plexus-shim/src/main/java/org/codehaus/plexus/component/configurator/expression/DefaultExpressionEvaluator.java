@@ -20,7 +20,7 @@ import java.io.File;
 
 /**
  * Evaluate an expression.
- *
+ * 
  * @author <a href="mailto:brett@codehaus.org">Brett Porter</a>
  * @version $Id: DefaultExpressionEvaluator.java 4779 2006-11-23 04:09:31Z jvanzyl $
  */
@@ -29,16 +29,16 @@ public class DefaultExpressionEvaluator
 {
     /**
      * Evaluate an expression.
-     *
+     * 
      * @param expression the expression
      * @return the value of the expression
      */
-    public Object evaluate( String expression )
+    public Object evaluate( final String expression )
     {
         return expression;
     }
 
-    public File alignToBaseDirectory( File file )
+    public File alignToBaseDirectory( final File file )
     {
         return file;
     }

@@ -3,10 +3,7 @@ package org.codehaus.plexus.component.configurator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
 /**
- *
- * 
  * @author Jason van Zyl
- *
  * @version $Id: ComponentConfigurationException.java 7089 2007-11-25 15:19:06Z jvanzyl $
  */
 public class ComponentConfigurationException
@@ -14,44 +11,45 @@ public class ComponentConfigurationException
 {
     private PlexusConfiguration failedConfiguration;
 
-    public ComponentConfigurationException( String message )
+    public ComponentConfigurationException( final String message )
     {
         super( message );
     }
 
-    public ComponentConfigurationException( String message, Throwable cause )
+    public ComponentConfigurationException( final String message, final Throwable cause )
     {
         super( message, cause );
     }
 
-    public ComponentConfigurationException( Throwable cause )
+    public ComponentConfigurationException( final Throwable cause )
     {
         super( cause );
     }
-    
-    public ComponentConfigurationException( PlexusConfiguration failedConfiguration, String message )
+
+    public ComponentConfigurationException( final PlexusConfiguration failedConfiguration, final String message )
     {
         super( message );
         this.failedConfiguration = failedConfiguration;
     }
 
-    public ComponentConfigurationException( PlexusConfiguration failedConfiguration, String message, Throwable cause )
+    public ComponentConfigurationException( final PlexusConfiguration failedConfiguration, final String message,
+                                            final Throwable cause )
     {
         super( message, cause );
         this.failedConfiguration = failedConfiguration;
     }
 
-    public ComponentConfigurationException( PlexusConfiguration failedConfiguration, Throwable cause )
+    public ComponentConfigurationException( final PlexusConfiguration failedConfiguration, final Throwable cause )
     {
         super( cause );
         this.failedConfiguration = failedConfiguration;
     }
-    
-    public void setFailedConfiguration( PlexusConfiguration failedConfiguration )
+
+    public void setFailedConfiguration( final PlexusConfiguration failedConfiguration )
     {
         this.failedConfiguration = failedConfiguration;
     }
-    
+
     public PlexusConfiguration getFailedConfiguration()
     {
         return failedConfiguration;

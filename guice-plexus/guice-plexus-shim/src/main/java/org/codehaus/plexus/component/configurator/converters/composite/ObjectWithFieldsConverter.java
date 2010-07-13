@@ -24,6 +24,10 @@ package org.codehaus.plexus.component.configurator.converters.composite;
  * SOFTWARE.
  */
 
+import java.util.Collection;
+import java.util.Dictionary;
+import java.util.Map;
+
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.codehaus.plexus.component.configurator.ConfigurationListener;
 import org.codehaus.plexus.component.configurator.converters.AbstractConfigurationConverter;
@@ -32,10 +36,6 @@ import org.codehaus.plexus.component.configurator.converters.lookup.ConverterLoo
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 
-import java.util.Collection;
-import java.util.Dictionary;
-import java.util.Map;
-
 /**
  * @author <a href="mailto:michal@codehaus.org">Michal Maczka</a>
  * @version $Id: ObjectWithFieldsConverter.java 8512 2009-10-21 23:15:04Z bentmann $
@@ -43,7 +43,7 @@ import java.util.Map;
 public class ObjectWithFieldsConverter
     extends AbstractConfigurationConverter
 {
-    public boolean canConvert( Class type )
+    public boolean canConvert( final Class type )
     {
         boolean retValue = true;
 
@@ -64,13 +64,9 @@ public class ObjectWithFieldsConverter
         return retValue;
     }
 
-    public Object fromConfiguration( ConverterLookup converterLookup,
-                                     PlexusConfiguration configuration,
-                                     Class type,
-                                     Class baseType,
-                                     ClassLoader classLoader,
-                                     ExpressionEvaluator expressionEvaluator,
-                                     ConfigurationListener listener )
+    public Object fromConfiguration( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
+                                     final Class type, final Class baseType, final ClassLoader classLoader,
+                                     final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
         Object retValue = fromExpression( configuration, expressionEvaluator, type );
@@ -80,7 +76,7 @@ public class ObjectWithFieldsConverter
             try
             {
                 // it is a "composite" - we compose it from its children. It does not have a value of its own
-                Class implementation = getClassForImplementationHint( type, configuration, classLoader );
+                final Class implementation = getClassForImplementationHint( type, configuration, classLoader );
 
                 if ( type == implementation && type.isInterface() && configuration.getChildCount() <= 0 )
                 {
@@ -89,9 +85,10 @@ public class ObjectWithFieldsConverter
 
                 retValue = instantiateObject( implementation );
 
-                processConfiguration( converterLookup, retValue, classLoader, configuration, expressionEvaluator, listener );
+                processConfiguration( converterLookup, retValue, classLoader, configuration, expressionEvaluator,
+                                      listener );
             }
-            catch ( ComponentConfigurationException e )
+            catch ( final ComponentConfigurationException e )
             {
                 if ( e.getFailedConfiguration() == null )
                 {
@@ -104,43 +101,37 @@ public class ObjectWithFieldsConverter
         return retValue;
     }
 
-
-    public void processConfiguration( ConverterLookup converterLookup,
-                                      Object object,
-                                      ClassLoader classLoader,
-                                      PlexusConfiguration configuration )
+    public void processConfiguration( final ConverterLookup converterLookup, final Object object,
+                                      final ClassLoader classLoader, final PlexusConfiguration configuration )
         throws ComponentConfigurationException
     {
         processConfiguration( converterLookup, object, classLoader, configuration, null );
     }
 
-    public void processConfiguration( ConverterLookup converterLookup,
-                                      Object object,
-                                      ClassLoader classLoader,
-                                      PlexusConfiguration configuration,
-                                      ExpressionEvaluator expressionEvaluator )
+    public void processConfiguration( final ConverterLookup converterLookup, final Object object,
+                                      final ClassLoader classLoader, final PlexusConfiguration configuration,
+                                      final ExpressionEvaluator expressionEvaluator )
         throws ComponentConfigurationException
     {
         processConfiguration( converterLookup, object, classLoader, configuration, expressionEvaluator, null );
     }
 
-    public void processConfiguration( ConverterLookup converterLookup,
-                                      Object object,
-                                      ClassLoader classLoader,
-                                      PlexusConfiguration configuration,
-                                      ExpressionEvaluator expressionEvaluator,
-                                      ConfigurationListener listener )
+    public void processConfiguration( final ConverterLookup converterLookup, final Object object,
+                                      final ClassLoader classLoader, final PlexusConfiguration configuration,
+                                      final ExpressionEvaluator expressionEvaluator,
+                                      final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
-        int items = configuration.getChildCount();
+        final int items = configuration.getChildCount();
 
         for ( int i = 0; i < items; i++ )
         {
-            PlexusConfiguration childConfiguration = configuration.getChild( i );
+            final PlexusConfiguration childConfiguration = configuration.getChild( i );
 
-            String elementName = childConfiguration.getName();
+            final String elementName = childConfiguration.getName();
 
-            ComponentValueSetter valueSetter = new ComponentValueSetter( fromXML( elementName ), object, converterLookup, listener );
+            final ComponentValueSetter valueSetter =
+                new ComponentValueSetter( fromXML( elementName ), object, converterLookup, listener );
 
             valueSetter.configure( childConfiguration, classLoader, expressionEvaluator );
         }

@@ -24,6 +24,10 @@ package org.codehaus.plexus.component.configurator.converters.composite;
  * SOFTWARE.
  */
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.codehaus.plexus.component.configurator.ConfigurationListener;
 import org.codehaus.plexus.component.configurator.converters.AbstractConfigurationConverter;
@@ -33,11 +37,6 @@ import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.util.StringUtils;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.List;
-
-
 /**
  * @author <a href="mailto:kenney@codehaus.org">Kenney Westerhof</a>
  * @version $Id: ArrayConverter.java 8005 2009-01-04 19:41:09Z bentmann $
@@ -45,34 +44,34 @@ import java.util.List;
 public class ArrayConverter
     extends AbstractConfigurationConverter
 {
-    public boolean canConvert( Class type )
+    public boolean canConvert( final Class type )
     {
         return type.isArray();
     }
 
-    public Object fromConfiguration( ConverterLookup converterLookup, PlexusConfiguration configuration, Class type,
-                                     Class baseType, ClassLoader classLoader, ExpressionEvaluator expressionEvaluator,
-                                     ConfigurationListener listener )
+    public Object fromConfiguration( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
+                                     final Class type, final Class baseType, final ClassLoader classLoader,
+                                     final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
-        Object retValue = fromExpression( configuration, expressionEvaluator, type );
+        final Object retValue = fromExpression( configuration, expressionEvaluator, type );
         if ( retValue != null )
         {
             return retValue;
         }
 
-        List values = new ArrayList();
+        final List values = new ArrayList();
 
         for ( int i = 0; i < configuration.getChildCount(); i++ )
         {
-            PlexusConfiguration childConfiguration = configuration.getChild( i );
+            final PlexusConfiguration childConfiguration = configuration.getChild( i );
 
-            String configEntry = childConfiguration.getName();
+            final String configEntry = childConfiguration.getName();
 
-            String name = fromXML( configEntry );
-            
+            final String name = fromXML( configEntry );
+
             Class childType = getClassForImplementationHint( null, childConfiguration, classLoader );
-            
+
             // check if the name is a fully qualified classname
 
             if ( childType == null && name.indexOf( '.' ) > 0 )
@@ -81,7 +80,7 @@ public class ArrayConverter
                 {
                     childType = classLoader.loadClass( name );
                 }
-                catch ( ClassNotFoundException e )
+                catch ( final ClassNotFoundException e )
                 {
                     // doesn't exist - continue processing
                 }
@@ -92,9 +91,9 @@ public class ArrayConverter
                 // try to find the class in the package of the baseType
                 // (which is the component being configured)
 
-                String baseTypeName = baseType.getName();
+                final String baseTypeName = baseType.getName();
 
-                int lastDot = baseTypeName.lastIndexOf( '.' );
+                final int lastDot = baseTypeName.lastIndexOf( '.' );
 
                 String className;
 
@@ -104,18 +103,18 @@ public class ArrayConverter
                 }
                 else
                 {
-                    String basePackage = baseTypeName.substring( 0, lastDot );
+                    final String basePackage = baseTypeName.substring( 0, lastDot );
                     className = basePackage + "." + StringUtils.capitalizeFirstLetter( name );
                 }
-                
+
                 try
                 {
                     childType = classLoader.loadClass( className );
                 }
-                catch ( ClassNotFoundException e )
+                catch ( final ClassNotFoundException e )
                 {
                     // doesn't exist, continue processing
-                }                               
+                }
             }
 
             // finally just try the component type of the array
@@ -125,15 +124,11 @@ public class ArrayConverter
                 childType = type.getComponentType();
             }
 
-            ConfigurationConverter converter = converterLookup.lookupConverterForType( childType );
-            
-            Object object = converter.fromConfiguration( converterLookup, 
-                                                         childConfiguration, 
-                                                         childType, 
-                                                         baseType, 
-                                                         classLoader,
-                                                         expressionEvaluator, 
-                                                         listener );
+            final ConfigurationConverter converter = converterLookup.lookupConverterForType( childType );
+
+            final Object object =
+                converter.fromConfiguration( converterLookup, childConfiguration, childType, baseType, classLoader,
+                                             expressionEvaluator, listener );
 
             values.add( object );
         }
@@ -142,7 +137,7 @@ public class ArrayConverter
         {
             return values.toArray( (Object[]) Array.newInstance( type.getComponentType(), 0 ) );
         }
-        catch ( ArrayStoreException e )
+        catch ( final ArrayStoreException e )
         {
             throw new ComponentConfigurationException( "Cannot assign configuration values to array of type "
                 + type.getComponentType().getName() + ": " + values );

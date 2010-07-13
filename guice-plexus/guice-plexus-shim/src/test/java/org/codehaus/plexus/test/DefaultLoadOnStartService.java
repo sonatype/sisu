@@ -19,10 +19,7 @@ package org.codehaus.plexus.test;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
 
 /**
- *
- *
  * @author Jason van Zyl
- *
  * @version $Id: DefaultLoadOnStartService.java 7089 2007-11-25 15:19:06Z jvanzyl $
  */
 public class DefaultLoadOnStartService

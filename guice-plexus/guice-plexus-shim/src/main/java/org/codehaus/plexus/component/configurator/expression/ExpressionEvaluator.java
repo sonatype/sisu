@@ -20,17 +20,17 @@ import java.io.File;
 
 /**
  * Evaluate an expression.
- *
+ * 
  * @author <a href="mailto:brett@codehaus.org">Brett Porter</a>
  * @version $Id: ExpressionEvaluator.java 4779 2006-11-23 04:09:31Z jvanzyl $
  */
 public interface ExpressionEvaluator
 {
     String ROLE = ExpressionEvaluator.class.getName();
-    
+
     /**
      * Evaluate an expression.
-     *
+     * 
      * @param expression the expression
      * @return the value of the expression
      */
@@ -39,7 +39,7 @@ public interface ExpressionEvaluator
 
     /**
      * Align a given path to the base directory that can be evaluated by this expression evaluator, if known.
-     *
+     * 
      * @param file the file
      * @return the aligned file
      */

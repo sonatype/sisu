@@ -24,13 +24,13 @@ package org.codehaus.plexus.component.configurator.converters.basic;
  * SOFTWARE.
  */
 
+import java.io.File;
+
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.codehaus.plexus.component.configurator.ConfigurationListener;
 import org.codehaus.plexus.component.configurator.converters.lookup.ConverterLookup;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
-
-import java.io.File;
 
 /**
  * @author <a href="mailto:brett@codehaus.org">Brett Porter</a>
@@ -38,24 +38,27 @@ import java.io.File;
 public class FileConverter
     extends AbstractBasicConverter
 {
-    public boolean canConvert( Class type )
+    public boolean canConvert( final Class type )
     {
         return type.equals( File.class );
     }
 
+    @Override
     public Object fromString( String str )
     {
         str = str.replace( '\\', File.separatorChar ).replace( '/', File.separatorChar );
         return new File( str );
     }
 
-    public Object fromConfiguration( ConverterLookup converterLookup, PlexusConfiguration configuration, Class type,
-                                     Class baseType, ClassLoader classLoader, ExpressionEvaluator expressionEvaluator,
-                                     ConfigurationListener listener )
+    @Override
+    public Object fromConfiguration( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
+                                     final Class type, final Class baseType, final ClassLoader classLoader,
+                                     final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
-        File f = (File) super.fromConfiguration( converterLookup, configuration, type, baseType, classLoader,
-                                                 expressionEvaluator, listener );
+        final File f =
+            (File) super.fromConfiguration( converterLookup, configuration, type, baseType, classLoader,
+                                            expressionEvaluator, listener );
 
         if ( f != null )
         {

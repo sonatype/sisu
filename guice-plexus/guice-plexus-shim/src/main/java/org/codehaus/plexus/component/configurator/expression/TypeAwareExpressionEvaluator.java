@@ -18,7 +18,7 @@ package org.codehaus.plexus.component.configurator.expression;
 
 /**
  * Evaluate an expression.
- *
+ * 
  * @author <a href="mailto:brett@codehaus.org">Brett Porter</a>
  * @version $Id: TypeAwareExpressionEvaluator.java 8347 2009-08-20 17:37:19Z bentmann $
  */

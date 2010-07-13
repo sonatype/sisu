@@ -17,10 +17,7 @@ package org.codehaus.plexus.component.discovery;
  */
 
 /**
- *
- * 
  * @author Jason van Zyl
- *
  * @version $Id: DiscoveredComponent.java 7089 2007-11-25 15:19:06Z jvanzyl $
  */
 public interface DiscoveredComponent

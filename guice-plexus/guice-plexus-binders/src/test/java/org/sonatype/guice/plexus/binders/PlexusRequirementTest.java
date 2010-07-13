@@ -66,7 +66,7 @@ public class PlexusRequirementTest
             @Override
             protected void configure()
             {
-                final ClassSpace space = new URLClassSpace( (URLClassLoader) TestCase.class.getClassLoader() );
+                final ClassSpace space = new URLClassSpace( TestCase.class.getClassLoader() );
 
                 @SuppressWarnings( "unchecked" )
                 final DeferredClass<A> deferA = (DeferredClass) space.deferLoadClass( BrokenAImpl.class.getName() );
@@ -553,6 +553,6 @@ public class PlexusRequirementTest
     @SuppressWarnings( "unchecked" )
     static <S, T extends S> DeferredClass<T> defer( final Class<S> clazz )
     {
-        return (DeferredClass) new URLClassSpace( (URLClassLoader) TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
+        return (DeferredClass) new URLClassSpace( TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
     }
 }

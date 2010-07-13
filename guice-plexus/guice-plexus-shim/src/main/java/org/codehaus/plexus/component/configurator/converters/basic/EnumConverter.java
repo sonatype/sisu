@@ -38,14 +38,14 @@ public class EnumConverter
     extends AbstractConfigurationConverter
 {
 
-    public boolean canConvert( Class type )
+    public boolean canConvert( final Class type )
     {
         return type.isEnum();
     }
 
-    public Object fromConfiguration( ConverterLookup converterLookup, PlexusConfiguration configuration, Class type,
-                                     Class baseType, ClassLoader classLoader, ExpressionEvaluator expressionEvaluator,
-                                     ConfigurationListener listener )
+    public Object fromConfiguration( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
+                                     final Class type, final Class baseType, final ClassLoader classLoader,
+                                     final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
         if ( configuration.getChildCount() > 0 )
@@ -62,7 +62,7 @@ public class EnumConverter
             {
                 retValue = Enum.valueOf( type, (String) retValue );
             }
-            catch ( RuntimeException e )
+            catch ( final RuntimeException e )
             {
                 throw new ComponentConfigurationException( "Cannot assign value " + retValue + " to property "
                     + configuration.getName() + " of " + baseType.getName() + ": " + e.getMessage(), e );

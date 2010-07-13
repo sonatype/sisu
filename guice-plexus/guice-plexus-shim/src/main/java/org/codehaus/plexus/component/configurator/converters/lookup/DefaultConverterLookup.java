@@ -24,6 +24,12 @@ package org.codehaus.plexus.component.configurator.converters.lookup;
  * SOFTWARE.
  */
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.codehaus.plexus.component.configurator.converters.ConfigurationConverter;
 import org.codehaus.plexus.component.configurator.converters.basic.BooleanConverter;
@@ -48,12 +54,6 @@ import org.codehaus.plexus.component.configurator.converters.composite.ObjectWit
 import org.codehaus.plexus.component.configurator.converters.composite.PlexusConfigurationConverter;
 import org.codehaus.plexus.component.configurator.converters.composite.PropertiesConverter;
 
-import java.util.List;
-import java.util.Map;
-import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 public class DefaultConverterLookup
     implements ConverterLookup
 {
@@ -61,7 +61,8 @@ public class DefaultConverterLookup
 
     private final List<ConfigurationConverter> customConverters = new CopyOnWriteArrayList<ConfigurationConverter>();
 
-    private final Map<Class<?>, ConfigurationConverter> converterMap = new ConcurrentHashMap<Class<?>, ConfigurationConverter>();
+    private final Map<Class<?>, ConfigurationConverter> converterMap =
+        new ConcurrentHashMap<Class<?>, ConfigurationConverter>();
 
     public DefaultConverterLookup()
     {
@@ -70,17 +71,17 @@ public class DefaultConverterLookup
         registerDefaultCompositeConverters();
     }
 
-    public synchronized void registerConverter( ConfigurationConverter converter )
+    public synchronized void registerConverter( final ConfigurationConverter converter )
     {
         customConverters.add( converter );
     }
 
-    protected void registerDefaultConverter( ConfigurationConverter converter )
+    protected void registerDefaultConverter( final ConfigurationConverter converter )
     {
         converters.add( converter );
     }
 
-    public ConfigurationConverter lookupConverterForType( Class<?> type )
+    public ConfigurationConverter lookupConverterForType( final Class<?> type )
         throws ComponentConfigurationException
     {
         ConfigurationConverter retValue = converterMap.get( type );
@@ -109,9 +110,10 @@ public class DefaultConverterLookup
         return retValue;
     }
 
-    private ConfigurationConverter findConverterForType( List<ConfigurationConverter> converters, Class<?> type )
+    private ConfigurationConverter findConverterForType( final List<ConfigurationConverter> converters,
+                                                         final Class<?> type )
     {
-        for ( ConfigurationConverter converter : converters )
+        for ( final ConfigurationConverter converter : converters )
         {
             if ( converter.canConvert( type ) )
             {
@@ -121,7 +123,6 @@ public class DefaultConverterLookup
 
         return null;
     }
-
 
     private void registerDefaultBasicConverters()
     {
@@ -172,7 +173,7 @@ public class DefaultConverterLookup
         registerDefaultConverter( new ObjectWithFieldsConverter() );
     }
 
-    void setCustomConverters( List<ConfigurationConverter> c )
+    void setCustomConverters( final List<ConfigurationConverter> c )
     {
         customConverters.addAll( c );
     }
