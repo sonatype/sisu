@@ -107,9 +107,9 @@ final class ImportBinder
      * @param key The dependency key
      */
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private void bindMapImport( final Key key )
+    private void bindMapImport( final Key<?> key )
     {
-        final TypeLiteral[] parameters = TypeParameters.get( key.getTypeLiteral() );
+        final TypeLiteral<?>[] parameters = TypeParameters.get( key.getTypeLiteral() );
         if ( 2 == parameters.length && null == key.getAnnotation() )
         {
             final Class qualifierType = parameters[0].getRawType();
@@ -135,9 +135,9 @@ final class ImportBinder
      * @param key The dependency key
      */
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private void bindListImport( final Key key )
+    private void bindListImport( final Key<?> key )
     {
-        final TypeLiteral[] parameters = TypeParameters.get( key.getTypeLiteral() );
+        final TypeLiteral<?>[] parameters = TypeParameters.get( key.getTypeLiteral() );
         if ( 1 == parameters.length && null == key.getAnnotation() )
         {
             final Type bindingType = parameters[0].getType();
@@ -150,24 +150,23 @@ final class ImportBinder
      * 
      * @param key The dependency key
      */
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private void bindBeanImport( final Key key )
+    private <T> void bindBeanImport( final Key<T> key )
     {
         final Annotation qualifier = key.getAnnotation();
         final String name = qualifier instanceof Named ? ( (Named) qualifier ).value() : "CUSTOM";
         if ( name.contains( "${" ) )
         {
-            binder.bind( key ).toProvider( new PlaceholderBeanProvider( key ) );
+            binder.bind( key ).toProvider( new PlaceholderBeanProvider<T>( key ) );
         }
         else if ( name.length() == 0 )
         {
             // special case for wildcard @Named dependencies: match any @Named bean regardless of actual name
-            binder.bind( key ).toProvider( new BeanProvider( Key.get( key.getTypeLiteral(), Named.class ) ) );
+            binder.bind( key ).toProvider( new BeanProvider<T>( Key.get( key.getTypeLiteral(), Named.class ) ) );
         }
         else if ( !isImplicit( key ) )
         {
             // avoid messing with any unqualified implicit bindings
-            binder.bind( key ).toProvider( new BeanProvider( key ) );
+            binder.bind( key ).toProvider( new BeanProvider<T>( key ) );
         }
     }
 

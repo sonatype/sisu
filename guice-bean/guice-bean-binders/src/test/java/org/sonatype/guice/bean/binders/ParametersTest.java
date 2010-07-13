@@ -55,7 +55,7 @@ public class ParametersTest
         Guice.createInjector( new WireModule( new AbstractModule()
         {
             @Override
-            @SuppressWarnings( { "rawtypes", "unchecked" } )
+            @SuppressWarnings( { "unchecked", "rawtypes" } )
             protected void configure()
             {
                 bind( ParametersTest.class );

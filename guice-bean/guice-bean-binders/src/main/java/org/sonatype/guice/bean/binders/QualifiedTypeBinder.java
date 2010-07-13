@@ -106,16 +106,16 @@ public final class QualifiedTypeBinder
      * @param mediatorType The mediator type
      */
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private void registerMediator( final Class<Mediator> mediatorType )
+    private <Q, T, W> void registerMediator( final Class<Mediator<Q, T, W>> mediatorType )
     {
-        final TypeLiteral[] params = getSuperTypeParameters( mediatorType, Mediator.class );
+        final TypeLiteral<?>[] params = getSuperTypeParameters( mediatorType, Mediator.class );
         if ( params.length != 3 )
         {
             binder.addError( mediatorType + " has wrong number of type arguments" );
         }
         else
         {
-            Mediator mediator = newInstance( mediatorType );
+            Mediator<Q, T, W> mediator = newInstance( mediatorType );
             if ( null != mediator )
             {
                 Class qualifierType = params[0].getRawType();
@@ -125,7 +125,7 @@ public final class QualifiedTypeBinder
                     mediator = new NamedMediatorAdapter( mediator );
                     qualifierType = Named.class;
                 }
-                mediate( Key.get( params[1], qualifierType ), mediator, params[2].getRawType() );
+                mediate( Key.get( params[1], qualifierType ), mediator, (Class<W>) params[2].getRawType() );
             }
         }
     }
@@ -133,12 +133,11 @@ public final class QualifiedTypeBinder
     /**
      * Uses the given mediator to mediate updates between the {@link BeanLocator} and associated watchers.
      * 
-     * @param watchedKey The watched key
+     * @param key The watched key
      * @param mediator The bean mediator
      * @param watcherType The watcher type
      */
-    @SuppressWarnings( "rawtypes" )
-    private void mediate( final Key watchedKey, final Mediator mediator, final Class watcherType )
+    private <Q, T, W> void mediate( final Key<T> key, final Mediator<Q, T, W> mediator, final Class<W> watcherType )
     {
         if ( null == beanListener )
         {
@@ -146,7 +145,7 @@ public final class QualifiedTypeBinder
             binder.bindListener( Matchers.any(), beanListener );
             binder.requestInjection( beanListener );
         }
-        beanListener.mediate( watchedKey, mediator, watcherType );
+        beanListener.mediate( key, mediator, watcherType );
     }
 
     /**

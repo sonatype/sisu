@@ -29,15 +29,14 @@ import com.google.inject.spi.TypeListener;
 /**
  * {@link InjectionListener} that listens for mediated watchers and registers them with the {@link BeanLocator}.
  */
-@SuppressWarnings( { "unchecked", "rawtypes" } )
 final class BeanListener
-    implements TypeListener, InjectionListener
+    implements TypeListener, InjectionListener<Object>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final List<Mediation> mediation = new ArrayList<Mediation>();
+    private final List<Mediation<?, ?, ?>> mediation = new ArrayList<Mediation<?, ?, ?>>();
 
     @Inject
     private BeanLocator locator;
@@ -49,18 +48,18 @@ final class BeanListener
     /**
      * Adds a {@link Mediation} record containing the necessary details about a mediated watcher.
      * 
-     * @param watchedKey The watched key
+     * @param key The watched key
      * @param mediator The bean mediator
      * @param watcherType The watcher type
      */
-    public void mediate( final Key watchedKey, final Mediator mediator, final Class watcherType )
+    public <Q, T, W> void mediate( final Key<T> key, final Mediator<Q, T, W> mediator, final Class<W> watcherType )
     {
-        mediation.add( new Mediation( watchedKey, mediator, watcherType ) );
+        mediation.add( new Mediation<Q, T, W>( key, mediator, watcherType ) );
     }
 
-    public void hear( final TypeLiteral type, final TypeEncounter encounter )
+    public <T> void hear( final TypeLiteral<T> type, final TypeEncounter<T> encounter )
     {
-        for ( final Mediation m : mediation )
+        for ( final Mediation<?, ?, ?> m : mediation )
         {
             if ( m.watcherType.isAssignableFrom( type.getRawType() ) )
             {
@@ -69,6 +68,7 @@ final class BeanListener
         }
     }
 
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     public void afterInjection( final Object watcher )
     {
         for ( final Mediation m : mediation )
@@ -87,23 +87,23 @@ final class BeanListener
     /**
      * Record containing all the necessary details about a mediated watcher.
      */
-    private static final class Mediation
+    private static final class Mediation<Q, T, W>
     {
         // ----------------------------------------------------------------------
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        final Key watchedKey;
+        final Key<T> watchedKey;
 
-        final Mediator mediator;
+        final Mediator<Q, T, W> mediator;
 
-        final Class watcherType;
+        final Class<W> watcherType;
 
         // ----------------------------------------------------------------------
         // Constructors
         // ----------------------------------------------------------------------
 
-        Mediation( final Key watchedKey, final Mediator mediator, final Class watcherType )
+        Mediation( final Key<T> watchedKey, final Mediator<Q, T, W> mediator, final Class<W> watcherType )
         {
             this.watchedKey = watchedKey;
             this.mediator = mediator;
