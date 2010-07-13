@@ -36,6 +36,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 /**
  * @version $Id: AbstractBasicConverter.java 8514 2009-10-22 10:25:03Z bentmann $
  */
+@SuppressWarnings( "rawtypes" )
 public abstract class AbstractBasicConverter
     extends AbstractConfigurationConverter
 {

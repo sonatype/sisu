@@ -38,6 +38,7 @@ public class DateConverter
     private static final DateFormat[] formats = { new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss.S a" ),
         new SimpleDateFormat( "yyyy-MM-dd HH:mm:ssa" ) };
 
+    @SuppressWarnings( "rawtypes" )
     public boolean canConvert( final Class type )
     {
         return type.equals( Date.class );

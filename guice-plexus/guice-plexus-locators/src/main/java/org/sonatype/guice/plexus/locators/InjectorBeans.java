@@ -88,7 +88,7 @@ final class InjectorBeans<T>
      * @param role The Plexus role
      * @param hints The Plexus hints
      */
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     InjectorBeans( final Injector injector, final TypeLiteral<T> role, final String[] hints )
     {
         super( hints.length ); // minimize memory usage

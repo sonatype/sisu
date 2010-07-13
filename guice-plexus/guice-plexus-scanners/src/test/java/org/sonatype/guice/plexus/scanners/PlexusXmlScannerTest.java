@@ -58,7 +58,7 @@ public class PlexusXmlScannerTest
             type = TypeLiteral.get( Object.class );
         }
 
-        @SuppressWarnings( "unchecked" )
+        @SuppressWarnings( { "unchecked", "rawtypes" } )
         public NamedProperty( final String name, final TypeLiteral type )
         {
             this.name = name;
@@ -116,7 +116,7 @@ public class PlexusXmlScannerTest
             }
         }
 
-        @SuppressWarnings( "unchecked" )
+        @SuppressWarnings( { "unchecked", "rawtypes" } )
         public DeferredClass<?> deferLoadClass( final String name )
         {
             return new LoadedClass( loadClass( name ) );
@@ -173,6 +173,7 @@ public class PlexusXmlScannerTest
         }
     }
 
+    @SuppressWarnings( "deprecation" )
     public void testComponents()
         throws IOException
     {
@@ -262,7 +263,7 @@ public class PlexusXmlScannerTest
             }
         }
 
-        @SuppressWarnings( "unchecked" )
+        @SuppressWarnings( "rawtypes" )
         public DeferredClass<?> deferLoadClass( final String name )
         {
             return new DeferredClass()

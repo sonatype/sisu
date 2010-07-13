@@ -34,6 +34,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 /**
  * @author Benjamin Bentmann
  */
+@SuppressWarnings( "rawtypes" )
 public class EnumConverter
     extends AbstractConfigurationConverter
 {
@@ -43,6 +44,7 @@ public class EnumConverter
         return type.isEnum();
     }
 
+    @SuppressWarnings( "unchecked" )
     public Object fromConfiguration( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
                                      final Class type, final Class baseType, final ClassLoader classLoader,
                                      final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )

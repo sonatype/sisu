@@ -71,10 +71,13 @@ public final class RequirementImpl
         }
     }
 
-    @SuppressWarnings( "unchecked" )
+    /**
+     * For testing purposes only.
+     */
+    @Deprecated
     public RequirementImpl( final Class<?> role, final boolean optional, final String... hints )
     {
-        this( null != role ? new LoadedClass( role ) : null, optional, null != hints ? Arrays.asList( hints ) : null );
+        this( new LoadedClass<Object>( role ), optional, Arrays.asList( hints ) );
     }
 
     // ----------------------------------------------------------------------

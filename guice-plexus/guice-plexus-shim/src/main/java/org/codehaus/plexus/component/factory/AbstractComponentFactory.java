@@ -15,17 +15,17 @@ import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
 
+@SuppressWarnings( "rawtypes" )
 public abstract class AbstractComponentFactory
     implements ComponentFactory
 {
-    @SuppressWarnings( "unchecked" )
     public Object newInstance( final ComponentDescriptor cd, final ClassRealm realm, final PlexusContainer container )
         throws ComponentInstantiationException
     {
         return newInstance( cd, ClassRealmAdapter.getInstance( realm ), container );
     }
 
-    @SuppressWarnings( { "unchecked", "unused" } )
+    @SuppressWarnings( "unused" )
     protected Object newInstance( final ComponentDescriptor cd, final org.codehaus.classworlds.ClassRealm realm,
                                   final PlexusContainer container )
         throws ComponentInstantiationException

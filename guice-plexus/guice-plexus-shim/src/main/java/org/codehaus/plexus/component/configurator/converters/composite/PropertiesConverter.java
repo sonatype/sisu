@@ -39,6 +39,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
  * @author <a href="mailto:michal@codehaus.org">Michal Maczka</a>
  * @version $Id: PropertiesConverter.java 8516 2009-10-26 12:54:02Z bentmann $
  */
+@SuppressWarnings( "rawtypes" )
 public class PropertiesConverter
     extends AbstractConfigurationConverter
 {

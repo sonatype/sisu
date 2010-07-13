@@ -29,6 +29,7 @@ package org.codehaus.plexus.component.configurator.converters.basic;
  */
 public interface Converter
 {
+    @SuppressWarnings( "rawtypes" )
     boolean canConvert( Class type );
 
     /**

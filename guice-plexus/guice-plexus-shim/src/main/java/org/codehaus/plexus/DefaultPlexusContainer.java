@@ -69,6 +69,7 @@ import com.google.inject.name.Names;
 /**
  * {@link PlexusContainer} shim that delegates to a Plexus-aware Guice {@link Injector}.
  */
+@SuppressWarnings( { "unchecked", "rawtypes" } )
 public final class DefaultPlexusContainer
     implements MutablePlexusContainer
 {
@@ -115,7 +116,6 @@ public final class DefaultPlexusContainer
     // Constructors
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
     public DefaultPlexusContainer( final ContainerConfiguration configuration )
         throws PlexusContainerException
     {
@@ -229,10 +229,9 @@ public final class DefaultPlexusContainer
         return hasComponent( role, Hints.DEFAULT_HINT );
     }
 
-    @SuppressWarnings( "unchecked" )
-    public boolean hasComponent( final Class<?> role, final String hint )
+    public boolean hasComponent( final Class role, final String hint )
     {
-        final Iterator<PlexusBean> i = (Iterator) locate( role, hint ).iterator();
+        final Iterator<PlexusBean<?>> i = locate( role, hint ).iterator();
         return i.hasNext() && i.next().getImplementationClass() != null;
     }
 
@@ -251,7 +250,6 @@ public final class DefaultPlexusContainer
         plexusBeanLocator.add( Guice.createInjector( new AbstractModule()
         {
             @Override
-            @SuppressWarnings( "unchecked" )
             protected void configure()
             {
                 if ( Hints.isDefaultHint( hint ) )
@@ -300,7 +298,6 @@ public final class DefaultPlexusContainer
         return null;
     }
 
-    @SuppressWarnings( "unchecked" )
     public List getComponentDescriptorList( final String role )
     {
         return getComponentDescriptorList( loadRoleClass( role ), role );
@@ -526,7 +523,6 @@ public final class DefaultPlexusContainer
         return url;
     }
 
-    @SuppressWarnings( "unchecked" )
     private <T> Class<T> loadRoleClass( final Class<T> type, final String role )
     {
         return null != type && role.equals( type.getName() ) ? type : (Class) loadRoleClass( role );
@@ -538,7 +534,6 @@ public final class DefaultPlexusContainer
      * @param role The Plexus role
      * @return Plexus role class
      */
-    @SuppressWarnings( "unchecked" )
     private Class<Object> loadRoleClass( final String role )
     {
         Throwable exception = null;
@@ -676,7 +671,6 @@ public final class DefaultPlexusContainer
          * @param role The Plexus role
          * @return Plexus role type
          */
-        @SuppressWarnings( "unchecked" )
         Class loadClassFromCaller( final String role )
             throws ClassNotFoundException
         {

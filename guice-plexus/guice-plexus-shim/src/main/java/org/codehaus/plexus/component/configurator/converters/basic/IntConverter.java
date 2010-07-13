@@ -29,7 +29,7 @@ import org.codehaus.plexus.component.configurator.ComponentConfigurationExceptio
 public class IntConverter
     extends AbstractBasicConverter
 {
-
+    @SuppressWarnings( "rawtypes" )
     public boolean canConvert( final Class type )
     {
         return type.equals( int.class ) || type.equals( Integer.class );

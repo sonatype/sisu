@@ -9,6 +9,8 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 public class ComponentConfigurationException
     extends Exception
 {
+    private static final long serialVersionUID = 1L;
+
     private PlexusConfiguration failedConfiguration;
 
     public ComponentConfigurationException( final String message )

@@ -64,7 +64,7 @@ final class PlexusLifecycleManager
             || Disposable.class.isAssignableFrom( clazz );
     }
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     public PropertyBinding manage( final BeanProperty property )
     {
         final Class clazz = property.getType().getRawType();
@@ -72,6 +72,7 @@ final class PlexusLifecycleManager
         {
             return new PropertyBinding()
             {
+                @SuppressWarnings( "unchecked" )
                 public <B> void injectProperty( final B bean )
                 {
                     property.set( bean, org.slf4j.LoggerFactory.getLogger( bean.getClass() ) );
@@ -82,6 +83,7 @@ final class PlexusLifecycleManager
         {
             return new PropertyBinding()
             {
+                @SuppressWarnings( "unchecked" )
                 public <B> void injectProperty( final B bean )
                 {
                     property.set( bean, getLogger( bean.getClass().getName() ) );

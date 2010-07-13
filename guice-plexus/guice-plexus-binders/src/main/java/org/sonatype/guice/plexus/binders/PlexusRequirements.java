@@ -61,13 +61,13 @@ final class PlexusRequirements
      * @param property The bean property
      * @return Provider that provides required Plexus components for the given property
      */
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     public <T> Provider<T> lookup( final Requirement requirement, final BeanProperty<T> property )
     {
         // deduce lookup from metadata + property details
-        final TypeLiteral expectedType = property.getType();
-        final TypeLiteral<T> roleType = (TypeLiteral) Roles.roleType( requirement, expectedType );
-        final Class rawType = expectedType.getRawType();
+        final TypeLiteral<T> expectedType = property.getType();
+        final TypeLiteral<T> roleType = (TypeLiteral<T>) Roles.roleType( requirement, expectedType );
+        final Class<?> rawType = expectedType.getRawType();
 
         final String[] hints = Hints.canonicalHints( requirement );
 

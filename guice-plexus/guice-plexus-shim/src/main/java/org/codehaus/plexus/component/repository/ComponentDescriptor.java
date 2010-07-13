@@ -96,7 +96,7 @@ public class ComponentDescriptor<T>
         implementationClass = null;
     }
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     public final void setImplementationClass( final Class implementationClass )
     {
         this.implementationClass = implementationClass;
@@ -190,7 +190,7 @@ public class ComponentDescriptor<T>
                 throw new TypeNotPresentException( implementation, e );
             }
         }
-        return (Class) implementationClass;
+        return (Class<T>) implementationClass;
     }
 
     public final String getComponentComposer()

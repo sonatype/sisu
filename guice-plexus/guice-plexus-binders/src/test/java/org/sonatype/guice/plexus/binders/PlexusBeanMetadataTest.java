@@ -196,6 +196,7 @@ public class PlexusBeanMetadataTest
                         return false;
                     }
 
+                    @SuppressWarnings( "deprecation" )
                     public Requirement getRequirement( final BeanProperty<?> property )
                     {
                         if ( "extraMetadata".equals( property.getName() ) )

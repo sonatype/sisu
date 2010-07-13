@@ -24,6 +24,7 @@ import org.codehaus.plexus.component.configurator.ComponentConfigurationExceptio
 public class ClassConverter
     extends AbstractBasicConverter
 {
+    @SuppressWarnings( "rawtypes" )
     public boolean canConvert( final Class type )
     {
         return type.equals( Class.class );

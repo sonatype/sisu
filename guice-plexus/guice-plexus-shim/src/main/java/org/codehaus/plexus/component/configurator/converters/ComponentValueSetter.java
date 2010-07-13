@@ -28,6 +28,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.util.ReflectionUtils;
 
 /** @author <a href="mailto:kenney@codehaus.org">Kenney Westerhof</a> */
+@SuppressWarnings( "rawtypes" )
 public class ComponentValueSetter
 {
     private final Object object;

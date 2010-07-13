@@ -150,6 +150,7 @@ public abstract class PlexusTestCase
         return getConfiguration( null );
     }
 
+    @SuppressWarnings( "unused" )
     protected InputStream getConfiguration( final String subname )
         throws Exception
     {
@@ -227,6 +228,7 @@ public abstract class PlexusTestCase
         return new File( getBasedir(), path );
     }
 
+    @SuppressWarnings( "hiding" )
     public static File getTestFile( final String basedir, final String path )
     {
         File basedirFile = new File( basedir );
@@ -244,6 +246,7 @@ public abstract class PlexusTestCase
         return getTestFile( path ).getAbsolutePath();
     }
 
+    @SuppressWarnings( "hiding" )
     public static String getTestPath( final String basedir, final String path )
     {
         return getTestFile( basedir, path ).getAbsolutePath();

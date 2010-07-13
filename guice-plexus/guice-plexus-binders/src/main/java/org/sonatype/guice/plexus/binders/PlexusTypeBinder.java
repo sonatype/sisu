@@ -66,12 +66,12 @@ public final class PlexusTypeBinder
         }
     }
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     public void hear( final Component component, final DeferredClass<?> clazz )
     {
         final Key roleKey = Roles.componentKey( component );
         final String strategy = component.instantiationStrategy();
-        final Class role = component.role();
+        final Class<?> role = component.role();
         final ScopedBindingBuilder sbb;
 
         final Binder binder = componentBinder( component.description() );

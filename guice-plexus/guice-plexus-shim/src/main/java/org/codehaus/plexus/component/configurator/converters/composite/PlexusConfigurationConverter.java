@@ -37,6 +37,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
  * @author <a href="mailto:michal@codehaus.org">Michal Maczka</a>
  * @version $Id: PlexusConfigurationConverter.java 6064 2007-03-13 12:39:55Z trygvis $
  */
+@SuppressWarnings( "rawtypes" )
 public class PlexusConfigurationConverter
     extends AbstractConfigurationConverter
 {

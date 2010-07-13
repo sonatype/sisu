@@ -35,6 +35,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 /**
  * @author <a href="mailto:brett@codehaus.org">Brett Porter</a>
  */
+@SuppressWarnings( "rawtypes" )
 public class FileConverter
     extends AbstractBasicConverter
 {
@@ -44,10 +45,9 @@ public class FileConverter
     }
 
     @Override
-    public Object fromString( String str )
+    public Object fromString( final String str )
     {
-        str = str.replace( '\\', File.separatorChar ).replace( '/', File.separatorChar );
-        return new File( str );
+        return new File( str.replace( '\\', File.separatorChar ).replace( '/', File.separatorChar ) );
     }
 
     @Override
@@ -65,9 +65,7 @@ public class FileConverter
             // Hmmm... is this cheating? Can't think of a better way right now
             return expressionEvaluator.alignToBaseDirectory( f );
         }
-        else
-        {
-            return null;
-        }
+
+        return null;
     }
 }

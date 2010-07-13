@@ -35,6 +35,7 @@ import org.codehaus.plexus.component.configurator.ComponentConfigurationExceptio
 public class UrlConverter
     extends AbstractBasicConverter
 {
+    @SuppressWarnings( "rawtypes" )
     public boolean canConvert( final Class type )
     {
         return type.equals( URL.class );

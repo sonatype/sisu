@@ -47,6 +47,7 @@ public class PlexusAnnotatedBeanMetadataTest
         String dummy2;
     }
 
+    @SuppressWarnings( "deprecation" )
     public void testRawAnnotations()
     {
         final PlexusBeanMetadata metadata = new PlexusAnnotatedMetadata( null );
@@ -69,6 +70,7 @@ public class PlexusAnnotatedBeanMetadataTest
         assertNull( requirement2 );
     }
 
+    @SuppressWarnings( "deprecation" )
     public void testInterpolatedAnnotations()
     {
         final Map<?, ?> variables = Collections.singletonMap( "some.value", "INTERPOLATED" );

@@ -80,7 +80,6 @@ public class ComponentSetDescriptor
         return buf.append( "---" ).toString();
     }
 
-    @SuppressWarnings( "unused" )
     public final void setId( final String id )
     {
     }

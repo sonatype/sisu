@@ -18,7 +18,7 @@ public interface ComponentFactory
 {
     String getId();
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( "rawtypes" )
     Object newInstance( ComponentDescriptor cd, ClassRealm realm, PlexusContainer container )
         throws ComponentInstantiationException;
 }

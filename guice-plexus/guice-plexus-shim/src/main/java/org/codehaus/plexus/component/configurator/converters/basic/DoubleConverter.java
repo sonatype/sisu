@@ -27,7 +27,7 @@ package org.codehaus.plexus.component.configurator.converters.basic;
 public class DoubleConverter
     extends AbstractBasicConverter
 {
-
+    @SuppressWarnings( "rawtypes" )
     public boolean canConvert( final Class type )
     {
         return type.equals( double.class ) || type.equals( Double.class );

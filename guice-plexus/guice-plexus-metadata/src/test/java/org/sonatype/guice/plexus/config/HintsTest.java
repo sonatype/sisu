@@ -76,6 +76,7 @@ public class HintsTest
         assertTrue( "Expected: " + Arrays.toString( a ) + "but was: " + Arrays.toString( b ), Arrays.equals( a, b ) );
     }
 
+    @SuppressWarnings( "deprecation" )
     private static Requirement requirement( final String... hints )
     {
         return new RequirementImpl( Object.class, true, hints );

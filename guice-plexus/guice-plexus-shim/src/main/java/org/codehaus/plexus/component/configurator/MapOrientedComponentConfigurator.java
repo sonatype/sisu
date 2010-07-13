@@ -42,6 +42,7 @@ public class MapOrientedComponentConfigurator
 
         final MapConverter converter = new MapConverter();
 
+        @SuppressWarnings( "rawtypes" )
         final Map context =
             (Map) converter.fromConfiguration( converterLookup, configuration, null, null, containerRealm,
                                                expressionEvaluator, listener );

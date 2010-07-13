@@ -117,7 +117,7 @@ final class ComponentDescriptorBeanSource
             this.hint = hint;
         }
 
-        @SuppressWarnings( "unchecked" )
+        @SuppressWarnings( { "unchecked", "rawtypes" } )
         public Class load()
             throws TypeNotPresentException
         {

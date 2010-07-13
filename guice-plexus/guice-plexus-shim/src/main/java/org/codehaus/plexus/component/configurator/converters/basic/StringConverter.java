@@ -27,6 +27,7 @@ package org.codehaus.plexus.component.configurator.converters.basic;
 public class StringConverter
     extends AbstractBasicConverter
 {
+    @SuppressWarnings( "rawtypes" )
     public boolean canConvert( final Class type )
     {
         return type.equals( String.class );

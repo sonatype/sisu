@@ -80,6 +80,7 @@ public class RolesTest
         return new ComponentImpl( Object.class, hint, Strategies.PER_LOOKUP, "" );
     }
 
+    @SuppressWarnings( "deprecation" )
     private static Requirement requirement( final Class<?> role )
     {
         return new RequirementImpl( role, false );

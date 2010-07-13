@@ -35,6 +35,7 @@ import org.codehaus.plexus.util.StringUtils;
  * @author <a href="mailto:michal@codehaus.org">Michal Maczka</a>
  * @version $Id: AbstractConfigurationConverter.java 7890 2008-11-29 17:14:01Z jvanzyl $
  */
+@SuppressWarnings( "rawtypes" )
 public abstract class AbstractConfigurationConverter
     implements ConfigurationConverter
 {
@@ -147,6 +148,7 @@ public abstract class AbstractConfigurationConverter
         return StringUtils.addAndDeHump( fieldName );
     }
 
+    @SuppressWarnings( "unchecked" )
     protected Object fromExpression( final PlexusConfiguration configuration,
                                      final ExpressionEvaluator expressionEvaluator, final Class type )
         throws ComponentConfigurationException

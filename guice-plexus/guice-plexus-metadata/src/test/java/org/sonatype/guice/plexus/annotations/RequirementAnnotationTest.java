@@ -101,29 +101,11 @@ public class RequirementAnnotationTest
         return RequirementAnnotationTest.class.getDeclaredField( name ).getAnnotation( Requirement.class );
     }
 
+    @SuppressWarnings( "deprecation" )
     private static Requirement replicate( final Requirement orig )
     {
         final String h = orig.hint();
 
         return new RequirementImpl( orig.role(), orig.optional(), h.length() > 0 ? new String[] { h } : orig.hints() );
-    }
-
-    public void testNullChecks()
-    {
-        checkNullNotAllowed( null );
-        checkNullNotAllowed( Object.class, (String[]) null );
-        checkNullNotAllowed( Object.class, new String[] { null } );
-    }
-
-    private static void checkNullNotAllowed( final Class<?> role, final String... hints )
-    {
-        try
-        {
-            new RequirementImpl( role, false, hints );
-            fail( "Expected IllegalArgumentException" );
-        }
-        catch ( final IllegalArgumentException e )
-        {
-        }
     }
 }

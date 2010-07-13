@@ -27,7 +27,7 @@ package org.codehaus.plexus.component.configurator.converters.basic;
 public class LongConverter
     extends AbstractBasicConverter
 {
-
+    @SuppressWarnings( "rawtypes" )
     public boolean canConvert( final Class type )
     {
         return type.equals( long.class ) || type.equals( Long.class );

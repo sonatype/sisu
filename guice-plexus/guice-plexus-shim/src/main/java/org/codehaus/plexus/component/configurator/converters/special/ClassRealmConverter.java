@@ -15,6 +15,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
  * 
  * @author <a href="mailto:kenney@neonics.com">Kenney Westerhof</a>
  */
+@SuppressWarnings( "rawtypes" )
 public class ClassRealmConverter
     extends AbstractConfigurationConverter
 {

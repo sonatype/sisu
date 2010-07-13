@@ -27,6 +27,7 @@ public interface MapOrientedComponent
     void addComponentRequirement( ComponentRequirement requirementDescriptor, Object requirementValue )
         throws ComponentConfigurationException;
 
+    @SuppressWarnings( "rawtypes" )
     void setComponentConfiguration( Map componentConfiguration )
         throws ComponentConfigurationException;
 

@@ -98,7 +98,7 @@ public class CollectionConstantTest
         assertEquals( Arrays.asList( "cat", "dog", "aardvark" ), animals );
     }
 
-    @SuppressWarnings( { "boxing", "unchecked" } )
+    @SuppressWarnings( { "unchecked", "boxing" } )
     public void testPrimitiveCollection()
     {
         assertEquals( Arrays.asList( Arrays.asList( 1, 2 ), Arrays.asList( 3, 4 ), Arrays.asList( 5, 6 ) ), numbers );

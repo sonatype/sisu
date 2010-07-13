@@ -105,7 +105,7 @@ final class LazyPlexusBean<T>
     /**
      * {@link BindingTargetVisitor} that deduces the implementation class for a given {@link Binding}.
      */
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     static final class DeferredTargetVisitor<T, V>
         extends DefaultBindingTargetVisitor<T, V>
     {

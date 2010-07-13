@@ -145,7 +145,7 @@ public final class Roles
     @SuppressWarnings( "unchecked" )
     public static <T> Key<T> componentKey( final TypeLiteral<T> role, final String hint )
     {
-        return (Key) componentKey( role.getRawType(), hint );
+        return (Key<T>) componentKey( role.getRawType(), hint );
     }
 
     /**

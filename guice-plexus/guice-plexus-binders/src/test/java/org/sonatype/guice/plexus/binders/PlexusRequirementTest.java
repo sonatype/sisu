@@ -64,12 +64,12 @@ public class PlexusRequirementTest
         Guice.createInjector( new AbstractModule()
         {
             @Override
+            @SuppressWarnings( "unchecked" )
             protected void configure()
             {
                 final ClassSpace space = new URLClassSpace( TestCase.class.getClassLoader() );
 
-                @SuppressWarnings( "unchecked" )
-                final DeferredClass<A> deferA = (DeferredClass) space.deferLoadClass( BrokenAImpl.class.getName() );
+                final DeferredClass<A> deferA = (DeferredClass<A>) space.deferLoadClass( BrokenAImpl.class.getName() );
 
                 install( new PlexusDateTypeConverter() );
 
@@ -93,9 +93,8 @@ public class PlexusRequirementTest
                         binder.bind( Alpha.class ).to( AlphaImpl.class ).in( Scopes.SINGLETON );
                         binder.bind( Omega.class ).to( OmegaImpl.class ).in( Scopes.SINGLETON );
 
-                        @SuppressWarnings( "unchecked" )
                         final DeferredClass<Gamma> gammaProvider =
-                            (DeferredClass) space.deferLoadClass( "some-broken-class" ).asProvider();
+                            (DeferredClass<Gamma>) space.deferLoadClass( "some-broken-class" ).asProvider();
 
                         binder.bind( Gamma.class ).toProvider( gammaProvider.asProvider() ).in( Scopes.SINGLETON );
                     }
@@ -553,6 +552,6 @@ public class PlexusRequirementTest
     @SuppressWarnings( "unchecked" )
     static <S, T extends S> DeferredClass<T> defer( final Class<S> clazz )
     {
-        return (DeferredClass) new URLClassSpace( TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
+        return (DeferredClass<T>) new URLClassSpace( TestCase.class.getClassLoader() ).deferLoadClass( clazz.getName() );
     }
 }

@@ -68,7 +68,6 @@ abstract class AbstractPlexusBeans<T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
     public final synchronized Iterator<PlexusBean<T>> iterator()
     {
         if ( null == cachedBeans || Thread.currentThread().getContextClassLoader() != cachedTCCL )
@@ -80,7 +79,7 @@ abstract class AbstractPlexusBeans<T>
             }
             else
             {
-                cachedBeans = sequenceBeans( Collections.EMPTY_LIST );
+                cachedBeans = sequenceBeans( Collections.<InjectorBeans<T>> emptyList() );
             }
         }
         return cachedBeans.iterator();

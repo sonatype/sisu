@@ -41,6 +41,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
  * @author <a href="mailto:michal@codehaus.org">Michal Maczka</a>
  * @version $Id: MapConverter.java 7285 2008-04-14 20:27:40Z jdcasey $
  */
+@SuppressWarnings( "rawtypes" )
 public class MapConverter
     extends AbstractConfigurationConverter
 {
@@ -49,6 +50,7 @@ public class MapConverter
         return Map.class.isAssignableFrom( type ) && !Properties.class.isAssignableFrom( type );
     }
 
+    @SuppressWarnings( "unchecked" )
     public Object fromConfiguration( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
                                      final Class type, final Class baseType, final ClassLoader classLoader,
                                      final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )

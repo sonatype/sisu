@@ -64,7 +64,7 @@ public final class PlexusXmlBeanConverter
     // Public methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     public Object convert( final TypeLiteral role, final String value )
     {
         if ( value.trim().startsWith( "<" ) )

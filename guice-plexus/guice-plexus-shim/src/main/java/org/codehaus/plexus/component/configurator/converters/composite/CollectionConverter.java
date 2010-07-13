@@ -47,6 +47,7 @@ import org.codehaus.plexus.util.StringUtils;
  * @author <a href="mailto:michal@codehaus.org">Michal Maczka</a>
  * @version $Id: CollectionConverter.java 8004 2009-01-04 18:39:40Z bentmann $
  */
+@SuppressWarnings( { "unchecked", "rawtypes" } )
 public class CollectionConverter
     extends AbstractConfigurationConverter
 {

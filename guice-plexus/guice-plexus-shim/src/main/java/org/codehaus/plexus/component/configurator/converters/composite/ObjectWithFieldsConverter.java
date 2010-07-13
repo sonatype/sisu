@@ -40,6 +40,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
  * @author <a href="mailto:michal@codehaus.org">Michal Maczka</a>
  * @version $Id: ObjectWithFieldsConverter.java 8512 2009-10-21 23:15:04Z bentmann $
  */
+@SuppressWarnings( "rawtypes" )
 public class ObjectWithFieldsConverter
     extends AbstractConfigurationConverter
 {

@@ -41,6 +41,7 @@ import org.codehaus.plexus.util.StringUtils;
  * @author <a href="mailto:kenney@codehaus.org">Kenney Westerhof</a>
  * @version $Id: ArrayConverter.java 8005 2009-01-04 19:41:09Z bentmann $
  */
+@SuppressWarnings( "rawtypes" )
 public class ArrayConverter
     extends AbstractConfigurationConverter
 {
@@ -49,6 +50,7 @@ public class ArrayConverter
         return type.isArray();
     }
 
+    @SuppressWarnings( "unchecked" )
     public Object fromConfiguration( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
                                      final Class type, final Class baseType, final ClassLoader classLoader,
                                      final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )

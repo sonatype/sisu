@@ -110,8 +110,8 @@ public class DefaultConverterLookup
         return retValue;
     }
 
-    private ConfigurationConverter findConverterForType( final List<ConfigurationConverter> converters,
-                                                         final Class<?> type )
+    private static ConfigurationConverter findConverterForType( final List<ConfigurationConverter> converters,
+                                                                final Class<?> type )
     {
         for ( final ConfigurationConverter converter : converters )
         {

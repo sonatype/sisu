@@ -29,6 +29,7 @@ import org.codehaus.plexus.component.configurator.ComponentConfigurationExceptio
 public class UriConverter
     extends AbstractBasicConverter
 {
+    @SuppressWarnings( "rawtypes" )
     public boolean canConvert( final Class type )
     {
         assert type != null;

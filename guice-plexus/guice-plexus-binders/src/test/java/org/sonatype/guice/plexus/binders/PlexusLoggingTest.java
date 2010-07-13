@@ -42,13 +42,14 @@ public class PlexusLoggingTest
             return false;
         }
 
-        @SuppressWarnings( "unchecked" )
+        @SuppressWarnings( "rawtypes" )
         public PropertyBinding manage( final BeanProperty property )
         {
             if ( Logger.class.equals( property.getType().getRawType() ) )
             {
                 return new PropertyBinding()
                 {
+                    @SuppressWarnings( "unchecked" )
                     public <B> void injectProperty( final B bean )
                     {
                         property.set( bean, LoggerFactory.getLogger( bean.getClass() ) );
