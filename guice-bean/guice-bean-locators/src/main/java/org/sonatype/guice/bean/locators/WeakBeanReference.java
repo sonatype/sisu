@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import java.lang.annotation.Annotation;
 import java.lang.ref.WeakReference;
 
 import javax.inject.Provider;
@@ -19,15 +20,15 @@ import javax.inject.Provider;
 /**
  * {@link WeakReference} that can also act as a {@link Provider} of qualified beans.
  */
-final class WeakBeanReference
-    extends WeakReference<QualifiedBeans<?, ?>>
-    implements Provider<QualifiedBeans<?, ?>>
+final class WeakBeanReference<Q extends Annotation, T>
+    extends WeakReference<QualifiedBeans<Q, T>>
+    implements Provider<QualifiedBeans<Q, T>>
 {
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    WeakBeanReference( final QualifiedBeans<?, ?> beans )
+    WeakBeanReference( final QualifiedBeans<Q, T> beans )
     {
         super( beans );
     }

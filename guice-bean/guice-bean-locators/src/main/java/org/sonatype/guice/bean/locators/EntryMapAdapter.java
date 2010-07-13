@@ -69,10 +69,10 @@ public final class EntryMapAdapter<K, V>
         // Constructors
         // ----------------------------------------------------------------------
 
-        @SuppressWarnings( { "unchecked", "rawtypes" } )
-        EntrySet( final Iterable iterable )
+        @SuppressWarnings( "unchecked" )
+        EntrySet( final Iterable<? extends Entry<K, V>> iterable )
         {
-            this.iterable = iterable;
+            this.iterable = (Iterable<Entry<K, V>>) iterable;
         }
 
         // ----------------------------------------------------------------------

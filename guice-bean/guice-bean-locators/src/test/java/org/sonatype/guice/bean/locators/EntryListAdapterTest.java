@@ -49,8 +49,8 @@ public class EntryListAdapterTest
 
     public void testEmptyList()
     {
-        @SuppressWarnings( "unchecked" )
-        final ListIterator<String> i = new EntryListAdapter<Integer, String>( Collections.EMPTY_LIST ).listIterator( 0 );
+        final ListIterator<String> i =
+            new EntryListAdapter<Integer, String>( Collections.<Entry<Integer, String>> emptyList() ).listIterator( 0 );
 
         assertFalse( i.hasNext() );
         assertEquals( 0, i.nextIndex() );

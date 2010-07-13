@@ -38,7 +38,8 @@ public final class DefaultBeanLocator
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final List<Provider<QualifiedBeans<?, ?>>> exposedBeans = new ArrayList<Provider<QualifiedBeans<?, ?>>>();
+    private final List<Provider<? extends QualifiedBeans<?, ?>>> exposedBeans =
+        new ArrayList<Provider<? extends QualifiedBeans<?, ?>>>();
 
     private final Set<Injector> injectors = new LinkedHashSet<Injector>();
 
@@ -49,14 +50,14 @@ public final class DefaultBeanLocator
     public synchronized <Q extends Annotation, T> Iterable<QualifiedBean<Q, T>> locate( final Key<T> key )
     {
         final QualifiedBeans<Q, T> beans = initialize( new QualifiedBeans<Q, T>( key ) );
-        exposedBeans.add( new WeakBeanReference( beans ) );
+        exposedBeans.add( new WeakBeanReference<Q, T>( beans ) );
         return beans;
     }
 
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
-    public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )
+    public synchronized <Q extends Annotation, T, W> void watch( final Key<T> key, final Mediator<Q, T, W> mediator,
+                                                                 final W watcher )
     {
-        exposedBeans.add( initialize( new WatchedBeans( key, mediator, watcher ) ) );
+        exposedBeans.add( initialize( new WatchedBeans<Q, T, W>( key, mediator, watcher ) ) );
     }
 
     @Inject

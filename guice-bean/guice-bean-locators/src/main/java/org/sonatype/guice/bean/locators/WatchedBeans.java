@@ -107,13 +107,13 @@ final class WatchedBeans<Q extends Annotation, T, W>
     /**
      * Enumerate the various bean events that can be sent via the {@link Mediator}.
      */
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
     private static enum BeanEvent
     {
         ADD
         {
             @Override
-            public void send( final Mediator mediator, final QualifiedBean bean, final Object watcher )
+            public <Q extends Annotation, T, W> void send( final Mediator<Q, T, W> mediator,
+                                                           final QualifiedBean<Q, T> bean, final W watcher )
                 throws Exception
             {
                 mediator.add( bean.getKey(), bean, watcher );
@@ -122,14 +122,16 @@ final class WatchedBeans<Q extends Annotation, T, W>
         REMOVE
         {
             @Override
-            public void send( final Mediator mediator, final QualifiedBean bean, final Object watcher )
+            public <Q extends Annotation, T, W> void send( final Mediator<Q, T, W> mediator,
+                                                           final QualifiedBean<Q, T> bean, final W watcher )
                 throws Exception
             {
                 mediator.remove( bean.getKey(), bean, watcher );
             }
         };
 
-        abstract void send( final Mediator mediator, QualifiedBean bean, Object watcher )
+        public abstract <Q extends Annotation, T, W> void send( final Mediator<Q, T, W> mediator,
+                                                                QualifiedBean<Q, T> bean, W watcher )
             throws Exception;
     }
 

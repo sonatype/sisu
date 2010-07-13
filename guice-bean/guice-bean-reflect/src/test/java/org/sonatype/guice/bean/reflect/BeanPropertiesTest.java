@@ -34,7 +34,6 @@ import junit.framework.TestCase;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Types;
 
-@SuppressWarnings( "unused" )
 public class BeanPropertiesTest
     extends TestCase
 {
@@ -92,6 +91,7 @@ public class BeanPropertiesTest
         {
         }
 
+        @SuppressWarnings( "unused" )
         private void setName( final String name )
         {
         }
@@ -159,7 +159,6 @@ public class BeanPropertiesTest
         public abstract void setId( T id );
     }
 
-    @SuppressWarnings( "synthetic-access" )
     static class H
         extends IBase<String>
     {
@@ -169,7 +168,7 @@ public class BeanPropertiesTest
 
         static class Internal
         {
-            private String m_id;
+            String m_id;
         }
 
         @Override
@@ -250,7 +249,8 @@ public class BeanPropertiesTest
 
     public void testInterface()
     {
-        for ( final BeanProperty<?> bp : new BeanProperties( A.class ) )
+        for ( @SuppressWarnings( "unused" )
+        final BeanProperty<?> bp : new BeanProperties( A.class ) )
         {
             fail( "Expected no bean properties" );
         }
@@ -258,7 +258,8 @@ public class BeanPropertiesTest
 
     public void testEmptyClass()
     {
-        for ( final BeanProperty<?> bp : new BeanProperties( B.class ) )
+        for ( @SuppressWarnings( "unused" )
+        final BeanProperty<?> bp : new BeanProperties( B.class ) )
         {
             fail( "Expected no bean properties" );
         }
@@ -308,7 +309,8 @@ public class BeanPropertiesTest
 
     public void testSkipInvalidSetters()
     {
-        for ( final BeanProperty<?> bp : new BeanProperties( E.class ) )
+        for ( @SuppressWarnings( "unused" )
+        final BeanProperty<?> bp : new BeanProperties( E.class ) )
         {
             fail( "Expected no bean properties" );
         }
@@ -447,7 +449,6 @@ public class BeanPropertiesTest
     }
 
     public void testSetterNames()
-        throws NoSuchMethodException
     {
         assertFalse( new BeanProperties( L.class ).iterator().hasNext() );
         assertFalse( new BeanProperties( M.class ).iterator().hasNext() );
