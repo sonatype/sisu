@@ -300,7 +300,7 @@ public class QualifiedTypesTest
         public void configure( final Binder binder )
         {
             final QualifiedTypeListener listener = new QualifiedTypeBinder( binder );
-            listener.hear( Names.named( "interface" ), A.class );
+            listener.hear( Names.named( "interface" ), A.class, null );
         }
     }
 
@@ -342,13 +342,13 @@ public class QualifiedTypesTest
         {
             final QualifiedTypeListener listener = new QualifiedTypeBinder( binder );
 
-            listener.hear( Names.named( "ambiguous" ), Ambiguous.class );
+            listener.hear( Names.named( "ambiguous" ), Ambiguous.class, null );
 
-            listener.hear( Names.named( "raw" ), RawMediator.class );
+            listener.hear( Names.named( "raw" ), RawMediator.class, null );
 
-            listener.hear( Names.named( "abstract" ), AbstractNamedMediator.class );
-            listener.hear( Names.named( "abstract" ), AbstractStringMediator.class );
-            listener.hear( Names.named( "abstract" ), AbstractModule.class );
+            listener.hear( Names.named( "abstract" ), AbstractNamedMediator.class, null );
+            listener.hear( Names.named( "abstract" ), AbstractStringMediator.class, null );
+            listener.hear( Names.named( "abstract" ), AbstractModule.class, null );
         }
     }
 

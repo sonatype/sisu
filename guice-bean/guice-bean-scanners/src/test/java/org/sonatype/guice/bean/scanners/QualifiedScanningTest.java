@@ -87,7 +87,7 @@ public class QualifiedScanningTest
     {
         final List<String> ids = new ArrayList<String>();
 
-        public void hear( final Annotation qualifier, final Class<?> clazz )
+        public void hear( final Annotation qualifier, final Class<?> clazz, final Object source )
         {
             ids.add( qualifier + ":" + clazz );
         }

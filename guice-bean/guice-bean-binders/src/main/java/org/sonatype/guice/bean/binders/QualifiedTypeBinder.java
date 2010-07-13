@@ -66,7 +66,7 @@ public final class QualifiedTypeBinder
     // ----------------------------------------------------------------------
 
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    public void hear( final Annotation qualifier, final Class qualifiedType )
+    public void hear( final Annotation qualifier, final Class qualifiedType, final Object source )
     {
         if ( Module.class.isAssignableFrom( qualifiedType ) )
         {
@@ -78,7 +78,7 @@ public final class QualifiedTypeBinder
         }
         else
         {
-            bindQualifiedType( qualifier, qualifiedType );
+            bindQualifiedType( qualifier, qualifiedType, null != source ? binder.withSource( source ) : binder );
         }
     }
 
@@ -154,9 +154,10 @@ public final class QualifiedTypeBinder
      * 
      * @param qualifier The qualifier
      * @param qualifiedType The qualified type
+     * @param binder The type binder
      */
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private void bindQualifiedType( final Annotation qualifier, final Class<?> qualifiedType )
+    private static void bindQualifiedType( final Annotation qualifier, final Class<?> qualifiedType, final Binder binder )
     {
         final boolean isEagerSingleton = qualifiedType.isAnnotationPresent( EagerSingleton.class );
         if ( isEagerSingleton )
@@ -164,7 +165,7 @@ public final class QualifiedTypeBinder
             binder.bind( qualifiedType ).asEagerSingleton();
         }
         final Annotation normalizedQualifier = normalize( qualifier, qualifiedType );
-        for ( final Class bindingType : getBindingTypes( qualifiedType ) )
+        for ( final Class bindingType : getBindingTypes( qualifiedType, binder ) )
         {
             if ( null != normalizedQualifier )
             {
@@ -219,9 +220,10 @@ public final class QualifiedTypeBinder
      * Determines the binding types to be used for the given qualified type.
      * 
      * @param qualifiedType The qualified type
+     * @param binder The type binder
      * @return Array of binding types
      */
-    private Class<?>[] getBindingTypes( final Class<?> qualifiedType )
+    private static Class<?>[] getBindingTypes( final Class<?> qualifiedType, final Binder binder )
     {
         if ( qualifiedType.isInterface() )
         {

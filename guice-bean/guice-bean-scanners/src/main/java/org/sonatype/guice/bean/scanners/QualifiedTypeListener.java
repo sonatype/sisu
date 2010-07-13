@@ -24,8 +24,9 @@ public interface QualifiedTypeListener
     /**
      * Invoked when the {@link QualifiedTypeVisitor} finds a qualified type.
      * 
-     * @param qualifier The qualifier annotation
+     * @param qualifier The qualifier
      * @param qualifiedType The qualified type
+     * @param source The source of this type
      */
-    void hear( Annotation qualifier, Class<?> qualifiedType );
+    void hear( Annotation qualifier, Class<?> qualifiedType, Object source );
 }

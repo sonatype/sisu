@@ -54,7 +54,7 @@ public final class PlexusTypeBinder
     // Public methods
     // ----------------------------------------------------------------------
 
-    public void hear( final Annotation qualifier, final Class<?> qualifiedType )
+    public void hear( final Annotation qualifier, final Class<?> qualifiedType, final Object source )
     {
         if ( Component.class == qualifier.annotationType() )
         {
@@ -62,7 +62,7 @@ public final class PlexusTypeBinder
         }
         else
         {
-            qualifiedTypeBinder.hear( qualifier, qualifiedType );
+            qualifiedTypeBinder.hear( qualifier, qualifiedType, source );
         }
     }
 
