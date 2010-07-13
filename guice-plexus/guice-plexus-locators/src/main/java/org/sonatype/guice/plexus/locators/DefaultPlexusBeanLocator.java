@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.sonatype.guice.plexus.config.MutablePlexusBeanLocator;
+import org.sonatype.guice.plexus.config.PlexusBean;
 
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
@@ -47,7 +48,7 @@ public final class DefaultPlexusBeanLocator
     // Public methods
     // ----------------------------------------------------------------------
 
-    public synchronized <T> Iterable<Bean<T>> locate( final TypeLiteral<T> role, final String... hints )
+    public synchronized <T> Iterable<PlexusBean<T>> locate( final TypeLiteral<T> role, final String... hints )
     {
         final PlexusBeans<T> beans;
         if ( hints.length == 0 )

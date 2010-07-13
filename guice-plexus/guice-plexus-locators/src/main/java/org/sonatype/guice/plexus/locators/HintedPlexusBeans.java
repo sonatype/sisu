@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+import org.sonatype.guice.plexus.config.PlexusBean;
 
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
@@ -57,23 +57,23 @@ final class HintedPlexusBeans<T>
     }
 
     @Override
-    List<PlexusBeanLocator.Bean<T>> sequenceBeans( final List<InjectorBeans<T>> beans )
+    List<PlexusBean<T>> sequenceBeans( final List<InjectorBeans<T>> beans )
     {
         // compile map of all known visible beans at this particular moment (can't build this map ahead of time)
-        final Map<String, PlexusBeanLocator.Bean<T>> beanMap = new HashMap<String, PlexusBeanLocator.Bean<T>>();
+        final Map<String, PlexusBean<T>> beanMap = new HashMap<String, PlexusBean<T>>();
         for ( int i = 0, size = beans.size(); i < size; i++ )
         {
-            for ( final PlexusBeanLocator.Bean<T> b : beans.get( i ) )
+            for ( final PlexusBean<T> b : beans.get( i ) )
             {
                 beanMap.put( b.getKey(), b ); // later injector bindings overlay earlier ones
             }
         }
 
         // "copy-on-read" - select hinted beans from above map
-        final List<PlexusBeanLocator.Bean<T>> hintedBeans = new ArrayList<PlexusBeanLocator.Bean<T>>( hints.length );
+        final List<PlexusBean<T>> hintedBeans = new ArrayList<PlexusBean<T>>( hints.length );
         for ( final String hint : hints )
         {
-            final PlexusBeanLocator.Bean<T> bean = beanMap.get( hint );
+            final PlexusBean<T> bean = beanMap.get( hint );
             hintedBeans.add( null != bean ? bean : new MissingPlexusBean<T>( role, hint ) );
         }
         return hintedBeans;

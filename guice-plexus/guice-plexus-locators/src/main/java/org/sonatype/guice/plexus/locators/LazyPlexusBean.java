@@ -20,7 +20,7 @@ import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.DeferredProvider;
 import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.plexus.config.Hints;
-import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+import org.sonatype.guice.plexus.config.PlexusBean;
 
 import com.google.inject.Binding;
 import com.google.inject.Key;
@@ -36,7 +36,7 @@ import com.google.inject.spi.ProviderInstanceBinding;
  * {@link Entry} representing a lazy @{@link Named} Plexus bean; the bean is only retrieved when the value is requested.
  */
 final class LazyPlexusBean<T>
-    implements PlexusBeanLocator.Bean<T>
+    implements PlexusBean<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields

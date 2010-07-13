@@ -19,8 +19,8 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import javax.inject.Qualifier;
 
@@ -29,7 +29,7 @@ import junit.framework.TestCase;
 import org.sonatype.guice.bean.locators.HiddenSource;
 import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.plexus.config.Hints;
-import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+import org.sonatype.guice.plexus.config.PlexusBean;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
@@ -203,8 +203,7 @@ public class InjectorBeansTest
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to(
-                                                                                                         DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
@@ -361,8 +360,7 @@ public class InjectorBeansTest
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to(
-                                                                                                         DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
@@ -579,8 +577,7 @@ public class InjectorBeansTest
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to(
-                                                                                                         DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
@@ -742,8 +739,7 @@ public class InjectorBeansTest
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H1" ) ).to( ABean.class );
                 hiddenBinder.bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "H2" ) ).to( ABean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
-                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to(
-                                                                                                         DefaultBean.class );
+                bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( Hints.DEFAULT_HINT ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "" ) ).to( DefaultBean.class );
                 bind( ImplicitDefaultBean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
@@ -886,8 +882,7 @@ public class InjectorBeansTest
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).toInstance( new CBean() );
                 try
                 {
-                    bind( Bean.class ).annotatedWith( Names.named( "D" ) ).toConstructor(
-                                                                                          DefaultBean.class.getDeclaredConstructor() );
+                    bind( Bean.class ).annotatedWith( Names.named( "D" ) ).toConstructor( DefaultBean.class.getDeclaredConstructor() );
                 }
                 catch ( final NoSuchMethodException e )
                 {
@@ -903,10 +898,9 @@ public class InjectorBeansTest
             }
         } );
 
-        final Iterable<PlexusBeanLocator.Bean<Bean>> roles =
-            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+        final Iterable<PlexusBean<Bean>> roles = new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
-        Iterator<PlexusBeanLocator.Bean<Bean>> i;
+        Iterator<PlexusBean<Bean>> i;
 
         i = roles.iterator();
         assertEquals( "A", i.next().getKey() );
@@ -938,10 +932,9 @@ public class InjectorBeansTest
             }
         } );
 
-        final Iterable<PlexusBeanLocator.Bean<Bean>> roles =
-            new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
+        final Iterable<PlexusBean<Bean>> roles = new InjectorBeans<Bean>( injector, TypeLiteral.get( Bean.class ) );
 
-        final Iterator<PlexusBeanLocator.Bean<Bean>> i = roles.iterator();
+        final Iterator<PlexusBean<Bean>> i = roles.iterator();
         assertEquals( "some sort of descriptive text", i.next().getDescription() );
         assertNull( i.next().getDescription() );
 

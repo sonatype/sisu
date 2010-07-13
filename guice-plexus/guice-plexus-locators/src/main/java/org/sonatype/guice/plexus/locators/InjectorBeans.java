@@ -19,7 +19,7 @@ import java.util.Map;
 
 import org.sonatype.guice.bean.locators.HiddenSource;
 import org.sonatype.guice.plexus.config.Hints;
-import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+import org.sonatype.guice.plexus.config.PlexusBean;
 import org.sonatype.guice.plexus.config.Roles;
 
 import com.google.inject.Binding;
@@ -32,7 +32,7 @@ import com.google.inject.name.Named;
  * {@link List} of Plexus beans with the same type from the same {@link Injector}.
  */
 final class InjectorBeans<T>
-    extends ArrayList<PlexusBeanLocator.Bean<T>>
+    extends ArrayList<PlexusBean<T>>
 {
     // ----------------------------------------------------------------------
     // Constants

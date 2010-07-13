@@ -15,7 +15,7 @@ package org.sonatype.guice.plexus.locators;
 import java.util.Map.Entry;
 
 import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+import org.sonatype.guice.plexus.config.PlexusBean;
 import org.sonatype.guice.plexus.config.Roles;
 
 import com.google.inject.TypeLiteral;
@@ -25,7 +25,7 @@ import com.google.inject.name.Named;
  * {@link Entry} representing a missing @{@link Named} Plexus bean.
  */
 final class MissingPlexusBean<T>
-    implements PlexusBeanLocator.Bean<T>
+    implements PlexusBean<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields

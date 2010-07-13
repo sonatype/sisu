@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+import org.sonatype.guice.plexus.config.PlexusBean;
 
 import com.google.inject.Binding;
 import com.google.inject.Injector;
@@ -60,7 +60,7 @@ abstract class AbstractPlexusBeans<T>
 
     private List<InjectorBeans<T>> trackedBeans;
 
-    private List<PlexusBeanLocator.Bean<T>> cachedBeans;
+    private List<PlexusBean<T>> cachedBeans;
 
     private ClassLoader cachedTCCL;
 
@@ -69,7 +69,7 @@ abstract class AbstractPlexusBeans<T>
     // ----------------------------------------------------------------------
 
     @SuppressWarnings( "unchecked" )
-    public final synchronized Iterator<PlexusBeanLocator.Bean<T>> iterator()
+    public final synchronized Iterator<PlexusBean<T>> iterator()
     {
         if ( null == cachedBeans || Thread.currentThread().getContextClassLoader() != cachedTCCL )
         {
@@ -130,7 +130,7 @@ abstract class AbstractPlexusBeans<T>
 
     abstract InjectorBeans<T> lookupInjectorBeans( final Injector injector );
 
-    abstract List<PlexusBeanLocator.Bean<T>> sequenceBeans( final List<InjectorBeans<T>> beans );
+    abstract List<PlexusBean<T>> sequenceBeans( final List<InjectorBeans<T>> beans );
 
     // ----------------------------------------------------------------------
     // Implementation methods
@@ -192,7 +192,7 @@ abstract class AbstractPlexusBeans<T>
      * @param visibleRealms Set of visible class realms
      * @return List of visible Plexus beans
      */
-    private final List<PlexusBeanLocator.Bean<T>> getVisibleBeans( final Set<ClassRealm> visibleRealms )
+    private final List<PlexusBean<T>> getVisibleBeans( final Set<ClassRealm> visibleRealms )
     {
         if ( visibleRealms.isEmpty() )
         {

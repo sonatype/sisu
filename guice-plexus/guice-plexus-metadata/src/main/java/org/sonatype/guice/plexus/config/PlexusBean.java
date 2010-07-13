@@ -12,21 +12,23 @@
  */
 package org.sonatype.guice.plexus.config;
 
-import com.google.inject.ImplementedBy;
-import com.google.inject.TypeLiteral;
+import java.util.Map.Entry;
+
+import org.sonatype.guice.bean.reflect.DeferredClass;
 
 /**
- * Service that locates beans of various types, using optional Plexus hints as a guide.
+ * Plexus bean mapping; from hint->instance.
  */
-@ImplementedBy( MutablePlexusBeanLocator.class )
-public interface PlexusBeanLocator
+public interface PlexusBean<T>
+    extends Entry<String, T>
 {
     /**
-     * Locates beans of the given type, optionally filtered using the given named hints.
-     * 
-     * @param role The expected bean type
-     * @param hints The optional hints
-     * @return Sequence of Plexus bean mappings; ordered according to the given hints
+     * @return Human readable bean description
      */
-    <T> Iterable<PlexusBean<T>> locate( TypeLiteral<T> role, String... hints );
+    String getDescription();
+
+    /**
+     * @return Deferred implementation class
+     */
+    DeferredClass<T> getImplementationClass();
 }

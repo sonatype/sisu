@@ -50,8 +50,8 @@ import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.binders.PlexusXmlBeanSource;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.MutablePlexusBeanLocator;
+import org.sonatype.guice.plexus.config.PlexusBean;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
-import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
@@ -232,7 +232,7 @@ public final class DefaultPlexusContainer
     @SuppressWarnings( "unchecked" )
     public boolean hasComponent( final Class<?> role, final String hint )
     {
-        final Iterator<PlexusBeanLocator.Bean> i = (Iterator) locate( role, hint ).iterator();
+        final Iterator<PlexusBean> i = (Iterator) locate( role, hint ).iterator();
         return i.hasNext() && i.next().getImplementationClass() != null;
     }
 
@@ -292,7 +292,7 @@ public final class DefaultPlexusContainer
 
     public <T> ComponentDescriptor<T> getComponentDescriptor( final Class<T> type, final String role, final String hint )
     {
-        final Iterator<PlexusBeanLocator.Bean<T>> i = locate( loadRoleClass( type, role ), hint ).iterator();
+        final Iterator<PlexusBean<T>> i = locate( loadRoleClass( type, role ), hint ).iterator();
         if ( i.hasNext() )
         {
             return newComponentDescriptor( i.next() );
@@ -309,7 +309,7 @@ public final class DefaultPlexusContainer
     public <T> List<ComponentDescriptor<T>> getComponentDescriptorList( final Class<T> type, final String role )
     {
         final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
-        for ( final PlexusBeanLocator.Bean<T> bean : locate( loadRoleClass( type, role ) ) )
+        for ( final PlexusBean<T> bean : locate( loadRoleClass( type, role ) ) )
         {
             tempList.add( newComponentDescriptor( bean ) );
         }
@@ -600,12 +600,12 @@ public final class DefaultPlexusContainer
      * @param hints The Plexus hints
      * @return Instances of the given role; ordered according to the given hints
      */
-    private <T> Iterable<PlexusBeanLocator.Bean<T>> locate( final Class<T> role, final String... hints )
+    private <T> Iterable<PlexusBean<T>> locate( final Class<T> role, final String... hints )
     {
         return plexusBeanLocator.locate( TypeLiteral.get( role ), hints );
     }
 
-    private <T> ComponentDescriptor<T> newComponentDescriptor( final PlexusBeanLocator.Bean<T> bean )
+    private <T> ComponentDescriptor<T> newComponentDescriptor( final PlexusBean<T> bean )
     {
         final DeferredClass<T> clazz = bean.getImplementationClass();
         final ComponentDescriptor<T> cd = new ComponentDescriptor<T>();

@@ -12,7 +12,7 @@
  */
 package org.sonatype.guice.plexus.locators;
 
-import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+import org.sonatype.guice.plexus.config.PlexusBean;
 
 import com.google.inject.Injector;
 
@@ -20,7 +20,7 @@ import com.google.inject.Injector;
  * Dynamic {@link Iterable} sequence of beans backed by bindings from zero or more {@link Injector}s.
  */
 interface PlexusBeans<T>
-    extends Iterable<PlexusBeanLocator.Bean<T>>
+    extends Iterable<PlexusBean<T>>
 {
     /**
      * Adds bindings from the given {@link Injector} to the backing list.

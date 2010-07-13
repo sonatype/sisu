@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+import org.sonatype.guice.plexus.config.PlexusBean;
 
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
@@ -53,14 +53,14 @@ final class DefaultPlexusBeans<T>
     }
 
     @Override
-    List<PlexusBeanLocator.Bean<T>> sequenceBeans( final List<InjectorBeans<T>> beans )
+    List<PlexusBean<T>> sequenceBeans( final List<InjectorBeans<T>> beans )
     {
         if ( beans.isEmpty() )
         {
             return Collections.emptyList();
         }
         // "copy-on-read" - concatenate all beans
-        final List<PlexusBeanLocator.Bean<T>> combinedBeans = new ArrayList<PlexusBeanLocator.Bean<T>>();
+        final List<PlexusBean<T>> combinedBeans = new ArrayList<PlexusBean<T>>();
         for ( int i = 0, size = beans.size(); i < size; i++ )
         {
             combinedBeans.addAll( beans.get( i ) );
