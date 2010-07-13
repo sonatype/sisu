@@ -17,7 +17,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +29,7 @@ import javax.inject.Named;
 import junit.framework.TestCase;
 
 import org.slf4j.Logger;
+import org.sonatype.inject.Nullable;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.BindingAnnotation;
@@ -72,11 +72,6 @@ public class BeanImportTest
         {
             return 0;
         }
-    }
-
-    @Retention( RetentionPolicy.RUNTIME )
-    public @interface Nullable
-    {
     }
 
     interface X
