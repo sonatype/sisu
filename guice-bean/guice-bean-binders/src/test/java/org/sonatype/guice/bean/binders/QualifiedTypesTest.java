@@ -240,9 +240,9 @@ public class QualifiedTypesTest
 
         final Annotation defaultName = Names.named( "default" );
 
-        assertEquals( imp, locator.locate( Key.get( api ) ).iterator().next().getValue().getClass() );
-        assertEquals( imp, locator.locate( Key.get( api, Named.class ) ).iterator().next().getValue().getClass() );
-        assertEquals( imp, locator.locate( Key.get( api, defaultName ) ).iterator().next().getValue().getClass() );
+        assertEquals( imp, locator.locate( Key.get( api ), null ).iterator().next().getValue().getClass() );
+        assertEquals( imp, locator.locate( Key.get( api, Named.class ), null ).iterator().next().getValue().getClass() );
+        assertEquals( imp, locator.locate( Key.get( api, defaultName ), null ).iterator().next().getValue().getClass() );
     }
 
     private void checkNamedBinding( final Class<?> api, final String name, final Class<?> imp )

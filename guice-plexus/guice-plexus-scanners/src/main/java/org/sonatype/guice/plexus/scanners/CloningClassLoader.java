@@ -53,4 +53,10 @@ final class CloningClassLoader
 
         return defineClass( name, buf, 0, buf.length );
     }
+
+    @Override
+    public String toString()
+    {
+        return space.toString();
+    }
 }

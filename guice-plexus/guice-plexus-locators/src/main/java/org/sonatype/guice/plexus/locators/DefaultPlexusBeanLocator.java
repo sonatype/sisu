@@ -12,37 +12,41 @@
  */
 package org.sonatype.guice.plexus.locators;
 
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.sonatype.guice.plexus.config.MutablePlexusBeanLocator;
+import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBean;
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 
 /**
- * {@link MutablePlexusBeanLocator} that locates beans of various types from zero or more {@link Injector}s.
+ * {@link PlexusBeanLocator} that locates beans of various types from zero or more {@link Injector}s.
  */
 @Singleton
 public final class DefaultPlexusBeanLocator
-    implements MutablePlexusBeanLocator
+    implements PlexusBeanLocator
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Set<Injector> injectors = new LinkedHashSet<Injector>();
+    private final BeanLocator beanLocator;
 
-    // track all bean sequences returned to clients, so we can clean up when they become eligible for GC
-    private final List<Reference<PlexusBeans<?>>> exposedBeans = new ArrayList<Reference<PlexusBeans<?>>>();
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    @Inject
+    public DefaultPlexusBeanLocator( final BeanLocator beanLocator )
+    {
+        this.beanLocator = beanLocator;
+    }
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -50,96 +54,15 @@ public final class DefaultPlexusBeanLocator
 
     public synchronized <T> Iterable<PlexusBean<T>> locate( final TypeLiteral<T> role, final String... hints )
     {
-        final PlexusBeans<T> beans;
-        if ( hints.length == 0 )
+        final PlexusBeans<T> plexusBeans = new PlexusBeans<T>( role, hints );
+        if ( hints.length == 1 )
         {
-            // sequence of all beans with this type
-            beans = new DefaultPlexusBeans<T>( role );
+            plexusBeans.setBeans( beanLocator.<Named, T> locate( Key.get( role, Names.named( hints[0] ) ), plexusBeans ) );
         }
         else
         {
-            // sequence of hinted beans with this type
-            beans = new HintedPlexusBeans<T>( role, hints );
+            plexusBeans.setBeans( beanLocator.<Named, T> locate( Key.get( role, Named.class ), plexusBeans ) );
         }
-
-        // build up the current bean sequence
-        for ( final Injector injector : injectors )
-        {
-            beans.add( injector );
-        }
-
-        for ( int i = 0; i < exposedBeans.size(); i++ )
-        {
-            // remove any previous GCd sequences
-            if ( null == exposedBeans.get( i ).get() )
-            {
-                exposedBeans.remove( i-- );
-            }
-        }
-
-        // record sequence so we can update it later on if necessary
-        exposedBeans.add( new WeakReference<PlexusBeans<?>>( beans ) );
-
-        return beans;
-    }
-
-    @Inject
-    public synchronized void add( final Injector injector )
-    {
-        if ( null == injector || !injectors.add( injector ) )
-        {
-            return; // not a new injector, nothing to do
-        }
-        for ( int i = 0; i < exposedBeans.size(); i++ )
-        {
-            // inform existing sequences about the added injector
-            final PlexusBeans<?> beans = exposedBeans.get( i ).get();
-            if ( null != beans )
-            {
-                beans.add( injector );
-            }
-            else
-            {
-                // sequence has been GCd
-                exposedBeans.remove( i-- );
-            }
-        }
-    }
-
-    public synchronized void remove( final Injector injector )
-    {
-        if ( null == injector || !injectors.remove( injector ) )
-        {
-            return; // not an old injector, nothing to do
-        }
-        for ( int i = 0; i < exposedBeans.size(); i++ )
-        {
-            // inform existing sequences about the removed injector
-            final PlexusBeans<?> beans = exposedBeans.get( i ).get();
-            if ( null != beans )
-            {
-                beans.remove( injector );
-            }
-            else
-            {
-                // sequence has been GCd
-                exposedBeans.remove( i-- );
-            }
-        }
-    }
-
-    public synchronized void clear()
-    {
-        for ( int i = 0; i < exposedBeans.size(); i++ )
-        {
-            final PlexusBeans<?> beans = exposedBeans.get( i ).get();
-            if ( null != beans )
-            {
-                beans.clear();
-            }
-        }
-
-        exposedBeans.clear();
-        injectors.clear();
+        return plexusBeans;
     }
 }

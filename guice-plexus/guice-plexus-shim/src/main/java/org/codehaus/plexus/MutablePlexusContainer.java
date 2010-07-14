@@ -12,7 +12,6 @@ package org.codehaus.plexus;
 
 import java.util.List;
 
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 
 import com.google.inject.Module;
@@ -20,5 +19,5 @@ import com.google.inject.Module;
 public interface MutablePlexusContainer
     extends PlexusContainer
 {
-    void addPlexusInjector( ClassRealm realm, List<PlexusBeanSource> sources, Module... customModules );
+    void addPlexusInjector( List<PlexusBeanSource> sources, Module... customModules );
 }

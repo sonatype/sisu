@@ -27,6 +27,7 @@ public interface PlexusTypeListener
      * 
      * @param component The Plexus component
      * @param implementation The implementation
+     * @param source The source of this component
      */
-    void hear( Component component, DeferredClass<?> implementation );
+    void hear( Component component, DeferredClass<?> implementation, Object source );
 }

@@ -10,25 +10,9 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.codehaus.plexus;
+package org.sonatype.guice.plexus.config;
 
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
-
-import com.google.inject.AbstractModule;
-
-final class ClassRealmModule
-    extends AbstractModule
+public interface PlexusBeanDescription
 {
-    private final ClassRealm realm;
-
-    ClassRealmModule( final ClassRealm realm )
-    {
-        this.realm = realm;
-    }
-
-    @Override
-    protected void configure()
-    {
-        bind( ClassRealm.class ).toInstance( realm );
-    }
+    String getDescription();
 }

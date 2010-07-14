@@ -49,9 +49,9 @@ import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.binders.PlexusXmlBeanSource;
 import org.sonatype.guice.plexus.config.Hints;
-import org.sonatype.guice.plexus.config.MutablePlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBean;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
+import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
@@ -92,8 +92,6 @@ public final class DefaultPlexusContainer
 
     final ThreadLocal<ClassRealm> lookupRealm = new ThreadLocal<ClassRealm>();
 
-    final MutablePlexusBeanLocator plexusBeanLocator = new DefaultPlexusBeanLocator();
-
     final MutableBeanLocator qualifiedBeanLocator = new DefaultBeanLocator();
 
     final Context context;
@@ -111,6 +109,9 @@ public final class DefaultPlexusContainer
     private LoggerManager loggerManager = CONSOLE_LOGGER_MANAGER;
 
     private Logger logger;
+
+    @Inject
+    private PlexusBeanLocator plexusBeanLocator;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -145,7 +146,7 @@ public final class DefaultPlexusContainer
         sources.add( new PlexusXmlBeanSource( space, variables, plexusXml ) );
         sources.add( new PlexusAnnotatedBeanSource( space, variables ) );
 
-        addPlexusInjector( containerRealm, sources );
+        addPlexusInjector( sources );
     }
 
     // ----------------------------------------------------------------------
@@ -247,7 +248,7 @@ public final class DefaultPlexusContainer
     public <T> void addComponent( final T component, final java.lang.Class<?> role, final String hint )
     {
         // this is only used in Maven3 tests, so keep it simple...
-        plexusBeanLocator.add( Guice.createInjector( new AbstractModule()
+        qualifiedBeanLocator.add( Guice.createInjector( new AbstractModule()
         {
             @Override
             protected void configure()
@@ -325,16 +326,14 @@ public final class DefaultPlexusContainer
             {
                 sources.add( new ComponentDescriptorBeanSource( space, descriptors ) );
             }
-
             if ( realmIds.add( realm.getId() ) )
             {
                 sources.add( new PlexusXmlBeanSource( space, variables ) );
                 sources.add( new PlexusAnnotatedBeanSource( space, variables ) );
             }
-
             if ( !sources.isEmpty() )
             {
-                addPlexusInjector( realm, sources );
+                addPlexusInjector( sources );
             }
         }
         catch ( final Throwable e )
@@ -345,15 +344,9 @@ public final class DefaultPlexusContainer
         return null; // no-one actually seems to use or check the returned component list!
     }
 
-    public void addPlexusInjector( final ClassRealm realm, final List<PlexusBeanSource> sources,
-                                   final Module... customModules )
+    public void addPlexusInjector( final List<PlexusBeanSource> sources, final Module... customModules )
     {
         final List<Module> modules = new ArrayList<Module>();
-
-        if ( null != realm )
-        {
-            modules.add( new ClassRealmModule( realm ) );
-        }
 
         modules.add( setupModule );
         Collections.addAll( modules, customModules );
@@ -434,7 +427,6 @@ public final class DefaultPlexusContainer
         lifecycleManager.unmanage();
         containerRealm.setParentRealm( null );
         qualifiedBeanLocator.clear();
-        plexusBeanLocator.clear();
     }
 
     // ----------------------------------------------------------------------
@@ -628,9 +620,9 @@ public final class DefaultPlexusContainer
             bind( Logger.class ).toProvider( loggerProvider );
 
             bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
-            bind( MutablePlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
+            bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
 
-            bind( MutablePlexusBeanLocator.class ).toInstance( plexusBeanLocator );
+            bind( MutablePlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
             bind( MutableBeanLocator.class ).toInstance( qualifiedBeanLocator );
 
             bind( PlexusBeanConverter.class ).toInstance( beanConverter );

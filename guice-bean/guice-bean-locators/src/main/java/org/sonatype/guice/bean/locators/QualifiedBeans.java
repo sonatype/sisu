@@ -46,8 +46,6 @@ class QualifiedBeans<Q extends Annotation, T>
 
     private List<QualifiedBean<Q, T>> beans = Collections.emptyList();
 
-    private int defaultIndex;
-
     private boolean exposed;
 
     // ----------------------------------------------------------------------
@@ -142,7 +140,6 @@ class QualifiedBeans<Q extends Annotation, T>
     {
         final List<QualifiedBean<Q, T>> oldBeans = beans;
         beans = Collections.emptyList();
-        defaultIndex = 0;
         exposed = false;
         return oldBeans;
     }
@@ -168,13 +165,17 @@ class QualifiedBeans<Q extends Annotation, T>
         final QualifiedBean<Q, T> bean = new QualifiedBean<Q, T>( binding );
         if ( DEFAULT_QUALIFIER.equals( bean.getKey() ) )
         {
-            // defaults always go at the front
-            beans.add( defaultIndex++, bean );
+            for ( int i = 0, size = beans.size(); i < size; i++ )
+            {
+                // send default beans to the front, in order of appearance
+                if ( !DEFAULT_QUALIFIER.equals( beans.get( i ).getKey() ) )
+                {
+                    beans.add( i, bean );
+                    return bean;
+                }
+            }
         }
-        else
-        {
-            beans.add( bean );
-        }
+        beans.add( bean );
         return bean;
     }
 
@@ -192,12 +193,7 @@ class QualifiedBeans<Q extends Annotation, T>
             beans = new ArrayList<QualifiedBean<Q, T>>( beans );
             exposed = false;
         }
-        final QualifiedBean<Q, T> bean = beans.remove( index );
-        if ( DEFAULT_QUALIFIER.equals( bean.getKey() ) )
-        {
-            defaultIndex--; // one less default
-        }
-        return bean;
+        return beans.remove( index );
     }
 
     /**

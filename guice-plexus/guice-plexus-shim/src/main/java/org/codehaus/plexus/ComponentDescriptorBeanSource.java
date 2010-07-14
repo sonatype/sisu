@@ -42,12 +42,16 @@ import com.google.inject.ProvisionException;
 final class ComponentDescriptorBeanSource
     implements PlexusBeanSource
 {
+    private final ClassSpace space;
+
     private Map<Component, DeferredClass<?>> componentMap = new HashMap<Component, DeferredClass<?>>();
 
     private Map<String, PlexusBeanMetadata> metadataMap = new HashMap<String, PlexusBeanMetadata>();
 
     ComponentDescriptorBeanSource( final ClassSpace space, final List<ComponentDescriptor<?>> descriptors )
     {
+        this.space = space;
+
         for ( int i = 0, size = descriptors.size(); i < size; i++ )
         {
             final ComponentDescriptor<?> cd = descriptors.get( i );
@@ -74,7 +78,7 @@ final class ComponentDescriptorBeanSource
         final PlexusTypeBinder plexusTypeBinder = new PlexusTypeBinder( binder );
         for ( final Entry<Component, DeferredClass<?>> entry : componentMap.entrySet() )
         {
-            plexusTypeBinder.hear( entry.getKey(), entry.getValue() );
+            plexusTypeBinder.hear( entry.getKey(), entry.getValue(), space );
         }
         componentMap = Collections.emptyMap();
     }

@@ -12,34 +12,199 @@
  */
 package org.sonatype.guice.plexus.locators;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.sonatype.guice.bean.locators.QualifiedBean;
 import org.sonatype.guice.plexus.config.PlexusBean;
 
-import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
+import com.google.inject.name.Named;
 
-/**
- * Dynamic {@link Iterable} sequence of beans backed by bindings from zero or more {@link Injector}s.
- */
-interface PlexusBeans<T>
-    extends Iterable<PlexusBean<T>>
+final class PlexusBeans<T>
+    implements Iterable<PlexusBean<T>>, Runnable
 {
-    /**
-     * Adds bindings from the given {@link Injector} to the backing list.
-     * 
-     * @param injector The new injector
-     * @return {@code true} if the sequence changed as a result of the call; otherwise {@code false}
-     */
-    boolean add( Injector injector );
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final boolean GET_IMPORT_REALMS_SUPPORTED;
+
+    static
+    {
+        boolean getImportRealmsSupported = true;
+        try
+        {
+            // support both old and new forms of Plexus class realms
+            ClassRealm.class.getDeclaredMethod( "getImportRealms" );
+        }
+        catch ( final Throwable e )
+        {
+            getImportRealmsSupported = false;
+        }
+        GET_IMPORT_REALMS_SUPPORTED = getImportRealmsSupported;
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final List<PlexusBean<T>> defaultPlexusBeans;
+
+    private Iterable<QualifiedBean<Named, T>> beans;
+
+    private Iterable<PlexusBean<T>> cachedBeans;
+
+    private ClassLoader cachedTCCL;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    public PlexusBeans( final TypeLiteral<T> role, final String... hints )
+    {
+        if ( hints.length > 0 )
+        {
+            defaultPlexusBeans = new ArrayList<PlexusBean<T>>( hints.length );
+            for ( final String hint : hints )
+            {
+                defaultPlexusBeans.add( new MissingPlexusBean<T>( role, hint ) );
+            }
+        }
+        else
+        {
+            defaultPlexusBeans = Collections.emptyList();
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
+    public void setBeans( final Iterable<QualifiedBean<Named, T>> beans )
+    {
+        this.beans = beans;
+    }
+
+    public synchronized Iterator<PlexusBean<T>> iterator()
+    {
+        final ClassLoader currentTCCL = Thread.currentThread().getContextClassLoader();
+        if ( null == cachedBeans || currentTCCL != cachedTCCL )
+        {
+            cachedTCCL = currentTCCL;
+            final Set<String> visibleRealms = getVisibleRealms( getContextRealm( currentTCCL ) );
+            cachedBeans = getPlexusBeans( getVisibleBeans( visibleRealms ), defaultPlexusBeans );
+        }
+        return cachedBeans.iterator();
+    }
+
+    public synchronized void run()
+    {
+        cachedBeans = null;
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
 
     /**
-     * Removes bindings from the given {@link Injector} from the backing list.
-     * 
-     * @param injector The old injector
-     * @return {@code true} if the sequence changed as a result of the call; otherwise {@code false}
+     * @return Last class realm to appear in the {@link Thread#getContextClassLoader()} hierarchy
      */
-    boolean remove( Injector injector );
+    private static ClassRealm getContextRealm( final ClassLoader currentTCCL )
+    {
+        ClassLoader tccl = currentTCCL;
+        while ( null != tccl )
+        {
+            if ( tccl instanceof ClassRealm )
+            {
+                return (ClassRealm) tccl;
+            }
+            tccl = tccl.getParent();
+        }
+        return null;
+    }
 
-    /**
-     * Removes all bindings from the backing list.
-     */
-    void clear();
+    @SuppressWarnings( "unchecked" )
+    private static Set<String> getVisibleRealms( final ClassRealm observerRealm )
+    {
+        if ( !GET_IMPORT_REALMS_SUPPORTED || null == observerRealm )
+        {
+            return Collections.EMPTY_SET;
+        }
+
+        final Set<String> visibleRealms = new HashSet<String>();
+        final List<ClassRealm> searchRealms = new ArrayList<ClassRealm>();
+
+        searchRealms.add( observerRealm );
+        for ( int i = 0; i < searchRealms.size(); i++ )
+        {
+            final ClassRealm realm = searchRealms.get( i );
+            if ( visibleRealms.add( realm.toString() ) )
+            {
+                searchRealms.addAll( realm.getImportRealms() );
+                final ClassRealm parent = realm.getParentRealm();
+                if ( null != parent )
+                {
+                    searchRealms.add( parent );
+                }
+            }
+        }
+        return visibleRealms;
+    }
+
+    private Iterable<QualifiedBean<Named, T>> getVisibleBeans( final Set<String> visibleRealms )
+    {
+        if ( visibleRealms.isEmpty() )
+        {
+            return beans;
+        }
+        final List<QualifiedBean<Named, T>> visibleBeans = new ArrayList<QualifiedBean<Named, T>>();
+        for ( final QualifiedBean<Named, T> bean : beans )
+        {
+            final String source = bean.getBinding().getSource().toString();
+            if ( !source.startsWith( "ClassRealm" ) || visibleRealms.contains( source ) )
+            {
+                visibleBeans.add( bean );
+            }
+        }
+        return visibleBeans;
+    }
+
+    private static <T> Iterable<PlexusBean<T>> getPlexusBeans( final Iterable<QualifiedBean<Named, T>> beans,
+                                                               final List<PlexusBean<T>> defaultPlexusBeans )
+    {
+        final Iterator<QualifiedBean<Named, T>> i = beans.iterator();
+        if ( !i.hasNext() )
+        {
+            return defaultPlexusBeans;
+        }
+        final int expectedSize = defaultPlexusBeans.size();
+        if ( expectedSize == 0 )
+        {
+            final List<PlexusBean<T>> plexusBeans = new ArrayList<PlexusBean<T>>();
+            while ( i.hasNext() )
+            {
+                plexusBeans.add( new LazyPlexusBean<T>( i.next() ) );
+            }
+            return plexusBeans;
+        }
+        final List<PlexusBean<T>> plexusBeans = new ArrayList<PlexusBean<T>>( defaultPlexusBeans );
+        while ( i.hasNext() )
+        {
+            final QualifiedBean<Named, T> bean = i.next();
+            for ( int n = 0; n < expectedSize; n++ )
+            {
+                if ( bean.getKey().value().equals( plexusBeans.get( n ).getKey() ) )
+                {
+                    plexusBeans.set( n, new LazyPlexusBean<T>( bean ) );
+                }
+            }
+        }
+        return plexusBeans;
+    }
 }

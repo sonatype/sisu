@@ -94,7 +94,7 @@ public final class PlexusXmlBeanSource
             final Map<Component, DeferredClass<?>> components = scanner.scan( space, localSearch );
             for ( final Entry<Component, DeferredClass<?>> entry : components.entrySet() )
             {
-                plexusTypeBinder.hear( entry.getKey(), entry.getValue() );
+                plexusTypeBinder.hear( entry.getKey(), entry.getValue(), space );
             }
         }
         catch ( final IOException e )

@@ -112,7 +112,7 @@ public final class PlexusTypeVisitor
             final Component component = componentVisitor.getComponent( space );
             if ( null != component )
             {
-                plexusTypeListener.hear( component, space.loadClass( implementation ), null );
+                plexusTypeListener.hear( component, space.loadClass( implementation ), space );
             }
             implementation = null;
         }

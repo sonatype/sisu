@@ -47,9 +47,11 @@ public final class DefaultBeanLocator
     // Public methods
     // ----------------------------------------------------------------------
 
-    public synchronized <Q extends Annotation, T> Iterable<QualifiedBean<Q, T>> locate( final Key<T> key )
+    public synchronized <Q extends Annotation, T> Iterable<QualifiedBean<Q, T>> locate( final Key<T> key,
+                                                                                        final Runnable notify )
     {
-        final QualifiedBeans<Q, T> beans = initialize( new QualifiedBeans<Q, T>( key ) );
+        final QualifiedBeans<Q, T> beans =
+            initialize( null == notify ? new QualifiedBeans<Q, T>( key ) : new NotifyingBeans<Q, T>( key, notify ) );
         exposedBeans.add( new WeakBeanReference<Q, T>( beans ) );
         return beans;
     }

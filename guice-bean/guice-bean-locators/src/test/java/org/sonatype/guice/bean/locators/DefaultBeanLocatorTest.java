@@ -98,7 +98,7 @@ public class DefaultBeanLocatorTest
         assertSame( locator, parent.getInstance( MutableBeanLocator.class ) );
 
         final Iterable<? extends Entry<Named, Bean>> roles =
-            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
+            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ), null );
 
         final Iterator<? extends Entry<Named, Bean>> i = roles.iterator();
         assertEquals( Names.named( "A" ), i.next().getKey() );
@@ -112,7 +112,7 @@ public class DefaultBeanLocatorTest
         final MutableBeanLocator locator = new DefaultBeanLocator();
 
         final Iterable<? extends Entry<Named, Bean>> roles =
-            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
+            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ), null );
 
         locator.add( parent );
         locator.add( child1 );
@@ -188,7 +188,7 @@ public class DefaultBeanLocatorTest
         locator.add( child1 );
 
         final Iterable<? extends Entry<Named, Bean>> roles =
-            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
+            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ), null );
 
         locator.add( child2 );
         locator.add( child3 );
@@ -218,11 +218,11 @@ public class DefaultBeanLocatorTest
         final List<?> exposedBeans = (List<?>) exposedBeansField.get( locator );
 
         assertEquals( 0, exposedBeans.size() );
-        Iterable<?> a = locator.locate( Key.get( Bean.class ) );
+        Iterable<?> a = locator.locate( Key.get( Bean.class ), null );
         assertEquals( 1, exposedBeans.size() );
-        Iterable<?> b = locator.locate( Key.get( Bean.class ) );
+        Iterable<?> b = locator.locate( Key.get( Bean.class ), null );
         assertEquals( 2, exposedBeans.size() );
-        Iterable<?> c = locator.locate( Key.get( Bean.class ) );
+        Iterable<?> c = locator.locate( Key.get( Bean.class ), null );
         assertEquals( 3, exposedBeans.size() );
 
         a.iterator();
@@ -256,7 +256,7 @@ public class DefaultBeanLocatorTest
         forceGC();
 
         assertEquals( 1, exposedBeans.size() );
-        locator.locate( Key.get( Bean.class ) );
+        locator.locate( Key.get( Bean.class ), null );
         assertEquals( 1, exposedBeans.size() );
     }
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2009 Sonatype, Inc. All rights reserved.
+ * Copyright (c) 2010 Sonatype, Inc. All rights reserved.
  *
  * This program is licensed to you under the Apache License Version 2.0,
  * and you may not use this file except in compliance with the Apache License Version 2.0.
@@ -10,61 +10,68 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.plexus.locators;
+package org.sonatype.guice.bean.locators;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.lang.annotation.Annotation;
 import java.util.List;
 
-import org.sonatype.guice.plexus.config.PlexusBean;
-
 import com.google.inject.Injector;
-import com.google.inject.TypeLiteral;
+import com.google.inject.Key;
 
-/**
- * Default {@link PlexusBeans} implementation that iterates over all beans of a given type.
- */
-final class DefaultPlexusBeans<T>
-    extends AbstractPlexusBeans<T>
+final class NotifyingBeans<Q extends Annotation, T>
+    extends QualifiedBeans<Q, T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final TypeLiteral<T> role;
+    private final Runnable notify;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    DefaultPlexusBeans( final TypeLiteral<T> role )
+    NotifyingBeans( final Key<T> key, final Runnable notify )
     {
-        this.role = role;
+        super( key );
+
+        this.notify = notify;
     }
 
     // ----------------------------------------------------------------------
-    // Implementation methods
+    // Public methods
     // ----------------------------------------------------------------------
 
     @Override
-    InjectorBeans<T> lookupInjectorBeans( final Injector injector )
+    public synchronized List<QualifiedBean<Q, T>> add( final Injector injector )
     {
-        return new InjectorBeans<T>( injector, role );
+        final List<QualifiedBean<Q, T>> newBeans = super.add( injector );
+        if ( !newBeans.isEmpty() )
+        {
+            notify.run();
+        }
+        return newBeans;
     }
 
     @Override
-    List<PlexusBean<T>> sequenceBeans( final List<InjectorBeans<T>> beans )
+    public synchronized List<QualifiedBean<Q, T>> remove( final Injector injector )
     {
-        if ( beans.isEmpty() )
+        final List<QualifiedBean<Q, T>> oldBeans = super.remove( injector );
+        if ( !oldBeans.isEmpty() )
         {
-            return Collections.emptyList();
+            notify.run();
         }
-        // "copy-on-read" - concatenate all beans
-        final List<PlexusBean<T>> combinedBeans = new ArrayList<PlexusBean<T>>();
-        for ( int i = 0, size = beans.size(); i < size; i++ )
+        return oldBeans;
+    }
+
+    @Override
+    public synchronized List<QualifiedBean<Q, T>> clear()
+    {
+        final List<QualifiedBean<Q, T>> oldBeans = super.clear();
+        if ( !oldBeans.isEmpty() )
         {
-            combinedBeans.addAll( beans.get( i ) );
+            notify.run();
         }
-        return combinedBeans;
+        return oldBeans;
     }
 }

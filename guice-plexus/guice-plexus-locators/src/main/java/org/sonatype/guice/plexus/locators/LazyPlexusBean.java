@@ -16,11 +16,12 @@ import java.util.Map.Entry;
 
 import javax.inject.Provider;
 
+import org.sonatype.guice.bean.locators.QualifiedBean;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.DeferredProvider;
 import org.sonatype.guice.bean.reflect.LoadedClass;
-import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBean;
+import org.sonatype.guice.plexus.config.PlexusBeanDescription;
 
 import com.google.inject.Binding;
 import com.google.inject.Key;
@@ -42,17 +43,15 @@ final class LazyPlexusBean<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Binding<T> binding;
-
-    private T bean;
+    private final QualifiedBean<Named, T> bean;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    LazyPlexusBean( final Binding<T> binding )
+    LazyPlexusBean( final QualifiedBean<Named, T> bean )
     {
-        this.binding = binding;
+        this.bean = bean;
     }
 
     // ----------------------------------------------------------------------
@@ -61,17 +60,12 @@ final class LazyPlexusBean<T>
 
     public String getKey()
     {
-        final Named hint = (Named) binding.getKey().getAnnotation();
-        return null != hint ? hint.value() : Hints.DEFAULT_HINT;
+        return bean.getKey().value();
     }
 
     public synchronized T getValue()
     {
-        if ( null == bean )
-        {
-            bean = binding.getProvider().get();
-        }
-        return bean;
+        return bean.getValue();
     }
 
     public T setValue( final T value )
@@ -81,14 +75,14 @@ final class LazyPlexusBean<T>
 
     public String getDescription()
     {
-        final Object source = binding.getSource();
-        return source instanceof String ? source.toString() : null;
+        final Object source = bean.getBinding().getSource();
+        return source instanceof PlexusBeanDescription ? ( (PlexusBeanDescription) source ).getDescription() : null;
     }
 
     public DeferredClass<T> getImplementationClass()
     {
         final DeferredTargetVisitor<T, ?> visitor = new DeferredTargetVisitor<T, Object>();
-        binding.acceptTargetVisitor( visitor );
+        bean.getBinding().acceptTargetVisitor( visitor );
         return visitor.implementationClass;
     }
 

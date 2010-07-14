@@ -31,9 +31,10 @@ public interface BeanLocator
      * Locates beans that match the given qualified binding {@link Key}.
      * 
      * @param key The qualified key
+     * @param notify Optional callback; called when the bean sequence changes
      * @return Sequence of beans that match the given key
      */
-    <Q extends Annotation, T> Iterable<QualifiedBean<Q, T>> locate( Key<T> key );
+    <Q extends Annotation, T> Iterable<QualifiedBean<Q, T>> locate( Key<T> key, Runnable notify );
 
     /**
      * Watches out for beans that match the given qualified binding {@link Key}. <br>
