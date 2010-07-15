@@ -85,7 +85,7 @@ public class PlexusConfigurationTest
                 bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
 
-                install( new PlexusBindingModule( new ComponentManager(), new PlexusAnnotatedBeanSource( null, null ) ) );
+                install( new PlexusBindingModule( new ComponentManager(), new PlexusAnnotatedBeanModule( null, null ) ) );
 
                 requestInjection( PlexusConfigurationTest.this );
             }

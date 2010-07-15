@@ -34,21 +34,22 @@ import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.binders.PlexusTypeBinder;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
+import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 
 import com.google.inject.Binder;
 import com.google.inject.ProvisionException;
 
-final class ComponentDescriptorBeanSource
-    implements PlexusBeanSource
+final class ComponentDescriptorBeanModule
+    implements PlexusBeanModule
 {
     private final ClassSpace space;
 
-    private Map<Component, DeferredClass<?>> componentMap = new HashMap<Component, DeferredClass<?>>();
+    private final Map<Component, DeferredClass<?>> componentMap = new HashMap<Component, DeferredClass<?>>();
 
-    private Map<String, PlexusBeanMetadata> metadataMap = new HashMap<String, PlexusBeanMetadata>();
+    private final Map<String, PlexusBeanMetadata> metadataMap = new HashMap<String, PlexusBeanMetadata>();
 
-    ComponentDescriptorBeanSource( final ClassSpace space, final List<ComponentDescriptor<?>> descriptors )
+    ComponentDescriptorBeanModule( final ClassSpace space, final List<ComponentDescriptor<?>> descriptors )
     {
         this.space = space;
 
@@ -73,24 +74,14 @@ final class ComponentDescriptorBeanSource
         }
     }
 
-    public void configure( final Binder binder )
+    public PlexusBeanSource configure( final Binder binder )
     {
         final PlexusTypeBinder plexusTypeBinder = new PlexusTypeBinder( binder );
         for ( final Entry<Component, DeferredClass<?>> entry : componentMap.entrySet() )
         {
             plexusTypeBinder.hear( entry.getKey(), entry.getValue(), space );
         }
-        componentMap = Collections.emptyMap();
-    }
-
-    public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
-    {
-        final PlexusBeanMetadata metadata = metadataMap.get( implementation.getName() );
-        if ( null != metadata && metadataMap.isEmpty() )
-        {
-            metadataMap = Collections.emptyMap();
-        }
-        return metadata;
+        return new PlexusDescriptorBeanSource( metadataMap );
     }
 
     static Component newComponent( final ComponentDescriptor<?> cd )
@@ -189,6 +180,31 @@ final class ComponentDescriptorBeanSource
         public Configuration getConfiguration( final BeanProperty<?> property )
         {
             return null;
+        }
+    }
+
+    private static final class PlexusDescriptorBeanSource
+        implements PlexusBeanSource
+    {
+        private Map<String, PlexusBeanMetadata> metadataMap;
+
+        PlexusDescriptorBeanSource( final Map<String, PlexusBeanMetadata> metadataMap )
+        {
+            this.metadataMap = metadataMap;
+        }
+
+        public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
+        {
+            if ( null == metadataMap )
+            {
+                return null;
+            }
+            final PlexusBeanMetadata metadata = metadataMap.remove( implementation.getName() );
+            if ( metadataMap.isEmpty() )
+            {
+                metadataMap = null;
+            }
+            return metadata;
         }
     }
 }

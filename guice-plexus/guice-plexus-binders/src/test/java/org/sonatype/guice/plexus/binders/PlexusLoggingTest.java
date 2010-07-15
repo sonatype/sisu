@@ -88,7 +88,7 @@ public class PlexusLoggingTest
                 bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
 
-                install( new PlexusBindingModule( new LoggerManager(), new PlexusAnnotatedBeanSource( null, null ) ) );
+                install( new PlexusBindingModule( new LoggerManager(), new PlexusAnnotatedBeanModule( null, null ) ) );
 
                 requestInjection( PlexusLoggingTest.this );
             }

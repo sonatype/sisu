@@ -44,15 +44,15 @@ import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
-import org.sonatype.guice.plexus.binders.PlexusAnnotatedBeanSource;
+import org.sonatype.guice.plexus.binders.PlexusAnnotatedBeanModule;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
-import org.sonatype.guice.plexus.binders.PlexusXmlBeanSource;
+import org.sonatype.guice.plexus.binders.PlexusXmlBeanModule;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBean;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
-import org.sonatype.guice.plexus.config.PlexusBeanSource;
+import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 import org.sonatype.guice.plexus.locators.DefaultPlexusBeanLocator;
@@ -141,12 +141,13 @@ public final class DefaultPlexusContainer
 
         realmIds.add( containerRealm.getId() );
 
-        final List<PlexusBeanSource> sources = new ArrayList<PlexusBeanSource>();
-        final ClassSpace space = new URLClassSpace( containerRealm );
-        sources.add( new PlexusXmlBeanSource( space, variables, plexusXml ) );
-        sources.add( new PlexusAnnotatedBeanSource( space, variables ) );
+        final List<PlexusBeanModule> beanModules = new ArrayList<PlexusBeanModule>();
 
-        addPlexusInjector( sources );
+        final ClassSpace space = new URLClassSpace( containerRealm );
+        beanModules.add( new PlexusXmlBeanModule( space, variables, plexusXml ) );
+        beanModules.add( new PlexusAnnotatedBeanModule( space, variables ) );
+
+        addPlexusInjector( beanModules );
     }
 
     // ----------------------------------------------------------------------
@@ -318,22 +319,22 @@ public final class DefaultPlexusContainer
     {
         try
         {
-            final List<PlexusBeanSource> sources = new ArrayList<PlexusBeanSource>();
-            final ClassSpace space = new URLClassSpace( realm );
+            final List<PlexusBeanModule> beanModules = new ArrayList<PlexusBeanModule>();
 
+            final ClassSpace space = new URLClassSpace( realm );
             final List<ComponentDescriptor<?>> descriptors = descriptorMap.remove( realm );
             if ( null != descriptors )
             {
-                sources.add( new ComponentDescriptorBeanSource( space, descriptors ) );
+                beanModules.add( new ComponentDescriptorBeanModule( space, descriptors ) );
             }
             if ( realmIds.add( realm.getId() ) )
             {
-                sources.add( new PlexusXmlBeanSource( space, variables ) );
-                sources.add( new PlexusAnnotatedBeanSource( space, variables ) );
+                beanModules.add( new PlexusXmlBeanModule( space, variables ) );
+                beanModules.add( new PlexusAnnotatedBeanModule( space, variables ) );
             }
-            if ( !sources.isEmpty() )
+            if ( !beanModules.isEmpty() )
             {
-                addPlexusInjector( sources );
+                addPlexusInjector( beanModules );
             }
         }
         catch ( final Throwable e )
@@ -344,13 +345,13 @@ public final class DefaultPlexusContainer
         return null; // no-one actually seems to use or check the returned component list!
     }
 
-    public void addPlexusInjector( final List<PlexusBeanSource> sources, final Module... customModules )
+    public void addPlexusInjector( final List<PlexusBeanModule> beanModules, final Module... customModules )
     {
         final List<Module> modules = new ArrayList<Module>();
 
         modules.add( setupModule );
         Collections.addAll( modules, customModules );
-        modules.add( new PlexusBindingModule( lifecycleManager, sources ) );
+        modules.add( new PlexusBindingModule( lifecycleManager, beanModules ) );
 
         Guice.createInjector( new WireModule( modules.toArray( new Module[modules.size()] ) ) );
     }

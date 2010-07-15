@@ -12,9 +12,12 @@
  */
 package org.sonatype.guice.plexus.binders;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.sonatype.guice.bean.inject.BeanListener;
+import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 
 import com.google.inject.AbstractModule;
@@ -33,22 +36,22 @@ public final class PlexusBindingModule
 
     private final PlexusBeanManager manager;
 
-    private final PlexusBeanSource[] sources;
+    private final PlexusBeanModule[] modules;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    public PlexusBindingModule( final PlexusBeanManager manager, final PlexusBeanSource... sources )
+    public PlexusBindingModule( final PlexusBeanManager manager, final PlexusBeanModule... modules )
     {
         this.manager = manager;
-        this.sources = sources.clone();
+        this.modules = modules.clone();
     }
 
-    public PlexusBindingModule( final PlexusBeanManager manager, final Collection<PlexusBeanSource> sources )
+    public PlexusBindingModule( final PlexusBeanManager manager, final Collection<PlexusBeanModule> modules )
     {
         this.manager = manager;
-        this.sources = sources.toArray( new PlexusBeanSource[sources.size()] );
+        this.modules = modules.toArray( new PlexusBeanModule[modules.size()] );
     }
 
     // ----------------------------------------------------------------------
@@ -58,10 +61,14 @@ public final class PlexusBindingModule
     @Override
     protected void configure()
     {
-        // attempt to register known Plexus components
-        for ( final PlexusBeanSource source : sources )
+        final List<PlexusBeanSource> sources = new ArrayList<PlexusBeanSource>( modules.length );
+        for ( final PlexusBeanModule module : modules )
         {
-            install( source );
+            final PlexusBeanSource source = module.configure( binder() );
+            if ( null != source )
+            {
+                sources.add( source );
+            }
         }
 
         // attach custom bean listener to perform injection of Plexus requirements/configuration

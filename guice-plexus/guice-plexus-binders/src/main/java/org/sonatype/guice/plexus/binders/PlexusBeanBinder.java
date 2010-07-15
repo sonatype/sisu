@@ -12,6 +12,8 @@
  */
 package org.sonatype.guice.plexus.binders;
 
+import java.util.List;
+
 import org.sonatype.guice.bean.inject.BeanBinder;
 import org.sonatype.guice.bean.inject.PropertyBinder;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
@@ -39,10 +41,10 @@ final class PlexusBeanBinder
     // Constructors
     // ----------------------------------------------------------------------
 
-    PlexusBeanBinder( final PlexusBeanManager manager, final PlexusBeanSource... sources )
+    PlexusBeanBinder( final PlexusBeanManager manager, final List<PlexusBeanSource> sources )
     {
         this.manager = manager;
-        this.sources = sources;
+        this.sources = sources.toArray( new PlexusBeanSource[sources.size()] );
     }
 
     // ----------------------------------------------------------------------

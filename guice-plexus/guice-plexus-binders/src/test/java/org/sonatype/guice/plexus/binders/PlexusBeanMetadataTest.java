@@ -28,6 +28,7 @@ import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
+import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
@@ -137,52 +138,41 @@ public class PlexusBeanMetadataTest
     }
 
     static class BeanSourceA
-        implements PlexusBeanSource
+        implements PlexusBeanModule
     {
-        public void configure( final Binder binder )
+        public PlexusBeanSource configure( final Binder binder )
         {
             binder.withSource( "A" ).bind( Bean.class ).annotatedWith( Names.named( "2" ) ).to( DefaultBean1.class ).asEagerSingleton();
-        }
-
-        public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
-        {
             return null;
         }
     }
 
     static class BeanSourceB
-        implements PlexusBeanSource
+        implements PlexusBeanModule
     {
-        public void configure( final Binder binder )
+        public PlexusBeanSource configure( final Binder binder )
         {
             binder.withSource( "B" ).bind( DefaultBean2.class );
-        }
-
-        public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
-        {
             return null;
         }
     }
 
     static class BeanSourceC
-        implements PlexusBeanSource
+        implements PlexusBeanModule
     {
-        public void configure( final Binder binder )
+        public PlexusBeanSource configure( final Binder binder )
         {
             binder.withSource( "C" ).bind( DefaultBean2.class ).annotatedWith( Names.named( "2" ) ).to( DefaultBean2.class );
-        }
-
-        public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
-        {
             return null;
         }
     }
 
     static class CustomizedBeanSource
-        implements PlexusBeanSource
+        implements PlexusBeanModule, PlexusBeanSource
     {
-        public void configure( final Binder binder )
+        public PlexusBeanSource configure( final Binder binder )
         {
+            return this;
         }
 
         public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )

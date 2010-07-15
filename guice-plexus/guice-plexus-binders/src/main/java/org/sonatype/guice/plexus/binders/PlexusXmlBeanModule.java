@@ -14,7 +14,6 @@ package org.sonatype.guice.plexus.binders;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,16 +22,17 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
+import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.scanners.PlexusXmlScanner;
 
 import com.google.inject.Binder;
 
 /**
- * {@link PlexusBeanSource} that collects {@link PlexusBeanMetadata} by scanning XML resources.
+ * {@link PlexusBeanModule} that collects {@link PlexusBeanMetadata} by scanning XML resources.
  */
-public final class PlexusXmlBeanSource
-    implements PlexusBeanSource
+public final class PlexusXmlBeanModule
+    implements PlexusBeanModule
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -46,8 +46,6 @@ public final class PlexusXmlBeanSource
 
     private final boolean localSearch;
 
-    private Map<String, PlexusBeanMetadata> metadata = new HashMap<String, PlexusBeanMetadata>();
-
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -59,7 +57,7 @@ public final class PlexusXmlBeanSource
      * @param variables The filter variables
      * @param plexusXml The plexus.xml URL
      */
-    public PlexusXmlBeanSource( final ClassSpace space, final Map<?, ?> variables, final URL plexusXml )
+    public PlexusXmlBeanModule( final ClassSpace space, final Map<?, ?> variables, final URL plexusXml )
     {
         this.space = space;
         this.variables = variables;
@@ -73,7 +71,7 @@ public final class PlexusXmlBeanSource
      * @param space The local class space
      * @param variables The filter variables
      */
-    public PlexusXmlBeanSource( final ClassSpace space, final Map<?, ?> variables )
+    public PlexusXmlBeanModule( final ClassSpace space, final Map<?, ?> variables )
     {
         this.space = space;
         this.variables = variables;
@@ -85,13 +83,14 @@ public final class PlexusXmlBeanSource
     // Public methods
     // ----------------------------------------------------------------------
 
-    public void configure( final Binder binder )
+    public PlexusBeanSource configure( final Binder binder )
     {
-        final PlexusTypeBinder plexusTypeBinder = new PlexusTypeBinder( binder );
+        final Map<String, PlexusBeanMetadata> metadataMap = new HashMap<String, PlexusBeanMetadata>();
         try
         {
-            final PlexusXmlScanner scanner = new PlexusXmlScanner( variables, plexusXml, metadata );
+            final PlexusXmlScanner scanner = new PlexusXmlScanner( variables, plexusXml, metadataMap );
             final Map<Component, DeferredClass<?>> components = scanner.scan( space, localSearch );
+            final PlexusTypeBinder plexusTypeBinder = new PlexusTypeBinder( binder );
             for ( final Entry<Component, DeferredClass<?>> entry : components.entrySet() )
             {
                 plexusTypeBinder.hear( entry.getKey(), entry.getValue(), space );
@@ -101,16 +100,35 @@ public final class PlexusXmlBeanSource
         {
             binder.addError( e );
         }
+        return new PlexusXmlBeanSource( metadataMap );
     }
 
-    public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    private static final class PlexusXmlBeanSource
+        implements PlexusBeanSource
     {
-        final PlexusBeanMetadata beanMetadata = metadata.remove( implementation.getName() );
-        if ( null != beanMetadata && metadata.isEmpty() )
+        private Map<String, PlexusBeanMetadata> metadataMap;
+
+        PlexusXmlBeanSource( final Map<String, PlexusBeanMetadata> metadataMap )
         {
-            // avoid leaving sparse maps around
-            metadata = Collections.emptyMap();
+            this.metadataMap = metadataMap;
         }
-        return beanMetadata;
+
+        public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
+        {
+            if ( null == metadataMap )
+            {
+                return null;
+            }
+            final PlexusBeanMetadata metadata = metadataMap.remove( implementation.getName() );
+            if ( metadataMap.isEmpty() )
+            {
+                metadataMap = null;
+            }
+            return metadata;
+        }
     }
 }

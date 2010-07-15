@@ -33,11 +33,13 @@ final class PlexusBeans<T>
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final boolean GET_IMPORT_REALMS_SUPPORTED;
+    private static final boolean DISABLE_COMPONENT_VISIBILITY_CHECK;
 
     static
     {
-        boolean getImportRealmsSupported = true;
+        boolean disableComponentVisibilityCheck =
+            Boolean.parseBoolean( System.getProperty( "plexus.disable.component.visibility.check", "false" ) );
+
         try
         {
             // support both old and new forms of Plexus class realms
@@ -45,9 +47,9 @@ final class PlexusBeans<T>
         }
         catch ( final Throwable e )
         {
-            getImportRealmsSupported = false;
+            disableComponentVisibilityCheck = true;
         }
-        GET_IMPORT_REALMS_SUPPORTED = getImportRealmsSupported;
+        DISABLE_COMPONENT_VISIBILITY_CHECK = disableComponentVisibilityCheck;
     }
 
     // ----------------------------------------------------------------------
@@ -93,12 +95,21 @@ final class PlexusBeans<T>
 
     public synchronized Iterator<PlexusBean<T>> iterator()
     {
-        final ClassLoader currentTCCL = Thread.currentThread().getContextClassLoader();
-        if ( null == cachedBeans || currentTCCL != cachedTCCL )
+        if ( DISABLE_COMPONENT_VISIBILITY_CHECK )
         {
-            cachedTCCL = currentTCCL;
-            final Set<String> visibleRealms = getVisibleRealms( getContextRealm( currentTCCL ) );
-            cachedBeans = getPlexusBeans( getVisibleBeans( visibleRealms ), defaultPlexusBeans );
+            if ( null == cachedBeans )
+            {
+                cachedBeans = getPlexusBeans( beans, defaultPlexusBeans );
+            }
+        }
+        else
+        {
+            final ClassLoader currentTCCL = Thread.currentThread().getContextClassLoader();
+            if ( null == cachedBeans || currentTCCL != cachedTCCL )
+            {
+                cachedTCCL = currentTCCL;
+                cachedBeans = getPlexusBeans( getVisibleBeans( getContextRealm( currentTCCL ) ), defaultPlexusBeans );
+            }
         }
         return cachedBeans.iterator();
     }
@@ -117,14 +128,12 @@ final class PlexusBeans<T>
      */
     private static ClassRealm getContextRealm( final ClassLoader currentTCCL )
     {
-        ClassLoader tccl = currentTCCL;
-        while ( null != tccl )
+        for ( ClassLoader tccl = currentTCCL; tccl != null; tccl = tccl.getParent() )
         {
             if ( tccl instanceof ClassRealm )
             {
                 return (ClassRealm) tccl;
             }
-            tccl = tccl.getParent();
         }
         return null;
     }
@@ -132,11 +141,6 @@ final class PlexusBeans<T>
     @SuppressWarnings( "unchecked" )
     private static Set<String> getVisibleRealms( final ClassRealm observerRealm )
     {
-        if ( !GET_IMPORT_REALMS_SUPPORTED || null == observerRealm )
-        {
-            return Collections.EMPTY_SET;
-        }
-
         final Set<String> visibleRealms = new HashSet<String>();
         final List<ClassRealm> searchRealms = new ArrayList<ClassRealm>();
 
@@ -154,15 +158,17 @@ final class PlexusBeans<T>
                 }
             }
         }
+
         return visibleRealms;
     }
 
-    private Iterable<QualifiedBean<Named, T>> getVisibleBeans( final Set<String> visibleRealms )
+    private Iterable<QualifiedBean<Named, T>> getVisibleBeans( final ClassRealm observerRealm )
     {
-        if ( visibleRealms.isEmpty() )
+        if ( null == observerRealm )
         {
             return beans;
         }
+        final Set<String> visibleRealms = getVisibleRealms( observerRealm );
         final List<QualifiedBean<Named, T>> visibleBeans = new ArrayList<QualifiedBean<Named, T>>();
         for ( final QualifiedBean<Named, T> bean : beans )
         {

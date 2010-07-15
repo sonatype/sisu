@@ -18,6 +18,7 @@ import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
+import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.scanners.PlexusAnnotatedMetadata;
 import org.sonatype.guice.plexus.scanners.PlexusTypeVisitor;
@@ -25,10 +26,10 @@ import org.sonatype.guice.plexus.scanners.PlexusTypeVisitor;
 import com.google.inject.Binder;
 
 /**
- * {@link PlexusBeanSource} that registers Plexus beans by scanning classes for runtime annotations.
+ * {@link PlexusBeanModule} that registers Plexus beans by scanning classes for runtime annotations.
  */
-public final class PlexusAnnotatedBeanSource
-    implements PlexusBeanSource
+public final class PlexusAnnotatedBeanModule
+    implements PlexusBeanModule
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -36,7 +37,7 @@ public final class PlexusAnnotatedBeanSource
 
     private final ClassSpace space;
 
-    private final PlexusAnnotatedMetadata metadata;
+    private final Map<?, ?> variables;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -48,27 +49,42 @@ public final class PlexusAnnotatedBeanSource
      * @param space The local class space
      * @param variables The filter variables
      */
-    public PlexusAnnotatedBeanSource( final ClassSpace space, final Map<?, ?> variables )
+    public PlexusAnnotatedBeanModule( final ClassSpace space, final Map<?, ?> variables )
     {
         this.space = space;
-
-        metadata = new PlexusAnnotatedMetadata( variables );
+        this.variables = variables;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public void configure( final Binder binder )
+    public PlexusBeanSource configure( final Binder binder )
     {
         if ( null != space )
         {
             new ClassSpaceScanner( space ).accept( new PlexusTypeVisitor( new PlexusTypeBinder( binder ) ) );
         }
+        return new PlexusAnnotatedBeanSource( variables );
     }
 
-    public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    private static final class PlexusAnnotatedBeanSource
+        implements PlexusBeanSource
     {
-        return implementation.isAnnotationPresent( Component.class ) ? metadata : null;
+        private final PlexusBeanMetadata metadata;
+
+        PlexusAnnotatedBeanSource( final Map<?, ?> variables )
+        {
+            metadata = new PlexusAnnotatedMetadata( variables );
+        }
+
+        public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
+        {
+            return implementation.isAnnotationPresent( Component.class ) ? metadata : null;
+        }
     }
 }

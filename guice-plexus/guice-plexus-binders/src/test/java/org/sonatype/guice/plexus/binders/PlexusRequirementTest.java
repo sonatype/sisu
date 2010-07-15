@@ -33,7 +33,7 @@ import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
-import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
+import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.config.Strategies;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
@@ -86,9 +86,9 @@ public class PlexusRequirementTest
 
                 bind( D.class ).annotatedWith( Names.named( "" ) ).to( DImpl.class );
 
-                install( new PlexusBindingModule( null, new PlexusBeanSource()
+                install( new PlexusBindingModule( null, new PlexusBeanModule()
                 {
-                    public void configure( final Binder binder )
+                    public PlexusBeanSource configure( final Binder binder )
                     {
                         binder.bind( Alpha.class ).to( AlphaImpl.class ).in( Scopes.SINGLETON );
                         binder.bind( Omega.class ).to( OmegaImpl.class ).in( Scopes.SINGLETON );
@@ -97,13 +97,10 @@ public class PlexusRequirementTest
                             (DeferredClass<Gamma>) space.deferLoadClass( "some-broken-class" ).asProvider();
 
                         binder.bind( Gamma.class ).toProvider( gammaProvider.asProvider() ).in( Scopes.SINGLETON );
-                    }
 
-                    public PlexusBeanMetadata getBeanMetadata( final Class<?> implementation )
-                    {
                         return null;
                     }
-                }, new PlexusAnnotatedBeanSource( null, null ) ) );
+                }, new PlexusAnnotatedBeanModule( null, null ) ) );
 
                 requestInjection( PlexusRequirementTest.this );
             }

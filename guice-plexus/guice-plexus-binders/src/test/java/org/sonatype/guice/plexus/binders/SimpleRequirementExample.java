@@ -34,7 +34,7 @@ public class SimpleRequirementExample
             {
                 bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
                 bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
-                install( new PlexusBindingModule( null, new PlexusAnnotatedBeanSource( null, null ) ) );
+                install( new PlexusBindingModule( null, new PlexusAnnotatedBeanModule( null, null ) ) );
                 bindConstant().annotatedWith( Names.named( "example" ) ).to( "TEST" );
             }
         } ).getInstance( Bean.class ).requirement;

@@ -12,13 +12,10 @@
  */
 package org.sonatype.guice.plexus.config;
 
-import com.google.inject.Module;
-
 /**
  * Source of Plexus component beans and associated metadata.
  */
 public interface PlexusBeanSource
-    extends Module
 {
     /**
      * Returns metadata associated with the given Plexus bean implementation.
