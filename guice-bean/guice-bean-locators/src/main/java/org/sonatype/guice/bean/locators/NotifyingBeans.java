@@ -14,6 +14,8 @@ package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -48,7 +50,7 @@ final class NotifyingBeans<Q extends Annotation, T>
         final List<QualifiedBean<Q, T>> newBeans = super.add( injector );
         if ( !newBeans.isEmpty() )
         {
-            notify.run();
+            sendUpdate();
         }
         return newBeans;
     }
@@ -59,7 +61,7 @@ final class NotifyingBeans<Q extends Annotation, T>
         final List<QualifiedBean<Q, T>> oldBeans = super.remove( injector );
         if ( !oldBeans.isEmpty() )
         {
-            notify.run();
+            sendUpdate();
         }
         return oldBeans;
     }
@@ -70,8 +72,33 @@ final class NotifyingBeans<Q extends Annotation, T>
         final List<QualifiedBean<Q, T>> oldBeans = super.clear();
         if ( !oldBeans.isEmpty() )
         {
-            notify.run();
+            sendUpdate();
         }
         return oldBeans;
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private void sendUpdate()
+    {
+        try
+        {
+            notify.run();
+        }
+        catch ( final Throwable e )
+        {
+            final String message = "Problem notifying: " + notify;
+            final Class<?> notifyType = notify.getClass();
+            try
+            {
+                org.slf4j.LoggerFactory.getLogger( notifyType ).warn( message, e );
+            }
+            catch ( final Throwable ignore )
+            {
+                Logger.getLogger( notifyType.getName() ).log( Level.WARNING, message, e );
+            }
+        }
     }
 }
