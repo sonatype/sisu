@@ -61,12 +61,12 @@ public class ComponentSetDescriptor
 
     public final List<ComponentDescriptor<?>> getComponents()
     {
-        return Collections.unmodifiableList( components );
+        return components;
     }
 
     public final List<ComponentDependency> getDependencies()
     {
-        return Collections.unmodifiableList( dependencies );
+        return dependencies;
     }
 
     @Override
