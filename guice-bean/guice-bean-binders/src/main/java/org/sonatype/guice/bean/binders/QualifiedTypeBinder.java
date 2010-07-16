@@ -14,6 +14,10 @@ package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import javax.enterprise.inject.Typed;
 
@@ -38,12 +42,6 @@ import com.google.inject.name.Names;
 public final class QualifiedTypeBinder
     implements QualifiedTypeListener
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final Class<?>[] NO_BINDING_TYPES = {};
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -220,47 +218,35 @@ public final class QualifiedTypeBinder
      * 
      * @param qualifiedType The qualified type
      * @param binder The type binder
-     * @return Array of binding types
+     * @return Sequence of binding types
      */
-    private static Class<?>[] getBindingTypes( final Class<?> qualifiedType, final Binder binder )
+    private static List<Class<?>> getBindingTypes( final Class<?> qualifiedType, final Binder binder )
     {
         if ( qualifiedType.isInterface() )
         {
-            return new Class<?>[] { qualifiedType };
+            return Collections.<Class<?>> singletonList( qualifiedType );
         }
-        Class<?> clazz = qualifiedType;
-        while ( true )
+        Class<?> clazz, superClazz;
+        for ( clazz = qualifiedType, superClazz = clazz.getSuperclass(); superClazz != null
+            && !superClazz.getName().startsWith( "java" ); clazz = superClazz, superClazz = clazz.getSuperclass() )
         {
             final Typed typed = clazz.getAnnotation( Typed.class );
             if ( null != typed )
             {
-                return typed.value();
+                return Arrays.asList( typed.value() );
             }
-            final Class<?>[] interfaces = clazz.getInterfaces();
-            if ( interfaces.length == 1 )
-            {
-                return interfaces;
-            }
-            if ( interfaces.length > 1 )
-            {
-                final String name = qualifiedType.getSimpleName();
-                for ( final Class<?> i : interfaces )
-                {
-                    if ( name.endsWith( i.getSimpleName() ) )
-                    {
-                        return new Class<?>[] { i };
-                    }
-                }
-                binder.addError( qualifiedType + " is ambiguous, use @Typed to select binding type(s)" );
-                return NO_BINDING_TYPES;
-            }
-            final Class<?> superClazz = clazz.getSuperclass();
-            if ( superClazz.getName().startsWith( "java" ) )
-            {
-                return new Class<?>[] { Object.class != superClazz ? superClazz : clazz };
-            }
-            clazz = superClazz;
         }
+        final List<Class<?>> bindingTypes = new ArrayList<Class<?>>();
+        Collections.<Class<?>> addAll( bindingTypes, clazz.getInterfaces() );
+        if ( superClazz != Object.class )
+        {
+            bindingTypes.add( superClazz );
+        }
+        if ( clazz != qualifiedType || bindingTypes.isEmpty() )
+        {
+            bindingTypes.add( clazz );
+        }
+        return bindingTypes;
     }
 
     /**
