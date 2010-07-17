@@ -100,6 +100,12 @@ public class QualifiedBeansTest
     {
     }
 
+    @Fuzzy
+    static class FuzzyBean
+        implements ImplicitDefaultBean
+    {
+    }
+
     public void testRolesWithNoDefault()
     {
         final Injector injector = Guice.createInjector( new AbstractModule()
@@ -259,7 +265,6 @@ public class QualifiedBeansTest
             {
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
-                bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
                 bind( Bean.class ).to( DefaultBean.class );
             }
@@ -583,7 +588,7 @@ public class QualifiedBeansTest
             {
                 bind( Bean.class ).annotatedWith( Names.named( "default" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
-                bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( BBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "fuzzy" ) ).to( FuzzyBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
                 bind( Bean.class ).to( DefaultBean.class );
             }
@@ -596,16 +601,16 @@ public class QualifiedBeansTest
 
         Iterator<? extends Entry<Fuzzy, Bean>> i;
         Entry<Fuzzy, Bean> mapping;
-        Bean bBean;
+        Bean fuzzyBean;
 
         i = fuzzyBeans.iterator();
         assertTrue( i.hasNext() );
         mapping = i.next();
 
-        bBean = mapping.getValue();
+        fuzzyBean = mapping.getValue();
         assertEquals( Fuzzy.class, mapping.getKey().annotationType() );
-        assertEquals( BBean.class, bBean.getClass() );
-        assertSame( bBean, mapping.getValue() );
+        assertEquals( FuzzyBean.class, fuzzyBean.getClass() );
+        assertSame( fuzzyBean, mapping.getValue() );
         assertFalse( i.hasNext() );
     }
 

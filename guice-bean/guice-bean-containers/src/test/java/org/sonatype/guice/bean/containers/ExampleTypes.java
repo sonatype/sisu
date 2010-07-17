@@ -103,6 +103,6 @@ class TagImpl
 
     public Class<? extends Annotation> annotationType()
     {
-        return Named.class;
+        return Tag.class;
     }
 }

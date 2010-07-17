@@ -22,9 +22,7 @@ import java.util.List;
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 
 /**
  * {@link Iterable} sequence of qualified beans backed by bindings from one or more {@link Injector}s.
@@ -33,14 +31,10 @@ class QualifiedBeans<Q extends Annotation, T>
     implements Iterable<QualifiedBean<Q, T>>
 {
     // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    static final Annotation DEFAULT_QUALIFIER = Names.named( "default" );
-
-    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
+
+    private final LocatorStrategy strategy;
 
     private final Key<T> key;
 
@@ -54,7 +48,8 @@ class QualifiedBeans<Q extends Annotation, T>
 
     QualifiedBeans( final Key<T> key )
     {
-        this.key = key;
+        this.strategy = selectLocatorStrategy( key );
+        this.key = LocatorStrategy.normalize( key );
     }
 
     // ----------------------------------------------------------------------
@@ -63,7 +58,7 @@ class QualifiedBeans<Q extends Annotation, T>
 
     public final synchronized Iterator<QualifiedBean<Q, T>> iterator()
     {
-        exposed = true; // flag that someone is using the beans
+        exposed = true;
         return beans.iterator();
     }
 
@@ -76,27 +71,27 @@ class QualifiedBeans<Q extends Annotation, T>
     @SuppressWarnings( { "unchecked", "rawtypes" } )
     public synchronized List<QualifiedBean<Q, T>> add( final Injector injector )
     {
-        if ( key.hasAttributes() )
+        if ( LocatorStrategy.NAMED_WITH_ATTRIBUTES == strategy )
         {
-            // looking for a very specific bean
-            final Binding binding = injector.getBindings().get( normalize( key ) );
-            if ( isVisible( null, binding ) )
+            final Binding binding = injector.getBindings().get( key );
+            if ( isVisible( binding ) )
             {
-                return Collections.singletonList( insertQualifiedBean( binding ) );
+                final Q qualifier = (Q) strategy.findQualifier( key, binding );
+                return Collections.singletonList( insertQualifiedBean( qualifier, binding ) );
             }
             return Collections.EMPTY_LIST;
         }
 
-        final TypeLiteral<T> beanType = key.getTypeLiteral();
-        final Class<? extends Annotation> qualifierType = key.getAnnotationType();
-
-        // looking for zero or more matching beans
         final List<QualifiedBean<Q, T>> newBeans = new ArrayList<QualifiedBean<Q, T>>();
-        for ( final Binding<T> binding : injector.findBindingsByType( beanType ) )
+        for ( final Binding<T> binding : injector.findBindingsByType( key.getTypeLiteral() ) )
         {
-            if ( isVisible( qualifierType, binding ) )
+            if ( isVisible( binding ) )
             {
-                newBeans.add( insertQualifiedBean( binding ) );
+                final Q qualifier = (Q) strategy.findQualifier( key, binding );
+                if ( null != qualifier )
+                {
+                    newBeans.add( insertQualifiedBean( qualifier, binding ) );
+                }
             }
         }
         return newBeans;
@@ -151,10 +146,11 @@ class QualifiedBeans<Q extends Annotation, T>
     /**
      * Inserts a qualified bean for the given binding into this bean sequence.
      * 
+     * @param qualifier The qualifier
      * @param binding The Guice binding
      * @return Qualified bean
      */
-    private QualifiedBean<Q, T> insertQualifiedBean( final Binding<T> binding )
+    private final QualifiedBean<Q, T> insertQualifiedBean( final Q qualifier, final Binding<T> binding )
     {
         if ( exposed || beans.isEmpty() )
         {
@@ -162,13 +158,13 @@ class QualifiedBeans<Q extends Annotation, T>
             beans = new ArrayList<QualifiedBean<Q, T>>( beans );
             exposed = false;
         }
-        final QualifiedBean<Q, T> bean = new QualifiedBean<Q, T>( binding );
-        if ( DEFAULT_QUALIFIER.equals( bean.getKey() ) )
+        final QualifiedBean<Q, T> bean = new QualifiedBean<Q, T>( qualifier, binding );
+        if ( LocatorStrategy.isDefaultQualifier( qualifier ) )
         {
             for ( int i = 0, size = beans.size(); i < size; i++ )
             {
                 // send default beans to the front, in order of appearance
-                if ( !DEFAULT_QUALIFIER.equals( beans.get( i ).getKey() ) )
+                if ( !LocatorStrategy.isDefaultQualifier( beans.get( i ).getKey() ) )
                 {
                     beans.add( i, bean );
                     return bean;
@@ -185,7 +181,7 @@ class QualifiedBeans<Q extends Annotation, T>
      * @param index The bean position
      * @return Qualified bean
      */
-    private QualifiedBean<Q, T> extractQualifiedBean( final int index )
+    private final QualifiedBean<Q, T> extractQualifiedBean( final int index )
     {
         if ( exposed )
         {
@@ -196,40 +192,30 @@ class QualifiedBeans<Q extends Annotation, T>
         return beans.remove( index );
     }
 
-    /**
-     * Normalizes the given binding key by mapping the {@code @Named("default")} qualifier to no qualifier.
-     * 
-     * @param key The binding key
-     * @return Normalized key
-     */
-    private static <T> Key<T> normalize( final Key<T> key )
+    private static final LocatorStrategy selectLocatorStrategy( final Key<?> expectedKey )
     {
-        return DEFAULT_QUALIFIER.equals( key.getAnnotation() ) ? Key.get( key.getTypeLiteral() ) : key;
+        final Class<?> qualifierType = expectedKey.getAnnotationType();
+        if ( null == qualifierType )
+        {
+            return LocatorStrategy.UNRESTRICTED;
+        }
+        if ( expectedKey.hasAttributes() )
+        {
+            if ( expectedKey.getAnnotation() instanceof Named )
+            {
+                return LocatorStrategy.NAMED_WITH_ATTRIBUTES;
+            }
+            return LocatorStrategy.MARKED_WITH_ATTRIBUTES;
+        }
+        if ( qualifierType == Named.class )
+        {
+            return LocatorStrategy.NAMED;
+        }
+        return LocatorStrategy.MARKED;
     }
 
-    /**
-     * Determines whether the given bean binding is visible to the {@link BeanLocator}.
-     * 
-     * @param qualifierType The expected qualifier type
-     * @param binding The bean binding
-     * @return {@code true} if the binding is visible; otherwise {@code false}
-     */
-    private static boolean isVisible( final Class<? extends Annotation> qualifierType, final Binding<?> binding )
+    private static final boolean isVisible( final Binding<?> binding )
     {
-        if ( null == binding || binding.getSource() instanceof HiddenSource )
-        {
-            return false; // exclude hidden bindings (helps avoids any unwanted recursion)
-        }
-        final Key<?> key = binding.getKey();
-        if ( null == key.getAnnotationType() && ( null == qualifierType || Named.class == qualifierType ) )
-        {
-            return true; // include unqualified defaults in unrestricted or @Named searches
-        }
-        final Annotation annotation = key.getAnnotation();
-        if ( null == annotation || DEFAULT_QUALIFIER.equals( annotation ) )
-        {
-            return false; // exclude type-only qualifiers or duplicate @Named("default")'s
-        }
-        return null == qualifierType || qualifierType == annotation.annotationType();
+        return null != binding && false == binding.getSource() instanceof HiddenSource;
     }
 }

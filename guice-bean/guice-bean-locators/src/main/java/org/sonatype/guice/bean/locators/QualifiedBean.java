@@ -29,6 +29,8 @@ public final class QualifiedBean<Q extends Annotation, T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    private final Q qualifier;
+
     private final Binding<T> binding;
 
     private T bean;
@@ -37,8 +39,9 @@ public final class QualifiedBean<Q extends Annotation, T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    QualifiedBean( final Binding<T> binding )
+    QualifiedBean( final Q qualifier, final Binding<T> binding )
     {
+        this.qualifier = qualifier;
         this.binding = binding;
     }
 
@@ -54,11 +57,9 @@ public final class QualifiedBean<Q extends Annotation, T>
         return binding;
     }
 
-    @SuppressWarnings( "unchecked" )
     public Q getKey()
     {
-        final Annotation ann = binding.getKey().getAnnotation();
-        return (Q) ( null != ann ? ann : QualifiedBeans.DEFAULT_QUALIFIER );
+        return qualifier;
     }
 
     public synchronized T getValue()

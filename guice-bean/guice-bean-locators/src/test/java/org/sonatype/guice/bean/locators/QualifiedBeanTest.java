@@ -52,7 +52,7 @@ public class QualifiedBeanTest
         } );
 
         final Entry<Annotation, Object> countingEntry =
-            new QualifiedBean<Annotation, Object>( injector.getBinding( Object.class ) );
+            new QualifiedBean<Annotation, Object>( null, injector.getBinding( Object.class ) );
 
         final Thread[] pool = new Thread[8];
         for ( int i = 0; i < pool.length; i++ )
@@ -106,17 +106,19 @@ public class QualifiedBeanTest
 
     public void testToString()
     {
+        final Key<String> key = Key.get( String.class, Names.named( "KEY" ) );
+
         final Injector injector = Guice.createInjector( new AbstractModule()
         {
             @Override
             protected void configure()
             {
-                bind( String.class ).annotatedWith( Names.named( "KEY" ) ).toProvider( new ToStringProvider() );
+                bind( String.class ).annotatedWith( key.getAnnotation() ).toProvider( new ToStringProvider() );
             }
         } );
 
         final Entry<Named, String> textEntry =
-            new QualifiedBean<Named, String>( injector.getBinding( Key.get( String.class, Names.named( "KEY" ) ) ) );
+            new QualifiedBean<Named, String>( (Named) key.getAnnotation(), injector.getBinding( key ) );
 
         assertEquals( Names.named( "KEY" ) + "=VALUE", textEntry.toString() );
     }
