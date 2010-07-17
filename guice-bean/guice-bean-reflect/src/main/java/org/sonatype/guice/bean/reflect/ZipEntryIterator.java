@@ -30,12 +30,6 @@ final class ZipEntryIterator
     implements Iterator<String>
 {
     // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final String[] NO_ENTRIES = {};
-
-    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
@@ -62,7 +56,7 @@ final class ZipEntryIterator
         }
         catch ( final IOException e )
         {
-            entryNames = NO_ENTRIES;
+            entryNames = new String[0];
         }
     }
 

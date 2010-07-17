@@ -40,7 +40,7 @@ final class ResourceEnumeration
 
     private final String subPath;
 
-    private final Globber globber;
+    private final GlobberStrategy globber;
 
     private final Object globPattern;
 
@@ -69,7 +69,7 @@ final class ResourceEnumeration
     ResourceEnumeration( final String subPath, final String glob, final boolean recurse, final URL[] urls )
     {
         this.subPath = normalizeSearchPath( subPath );
-        globber = selectGlobber( glob );
+        globber = selectGlobberStrategy( glob );
         globPattern = globber.compile( glob );
         this.recurse = recurse;
 
@@ -169,30 +169,30 @@ final class ResourceEnumeration
      * @param glob The plain-text glob
      * @return Globber strategy
      */
-    private static Globber selectGlobber( final String glob )
+    private static GlobberStrategy selectGlobberStrategy( final String glob )
     {
         if ( null == glob || "*".equals( glob ) )
         {
-            return Globber.ANYTHING;
+            return GlobberStrategy.ANYTHING;
         }
         final int firstWildcard = glob.indexOf( '*' );
         if ( firstWildcard < 0 )
         {
-            return Globber.EXACT;
+            return GlobberStrategy.EXACT;
         }
         final int lastWildcard = glob.lastIndexOf( '*' );
         if ( firstWildcard == lastWildcard )
         {
             if ( firstWildcard == 0 )
             {
-                return Globber.SUFFIX;
+                return GlobberStrategy.SUFFIX;
             }
             if ( lastWildcard == glob.length() - 1 )
             {
-                return Globber.PREFIX;
+                return GlobberStrategy.PREFIX;
             }
         }
-        return Globber.PATTERN;
+        return GlobberStrategy.PATTERN;
     }
 
     /**
@@ -216,7 +216,7 @@ final class ResourceEnumeration
      */
     private boolean matchesRequest( final String entryName )
     {
-        if ( !entryName.startsWith( subPath ) || entryName.endsWith( "/" ) )
+        if ( entryName.endsWith( "/" ) || !entryName.startsWith( subPath ) )
         {
             return false; // not inside the search scope
         }

@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 /**
  * Enumerates various optimized filename globbing strategies.
  */
-enum Globber
+enum GlobberStrategy
 {
     ANYTHING
     {
