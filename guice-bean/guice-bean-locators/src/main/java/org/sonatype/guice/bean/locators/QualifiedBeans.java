@@ -22,6 +22,7 @@ import java.util.List;
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 
 /**
@@ -31,10 +32,16 @@ class QualifiedBeans<Q extends Annotation, T>
     implements Iterable<QualifiedBean<Q, T>>
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final TypeLiteral<?> OBJECT_TYPE_LITERAL = TypeLiteral.get( Object.class );
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final LocatorStrategy strategy;
+    private final QualifyingStrategy strategy;
 
     private final Key<T> key;
 
@@ -48,8 +55,8 @@ class QualifiedBeans<Q extends Annotation, T>
 
     QualifiedBeans( final Key<T> key )
     {
-        this.strategy = selectLocatorStrategy( key );
-        this.key = LocatorStrategy.normalize( key );
+        this.strategy = selectQualifyingStrategy( key );
+        this.key = strategy.normalizeKey( key );
     }
 
     // ----------------------------------------------------------------------
@@ -71,23 +78,33 @@ class QualifiedBeans<Q extends Annotation, T>
     @SuppressWarnings( { "unchecked", "rawtypes" } )
     public synchronized List<QualifiedBean<Q, T>> add( final Injector injector )
     {
-        if ( LocatorStrategy.NAMED_WITH_ATTRIBUTES == strategy )
+        final Collection<Binding<?>> bindings;
+        final TypeLiteral<T> bindingType = key.getTypeLiteral();
+        if ( OBJECT_TYPE_LITERAL.equals( bindingType ) )
+        {
+            bindings = injector.getBindings().values(); // check all bindings
+        }
+        else if ( QualifyingStrategy.NAMED_WITH_ATTRIBUTES == strategy )
         {
             final Binding binding = injector.getBindings().get( key );
             if ( isVisible( binding ) )
             {
-                final Q qualifier = (Q) strategy.findQualifier( key, binding );
+                final Q qualifier = (Q) QualifyingStrategy.UNRESTRICTED.qualify( key, binding );
                 return Collections.singletonList( insertQualifiedBean( qualifier, binding ) );
             }
             return Collections.EMPTY_LIST;
         }
+        else
+        {
+            bindings = (Collection) injector.findBindingsByType( bindingType );
+        }
 
         final List<QualifiedBean<Q, T>> newBeans = new ArrayList<QualifiedBean<Q, T>>();
-        for ( final Binding<T> binding : injector.findBindingsByType( key.getTypeLiteral() ) )
+        for ( final Binding binding : bindings )
         {
             if ( isVisible( binding ) )
             {
-                final Q qualifier = (Q) strategy.findQualifier( key, binding );
+                final Q qualifier = (Q) strategy.qualify( key, binding );
                 if ( null != qualifier )
                 {
                     newBeans.add( insertQualifiedBean( qualifier, binding ) );
@@ -159,12 +176,12 @@ class QualifiedBeans<Q extends Annotation, T>
             exposed = false;
         }
         final QualifiedBean<Q, T> bean = new QualifiedBean<Q, T>( qualifier, binding );
-        if ( LocatorStrategy.isDefaultQualifier( qualifier ) )
+        if ( strategy.isDefault( qualifier ) )
         {
             for ( int i = 0, size = beans.size(); i < size; i++ )
             {
-                // send default beans to the front, in order of appearance
-                if ( !LocatorStrategy.isDefaultQualifier( beans.get( i ).getKey() ) )
+                // send default beans to front, in order of appearance
+                if ( !strategy.isDefault( beans.get( i ).getKey() ) )
                 {
                     beans.add( i, bean );
                     return bean;
@@ -192,26 +209,26 @@ class QualifiedBeans<Q extends Annotation, T>
         return beans.remove( index );
     }
 
-    private static final LocatorStrategy selectLocatorStrategy( final Key<?> expectedKey )
+    private static final QualifyingStrategy selectQualifyingStrategy( final Key<?> expectedKey )
     {
         final Class<?> qualifierType = expectedKey.getAnnotationType();
         if ( null == qualifierType )
         {
-            return LocatorStrategy.UNRESTRICTED;
+            return QualifyingStrategy.UNRESTRICTED;
         }
         if ( expectedKey.hasAttributes() )
         {
             if ( expectedKey.getAnnotation() instanceof Named )
             {
-                return LocatorStrategy.NAMED_WITH_ATTRIBUTES;
+                return QualifyingStrategy.NAMED_WITH_ATTRIBUTES;
             }
-            return LocatorStrategy.MARKED_WITH_ATTRIBUTES;
+            return QualifyingStrategy.MARKED_WITH_ATTRIBUTES;
         }
         if ( qualifierType == Named.class )
         {
-            return LocatorStrategy.NAMED;
+            return QualifyingStrategy.NAMED;
         }
-        return LocatorStrategy.MARKED;
+        return QualifyingStrategy.MARKED;
     }
 
     private static final boolean isVisible( final Binding<?> binding )

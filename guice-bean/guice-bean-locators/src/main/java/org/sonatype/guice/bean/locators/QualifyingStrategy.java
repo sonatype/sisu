@@ -23,12 +23,12 @@ import com.google.inject.spi.DefaultBindingTargetVisitor;
 import com.google.inject.spi.InstanceBinding;
 import com.google.inject.spi.LinkedKeyBinding;
 
-enum LocatorStrategy
+enum QualifyingStrategy
 {
     UNRESTRICTED
     {
         @Override
-        final Annotation findQualifier( final Key<?> expectedKey, final Binding<?> binding )
+        final Annotation qualify( final Key<?> expectedKey, final Binding<?> binding )
         {
             final Annotation qualifier = binding.getKey().getAnnotation();
             return null == qualifier ? DEFAULT_QUALIFIER : DEFAULT_QUALIFIER.equals( qualifier ) ? null : qualifier;
@@ -37,25 +37,25 @@ enum LocatorStrategy
     NAMED
     {
         @Override
-        final Annotation findQualifier( final Key<?> expectedKey, final Binding<?> binding )
+        final Annotation qualify( final Key<?> expectedKey, final Binding<?> binding )
         {
-            final Annotation qualifier = UNRESTRICTED.findQualifier( expectedKey, binding );
-            return qualifier instanceof Named ? qualifier : null;
+            final Annotation qualifier = UNRESTRICTED.qualify( expectedKey, binding );
+            return null != qualifier && Named.class == qualifier.annotationType() ? qualifier : null;
         }
     },
     NAMED_WITH_ATTRIBUTES
     {
         @Override
-        final Annotation findQualifier( final Key<?> expectedKey, final Binding<?> binding )
+        final Annotation qualify( final Key<?> expectedKey, final Binding<?> binding )
         {
-            final Annotation qualifier = binding.getKey().getAnnotation();
-            return null == qualifier ? DEFAULT_QUALIFIER : qualifier;
+            final Annotation qualifier = NAMED.qualify( expectedKey, binding );
+            return expectedKey.getAnnotation().equals( qualifier ) ? qualifier : null;
         }
     },
     MARKED
     {
         @Override
-        final Annotation findQualifier( final Key<?> expectedKey, final Binding<?> binding )
+        final Annotation qualify( final Key<?> expectedKey, final Binding<?> binding )
         {
             final Class<? extends Annotation> expectedQualifierType = expectedKey.getAnnotationType();
             final Class<?> implementation = binding.acceptTargetVisitor( TARGET_VISITOR );
@@ -65,25 +65,25 @@ enum LocatorStrategy
     MARKED_WITH_ATTRIBUTES
     {
         @Override
-        final Annotation findQualifier( final Key<?> expectedKey, final Binding<?> binding )
+        final Annotation qualify( final Key<?> expectedKey, final Binding<?> binding )
         {
-            final Annotation qualifier = MARKED.findQualifier( expectedKey, binding );
+            final Annotation qualifier = MARKED.qualify( expectedKey, binding );
             return expectedKey.getAnnotation().equals( qualifier ) ? qualifier : null;
         }
     };
 
-    abstract Annotation findQualifier( final Key<?> expectedKey, final Binding<?> binding );
+    abstract Annotation qualify( final Key<?> expectedKey, final Binding<?> binding );
 
     static final Annotation DEFAULT_QUALIFIER = Names.named( "default" );
 
-    static final boolean isDefaultQualifier( final Annotation qualifier )
+    final boolean isDefault( final Annotation qualifier )
     {
         return DEFAULT_QUALIFIER.equals( qualifier );
     }
 
-    static final <T> Key<T> normalize( final Key<T> key )
+    final <T> Key<T> normalizeKey( final Key<T> key )
     {
-        return isDefaultQualifier( key.getAnnotation() ) ? Key.get( key.getTypeLiteral() ) : key;
+        return isDefault( key.getAnnotation() ) ? Key.get( key.getTypeLiteral() ) : key;
     }
 
     static final QualifiedTargetVisitor TARGET_VISITOR = new QualifiedTargetVisitor();

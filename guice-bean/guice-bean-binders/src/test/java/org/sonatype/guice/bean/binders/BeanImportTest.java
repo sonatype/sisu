@@ -170,13 +170,6 @@ public class BeanImportTest
         List<Y> list;
     }
 
-    static class UnrestrictedMap
-        extends Abstract
-    {
-        @Inject
-        Map<Annotation, Y> map;
-    }
-
     static class NamedType
         extends Abstract
     {
@@ -294,7 +287,6 @@ public class BeanImportTest
 
             bind( X.class ).annotatedWith( Names.named( "UI" ) ).to( UnrestrictedInstance.class );
             bind( X.class ).annotatedWith( Names.named( "UL" ) ).to( UnrestrictedList.class );
-            bind( X.class ).annotatedWith( Names.named( "UM" ) ).to( UnrestrictedMap.class );
 
             bind( X.class ).annotatedWith( Names.named( "NT" ) ).to( NamedType.class );
             bind( X.class ).annotatedWith( Names.named( "NI" ) ).to( NamedInstance.class );
@@ -332,14 +324,6 @@ public class BeanImportTest
         assertSame( unrestrictedList.fuzzy, unrestrictedList.list.get( 1 ) );
 
         assertNotSame( unrestrictedList.list.get( 0 ), unrestrictedList.list.get( 1 ) );
-
-        final UnrestrictedMap unrestrictedMap =
-            (UnrestrictedMap) injector.getInstance( Key.get( X.class, Names.named( "UM" ) ) );
-
-        assertEquals( 2, unrestrictedMap.map.size() );
-
-        assertSame( unrestrictedList.list.get( 0 ), unrestrictedMap.map.get( Names.named( "local" ) ) );
-        assertSame( unrestrictedList.list.get( 1 ), unrestrictedMap.map.get( new FuzzyImpl() ) );
     }
 
     public void testNamedImports()

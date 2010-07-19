@@ -48,10 +48,11 @@ public final class ExampleTestCase
     {
         assertTrue( bean instanceof DefaultFoo );
 
-        assertEquals( 3, beans.size() );
+        assertEquals( 4, beans.size() );
 
         assertTrue( beans.get( "default" ) instanceof DefaultFoo );
         assertTrue( beans.get( NamedFoo.class.getName() ) instanceof NamedFoo );
+        assertTrue( beans.get( TaggedFoo.class.getName() ) instanceof TaggedFoo );
         assertTrue( beans.get( "NameTag" ) instanceof NamedAndTaggedFoo );
 
         assertTrue( bean == beans.get( "default" ) );

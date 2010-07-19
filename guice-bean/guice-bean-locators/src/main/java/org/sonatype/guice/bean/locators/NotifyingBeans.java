@@ -47,58 +47,47 @@ final class NotifyingBeans<Q extends Annotation, T>
     @Override
     public synchronized List<QualifiedBean<Q, T>> add( final Injector injector )
     {
-        final List<QualifiedBean<Q, T>> newBeans = super.add( injector );
-        if ( !newBeans.isEmpty() )
-        {
-            sendUpdate();
-        }
-        return newBeans;
+        return sendUpdate( super.add( injector ) );
     }
 
     @Override
     public synchronized List<QualifiedBean<Q, T>> remove( final Injector injector )
     {
-        final List<QualifiedBean<Q, T>> oldBeans = super.remove( injector );
-        if ( !oldBeans.isEmpty() )
-        {
-            sendUpdate();
-        }
-        return oldBeans;
+        return sendUpdate( super.remove( injector ) );
     }
 
     @Override
     public synchronized List<QualifiedBean<Q, T>> clear()
     {
-        final List<QualifiedBean<Q, T>> oldBeans = super.clear();
-        if ( !oldBeans.isEmpty() )
-        {
-            sendUpdate();
-        }
-        return oldBeans;
+        return sendUpdate( super.clear() );
     }
 
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private void sendUpdate()
+    private final List<QualifiedBean<Q, T>> sendUpdate( final List<QualifiedBean<Q, T>> beans )
     {
-        try
+        if ( !beans.isEmpty() )
         {
-            notify.run();
-        }
-        catch ( final Throwable e )
-        {
-            final String message = "Problem notifying: " + notify;
-            final Class<?> notifyType = notify.getClass();
             try
             {
-                org.slf4j.LoggerFactory.getLogger( notifyType ).warn( message, e );
+                notify.run();
             }
-            catch ( final Throwable ignore )
+            catch ( final Throwable e )
             {
-                Logger.getLogger( notifyType.getName() ).log( Level.WARNING, message, e );
+                final String message = "Problem notifying: " + notify;
+                final Class<?> notifyType = notify.getClass();
+                try
+                {
+                    org.slf4j.LoggerFactory.getLogger( notifyType ).warn( message, e );
+                }
+                catch ( final Throwable ignore )
+                {
+                    Logger.getLogger( notifyType.getName() ).log( Level.WARNING, message, e );
+                }
             }
         }
+        return beans;
     }
 }

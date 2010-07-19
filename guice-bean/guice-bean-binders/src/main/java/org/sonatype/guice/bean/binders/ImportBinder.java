@@ -118,10 +118,6 @@ final class ImportBinder
             {
                 binder.bind( key ).toProvider( new NamedBeanMapProvider( bindingType ) );
             }
-            else if ( qualifierType == Annotation.class )
-            {
-                binder.bind( key ).toProvider( new BeanMapProvider( Key.get( bindingType ) ) );
-            }
             else if ( qualifierType.isAnnotationPresent( Qualifier.class ) )
             {
                 binder.bind( key ).toProvider( new BeanMapProvider( Key.get( bindingType, qualifierType ) ) );

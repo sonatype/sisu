@@ -54,33 +54,33 @@ public class BeanWatcherTest
     }
 
     @javax.inject.Named
-    static class ItemA
+    static class AItem
         extends SomeItem
     {
     }
 
     @Marked( 0 )
     @javax.inject.Named
-    static class ItemB
+    static class BItem
         extends SomeItem
     {
     }
 
     @EagerSingleton
     @javax.inject.Named
-    static class ItemC
+    static class CItem
         extends SomeItem
     {
         static boolean initialized;
 
-        public ItemC()
+        public CItem()
         {
             initialized = true;
         }
     }
 
     @Marked( 1 )
-    static class ItemD
+    static class DItem
         extends SomeItem
     {
     }
@@ -150,23 +150,24 @@ public class BeanWatcherTest
 
     public void testNamedWatcher()
     {
-        assertTrue( ItemC.initialized );
+        assertTrue( CItem.initialized );
 
-        assertEquals( 3, namedItemWatcher.items.size() );
+        assertEquals( 4, namedItemWatcher.items.size() );
         assertEquals( 2, markedItemWatcher.items.size() );
 
-        assertTrue( namedItemWatcher.items.get( ItemA.class.getName() ) instanceof ItemA );
-        assertTrue( namedItemWatcher.items.get( ItemB.class.getName() ) instanceof ItemB );
-        assertTrue( namedItemWatcher.items.get( ItemC.class.getName() ) instanceof ItemC );
+        assertTrue( namedItemWatcher.items.get( AItem.class.getName() ) instanceof AItem );
+        assertTrue( namedItemWatcher.items.get( BItem.class.getName() ) instanceof BItem );
+        assertTrue( namedItemWatcher.items.get( CItem.class.getName() ) instanceof CItem );
+        assertTrue( namedItemWatcher.items.get( DItem.class.getName() ) instanceof DItem );
 
-        assertNotSame( namedItemWatcher.items.get( ItemA.class.getName() ),
-                       injector.getInstance( Key.get( Item.class, Names.named( ItemA.class.getName() ) ) ) );
+        assertNotSame( namedItemWatcher.items.get( AItem.class.getName() ),
+                       injector.getInstance( Key.get( Item.class, Names.named( AItem.class.getName() ) ) ) );
 
-        assertSame( namedItemWatcher.items.get( ItemC.class.getName() ),
-                    injector.getInstance( Key.get( Item.class, Names.named( ItemC.class.getName() ) ) ) );
+        assertSame( namedItemWatcher.items.get( CItem.class.getName() ),
+                    injector.getInstance( Key.get( Item.class, Names.named( CItem.class.getName() ) ) ) );
 
-        assertTrue( markedItemWatcher.items.get( Integer.valueOf( 0 ) ) instanceof ItemB );
-        assertTrue( markedItemWatcher.items.get( Integer.valueOf( 1 ) ) instanceof ItemD );
+        assertTrue( markedItemWatcher.items.get( Integer.valueOf( 0 ) ) instanceof BItem );
+        assertTrue( markedItemWatcher.items.get( Integer.valueOf( 1 ) ) instanceof DItem );
 
         injector.getInstance( MutableBeanLocator.class ).remove( injector );
 

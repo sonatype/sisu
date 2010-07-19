@@ -67,37 +67,19 @@ final class WatchedBeans<Q extends Annotation, T, W>
     @Override
     public synchronized List<QualifiedBean<Q, T>> add( final Injector injector )
     {
-        final List<QualifiedBean<Q, T>> newBeans = super.add( injector );
-        final W watcher = watcherRef.get();
-        if ( null != watcher )
-        {
-            reportBeans( BeanEvent.ADD, newBeans, watcher );
-        }
-        return newBeans;
+        return reportBeans( BeanEvent.ADD, super.add( injector ) );
     }
 
     @Override
     public synchronized List<QualifiedBean<Q, T>> remove( final Injector injector )
     {
-        final List<QualifiedBean<Q, T>> oldBeans = super.remove( injector );
-        final W watcher = watcherRef.get();
-        if ( null != watcher )
-        {
-            reportBeans( BeanEvent.REMOVE, oldBeans, watcher );
-        }
-        return oldBeans;
+        return reportBeans( BeanEvent.REMOVE, super.remove( injector ) );
     }
 
     @Override
     public synchronized List<QualifiedBean<Q, T>> clear()
     {
-        final List<QualifiedBean<Q, T>> oldBeans = super.clear();
-        final W watcher = watcherRef.get();
-        if ( null != watcher )
-        {
-            reportBeans( BeanEvent.REMOVE, oldBeans, watcher );
-        }
-        return oldBeans;
+        return reportBeans( BeanEvent.REMOVE, super.clear() );
     }
 
     // ----------------------------------------------------------------------
@@ -144,21 +126,26 @@ final class WatchedBeans<Q extends Annotation, T, W>
      * 
      * @param event The bean event
      * @param beans The qualified beans
-     * @param watcher The bean watcher
+     * @return The reported beans
      */
-    private void reportBeans( final BeanEvent event, final List<QualifiedBean<Q, T>> beans, final W watcher )
+    private List<QualifiedBean<Q, T>> reportBeans( final BeanEvent event, final List<QualifiedBean<Q, T>> beans )
     {
-        for ( int i = 0, size = beans.size(); i < size; i++ )
+        final W watcher = watcherRef.get();
+        if ( null != watcher )
         {
-            try
+            for ( int i = 0, size = beans.size(); i < size; i++ )
             {
-                event.send( mediator, beans.get( i ), watcher );
-            }
-            catch ( final Throwable e )
-            {
-                reportWatcherException( watcher, e );
+                try
+                {
+                    event.send( mediator, beans.get( i ), watcher );
+                }
+                catch ( final Throwable e )
+                {
+                    reportWatcherException( watcher, e );
+                }
             }
         }
+        return beans;
     }
 
     /**

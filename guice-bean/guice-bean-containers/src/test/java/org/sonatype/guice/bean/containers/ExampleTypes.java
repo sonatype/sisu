@@ -62,7 +62,6 @@ class DefaultFoo
 class TagImpl
     implements Tag
 {
-
     private final String value;
 
     public TagImpl( final String value )

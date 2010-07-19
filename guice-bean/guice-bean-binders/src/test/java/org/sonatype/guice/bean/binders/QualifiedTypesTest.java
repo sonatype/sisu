@@ -157,13 +157,13 @@ public class QualifiedTypesTest
     }
 
     @Named
-    static class SubclassB03
+    static class SubclassB03EventListener
         extends AbstractB03
     {
     }
 
     @Named( "RENAME" )
-    static class SubclassB04
+    static class SubclassB04EventListener
         extends AbstractB03
     {
     }
@@ -252,14 +252,14 @@ public class QualifiedTypesTest
 
     private void checkLegacyBinding( final Class<?> api, final Class<?> imp )
     {
-        assertEquals( imp, injector.getInstance( Key.get( api, new LegacyImpl() ) ).getClass() );
+        assertEquals( imp, injector.getInstance( Key.get( api, Names.named( imp.getName() ) ) ).getClass() );
     }
 
     public void testQualifiedBindings()
     {
         checkDefaultBinding( DefaultB01.class, DefaultB01.class );
         checkDefaultBinding( Thread.class, B01.class );
-        checkDefaultBinding( EventListener.class, DefaultB02.class );
+        checkNamedBinding( EventListener.class, DefaultB02.class.getName(), DefaultB02.class );
 
         checkNamedBinding( EventListener.class, B02.class.getName(), B02.class );
         checkNamedBinding( EventListener.class, B03.class.getName(), B03.class );
@@ -268,14 +268,14 @@ public class QualifiedTypesTest
 
         checkNamedBinding( EventListener.class, B05EventListener.class.getName(), B05EventListener.class );
         checkNamedBinding( EventListener.class, B06.class.getName(), B06.class );
-        checkNamedBinding( Runnable.class, B06.class.getName(), B06.class );
 
-        checkNamedBinding( Thread.class, SubclassB00.class.getName(), SubclassB00.class );
+        checkNamedBinding( B01.class, SubclassB00.class.getName(), SubclassB00.class );
         checkNamedBinding( AbstractB01.class, SubclassB01.class.getName(), SubclassB01.class );
 
         checkNamedBinding( EventListener.class, SubclassB02.class.getName(), SubclassB02.class );
-        checkNamedBinding( EventListener.class, SubclassB03.class.getName(), SubclassB03.class );
-        checkNamedBinding( EventListener.class, "RENAME", SubclassB04.class );
+        checkNamedBinding( EventListener.class, SubclassB03EventListener.class.getName(),
+                           SubclassB03EventListener.class );
+        checkNamedBinding( EventListener.class, "RENAME", SubclassB04EventListener.class );
         checkNamedBinding( EventListener.class, SubclassB06.class.getName(), SubclassB06.class );
         checkNamedBinding( Serializable.class, SubclassB07.class.getName(), SubclassB07.class );
         checkNamedBinding( EventListener.class, SubclassB08.class.getName(), SubclassB08.class );
@@ -291,16 +291,6 @@ public class QualifiedTypesTest
     static class AImpl
         implements A
     {
-    }
-
-    static class CustomBindings
-        implements Module
-    {
-        public void configure( final Binder binder )
-        {
-            final QualifiedTypeListener listener = new QualifiedTypeBinder( binder );
-            listener.hear( Names.named( "interface" ), A.class, null );
-        }
     }
 
     static class Ambiguous
@@ -349,12 +339,6 @@ public class QualifiedTypesTest
             listener.hear( Names.named( "abstract" ), AbstractStringMediator.class, null );
             listener.hear( Names.named( "abstract" ), AbstractModule.class, null );
         }
-    }
-
-    public void testCustomBindings()
-    {
-        final Injector customInjector = Guice.createInjector( new CustomBindings() );
-        assertTrue( customInjector.getInstance( Key.get( A.class, Names.named( "interface" ) ) ) instanceof AImpl );
     }
 
     public void testBadBindings()
