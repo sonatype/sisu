@@ -117,6 +117,12 @@ public final class DefaultPlexusContainer
     // Constructors
     // ----------------------------------------------------------------------
 
+    public DefaultPlexusContainer()
+        throws PlexusContainerException
+    {
+        this( new DefaultContainerConfiguration() );
+    }
+
     public DefaultPlexusContainer( final ContainerConfiguration configuration )
         throws PlexusContainerException
     {
