@@ -258,13 +258,16 @@ public class QualifiedTypesTest
     public void testQualifiedBindings()
     {
         checkDefaultBinding( DefaultB01.class, DefaultB01.class );
+        checkDefaultBinding( DefaultB03.class, DefaultB03.class );
+        checkDefaultBinding( DefaultB04.class, DefaultB04.class );
+
         checkDefaultBinding( Thread.class, B01.class );
+        checkDefaultBinding( B04.class, B04.class );
+
         checkNamedBinding( EventListener.class, DefaultB02.class.getName(), DefaultB02.class );
 
         checkNamedBinding( EventListener.class, B02.class.getName(), B02.class );
         checkNamedBinding( EventListener.class, B03.class.getName(), B03.class );
-        checkNamedBinding( DefaultB04.class, "TEST", DefaultB04.class );
-        checkNamedBinding( B04.class, "TEST", B04.class );
 
         checkNamedBinding( EventListener.class, B05EventListener.class.getName(), B05EventListener.class );
         checkNamedBinding( EventListener.class, B06.class.getName(), B06.class );

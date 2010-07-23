@@ -15,7 +15,7 @@ package org.sonatype.guice.bean.binders;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.enterprise.inject.Typed;
@@ -159,19 +159,33 @@ public final class QualifiedTypeBinder
         {
             binder.bind( qualifiedType ).asEagerSingleton();
         }
-        final Class bindingType = getBindingType( qualifiedType );
-        final Annotation bindingQualifier = getBindingQualifier( bindingType, qualifiedType );
-        if ( null != bindingQualifier )
+
+        if ( qualifiedType.isInterface() )
         {
-            binder.bind( Key.get( bindingType, bindingQualifier ) ).to( qualifiedType );
+            return;
         }
-        else if ( bindingType != qualifiedType )
+
+        final Named fullName = Names.named( qualifiedType.getName() );
+        final Named customName = getCustomName( qualifiedType );
+
+        for ( final Class bindingType : getBindingTypes( qualifiedType ) )
         {
-            binder.bind( bindingType ).to( qualifiedType );
-        }
-        else if ( !isEagerSingleton )
-        {
-            binder.bind( qualifiedType );
+            if ( bindingType != qualifiedType )
+            {
+                final Named bindingName = getBindingName( bindingType, fullName, customName );
+                if ( null != bindingName )
+                {
+                    binder.bind( Key.get( bindingType, bindingName ) ).to( qualifiedType );
+                }
+                else
+                {
+                    binder.bind( bindingType ).to( qualifiedType );
+                }
+            }
+            else if ( !isEagerSingleton )
+            {
+                binder.bind( qualifiedType );
+            }
         }
     }
 
@@ -210,62 +224,73 @@ public final class QualifiedTypeBinder
     }
 
     /**
-     * Determines the binding type to be used for the given qualified type.
+     * Determines the binding types to be used for the given qualified type.
      * 
      * @param qualifiedType The qualified type
-     * @return Selected binding type
+     * @return Selected binding types
      */
     @SuppressWarnings( "rawtypes" )
-    private static Class getBindingType( final Class qualifiedType )
+    private static List<Class> getBindingTypes( final Class qualifiedType )
     {
-        if ( qualifiedType.isInterface() )
-        {
-            return qualifiedType;
-        }
-        final List<Class> hierarchy = new ArrayList<Class>();
+        final List<Class> types = new ArrayList<Class>();
+
+        final String qualifiedName = qualifiedType.getSimpleName();
+        final Class extendedClazz = qualifiedType.getSuperclass();
+
         for ( Class<?> clazz = qualifiedType; clazz != Object.class; clazz = clazz.getSuperclass() )
         {
             final Typed typed = clazz.getAnnotation( Typed.class );
-            if ( null != typed && typed.value().length > 0 )
+            if ( null != typed )
             {
-                return typed.value()[0];
+                return Arrays.<Class> asList( typed.value() );
             }
-            hierarchy.add( clazz );
-            Collections.addAll( hierarchy, clazz.getInterfaces() );
-        }
-        final String qualifiedName = qualifiedType.getName();
-        for ( int n = hierarchy.size() - 1; n > 0; n-- )
-        {
-            final Class clazz = hierarchy.get( n );
-            if ( qualifiedName.endsWith( clazz.getSimpleName() ) )
+            if ( clazz == extendedClazz || qualifiedName.endsWith( clazz.getSimpleName() ) )
             {
-                return clazz;
+                types.add( clazz );
+            }
+            for ( final Class<?> iFace : clazz.getInterfaces() )
+            {
+                if ( clazz == qualifiedType || qualifiedName.endsWith( iFace.getSimpleName() ) )
+                {
+                    types.add( iFace );
+                }
             }
         }
-        return hierarchy.size() > 1 ? hierarchy.get( 1 ) : qualifiedType;
+
+        types.add( Object.class );
+
+        return types;
     }
 
-    private static Annotation getBindingQualifier( final Class<?> bindingType, final Class<?> qualifiedType )
+    private static Named getCustomName( final Class<?> qualifiedType )
     {
-        Named named = qualifiedType.getAnnotation( Named.class );
         final javax.inject.Named jsr330 = qualifiedType.getAnnotation( javax.inject.Named.class );
         if ( null != jsr330 )
         {
-            named = Names.named( jsr330.value() );
+            return Names.named( jsr330.value() );
         }
-        if ( null == named || named.value().length() == 0 )
+        return qualifiedType.getAnnotation( Named.class );
+    }
+
+    private static Named getBindingName( final Class<?> bindingType, final Named fullName, final Named customName )
+    {
+        if ( Object.class == bindingType )
         {
-            final String qualifiedName = qualifiedType.getSimpleName();
-            if ( !qualifiedName.startsWith( "Default" ) || !qualifiedName.endsWith( bindingType.getSimpleName() ) )
+            return fullName;
+        }
+        if ( null == customName || customName.value().length() == 0 )
+        {
+            final String implementation = fullName.value();
+            if ( implementation.contains( "Default" ) && implementation.endsWith( bindingType.getSimpleName() ) )
             {
-                return Names.named( qualifiedType.getName() ); // implicit name
+                return null;
             }
-            return null; // implicit default
+            return fullName;
         }
-        if ( "default".equalsIgnoreCase( named.value() ) )
+        if ( "default".equalsIgnoreCase( customName.value() ) )
         {
-            return null; // explicit default
+            return null;
         }
-        return named; // explicit name
+        return customName;
     }
 }

@@ -86,11 +86,7 @@ class QualifiedBeans<Q extends Annotation, T>
     {
         final Collection<Binding<?>> bindings;
         final TypeLiteral bindingType = key.getTypeLiteral();
-        if ( Object.class == bindingType.getRawType() )
-        {
-            bindings = injector.getBindings().values(); // check all bindings
-        }
-        else if ( strategy == QualifyingStrategy.NAMED_WITH_ATTRIBUTES )
+        if ( strategy == QualifyingStrategy.NAMED_WITH_ATTRIBUTES )
         {
             final boolean isDefault = DEFAULT_QUALIFIER.equals( key.getAnnotation() );
             final Binding<?> b = injector.getBindings().get( isDefault ? Key.get( bindingType ) : key );
