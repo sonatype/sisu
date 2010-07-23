@@ -17,11 +17,6 @@ import java.lang.annotation.Annotation;
 import com.google.inject.Binding;
 import com.google.inject.Key;
 import com.google.inject.name.Named;
-import com.google.inject.name.Names;
-import com.google.inject.spi.ConstructorBinding;
-import com.google.inject.spi.DefaultBindingTargetVisitor;
-import com.google.inject.spi.InstanceBinding;
-import com.google.inject.spi.LinkedKeyBinding;
 
 enum QualifyingStrategy
 {
@@ -30,8 +25,12 @@ enum QualifyingStrategy
         @Override
         final Annotation qualify( final Key<?> expectedKey, final Binding<?> binding )
         {
-            final Annotation qualifier = binding.getKey().getAnnotation();
-            return null == qualifier ? DEFAULT_QUALIFIER : DEFAULT_QUALIFIER.equals( qualifier ) ? null : qualifier;
+            final Key<?> key = binding.getKey();
+            if ( null != key.getAnnotationType() )
+            {
+                return key.getAnnotation();
+            }
+            return QualifiedBeans.DEFAULT_QUALIFIER;
         }
     },
     NAMED
@@ -40,7 +39,7 @@ enum QualifyingStrategy
         final Annotation qualify( final Key<?> expectedKey, final Binding<?> binding )
         {
             final Annotation qualifier = UNRESTRICTED.qualify( expectedKey, binding );
-            return null != qualifier && Named.class == qualifier.annotationType() ? qualifier : null;
+            return qualifier instanceof Named ? qualifier : null;
         }
     },
     NAMED_WITH_ATTRIBUTES
@@ -57,9 +56,9 @@ enum QualifyingStrategy
         @Override
         final Annotation qualify( final Key<?> expectedKey, final Binding<?> binding )
         {
-            final Class<? extends Annotation> expectedQualifierType = expectedKey.getAnnotationType();
-            final Class<?> implementation = binding.acceptTargetVisitor( TARGET_VISITOR );
-            return implementation.getAnnotation( expectedQualifierType );
+            final Class<? extends Annotation> markerType = expectedKey.getAnnotationType();
+            final Class<?> implementation = binding.acceptTargetVisitor( IMPLEMENTATION_VISITOR );
+            return implementation.getAnnotation( markerType );
         }
     },
     MARKED_WITH_ATTRIBUTES
@@ -74,45 +73,5 @@ enum QualifyingStrategy
 
     abstract Annotation qualify( final Key<?> expectedKey, final Binding<?> binding );
 
-    static final Annotation DEFAULT_QUALIFIER = Names.named( "default" );
-
-    final boolean isDefault( final Annotation qualifier )
-    {
-        return DEFAULT_QUALIFIER.equals( qualifier );
-    }
-
-    final <T> Key<T> normalizeKey( final Key<T> key )
-    {
-        return isDefault( key.getAnnotation() ) ? Key.get( key.getTypeLiteral() ) : key;
-    }
-
-    static final QualifiedTargetVisitor TARGET_VISITOR = new QualifiedTargetVisitor();
-
-    static final class QualifiedTargetVisitor
-        extends DefaultBindingTargetVisitor<Object, Class<?>>
-    {
-        @Override
-        public Class<?> visit( final LinkedKeyBinding<?> linkedKeyBinding )
-        {
-            return linkedKeyBinding.getLinkedKey().getTypeLiteral().getRawType();
-        }
-
-        @Override
-        public Class<?> visit( final ConstructorBinding<?> constructorBinding )
-        {
-            return constructorBinding.getConstructor().getDeclaringType().getRawType();
-        }
-
-        @Override
-        public Class<?> visit( final InstanceBinding<?> instanceBinding )
-        {
-            return instanceBinding.getInstance().getClass();
-        }
-
-        @Override
-        protected Class<?> visitOther( final Binding<?> binding )
-        {
-            return Object.class;
-        }
-    }
+    static final ImplementationVisitor IMPLEMENTATION_VISITOR = new ImplementationVisitor();
 }

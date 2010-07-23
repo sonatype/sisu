@@ -31,7 +31,7 @@ public final class QualifiedBean<Q extends Annotation, T>
 
     private final Q qualifier;
 
-    private final Binding<T> binding;
+    private final Binding<? extends T> binding;
 
     private T bean;
 
@@ -39,7 +39,7 @@ public final class QualifiedBean<Q extends Annotation, T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    QualifiedBean( final Q qualifier, final Binding<T> binding )
+    QualifiedBean( final Q qualifier, final Binding<? extends T> binding )
     {
         this.qualifier = qualifier;
         this.binding = binding;
@@ -52,7 +52,7 @@ public final class QualifiedBean<Q extends Annotation, T>
     /**
      * @return Qualified bean binding
      */
-    public Binding<T> getBinding()
+    public Binding<? extends T> getBinding()
     {
         return binding;
     }

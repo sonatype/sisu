@@ -106,7 +106,7 @@ public class QualifiedBeansTest
     {
     }
 
-    public void testRolesWithNoDefault()
+    public void testHiddenBindingsStayHidden()
     {
         final Injector injector = Guice.createInjector( new AbstractModule()
         {
@@ -187,7 +187,7 @@ public class QualifiedBeansTest
         }
     }
 
-    public void testRolesWithImplicitDefault()
+    public void testImplicitDefaultNotFound()
     {
         final Injector injector = Guice.createInjector( new AbstractModule()
         {
@@ -256,7 +256,7 @@ public class QualifiedBeansTest
         }
     }
 
-    public void testRolesWithExplicitDefault()
+    public void testExplicitDefaultIsFound()
     {
         final Injector injector = Guice.createInjector( new AbstractModule()
         {
@@ -336,7 +336,7 @@ public class QualifiedBeansTest
         }
     }
 
-    public void testChildRolesWithImplicitDefault()
+    public void testChildInjectorWithImplicitDefault()
     {
         final Injector parentInjector = Guice.createInjector( new AbstractModule()
         {
@@ -393,7 +393,7 @@ public class QualifiedBeansTest
         }
     }
 
-    public void testChildRolesWithExplicitDefault()
+    public void testChildInjectorWithExplicitDefault()
     {
         final Injector parentInjector = Guice.createInjector( new AbstractModule()
         {
@@ -468,8 +468,8 @@ public class QualifiedBeansTest
             @Override
             protected void configure()
             {
-                bind( Bean.class ).annotatedWith( Names.named( "default" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "default" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
                 bind( Bean.class ).to( DefaultBean.class );
@@ -535,8 +535,6 @@ public class QualifiedBeansTest
             @Override
             protected void configure()
             {
-                // explicit @Named("default") should be ignored in preference to real default
-                bind( Bean.class ).annotatedWith( Names.named( "default" ) ).to( ABean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
@@ -547,32 +545,33 @@ public class QualifiedBeansTest
         Iterator<? extends Entry<Named, Bean>> i;
         Entry<Named, Bean> mapping;
 
-        QualifiedBeans<Named, Bean> defaultBeans =
+        QualifiedBeans<Named, Bean> namedBeans =
             new QualifiedBeans<Named, Bean>( Key.get( Bean.class, Names.named( "default" ) ) );
 
-        defaultBeans.add( injector );
+        namedBeans.add( injector );
 
-        i = defaultBeans.iterator();
+        i = namedBeans.iterator();
+        assertTrue( i.hasNext() );
+        mapping = i.next();
+        assertEquals( "default", mapping.getKey().value() );
+        assertEquals( DefaultBean.class, mapping.getValue().getClass() );
+        assertFalse( i.hasNext() );
+
+        namedBeans = new QualifiedBeans<Named, Bean>( Key.get( Bean.class, Named.class ) );
+
+        namedBeans.add( injector );
+
+        i = namedBeans.iterator();
         assertTrue( i.hasNext() );
         mapping = i.next();
         assertEquals( "default", mapping.getKey().value() );
         assertEquals( DefaultBean.class, mapping.getValue().getClass() );
 
-        defaultBeans = new QualifiedBeans<Named, Bean>( Key.get( Bean.class, Named.class ) );
+        namedBeans = new QualifiedBeans<Named, Bean>( Key.get( Bean.class ) );
 
-        defaultBeans.add( injector );
+        namedBeans.add( injector );
 
-        i = defaultBeans.iterator();
-        assertTrue( i.hasNext() );
-        mapping = i.next();
-        assertEquals( "default", mapping.getKey().value() );
-        assertEquals( DefaultBean.class, mapping.getValue().getClass() );
-
-        defaultBeans = new QualifiedBeans<Named, Bean>( Key.get( Bean.class ) );
-
-        defaultBeans.add( injector );
-
-        i = defaultBeans.iterator();
+        i = namedBeans.iterator();
         assertTrue( i.hasNext() );
         mapping = i.next();
         assertEquals( "default", mapping.getKey().value() );

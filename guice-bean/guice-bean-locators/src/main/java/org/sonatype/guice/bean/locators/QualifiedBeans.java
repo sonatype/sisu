@@ -24,6 +24,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 
 /**
  * {@link Iterable} sequence of qualified beans backed by bindings from one or more {@link Injector}s.
@@ -35,7 +36,7 @@ class QualifiedBeans<Q extends Annotation, T>
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final TypeLiteral<?> OBJECT_TYPE_LITERAL = TypeLiteral.get( Object.class );
+    static final Annotation DEFAULT_QUALIFIER = Names.named( "default" );
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -45,7 +46,7 @@ class QualifiedBeans<Q extends Annotation, T>
 
     private final Key<T> key;
 
-    private List<QualifiedBean<Q, T>> beans = Collections.emptyList();
+    private ArrayList<QualifiedBean<Q, T>> beans = null;
 
     private boolean exposed;
 
@@ -56,17 +57,22 @@ class QualifiedBeans<Q extends Annotation, T>
     QualifiedBeans( final Key<T> key )
     {
         this.strategy = selectQualifyingStrategy( key );
-        this.key = strategy.normalizeKey( key );
+        this.key = key;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
+    @SuppressWarnings( "unchecked" )
     public final synchronized Iterator<QualifiedBean<Q, T>> iterator()
     {
-        exposed = true;
-        return beans.iterator();
+        if ( null != beans )
+        {
+            exposed = true;
+            return beans.iterator();
+        }
+        return Collections.EMPTY_LIST.iterator();
     }
 
     /**
@@ -79,37 +85,40 @@ class QualifiedBeans<Q extends Annotation, T>
     public synchronized List<QualifiedBean<Q, T>> add( final Injector injector )
     {
         final Collection<Binding<?>> bindings;
-        final TypeLiteral<T> bindingType = key.getTypeLiteral();
-        if ( OBJECT_TYPE_LITERAL.equals( bindingType ) )
+        final TypeLiteral bindingType = key.getTypeLiteral();
+        if ( Object.class == bindingType.getRawType() )
         {
             bindings = injector.getBindings().values(); // check all bindings
         }
-        else if ( QualifyingStrategy.NAMED_WITH_ATTRIBUTES == strategy )
+        else if ( strategy == QualifyingStrategy.NAMED_WITH_ATTRIBUTES )
         {
-            final Binding binding = injector.getBindings().get( key );
-            if ( isVisible( binding ) )
-            {
-                final Q qualifier = (Q) QualifyingStrategy.UNRESTRICTED.qualify( key, binding );
-                return Collections.singletonList( insertQualifiedBean( qualifier, binding ) );
-            }
-            return Collections.EMPTY_LIST;
+            final boolean isDefault = DEFAULT_QUALIFIER.equals( key.getAnnotation() );
+            final Binding<?> b = injector.getBindings().get( isDefault ? Key.get( bindingType ) : key );
+            bindings = null != b ? Collections.singletonList( b ) : Collections.EMPTY_LIST;
         }
         else
         {
-            bindings = (Collection) injector.findBindingsByType( bindingType );
+            bindings = injector.findBindingsByType( bindingType );
         }
-
+        if ( bindings.isEmpty() )
+        {
+            return Collections.EMPTY_LIST;
+        }
         final List<QualifiedBean<Q, T>> newBeans = new ArrayList<QualifiedBean<Q, T>>();
         for ( final Binding binding : bindings )
         {
-            if ( isVisible( binding ) )
+            if ( false == binding.getSource() instanceof HiddenSource )
             {
                 final Q qualifier = (Q) strategy.qualify( key, binding );
                 if ( null != qualifier )
                 {
-                    newBeans.add( insertQualifiedBean( qualifier, binding ) );
+                    newBeans.add( new QualifiedBean<Q, T>( qualifier, binding ) );
                 }
             }
+        }
+        if ( !newBeans.isEmpty() )
+        {
+            mergeQualifiedBeans( newBeans );
         }
         return newBeans;
     }
@@ -122,7 +131,7 @@ class QualifiedBeans<Q extends Annotation, T>
      */
     public synchronized List<QualifiedBean<Q, T>> remove( final Injector injector )
     {
-        if ( beans.isEmpty() )
+        if ( null == beans )
         {
             return Collections.emptyList();
         }
@@ -133,12 +142,22 @@ class QualifiedBeans<Q extends Annotation, T>
         {
             if ( bindings.contains( beans.get( i ).getBinding() ) )
             {
-                oldBeans.add( extractQualifiedBean( i-- ) );
+                if ( exposed )
+                {
+                    // take defensive copy to avoid disturbing iterators
+                    beans = new ArrayList<QualifiedBean<Q, T>>( beans );
+                    exposed = false;
+                }
+                oldBeans.add( beans.remove( i-- ) );
             }
         }
         if ( beans.isEmpty() )
         {
-            beans = Collections.emptyList();
+            beans = null;
+        }
+        else if ( !oldBeans.isEmpty() )
+        {
+            beans.trimToSize();
         }
         return oldBeans;
     }
@@ -150,89 +169,61 @@ class QualifiedBeans<Q extends Annotation, T>
      */
     public synchronized List<QualifiedBean<Q, T>> clear()
     {
-        final List<QualifiedBean<Q, T>> oldBeans = beans;
-        beans = Collections.emptyList();
-        exposed = false;
-        return oldBeans;
+        if ( null != beans )
+        {
+            final List<QualifiedBean<Q, T>> oldBeans = beans;
+            beans = null;
+            exposed = false;
+            return oldBeans;
+        }
+        return Collections.emptyList();
     }
 
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    /**
-     * Inserts a qualified bean for the given binding into this bean sequence.
-     * 
-     * @param qualifier The qualifier
-     * @param binding The Guice binding
-     * @return Qualified bean
-     */
-    private final QualifiedBean<Q, T> insertQualifiedBean( final Q qualifier, final Binding<T> binding )
+    private static final QualifyingStrategy selectQualifyingStrategy( final Key<?> key )
     {
-        if ( exposed || beans.isEmpty() )
-        {
-            // take defensive copy to avoid disturbing iterators
-            beans = new ArrayList<QualifiedBean<Q, T>>( beans );
-            exposed = false;
-        }
-        final QualifiedBean<Q, T> bean = new QualifiedBean<Q, T>( qualifier, binding );
-        if ( strategy.isDefault( qualifier ) )
-        {
-            for ( int i = 0, size = beans.size(); i < size; i++ )
-            {
-                // send default beans to front, in order of appearance
-                if ( !strategy.isDefault( beans.get( i ).getKey() ) )
-                {
-                    beans.add( i, bean );
-                    return bean;
-                }
-            }
-        }
-        beans.add( bean );
-        return bean;
-    }
-
-    /**
-     * Extracts a qualified bean from the given position in this bean sequence.
-     * 
-     * @param index The bean position
-     * @return Qualified bean
-     */
-    private final QualifiedBean<Q, T> extractQualifiedBean( final int index )
-    {
-        if ( exposed )
-        {
-            // take defensive copy to avoid disturbing iterators
-            beans = new ArrayList<QualifiedBean<Q, T>>( beans );
-            exposed = false;
-        }
-        return beans.remove( index );
-    }
-
-    private static final QualifyingStrategy selectQualifyingStrategy( final Key<?> expectedKey )
-    {
-        final Class<?> qualifierType = expectedKey.getAnnotationType();
+        final Class<?> qualifierType = key.getAnnotationType();
         if ( null == qualifierType )
         {
             return QualifyingStrategy.UNRESTRICTED;
         }
-        if ( expectedKey.hasAttributes() )
+        if ( Named.class == qualifierType )
         {
-            if ( expectedKey.getAnnotation() instanceof Named )
-            {
-                return QualifyingStrategy.NAMED_WITH_ATTRIBUTES;
-            }
-            return QualifyingStrategy.MARKED_WITH_ATTRIBUTES;
+            return key.hasAttributes() ? QualifyingStrategy.NAMED_WITH_ATTRIBUTES : QualifyingStrategy.NAMED;
         }
-        if ( qualifierType == Named.class )
-        {
-            return QualifyingStrategy.NAMED;
-        }
-        return QualifyingStrategy.MARKED;
+        return key.hasAttributes() ? QualifyingStrategy.MARKED_WITH_ATTRIBUTES : QualifyingStrategy.MARKED;
     }
 
-    private static final boolean isVisible( final Binding<?> binding )
+    private void mergeQualifiedBeans( final List<QualifiedBean<Q, T>> newBeans )
     {
-        return null != binding && false == binding.getSource() instanceof HiddenSource;
+        final int numBeans = newBeans.size();
+        if ( null == beans )
+        {
+            beans = new ArrayList<QualifiedBean<Q, T>>( numBeans );
+        }
+        else
+        {
+            beans.ensureCapacity( beans.size() + numBeans );
+        }
+        int defaultIndex = 0;
+        while ( defaultIndex < beans.size() && DEFAULT_QUALIFIER.equals( beans.get( defaultIndex ).getKey() ) )
+        {
+            defaultIndex++;
+        }
+        for ( int i = 0; i < numBeans; i++ )
+        {
+            final QualifiedBean<Q, T> bean = newBeans.get( i );
+            if ( DEFAULT_QUALIFIER.equals( bean.getKey() ) )
+            {
+                beans.add( defaultIndex++, bean );
+            }
+            else
+            {
+                beans.add( bean );
+            }
+        }
     }
 }
