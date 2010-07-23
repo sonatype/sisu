@@ -14,8 +14,6 @@ package org.sonatype.guice.plexus.config;
 
 import java.util.Map.Entry;
 
-import org.sonatype.guice.bean.reflect.DeferredClass;
-
 /**
  * Plexus bean mapping; from hint->instance.
  */
@@ -23,12 +21,12 @@ public interface PlexusBean<T>
     extends Entry<String, T>
 {
     /**
-     * @return Human readable bean description
+     * @return Human readable description
      */
     String getDescription();
 
     /**
-     * @return Deferred implementation class
+     * @return Bean implementation class
      */
-    DeferredClass<T> getImplementationClass();
+    Class<T> getImplementationClass();
 }

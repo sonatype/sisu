@@ -12,11 +12,14 @@
  */
 package org.sonatype.guice.bean.locators;
 
-import com.google.inject.Binding;
+import org.sonatype.guice.bean.reflect.DeferredProvider;
+
+import com.google.inject.Provider;
 import com.google.inject.spi.ConstructorBinding;
 import com.google.inject.spi.DefaultBindingTargetVisitor;
 import com.google.inject.spi.InstanceBinding;
 import com.google.inject.spi.LinkedKeyBinding;
+import com.google.inject.spi.ProviderInstanceBinding;
 import com.google.inject.spi.UntargettedBinding;
 
 final class ImplementationVisitor
@@ -47,8 +50,20 @@ final class ImplementationVisitor
     }
 
     @Override
-    protected Class<?> visitOther( final Binding<?> binding )
+    public Class<?> visit( final ProviderInstanceBinding<?> binding )
     {
-        return Object.class;
+        final Provider<?> provider = binding.getProviderInstance();
+        if ( provider instanceof DeferredProvider<?> )
+        {
+            try
+            {
+                return ( (DeferredProvider<?>) provider ).getImplementationClass().load();
+            }
+            catch ( final TypeNotPresentException e ) // NOPMD
+            {
+                // fall-through
+            }
+        }
+        return null;
     }
 }

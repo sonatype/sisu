@@ -26,6 +26,12 @@ public final class QualifiedBean<Q extends Annotation, T>
     implements Entry<Q, T>, Provider<T>
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    static final ImplementationVisitor IMPLEMENTATION_VISITOR = new ImplementationVisitor();
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
@@ -55,6 +61,12 @@ public final class QualifiedBean<Q extends Annotation, T>
     public Binding<? extends T> getBinding()
     {
         return binding;
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public Class<T> getImplementationClass()
+    {
+        return (Class<T>) binding.acceptTargetVisitor( IMPLEMENTATION_VISITOR );
     }
 
     public Q getKey()

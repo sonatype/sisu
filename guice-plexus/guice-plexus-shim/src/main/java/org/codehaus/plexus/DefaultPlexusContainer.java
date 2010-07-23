@@ -42,7 +42,6 @@ import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.binders.PlexusAnnotatedBeanModule;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
@@ -301,7 +300,7 @@ public final class DefaultPlexusContainer
         final Iterator<PlexusBean<T>> i = locate( loadRoleClass( type, role ), hint ).iterator();
         if ( i.hasNext() )
         {
-            return newComponentDescriptor( i.next() );
+            return newComponentDescriptor( role, i.next() );
         }
         return null;
     }
@@ -316,7 +315,7 @@ public final class DefaultPlexusContainer
         final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
         for ( final PlexusBean<T> bean : locate( loadRoleClass( type, role ) ) )
         {
-            tempList.add( newComponentDescriptor( bean ) );
+            tempList.add( newComponentDescriptor( role, bean ) );
         }
         return tempList;
     }
@@ -599,13 +598,12 @@ public final class DefaultPlexusContainer
         return plexusBeanLocator.locate( TypeLiteral.get( role ), hints );
     }
 
-    private <T> ComponentDescriptor<T> newComponentDescriptor( final PlexusBean<T> bean )
+    private <T> ComponentDescriptor<T> newComponentDescriptor( final String role, final PlexusBean<T> bean )
     {
-        final DeferredClass<T> clazz = bean.getImplementationClass();
         final ComponentDescriptor<T> cd = new ComponentDescriptor<T>();
-        cd.setRole( clazz.getName() );
+        cd.setRole( role );
         cd.setRoleHint( bean.getKey() );
-        cd.setImplementationClass( clazz.load() );
+        cd.setImplementationClass( bean.getImplementationClass() );
         cd.setDescription( bean.getDescription() );
         return cd;
     }

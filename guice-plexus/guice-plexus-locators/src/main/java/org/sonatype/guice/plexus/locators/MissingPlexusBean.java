@@ -14,7 +14,6 @@ package org.sonatype.guice.plexus.locators;
 
 import java.util.Map.Entry;
 
-import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.plexus.config.PlexusBean;
 import org.sonatype.guice.plexus.config.Roles;
 
@@ -69,7 +68,7 @@ final class MissingPlexusBean<T>
         return null;
     }
 
-    public DeferredClass<T> getImplementationClass()
+    public Class<T> getImplementationClass()
     {
         return null;
     }
