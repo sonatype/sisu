@@ -168,6 +168,8 @@ public final class QualifiedTypeBinder
         final Named fullName = Names.named( qualifiedType.getName() );
         final Named customName = getCustomName( qualifiedType );
 
+        binder.bind( Key.get( Object.class, fullName ) ).to( qualifiedType );
+
         for ( final Class bindingType : getBindingTypes( qualifiedType ) )
         {
             if ( bindingType != qualifiedType )
@@ -256,8 +258,6 @@ public final class QualifiedTypeBinder
                 }
             }
         }
-
-        types.add( Object.class );
 
         return types;
     }
