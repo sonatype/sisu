@@ -231,34 +231,32 @@ public final class QualifiedTypeBinder
      * @param qualifiedType The qualified type
      * @return Selected binding types
      */
-    @SuppressWarnings( "rawtypes" )
-    private static List<Class> getBindingTypes( final Class qualifiedType )
+    private static List<Class<?>> getBindingTypes( final Class<?> qualifiedType )
     {
-        final List<Class> types = new ArrayList<Class>();
+        final Typed typed = qualifiedType.getAnnotation( Typed.class );
+        if ( null != typed )
+        {
+            return Arrays.asList( typed.value() );
+        }
 
-        final String qualifiedName = qualifiedType.getSimpleName();
-        final Class extendedClazz = qualifiedType.getSuperclass();
+        final String simpleName = qualifiedType.getSimpleName();
+        final Class<?> extendedClazz = qualifiedType.getSuperclass();
 
+        final List<Class<?>> types = new ArrayList<Class<?>>();
         for ( Class<?> clazz = qualifiedType; clazz != Object.class; clazz = clazz.getSuperclass() )
         {
-            final Typed typed = clazz.getAnnotation( Typed.class );
-            if ( null != typed )
-            {
-                return Arrays.<Class> asList( typed.value() );
-            }
-            if ( clazz == extendedClazz || qualifiedName.endsWith( clazz.getSimpleName() ) )
+            if ( clazz == extendedClazz || simpleName.endsWith( clazz.getSimpleName() ) )
             {
                 types.add( clazz );
             }
             for ( final Class<?> iFace : clazz.getInterfaces() )
             {
-                if ( clazz == qualifiedType || qualifiedName.endsWith( iFace.getSimpleName() ) )
+                if ( clazz == qualifiedType || simpleName.endsWith( iFace.getSimpleName() ) )
                 {
                     types.add( iFace );
                 }
             }
         }
-
         return types;
     }
 
@@ -280,8 +278,8 @@ public final class QualifiedTypeBinder
         }
         if ( null == customName || customName.value().length() == 0 )
         {
-            final String implementation = fullName.value();
-            if ( implementation.contains( "Default" ) && implementation.endsWith( bindingType.getSimpleName() ) )
+            final String fqn = fullName.value();
+            if ( fqn.contains( "Default" ) && fqn.endsWith( bindingType.getSimpleName() ) )
             {
                 return null;
             }

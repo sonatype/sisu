@@ -275,13 +275,14 @@ public class QualifiedTypesTest
         checkNamedBinding( B01.class, SubclassB00.class.getName(), SubclassB00.class );
         checkNamedBinding( AbstractB01.class, SubclassB01.class.getName(), SubclassB01.class );
 
-        checkNamedBinding( EventListener.class, SubclassB02.class.getName(), SubclassB02.class );
+        checkNamedBinding( AbstractB02.class, SubclassB02.class.getName(), SubclassB02.class );
         checkNamedBinding( EventListener.class, SubclassB03EventListener.class.getName(),
                            SubclassB03EventListener.class );
         checkNamedBinding( EventListener.class, "RENAME", SubclassB04EventListener.class );
-        checkNamedBinding( EventListener.class, SubclassB06.class.getName(), SubclassB06.class );
+        checkNamedBinding( B02.class, SubclassB06.class.getName(), SubclassB06.class );
+
         checkNamedBinding( Serializable.class, SubclassB07.class.getName(), SubclassB07.class );
-        checkNamedBinding( EventListener.class, SubclassB08.class.getName(), SubclassB08.class );
+        checkNamedBinding( Serializable.class, SubclassB08.class.getName(), SubclassB08.class );
 
         checkLegacyBinding( Runnable.class, LegacyRunnable.class );
     }
