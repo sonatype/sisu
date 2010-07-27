@@ -133,7 +133,7 @@ final class PlexusLifecycleManager
 
     public boolean unmanage( final Object bean )
     {
-        return activeBeans.remove( bean );
+        return activeBeans.remove( bean ) ? dispose( bean ) : false;
     }
 
     public synchronized boolean unmanage()
