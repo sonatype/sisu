@@ -13,7 +13,6 @@
 package org.codehaus.plexus;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.codehaus.plexus.context.Context;
@@ -37,7 +36,7 @@ final class PlexusLifecycleManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final List<Object> activeBeans = Collections.synchronizedList( new ArrayList<Object>() );
+    private final List<Object> activeBeans = new ArrayList<Object>();
 
     private final PlexusContainer container;
 
@@ -113,14 +112,17 @@ final class PlexusLifecycleManager
             {
                 ( (Initializable) bean ).initialize();
             }
-            if ( bean instanceof Startable )
+            synchronized ( this )
             {
-                ( (Startable) bean ).start();
-                activeBeans.add( bean );
-            }
-            else if ( bean instanceof Disposable )
-            {
-                activeBeans.add( bean );
+                if ( bean instanceof Startable )
+                {
+                    ( (Startable) bean ).start();
+                    activeBeans.add( bean );
+                }
+                else if ( bean instanceof Disposable )
+                {
+                    activeBeans.add( bean );
+                }
             }
         }
         catch ( final Throwable e )
@@ -131,7 +133,7 @@ final class PlexusLifecycleManager
         return true;
     }
 
-    public boolean unmanage( final Object bean )
+    public synchronized boolean unmanage( final Object bean )
     {
         return activeBeans.remove( bean ) ? dispose( bean ) : false;
     }
@@ -141,7 +143,7 @@ final class PlexusLifecycleManager
         boolean result = false;
         while ( !activeBeans.isEmpty() )
         {
-            // dispose in reverse order; use index to allow concurrent growth
+            // dispose in reverse order of startup sequence
             result |= dispose( activeBeans.remove( activeBeans.size() - 1 ) );
         }
         return result;
