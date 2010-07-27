@@ -135,6 +135,11 @@ public final class URLClassSpace
         return new ResourceEnumeration( path, glob, recurse, classPath );
     }
 
+    public URL[] getURLs()
+    {
+        return classPath.clone();
+    }
+
     @Override
     public int hashCode()
     {
