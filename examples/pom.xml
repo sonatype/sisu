@@ -18,6 +18,7 @@
 
   <modules>
     <module>guice-swing</module>
+    <module>guice-rcp</module>
   </modules>
 
 </project>
