@@ -16,6 +16,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -552,9 +553,9 @@ public final class DefaultPlexusContainer
                 // Plexus per-thread lookup
                 return realm.loadClass( role );
             }
-            catch ( final Throwable e )
+            catch ( final Throwable e ) // NOPMD
             {
-                exception = e;
+                // drop-through
             }
         }
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
@@ -565,24 +566,38 @@ public final class DefaultPlexusContainer
                 // standard Java per-thread lookup
                 return (Class) tccl.loadClass( role );
             }
-            catch ( final Throwable e )
+            catch ( final Throwable e ) // NOPMD
             {
-                exception = e;
+                // drop-through
             }
         }
         if ( null != securityManager )
         {
             try
             {
-                // otherwise the caller should be able to see it!
+                // try the caller context (requires stack access)
                 return securityManager.loadClassFromCaller( role );
             }
-            catch ( final Throwable e )
+            catch ( final Throwable e ) // NOPMD
             {
-                exception = e;
+                // drop-through
             }
         }
-
+        for ( final ClassRealm childRealm : (Collection<ClassRealm>) getClassWorld().getRealms() )
+        {
+            if ( childRealm != containerRealm )
+            {
+                try
+                {
+                    // otherwise use brute force search
+                    return childRealm.loadClass( role );
+                }
+                catch ( final Throwable e ) // NOPMD
+                {
+                    // check-next-realm
+                }
+            }
+        }
         throw new TypeNotPresentException( role, exception );
     }
 
