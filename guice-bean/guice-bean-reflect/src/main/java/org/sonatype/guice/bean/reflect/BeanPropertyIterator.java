@@ -17,10 +17,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 /**
  * Read-only {@link Iterator} that picks out potential bean properties from declared members.
@@ -33,9 +31,6 @@ final class BeanPropertyIterator<T>
     // ----------------------------------------------------------------------
 
     private final Iterator<Member> memberIterator;
-
-    // avoid reporting duplicate properties with same name
-    private final Set<String> visited = new HashSet<String>();
 
     // look-ahead, maintained by hasNext()
     private BeanProperty<T> nextProperty;
@@ -84,8 +79,8 @@ final class BeanPropertyIterator<T>
                 nextProperty = new BeanPropertyField<T>( (Field) member );
             }
 
-            // ignore properties with names we've already processed, or properties annotated with @Inject
-            if ( null != nextProperty && ( !visited.add( nextProperty.getName() ) || atInject( member ) ) )
+            // ignore Guice properties
+            if ( atInject( member ) )
             {
                 nextProperty = null;
             }

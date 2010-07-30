@@ -12,8 +12,8 @@
  */
 package org.sonatype.guice.bean.inject;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.sonatype.guice.bean.reflect.BeanProperties;
 import org.sonatype.guice.bean.reflect.BeanProperty;
@@ -55,9 +55,14 @@ public final class BeanListener
             return; // no properties to bind
         }
 
-        final List<PropertyBinding> bindings = new ArrayList<PropertyBinding>();
+        final Map<String, PropertyBinding> bindings = new LinkedHashMap<String, PropertyBinding>();
         for ( final BeanProperty<?> property : new BeanProperties( type.getRawType() ) )
         {
+            final String name = property.getName();
+            if ( bindings.containsKey( name ) )
+            {
+                continue; // already have a binding for this property
+            }
             try
             {
                 final PropertyBinding binding = propertyBinder.bindProperty( property );
@@ -67,7 +72,7 @@ public final class BeanListener
                 }
                 if ( binding != null )
                 {
-                    bindings.add( binding );
+                    bindings.put( name, binding );
                 }
             }
             catch ( final Throwable e )
@@ -78,7 +83,7 @@ public final class BeanListener
 
         if ( !bindings.isEmpty() )
         {
-            encounter.register( new BeanInjector<B>( bindings ) );
+            encounter.register( new BeanInjector<B>( bindings.values() ) );
         }
     }
 }

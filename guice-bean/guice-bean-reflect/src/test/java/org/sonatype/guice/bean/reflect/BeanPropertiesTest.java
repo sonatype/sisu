@@ -120,8 +120,6 @@ public class BeanPropertiesTest
         void setLastName( final String _name )
         {
         }
-
-        String name;
     }
 
     static class F
@@ -297,8 +295,8 @@ public class BeanPropertiesTest
         assertEquals( propertyField, new BeanPropertyField<Object>( field ) );
         assertEquals( propertySetter, new BeanPropertySetter<Object>( setter ) );
 
-        assertFalse( propertyField.equals( new BeanPropertyField<Object>( E.class.getDeclaredField( "name" ) ) ) );
-        assertFalse( propertySetter.equals( new BeanPropertySetter<Object>( E.class.getDeclaredMethod( "setName",
+        assertFalse( propertyField.equals( new BeanPropertyField<Object>( F.class.getDeclaredField( "name" ) ) ) );
+        assertFalse( propertySetter.equals( new BeanPropertySetter<Object>( F.class.getDeclaredMethod( "setName",
                                                                                                        String.class ) ) ) );
 
         assertEquals( field.hashCode(), propertyField.hashCode() );
@@ -319,7 +317,14 @@ public class BeanPropertiesTest
     public void testPropertyCombination()
     {
         final Iterator<BeanProperty<Object>> i = new BeanProperties( F.class ).iterator();
-        assertEquals( "name", i.next().getName() );
+        BeanProperty<Object> bp;
+
+        bp = i.next();
+        assertEquals( "name", bp.getName() );
+        assertTrue( bp instanceof BeanPropertySetter<?> );
+        bp = i.next();
+        assertEquals( "name", bp.getName() );
+        assertTrue( bp instanceof BeanPropertyField<?> );
         assertFalse( i.hasNext() );
 
         try
@@ -452,22 +457,5 @@ public class BeanPropertiesTest
     {
         assertFalse( new BeanProperties( L.class ).iterator().hasNext() );
         assertFalse( new BeanProperties( M.class ).iterator().hasNext() );
-    }
-
-    public void testFieldPropertyDelegation()
-    {
-        BeanProperty<?> property;
-
-        property = new BeanProperties( D.class ).iterator().next();
-        assertNull( property.getAnnotation( Metadata.class ) );
-        assertNull( property.getAnnotation( FieldMetadata.class ) );
-        assertNull( property.getAnnotation( MethodMetadata.class ) );
-        assertNull( property.getAnnotation( MultiMetadata.class ) );
-
-        property = new BeanProperties( N.class ).iterator().next();
-        assertNull( property.getAnnotation( Metadata.class ) );
-        assertEquals( "1", property.getAnnotation( FieldMetadata.class ).value() );
-        assertEquals( "2", property.getAnnotation( MethodMetadata.class ).value() );
-        assertNull( property.getAnnotation( MultiMetadata.class ) );
     }
 }
