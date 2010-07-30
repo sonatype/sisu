@@ -73,6 +73,11 @@ import com.google.inject.name.Names;
 public final class DefaultPlexusContainer
     implements MutablePlexusContainer
 {
+    static
+    {
+        System.setProperty( "guice.disable.misplaced.annotation.check", "true" );
+    }
+
     // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
@@ -630,6 +635,8 @@ public final class DefaultPlexusContainer
 
         final PlexusXmlBeanConverter beanConverter = new PlexusXmlBeanConverter();
 
+        final LoggerManagerProvider loggerManagerProvider = new LoggerManagerProvider();
+
         final LoggerProvider loggerProvider = new LoggerProvider();
 
         @Override
@@ -637,6 +644,7 @@ public final class DefaultPlexusContainer
         {
             bind( Context.class ).toInstance( context );
             bind( ParameterKeys.PROPERTIES ).toInstance( variables );
+            bind( LoggerManager.class ).toProvider( loggerManagerProvider );
             bind( Logger.class ).toProvider( loggerProvider );
 
             bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
@@ -649,6 +657,15 @@ public final class DefaultPlexusContainer
             bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
 
             install( dateConverter );
+        }
+    }
+
+    final class LoggerManagerProvider
+        implements Provider<LoggerManager>
+    {
+        public LoggerManager get()
+        {
+            return getLoggerManager();
         }
     }
 

@@ -12,7 +12,11 @@ package org.codehaus.plexus.logging;
 
 public interface LoggerManager
 {
+    Logger getLoggerForComponent( String role );
+
     Logger getLoggerForComponent( String role, String hint );
+
+    void returnComponentLogger( String role );
 
     void returnComponentLogger( String role, String hint );
 
