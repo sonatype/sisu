@@ -109,9 +109,19 @@ public final class DeclaredMembers
                     return false;
                 }
 
-                // load each view in turn to get next members
-                members = views[viewIndex++].members( clazz );
-                memberIndex = 0;
+                try
+                {
+                    // load each view in turn to get next members
+                    members = views[viewIndex++].members( clazz );
+                    memberIndex = 0;
+                }
+                catch ( final Throwable e )
+                {
+                    // truncate scanning
+                    clazz = Object.class;
+                    members = NO_MEMBERS;
+                    memberIndex = 0;
+                }
             }
 
             return true;
