@@ -117,10 +117,10 @@ public final class DeclaredMembers
                 }
                 catch ( final Throwable e )
                 {
-                    // truncate scanning
-                    clazz = Object.class;
-                    members = NO_MEMBERS;
-                    memberIndex = 0;
+                    // truncate
+                    clazz = null;
+                    viewIndex = 0;
+                    return false;
                 }
             }
 
