@@ -20,6 +20,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.bean.scanners.ClassSpaceVisitor;
 import org.sonatype.guice.bean.scanners.EmptyAnnotationVisitor;
 import org.sonatype.guice.bean.scanners.EmptyClassVisitor;
@@ -112,7 +113,7 @@ public final class PlexusTypeVisitor
             final Component component = componentVisitor.getComponent( space );
             if ( null != component )
             {
-                plexusTypeListener.hear( component, space.loadClass( implementation ), space );
+                plexusTypeListener.hear( component, new LoadedClass<Object>( space.loadClass( implementation ) ), space );
             }
             implementation = null;
         }

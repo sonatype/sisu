@@ -57,14 +57,7 @@ public final class PlexusTypeBinder
 
     public void hear( final Annotation qualifier, final Class<?> qualifiedType, final Object source )
     {
-        if ( Component.class == qualifier.annotationType() )
-        {
-            hear( (Component) qualifier, new LoadedClass<Object>( qualifiedType ), source );
-        }
-        else
-        {
-            qualifiedTypeBinder.hear( qualifier, qualifiedType, source );
-        }
+        qualifiedTypeBinder.hear( qualifier, qualifiedType, source );
     }
 
     @SuppressWarnings( { "unchecked", "rawtypes" } )
