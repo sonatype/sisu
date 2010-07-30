@@ -585,7 +585,7 @@ public final class DefaultPlexusContainer
         }
         for ( final ClassRealm childRealm : (Collection<ClassRealm>) getClassWorld().getRealms() )
         {
-            if ( childRealm != containerRealm )
+            if ( containerRealm == childRealm.getParentRealm() )
             {
                 try
                 {
