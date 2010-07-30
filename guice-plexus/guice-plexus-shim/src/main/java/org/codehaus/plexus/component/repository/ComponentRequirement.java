@@ -42,6 +42,11 @@ public final class ComponentRequirement
         this.name = name;
     }
 
+    public void setFieldMappingType( final String mappingType )
+    {
+        // ignore
+    }
+
     public String getRole()
     {
         return role;

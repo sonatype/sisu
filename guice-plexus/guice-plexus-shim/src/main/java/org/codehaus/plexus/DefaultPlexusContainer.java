@@ -250,7 +250,14 @@ public final class DefaultPlexusContainer
 
     public boolean hasComponent( final Class<?> type, final String role, final String hint )
     {
-        return hasComponent( loadRoleClass( type, role ), hint );
+        try
+        {
+            return hasComponent( loadRoleClass( type, role ), hint );
+        }
+        catch ( final ComponentLookupException e )
+        {
+            return false;
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -303,27 +310,48 @@ public final class DefaultPlexusContainer
 
     public <T> ComponentDescriptor<T> getComponentDescriptor( final Class<T> type, final String role, final String hint )
     {
-        final Iterator<PlexusBean<T>> i = locate( loadRoleClass( type, role ), hint ).iterator();
-        if ( i.hasNext() )
+        try
         {
-            return newComponentDescriptor( role, i.next() );
+            final Iterator<PlexusBean<T>> i = locate( loadRoleClass( type, role ), hint ).iterator();
+            if ( i.hasNext() )
+            {
+                return newComponentDescriptor( role, i.next() );
+            }
+        }
+        catch ( final ComponentLookupException e ) // NOPMD
+        {
+            // ignore
         }
         return null;
     }
 
     public List getComponentDescriptorList( final String role )
     {
-        return getComponentDescriptorList( loadRoleClass( role ), role );
+        try
+        {
+            return getComponentDescriptorList( loadRoleClass( role ), role );
+        }
+        catch ( final ComponentLookupException e )
+        {
+            return Collections.EMPTY_LIST;
+        }
     }
 
     public <T> List<ComponentDescriptor<T>> getComponentDescriptorList( final Class<T> type, final String role )
     {
-        final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
-        for ( final PlexusBean<T> bean : locate( loadRoleClass( type, role ) ) )
+        try
         {
-            tempList.add( newComponentDescriptor( role, bean ) );
+            final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
+            for ( final PlexusBean<T> bean : locate( loadRoleClass( type, role ) ) )
+            {
+                tempList.add( newComponentDescriptor( role, bean ) );
+            }
+            return tempList;
         }
-        return tempList;
+        catch ( final ComponentLookupException e )
+        {
+            return Collections.EMPTY_LIST;
+        }
     }
 
     public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm realm )
@@ -528,6 +556,7 @@ public final class DefaultPlexusContainer
     }
 
     private <T> Class<T> loadRoleClass( final Class<T> type, final String role )
+        throws ComponentLookupException
     {
         return null != type && role.equals( type.getName() ) ? type : (Class) loadRoleClass( role );
     }
@@ -539,6 +568,7 @@ public final class DefaultPlexusContainer
      * @return Plexus role class
      */
     private Class<Object> loadRoleClass( final String role )
+        throws ComponentLookupException
     {
         Throwable exception = null;
         try
@@ -603,7 +633,7 @@ public final class DefaultPlexusContainer
                 }
             }
         }
-        throw new TypeNotPresentException( role, exception );
+        throw new ComponentLookupException( exception, role, Hints.DEFAULT_HINT );
     }
 
     /**

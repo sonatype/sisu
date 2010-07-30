@@ -12,6 +12,8 @@ package org.codehaus.plexus.logging;
 
 public interface LoggerManager
 {
+    String ROLE = LoggerManager.class.getName();
+
     Logger getLoggerForComponent( String role );
 
     Logger getLoggerForComponent( String role, String hint );
