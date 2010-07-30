@@ -142,7 +142,7 @@ public final class PlexusXmlScanner
             parser.setInput( filteredXmlReader( in, variables ) );
 
             parser.nextTag();
-            parser.require( XmlPullParser.START_TAG, null, "plexus" );
+            parser.require( XmlPullParser.START_TAG, null, null ); // this may be <component-set> or <plexus>
 
             while ( parser.nextTag() == XmlPullParser.START_TAG )
             {
@@ -193,7 +193,7 @@ public final class PlexusXmlScanner
             parser.setInput( filteredXmlReader( in, variables ) );
 
             parser.nextTag();
-            // this may be <component-set> or <plexus>
+            parser.require( XmlPullParser.START_TAG, null, null ); // this may be <component-set> or <plexus>
             parser.nextTag();
             parser.require( XmlPullParser.START_TAG, null, "components" );
 
