@@ -219,7 +219,17 @@ final class PlexusTypeRegistry
                 }
             } ), null );
         }
-        return cloningClassSpace.deferLoadClass( implementation + CloningClassLoader.CLONE_MARKER + ++cloneCounter );
+        return cloningClassSpace.deferLoadClass( cloneImplementationName( implementation ) );
+    }
+
+    private String cloneImplementationName( final String name )
+    {
+        final StringBuilder buf = new StringBuilder();
+        if ( name.startsWith( "java" ) )
+        {
+            buf.append( '$' );
+        }
+        return buf.append( name ).append( CloningClassLoader.CLONE_MARKER ).append( ++cloneCounter ).toString();
     }
 
     /**

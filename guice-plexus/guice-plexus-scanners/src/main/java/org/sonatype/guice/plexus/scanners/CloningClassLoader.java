@@ -35,7 +35,7 @@ final class CloningClassLoader
         throws ClassNotFoundException
     {
         final String proxyName = name.replace( '.', '/' );
-        final String superName = proxyName.substring( 0, proxyName.indexOf( CLONE_MARKER ) );
+        final String superName = proxyName.substring( '$' == name.charAt( 0 ) ? 1 : 0, name.indexOf( CLONE_MARKER ) );
 
         final ClassWriter cw = new ClassWriter( ClassWriter.COMPUTE_MAXS );
         cw.visit( Opcodes.V1_5, Modifier.PUBLIC | Modifier.FINAL, proxyName, null, superName, null );
