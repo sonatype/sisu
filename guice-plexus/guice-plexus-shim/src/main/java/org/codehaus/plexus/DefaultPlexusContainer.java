@@ -286,20 +286,22 @@ public final class DefaultPlexusContainer
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
     {
-        final ClassRealm realm = descriptor.getRealm();
-        if ( null != realm )
+        ClassRealm realm = descriptor.getRealm();
+        if ( null == realm )
         {
-            List<ComponentDescriptor<?>> descriptors = descriptorMap.get( realm );
-            if ( null == descriptors )
-            {
-                descriptors = new ArrayList<ComponentDescriptor<?>>();
-                descriptorMap.put( realm, descriptors );
-            }
-            descriptors.add( descriptor );
-            if ( containerRealm == realm )
-            {
-                discoverComponents( containerRealm ); // for Maven3 testing
-            }
+            realm = containerRealm;
+            descriptor.setRealm( realm );
+        }
+        List<ComponentDescriptor<?>> descriptors = descriptorMap.get( realm );
+        if ( null == descriptors )
+        {
+            descriptors = new ArrayList<ComponentDescriptor<?>>();
+            descriptorMap.put( realm, descriptors );
+        }
+        descriptors.add( descriptor );
+        if ( containerRealm == realm )
+        {
+            discoverComponents( containerRealm ); // for Maven3 testing
         }
     }
 
