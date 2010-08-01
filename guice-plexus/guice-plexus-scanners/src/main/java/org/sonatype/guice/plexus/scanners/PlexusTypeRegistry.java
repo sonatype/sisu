@@ -152,7 +152,7 @@ final class PlexusTypeRegistry
             implementations.put( key, newImplementation );
             return newImplementation.getName();
         }
-        else if ( oldImplementation.getName().equals( implementation ) )
+        else if ( oldImplementation.getName().startsWith( implementation ) )
         {
             return implementation; // merge configuration
         }
