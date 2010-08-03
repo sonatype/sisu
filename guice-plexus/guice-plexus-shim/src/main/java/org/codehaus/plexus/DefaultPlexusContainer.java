@@ -65,6 +65,7 @@ import com.google.inject.Module;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import com.google.inject.util.Providers;
 
 /**
  * {@link PlexusContainer} shim that delegates to a Plexus-aware Guice {@link Injector}.
@@ -109,7 +110,11 @@ public final class DefaultPlexusContainer
 
     private ContainerSecurityManager securityManager;
 
-    private final SetupModule setupModule = new SetupModule();
+    private final Module bootModule = new BootModule();
+
+    private final Module setupModule = new SetupModule();
+
+    private final Module loggerModule = new LoggerModule();
 
     private LoggerManager loggerManager = CONSOLE_LOGGER_MANAGER;
 
@@ -158,7 +163,7 @@ public final class DefaultPlexusContainer
         beanModules.add( new PlexusXmlBeanModule( space, variables, plexusXml ) );
         beanModules.add( new PlexusAnnotatedBeanModule( space, variables ) );
 
-        addPlexusInjector( beanModules );
+        addPlexusInjector( beanModules, bootModule );
     }
 
     // ----------------------------------------------------------------------
@@ -393,6 +398,7 @@ public final class DefaultPlexusContainer
         modules.add( setupModule );
         Collections.addAll( modules, customModules );
         modules.add( new PlexusBindingModule( lifecycleManager, beanModules ) );
+        modules.add( loggerModule );
 
         Guice.createInjector( new WireModule( modules.toArray( new Module[modules.size()] ) ) );
     }
@@ -660,6 +666,16 @@ public final class DefaultPlexusContainer
         return cd;
     }
 
+    final class BootModule
+        extends AbstractModule
+    {
+        @Override
+        protected void configure()
+        {
+            requestInjection( DefaultPlexusContainer.this );
+        }
+    }
+
     final class SetupModule
         extends AbstractModule
     {
@@ -667,6 +683,29 @@ public final class DefaultPlexusContainer
 
         final PlexusXmlBeanConverter beanConverter = new PlexusXmlBeanConverter();
 
+        @Override
+        protected void configure()
+        {
+            bind( Context.class ).toInstance( context );
+            bind( ParameterKeys.PROPERTIES ).toInstance( variables );
+
+            install( dateConverter );
+
+            bind( MutableBeanLocator.class ).toInstance( qualifiedBeanLocator );
+
+            bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
+            bind( PlexusBeanConverter.class ).toInstance( beanConverter );
+            bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
+            bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
+
+            // use provider wrapper to avoid repeated injections later on when configuring plugin injectors
+            bind( MutablePlexusContainer.class ).toProvider( Providers.of( DefaultPlexusContainer.this ) );
+        }
+    }
+
+    final class LoggerModule
+        extends AbstractModule
+    {
         final LoggerManagerProvider loggerManagerProvider = new LoggerManagerProvider();
 
         final LoggerProvider loggerProvider = new LoggerProvider();
@@ -674,21 +713,8 @@ public final class DefaultPlexusContainer
         @Override
         protected void configure()
         {
-            bind( Context.class ).toInstance( context );
-            bind( ParameterKeys.PROPERTIES ).toInstance( variables );
             bind( LoggerManager.class ).toProvider( loggerManagerProvider );
             bind( Logger.class ).toProvider( loggerProvider );
-
-            bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
-            bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
-
-            bind( MutablePlexusContainer.class ).toInstance( DefaultPlexusContainer.this );
-            bind( MutableBeanLocator.class ).toInstance( qualifiedBeanLocator );
-
-            bind( PlexusBeanConverter.class ).toInstance( beanConverter );
-            bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
-
-            install( dateConverter );
         }
     }
 

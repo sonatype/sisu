@@ -52,7 +52,7 @@ public final class DefaultPlexusBeanLocator
     // Public methods
     // ----------------------------------------------------------------------
 
-    public synchronized <T> Iterable<PlexusBean<T>> locate( final TypeLiteral<T> role, final String... hints )
+    public <T> Iterable<PlexusBean<T>> locate( final TypeLiteral<T> role, final String... hints )
     {
         final PlexusBeans<T> plexusBeans = new PlexusBeans<T>( role, hints );
         if ( hints.length == 1 )
