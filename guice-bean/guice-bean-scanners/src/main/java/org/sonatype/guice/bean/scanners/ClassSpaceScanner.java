@@ -100,7 +100,11 @@ public final class ClassSpaceScanner
         }
         catch ( final IOException e )
         {
-            reportResourceException( url, e );
+            reportScanningException( url, e );
+        }
+        catch ( final TypeNotPresentException e )
+        {
+            reportScanningException( url, e );
         }
     }
 
@@ -114,16 +118,16 @@ public final class ClassSpaceScanner
      * @param url The resource URL
      * @param exception The exception
      */
-    private static void reportResourceException( final URL url, final Throwable exception )
+    private static void reportScanningException( final URL url, final Throwable exception )
     {
-        final String message = "Problem accessing resource: " + url;
+        final String message = "Problem scanning resource: " + url;
         try
         {
-            org.slf4j.LoggerFactory.getLogger( ClassSpaceScanner.class ).warn( message, exception );
+            org.slf4j.LoggerFactory.getLogger( ClassSpaceScanner.class ).debug( message, exception );
         }
         catch ( final Throwable ignore )
         {
-            Logger.getLogger( ClassSpaceScanner.class.getName() ).log( Level.WARNING, message, exception );
+            Logger.getLogger( ClassSpaceScanner.class.getName() ).log( Level.FINE, message, exception );
         }
     }
 }

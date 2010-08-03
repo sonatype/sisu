@@ -207,14 +207,7 @@ public class QualifiedScanningTest
             }
         };
 
-        try
-        {
-            new ClassSpaceScanner( brokenLoadSpace ).accept( new QualifiedTypeVisitor( null ) );
-            fail( "Expected TypeNotPresentException" );
-        }
-        catch ( final TypeNotPresentException e )
-        {
-        }
+        new ClassSpaceScanner( brokenLoadSpace ).accept( new QualifiedTypeVisitor( null ) );
 
         ClassSpaceScanner.accept( null, null );
     }

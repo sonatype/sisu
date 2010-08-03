@@ -102,7 +102,7 @@ public final class URLClassSpace
         {
             return loader.loadClass( name );
         }
-        catch ( final ClassNotFoundException e )
+        catch ( final Throwable e )
         {
             throw new TypeNotPresentException( name, e );
         }

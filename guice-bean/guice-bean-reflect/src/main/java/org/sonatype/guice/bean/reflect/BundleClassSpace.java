@@ -56,7 +56,7 @@ public final class BundleClassSpace
         {
             return bundle.loadClass( name );
         }
-        catch ( final ClassNotFoundException e )
+        catch ( final Throwable e )
         {
             throw new TypeNotPresentException( name, e );
         }
