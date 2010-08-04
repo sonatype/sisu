@@ -653,7 +653,7 @@ public final class DefaultPlexusContainer
      */
     private <T> Iterable<PlexusBean<T>> locate( final Class<T> role, final String... hints )
     {
-        return plexusBeanLocator.locate( TypeLiteral.get( role ), hints );
+        return plexusBeanLocator.locate( TypeLiteral.get( role ), Hints.canonicalHints( hints ) );
     }
 
     private <T> ComponentDescriptor<T> newComponentDescriptor( final String role, final PlexusBean<T> bean )

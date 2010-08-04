@@ -23,7 +23,7 @@ public interface PlexusBeanLocator
      * Locates beans of the given type, optionally filtered using the given named hints.
      * 
      * @param role The expected bean type
-     * @param hints The optional hints
+     * @param hints The optional (canonical) hints
      * @return Sequence of Plexus bean mappings; ordered according to the given hints
      */
     <T> Iterable<PlexusBean<T>> locate( TypeLiteral<T> role, String... hints );
