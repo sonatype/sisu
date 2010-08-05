@@ -10,7 +10,7 @@ import org.sonatype.guice.bean.reflect.ClassSpace;
 final class CloningClassLoader
     extends ClassLoader
 {
-    static final String CLONE_MARKER = "$__plexus";
+    private static final String CLONE_MARKER = "$__plexus";
 
     private final ClassSpace space;
 
@@ -30,12 +30,28 @@ final class CloningClassLoader
         return super.loadClass( name, resolve );
     }
 
+    static String proxyName( final String realName, final int cloneId )
+    {
+        final StringBuilder buf = new StringBuilder();
+        if ( realName.startsWith( "java" ) )
+        {
+            buf.append( '$' );
+        }
+        return buf.append( realName ).append( CloningClassLoader.CLONE_MARKER ).append( cloneId ).toString();
+    }
+
+    static String getRealName( final String proxyName )
+    {
+        final int cloneMarker = proxyName.indexOf( CLONE_MARKER );
+        return cloneMarker < 0 ? proxyName : proxyName.substring( '$' == proxyName.charAt( 0 ) ? 1 : 0, cloneMarker );
+    }
+
     @Override
     protected Class<?> findClass( final String name )
         throws ClassNotFoundException
     {
         final String proxyName = name.replace( '.', '/' );
-        final String superName = proxyName.substring( '$' == name.charAt( 0 ) ? 1 : 0, name.indexOf( CLONE_MARKER ) );
+        final String superName = getRealName( proxyName );
 
         final ClassWriter cw = new ClassWriter( ClassWriter.COMPUTE_MAXS );
         cw.visit( Opcodes.V1_5, Modifier.PUBLIC | Modifier.FINAL, proxyName, null, superName, null );

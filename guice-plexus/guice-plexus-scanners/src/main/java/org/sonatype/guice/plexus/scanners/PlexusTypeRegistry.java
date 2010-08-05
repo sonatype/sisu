@@ -112,8 +112,8 @@ final class PlexusTypeRegistry
     String addComponent( final String role, final String hint, final String instantiationStrategy,
                          final String description, final String implementation )
     {
-        final Class<?> clazz = loadRole( role, implementation );
-        if ( null == clazz )
+        final Class<?> roleType = loadRole( role, implementation );
+        if ( null == roleType )
         {
             return null;
         }
@@ -127,38 +127,39 @@ final class PlexusTypeRegistry
         final Component oldComponent = components.get( key );
         if ( null == oldComponent )
         {
-            components.put( key, new ComponentImpl( clazz, canonicalHint, instantiationStrategy, description ) );
+            components.put( key, new ComponentImpl( roleType, canonicalHint, instantiationStrategy, description ) );
         }
         else if ( LOAD_ON_START_PLACEHOLDER == oldComponent )
         {
-            components.put( key, new ComponentImpl( clazz, canonicalHint, Strategies.LOAD_ON_START, description ) );
+            components.put( key, new ComponentImpl( roleType, canonicalHint, Strategies.LOAD_ON_START, description ) );
         }
 
         /*
          * ...IMPLEMENTATION
          */
-        final DeferredClass<?> oldImplementation = implementations.get( key );
-        if ( null == oldImplementation )
+        DeferredClass<?> implementationType = implementations.get( key );
+        if ( null == implementationType )
         {
-            final DeferredClass<?> newImplementation;
             if ( deferredNames.add( implementation ) )
             {
-                newImplementation = space.deferLoadClass( implementation );
+                implementationType = space.deferLoadClass( implementation );
             }
             else
             {
-                newImplementation = cloneImplementation( implementation );
+                // type already used for another role, so we must clone it
+                implementationType = cloneImplementation( implementation );
             }
-            implementations.put( key, newImplementation );
-            return newImplementation.getName();
+            implementations.put( key, implementationType );
+            return implementationType.getName();
         }
-        else if ( oldImplementation.getName().startsWith( implementation ) )
+        final String oldImplementation = implementationType.getName();
+        if ( implementation.equals( CloningClassLoader.getRealName( oldImplementation ) ) )
         {
-            return implementation; // merge configuration
+            return oldImplementation; // merge configuration
         }
 
         debug( "Duplicate implementations found for Plexus component " + key );
-        debug( "Saw: " + oldImplementation.getName() + " and: " + implementation );
+        debug( "Saw: " + oldImplementation + " and: " + implementation );
 
         return null;
     }
@@ -219,17 +220,7 @@ final class PlexusTypeRegistry
                 }
             } ), null );
         }
-        return cloningClassSpace.deferLoadClass( cloneImplementationName( implementation ) );
-    }
-
-    private String cloneImplementationName( final String name )
-    {
-        final StringBuilder buf = new StringBuilder();
-        if ( name.startsWith( "java" ) )
-        {
-            buf.append( '$' );
-        }
-        return buf.append( name ).append( CloningClassLoader.CLONE_MARKER ).append( ++cloneCounter ).toString();
+        return cloningClassSpace.deferLoadClass( CloningClassLoader.proxyName( implementation, ++cloneCounter ) );
     }
 
     /**
