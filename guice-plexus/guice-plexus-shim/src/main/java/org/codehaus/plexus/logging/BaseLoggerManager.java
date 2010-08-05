@@ -13,7 +13,6 @@ package org.codehaus.plexus.logging;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Roles;
 
 public abstract class BaseLoggerManager
@@ -36,11 +35,6 @@ public abstract class BaseLoggerManager
         currentThreshold = parseThreshold( threshold );
     }
 
-    public final Logger getLoggerForComponent( final String role )
-    {
-        return getLoggerForComponent( role, Hints.DEFAULT_HINT );
-    }
-
     public final synchronized Logger getLoggerForComponent( final String role, final String hint )
     {
         final String name = Roles.canonicalRoleHint( role, hint );
@@ -52,11 +46,6 @@ public abstract class BaseLoggerManager
             activeLoggers.put( name, logger );
         }
         return logger;
-    }
-
-    public final void returnComponentLogger( final String role )
-    {
-        returnComponentLogger( role, Hints.DEFAULT_HINT );
     }
 
     public final synchronized void returnComponentLogger( final String role, final String hint )
