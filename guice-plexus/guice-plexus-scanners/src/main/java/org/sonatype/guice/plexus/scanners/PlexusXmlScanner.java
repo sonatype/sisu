@@ -75,7 +75,7 @@ public final class PlexusXmlScanner
     // Public methods
     // ----------------------------------------------------------------------
 
-    public Map<Component, DeferredClass<?>> scan( final ClassSpace space, final boolean localSearch )
+    public Map<Component, DeferredClass<?>> scan( final ClassSpace space )
         throws IOException
     {
         final PlexusTypeRegistry registry = new PlexusTypeRegistry( space );
@@ -84,18 +84,8 @@ public final class PlexusXmlScanner
             parsePlexusXml( plexusXml, registry );
         }
 
-        final Enumeration<URL> e;
-        if ( localSearch )
-        {
-            // limit search to the current space, don't bother with parent spaces
-            e = space.findEntries( "META-INF/plexus/", "components.xml", false );
-        }
-        else
-        {
-            // search entire hierarchy, including any parent spaces
-            e = space.getResources( "META-INF/plexus/components.xml" );
-        }
-
+        // limit search to the current space, don't pull in components from any surrounding spaces
+        final Enumeration<URL> e = space.findEntries( "META-INF/plexus/", "components.xml", false );
         while ( e.hasMoreElements() )
         {
             parseComponentsXml( e.nextElement(), registry );

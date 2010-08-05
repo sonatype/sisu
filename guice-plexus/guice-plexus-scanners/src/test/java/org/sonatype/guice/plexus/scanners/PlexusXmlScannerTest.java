@@ -146,7 +146,7 @@ public class PlexusXmlScannerTest
         final URL plexusXml = getClass().getResource( "/META-INF/plexus/plexus.xml" );
         final PlexusXmlScanner scanner = new PlexusXmlScanner( null, plexusXml, null );
 
-        final Map<Component, DeferredClass<?>> componentMap = scanner.scan( new EmptyClassSpace(), false );
+        final Map<Component, DeferredClass<?>> componentMap = scanner.scan( new EmptyClassSpace() );
 
         assertEquals( 2, componentMap.size() );
 
@@ -165,7 +165,7 @@ public class PlexusXmlScannerTest
         try
         {
             final URL plexusXml = getClass().getResource( "/META-INF/plexus/bad_plexus_1.xml" );
-            new PlexusXmlScanner( null, plexusXml, null ).scan( space, false );
+            new PlexusXmlScanner( null, plexusXml, null ).scan( space );
             fail( "Expected IOException" );
         }
         catch ( final IOException e )
@@ -182,7 +182,7 @@ public class PlexusXmlScannerTest
         final Map<String, PlexusBeanMetadata> metadata = new HashMap<String, PlexusBeanMetadata>();
         final PlexusXmlScanner scanner = new PlexusXmlScanner( null, null, metadata );
 
-        final Map<Component, DeferredClass<?>> componentMap = scanner.scan( space, true );
+        final Map<Component, DeferredClass<?>> componentMap = scanner.scan( space );
 
         assertEquals( 4, componentMap.size() );
 
@@ -307,7 +307,7 @@ public class PlexusXmlScannerTest
         try
         {
             final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_1.xml" );
-            new PlexusXmlScanner( null, null, null ).scan( space, true );
+            new PlexusXmlScanner( null, null, null ).scan( space );
             fail( "Expected IOException" );
         }
         catch ( final IOException e )
@@ -317,7 +317,7 @@ public class PlexusXmlScannerTest
         try
         {
             final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_2.xml" );
-            new PlexusXmlScanner( null, null, null ).scan( space, true );
+            new PlexusXmlScanner( null, null, null ).scan( space );
             fail( "Expected IOException" );
         }
         catch ( final IOException e )
@@ -330,7 +330,7 @@ public class PlexusXmlScannerTest
             final Map<String, PlexusBeanMetadata> metadata = new HashMap<String, PlexusBeanMetadata>();
             final PlexusXmlScanner scanner = new PlexusXmlScanner( null, null, metadata );
 
-            scanner.scan( space, true );
+            scanner.scan( space );
 
             final Requirement badReq =
                 metadata.get( DefaultBean.class.getName() ).getRequirement( new NamedProperty( "no.such.class" ) );
@@ -345,7 +345,7 @@ public class PlexusXmlScannerTest
         {
             final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_4.xml" );
             final PlexusXmlScanner scanner = new PlexusXmlScanner( null, null, null );
-            assertTrue( scanner.scan( space, true ).isEmpty() );
+            assertTrue( scanner.scan( space ).isEmpty() );
         }
     }
 
@@ -356,14 +356,14 @@ public class PlexusXmlScannerTest
 
         final Map<String, PlexusBeanMetadata> metadata = new HashMap<String, PlexusBeanMetadata>();
 
-        new PlexusXmlScanner( null, null, metadata ).scan( space, true );
+        new PlexusXmlScanner( null, null, metadata ).scan( space );
 
         assertEquals( "${some.value}",
                       metadata.get( DefaultBean.class.getName() ).getConfiguration( new NamedProperty( "variable" ) ).value() );
 
         final Map<?, ?> variables = Collections.singletonMap( "some.value", "INTERPOLATED" );
 
-        new PlexusXmlScanner( variables, null, metadata ).scan( space, true );
+        new PlexusXmlScanner( variables, null, metadata ).scan( space );
 
         assertEquals( "INTERPOLATED",
                       metadata.get( DefaultBean.class.getName() ).getConfiguration( new NamedProperty( "variable" ) ).value() );
@@ -375,7 +375,7 @@ public class PlexusXmlScannerTest
         final ClassLoader parent = PlexusXmlScannerTest.class.getClassLoader();
         final ClassSpace space = new URLClassSpace( parent, null );
 
-        assertTrue( new PlexusXmlScanner( null, null, null ).scan( space, true ).isEmpty() );
+        assertTrue( new PlexusXmlScanner( null, null, null ).scan( space ).isEmpty() );
     }
 
     public void testOptionalLogging()

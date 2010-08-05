@@ -23,6 +23,6 @@ public class SimpleScanningExample
         throws IOException
     {
         final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
-        new PlexusXmlScanner( null, null, null ).scan( space, true );
+        new PlexusXmlScanner( null, null, null ).scan( space );
     }
 }

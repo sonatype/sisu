@@ -44,8 +44,6 @@ public final class PlexusXmlBeanModule
 
     private final URL plexusXml;
 
-    private final boolean localSearch;
-
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -62,7 +60,6 @@ public final class PlexusXmlBeanModule
         this.space = space;
         this.variables = variables;
         this.plexusXml = plexusXml;
-        localSearch = false;
     }
 
     /**
@@ -76,7 +73,6 @@ public final class PlexusXmlBeanModule
         this.space = space;
         this.variables = variables;
         plexusXml = null;
-        localSearch = true;
     }
 
     // ----------------------------------------------------------------------
@@ -89,7 +85,7 @@ public final class PlexusXmlBeanModule
         try
         {
             final PlexusXmlScanner scanner = new PlexusXmlScanner( variables, plexusXml, metadataMap );
-            final Map<Component, DeferredClass<?>> components = scanner.scan( space, localSearch );
+            final Map<Component, DeferredClass<?>> components = scanner.scan( space );
             final PlexusTypeBinder plexusTypeBinder = new PlexusTypeBinder( binder );
             for ( final Entry<Component, DeferredClass<?>> entry : components.entrySet() )
             {
