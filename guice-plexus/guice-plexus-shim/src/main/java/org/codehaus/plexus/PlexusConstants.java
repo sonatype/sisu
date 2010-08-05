@@ -17,4 +17,8 @@ public interface PlexusConstants
     String PLEXUS_DEFAULT_HINT = Hints.DEFAULT_HINT;
 
     String PLEXUS_KEY = "plexus";
+
+    String GLOBAL_VISIBILITY = "global";
+
+    String REALM_VISIBILITY = "realm";
 }

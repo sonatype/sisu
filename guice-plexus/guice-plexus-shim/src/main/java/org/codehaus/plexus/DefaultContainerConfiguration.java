@@ -33,6 +33,10 @@ public final class DefaultContainerConfiguration
 
     private Map<Object, Object> contextData;
 
+    private String componentVisibility;
+
+    private boolean classPathScanning;
+
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
@@ -95,5 +99,27 @@ public final class DefaultContainerConfiguration
     public Map<Object, Object> getContext()
     {
         return contextData;
+    }
+
+    public ContainerConfiguration setComponentVisibility( final String componentVisibility )
+    {
+        this.componentVisibility = componentVisibility;
+        return this;
+    }
+
+    public String getComponentVisibility()
+    {
+        return componentVisibility;
+    }
+
+    public ContainerConfiguration setClassPathScanning( final boolean classPathScanning )
+    {
+        this.classPathScanning = classPathScanning;
+        return this;
+    }
+
+    public boolean getClassPathScanning()
+    {
+        return classPathScanning;
     }
 }

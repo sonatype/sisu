@@ -24,7 +24,7 @@ public interface ContainerConfiguration
 
     String getContainerConfiguration();
 
-    ContainerConfiguration setContainerConfigurationURL( URL configuration );
+    ContainerConfiguration setContainerConfigurationURL( URL configurationUrl );
 
     URL getContainerConfigurationURL();
 
@@ -39,4 +39,12 @@ public interface ContainerConfiguration
     ContainerConfiguration setContext( Map<Object, Object> context );
 
     Map<Object, Object> getContext();
+
+    ContainerConfiguration setComponentVisibility( String visibility );
+
+    String getComponentVisibility();
+
+    ContainerConfiguration setClassPathScanning( boolean on );
+
+    boolean getClassPathScanning();
 }
