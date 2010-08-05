@@ -15,6 +15,7 @@ package org.sonatype.guice.plexus.locators;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBean;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
@@ -33,10 +34,33 @@ public final class DefaultPlexusBeanLocator
     implements PlexusBeanLocator
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final boolean GET_IMPORT_REALMS_SUPPORTED;
+
+    static
+    {
+        boolean getImportRealmsSupported = true;
+        try
+        {
+            // support both old and new forms of Plexus class realms
+            ClassRealm.class.getDeclaredMethod( "getImportRealms" );
+        }
+        catch ( final Throwable e )
+        {
+            getImportRealmsSupported = false;
+        }
+        GET_IMPORT_REALMS_SUPPORTED = getImportRealmsSupported;
+    }
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
     private final BeanLocator beanLocator;
+
+    private final String visibility;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -45,7 +69,13 @@ public final class DefaultPlexusBeanLocator
     @Inject
     public DefaultPlexusBeanLocator( final BeanLocator beanLocator )
     {
+        this( beanLocator, null );
+    }
+
+    public DefaultPlexusBeanLocator( final BeanLocator beanLocator, final String visibility )
+    {
         this.beanLocator = beanLocator;
+        this.visibility = visibility;
     }
 
     // ----------------------------------------------------------------------
@@ -54,7 +84,15 @@ public final class DefaultPlexusBeanLocator
 
     public <T> Iterable<PlexusBean<T>> locate( final TypeLiteral<T> role, final String... hints )
     {
-        final PlexusBeans<T> plexusBeans = new PlexusBeans<T>( role, hints );
+        final PlexusBeans<T> plexusBeans;
+        if ( GET_IMPORT_REALMS_SUPPORTED == false || "global".equalsIgnoreCase( visibility ) )
+        {
+            plexusBeans = new GlobalPlexusBeans<T>( role, hints );
+        }
+        else
+        {
+            plexusBeans = new RealmPlexusBeans<T>( role, hints );
+        }
         if ( hints.length == 1 )
         {
             plexusBeans.setBeans( beanLocator.<Named, T> locate( Key.get( role, Names.named( hints[0] ) ), plexusBeans ) );

@@ -108,7 +108,11 @@ public final class DefaultPlexusContainer
 
     final PlexusLifecycleManager lifecycleManager;
 
+    final PlexusBeanLocator plexusBeanLocator;
+
     private ContainerSecurityManager securityManager;
+
+    private final boolean isClassPathScanningEnabled;
 
     private final Module bootModule = new BootModule();
 
@@ -119,9 +123,6 @@ public final class DefaultPlexusContainer
     private LoggerManager loggerManager = CONSOLE_LOGGER_MANAGER;
 
     private Logger logger;
-
-    @Inject
-    private PlexusBeanLocator plexusBeanLocator;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -145,6 +146,8 @@ public final class DefaultPlexusContainer
         containerRealm = lookupContainerRealm( configuration );
         lifecycleManager = new PlexusLifecycleManager( this, context );
 
+        plexusBeanLocator = new DefaultPlexusBeanLocator( qualifiedBeanLocator, configuration.getComponentVisibility() );
+
         try
         {
             // optional approach to finding role class loader
@@ -161,7 +164,11 @@ public final class DefaultPlexusContainer
 
         final ClassSpace space = new URLClassSpace( containerRealm );
         beanModules.add( new PlexusXmlBeanModule( space, variables, plexusXml ) );
-        beanModules.add( new PlexusAnnotatedBeanModule( space, variables ) );
+        isClassPathScanningEnabled = configuration.getClassPathScanning();
+        if ( isClassPathScanningEnabled )
+        {
+            beanModules.add( new PlexusAnnotatedBeanModule( space, variables ) );
+        }
 
         addPlexusInjector( beanModules, bootModule );
     }
@@ -376,7 +383,10 @@ public final class DefaultPlexusContainer
             if ( realmIds.add( realm.getId() ) )
             {
                 beanModules.add( new PlexusXmlBeanModule( space, variables ) );
-                beanModules.add( new PlexusAnnotatedBeanModule( space, variables ) );
+                if ( isClassPathScanningEnabled )
+                {
+                    beanModules.add( new PlexusAnnotatedBeanModule( space, variables ) );
+                }
             }
             if ( !beanModules.isEmpty() )
             {
@@ -695,7 +705,7 @@ public final class DefaultPlexusContainer
 
             bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
             bind( PlexusBeanConverter.class ).toInstance( beanConverter );
-            bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
+            bind( PlexusBeanLocator.class ).toInstance( plexusBeanLocator );
             bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
 
             // use provider wrapper to avoid repeated injections later on when configuring plugin injectors
