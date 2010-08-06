@@ -35,6 +35,11 @@ public abstract class BaseLoggerManager
         currentThreshold = parseThreshold( threshold );
     }
 
+    public final void setThreshold( final int threshold )
+    {
+        currentThreshold = threshold;
+    }
+
     public final synchronized Logger getLoggerForComponent( final String role, final String hint )
     {
         final String name = Roles.canonicalRoleHint( role, hint );

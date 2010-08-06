@@ -24,5 +24,7 @@ public interface LoggerManager
 
     int getThreshold();
 
+    void setThreshold( int threshold );
+
     void setThresholds( int threshold );
 }
