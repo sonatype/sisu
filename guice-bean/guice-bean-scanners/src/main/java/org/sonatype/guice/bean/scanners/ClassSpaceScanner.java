@@ -12,7 +12,6 @@
  */
 package org.sonatype.guice.bean.scanners;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
@@ -98,11 +97,7 @@ public final class ClassSpaceScanner
                 in.close();
             }
         }
-        catch ( final IOException e )
-        {
-            reportScanningException( url, e );
-        }
-        catch ( final TypeNotPresentException e )
+        catch ( final Throwable e )
         {
             reportScanningException( url, e );
         }
