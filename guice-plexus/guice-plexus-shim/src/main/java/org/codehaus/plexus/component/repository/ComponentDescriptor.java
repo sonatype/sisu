@@ -82,7 +82,7 @@ public class ComponentDescriptor<T>
 
     public final void setDescription( final String description )
     {
-        this.description = description;
+        this.description = null != description ? description : "";
     }
 
     public final void setInstantiationStrategy( final String instantiationStrategy )
