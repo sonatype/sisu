@@ -32,11 +32,6 @@ public final class ConsoleLoggerManager
         LOGGER.setThreshold( BaseLoggerManager.parseThreshold( threshold ) );
     }
 
-    public void setThreshold( final int threshold )
-    {
-        LOGGER.setThreshold( threshold );
-    }
-
     public Logger getLoggerForComponent( final String role, final String hint )
     {
         return LOGGER;
