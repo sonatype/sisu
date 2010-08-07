@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -365,6 +366,35 @@ public final class DefaultPlexusContainer
         catch ( final ComponentLookupException e )
         {
             return Collections.EMPTY_LIST;
+        }
+    }
+
+    public Map getComponentDescriptorMap( final String role )
+    {
+        try
+        {
+            return getComponentDescriptorMap( loadRoleClass( role ), role );
+        }
+        catch ( final ComponentLookupException e )
+        {
+            return Collections.EMPTY_MAP;
+        }
+    }
+
+    public <T> Map<String, ComponentDescriptor<T>> getComponentDescriptorMap( final Class<T> type, final String role )
+    {
+        try
+        {
+            final Map<String, ComponentDescriptor<T>> tempMap = new LinkedHashMap<String, ComponentDescriptor<T>>();
+            for ( final PlexusBean<T> bean : locate( loadRoleClass( type, role ) ) )
+            {
+                tempMap.put( bean.getKey(), newComponentDescriptor( role, bean ) );
+            }
+            return tempMap;
+        }
+        catch ( final ComponentLookupException e )
+        {
+            return Collections.EMPTY_MAP;
         }
     }
 

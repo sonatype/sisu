@@ -74,6 +74,10 @@ public interface PlexusContainer
 
     <T> List<ComponentDescriptor<T>> getComponentDescriptorList( Class<T> type, String role );
 
+    Map<String, ComponentDescriptor<?>> getComponentDescriptorMap( String role );
+
+    <T> Map<String, ComponentDescriptor<T>> getComponentDescriptorMap( Class<T> type, String role );
+
     List<ComponentDescriptor<?>> discoverComponents( ClassRealm classRealm )
         throws PlexusConfigurationException;
 
