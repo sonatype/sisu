@@ -79,8 +79,8 @@ final class ElementAnalyzer
         if ( localKeys.add( binding.getKey() ) )
         {
             binding.applyTo( binder );
+            importedKeys.addAll( binding.acceptTargetVisitor( DEPENDENCY_ANALYZER ) );
         }
-        importedKeys.addAll( binding.acceptTargetVisitor( DEPENDENCY_ANALYZER ) );
         return null;
     }
 

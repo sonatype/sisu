@@ -24,17 +24,22 @@ import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Qualifier;
 
 import org.sonatype.guice.bean.reflect.DeclaredMembers;
+import org.sonatype.guice.bean.reflect.DeferredProvider;
 
 import com.google.inject.Binding;
 import com.google.inject.BindingAnnotation;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.BindingTargetVisitor;
+import com.google.inject.spi.ConstructorBinding;
 import com.google.inject.spi.DefaultBindingTargetVisitor;
+import com.google.inject.spi.InstanceBinding;
 import com.google.inject.spi.LinkedKeyBinding;
+import com.google.inject.spi.ProviderInstanceBinding;
 import com.google.inject.spi.UntargettedBinding;
 
 /**
@@ -48,15 +53,46 @@ final class DependencyAnalyzer<T>
     // ----------------------------------------------------------------------
 
     @Override
+    public Set<Key<?>> visit( final UntargettedBinding<? extends T> binding )
+    {
+        return analyze( binding.getKey().getTypeLiteral() );
+    }
+
+    @Override
     public Set<Key<?>> visit( final LinkedKeyBinding<? extends T> binding )
     {
         return analyze( binding.getLinkedKey().getTypeLiteral() );
     }
 
     @Override
-    public Set<Key<?>> visit( final UntargettedBinding<? extends T> binding )
+    public Set<Key<?>> visit( final ConstructorBinding<? extends T> binding )
     {
-        return analyze( binding.getKey().getTypeLiteral() );
+        return analyze( binding.getConstructor().getDeclaringType() );
+    }
+
+    @Override
+    public Set<Key<?>> visit( final InstanceBinding<? extends T> binding )
+    {
+        return analyze( TypeLiteral.get( binding.getInstance().getClass() ) );
+    }
+
+    @Override
+    public Set<Key<?>> visit( final ProviderInstanceBinding<? extends T> binding )
+    {
+        final Provider<? extends T> provider = binding.getProviderInstance();
+        if ( provider instanceof DeferredProvider<?> )
+        {
+            try
+            {
+                final DeferredProvider<?> deferredProvider = (DeferredProvider<?>) provider;
+                return analyze( TypeLiteral.get( deferredProvider.getImplementationClass().load() ) );
+            }
+            catch ( final Throwable e ) // NOPMD
+            {
+                // can't analyze a broken class
+            }
+        }
+        return Collections.emptySet();
     }
 
     @Override
