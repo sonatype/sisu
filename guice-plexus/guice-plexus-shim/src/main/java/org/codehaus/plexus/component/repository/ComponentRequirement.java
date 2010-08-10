@@ -10,7 +10,7 @@
  */
 package org.codehaus.plexus.component.repository;
 
-public final class ComponentRequirement
+public class ComponentRequirement
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -22,44 +22,56 @@ public final class ComponentRequirement
 
     private String name;
 
+    private boolean optional;
+
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public void setRole( final String role )
+    public final void setRole( final String role )
     {
         this.role = role;
     }
 
-    public void setRoleHint( final String hint )
+    public final void setRoleHint( final String hint )
     {
         // empty/null hint represents wildcard
         this.hint = null != hint ? hint : "";
     }
 
-    public void setFieldName( final String name )
+    public final void setFieldName( final String name )
     {
         this.name = name;
     }
 
-    public void setFieldMappingType( final String mappingType )
+    public final void setOptional( final boolean optional )
+    {
+        this.optional = optional;
+    }
+
+    public final void setFieldMappingType( final String mappingType )
     {
         // ignore
     }
 
-    public String getRole()
+    public final String getRole()
     {
         return role;
     }
 
-    public String getRoleHint()
+    public final String getRoleHint()
     {
         return hint;
     }
 
-    public String getFieldName()
+    public final String getFieldName()
     {
         return name;
+    }
+
+    public final boolean isOptional()
+    {
+        return optional;
     }
 
     @Override
@@ -92,7 +104,7 @@ public final class ComponentRequirement
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private String id()
+    private final String id()
     {
         return role + ':' + hint;
     }

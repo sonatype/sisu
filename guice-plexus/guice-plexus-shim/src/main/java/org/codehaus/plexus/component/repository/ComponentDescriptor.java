@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Strategies;
 
@@ -45,6 +46,20 @@ public class ComponentDescriptor<T>
     private String componentFactory;
 
     private List<ComponentRequirement> requirements = Collections.emptyList();
+
+    private PlexusConfiguration configuration;
+
+    private String alias;
+
+    private String version;
+
+    private String componentType;
+
+    private String componentProfile;
+
+    private String lifecycleHandler;
+
+    private boolean isolatedRealm;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -96,6 +111,12 @@ public class ComponentDescriptor<T>
         implementationClass = null;
     }
 
+    public final void setRealm( final ClassRealm classRealm )
+    {
+        this.classRealm = classRealm;
+        implementationClass = null;
+    }
+
     @SuppressWarnings( "rawtypes" )
     public final void setImplementationClass( final Class implementationClass )
     {
@@ -125,6 +146,41 @@ public class ComponentDescriptor<T>
             requirements = new ArrayList<ComponentRequirement>();
         }
         requirements.add( requirement );
+    }
+
+    public final void setConfiguration( final PlexusConfiguration configuration )
+    {
+        this.configuration = configuration;
+    }
+
+    public final void setAlias( final String alias )
+    {
+        this.alias = alias;
+    }
+
+    public final void setVersion( final String version )
+    {
+        this.version = version;
+    }
+
+    public final void setComponentType( final String componentType )
+    {
+        this.componentType = componentType;
+    }
+
+    public final void setComponentProfile( final String componentProfile )
+    {
+        this.componentProfile = componentProfile;
+    }
+
+    public final void setLifecycleHandler( final String lifecycleHandler )
+    {
+        this.lifecycleHandler = lifecycleHandler;
+    }
+
+    public final void setIsolatedRealm( final boolean isolatedRealm )
+    {
+        this.isolatedRealm = isolatedRealm;
     }
 
     public String getRole()
@@ -158,12 +214,6 @@ public class ComponentDescriptor<T>
     public final String getInstantiationStrategy()
     {
         return instantiationStrategy;
-    }
-
-    public final void setRealm( final ClassRealm classRealm )
-    {
-        implementationClass = null;
-        this.classRealm = classRealm;
     }
 
     public final String getImplementation()
@@ -211,6 +261,46 @@ public class ComponentDescriptor<T>
     public final List<ComponentRequirement> getRequirements()
     {
         return Collections.unmodifiableList( requirements );
+    }
+
+    public final boolean hasConfiguration()
+    {
+        return configuration != null;
+    }
+
+    public final PlexusConfiguration getConfiguration()
+    {
+        return configuration;
+    }
+
+    public final String getAlias()
+    {
+        return alias;
+    }
+
+    public final String getVersion()
+    {
+        return version;
+    }
+
+    public String getComponentType()
+    {
+        return componentType;
+    }
+
+    public final String getComponentProfile()
+    {
+        return componentProfile;
+    }
+
+    public final String getLifecycleHandler()
+    {
+        return lifecycleHandler;
+    }
+
+    public final boolean isIsolatedRealm()
+    {
+        return isolatedRealm;
     }
 
     public final String getHumanReadableKey()
