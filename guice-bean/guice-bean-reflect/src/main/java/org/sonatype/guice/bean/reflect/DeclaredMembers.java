@@ -95,7 +95,7 @@ public final class DeclaredMembers
 
         public boolean hasNext()
         {
-            while ( memberIndex >= members.length )
+            while ( memberIndex <= 0 )
             {
                 if ( viewIndex >= views.length )
                 {
@@ -113,7 +113,7 @@ public final class DeclaredMembers
                 {
                     // load each view in turn to get next members
                     members = views[viewIndex++].members( clazz );
-                    memberIndex = 0;
+                    memberIndex = members.length;
                 }
                 catch ( final Throwable e )
                 {
@@ -132,7 +132,7 @@ public final class DeclaredMembers
             if ( hasNext() )
             {
                 // initialized by hasNext()
-                return members[memberIndex++];
+                return members[--memberIndex];
             }
             throw new NoSuchElementException();
         }

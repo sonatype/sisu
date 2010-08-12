@@ -428,13 +428,13 @@ public class BeanPropertiesTest
         final Iterator<BeanProperty<Object>> i = new BeanProperties( J.class ).iterator();
         assertTrue( i.hasNext() );
         assertTrue( i.hasNext() );
-        assertEquals( "a", i.next().getName() );
+        assertEquals( "c", i.next().getName() );
         assertTrue( i.hasNext() );
         assertTrue( i.hasNext() );
         assertEquals( "b", i.next().getName() );
         assertTrue( i.hasNext() );
         assertTrue( i.hasNext() );
-        assertEquals( "c", i.next().getName() );
+        assertEquals( "a", i.next().getName() );
         assertFalse( i.hasNext() );
         assertFalse( i.hasNext() );
     }

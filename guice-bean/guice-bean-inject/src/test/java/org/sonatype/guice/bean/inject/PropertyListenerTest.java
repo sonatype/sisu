@@ -49,11 +49,11 @@ public class PropertyListenerTest
     {
         String b;
 
-        String ignore;
+        String last;
 
         String c;
 
-        String last;
+        String ignore;
 
         String d;
     }
@@ -151,17 +151,17 @@ public class PropertyListenerTest
     public void testPropertyBindings()
     {
         final Bean1 bean1 = injector.getInstance( Bean1.class );
-        assertEquals( "aValue", bean1.a );
         assertEquals( "bValue", bean1.b );
+        assertEquals( "aValue", bean1.a );
     }
 
     public void testSpecialProperties()
     {
         final Bean2 bean2 = injector.getInstance( Bean2.class );
-        assertNull( bean2.a );
-        assertEquals( "bValue", bean2.b );
+        assertEquals( "dValue", bean2.d );
         assertEquals( "cValue", bean2.c );
-        assertNull( bean2.d );
+        assertNull( bean2.b );
+        assertNull( bean2.a );
 
         try
         {

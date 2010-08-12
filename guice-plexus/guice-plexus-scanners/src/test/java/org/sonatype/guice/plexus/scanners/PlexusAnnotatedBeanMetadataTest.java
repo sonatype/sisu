@@ -54,11 +54,11 @@ public class PlexusAnnotatedBeanMetadataTest
         assertFalse( metadata.isEmpty() );
 
         final Iterator<BeanProperty<Object>> propertyIterator = new BeanProperties( Bean.class ).iterator();
-        final Configuration configuration1 = metadata.getConfiguration( propertyIterator.next() );
-        final Configuration configuration2 = metadata.getConfiguration( propertyIterator.next() );
-        final Configuration configuration3 = metadata.getConfiguration( propertyIterator.next() );
-        final Requirement requirement1 = metadata.getRequirement( propertyIterator.next() );
         final Requirement requirement2 = metadata.getRequirement( propertyIterator.next() );
+        final Requirement requirement1 = metadata.getRequirement( propertyIterator.next() );
+        final Configuration configuration3 = metadata.getConfiguration( propertyIterator.next() );
+        final Configuration configuration2 = metadata.getConfiguration( propertyIterator.next() );
+        final Configuration configuration1 = metadata.getConfiguration( propertyIterator.next() );
         assertFalse( propertyIterator.hasNext() );
 
         assertFalse( configuration1 instanceof ConfigurationImpl );
@@ -79,11 +79,11 @@ public class PlexusAnnotatedBeanMetadataTest
         assertFalse( metadata.isEmpty() );
 
         final Iterator<BeanProperty<Object>> propertyIterator = new BeanProperties( Bean.class ).iterator();
-        final Configuration configuration1 = metadata.getConfiguration( propertyIterator.next() );
-        final Configuration configuration2 = metadata.getConfiguration( propertyIterator.next() );
-        final Configuration configuration3 = metadata.getConfiguration( propertyIterator.next() );
-        final Requirement requirement1 = metadata.getRequirement( propertyIterator.next() );
         final Requirement requirement2 = metadata.getRequirement( propertyIterator.next() );
+        final Requirement requirement1 = metadata.getRequirement( propertyIterator.next() );
+        final Configuration configuration3 = metadata.getConfiguration( propertyIterator.next() );
+        final Configuration configuration2 = metadata.getConfiguration( propertyIterator.next() );
+        final Configuration configuration1 = metadata.getConfiguration( propertyIterator.next() );
         assertFalse( propertyIterator.hasNext() );
 
         assertFalse( configuration1 instanceof ConfigurationImpl );
