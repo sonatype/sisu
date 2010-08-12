@@ -29,6 +29,7 @@ import javax.inject.Qualifier;
 
 import org.sonatype.guice.bean.reflect.DeclaredMembers;
 import org.sonatype.guice.bean.reflect.DeferredProvider;
+import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binding;
 import com.google.inject.BindingAnnotation;
@@ -177,16 +178,19 @@ final class DependencyAnalyzer<T>
          */
         boolean addDependency( final TypeLiteral<?> type, final Annotation[] annotations )
         {
+            final TypeLiteral<?> bindingType =
+                Provider.class != type.getRawType() ? type : TypeParameters.get( type, 0 );
+
             for ( final Annotation ann : annotations )
             {
                 final Class<? extends Annotation> annType = ann.annotationType();
                 if ( annType.isAnnotationPresent( Qualifier.class )
                     || annType.isAnnotationPresent( BindingAnnotation.class ) )
                 {
-                    return add( Key.get( type, ann ) ); // qualified binding
+                    return add( Key.get( bindingType, ann ) ); // qualified binding
                 }
             }
-            return add( Key.get( type ) ); // wildcard (unqualified) binding
+            return add( Key.get( bindingType ) ); // wildcard (unqualified) binding
         }
     }
 }
