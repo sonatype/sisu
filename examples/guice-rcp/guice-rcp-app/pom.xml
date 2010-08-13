@@ -12,8 +12,8 @@
 
   <packaging>eclipse-application</packaging>
 
-  <artifactId>guice-rcp-product</artifactId>
+  <artifactId>guice-rcp-app</artifactId>
 
-  <name>Guice - RCP example | product</name>
+  <name>Guice - RCP example | app</name>
 
 </project>

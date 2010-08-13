@@ -20,10 +20,8 @@
   <name>Guice - RCP example</name>
 
   <modules>
-<!--
     <module>guice-rcp-plugin</module>
-    <module>guice-rcp-product</module>
--->
+    <module>guice-rcp-app</module>
   </modules>
 
   <properties>
@@ -44,6 +42,23 @@
         <version>${tycho-version}</version>
         <configuration>
           <resolver>p2</resolver>
+          <environments>
+            <environment>
+              <os>linux</os>
+              <ws>gtk</ws>
+              <arch>x86_64</arch>
+            </environment>
+            <environment>
+              <os>win32</os>
+              <ws>win32</ws>
+              <arch>x86</arch>
+            </environment>
+            <environment>
+              <os>macosx</os>
+              <ws>carbon</ws>
+              <arch>x86</arch>
+            </environment>
+          </environments>
         </configuration>
       </plugin>
     </plugins>
