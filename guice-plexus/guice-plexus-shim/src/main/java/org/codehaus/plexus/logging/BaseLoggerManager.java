@@ -10,19 +10,23 @@
  */
 package org.codehaus.plexus.logging;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
+import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.sonatype.guice.plexus.config.Roles;
 
 public abstract class BaseLoggerManager
     extends AbstractLoggerManager
+    implements Initializable
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<String, Logger> activeLoggers = new HashMap<String, Logger>();
+    private final Map<String, Logger> activeLoggers = new WeakHashMap<String, Logger>();
+
+    String threshold = "INFO";
 
     private int currentThreshold;
 
@@ -30,7 +34,7 @@ public abstract class BaseLoggerManager
     // Public methods
     // ----------------------------------------------------------------------
 
-    public final void setThreshold( final String threshold )
+    public final void initialize()
     {
         currentThreshold = parseThreshold( threshold );
     }
@@ -56,6 +60,11 @@ public abstract class BaseLoggerManager
     public final int getThreshold()
     {
         return currentThreshold;
+    }
+
+    public final void setThreshold( final int currentThreshold )
+    {
+        this.currentThreshold = currentThreshold;
     }
 
     public final synchronized void setThresholds( final int currentThreshold )
@@ -89,8 +98,11 @@ public abstract class BaseLoggerManager
         {
             return Logger.LEVEL_FATAL;
         }
-
-        return Logger.LEVEL_DISABLED;
+        else if ( "DISABLED".equalsIgnoreCase( text ) )
+        {
+            return Logger.LEVEL_DISABLED;
+        }
+        return Logger.LEVEL_DEBUG;
     }
 
     // ----------------------------------------------------------------------

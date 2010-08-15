@@ -47,6 +47,11 @@ public final class ConsoleLoggerManager
         return LOGGER.getThreshold();
     }
 
+    public void setThreshold( final int currentThreshold )
+    {
+        LOGGER.setThreshold( currentThreshold );
+    }
+
     public void setThresholds( final int currentThreshold )
     {
         LOGGER.setThreshold( currentThreshold );

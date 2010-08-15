@@ -35,7 +35,14 @@ public final class BeanProperties
 
     public BeanProperties( final Class<?> clazz )
     {
-        this( new DeclaredMembers( clazz, View.METHODS, View.FIELDS ) );
+        if ( clazz.isAnnotationPresent( IgnoreSetters.class ) )
+        {
+            members = new DeclaredMembers( clazz, View.FIELDS );
+        }
+        else
+        {
+            members = new DeclaredMembers( clazz, View.METHODS, View.FIELDS );
+        }
     }
 
     BeanProperties( final Iterable<Member> members )

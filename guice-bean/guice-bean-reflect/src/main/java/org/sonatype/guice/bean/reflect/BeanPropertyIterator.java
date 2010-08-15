@@ -68,10 +68,10 @@ final class BeanPropertyIterator<T>
 
             if ( member instanceof Method )
             {
-                final Method m = (Method) member;
-                if ( isSetter( m.getName() ) && m.getParameterTypes().length == 1 )
+                final Method method = (Method) member;
+                if ( isSetter( method ) )
                 {
-                    nextProperty = new BeanPropertySetter<T>( m );
+                    nextProperty = new BeanPropertySetter<T>( method );
                 }
             }
             else if ( member instanceof Field && !Modifier.isFinal( modifiers ) )
@@ -110,15 +110,20 @@ final class BeanPropertyIterator<T>
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private static boolean isSetter( final String name )
+    private static boolean isSetter( final Method method )
     {
-        return name.startsWith( "set" ) && name.length() > 3 && Character.isUpperCase( name.charAt( 3 ) );
+        final String name = method.getName();
+        if ( name.startsWith( "set" ) && name.length() > 3 && Character.isUpperCase( name.charAt( 3 ) ) )
+        {
+            return method.getParameterTypes().length == 1;
+        }
+        return false;
     }
 
     private static boolean atInject( final Member member )
     {
         final AnnotatedElement e = (AnnotatedElement) member;
-        return e.isAnnotationPresent( com.google.inject.Inject.class )
-            || e.isAnnotationPresent( javax.inject.Inject.class );
+        return e.isAnnotationPresent( javax.inject.Inject.class )
+            || e.isAnnotationPresent( com.google.inject.Inject.class );
     }
 }
