@@ -18,11 +18,15 @@ import java.util.Map.Entry;
 import javax.inject.Provider;
 
 import com.google.inject.Binding;
+import com.google.inject.Scope;
+import com.google.inject.Scopes;
+import com.google.inject.spi.DefaultBindingScopingVisitor;
 
 /**
  * Qualified bean {@link Entry} and {@link Provider} backed by an injector {@link Binding}.
  */
 public final class QualifiedBean<Q extends Annotation, T>
+    extends DefaultBindingScopingVisitor<Provider<T>>
     implements Entry<Q, T>, Provider<T>
 {
     // ----------------------------------------------------------------------
@@ -37,18 +41,20 @@ public final class QualifiedBean<Q extends Annotation, T>
 
     private final Q qualifier;
 
-    private final Binding<? extends T> binding;
+    private final Binding<T> binding;
 
-    private T bean;
+    private final Provider<T> provider;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    QualifiedBean( final Q qualifier, final Binding<? extends T> binding )
+    QualifiedBean( final Q qualifier, final Binding<T> binding )
     {
         this.qualifier = qualifier;
         this.binding = binding;
+
+        this.provider = binding.acceptScopingVisitor( this );
     }
 
     // ----------------------------------------------------------------------
@@ -74,13 +80,9 @@ public final class QualifiedBean<Q extends Annotation, T>
         return qualifier;
     }
 
-    public synchronized T getValue()
+    public T getValue()
     {
-        if ( null == bean )
-        {
-            bean = binding.getProvider().get();
-        }
-        return bean;
+        return provider.get();
     }
 
     public T setValue( final T value )
@@ -97,5 +99,29 @@ public final class QualifiedBean<Q extends Annotation, T>
     public String toString()
     {
         return getKey() + "=" + getValue();
+    }
+
+    @Override
+    public Provider<T> visitEagerSingleton()
+    {
+        return binding.getProvider();
+    }
+
+    @Override
+    public Provider<T> visitScope( final Scope scope )
+    {
+        return Scopes.SINGLETON.equals( scope ) ? visitEagerSingleton() : visitOther();
+    }
+
+    @Override
+    public Provider<T> visitScopeAnnotation( final Class<? extends Annotation> scopeAnnotation )
+    {
+        return "Singleton".equals( scopeAnnotation.getSimpleName() ) ? visitEagerSingleton() : visitOther();
+    }
+
+    @Override
+    protected Provider<T> visitOther()
+    {
+        return Scopes.SINGLETON.scope( binding.getKey(), binding.getProvider() );
     }
 }
