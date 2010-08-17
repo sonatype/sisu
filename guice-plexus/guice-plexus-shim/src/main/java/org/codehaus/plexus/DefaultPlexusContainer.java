@@ -135,6 +135,7 @@ public final class DefaultPlexusContainer
         this( new DefaultContainerConfiguration() );
     }
 
+    @SuppressWarnings( "finally" )
     public DefaultPlexusContainer( final ContainerConfiguration configuration )
         throws PlexusContainerException
     {
@@ -177,8 +178,14 @@ public final class DefaultPlexusContainer
         }
         catch ( final RuntimeException e )
         {
-            dispose(); // cleanup as much as possible
-            throw e;
+            try
+            {
+                dispose(); // cleanup as much as possible
+            }
+            finally
+            {
+                throw e; // always report original failure
+            }
         }
     }
 
