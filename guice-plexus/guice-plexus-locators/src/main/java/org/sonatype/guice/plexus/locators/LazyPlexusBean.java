@@ -50,7 +50,7 @@ final class LazyPlexusBean<T>
         return bean.getKey().value();
     }
 
-    public synchronized T getValue()
+    public T getValue()
     {
         return bean.getValue();
     }

@@ -334,17 +334,14 @@ public final class PlexusXmlScanner
     {
         if ( null != metadata && ( !configurationMap.isEmpty() || !requirementMap.isEmpty() ) )
         {
-            synchronized ( metadata )
+            final PlexusXmlMetadata beanMetadata = (PlexusXmlMetadata) metadata.get( implementation );
+            if ( beanMetadata != null )
             {
-                final PlexusXmlMetadata beanMetadata = (PlexusXmlMetadata) metadata.get( implementation );
-                if ( beanMetadata != null )
-                {
-                    beanMetadata.merge( configurationMap, requirementMap );
-                }
-                else
-                {
-                    metadata.put( implementation, new PlexusXmlMetadata( configurationMap, requirementMap ) );
-                }
+                beanMetadata.merge( configurationMap, requirementMap );
+            }
+            else
+            {
+                metadata.put( implementation, new PlexusXmlMetadata( configurationMap, requirementMap ) );
             }
         }
     }
