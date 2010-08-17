@@ -171,7 +171,15 @@ public final class DefaultPlexusContainer
             beanModules.add( new PlexusAnnotatedBeanModule( space, variables ) );
         }
 
-        addPlexusInjector( beanModules, bootModule );
+        try
+        {
+            addPlexusInjector( beanModules, bootModule );
+        }
+        catch ( final RuntimeException e )
+        {
+            dispose(); // cleanup as much as possible
+            throw e;
+        }
     }
 
     // ----------------------------------------------------------------------
