@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Qualifier;
 
@@ -117,34 +116,35 @@ final class DependencyAnalyzer<T>
         final DependencySet dependencies = new DependencySet();
         for ( final Member m : new DeclaredMembers( type.getRawType() ) )
         {
-            if ( false == ( (AnnotatedElement) m ).isAnnotationPresent( Inject.class ) )
+            final AnnotatedElement element = (AnnotatedElement) m;
+            if ( element.isAnnotationPresent( javax.inject.Inject.class )
+                || element.isAnnotationPresent( com.google.inject.Inject.class ) )
             {
-                continue; // not an injection point
-            }
-            if ( m instanceof Constructor<?> )
-            {
-                final Constructor<?> ctor = (Constructor<?>) m;
-                final List<TypeLiteral<?>> paramTypes = type.getParameterTypes( ctor );
-                final Annotation[][] paramAnnotations = ctor.getParameterAnnotations();
-                for ( int i = 0; i < paramAnnotations.length; i++ )
+                if ( m instanceof Constructor<?> )
                 {
-                    dependencies.addDependency( paramTypes.get( i ), paramAnnotations[i] );
+                    final Constructor<?> ctor = (Constructor<?>) m;
+                    final List<TypeLiteral<?>> paramTypes = type.getParameterTypes( ctor );
+                    final Annotation[][] paramAnnotations = ctor.getParameterAnnotations();
+                    for ( int i = 0; i < paramAnnotations.length; i++ )
+                    {
+                        dependencies.addDependency( paramTypes.get( i ), paramAnnotations[i] );
+                    }
                 }
-            }
-            else if ( m instanceof Method )
-            {
-                final Method method = (Method) m;
-                final List<TypeLiteral<?>> paramTypes = type.getParameterTypes( method );
-                final Annotation[][] paramAnnotations = method.getParameterAnnotations();
-                for ( int i = 0; i < paramAnnotations.length; i++ )
+                else if ( m instanceof Method )
                 {
-                    dependencies.addDependency( paramTypes.get( i ), paramAnnotations[i] );
+                    final Method method = (Method) m;
+                    final List<TypeLiteral<?>> paramTypes = type.getParameterTypes( method );
+                    final Annotation[][] paramAnnotations = method.getParameterAnnotations();
+                    for ( int i = 0; i < paramAnnotations.length; i++ )
+                    {
+                        dependencies.addDependency( paramTypes.get( i ), paramAnnotations[i] );
+                    }
                 }
-            }
-            else
-            {
-                final Field f = (Field) m;
-                dependencies.addDependency( type.getFieldType( f ), f.getAnnotations() );
+                else
+                {
+                    final Field f = (Field) m;
+                    dependencies.addDependency( type.getFieldType( f ), f.getAnnotations() );
+                }
             }
         }
         return dependencies;
