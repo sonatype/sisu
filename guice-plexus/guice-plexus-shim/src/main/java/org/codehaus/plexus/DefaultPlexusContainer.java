@@ -88,6 +88,22 @@ public final class DefaultPlexusContainer
 
     private static final LoggerManager CONSOLE_LOGGER_MANAGER = new ConsoleLoggerManager();
 
+    private static final boolean LOAD_CLASS_FROM_SELF_SUPPORTED;
+
+    static
+    {
+        boolean loadClassFromSelfSupported = true;
+        try
+        {
+            ClassRealm.class.getDeclaredMethod( "loadClassFromSelf", String.class );
+        }
+        catch ( final Throwable e )
+        {
+            loadClassFromSelfSupported = false;
+        }
+        LOAD_CLASS_FROM_SELF_SUPPORTED = loadClassFromSelfSupported;
+    }
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -110,8 +126,6 @@ public final class DefaultPlexusContainer
     final PlexusLifecycleManager lifecycleManager;
 
     final PlexusBeanLocator plexusBeanLocator;
-
-    private ContainerSecurityManager securityManager;
 
     private final boolean isClassPathScanningEnabled;
 
@@ -150,17 +164,8 @@ public final class DefaultPlexusContainer
 
         plexusBeanLocator = new DefaultPlexusBeanLocator( qualifiedBeanLocator, configuration.getComponentVisibility() );
 
-        try
-        {
-            // optional approach to finding role class loader
-            securityManager = new ContainerSecurityManager();
-        }
-        catch ( final SecurityException e )
-        {
-            securityManager = null;
-        }
-
         realmIds.add( containerRealm.getId() );
+        setLookupRealm( containerRealm );
 
         final List<PlexusBeanModule> beanModules = new ArrayList<PlexusBeanModule>();
 
@@ -630,73 +635,61 @@ public final class DefaultPlexusContainer
      * @param role The Plexus role
      * @return Plexus role class
      */
-    private Class<Object> loadRoleClass( final String role )
+    private Class loadRoleClass( final String role )
         throws ComponentLookupException
     {
-        Throwable exception = null;
         try
         {
-            // the majority of roles are found here
+            final ClassRealm realm = getLookupRealm();
+            if ( null != realm )
+            {
+                try
+                {
+                    // Plexus per-thread lookup
+                    return realm.loadClass( role );
+                }
+                catch ( final ClassNotFoundException e ) // NOPMD
+                {
+                    // drop-through
+                }
+            }
+            for ( final ClassRealm childRealm : (Collection<ClassRealm>) getClassWorld().getRealms() )
+            {
+                if ( containerRealm == childRealm.getParentRealm() )
+                {
+                    // try each plugin in turn without delegating to parent
+                    final Class clazz = loadClassFromSelf( childRealm, role );
+                    if ( null != clazz )
+                    {
+                        return clazz;
+                    }
+                }
+            }
+            // no plugins? then check the core realm
             return containerRealm.loadClass( role );
         }
         catch ( final Throwable e )
         {
-            exception = e;
+            throw new ComponentLookupException( e, role, Hints.DEFAULT_HINT );
         }
-        final ClassRealm realm = getLookupRealm();
-        if ( null != realm && containerRealm != realm )
+    }
+
+    private Class loadClassFromSelf( final ClassRealm realm, final String role )
+    {
+        if ( LOAD_CLASS_FROM_SELF_SUPPORTED )
         {
-            try
-            {
-                // Plexus per-thread lookup
-                return realm.loadClass( role );
-            }
-            catch ( final Throwable e ) // NOPMD
-            {
-                // drop-through
-            }
+            // try to delay loading from parent
+            return realm.loadClassFromSelf( role );
         }
-        final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-        if ( null != tccl && containerRealm != tccl )
+        try
         {
-            try
-            {
-                // standard Java per-thread lookup
-                return (Class) tccl.loadClass( role );
-            }
-            catch ( final Throwable e ) // NOPMD
-            {
-                // drop-through
-            }
+            // fall-back to classic model
+            return realm.loadClass( role );
         }
-        if ( null != securityManager )
+        catch ( final ClassNotFoundException e )
         {
-            try
-            {
-                // try the caller context (requires stack access)
-                return securityManager.loadClassFromCaller( role );
-            }
-            catch ( final Throwable e ) // NOPMD
-            {
-                // drop-through
-            }
+            return null;
         }
-        for ( final ClassRealm childRealm : (Collection<ClassRealm>) getClassWorld().getRealms() )
-        {
-            if ( containerRealm == childRealm.getParentRealm() )
-            {
-                try
-                {
-                    // otherwise use brute force search
-                    return childRealm.loadClass( role );
-                }
-                catch ( final Throwable e ) // NOPMD
-                {
-                    // check-next-realm
-                }
-            }
-        }
-        throw new ComponentLookupException( exception, role, Hints.DEFAULT_HINT );
     }
 
     /**
@@ -788,43 +781,6 @@ public final class DefaultPlexusContainer
         public Logger get()
         {
             return getLogger();
-        }
-    }
-
-    /**
-     * Custom {@link SecurityManager} that can load Plexus roles from the calling class loader.
-     */
-    static final class ContainerSecurityManager
-        extends SecurityManager
-    {
-        // ----------------------------------------------------------------------
-        // Constants
-        // ----------------------------------------------------------------------
-
-        private static final String CONTAINER_CLASS_NAME = DefaultPlexusContainer.class.getName();
-
-        // ----------------------------------------------------------------------
-        // Locally-shared methods
-        // ----------------------------------------------------------------------
-
-        /**
-         * Loads the given role from the class loader of the first non-container class in the call-stack.
-         * 
-         * @param role The Plexus role
-         * @return Plexus role type
-         */
-        Class loadClassFromCaller( final String role )
-            throws ClassNotFoundException
-        {
-            for ( final Class clazz : getClassContext() )
-            {
-                // simple check to ignore container related context frames
-                if ( !clazz.getName().startsWith( CONTAINER_CLASS_NAME ) )
-                {
-                    return clazz.getClassLoader().loadClass( role );
-                }
-            }
-            throw new ClassNotFoundException( "Cannot find caller" );
         }
     }
 }
