@@ -652,9 +652,9 @@ public final class DefaultPlexusContainer
     private Class loadRoleClass( final String role )
         throws ComponentLookupException
     {
-        Throwable cause = null;
         try
         {
+            // 1. CUSTOM LOOKUP
             final ClassRealm currentLookupRealm = getLookupRealm();
             if ( null != currentLookupRealm )
             {
@@ -662,26 +662,26 @@ public final class DefaultPlexusContainer
                 {
                     return currentLookupRealm.loadClass( role );
                 }
-                catch ( final ClassNotFoundException e ) // NOPMD
+                catch ( final Throwable e ) // NOPMD
                 {
                     // drop-through
                 }
             }
+            // 2. CALLER CONTEXT
             if ( null != CLASS_CONTEXT_FINDER )
             {
-                // try to deduce the caller's realm and use that without delegation
                 final Class clazz = CLASS_CONTEXT_FINDER.loadClassFromCaller( role );
                 if ( null != clazz )
                 {
                     return clazz;
                 }
             }
+            // 3. PLUGIN DEPENDENCY
             for ( final ClassRealm realm : (Collection<ClassRealm>) getClassWorld().getRealms() )
             {
                 if ( containerRealm == realm.getParentRealm() )
                 {
-                    // try the different plugin realms without delegation
-                    final Class clazz = loadClassFromSelf( realm, role );
+                    final Class clazz = loadClassFromPlugin( realm, role );
                     if ( null != clazz )
                     {
                         return clazz;
@@ -689,34 +689,29 @@ public final class DefaultPlexusContainer
                 }
             }
         }
-        catch ( final Throwable e )
+        catch ( final Throwable e ) // NOPMD
         {
-            cause = e; // record first encountered error that's not ClassNotFound...
+            // drop-through
         }
+        // 4. CORE DEPENDENCY
         try
         {
-            // last resort, try core with delegation
             return containerRealm.loadClass( role );
         }
         catch ( final Throwable e )
         {
-            throw new ComponentLookupException( null != cause ? cause : e, role, Hints.DEFAULT_HINT );
+            throw new ComponentLookupException( e, role, Hints.DEFAULT_HINT );
         }
     }
 
-    private Class loadClassFromSelf( final ClassRealm realm, final String role )
+    private Class loadClassFromPlugin( final ClassRealm realm, final String role )
     {
-        if ( LOAD_CLASS_FROM_SELF_SUPPORTED )
-        {
-            // try to delay loading from parent
-            return realm.loadClassFromSelf( role );
-        }
         try
         {
-            // fall-back to classic model
-            return realm.loadClass( role );
+            // avoid delegating to parent where possible, to allow plugins to have their own versions of jars
+            return LOAD_CLASS_FROM_SELF_SUPPORTED ? realm.loadClassFromSelf( role ) : realm.loadClass( role );
         }
-        catch ( final ClassNotFoundException e )
+        catch ( final Throwable e )
         {
             return null;
         }

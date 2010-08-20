@@ -19,23 +19,30 @@ final class PlexusRoleClassContextFinder
     // ----------------------------------------------------------------------
 
     /**
-     * Attempts to load the given role from the first non-container realm in the call-stack.
+     * Attempts to load the given role from the first non-container context in the call-stack.
      * 
      * @param role The Plexus role
-     * @return Plexus role class loaded from first non-container realm; otherwise {@code null}
+     * @return Plexus role class loaded from first non-container context; otherwise {@code null}
      */
     Class<?> loadClassFromCaller( final String role )
     {
-        for ( final Class<?> clazz : getClassContext() )
+        try
         {
-            if ( false == clazz.getName().startsWith( CONTAINER_PACKAGE ) )
+            for ( final Class<?> clazz : getClassContext() )
             {
-                final ClassLoader contextClassLoader = clazz.getClassLoader();
-                if ( contextClassLoader instanceof ClassRealm )
+                if ( false == clazz.getName().startsWith( CONTAINER_PACKAGE ) )
                 {
-                    return ( (ClassRealm) contextClassLoader ).loadClassFromSelf( role );
+                    final ClassLoader contextClassLoader = clazz.getClassLoader();
+                    if ( contextClassLoader instanceof ClassRealm )
+                    {
+                        return ( (ClassRealm) contextClassLoader ).loadClassFromSelf( role );
+                    }
                 }
             }
+        }
+        catch ( final Throwable e ) // NOPMD
+        {
+            // drop-through
         }
         return null;
     }
