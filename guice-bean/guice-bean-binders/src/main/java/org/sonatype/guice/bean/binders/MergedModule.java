@@ -15,35 +15,14 @@ package org.sonatype.guice.bean.binders;
 import java.util.Arrays;
 import java.util.List;
 
-import org.sonatype.guice.bean.converters.FileTypeConverter;
-import org.sonatype.guice.bean.converters.URLTypeConverter;
-import org.sonatype.guice.bean.locators.BeanLocator;
-import org.sonatype.guice.bean.locators.HiddenSource;
-
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.spi.Element;
 import com.google.inject.spi.Elements;
 
-/**
- * Guice {@link Module} that automatically adds {@link BeanLocator}-backed bindings for non-local bean dependencies.
- */
-public final class WireModule
+public final class MergedModule
     implements Module
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final HiddenSource HIDDEN_SOURCE = new HiddenSource()
-    {
-        @Override
-        public String toString()
-        {
-            return ImportBinder.class.getName();
-        }
-    };
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -54,12 +33,12 @@ public final class WireModule
     // Constructors
     // ----------------------------------------------------------------------
 
-    public WireModule( final Module... modules )
+    public MergedModule( final Module... modules )
     {
         this.modules = Arrays.asList( modules );
     }
 
-    public WireModule( final List<Module> modules )
+    public MergedModule( final List<Module> modules )
     {
         this.modules = modules;
     }
@@ -70,17 +49,13 @@ public final class WireModule
 
     public void configure( final Binder binder )
     {
-        binder.install( new FileTypeConverter() );
-        binder.install( new URLTypeConverter() );
-
-        final ElementAnalyzer analyzer = new ElementAnalyzer( binder );
+        final ElementMerger merger = new ElementMerger( binder );
         for ( final Module m : modules )
         {
             for ( final Element e : Elements.getElements( m ) )
             {
-                e.acceptVisitor( analyzer );
+                e.acceptVisitor( merger );
             }
         }
-        new ImportBinder( binder.withSource( HIDDEN_SOURCE ) ).bind( analyzer.getImportedKeys() );
     }
 }

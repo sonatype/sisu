@@ -37,6 +37,7 @@ import org.codehaus.plexus.context.DefaultContext;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
+import org.sonatype.guice.bean.binders.MergedModule;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.DefaultBeanLocator;
@@ -90,18 +91,31 @@ public final class DefaultPlexusContainer
 
     private static final boolean LOAD_CLASS_FROM_SELF_SUPPORTED;
 
+    private static final PlexusRoleClassContextFinder CLASS_CONTEXT_FINDER;
+
     static
     {
         boolean loadClassFromSelfSupported = true;
+        PlexusRoleClassContextFinder classContextFinder = null;
         try
         {
             ClassRealm.class.getDeclaredMethod( "loadClassFromSelf", String.class );
+            try
+            {
+                // this is only useful if we can also load-from-self
+                classContextFinder = new PlexusRoleClassContextFinder();
+            }
+            catch ( final Throwable e )
+            {
+                classContextFinder = null;
+            }
         }
         catch ( final Throwable e )
         {
             loadClassFromSelfSupported = false;
         }
         LOAD_CLASS_FROM_SELF_SUPPORTED = loadClassFromSelfSupported;
+        CLASS_CONTEXT_FINDER = classContextFinder;
     }
 
     // ----------------------------------------------------------------------
@@ -460,7 +474,7 @@ public final class DefaultPlexusContainer
         modules.add( new PlexusBindingModule( lifecycleManager, beanModules ) );
         modules.add( loggerModule );
 
-        Guice.createInjector( new WireModule( modules.toArray( new Module[modules.size()] ) ) );
+        Guice.createInjector( isClassPathScanningEnabled ? new WireModule( modules ) : new MergedModule( modules ) );
     }
 
     // ----------------------------------------------------------------------
@@ -638,39 +652,55 @@ public final class DefaultPlexusContainer
     private Class loadRoleClass( final String role )
         throws ComponentLookupException
     {
+        Throwable cause = null;
         try
         {
-            final ClassRealm realm = getLookupRealm();
-            if ( null != realm )
+            final ClassRealm currentLookupRealm = getLookupRealm();
+            if ( null != currentLookupRealm )
             {
                 try
                 {
-                    // Plexus per-thread lookup
-                    return realm.loadClass( role );
+                    return currentLookupRealm.loadClass( role );
                 }
                 catch ( final ClassNotFoundException e ) // NOPMD
                 {
                     // drop-through
                 }
             }
-            for ( final ClassRealm childRealm : (Collection<ClassRealm>) getClassWorld().getRealms() )
+            if ( null != CLASS_CONTEXT_FINDER )
             {
-                if ( containerRealm == childRealm.getParentRealm() )
+                // try to deduce the caller's realm and use that without delegation
+                final Class clazz = CLASS_CONTEXT_FINDER.loadClassFromCaller( role );
+                if ( null != clazz )
                 {
-                    // try each plugin in turn without delegating to parent
-                    final Class clazz = loadClassFromSelf( childRealm, role );
+                    return clazz;
+                }
+            }
+            for ( final ClassRealm realm : (Collection<ClassRealm>) getClassWorld().getRealms() )
+            {
+                if ( containerRealm == realm.getParentRealm() )
+                {
+                    // try the different plugin realms without delegation
+                    final Class clazz = loadClassFromSelf( realm, role );
                     if ( null != clazz )
                     {
                         return clazz;
                     }
                 }
             }
-            // no plugins? then check the core realm
+        }
+        catch ( final Throwable e )
+        {
+            cause = e; // record first encountered error that's not ClassNotFound...
+        }
+        try
+        {
+            // last resort, try core with delegation
             return containerRealm.loadClass( role );
         }
         catch ( final Throwable e )
         {
-            throw new ComponentLookupException( e, role, Hints.DEFAULT_HINT );
+            throw new ComponentLookupException( null != cause ? cause : e, role, Hints.DEFAULT_HINT );
         }
     }
 
