@@ -89,33 +89,20 @@ public final class DefaultPlexusContainer
 
     private static final LoggerManager CONSOLE_LOGGER_MANAGER = new ConsoleLoggerManager();
 
-    private static final boolean LOAD_CLASS_FROM_SELF_SUPPORTED;
-
-    private static final PlexusRoleClassContextFinder CLASS_CONTEXT_FINDER;
+    private static final RealmContextFinder REALM_CONTEXT_FINDER;
 
     static
     {
-        boolean loadClassFromSelfSupported = true;
-        PlexusRoleClassContextFinder classContextFinder = null;
+        RealmContextFinder realmContextFinder;
         try
         {
-            ClassRealm.class.getDeclaredMethod( "loadClassFromSelf", String.class );
-            try
-            {
-                // this is only useful if we can also load-from-self
-                classContextFinder = new PlexusRoleClassContextFinder();
-            }
-            catch ( final Throwable e )
-            {
-                classContextFinder = null;
-            }
+            realmContextFinder = new StackRealmContextFinder();
         }
         catch ( final Throwable e )
         {
-            loadClassFromSelfSupported = false;
+            realmContextFinder = new ThreadRealmContextFinder();
         }
-        LOAD_CLASS_FROM_SELF_SUPPORTED = loadClassFromSelfSupported;
-        CLASS_CONTEXT_FINDER = classContextFinder;
+        REALM_CONTEXT_FINDER = realmContextFinder;
     }
 
     // ----------------------------------------------------------------------
@@ -652,51 +639,25 @@ public final class DefaultPlexusContainer
     private Class loadRoleClass( final String role )
         throws ComponentLookupException
     {
+        // CURRENT CONTEXT
+        final Collection<ClassRealm> world = getClassWorld().getRealms();
+        Class clazz = loadRoleClass( world, getLookupRealm(), role );
+        if ( null == clazz )
+        {
+            clazz = loadRoleClass( world, REALM_CONTEXT_FINDER.findRealm(), role );
+        }
+
+        // BRUTE-FORCE SEARCH
+        final Iterator<ClassRealm> i = world.iterator();
+        while ( null == clazz && i.hasNext() )
+        {
+            clazz = loadRoleClass( world, i.next(), role );
+        }
+
         try
         {
-            // 1. CUSTOM LOOKUP
-            final ClassRealm currentLookupRealm = getLookupRealm();
-            if ( null != currentLookupRealm )
-            {
-                try
-                {
-                    return currentLookupRealm.loadClass( role );
-                }
-                catch ( final Throwable e ) // NOPMD
-                {
-                    // drop-through
-                }
-            }
-            // 2. CALLER CONTEXT
-            if ( null != CLASS_CONTEXT_FINDER )
-            {
-                final Class clazz = CLASS_CONTEXT_FINDER.loadClassFromCaller( role );
-                if ( null != clazz )
-                {
-                    return clazz;
-                }
-            }
-            // 3. PLUGIN DEPENDENCY
-            for ( final ClassRealm realm : (Collection<ClassRealm>) getClassWorld().getRealms() )
-            {
-                if ( containerRealm == realm.getParentRealm() )
-                {
-                    final Class clazz = loadClassFromPlugin( realm, role );
-                    if ( null != clazz )
-                    {
-                        return clazz;
-                    }
-                }
-            }
-        }
-        catch ( final Throwable e ) // NOPMD
-        {
-            // drop-through
-        }
-        // 4. CORE DEPENDENCY
-        try
-        {
-            return containerRealm.loadClass( role );
+            // DELEGATE TO OUTSIDE IF NECESSARY
+            return null != clazz ? clazz : containerRealm.loadClass( role );
         }
         catch ( final Throwable e )
         {
@@ -704,17 +665,24 @@ public final class DefaultPlexusContainer
         }
     }
 
-    private Class loadClassFromPlugin( final ClassRealm realm, final String role )
+    private static Class loadRoleClass( final Collection<ClassRealm> world, final ClassRealm realm, final String role )
     {
-        try
+        if ( null != realm )
         {
-            // avoid delegating to parent where possible, to allow plugins to have their own versions of jars
-            return LOAD_CLASS_FROM_SELF_SUPPORTED ? realm.loadClassFromSelf( role ) : realm.loadClass( role );
+            try
+            {
+                final Class clazz = realm.loadClass( role );
+                if ( world.contains( clazz.getClassLoader() ) )
+                {
+                    return clazz;
+                }
+            }
+            catch ( final Throwable e ) // NOPMD
+            {
+                // drop-through
+            }
         }
-        catch ( final Throwable e )
-        {
-            return null;
-        }
+        return null;
     }
 
     /**
