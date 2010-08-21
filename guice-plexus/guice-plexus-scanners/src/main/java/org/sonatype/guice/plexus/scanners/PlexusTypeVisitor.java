@@ -29,6 +29,8 @@ import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Strategies;
 
+import com.google.inject.spi.InjectionPoint;
+
 /**
  * {@link ClassSpaceVisitor} that reports Plexus bean classes annotated with @{@link Component}.
  */
@@ -113,6 +115,12 @@ public final class PlexusTypeVisitor
             final Component component = componentVisitor.getComponent( space );
             if ( null != component )
             {
+                final Class<?> role = component.role();
+                if ( implementation.equals( role.getName() ) )
+                {
+                    // direct binding, make sure it's valid
+                    InjectionPoint.forConstructorOf( role );
+                }
                 plexusTypeListener.hear( component, new LoadedClass<Object>( space.loadClass( implementation ) ), space );
             }
             implementation = null;

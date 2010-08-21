@@ -30,6 +30,8 @@ import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Roles;
 import org.sonatype.guice.plexus.config.Strategies;
 
+import com.google.inject.spi.InjectionPoint;
+
 /**
  * Enhanced Plexus component map with additional book-keeping.
  */
@@ -195,8 +197,8 @@ final class PlexusTypeRegistry
             final Class<?> clazz = space.loadClass( role );
             if ( implementation.equals( role ) )
             {
-                // check constructors will load
-                clazz.getDeclaredConstructors();
+                // direct binding, make sure it's valid
+                InjectionPoint.forConstructorOf( clazz );
             }
             return clazz;
         }
