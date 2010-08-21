@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +46,9 @@ import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.DeferredProvider;
+import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.binders.PlexusAnnotatedBeanModule;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
@@ -64,7 +68,6 @@ import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.google.inject.util.Providers;
@@ -441,13 +444,13 @@ public final class DefaultPlexusContainer
     // Logger methods
     // ----------------------------------------------------------------------
 
-    public LoggerManager getLoggerManager()
+    public synchronized LoggerManager getLoggerManager()
     {
         return loggerManager;
     }
 
     @Inject( optional = true )
-    public void setLoggerManager( final LoggerManager loggerManager )
+    public synchronized void setLoggerManager( final LoggerManager loggerManager )
     {
         if ( null != loggerManager )
         {
@@ -460,7 +463,7 @@ public final class DefaultPlexusContainer
         logger = null; // refresh our local logger
     }
 
-    public Logger getLogger()
+    public synchronized Logger getLogger()
     {
         if ( null == logger )
         {
@@ -579,7 +582,7 @@ public final class DefaultPlexusContainer
             return plexusBeanLocator.locate( TypeLiteral.get( type ), canonicalHints );
         }
         final Set<Class> candidates = new HashSet<Class>();
-        for ( final ClassRealm realm : (Collection<ClassRealm>) getClassWorld().getRealms() )
+        for ( final ClassRealm realm : getCandidateRealms() )
         {
             try
             {
@@ -599,6 +602,18 @@ public final class DefaultPlexusContainer
             }
         }
         return Collections.EMPTY_LIST;
+    }
+
+    private Collection<ClassRealm> getCandidateRealms()
+    {
+        final Collection<ClassRealm> realms = new LinkedHashSet<ClassRealm>();
+        final ClassRealm currentLookupRealm = getLookupRealm();
+        if ( null != currentLookupRealm )
+        {
+            realms.add( currentLookupRealm );
+        }
+        realms.addAll( getClassWorld().getRealms() );
+        return realms;
     }
 
     private <T> boolean hasPlexusBeans( final Iterable<PlexusBean<T>> beans )
@@ -670,20 +685,30 @@ public final class DefaultPlexusContainer
     }
 
     final class LoggerManagerProvider
-        implements Provider<LoggerManager>
+        implements DeferredProvider<LoggerManager>
     {
         public LoggerManager get()
         {
             return getLoggerManager();
         }
+
+        public DeferredClass<LoggerManager> getImplementationClass()
+        {
+            return new LoadedClass<LoggerManager>( get().getClass() );
+        }
     }
 
     final class LoggerProvider
-        implements Provider<Logger>
+        implements DeferredProvider<Logger>
     {
         public Logger get()
         {
             return getLogger();
+        }
+
+        public DeferredClass<Logger> getImplementationClass()
+        {
+            return new LoadedClass<Logger>( get().getClass() );
         }
     }
 }
