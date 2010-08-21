@@ -330,7 +330,7 @@ public final class DefaultPlexusContainer
             final PlexusBean<T> bean = i.next();
             if ( bean.getImplementationClass() != null )
             {
-                newComponentDescriptor( role, bean );
+                return newComponentDescriptor( role, bean );
             }
         }
         return null;
