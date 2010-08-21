@@ -12,7 +12,6 @@
  */
 package org.sonatype.guice.plexus.binders;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -81,20 +80,12 @@ public final class PlexusXmlBeanModule
 
     public PlexusBeanSource configure( final Binder binder )
     {
+        final PlexusTypeBinder plexusTypeBinder = new PlexusTypeBinder( binder );
         final Map<String, PlexusBeanMetadata> metadataMap = new HashMap<String, PlexusBeanMetadata>();
-        try
+        final PlexusXmlScanner scanner = new PlexusXmlScanner( variables, plexusXml, metadataMap );
+        for ( final Entry<Component, DeferredClass<?>> entry : scanner.scan( space ).entrySet() )
         {
-            final PlexusXmlScanner scanner = new PlexusXmlScanner( variables, plexusXml, metadataMap );
-            final Map<Component, DeferredClass<?>> components = scanner.scan( space );
-            final PlexusTypeBinder plexusTypeBinder = new PlexusTypeBinder( binder );
-            for ( final Entry<Component, DeferredClass<?>> entry : components.entrySet() )
-            {
-                plexusTypeBinder.hear( entry.getKey(), entry.getValue(), space );
-            }
-        }
-        catch ( final IOException e )
-        {
-            binder.addError( e );
+            plexusTypeBinder.hear( entry.getKey(), entry.getValue(), space );
         }
         return new PlexusXmlBeanSource( metadataMap );
     }

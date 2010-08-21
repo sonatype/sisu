@@ -21,6 +21,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
@@ -76,7 +78,6 @@ public final class PlexusXmlScanner
     // ----------------------------------------------------------------------
 
     public Map<Component, DeferredClass<?>> scan( final ClassSpace space )
-        throws IOException
     {
         final PlexusTypeRegistry registry = new PlexusTypeRegistry( space );
         if ( null != plexusXml )
@@ -123,47 +124,49 @@ public final class PlexusXmlScanner
      * @param registry The parsed components
      */
     private void parsePlexusXml( final URL url, final PlexusTypeRegistry registry )
-        throws IOException
     {
-        final InputStream in = url.openStream();
         try
         {
-            final MXParser parser = new MXParser();
-            parser.setInput( filteredXmlReader( in, variables ) );
-
-            parser.nextTag();
-            parser.require( XmlPullParser.START_TAG, null, null ); // this may be <component-set> or <plexus>
-
-            while ( parser.nextTag() == XmlPullParser.START_TAG )
+            final InputStream in = url.openStream();
+            try
             {
-                final String name = parser.getName();
-                if ( Strategies.LOAD_ON_START.equals( name ) )
+                final MXParser parser = new MXParser();
+                parser.setInput( filteredXmlReader( in, variables ) );
+
+                parser.nextTag();
+                parser.require( XmlPullParser.START_TAG, null, null ); // this may be <component-set> or <plexus>
+
+                while ( parser.nextTag() == XmlPullParser.START_TAG )
                 {
-                    while ( parser.nextTag() == XmlPullParser.START_TAG )
+                    final String name = parser.getName();
+                    if ( Strategies.LOAD_ON_START.equals( name ) )
                     {
-                        parseLoadOnStart( parser, registry );
+                        while ( parser.nextTag() == XmlPullParser.START_TAG )
+                        {
+                            parseLoadOnStart( parser, registry );
+                        }
                     }
-                }
-                else if ( "components".equals( name ) )
-                {
-                    while ( parser.nextTag() == XmlPullParser.START_TAG )
+                    else if ( "components".equals( name ) )
                     {
-                        parseComponent( parser, registry );
+                        while ( parser.nextTag() == XmlPullParser.START_TAG )
+                        {
+                            parseComponent( parser, registry );
+                        }
                     }
-                }
-                else
-                {
-                    parser.skipSubTree();
+                    else
+                    {
+                        parser.skipSubTree();
+                    }
                 }
             }
+            finally
+            {
+                IOUtil.close( in );
+            }
         }
-        catch ( final XmlPullParserException e )
+        catch ( final Throwable e )
         {
-            throw new IOException( "Problem parsing: " + url + " reason: " + e );
-        }
-        finally
-        {
-            IOUtil.close( in );
+            reportParsingException( url, e );
         }
     }
 
@@ -174,31 +177,33 @@ public final class PlexusXmlScanner
      * @param registry The parsed components
      */
     private void parseComponentsXml( final URL url, final PlexusTypeRegistry registry )
-        throws IOException
     {
-        final InputStream in = url.openStream();
         try
         {
-            final MXParser parser = new MXParser();
-            parser.setInput( filteredXmlReader( in, variables ) );
-
-            parser.nextTag();
-            parser.require( XmlPullParser.START_TAG, null, null ); // this may be <component-set> or <plexus>
-            parser.nextTag();
-            parser.require( XmlPullParser.START_TAG, null, "components" );
-
-            while ( parser.nextTag() == XmlPullParser.START_TAG )
+            final InputStream in = url.openStream();
+            try
             {
-                parseComponent( parser, registry );
+                final MXParser parser = new MXParser();
+                parser.setInput( filteredXmlReader( in, variables ) );
+
+                parser.nextTag();
+                parser.require( XmlPullParser.START_TAG, null, null ); // this may be <component-set> or <plexus>
+                parser.nextTag();
+                parser.require( XmlPullParser.START_TAG, null, "components" );
+
+                while ( parser.nextTag() == XmlPullParser.START_TAG )
+                {
+                    parseComponent( parser, registry );
+                }
+            }
+            finally
+            {
+                IOUtil.close( in );
             }
         }
-        catch ( final XmlPullParserException e )
+        catch ( final Throwable e )
         {
-            throw new IOException( "Problem parsing: " + url + " reason: " + e );
-        }
-        finally
-        {
-            IOUtil.close( in );
+            reportParsingException( url, e );
         }
     }
 
@@ -459,5 +464,24 @@ public final class PlexusXmlScanner
         throws XmlPullParserException, IOException
     {
         return parser.nextText().trim();
+    }
+
+    /**
+     * Reports the given resource exception to the SLF4J logger if available; otherwise to JUL.
+     * 
+     * @param url The resource URL
+     * @param exception The exception
+     */
+    private static void reportParsingException( final URL url, final Throwable exception )
+    {
+        final String message = "Problem parsing resource: " + url;
+        try
+        {
+            org.slf4j.LoggerFactory.getLogger( PlexusXmlScanner.class ).debug( message, exception );
+        }
+        catch ( final Throwable ignore )
+        {
+            Logger.getLogger( PlexusXmlScanner.class.getName() ).log( Level.FINE, message, exception );
+        }
     }
 }

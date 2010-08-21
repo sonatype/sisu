@@ -12,7 +12,6 @@
  */
 package org.sonatype.guice.plexus.scanners;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -141,7 +140,6 @@ public class PlexusXmlScannerTest
     }
 
     public void testLoadOnStart()
-        throws IOException
     {
         final URL plexusXml = getClass().getResource( "/META-INF/plexus/plexus.xml" );
         final PlexusXmlScanner scanner = new PlexusXmlScanner( null, plexusXml, null );
@@ -161,21 +159,12 @@ public class PlexusXmlScannerTest
     public void testBadPlexusXml()
     {
         final ClassSpace space = new URLClassSpace( PlexusXmlScannerTest.class.getClassLoader() );
-
-        try
-        {
-            final URL plexusXml = getClass().getResource( "/META-INF/plexus/bad_plexus_1.xml" );
-            new PlexusXmlScanner( null, plexusXml, null ).scan( space );
-            fail( "Expected IOException" );
-        }
-        catch ( final IOException e )
-        {
-        }
+        final URL plexusXml = getClass().getResource( "/META-INF/plexus/bad_plexus_1.xml" );
+        new PlexusXmlScanner( null, plexusXml, null ).scan( space );
     }
 
     @SuppressWarnings( "deprecation" )
     public void testComponents()
-        throws IOException
     {
         final ClassSpace space = new URLClassSpace( PlexusXmlScannerTest.class.getClassLoader() );
 
@@ -302,31 +291,18 @@ public class PlexusXmlScannerTest
     }
 
     public void testBadComponentsXml()
-        throws IOException
     {
-        try
-        {
-            final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_1.xml" );
-            new PlexusXmlScanner( null, null, null ).scan( space );
-            fail( "Expected IOException" );
-        }
-        catch ( final IOException e )
-        {
-        }
+        ClassSpace space;
+
+        space = new FixedClassSpace( "/META-INF/plexus/bad_components_1.xml" );
+        new PlexusXmlScanner( null, null, null ).scan( space );
+
+        space = new FixedClassSpace( "/META-INF/plexus/bad_components_2.xml" );
+        new PlexusXmlScanner( null, null, null ).scan( space );
 
         try
         {
-            final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_2.xml" );
-            new PlexusXmlScanner( null, null, null ).scan( space );
-            fail( "Expected IOException" );
-        }
-        catch ( final IOException e )
-        {
-        }
-
-        try
-        {
-            final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_3.xml" );
+            space = new FixedClassSpace( "/META-INF/plexus/bad_components_3.xml" );
             final Map<String, PlexusBeanMetadata> metadata = new HashMap<String, PlexusBeanMetadata>();
             final PlexusXmlScanner scanner = new PlexusXmlScanner( null, null, metadata );
 
@@ -342,15 +318,12 @@ public class PlexusXmlScannerTest
         {
         }
 
-        {
-            final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/bad_components_4.xml" );
-            final PlexusXmlScanner scanner = new PlexusXmlScanner( null, null, null );
-            assertTrue( scanner.scan( space ).isEmpty() );
-        }
+        space = new FixedClassSpace( "/META-INF/plexus/bad_components_4.xml" );
+        final PlexusXmlScanner scanner = new PlexusXmlScanner( null, null, null );
+        assertTrue( scanner.scan( space ).isEmpty() );
     }
 
     public void testInterpolatedComponentsXml()
-        throws IOException
     {
         final ClassSpace space = new FixedClassSpace( "/META-INF/plexus/variable_components.xml" );
 
@@ -370,7 +343,6 @@ public class PlexusXmlScannerTest
     }
 
     public void testLocalizedXmlScanning()
-        throws IOException
     {
         final ClassLoader parent = PlexusXmlScannerTest.class.getClassLoader();
         final ClassSpace space = new URLClassSpace( parent, null );
