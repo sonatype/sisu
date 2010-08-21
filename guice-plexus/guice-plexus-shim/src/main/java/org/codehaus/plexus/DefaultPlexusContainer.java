@@ -89,22 +89,6 @@ public final class DefaultPlexusContainer
 
     private static final LoggerManager CONSOLE_LOGGER_MANAGER = new ConsoleLoggerManager();
 
-    private static final RealmContextFinder REALM_CONTEXT_FINDER;
-
-    static
-    {
-        RealmContextFinder realmContextFinder;
-        try
-        {
-            realmContextFinder = new StackRealmContextFinder();
-        }
-        catch ( final Throwable e )
-        {
-            realmContextFinder = new ThreadRealmContextFinder();
-        }
-        REALM_CONTEXT_FINDER = realmContextFinder;
-    }
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -217,7 +201,7 @@ public final class DefaultPlexusContainer
     public Object lookup( final String role, final String hint )
         throws ComponentLookupException
     {
-        return lookup( loadRoleClass( role ), hint );
+        return lookup( null, role, hint );
     }
 
     public <T> T lookup( final Class<T> role )
@@ -229,42 +213,44 @@ public final class DefaultPlexusContainer
     public <T> T lookup( final Class<T> role, final String hint )
         throws ComponentLookupException
     {
-        try
-        {
-            return locate( role, hint ).iterator().next().getValue();
-        }
-        catch ( final Throwable e )
-        {
-            throw new ComponentLookupException( e, role.getName(), hint );
-        }
+        return lookup( role, null, hint );
     }
 
     public <T> T lookup( final Class<T> type, final String role, final String hint )
         throws ComponentLookupException
     {
-        return lookup( loadRoleClass( type, role ), hint );
+        try
+        {
+            return locate( role, type, hint ).iterator().next().getValue();
+        }
+        catch ( final Throwable e )
+        {
+            throw new ComponentLookupException( e, null != role ? role : type.getName(), hint );
+        }
     }
 
     public List<Object> lookupList( final String role )
         throws ComponentLookupException
     {
-        return lookupList( loadRoleClass( role ) );
+        return new EntryListAdapter<String, Object>( locate( role, null ) );
     }
 
     public <T> List<T> lookupList( final Class<T> role )
+        throws ComponentLookupException
     {
-        return new EntryListAdapter<String, T>( locate( role ) );
+        return new EntryListAdapter<String, T>( locate( null, role ) );
     }
 
     public Map<String, Object> lookupMap( final String role )
         throws ComponentLookupException
     {
-        return lookupMap( loadRoleClass( role ) );
+        return new EntryMapAdapter<String, Object>( locate( role, null ) );
     }
 
     public <T> Map<String, T> lookupMap( final Class<T> role )
+        throws ComponentLookupException
     {
-        return new EntryMapAdapter<String, T>( locate( role ) );
+        return new EntryMapAdapter<String, T>( locate( null, role ) );
     }
 
     // ----------------------------------------------------------------------
@@ -278,20 +264,12 @@ public final class DefaultPlexusContainer
 
     public boolean hasComponent( final Class role, final String hint )
     {
-        final Iterator<PlexusBean<?>> i = locate( role, hint ).iterator();
-        return i.hasNext() && i.next().getImplementationClass() != null;
+        return hasComponent( role, null, hint );
     }
 
-    public boolean hasComponent( final Class<?> type, final String role, final String hint )
+    public boolean hasComponent( final Class type, final String role, final String hint )
     {
-        try
-        {
-            return hasComponent( loadRoleClass( type, role ), hint );
-        }
-        catch ( final ComponentLookupException e )
-        {
-            return false;
-        }
+        return hasPlexusBeans( locate( role, type, hint ) );
     }
 
     // ----------------------------------------------------------------------
@@ -346,77 +324,46 @@ public final class DefaultPlexusContainer
 
     public <T> ComponentDescriptor<T> getComponentDescriptor( final Class<T> type, final String role, final String hint )
     {
-        try
+        final Iterator<PlexusBean<T>> i = locate( role, type, hint ).iterator();
+        if ( i.hasNext() )
         {
-            final Iterator<PlexusBean<T>> i = locate( loadRoleClass( type, role ), hint ).iterator();
-            if ( i.hasNext() )
+            final PlexusBean<T> bean = i.next();
+            if ( bean.getImplementationClass() != null )
             {
-                return newComponentDescriptor( role, i.next() );
+                newComponentDescriptor( role, bean );
             }
-        }
-        catch ( final ComponentLookupException e ) // NOPMD
-        {
-            // ignore
         }
         return null;
     }
 
     public List getComponentDescriptorList( final String role )
     {
-        try
-        {
-            return getComponentDescriptorList( loadRoleClass( role ), role );
-        }
-        catch ( final ComponentLookupException e )
-        {
-            return Collections.EMPTY_LIST;
-        }
+        return getComponentDescriptorList( null, role );
     }
 
     public <T> List<ComponentDescriptor<T>> getComponentDescriptorList( final Class<T> type, final String role )
     {
-        try
+        final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
+        for ( final PlexusBean<T> bean : locate( role, type ) )
         {
-            final List<ComponentDescriptor<T>> tempList = new ArrayList<ComponentDescriptor<T>>();
-            for ( final PlexusBean<T> bean : locate( loadRoleClass( type, role ) ) )
-            {
-                tempList.add( newComponentDescriptor( role, bean ) );
-            }
-            return tempList;
+            tempList.add( newComponentDescriptor( role, bean ) );
         }
-        catch ( final ComponentLookupException e )
-        {
-            return Collections.EMPTY_LIST;
-        }
+        return tempList;
     }
 
     public Map getComponentDescriptorMap( final String role )
     {
-        try
-        {
-            return getComponentDescriptorMap( loadRoleClass( role ), role );
-        }
-        catch ( final ComponentLookupException e )
-        {
-            return Collections.EMPTY_MAP;
-        }
+        return getComponentDescriptorMap( null, role );
     }
 
     public <T> Map<String, ComponentDescriptor<T>> getComponentDescriptorMap( final Class<T> type, final String role )
     {
-        try
+        final Map<String, ComponentDescriptor<T>> tempMap = new LinkedHashMap<String, ComponentDescriptor<T>>();
+        for ( final PlexusBean<T> bean : locate( role, type ) )
         {
-            final Map<String, ComponentDescriptor<T>> tempMap = new LinkedHashMap<String, ComponentDescriptor<T>>();
-            for ( final PlexusBean<T> bean : locate( loadRoleClass( type, role ) ) )
-            {
-                tempMap.put( bean.getKey(), newComponentDescriptor( role, bean ) );
-            }
-            return tempMap;
+            tempMap.put( bean.getKey(), newComponentDescriptor( role, bean ) );
         }
-        catch ( final ComponentLookupException e )
-        {
-            return Collections.EMPTY_MAP;
-        }
+        return tempMap;
     }
 
     public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm realm )
@@ -624,77 +571,40 @@ public final class DefaultPlexusContainer
         return url;
     }
 
-    private <T> Class<T> loadRoleClass( final Class<T> type, final String role )
-        throws ComponentLookupException
+    private <T> Iterable<PlexusBean<T>> locate( final String role, final Class<T> type, final String... hints )
     {
-        return null != type && role.equals( type.getName() ) ? type : (Class) loadRoleClass( role );
-    }
-
-    /**
-     * Loads the named Plexus role from the current container {@link ClassRealm}.
-     * 
-     * @param role The Plexus role
-     * @return Plexus role class
-     */
-    private Class loadRoleClass( final String role )
-        throws ComponentLookupException
-    {
-        // CURRENT CONTEXT
-        final Collection<ClassRealm> world = getClassWorld().getRealms();
-        Class clazz = loadRoleClass( world, getLookupRealm(), role );
-        if ( null == clazz )
+        final String[] canonicalHints = Hints.canonicalHints( hints );
+        if ( null == role || null != type && type.getName().equals( role ) )
         {
-            clazz = loadRoleClass( world, REALM_CONTEXT_FINDER.findRealm(), role );
+            return plexusBeanLocator.locate( TypeLiteral.get( type ), canonicalHints );
         }
-
-        // BRUTE-FORCE SEARCH
-        final Iterator<ClassRealm> i = world.iterator();
-        while ( null == clazz && i.hasNext() )
-        {
-            clazz = loadRoleClass( world, i.next(), role );
-        }
-
-        try
-        {
-            // DELEGATE TO OUTSIDE IF NECESSARY
-            return null != clazz ? clazz : containerRealm.loadClass( role );
-        }
-        catch ( final Throwable e )
-        {
-            throw new ComponentLookupException( e, role, Hints.DEFAULT_HINT );
-        }
-    }
-
-    private static Class loadRoleClass( final Collection<ClassRealm> world, final ClassRealm realm, final String role )
-    {
-        if ( null != realm )
+        final Set<Class> candidates = new HashSet<Class>();
+        for ( final ClassRealm realm : (Collection<ClassRealm>) getClassWorld().getRealms() )
         {
             try
             {
                 final Class clazz = realm.loadClass( role );
-                if ( world.contains( clazz.getClassLoader() ) )
+                if ( candidates.add( clazz ) )
                 {
-                    return clazz;
+                    final Iterable beans = plexusBeanLocator.locate( TypeLiteral.get( clazz ), canonicalHints );
+                    if ( hasPlexusBeans( beans ) )
+                    {
+                        return beans;
+                    }
                 }
             }
             catch ( final Throwable e ) // NOPMD
             {
-                // drop-through
+                // continue...
             }
         }
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
-    /**
-     * Locates instances of the given role, filtered using the given named hints.
-     * 
-     * @param role The Plexus role
-     * @param hints The Plexus hints
-     * @return Instances of the given role; ordered according to the given hints
-     */
-    private <T> Iterable<PlexusBean<T>> locate( final Class<T> role, final String... hints )
+    private <T> boolean hasPlexusBeans( final Iterable<PlexusBean<T>> beans )
     {
-        return plexusBeanLocator.locate( TypeLiteral.get( role ), Hints.canonicalHints( hints ) );
+        final Iterator<PlexusBean<T>> i = beans.iterator();
+        return i.hasNext() && i.next().getImplementationClass() != null;
     }
 
     private <T> ComponentDescriptor<T> newComponentDescriptor( final String role, final PlexusBean<T> bean )
