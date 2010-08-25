@@ -19,6 +19,15 @@
     <module>guice-plexus</module>
   </modules>
 
+  <profiles>
+    <profile>
+      <id>examples</id>
+      <modules>
+        <module>examples</module>
+      </modules>
+    </profile>
+  </profiles>
+
   <build>
     <pluginManagement>
       <plugins>
