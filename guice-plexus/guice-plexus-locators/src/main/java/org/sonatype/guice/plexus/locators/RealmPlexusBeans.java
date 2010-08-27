@@ -13,10 +13,9 @@
 package org.sonatype.guice.plexus.locators;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.sonatype.guice.bean.locators.QualifiedBean;
@@ -32,7 +31,7 @@ final class RealmPlexusBeans<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private ClassLoader cachedTCCL;
+    private ClassRealm cachedContextRealm;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -50,11 +49,11 @@ final class RealmPlexusBeans<T>
     @Override
     public synchronized Iterator<PlexusBean<T>> iterator()
     {
-        final ClassLoader currentTCCL = Thread.currentThread().getContextClassLoader();
-        if ( null == cachedBeans || currentTCCL != cachedTCCL )
+        final ClassRealm contextRealm = ClassRealms.contextRealm();
+        if ( null == cachedBeans || contextRealm != cachedContextRealm )
         {
-            cachedTCCL = currentTCCL;
-            cachedBeans = getPlexusBeans( getVisibleBeans( getContextRealm( currentTCCL ) ), defaultPlexusBeans );
+            cachedContextRealm = contextRealm;
+            cachedBeans = getPlexusBeans( getVisibleBeans( contextRealm ), defaultPlexusBeans );
         }
         return cachedBeans.iterator();
     }
@@ -63,61 +62,24 @@ final class RealmPlexusBeans<T>
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    /**
-     * @return Last class realm to appear in the {@link Thread#getContextClassLoader()} hierarchy
-     */
-    private static ClassRealm getContextRealm( final ClassLoader currentTCCL )
+    private Iterable<QualifiedBean<Named, T>> getVisibleBeans( final ClassRealm contextRealm )
     {
-        for ( ClassLoader tccl = currentTCCL; tccl != null; tccl = tccl.getParent() )
-        {
-            if ( tccl instanceof ClassRealm )
-            {
-                return (ClassRealm) tccl;
-            }
-        }
-        return null;
-    }
-
-    @SuppressWarnings( "unchecked" )
-    private static Set<String> getVisibleRealms( final ClassRealm observerRealm )
-    {
-        final Set<String> visibleRealms = new HashSet<String>();
-        final List<ClassRealm> searchRealms = new ArrayList<ClassRealm>();
-
-        searchRealms.add( observerRealm );
-        for ( int i = 0; i < searchRealms.size(); i++ )
-        {
-            final ClassRealm realm = searchRealms.get( i );
-            if ( visibleRealms.add( realm.toString() ) )
-            {
-                searchRealms.addAll( realm.getImportRealms() );
-                final ClassRealm parent = realm.getParentRealm();
-                if ( null != parent )
-                {
-                    searchRealms.add( parent );
-                }
-            }
-        }
-
-        return visibleRealms;
-    }
-
-    private Iterable<QualifiedBean<Named, T>> getVisibleBeans( final ClassRealm observerRealm )
-    {
-        if ( null == observerRealm )
+        if ( null == contextRealm )
         {
             return beans;
         }
-        final Set<String> visibleRealms = getVisibleRealms( observerRealm );
+
+        final Collection<String> visibleRealmIds = ClassRealms.findVisibleRealmIds( contextRealm );
         final List<QualifiedBean<Named, T>> visibleBeans = new ArrayList<QualifiedBean<Named, T>>();
         for ( final QualifiedBean<Named, T> bean : beans )
         {
             final String source = bean.getBinding().getSource().toString();
-            if ( !source.startsWith( "ClassRealm" ) || visibleRealms.contains( source ) )
+            if ( !source.startsWith( "ClassRealm" ) || visibleRealmIds.contains( source ) )
             {
                 visibleBeans.add( bean );
             }
         }
+
         return visibleBeans;
     }
 }
