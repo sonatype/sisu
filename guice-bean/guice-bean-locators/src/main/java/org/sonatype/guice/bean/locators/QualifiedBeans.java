@@ -100,6 +100,7 @@ class QualifiedBeans<Q extends Annotation, T>
         {
             return Collections.EMPTY_LIST;
         }
+        int pivot = 0;
         final List<QualifiedBean<Q, T>> newBeans = new ArrayList<QualifiedBean<Q, T>>();
         for ( final Binding binding : bindings )
         {
@@ -108,13 +109,21 @@ class QualifiedBeans<Q extends Annotation, T>
                 final Q qualifier = (Q) strategy.qualify( key, binding );
                 if ( null != qualifier )
                 {
-                    newBeans.add( new QualifiedBean<Q, T>( qualifier, binding ) );
+                    final QualifiedBean<Q, T> bean = new QualifiedBean<Q, T>( qualifier, binding );
+                    if ( DEFAULT_QUALIFIER.equals( qualifier ) )
+                    {
+                        newBeans.add( pivot++, bean );
+                    }
+                    else
+                    {
+                        newBeans.add( bean );
+                    }
                 }
             }
         }
         if ( !newBeans.isEmpty() )
         {
-            mergeQualifiedBeans( newBeans );
+            mergeQualifiedBeans( pivot, newBeans );
         }
         return newBeans;
     }
@@ -193,33 +202,29 @@ class QualifiedBeans<Q extends Annotation, T>
         return key.hasAttributes() ? QualifyingStrategy.MARKED_WITH_ATTRIBUTES : QualifyingStrategy.MARKED;
     }
 
-    private void mergeQualifiedBeans( final List<QualifiedBean<Q, T>> newBeans )
+    private void mergeQualifiedBeans( final int pivot, final List<QualifiedBean<Q, T>> newBeans )
     {
-        final int numBeans = newBeans.size();
+        final int newBeansLength = newBeans.size();
         if ( null == beans )
         {
-            beans = new ArrayList<QualifiedBean<Q, T>>( numBeans );
+            beans = new ArrayList<QualifiedBean<Q, T>>( newBeansLength );
         }
         else
         {
-            beans.ensureCapacity( beans.size() + numBeans );
+            beans.ensureCapacity( beans.size() + newBeansLength );
         }
-        int defaultIndex = 0;
-        while ( defaultIndex < beans.size() && DEFAULT_QUALIFIER.equals( beans.get( defaultIndex ).getKey() ) )
+        if ( pivot > 0 )
         {
-            defaultIndex++;
+            beans.addAll( 0, newBeans.subList( 0, pivot ) );
         }
-        for ( int i = 0; i < numBeans; i++ )
+        if ( pivot < newBeansLength )
         {
-            final QualifiedBean<Q, T> bean = newBeans.get( i );
-            if ( DEFAULT_QUALIFIER.equals( bean.getKey() ) )
+            int i = pivot;
+            while ( i < beans.size() && DEFAULT_QUALIFIER.equals( beans.get( i ).getKey() ) )
             {
-                beans.add( defaultIndex++, bean );
+                i++;
             }
-            else
-            {
-                beans.add( bean );
-            }
+            beans.addAll( i, newBeans.subList( pivot, newBeansLength ) );
         }
     }
 }

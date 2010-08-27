@@ -124,26 +124,26 @@ public class PlexusBeanLocatorTest
         Iterator<? extends Entry<String, Bean>> i;
 
         i = roles.iterator();
+        assertEquals( "M1", i.next().getKey() );
+        assertEquals( "N1", i.next().getKey() );
+        assertEquals( "M3", i.next().getKey() );
+        assertEquals( "N3", i.next().getKey() );
         assertEquals( "A", i.next().getKey() );
         assertEquals( "-", i.next().getKey() );
         assertEquals( "Z", i.next().getKey() );
-        assertEquals( "M3", i.next().getKey() );
-        assertEquals( "N3", i.next().getKey() );
-        assertEquals( "M1", i.next().getKey() );
-        assertEquals( "N1", i.next().getKey() );
         assertFalse( i.hasNext() );
 
         locator.remove( child2 );
         locator.remove( child2 );
 
         i = roles.iterator();
+        assertEquals( "M1", i.next().getKey() );
+        assertEquals( "N1", i.next().getKey() );
+        assertEquals( "M3", i.next().getKey() );
+        assertEquals( "N3", i.next().getKey() );
         assertEquals( "A", i.next().getKey() );
         assertEquals( "-", i.next().getKey() );
         assertEquals( "Z", i.next().getKey() );
-        assertEquals( "M3", i.next().getKey() );
-        assertEquals( "N3", i.next().getKey() );
-        assertEquals( "M1", i.next().getKey() );
-        assertEquals( "N1", i.next().getKey() );
         assertFalse( i.hasNext() );
 
         locator.remove( child3 );
@@ -151,22 +151,22 @@ public class PlexusBeanLocatorTest
         locator.add( child3 );
 
         i = roles.iterator();
+        assertEquals( "M3", i.next().getKey() );
+        assertEquals( "N3", i.next().getKey() );
+        assertEquals( "M1", i.next().getKey() );
+        assertEquals( "N1", i.next().getKey() );
         assertEquals( "A", i.next().getKey() );
         assertEquals( "-", i.next().getKey() );
         assertEquals( "Z", i.next().getKey() );
-        assertEquals( "M1", i.next().getKey() );
-        assertEquals( "N1", i.next().getKey() );
-        assertEquals( "M3", i.next().getKey() );
-        assertEquals( "N3", i.next().getKey() );
         assertFalse( i.hasNext() );
 
         locator.remove( parent );
 
         i = roles.iterator();
-        assertEquals( "M1", i.next().getKey() );
-        assertEquals( "N1", i.next().getKey() );
         assertEquals( "M3", i.next().getKey() );
         assertEquals( "N3", i.next().getKey() );
+        assertEquals( "M1", i.next().getKey() );
+        assertEquals( "N1", i.next().getKey() );
         assertFalse( i.hasNext() );
 
         locator.remove( child1 );
@@ -190,13 +190,13 @@ public class PlexusBeanLocatorTest
         Iterator<? extends Entry<String, Bean>> i;
 
         i = roles.iterator();
+        assertEquals( "M3", i.next().getKey() );
+        assertEquals( "N3", i.next().getKey() );
+        assertEquals( "M1", i.next().getKey() );
+        assertEquals( "N1", i.next().getKey() );
         assertEquals( "A", i.next().getKey() );
         assertEquals( "-", i.next().getKey() );
         assertEquals( "Z", i.next().getKey() );
-        assertEquals( "M1", i.next().getKey() );
-        assertEquals( "N1", i.next().getKey() );
-        assertEquals( "M3", i.next().getKey() );
-        assertEquals( "N3", i.next().getKey() );
         assertFalse( i.hasNext() );
     }
 
@@ -468,79 +468,79 @@ public class PlexusBeanLocatorTest
 
         i = beans.iterator();
         assertTrue( i.hasNext() );
-        assertEquals( "A", i.next().getKey() );
         assertEquals( "!", i.next().getKey() );
+        assertEquals( "A", i.next().getKey() );
         assertFalse( i.hasNext() );
 
         Thread.currentThread().setContextClassLoader( world.getClassRealm( "B" ) );
 
         i = beans.iterator();
         assertTrue( i.hasNext() );
-        assertEquals( "A", i.next().getKey() );
-        assertEquals( "B", i.next().getKey() );
-        assertEquals( "C", i.next().getKey() );
         assertEquals( "!", i.next().getKey() );
+        assertEquals( "C", i.next().getKey() );
+        assertEquals( "B", i.next().getKey() );
+        assertEquals( "A", i.next().getKey() );
         assertFalse( i.hasNext() );
 
         Thread.currentThread().setContextClassLoader( world.getClassRealm( "B2" ) );
 
         i = beans.iterator();
         assertTrue( i.hasNext() );
-        assertEquals( "A", i.next().getKey() );
-        assertEquals( "B", i.next().getKey() );
-        assertEquals( "C", i.next().getKey() );
-        assertEquals( "B1", i.next().getKey() );
-        assertEquals( "B2", i.next().getKey() );
-        assertEquals( "B3", i.next().getKey() );
         assertEquals( "!", i.next().getKey() );
+        assertEquals( "B3", i.next().getKey() );
+        assertEquals( "B2", i.next().getKey() );
+        assertEquals( "B1", i.next().getKey() );
+        assertEquals( "C", i.next().getKey() );
+        assertEquals( "B", i.next().getKey() );
+        assertEquals( "A", i.next().getKey() );
         assertFalse( i.hasNext() );
 
         Thread.currentThread().setContextClassLoader( world.getClassRealm( "B2B" ) );
 
         i = beans.iterator();
         assertTrue( i.hasNext() );
-        assertEquals( "A", i.next().getKey() );
-        assertEquals( "B", i.next().getKey() );
-        assertEquals( "C", i.next().getKey() );
-        assertEquals( "B1", i.next().getKey() );
-        assertEquals( "B2", i.next().getKey() );
-        assertEquals( "B3", i.next().getKey() );
-        assertEquals( "B2B", i.next().getKey() );
         assertEquals( "!", i.next().getKey() );
+        assertEquals( "B2B", i.next().getKey() );
+        assertEquals( "B3", i.next().getKey() );
+        assertEquals( "B2", i.next().getKey() );
+        assertEquals( "B1", i.next().getKey() );
+        assertEquals( "C", i.next().getKey() );
+        assertEquals( "B", i.next().getKey() );
+        assertEquals( "A", i.next().getKey() );
         assertFalse( i.hasNext() );
 
         Thread.currentThread().setContextClassLoader( world.getClassRealm( "B3" ) );
 
         i = beans.iterator();
         assertTrue( i.hasNext() );
-        assertEquals( "A", i.next().getKey() );
-        assertEquals( "B", i.next().getKey() );
-        assertEquals( "C", i.next().getKey() );
-        assertEquals( "B3", i.next().getKey() );
         assertEquals( "!", i.next().getKey() );
+        assertEquals( "B3", i.next().getKey() );
+        assertEquals( "C", i.next().getKey() );
+        assertEquals( "B", i.next().getKey() );
+        assertEquals( "A", i.next().getKey() );
         assertFalse( i.hasNext() );
 
         Thread.currentThread().setContextClassLoader( world.getClassRealm( "C" ) );
 
         i = beans.iterator();
         assertTrue( i.hasNext() );
-        assertEquals( "C", i.next().getKey() );
         assertEquals( "!", i.next().getKey() );
+        assertEquals( "C", i.next().getKey() );
         assertFalse( i.hasNext() );
 
         Thread.currentThread().setContextClassLoader( null );
 
         i = beans.iterator();
         assertTrue( i.hasNext() );
-        assertEquals( "A", i.next().getKey() );
-        assertEquals( "B", i.next().getKey() );
-        assertEquals( "C", i.next().getKey() );
-        assertEquals( "B1", i.next().getKey() );
-        assertEquals( "B2", i.next().getKey() );
-        assertEquals( "B3", i.next().getKey() );
-        assertEquals( "B2B", i.next().getKey() );
-        assertEquals( "?", i.next().getKey() );
         assertEquals( "!", i.next().getKey() );
+        assertEquals( "?", i.next().getKey() );
+        assertEquals( "B2B", i.next().getKey() );
+        assertEquals( "B3", i.next().getKey() );
+        assertEquals( "B2", i.next().getKey() );
+        assertEquals( "B1", i.next().getKey() );
+        assertEquals( "C", i.next().getKey() );
+        assertEquals( "B", i.next().getKey() );
+        assertEquals( "A", i.next().getKey() );
         assertFalse( i.hasNext() );
     }
 }

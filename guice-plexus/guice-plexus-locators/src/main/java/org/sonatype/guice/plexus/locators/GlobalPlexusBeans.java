@@ -101,15 +101,22 @@ class GlobalPlexusBeans<T>
             }
             return plexusBeans;
         }
+        int beanCount = 0;
         final List<PlexusBean<T>> plexusBeans = new ArrayList<PlexusBean<T>>( defaultPlexusBeans );
         while ( i.hasNext() )
         {
             final QualifiedBean<Named, T> bean = i.next();
+            final String key = bean.getKey().value();
             for ( int n = 0; n < expectedSize; n++ )
             {
-                if ( bean.getKey().value().equals( plexusBeans.get( n ).getKey() ) )
+                final PlexusBean<T> b = plexusBeans.get( n );
+                if ( key.equals( b.getKey() ) && b instanceof MissingPlexusBean<?> )
                 {
                     plexusBeans.set( n, new LazyPlexusBean<T>( bean ) );
+                    if ( ++beanCount == expectedSize )
+                    {
+                        return plexusBeans;
+                    }
                 }
             }
         }
