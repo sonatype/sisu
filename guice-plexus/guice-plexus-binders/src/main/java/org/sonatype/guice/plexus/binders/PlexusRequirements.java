@@ -27,6 +27,7 @@ import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.Roles;
 
+import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeEncounter;
 
@@ -64,23 +65,37 @@ final class PlexusRequirements
     @SuppressWarnings( { "unchecked", "rawtypes" } )
     public <T> Provider<T> lookup( final Requirement requirement, final BeanProperty<T> property )
     {
-        // deduce lookup from metadata + property details
-        final TypeLiteral<T> expectedType = property.getType();
-        final TypeLiteral<T> roleType = (TypeLiteral<T>) Roles.roleType( requirement, expectedType );
-        final Class<?> rawType = expectedType.getRawType();
-
-        final String[] hints = Hints.canonicalHints( requirement );
-
-        if ( Map.class == rawType )
+        try
         {
-            return new RequirementMapProvider( locatorProvider, roleType, hints );
-        }
-        else if ( List.class == rawType )
-        {
-            return new RequirementListProvider( locatorProvider, roleType, hints );
-        }
+            // deduce lookup from metadata + property details
+            final TypeLiteral<T> expectedType = property.getType();
+            final TypeLiteral<T> roleType = (TypeLiteral<T>) Roles.roleType( requirement, expectedType );
+            final Class<?> rawType = expectedType.getRawType();
 
-        return new RequirementProvider( locatorProvider, roleType, hints );
+            final String[] hints = Hints.canonicalHints( requirement );
+
+            if ( Map.class == rawType )
+            {
+                return new RequirementMapProvider( locatorProvider, roleType, hints );
+            }
+            else if ( List.class == rawType )
+            {
+                return new RequirementListProvider( locatorProvider, roleType, hints );
+            }
+
+            return new RequirementProvider( locatorProvider, roleType, hints );
+        }
+        catch ( final Throwable e )
+        {
+            // defer until later...
+            return new Provider<T>()
+            {
+                public T get()
+                {
+                    throw new ProvisionException( "Error in requirement: " + property, e );
+                }
+            };
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -136,10 +151,10 @@ final class PlexusRequirements
         // Constructors
         // ----------------------------------------------------------------------
 
-        RequirementMapProvider( final Provider<PlexusBeanLocator> provider, final TypeLiteral<T> type,
+        RequirementMapProvider( final Provider<PlexusBeanLocator> locatorProvider, final TypeLiteral<T> type,
                                 final String[] hints )
         {
-            super( provider, type, hints );
+            super( locatorProvider, type, hints );
         }
 
         // ----------------------------------------------------------------------
