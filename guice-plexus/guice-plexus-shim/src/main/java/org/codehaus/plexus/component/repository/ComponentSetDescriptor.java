@@ -49,6 +49,15 @@ public class ComponentSetDescriptor
         this.components = new ArrayList<ComponentDescriptor<?>>( components );
     }
 
+    public final void addDependency( final ComponentDependency dependency )
+    {
+        if ( dependencies.isEmpty() )
+        {
+            dependencies = new ArrayList<ComponentDependency>();
+        }
+        dependencies.add( dependency );
+    }
+
     public final void setDependencies( final List<ComponentDependency> dependencies )
     {
         this.dependencies = new ArrayList<ComponentDependency>( dependencies );
