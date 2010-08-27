@@ -15,7 +15,6 @@ package org.sonatype.guice.plexus.locators;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBean;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
@@ -37,22 +36,7 @@ public final class DefaultPlexusBeanLocator
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final boolean GET_IMPORT_REALMS_SUPPORTED;
-
-    static
-    {
-        boolean getImportRealmsSupported = true;
-        try
-        {
-            // support both old and new forms of Plexus class realms
-            ClassRealm.class.getDeclaredMethod( "getImportRealms" );
-        }
-        catch ( final Throwable e )
-        {
-            getImportRealmsSupported = false;
-        }
-        GET_IMPORT_REALMS_SUPPORTED = getImportRealmsSupported;
-    }
+    private static final String REALM_VISIBILITY = "realm";
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -69,7 +53,7 @@ public final class DefaultPlexusBeanLocator
     @Inject
     public DefaultPlexusBeanLocator( final BeanLocator beanLocator )
     {
-        this( beanLocator, null );
+        this( beanLocator, REALM_VISIBILITY );
     }
 
     public DefaultPlexusBeanLocator( final BeanLocator beanLocator, final String visibility )
@@ -85,13 +69,13 @@ public final class DefaultPlexusBeanLocator
     public <T> Iterable<PlexusBean<T>> locate( final TypeLiteral<T> role, final String... hints )
     {
         final PlexusBeans<T> plexusBeans;
-        if ( GET_IMPORT_REALMS_SUPPORTED == false || "global".equalsIgnoreCase( visibility ) )
+        if ( REALM_VISIBILITY.equalsIgnoreCase( visibility ) )
         {
-            plexusBeans = new GlobalPlexusBeans<T>( role, hints );
+            plexusBeans = new RealmPlexusBeans<T>( role, hints );
         }
         else
         {
-            plexusBeans = new RealmPlexusBeans<T>( role, hints );
+            plexusBeans = new GlobalPlexusBeans<T>( role, hints );
         }
         if ( hints.length == 1 )
         {

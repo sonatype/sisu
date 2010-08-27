@@ -13,27 +13,45 @@
 package org.sonatype.guice.plexus.locators;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
-public final class ClassRealms
+public final class ClassRealmUtils
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final boolean GET_IMPORT_REALMS_SUPPORTED;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    private ClassRealms()
+    private ClassRealmUtils()
     {
         // static utility class, not allowed to create instances
     }
 
     static
     {
-        new ClassRealms(); // keep Cobertura coverage happy
+        new ClassRealmUtils(); // keep Cobertura coverage happy
+
+        boolean getImportRealmsSupported = true;
+        try
+        {
+            // support both old and new forms of Plexus class realms
+            ClassRealm.class.getDeclaredMethod( "getImportRealms" );
+        }
+        catch ( final Throwable e )
+        {
+            getImportRealmsSupported = false;
+        }
+        GET_IMPORT_REALMS_SUPPORTED = getImportRealmsSupported;
     }
 
     // ----------------------------------------------------------------------
@@ -53,8 +71,13 @@ public final class ClassRealms
     }
 
     @SuppressWarnings( "unchecked" )
-    public static Collection<String> findVisibleRealmIds( final ClassRealm contextRealm )
+    public static Set<String> visibleRealmNames( final ClassRealm contextRealm )
     {
+        if ( false == GET_IMPORT_REALMS_SUPPORTED || null == contextRealm )
+        {
+            return Collections.EMPTY_SET;
+        }
+
         final Set<String> visibleRealms = new HashSet<String>();
         final List<ClassRealm> searchRealms = new ArrayList<ClassRealm>();
 

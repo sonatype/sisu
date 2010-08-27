@@ -61,6 +61,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
+import org.sonatype.guice.plexus.locators.ClassRealmUtils;
 import org.sonatype.guice.plexus.locators.DefaultPlexusBeanLocator;
 
 import com.google.inject.AbstractModule;
@@ -115,6 +116,8 @@ public final class DefaultPlexusContainer
 
     final PlexusBeanLocator plexusBeanLocator;
 
+    private final String componentVisibility;
+
     private final boolean isClassPathScanningEnabled;
 
     private final Module bootModule = new BootModule();
@@ -149,8 +152,9 @@ public final class DefaultPlexusContainer
 
         containerRealm = lookupContainerRealm( configuration );
         lifecycleManager = new PlexusLifecycleManager( this, context );
+        componentVisibility = configuration.getComponentVisibility();
 
-        plexusBeanLocator = new DefaultPlexusBeanLocator( qualifiedBeanLocator, configuration.getComponentVisibility() );
+        plexusBeanLocator = new DefaultPlexusBeanLocator( qualifiedBeanLocator, componentVisibility );
 
         realmIds.add( containerRealm.getId() );
         setLookupRealm( containerRealm );
@@ -582,7 +586,7 @@ public final class DefaultPlexusContainer
             return plexusBeanLocator.locate( TypeLiteral.get( type ), canonicalHints );
         }
         final Set<Class> candidates = new HashSet<Class>();
-        for ( final ClassRealm realm : getCandidateRealms() )
+        for ( final ClassRealm realm : getVisibleRealms() )
         {
             try
             {
@@ -604,16 +608,36 @@ public final class DefaultPlexusContainer
         return Collections.EMPTY_LIST;
     }
 
-    private Collection<ClassRealm> getCandidateRealms()
+    private Collection<ClassRealm> getVisibleRealms()
     {
-        final Collection<ClassRealm> realms = new LinkedHashSet<ClassRealm>();
+        final Object[] realms = getClassWorld().getRealms().toArray();
+        final Set<ClassRealm> visibleRealms = new LinkedHashSet<ClassRealm>( realms.length );
         final ClassRealm currentLookupRealm = getLookupRealm();
         if ( null != currentLookupRealm )
         {
-            realms.add( currentLookupRealm );
+            visibleRealms.add( currentLookupRealm );
         }
-        realms.addAll( getClassWorld().getRealms() );
-        return realms;
+        if ( PlexusConstants.REALM_VISIBILITY.equals( componentVisibility ) )
+        {
+            final Collection<String> visibleNames = ClassRealmUtils.visibleRealmNames( ClassRealmUtils.contextRealm() );
+            if ( !visibleNames.isEmpty() )
+            {
+                for ( int i = realms.length - 1; i >= 0; i-- )
+                {
+                    final ClassRealm r = (ClassRealm) realms[i];
+                    if ( visibleNames.contains( r.toString() ) )
+                    {
+                        visibleRealms.add( r );
+                    }
+                }
+                return visibleRealms;
+            }
+        }
+        for ( int i = realms.length - 1; i >= 0; i-- )
+        {
+            visibleRealms.add( (ClassRealm) realms[i] );
+        }
+        return visibleRealms;
     }
 
     private <T> boolean hasPlexusBeans( final Iterable<PlexusBean<T>> beans )

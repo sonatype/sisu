@@ -33,7 +33,7 @@ public final class DefaultContainerConfiguration
 
     private Map<Object, Object> contextData;
 
-    private String componentVisibility;
+    private String componentVisibility = PlexusConstants.REALM_VISIBILITY;
 
     private boolean classPathScanning;
 

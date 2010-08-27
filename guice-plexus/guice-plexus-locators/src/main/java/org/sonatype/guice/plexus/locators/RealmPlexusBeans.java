@@ -13,9 +13,9 @@
 package org.sonatype.guice.plexus.locators;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.sonatype.guice.bean.locators.QualifiedBean;
@@ -49,7 +49,7 @@ final class RealmPlexusBeans<T>
     @Override
     public synchronized Iterator<PlexusBean<T>> iterator()
     {
-        final ClassRealm contextRealm = ClassRealms.contextRealm();
+        final ClassRealm contextRealm = ClassRealmUtils.contextRealm();
         if ( null == cachedBeans || contextRealm != cachedContextRealm )
         {
             cachedContextRealm = contextRealm;
@@ -64,22 +64,20 @@ final class RealmPlexusBeans<T>
 
     private Iterable<QualifiedBean<Named, T>> getVisibleBeans( final ClassRealm contextRealm )
     {
-        if ( null == contextRealm )
+        final Set<String> visibleRealmNames = ClassRealmUtils.visibleRealmNames( contextRealm );
+        if ( visibleRealmNames.isEmpty() )
         {
             return beans;
         }
-
-        final Collection<String> visibleRealmIds = ClassRealms.findVisibleRealmIds( contextRealm );
         final List<QualifiedBean<Named, T>> visibleBeans = new ArrayList<QualifiedBean<Named, T>>();
         for ( final QualifiedBean<Named, T> bean : beans )
         {
             final String source = bean.getBinding().getSource().toString();
-            if ( !source.startsWith( "ClassRealm" ) || visibleRealmIds.contains( source ) )
+            if ( !source.startsWith( "ClassRealm" ) || visibleRealmNames.contains( source ) )
             {
                 visibleBeans.add( bean );
             }
         }
-
         return visibleBeans;
     }
 }
