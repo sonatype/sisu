@@ -47,15 +47,18 @@ final class RealmPlexusBeans<T>
     // ----------------------------------------------------------------------
 
     @Override
-    public synchronized Iterator<PlexusBean<T>> iterator()
+    public Iterator<PlexusBean<T>> iterator()
     {
-        final ClassRealm contextRealm = ClassRealmUtils.contextRealm();
-        if ( null == cachedBeans || contextRealm != cachedContextRealm )
+        synchronized ( beans )
         {
-            cachedContextRealm = contextRealm;
-            cachedBeans = getPlexusBeans( getVisibleBeans( contextRealm ), defaultPlexusBeans );
+            final ClassRealm contextRealm = ClassRealmUtils.contextRealm();
+            if ( null == cachedBeans || contextRealm != cachedContextRealm )
+            {
+                cachedContextRealm = contextRealm;
+                cachedBeans = getPlexusBeans( getVisibleBeans( contextRealm ), defaultPlexusBeans );
+            }
+            return cachedBeans.iterator();
         }
-        return cachedBeans.iterator();
     }
 
     // ----------------------------------------------------------------------

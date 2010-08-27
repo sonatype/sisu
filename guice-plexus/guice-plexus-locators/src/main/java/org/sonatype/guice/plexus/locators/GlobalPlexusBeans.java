@@ -65,18 +65,24 @@ class GlobalPlexusBeans<T>
         this.beans = beans;
     }
 
-    public synchronized Iterator<PlexusBean<T>> iterator()
+    public Iterator<PlexusBean<T>> iterator()
     {
-        if ( null == cachedBeans )
+        synchronized ( beans )
         {
-            cachedBeans = getPlexusBeans( beans, defaultPlexusBeans );
+            if ( null == cachedBeans )
+            {
+                cachedBeans = getPlexusBeans( beans, defaultPlexusBeans );
+            }
+            return cachedBeans.iterator();
         }
-        return cachedBeans.iterator();
     }
 
-    public final synchronized void run()
+    public final void run()
     {
-        cachedBeans = null;
+        synchronized ( beans )
+        {
+            cachedBeans = null;
+        }
     }
 
     // ----------------------------------------------------------------------
