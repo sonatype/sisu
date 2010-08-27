@@ -198,7 +198,7 @@ public final class DefaultPlexusContainer
     public Object lookup( final String role )
         throws ComponentLookupException
     {
-        return lookup( role, Hints.DEFAULT_HINT );
+        return lookup( role, "" );
     }
 
     public Object lookup( final String role, final String hint )
@@ -210,7 +210,7 @@ public final class DefaultPlexusContainer
     public <T> T lookup( final Class<T> role )
         throws ComponentLookupException
     {
-        return lookup( role, Hints.DEFAULT_HINT );
+        return lookup( role, "" );
     }
 
     public <T> T lookup( final Class<T> role, final String hint )
@@ -262,7 +262,7 @@ public final class DefaultPlexusContainer
 
     public boolean hasComponent( final Class<?> role )
     {
-        return hasComponent( role, Hints.DEFAULT_HINT );
+        return hasComponent( role, "" );
     }
 
     public boolean hasComponent( final Class role, final String hint )

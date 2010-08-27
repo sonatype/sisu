@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.plexus.config;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -28,6 +29,8 @@ public final class Hints
     public static final String[] NO_HINTS = {};
 
     public static final String DEFAULT_HINT = "default";
+
+    private static final List<String> NO_HINTS_LIST = Arrays.asList( NO_HINTS );
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -79,7 +82,7 @@ public final class Hints
     public static String[] canonicalHints( final String... hints )
     {
         final int length = hints.length;
-        if ( length == 0 )
+        if ( length == 0 || length == 1 && hints[0].length() == 0 )
         {
             return NO_HINTS;
         }
@@ -98,7 +101,12 @@ public final class Hints
      */
     public static List<String> canonicalHints( final List<String> hints )
     {
-        for ( int i = 0, length = hints.size(); i < length; i++ )
+        final int length = hints.size();
+        if ( length == 0 || length == 1 && hints.get( 0 ).length() == 0 )
+        {
+            return NO_HINTS_LIST;
+        }
+        for ( int i = 0; i < length; i++ )
         {
             hints.set( i, canonicalHint( hints.get( i ) ) );
         }

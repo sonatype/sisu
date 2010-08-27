@@ -266,7 +266,7 @@ public class PlexusRequirementTest
     static class Component8
     {
         @Requirement( hints = { "" } )
-        List<D> testBadName;
+        List<A> testWildcardHint;
     }
 
     @Component( role = Component9.class )
@@ -443,16 +443,27 @@ public class PlexusRequirementTest
         }
     }
 
-    public void testBadName()
+    public void testWildcardHint()
     {
+        final List<A> testList = injector.getInstance( Component8.class ).testWildcardHint;
+
+        assertEquals( 5, testList.size() );
+
+        // check ordering is same as original map-binder
+        final Iterator<?> i = testList.iterator();
+        assertEquals( AImpl.class, i.next().getClass() );
+        assertEquals( AAImpl.class, i.next().getClass() );
         try
         {
-            injector.getInstance( Component8.class ).testBadName.toString();
-            fail( "Expected error for bad name" );
+            i.next();
+            fail( "Expected ProvisionException" );
         }
         catch ( final ProvisionException e )
         {
         }
+        assertEquals( ABImpl.class, i.next().getClass() );
+        assertEquals( ACImpl.class, i.next().getClass() );
+        assertFalse( i.hasNext() );
     }
 
     public void testNoDefault()
