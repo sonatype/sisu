@@ -216,33 +216,38 @@ public final class PlexusXmlScanner
     private void parseLoadOnStart( final MXParser parser, final PlexusTypeRegistry registry )
         throws XmlPullParserException, IOException
     {
-        String role = null;
-        String hint = "";
-
-        parser.require( XmlPullParser.START_TAG, null, "component" );
-
-        while ( parser.nextTag() == XmlPullParser.START_TAG )
+        if ( "component".equals( parser.getName() ) )
         {
-            if ( "role".equals( parser.getName() ) )
-            {
-                role = TEXT( parser );
-            }
-            else if ( "role-hint".equals( parser.getName() ) )
-            {
-                hint = TEXT( parser );
-            }
-            else
-            {
-                parser.skipSubTree();
-            }
-        }
+            String role = null;
+            String hint = "";
 
-        if ( null == role )
+            while ( parser.nextTag() == XmlPullParser.START_TAG )
+            {
+                if ( "role".equals( parser.getName() ) )
+                {
+                    role = TEXT( parser );
+                }
+                else if ( "role-hint".equals( parser.getName() ) )
+                {
+                    hint = TEXT( parser );
+                }
+                else
+                {
+                    parser.skipSubTree();
+                }
+            }
+
+            if ( null == role )
+            {
+                throw new XmlPullParserException( "Missing <role> element.", parser, null );
+            }
+
+            registry.loadOnStart( role, hint );
+        }
+        else
         {
-            throw new XmlPullParserException( "Missing <role> element.", parser, null );
+            parser.skipSubTree();
         }
-
-        registry.loadOnStart( role, hint );
     }
 
     /**
