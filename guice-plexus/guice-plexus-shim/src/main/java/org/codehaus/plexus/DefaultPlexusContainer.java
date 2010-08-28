@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
@@ -129,6 +130,8 @@ public final class DefaultPlexusContainer
     private LoggerManager loggerManager = CONSOLE_LOGGER_MANAGER;
 
     private Logger logger;
+
+    private boolean disposing;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -282,6 +285,18 @@ public final class DefaultPlexusContainer
     // ----------------------------------------------------------------------
     // Component descriptor methods
     // ----------------------------------------------------------------------
+
+    public void addComponent( final Object component, final String role )
+    {
+        try
+        {
+            addComponent( component, component.getClass().getClassLoader().loadClass( role ), Hints.DEFAULT_HINT );
+        }
+        catch ( final ClassNotFoundException e )
+        {
+            throw new TypeNotPresentException( role, e );
+        }
+    }
 
     public <T> void addComponent( final T component, final java.lang.Class<?> role, final String hint )
     {
@@ -444,6 +459,25 @@ public final class DefaultPlexusContainer
         return lookupRealm.get();
     }
 
+    public ClassRealm createChildRealm( final String id )
+    {
+        try
+        {
+            return containerRealm.createChildRealm( id );
+        }
+        catch ( final DuplicateRealmException e1 )
+        {
+            try
+            {
+                return getClassWorld().getRealm( id );
+            }
+            catch ( final NoSuchRealmException e2 )
+            {
+                return null; // should never happen!
+            }
+        }
+    }
+
     // ----------------------------------------------------------------------
     // Logger methods
     // ----------------------------------------------------------------------
@@ -485,8 +519,26 @@ public final class DefaultPlexusContainer
         lifecycleManager.unmanage( component );
     }
 
+    public void releaseAll( final Map<String, ?> components )
+    {
+        for ( final Object o : components.values() )
+        {
+            release( o );
+        }
+    }
+
+    public void releaseAll( final List<?> components )
+    {
+        for ( final Object o : components )
+        {
+            release( o );
+        }
+    }
+
     public void dispose()
     {
+        disposing = true;
+
         lifecycleManager.unmanage();
         containerRealm.setParentRealm( null );
         qualifiedBeanLocator.clear();
@@ -580,6 +632,10 @@ public final class DefaultPlexusContainer
 
     private <T> Iterable<PlexusBean<T>> locate( final String role, final Class<T> type, final String... hints )
     {
+        if ( disposing )
+        {
+            return Collections.EMPTY_LIST;
+        }
         final String[] canonicalHints = Hints.canonicalHints( hints );
         if ( null == role || null != type && type.getName().equals( role ) )
         {

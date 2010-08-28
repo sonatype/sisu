@@ -61,6 +61,8 @@ public interface PlexusContainer
 
     boolean hasComponent( Class<?> type, String role, String hint );
 
+    void addComponent( Object component, String role );
+
     <T> void addComponent( T component, Class<?> role, String hint );
 
     <T> void addComponentDescriptor( ComponentDescriptor<T> descriptor )
@@ -89,6 +91,8 @@ public interface PlexusContainer
 
     ClassRealm getLookupRealm();
 
+    ClassRealm createChildRealm( String id );
+
     LoggerManager getLoggerManager();
 
     void setLoggerManager( LoggerManager loggerManager );
@@ -96,6 +100,12 @@ public interface PlexusContainer
     Logger getLogger();
 
     void release( Object component )
+        throws ComponentLifecycleException;
+
+    void releaseAll( Map<String, ?> components )
+        throws ComponentLifecycleException;
+
+    void releaseAll( List<?> components )
         throws ComponentLifecycleException;
 
     void dispose();
