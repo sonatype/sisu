@@ -4,6 +4,11 @@
       <role>org.codehaus.plexus.component.discovery.DiscoveredComponent</role>
       <implementation>org.codehaus.plexus.component.discovery.DefaultDiscoveredComponent</implementation>
     </component>
+    <component>
+      <role>org.codehaus.plexus.component.factory.ComponentFactory</role>
+      <role-hint>testFactory2</role-hint>
+      <implementation>org.codehaus.plexus.component.factory.TestComponentFactory2</implementation>
+    </component>
   </components>
   <dependencies>
     <dependency>

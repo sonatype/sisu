@@ -1,0 +1,25 @@
+<plexus>
+  <components>
+    <component>
+      <role>org.codehaus.plexus.component.composition.setter.Component</role>
+      <implementation>org.codehaus.plexus.component.composition.setter.ChildComponent</implementation>
+      <component-composer>setter</component-composer>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.component.composition.ComponentA</role>
+        </requirement>
+        <requirement>
+          <role>org.codehaus.plexus.component.composition.ComponentB</role>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.component.composition.ComponentA</role>
+      <implementation>org.codehaus.plexus.component.composition.DefaultComponentA</implementation>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.component.composition.ComponentB</role>
+      <implementation>org.codehaus.plexus.component.composition.DefaultComponentB</implementation>
+    </component>
+  </components>
+</plexus>

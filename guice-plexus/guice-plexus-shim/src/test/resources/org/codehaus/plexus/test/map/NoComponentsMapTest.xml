@@ -1,0 +1,34 @@
+<plexus>
+  <logging>
+    <implementation>org.codehaus.plexus.logging.console.ConsoleLoggerManager</implementation>
+    <logger>
+      <threshold>INFO</threshold>
+    </logger>
+  </logging>
+  <components>
+
+    <component>
+      <role>org.codehaus.plexus.test.map.ActivityManager</role>
+      <implementation>org.codehaus.plexus.test.map.DefaultActivityManager</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.map.Activity</role>
+          <field-name>activities</field-name>
+        </requirement>
+      </requirements>
+    </component>
+<!--
+    <component>
+      <role>org.codehaus.plexus.test.map.Activity</role>
+      <role-hint>one</role-hint>
+      <implementation>org.codehaus.plexus.test.map.ActivityOne</implementation>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.map.Activity</role>
+      <role-hint>two</role-hint>
+      <implementation>org.codehaus.plexus.test.map.ActivityTwo</implementation>
+    </component>
+-->
+  </components>
+
+</plexus>

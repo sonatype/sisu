@@ -1,0 +1,28 @@
+<!-- Sentinel -->
+<sentinel>
+  <!-- component -->
+  <port>8080</port>
+  <host>localhost</host>
+  <!-- component -->
+  <admin>Santa Claus</admin>
+  <email>santa@northpole.com</email>
+  <!-- component -->
+  <notifiers>
+    <notifier>
+      <id>email</id>
+      <name>Email</name>
+    </notifier>
+    <notifier>
+      <id>irc</id>
+      <name>Irc</name>
+    </notifier>
+  </notifiers>
+  <!-- component -->
+  <pipeline>
+    <valves>
+      <valve>one</valve>
+      <valve>one</valve>
+      <valve>one</valve>
+    </valves>
+  </pipeline>
+</sentinel>

@@ -1,0 +1,9 @@
+<plexus>
+  <components>
+    <component>
+      <role>org.codehaus.plexus.configuration.source.ConfigurationSource</role>
+      <role-hint>default</role-hint>
+      <implementation>org.codehaus.plexus.configuration.source.ADummyConfigurationSource</implementation>
+    </component>
+  </components>
+</plexus>

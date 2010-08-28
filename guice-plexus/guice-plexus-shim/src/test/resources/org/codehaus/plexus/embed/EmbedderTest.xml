@@ -1,0 +1,19 @@
+<plexus>
+
+  <resource>
+    <directory>${basedir}/test-input</directory>
+  </resource>
+
+  <components>
+    <component>
+      <role>org.codehaus.plexus.embed.MockComponent</role>
+      <role-hint>default</role-hint>
+      <implementation>org.codehaus.plexus.embed.MockComponent</implementation>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.embed.MockComponent</role>
+      <role-hint>foo</role-hint>
+      <implementation>org.codehaus.plexus.embed.MockComponent</implementation>
+    </component>
+  </components>
+</plexus>

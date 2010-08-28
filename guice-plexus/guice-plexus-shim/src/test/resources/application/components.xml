@@ -1,0 +1,54 @@
+<!--
+cascading
+picking implementations
+completely decouple the component descriptor from the configuraton
+-->
+<component-set>
+  <components>
+    <component>
+      <role></role>
+      <implementation></implementation>
+      <alias>server</alias>
+      <configuration>
+        <host></host>
+        <port></port>
+      </configuration>
+    </component>
+    <component>
+      <role></role>
+      <implementation></implementation>
+      <alias>two</alias>
+      <configuration>
+        <admin></admin>
+        <email></email>
+      </configuration>
+    </component>
+    <component>
+      <role></role>
+      <implementation></implementation>
+      <alias>three</alias>
+      <configuration>
+        <notifiers>
+          <notifier>
+            <id></id>
+            <name></name>
+          </notifier>
+        </notifiers>
+      </configuration>
+    </component>
+    <component>
+      <role></role>
+      <implementation></implementation>
+      <alias>four</alias>
+      <configuration>
+        <pipeline>
+          <valves>
+            <valve>one</valve>
+            <valve>two</valve>
+            <valve>three</valve>
+          </valves>
+        </pipeline>
+      </configuration>
+    </component>
+  </components>
+</component-set>

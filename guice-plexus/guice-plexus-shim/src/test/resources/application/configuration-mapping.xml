@@ -1,0 +1,42 @@
+<!--
+the component configurator must take in this mapping and the configuration and push
+the result into component descriptor configurations.
+
+map the elements of the aggregate/application configuration to a particular component.
+
+provide mappings to the target component and default values, which could override defaults
+specified in components which might make deployments more convenient.
+
+how to guarantee unique aliases and guard against package name changes. we a unique name and
+the artifact id would do but cannot change.
+
+we may have more then one component in a maven build, what is the mapping here ...
+
+-->
+<sentinel-mapping>
+  <!-- component -->
+  <port target="server">8080</port>
+  <host target="server">localhost</host>
+  <!-- component -->
+  <admin target="two">Santa Claus</admin>
+  <email target="two">santa@northpole.com</email>
+  <!-- component -->
+  <notifiers target="three">
+    <notifier>
+      <id>email</id>
+      <name>Email</name>
+    </notifier>
+    <notifier>
+      <id>irc</id>
+      <name>Irc</name>
+    </notifier>
+  </notifiers>
+  <!-- component -->
+  <pipeline target="four">
+    <valves>
+      <valve>one</valve>
+      <valve>one</valve>
+      <valve>one</valve>
+    </valves>
+  </pipeline>
+</sentinel-mapping>

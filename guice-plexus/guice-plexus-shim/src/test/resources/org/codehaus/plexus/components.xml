@@ -1,0 +1,14 @@
+<component-set>
+  <components>
+    <component>
+      <role>org.codehaus.plexus.test.ComponentA</role>
+      <role-hint>one</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultComponentA</implementation>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.ComponentA</role>
+      <role-hint>two</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultComponentA</implementation>
+    </component>
+  </components>
+</component-set>

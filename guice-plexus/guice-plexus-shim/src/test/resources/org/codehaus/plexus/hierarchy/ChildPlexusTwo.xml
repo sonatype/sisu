@@ -1,0 +1,30 @@
+<configuration>
+
+  <logging>
+    <implementation>org.codehaus.plexus.logging.console.ConsoleLoggerManager</implementation>
+    <logger>
+      <threshold>ERROR</threshold>
+    </logger>
+  </logging>
+
+  <components>
+    <component>
+      <role>org.codehaus.plexus.hierarchy.PlexusTestService</role>
+      <role-hint>default</role-hint>
+      <implementation>org.codehaus.plexus.hierarchy.TestServiceImpl</implementation>
+      <configuration>
+        <known-value>see how they run</known-value>
+      </configuration>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.hierarchy.PlexusTestService</role>
+      <role-hint>local</role-hint>
+      <implementation>org.codehaus.plexus.hierarchy.TestServiceImpl</implementation>
+      <configuration>
+        <known-value>plexus two local service</known-value>
+      </configuration>
+    </component>
+  </components>
+
+</configuration>

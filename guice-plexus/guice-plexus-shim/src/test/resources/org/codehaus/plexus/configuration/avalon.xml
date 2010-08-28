@@ -1,0 +1,193 @@
+<plexus>
+
+  <resources>
+    <jar-resource>${foo.home}/jars</jar-resource>
+    <my-resource>${my.home}/resources</my-resource>
+  </resources>
+
+  <configurations-directory>user-conf-dir</configurations-directory>
+
+  <logging>
+    <implementation>logging-implementation</implementation>
+    <logger>
+      <threshold>INFO</threshold>
+    </logger>
+  </logging>
+
+  <component-repository>
+    <implementation>org.codehaus.plexus.personality.avalon.AvalonComponentRepository</implementation>
+  </component-repository>
+
+  <component-manager-manager>
+    <component-managers>
+      <component-manager implementation="org.codehaus.plexus.component.manager.FrankieComponentManager">
+        <id>frankie</id>
+      </component-manager>
+    </component-managers>
+  </component-manager-manager>
+
+  <component-composer-manager>
+    <default-composer-manager-id>custom</default-composer-manager-id>
+    <component-composers>
+      <component-composer implementation="org.codehaus.plexus.component.manager.CustomComponentComposer">
+        <id>custom</id>
+      </component-composer>
+    </component-composers>
+  </component-composer-manager>
+
+  <!--
+  |
+  | Lifecycle handler Manager.
+  |
+  -->
+  <lifecycle-handler-manager implementation='org.codehaus.plexus.lifecycle.DefaultLifecycleHandlerManager'>
+    <default-lifecycle-handler-id>avalon</default-lifecycle-handler-id>
+    <lifecycle-handlers>
+      <lifecycle-handler implementation='org.codehaus.plexus.personality.avalon.AvalonLifecycleHandler'>
+        <id>avalon</id>
+        <name>Avalon Lifecycle Handler</name>
+        <begin-segment>
+          <phase implementation='org.codehaus.plexus.personality.avalon.lifecycle.phase.LogEnablePhase'/>
+          <phase implementation='org.codehaus.plexus.personality.avalon.lifecycle.phase.ContextualizePhase'/>
+          <phase implementation='org.codehaus.plexus.personality.avalon.lifecycle.phase.ServicePhase'/>
+          <phase implementation='org.codehaus.plexus.personality.avalon.lifecycle.phase.ComposePhase'/>
+          <phase implementation='org.codehaus.plexus.personality.avalon.lifecycle.phase.ConfigurePhase'/>
+          <phase implementation='org.codehaus.plexus.personality.avalon.lifecycle.phase.InitializePhase'/>
+          <phase implementation='org.codehaus.plexus.personality.avalon.lifecycle.phase.StartPhase'/>
+        </begin-segment>
+        <suspend-segment>
+          <phase implementation='org.codehaus.plexus.personality.avalon.lifecycle.phase.SuspendPhase'/>
+        </suspend-segment>
+        <resume-segment>
+          <phase implementation='org.codehaus.plexus.personality.avalon.lifecycle.phase.ResumePhase'/>
+          <phase implementation='org.codehaus.plexus.personality.avalon.lifecycle.phase.RecontextualizePhase'/>
+          <phase implementation='org.codehaus.plexus.personality.avalon.lifecycle.phase.ReconfigurePhase'/>
+        </resume-segment>
+        <end-segment>
+          <phase implementation='org.codehaus.plexus.personality.avalon.lifecycle.phase.StopPhase'/>
+          <phase implementation='org.codehaus.plexus.personality.avalon.lifecycle.phase.DisposePhase'/>
+        </end-segment>
+      </lifecycle-handler>
+    </lifecycle-handlers>
+  </lifecycle-handler-manager>
+
+  <components>
+
+    <!--
+     |
+     | A Service
+     |
+     | This service implements all the Avalon lifecycle methods.
+     |
+     -->
+    <component>
+      <role>org.codehaus.plexus.ServiceA</role>
+      <implementation>org.codehaus.plexus.DefaultServiceA</implementation>
+      <configuration>
+      </configuration>
+    </component>
+
+    <!--
+     |
+     | B Service
+     |
+     -->
+    <component>
+      <role>org.codehaus.plexus.ServiceB</role>
+      <implementation>org.codehaus.plexus.DefaultServiceB</implementation>
+      <configuration/>
+    </component>
+
+    <!--
+     |
+     | C Service
+     |
+     -->
+    <component>
+      <role>org.codehaus.plexus.ServiceC</role>
+      <role-hint>first-instance</role-hint>
+      <implementation>org.codehaus.plexus.DefaultServiceC</implementation>
+      <configuration/>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.ServiceC</role>
+      <role-hint>second-instance</role-hint>
+      <implementation>org.codehaus.plexus.DefaultServiceC</implementation>
+      <configuration/>
+    </component>
+
+    <!--
+     |
+     | E Service
+     |
+     | This service implements Configurable, but the component configuration below
+     | deliberately omits the <configuration> element to verify that such elements
+     | are not mandatory.
+     -->
+    <component>
+      <role>org.codehaus.plexus.ServiceE</role>
+      <implementation>org.codehaus.plexus.DefaultServiceE</implementation>
+      <instantiation-strategy>per-lookup</instantiation-strategy>
+    </component>
+
+
+    <!--
+     |
+     | G Service
+     |
+     -->
+    <component>
+      <role>org.codehaus.plexus.ServiceG</role>
+      <implementation>org.codehaus.plexus.DefaultServiceG</implementation>
+      <instantiation-strategy>singleton</instantiation-strategy>
+      <configuration/>
+    </component>
+
+    <!--
+    |
+    | H Service
+    |
+    -->
+
+    <component>
+      <role>org.codehaus.plexus.ServiceH</role>
+      <implementation>org.codehaus.plexus.DefaultServiceH</implementation>
+      <lifecycle-handler>arbitrary</lifecycle-handler>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.LoadOnStartService</role>
+      <implementation>org.codehaus.plexus.DefaultLoadOnStartService</implementation>
+      <configuration/>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.LoadOnStartServiceWithRoleHint</role>
+      <role-hint>role-hint</role-hint>
+      <implementation>org.codehaus.plexus.DefaultLoadOnStartServiceWithRoleHint</implementation>
+    </component>
+
+    <!--
+     |
+     | Configure Service
+     |
+     | Make sure the configuration stuff is working.
+     |
+     -->
+    <component>
+      <role>org.codehaus.plexus.ConfigureService</role>
+      <implementation>org.codehaus.plexus.DefaultConfigureService</implementation>
+      <instantiation-strategy>singleton</instantiation-strategy>
+      <configuration>
+        <blah>
+          <child>1</child>
+          <child>2</child>
+        </blah>
+        <bleh name="bleh"/>
+      </configuration>
+    </component>
+
+  </components>
+
+</plexus>

@@ -1,0 +1,12 @@
+<plexus>
+  <components>
+    <component>
+      <role>org.codehaus.plexus.component.composition.autowire.One</role>
+      <implementation>org.codehaus.plexus.component.composition.autowire.DefaultOne</implementation>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.component.composition.autowire.Two</role>
+      <implementation>org.codehaus.plexus.component.composition.autowire.DefaultTwo</implementation>
+    </component>
+  </components>
+</plexus>

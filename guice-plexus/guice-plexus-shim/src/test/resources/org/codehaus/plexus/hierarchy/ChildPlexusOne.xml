@@ -1,0 +1,39 @@
+<configuration>
+
+  <logging>
+    <implementation>org.codehaus.plexus.logging.console.ConsoleLoggerManager</implementation>
+    <logger>
+      <threshold>ERROR</threshold>
+    </logger>
+  </logging>
+
+  <components>
+    <component>
+      <role>org.codehaus.plexus.hierarchy.PlexusTestService</role>
+      <role-hint>default</role-hint>
+      <implementation>org.codehaus.plexus.hierarchy.TestServiceImpl</implementation>
+      <configuration>
+        <known-value>three blind mice</known-value>
+      </configuration>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.hierarchy.PlexusTestService</role>
+      <role-hint>hinted</role-hint>
+      <implementation>org.codehaus.plexus.hierarchy.TestServiceImpl</implementation>
+      <configuration>
+        <known-value>plexus one overriding hinted service</known-value>
+      </configuration>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.hierarchy.PlexusTestService</role>
+      <role-hint>local</role-hint>
+      <implementation>org.codehaus.plexus.hierarchy.TestServiceImpl</implementation>
+      <configuration>
+        <known-value>plexus one local service</known-value>
+      </configuration>
+    </component>
+  </components>
+
+</configuration>

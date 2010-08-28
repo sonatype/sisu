@@ -1,0 +1,8 @@
+<configuration>
+  <components>
+    <component>
+      <role>org.codehaus.plexus.component.manager.Component</role>
+      <implementation>org.codehaus.plexus.component.manager.DefaultComponent</implementation>
+    </component>
+  </components>
+</configuration>

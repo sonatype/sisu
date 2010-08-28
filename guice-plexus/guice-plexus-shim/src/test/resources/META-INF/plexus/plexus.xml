@@ -1,0 +1,13 @@
+<plexus>
+  <components>
+    <component>
+      <role>org.codehaus.plexus.component.factory.ComponentFactory</role>
+      <role-hint>testFactory1</role-hint>
+      <implementation>org.codehaus.plexus.component.factory.TestComponentFactory1</implementation>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.CountInstancesComponent</role>
+      <implementation>org.codehaus.plexus.test.CountInstancesComponent</implementation>
+    </component>
+	</components>
+</plexus>

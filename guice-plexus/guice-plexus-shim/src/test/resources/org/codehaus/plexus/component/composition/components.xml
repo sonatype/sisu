@@ -1,0 +1,58 @@
+<plexus>
+  <!--
+
+  A simple start at component meta data that we will initially glean from the
+  sources and produce using qdox. I don't consider this ideal as I believe this
+  information should come from the model but the tool chain doesn't exist.
+
+  I also feel much of this information being declared in sources is bad. First,
+  I feel sources are the product of the model i.e. another artifact and
+  second because much of this information is only accessible to developers. Many
+  of the other stakeholdes in the project given decent tools would be able to
+  influence the process of the generation of this metadata.
+
+  Essentially I think 'attribute oriented programming' is a crock of shit and is
+  a stop gap measure because good tools that allow stakeholders to interact with
+  the model in a safe way don't exist.
+
+  So initially we are looking for
+
+  - services required
+  - services provided
+  - configuration parameters
+  - how to validate those parameters
+  - provide default values where sensible
+
+  -->
+
+  <components>
+    <component>
+      <role>org.codehaus.plexus.component.composition.ComponentA</role>
+      <implementation>org.codehaus.plexus.component.composition.DefaultComponentA</implementation>
+      <componentComposer>field</componentComposer>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.component.composition.ComponentB</role>
+        </requirement>
+      </requirements>
+      <configuration>
+        <host>localhost</host>
+        <port>10000</port>
+      </configuration>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.component.composition.ComponentB</role>
+      <implementation>org.codehaus.plexus.component.composition.DefaultComponentB</implementation>
+      <componentComposer>setter</componentComposer>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.component.composition.ComponentC</role>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.component.composition.ComponentC</role>
+      <implementation>org.codehaus.plexus.component.composition.DefaultComponentC</implementation>
+    </component>
+  </components>
+</plexus>

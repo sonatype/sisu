@@ -1,0 +1,464 @@
+<!--
+ |
+ | o Test merging of all possible elements that are dealt with by the configuration merger.
+ |
+ -->
+
+<plexus>
+
+  <configurations-directory>${basedir}/src/test-input/configurations-directory</configurations-directory>
+
+  <load-on-start>
+    <service role="org.codehaus.plexus.LoadOnStartService"/>
+    <service role="org.codehaus.plexus.LoadOnStartServiceWithRoleHint" id="role-hint"/>
+    <service role="org.codehaus.plexus.BogusRole"/>
+  </load-on-start>
+
+  <system-properties>
+    <property name="foo" value="bar"/>
+  </system-properties>
+
+  <components>
+    <!-- start: Component from original DefaultPlexusContainerTest -->
+
+    <component>
+      <role>org.codehaus.plexus.test.ServiceB</role>
+      <implementation>org.codehaus.plexus.test.DefaultServiceB</implementation>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.test.ServiceC</role>
+      <role-hint>first-instance</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultServiceC</implementation>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.test.ServiceC</role>
+      <role-hint>second-instance</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultServiceC</implementation>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.test.ServiceD</role>
+      <implementation>org.codehaus.plexus.test.DefaultServiceD</implementation>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.test.ServiceE</role>
+      <implementation>org.codehaus.plexus.test.DefaultServiceE</implementation>
+      <lifecycle-handler>plexus-configurable</lifecycle-handler>
+    </component>
+    
+    <component>
+      <!--
+       | This special formatting is here to test the trimming of spaces in
+       | the configuration reader
+       |-->
+      <role>
+        org.codehaus.plexus.test.ServiceH
+      </role>
+      <implementation>org.codehaus.plexus.test.DefaultServiceH</implementation>
+      <lifecycle-handler>arbitrary</lifecycle-handler>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.test.LoadOnStartService</role>
+      <implementation>org.codehaus.plexus.test.DefaultLoadOnStartService</implementation>
+      <configuration/>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.test.LoadOnStartServiceWithRoleHint</role>
+      <role-hint>role-hint</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultLoadOnStartServiceWithRoleHint</implementation>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.logging.LoggerManager</role>
+      <implementation>org.codehaus.plexus.logging.console.ConsoleLoggerManager</implementation>
+      <lifecycle-handler>basic</lifecycle-handler>
+      <configuration>
+        <threshold>fatal</threshold>
+      </configuration>
+    </component>
+
+    <!-- end: Component from original DefaultPlexusContainerTest -->
+
+    <component>
+      <role>org.codehaus.plexus.test.Component</role>
+      <implementation>org.codehaus.plexus.test.DefaultComponent</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.map.Activity</role>
+          <role-hint>one</role-hint>
+        </requirement>
+      </requirements>
+      <configuration>
+        <host>localhost</host>
+        <port>10000</port>
+      </configuration>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.Component</role>
+      <implementation>org.codehaus.plexus.test.DefaultComponentWithOptionalRequirement</implementation>
+      <role-hint>with-optional</role-hint>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.map.Activity</role>
+          <role-hint>one</role-hint>
+          <field-name>activity</field-name>
+        </requirement>
+        <requirement>
+          <role>org.codehaus.plexus.test.NonAvailableComponent</role>
+          <role-hint>missing</role-hint>
+          <field-name>optionalComponent</field-name>
+          <optional>true</optional>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.ComponentA</role>
+      <implementation>org.codehaus.plexus.test.DefaultComponentA</implementation>
+      <requirements>
+        <requirement>
+            <role>org.codehaus.plexus.test.ComponentB</role>
+         </requirement>
+        <requirement>
+           <role>org.codehaus.plexus.test.ComponentC</role>
+        </requirement>
+      </requirements>
+      <configuration>
+        <host>localhost</host>
+        <port>10000</port>
+      </configuration>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.ComponentB</role>
+      <implementation>org.codehaus.plexus.test.DefaultComponentB</implementation>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.ComponentC</role>
+      <implementation>org.codehaus.plexus.test.DefaultComponentC</implementation>
+      <requirements>
+         <requirement>
+            <role>org.codehaus.plexus.test.ComponentD</role>
+         </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.ComponentD</role>
+      <implementation>org.codehaus.plexus.test.DefaultComponentD</implementation>
+      <configuration>
+        <name>jason</name>
+      </configuration>
+    </component>
+
+    <!-- Map -->
+    <component>
+      <role>org.codehaus.plexus.test.map.ActivityManager</role>
+      <implementation>org.codehaus.plexus.test.map.DefaultActivityManager</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.map.Activity</role>
+          <field-name>activities</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.map.ActivityManager</role>
+      <role-hint>slim</role-hint>
+      <implementation>org.codehaus.plexus.test.map.DefaultActivityManager</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.map.Activity</role>
+          <field-name>activities</field-name>
+          <role-hints>
+            <role-hint>one</role-hint>
+          </role-hints>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.map.Activity</role>
+      <role-hint>one</role-hint>
+      <implementation>org.codehaus.plexus.test.map.ActivityOne</implementation>
+      <instantiation-strategy>per-lookup</instantiation-strategy>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.map.Activity</role>
+      <role-hint>two</role-hint>
+      <implementation>org.codehaus.plexus.test.map.ActivityTwo</implementation>
+    </component>
+
+    <!-- List -->
+    <component>
+      <role>org.codehaus.plexus.test.list.Pipeline</role>
+      <role-hint>default</role-hint>
+      <implementation>org.codehaus.plexus.test.list.DefaultPipeline</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.list.Valve</role>
+          <field-name>valves</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.list.Pipeline</role>
+      <role-hint>slim</role-hint>
+      <implementation>org.codehaus.plexus.test.list.DefaultPipeline</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.list.Valve</role>
+          <field-name>valves</field-name>
+          <role-hints>
+            <role-hint>one</role-hint>
+          </role-hints>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.list.Pipeline</role>
+      <role-hint>chubby</role-hint>
+      <implementation>org.codehaus.plexus.test.list.DefaultPipeline</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.list.Valve</role>
+          <field-name>valveMap</field-name>
+          <role-hints>
+            <role-hint>one</role-hint>
+            <role-hint>two</role-hint>
+            <role-hint>three</role-hint>
+            <role-hint>four</role-hint>
+          </role-hints>
+        </requirement>
+      </requirements>
+    </component>
+
+    <!-- Three is on the top here to make sure it's read first but ordered last -->
+    <component>
+      <role>org.codehaus.plexus.test.list.Valve</role>
+      <role-hint>four</role-hint>
+      <implementation>org.codehaus.plexus.test.list.ValveFour</implementation>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.list.Valve</role>
+      <role-hint>three</role-hint>
+      <implementation>org.codehaus.plexus.test.list.ValveThree</implementation>
+    </component>    
+    <component>
+      <role>org.codehaus.plexus.test.list.Valve</role>
+      <role-hint>two</role-hint>
+      <implementation>org.codehaus.plexus.test.list.ValveTwo</implementation>
+    </component>
+    <component>
+      <role>org.codehaus.plexus.test.list.Valve</role>
+      <role-hint>one</role-hint>
+      <implementation>org.codehaus.plexus.test.list.ValveOne</implementation>
+      <instantiation-strategy>per-lookup</instantiation-strategy>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.test.ComponentManager</role>
+      <implementation>org.codehaus.plexus.test.DefaultComponentManager</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.components.A</role>
+          <field-name>list</field-name>
+        </requirement>
+        <requirement>
+          <role>org.codehaus.plexus.components.A</role>
+          <field-name>map</field-name>
+        </requirement>
+      </requirements>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.logging.LoggerManager</role>
+      <implementation>org.codehaus.plexus.logging.console.ConsoleLoggerManager</implementation>
+      <lifecycle-handler>basic</lifecycle-handler>
+      <configuration>
+        <threshold>fatal</threshold>
+      </configuration>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.test.Component</role>
+      <role-hint>ComponentMissingRequirements</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultComponent</implementation>
+      <requirements>
+        <requirement>
+          <role>NonExistingComponent</role>
+        </requirement>
+      </requirements>
+    </component>
+
+	<!-- A single linear dependency "snake" -->
+    <component>
+      <role>org.codehaus.plexus.test.StartableComponent</role>
+      <role-hint>A-snake</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultStartableComponentA</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.StartableComponent</role>
+          <role-hint>B-snake</role-hint>
+          <field-name>component1</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    
+    <component>
+      <role>org.codehaus.plexus.test.StartableComponent</role>
+      <role-hint>B-snake</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultStartableComponentB</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.StartableComponent</role>
+          <role-hint>C-snake</role-hint>
+          <field-name>component1</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    
+    <component>
+      <role>org.codehaus.plexus.test.StartableComponent</role>
+      <role-hint>C-snake</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultStartableComponentC</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.StartableComponent</role>
+          <role-hint>D-snake</role-hint>
+          <field-name>component1</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    
+    <component>
+      <role>org.codehaus.plexus.test.StartableComponent</role>
+      <role-hint>D-snake</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultStartableComponentD</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.StartableComponent</role>
+          <role-hint>E-snake</role-hint>
+          <field-name>component1</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    
+    <component>
+      <role>org.codehaus.plexus.test.StartableComponent</role>
+      <role-hint>E-snake</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultStartableComponentE</implementation>
+    </component>
+
+	<!-- A binary tree dependency "tree" -->
+    <component>
+      <role>org.codehaus.plexus.test.StartableComponent</role>
+      <role-hint>A-tree</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultStartableComponentA</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.StartableComponent</role>
+          <role-hint>B-tree</role-hint>
+          <field-name>component1</field-name>
+        </requirement>
+        <requirement>
+          <role>org.codehaus.plexus.test.StartableComponent</role>
+          <role-hint>C-tree</role-hint>
+          <field-name>component2</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    
+    <component>
+      <role>org.codehaus.plexus.test.StartableComponent</role>
+      <role-hint>B-tree</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultStartableComponentB</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.StartableComponent</role>
+          <role-hint>D-tree</role-hint>
+          <field-name>component1</field-name>
+        </requirement>
+        <requirement>
+          <role>org.codehaus.plexus.test.StartableComponent</role>
+          <role-hint>E-tree</role-hint>
+          <field-name>component2</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    
+    <component>
+      <role>org.codehaus.plexus.test.StartableComponent</role>
+      <role-hint>C-tree</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultStartableComponentC</implementation>
+    </component>
+    
+    <component>
+      <role>org.codehaus.plexus.test.StartableComponent</role>
+      <role-hint>D-tree</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultStartableComponentD</implementation>
+    </component>
+    
+    <component>
+      <role>org.codehaus.plexus.test.StartableComponent</role>
+      <role-hint>E-tree</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultStartableComponentE</implementation>
+    </component>
+
+    <!-- Circularity detection test components -->
+    <component>
+      <role>org.codehaus.plexus.test.CircularComponent</role>
+      <role-hint>A</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultCircularComponent</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.CircularComponent</role>
+          <role-hint>B</role-hint>
+          <field-name>requirement</field-name>
+        </requirement>
+      </requirements>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.test.CircularComponent</role>
+      <role-hint>B</role-hint>
+      <implementation>org.codehaus.plexus.test.DefaultCircularComponent</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.PlexusContainer</role>
+          <field-name>container</field-name>
+        </requirement>
+      </requirements>
+      <configuration>
+        <lookup>A</lookup>
+      </configuration>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.test.Thing</role>
+      <!-- NOTE: Intentionally not using the default hint here -->
+      <role-hint>concrete</role-hint>
+      <implementation>org.codehaus.plexus.test.ConcreteThing</implementation>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.test.ThingUser</role>
+      <implementation>org.codehaus.plexus.test.DefaultThingUser</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.Thing</role>
+          <!-- NOTE: Intentionally not using a role hint here -->
+          <field-name>thing</field-name>
+        </requirement>
+      </requirements>
+    </component>
+
+    <component>
+      <role>org.codehaus.plexus.test.ComponentWithRoleDefault</role>
+      <implementation>org.codehaus.plexus.test.ComponentWithRoleDefault</implementation>
+      <role-hint>default</role-hint>
+    </component>
+
+ </components>
+</plexus>

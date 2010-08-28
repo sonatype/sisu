@@ -1,0 +1,20 @@
+<plexus>
+
+  <components>
+
+    <component>
+      <role>org.codehaus.plexus.logging.LoggerManager</role>
+      <implementation>org.codehaus.plexus.logging.console.ConsoleLoggerManager</implementation>
+      <lifecycle-handler>basic</lifecycle-handler>
+      <!-- this is set to per-lookup because the DefaultPlexusContainer gets a 
+           instance for itself which messes up the test -->
+      <instantiation-strategy>per-lookup</instantiation-strategy>
+
+      <configuration>
+        <threshold>fatal</threshold>
+      </configuration>
+    </component>
+
+  </components>
+
+</plexus>

@@ -49,11 +49,6 @@ public class PlexusTestCaseTest
     {
         final PlexusTestCase tc = new PlexusTestCase()
         {
-            @Override
-            protected String getConfigurationName( final String subname )
-            {
-                return null;
-            }
         };
 
         tc.setUp();

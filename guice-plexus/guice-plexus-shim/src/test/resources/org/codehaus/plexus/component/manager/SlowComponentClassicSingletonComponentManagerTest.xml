@@ -1,0 +1,11 @@
+<configuration>
+  <components>
+    <component>
+      <role>org.codehaus.plexus.component.manager.SlowComponent</role>
+      <implementation>org.codehaus.plexus.component.manager.SlowComponent</implementation>
+      <configuration>
+        <delay>300</delay>
+      </configuration>
+    </component>
+  </components>
+</configuration>

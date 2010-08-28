@@ -1,0 +1,28 @@
+<plexus>
+	<components>
+		<component>
+			<role>
+				org.codehaus.plexus.configuration.source.ConfigurationSource
+			</role>
+			<role-hint>dummy</role-hint>
+			<implementation>
+				org.codehaus.plexus.configuration.source.ADummyConfigurationSource
+			</implementation>
+		</component>
+		<component>
+			<role>
+				org.codehaus.plexus.configuration.source.ConfigurationSource
+			</role>
+			<role-hint>anotherDummy</role-hint>
+			<implementation>
+				org.codehaus.plexus.configuration.source.AnotherDummyConfigurationSource
+			</implementation>
+			<requirements>
+				<requirement>
+					<role>org.codehaus.plexus.configuration.source.ConfigurationSource</role>
+					<role-hint>dummy</role-hint>
+				</requirement>
+			</requirements>
+		</component>
+	</components>
+</plexus>
