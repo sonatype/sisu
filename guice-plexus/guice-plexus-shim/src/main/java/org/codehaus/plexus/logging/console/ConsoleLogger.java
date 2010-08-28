@@ -20,7 +20,7 @@ public final class ConsoleLogger
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final String[] TAGS = { "[DEBUG] ", "[INFO] ", "[WARN] ", "[ERROR] ", "[FATAL] " };
+    private static final String[] TAGS = { "[DEBUG] ", "[INFO] ", "[WARNING] ", "[ERROR] ", "[FATAL ERROR] " };
 
     // ----------------------------------------------------------------------
     // Constructors

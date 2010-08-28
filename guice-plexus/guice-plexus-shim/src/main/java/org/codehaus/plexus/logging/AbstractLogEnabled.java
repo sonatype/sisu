@@ -23,7 +23,7 @@ public abstract class AbstractLogEnabled
     // Public methods
     // ----------------------------------------------------------------------
 
-    public final void enableLogging( final Logger theLogger )
+    public void enableLogging( final Logger theLogger )
     {
         logger = theLogger;
     }
@@ -35,5 +35,27 @@ public abstract class AbstractLogEnabled
     protected Logger getLogger()
     {
         return logger;
+    }
+
+    protected final void setupLogger( final Object component )
+    {
+        setupLogger( component, logger );
+    }
+
+    protected final void setupLogger( final Object component, final String category )
+    {
+        if ( category == null )
+        {
+            throw new IllegalStateException( "Logging category must be defined." );
+        }
+        setupLogger( component, logger.getChildLogger( category ) );
+    }
+
+    protected final void setupLogger( final Object component, final Logger logger )
+    {
+        if ( component instanceof LogEnabled )
+        {
+            ( (LogEnabled) component ).enableLogging( logger );
+        }
     }
 }

@@ -21,7 +21,7 @@ public final class ConsoleLoggerManager
     // Constants
     // ----------------------------------------------------------------------
 
-    private final static Logger LOGGER = new ConsoleLogger( Logger.LEVEL_INFO, null );
+    private final static Logger LOGGER = new ConsoleLogger( Logger.LEVEL_INFO, "console" );
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -55,5 +55,10 @@ public final class ConsoleLoggerManager
     public void setThresholds( final int currentThreshold )
     {
         LOGGER.setThreshold( currentThreshold );
+    }
+
+    public int getActiveLoggerCount()
+    {
+        return 0;
     }
 }

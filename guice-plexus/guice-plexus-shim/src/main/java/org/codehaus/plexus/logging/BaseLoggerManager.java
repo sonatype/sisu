@@ -105,6 +105,11 @@ public abstract class BaseLoggerManager
         return Logger.LEVEL_DEBUG;
     }
 
+    public final synchronized int getActiveLoggerCount()
+    {
+        return activeLoggers.size();
+    }
+
     // ----------------------------------------------------------------------
     // Customizable methods
     // ----------------------------------------------------------------------

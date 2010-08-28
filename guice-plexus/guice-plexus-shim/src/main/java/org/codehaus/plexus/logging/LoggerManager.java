@@ -27,4 +27,6 @@ public interface LoggerManager
     void setThreshold( int threshold );
 
     void setThresholds( int threshold );
+
+    int getActiveLoggerCount();
 }

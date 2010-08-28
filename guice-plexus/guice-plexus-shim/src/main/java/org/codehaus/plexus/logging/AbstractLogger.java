@@ -17,6 +17,8 @@ public abstract class AbstractLogger
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    private final String name;
+
     private int threshold;
 
     // ----------------------------------------------------------------------
@@ -25,11 +27,11 @@ public abstract class AbstractLogger
 
     public AbstractLogger( final int threshold, final String name )
     {
+        this.name = name;
         if ( threshold < LEVEL_DEBUG || LEVEL_DISABLED < threshold )
         {
             throw new IllegalArgumentException( "Threshold " + threshold + " is not valid" );
         }
-
         this.threshold = threshold;
     }
 
@@ -95,5 +97,10 @@ public abstract class AbstractLogger
     public final void setThreshold( final int threshold )
     {
         this.threshold = threshold;
+    }
+
+    public final String getName()
+    {
+        return name;
     }
 }
