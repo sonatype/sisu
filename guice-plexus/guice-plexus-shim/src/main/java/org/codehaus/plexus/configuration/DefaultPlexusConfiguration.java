@@ -95,6 +95,15 @@ public class DefaultPlexusConfiguration
         return null != attributeValue ? attributeValue : defaultValue;
     }
 
+    public final void setAttribute( final String attributeName, final String attributeValue )
+    {
+        if ( attributeMap.isEmpty() )
+        {
+            attributeMap = new HashMap<String, String>();
+        }
+        attributeMap.put( attributeName, attributeValue );
+    }
+
     public final PlexusConfiguration getChild( final String childName )
     {
         return getChild( childName, true );
@@ -140,6 +149,12 @@ public class DefaultPlexusConfiguration
         add( child );
     }
 
+    public final PlexusConfiguration addChild( final String childName, final String childValue )
+    {
+        add( createChild( childName ) ).setValue( childValue );
+        return this;
+    }
+
     // ----------------------------------------------------------------------
     // Customizable methods
     // ----------------------------------------------------------------------
@@ -152,15 +167,6 @@ public class DefaultPlexusConfiguration
     // ----------------------------------------------------------------------
     // Shared methods
     // ----------------------------------------------------------------------
-
-    protected final void setAttribute( final String attributeName, final String attributeValue )
-    {
-        if ( attributeMap.isEmpty() )
-        {
-            attributeMap = new HashMap<String, String>();
-        }
-        attributeMap.put( attributeName, attributeValue );
-    }
 
     protected final PlexusConfiguration add( final PlexusConfiguration child )
     {

@@ -41,6 +41,34 @@ public final class XmlPlexusConfiguration
         }
     }
 
+    @Override
+    public String toString()
+    {
+        final StringBuilder buf = new StringBuilder().append( '<' ).append( getName() );
+        for ( final String a : getAttributeNames() )
+        {
+            buf.append( ' ' ).append( a ).append( "=\"" ).append( getAttribute( a ) ).append( '"' );
+        }
+        if ( getChildCount() > 0 )
+        {
+            buf.append( '>' );
+            for ( final PlexusConfiguration c : getChildren() )
+            {
+                buf.append( c );
+            }
+            buf.append( "</" ).append( getName() ).append( '>' );
+        }
+        else if ( null != getValue() )
+        {
+            buf.append( '>' ).append( getValue() ).append( "</" ).append( getName() ).append( '>' );
+        }
+        else
+        {
+            buf.append( "/>" );
+        }
+        return buf.append( '\n' ).toString();
+    }
+
     // ----------------------------------------------------------------------
     // Customizable methods
     // ----------------------------------------------------------------------

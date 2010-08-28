@@ -18,11 +18,15 @@ public interface PlexusConfiguration
 
     String getValue( String defaultValue );
 
+    void setValue( String value );
+
     String[] getAttributeNames();
 
     String getAttribute( String attributeName );
 
     String getAttribute( String attributeName, String defaultValue );
+
+    void setAttribute( String name, String value );
 
     PlexusConfiguration getChild( String childName );
 
@@ -37,4 +41,6 @@ public interface PlexusConfiguration
     PlexusConfiguration getChild( int index );
 
     void addChild( PlexusConfiguration child );
+
+    PlexusConfiguration addChild( String name, String value );
 }
