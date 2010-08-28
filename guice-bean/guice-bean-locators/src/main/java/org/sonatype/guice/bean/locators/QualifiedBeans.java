@@ -82,7 +82,7 @@ class QualifiedBeans<Q extends Annotation, T>
      * @return Added beans
      */
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    public synchronized List<QualifiedBean<Q, T>> add( final Injector injector )
+    public List<QualifiedBean<Q, T>> add( final Injector injector )
     {
         final Collection<Binding<?>> bindings;
         final TypeLiteral bindingType = key.getTypeLiteral();
@@ -202,7 +202,7 @@ class QualifiedBeans<Q extends Annotation, T>
         return key.hasAttributes() ? QualifyingStrategy.MARKED_WITH_ATTRIBUTES : QualifyingStrategy.MARKED;
     }
 
-    private void mergeQualifiedBeans( final int pivot, final List<QualifiedBean<Q, T>> newBeans )
+    private synchronized void mergeQualifiedBeans( final int pivot, final List<QualifiedBean<Q, T>> newBeans )
     {
         final int newBeansLength = newBeans.size();
         if ( null == beans )

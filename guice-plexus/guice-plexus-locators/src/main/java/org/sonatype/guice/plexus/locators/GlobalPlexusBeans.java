@@ -30,11 +30,11 @@ class GlobalPlexusBeans<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    final List<PlexusBean<T>> defaultPlexusBeans;
+    private final List<PlexusBean<T>> defaultPlexusBeans;
+
+    private volatile Iterable<PlexusBean<T>> cachedPlexusBeans;
 
     Iterable<QualifiedBean<Named, T>> beans;
-
-    Iterable<PlexusBean<T>> cachedBeans;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -65,24 +65,39 @@ class GlobalPlexusBeans<T>
         this.beans = beans;
     }
 
-    public Iterator<PlexusBean<T>> iterator()
+    public final Iterator<PlexusBean<T>> iterator()
     {
         synchronized ( beans )
         {
-            if ( null == cachedBeans )
+            // always take copy of volatile in case it gets zapped
+            Iterable<PlexusBean<T>> plexusBeans = cachedPlexusBeans;
+            if ( refreshCache() || null == plexusBeans )
             {
-                cachedBeans = getPlexusBeans( beans, defaultPlexusBeans );
+                plexusBeans = getPlexusBeans( getVisibleBeans(), defaultPlexusBeans );
+                cachedPlexusBeans = plexusBeans;
             }
-            return cachedBeans.iterator();
+            return plexusBeans.iterator();
         }
     }
 
     public final void run()
     {
-        synchronized ( beans )
-        {
-            cachedBeans = null;
-        }
+        // avoid any locking here!
+        cachedPlexusBeans = null;
+    }
+
+    // ----------------------------------------------------------------------
+    // Customizable methods
+    // ----------------------------------------------------------------------
+
+    protected boolean refreshCache()
+    {
+        return false;
+    }
+
+    protected Iterable<QualifiedBean<Named, T>> getVisibleBeans()
+    {
+        return beans;
     }
 
     // ----------------------------------------------------------------------

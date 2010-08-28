@@ -13,13 +13,11 @@
 package org.sonatype.guice.plexus.locators;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.sonatype.guice.bean.locators.QualifiedBean;
-import org.sonatype.guice.plexus.config.PlexusBean;
 
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
@@ -43,22 +41,25 @@ final class RealmPlexusBeans<T>
     }
 
     // ----------------------------------------------------------------------
-    // Public methods
+    // Customizable methods
     // ----------------------------------------------------------------------
 
     @Override
-    public Iterator<PlexusBean<T>> iterator()
+    protected boolean refreshCache()
     {
-        synchronized ( beans )
+        final ClassRealm contextRealm = ClassRealmUtils.contextRealm();
+        if ( contextRealm == cachedContextRealm )
         {
-            final ClassRealm contextRealm = ClassRealmUtils.contextRealm();
-            if ( null == cachedBeans || contextRealm != cachedContextRealm )
-            {
-                cachedContextRealm = contextRealm;
-                cachedBeans = getPlexusBeans( getVisibleBeans( contextRealm ), defaultPlexusBeans );
-            }
-            return cachedBeans.iterator();
+            return false;
         }
+        cachedContextRealm = contextRealm;
+        return true;
+    }
+
+    @Override
+    protected Iterable<QualifiedBean<Named, T>> getVisibleBeans()
+    {
+        return getVisibleBeans( cachedContextRealm );
     }
 
     // ----------------------------------------------------------------------
