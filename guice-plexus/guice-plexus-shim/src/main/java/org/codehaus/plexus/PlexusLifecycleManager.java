@@ -101,35 +101,54 @@ final class PlexusLifecycleManager
 
     public synchronized boolean manage( final Object bean )
     {
+        final boolean isStartable = bean instanceof Startable;
+        final boolean isContextualizable = bean instanceof Contextualizable;
+        final boolean isInitializable = bean instanceof Initializable;
+        final boolean isDisposable = bean instanceof Disposable;
+
         /*
          * Record this information before starting, in case there's a problem
          */
-        if ( bean instanceof Startable )
+        if ( isStartable )
         {
             startableBeans.add( (Startable) bean );
         }
-        if ( bean instanceof Disposable )
+        if ( isDisposable )
         {
             disposableBeans.add( (Disposable) bean );
         }
-        /*
-         * Run through the startup phase of the standard plexus "personality"
-         */
+
         if ( bean instanceof LogEnabled )
         {
             ( (LogEnabled) bean ).enableLogging( getPlexusLogger( bean ) );
         }
-        if ( bean instanceof Contextualizable )
+
+        /*
+         * Run through the startup phase of the standard plexus "personality"
+         */
+        if ( isContextualizable || isInitializable || isStartable )
         {
-            contextualize( (Contextualizable) bean );
-        }
-        if ( bean instanceof Initializable )
-        {
-            initialize( (Initializable) bean );
-        }
-        if ( bean instanceof Startable )
-        {
-            start( (Startable) bean );
+            final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+            try
+            {
+                Thread.currentThread().setContextClassLoader( bean.getClass().getClassLoader() );
+                if ( isContextualizable )
+                {
+                    contextualize( (Contextualizable) bean );
+                }
+                if ( isInitializable )
+                {
+                    initialize( (Initializable) bean );
+                }
+                if ( isStartable )
+                {
+                    start( (Startable) bean );
+                }
+            }
+            finally
+            {
+                Thread.currentThread().setContextClassLoader( tccl );
+            }
         }
         return true;
     }
@@ -187,7 +206,7 @@ final class PlexusLifecycleManager
         }
         catch ( final ContextException e )
         {
-            throw new ProvisionException( "Problem contextualizing: " + bean, e );
+            throw new ProvisionException( "Error contextualizing: " + bean, e );
         }
     }
 
@@ -199,7 +218,7 @@ final class PlexusLifecycleManager
         }
         catch ( final InitializationException e )
         {
-            throw new ProvisionException( "Problem initializing: " + bean, e );
+            throw new ProvisionException( "Error initializing: " + bean, e );
         }
     }
 
@@ -211,7 +230,7 @@ final class PlexusLifecycleManager
         }
         catch ( final StartingException e )
         {
-            throw new ProvisionException( "Problem starting: " + bean, e );
+            throw new ProvisionException( "Error starting: " + bean, e );
         }
     }
 
@@ -223,7 +242,7 @@ final class PlexusLifecycleManager
         }
         catch ( final Throwable e )
         {
-            error( "Problem stopping: " + bean.getClass(), e );
+            reportProblem( "Problem stopping: " + bean.getClass(), e );
         }
     }
 
@@ -235,15 +254,15 @@ final class PlexusLifecycleManager
         }
         catch ( final Throwable e )
         {
-            error( "Problem disposing: " + bean.getClass(), e );
+            reportProblem( "Problem disposing: " + bean.getClass(), e );
         }
     }
 
-    private void error( final String message, final Throwable cause )
+    private void reportProblem( final String message, final Throwable cause )
     {
         try
         {
-            container.getLogger().error( message, cause );
+            container.getLogger().warn( message, cause );
         }
         catch ( final Throwable ignore )
         {
