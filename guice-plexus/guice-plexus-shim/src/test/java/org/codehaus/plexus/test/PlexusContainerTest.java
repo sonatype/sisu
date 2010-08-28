@@ -244,10 +244,6 @@ public class PlexusContainerTest
         assertTrue( serviceC2.stopped );
     }
 
-    // ----------------------------------------------------------------------
-    // Test using an arbitrary component lifecycle handler
-    // ----------------------------------------------------------------------
-
     public void testLookupAll()
         throws Exception
     {
