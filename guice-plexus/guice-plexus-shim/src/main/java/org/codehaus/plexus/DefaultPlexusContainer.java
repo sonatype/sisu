@@ -580,7 +580,7 @@ public final class DefaultPlexusContainer
         }
         if ( null == realm )
         {
-            throw new PlexusContainerException( "Unable to find class realm: " + DEFAULT_REALM_NAME );
+            throw new PlexusContainerException( "Missing container class realm: " + DEFAULT_REALM_NAME );
         }
         return realm;
     }

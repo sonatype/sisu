@@ -206,7 +206,7 @@ final class PlexusLifecycleManager
         }
         catch ( final ContextException e )
         {
-            throw new ProvisionException( "Error contextualizing: " + bean, e );
+            throw new ProvisionException( "Error contextualizing: " + bean.getClass(), e );
         }
     }
 
@@ -218,7 +218,7 @@ final class PlexusLifecycleManager
         }
         catch ( final InitializationException e )
         {
-            throw new ProvisionException( "Error initializing: " + bean, e );
+            throw new ProvisionException( "Error initializing: " + bean.getClass(), e );
         }
     }
 
@@ -230,7 +230,7 @@ final class PlexusLifecycleManager
         }
         catch ( final StartingException e )
         {
-            throw new ProvisionException( "Error starting: " + bean, e );
+            throw new ProvisionException( "Error starting: " + bean.getClass(), e );
         }
     }
 
@@ -242,7 +242,7 @@ final class PlexusLifecycleManager
         }
         catch ( final Throwable e )
         {
-            reportProblem( "Problem stopping: " + bean.getClass(), e );
+            warn( "Problem stopping: " + bean.getClass(), e );
         }
     }
 
@@ -254,11 +254,11 @@ final class PlexusLifecycleManager
         }
         catch ( final Throwable e )
         {
-            reportProblem( "Problem disposing: " + bean.getClass(), e );
+            warn( "Problem disposing: " + bean.getClass(), e );
         }
     }
 
-    private void reportProblem( final String message, final Throwable cause )
+    private void warn( final String message, final Throwable cause )
     {
         try
         {
