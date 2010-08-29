@@ -76,18 +76,21 @@ final class NotifyingBeans<Q extends Annotation, T>
             }
             catch ( final Throwable e )
             {
-                final String message = "Problem notifying: " + notify;
-                final Class<?> notifyType = notify.getClass();
-                try
-                {
-                    org.slf4j.LoggerFactory.getLogger( notifyType ).warn( message, e );
-                }
-                catch ( final Throwable ignore )
-                {
-                    Logger.getLogger( notifyType.getName() ).log( Level.WARNING, message, e );
-                }
+                warn( "Problem notifying: " + notify.getClass(), e );
             }
         }
         return beans;
+    }
+
+    private static void warn( final String message, final Throwable cause )
+    {
+        try
+        {
+            org.slf4j.LoggerFactory.getLogger( NotifyingBeans.class ).warn( message, cause );
+        }
+        catch ( final Throwable ignore )
+        {
+            Logger.getLogger( NotifyingBeans.class.getName() ).log( Level.WARNING, message, cause );
+        }
     }
 }

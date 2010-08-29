@@ -141,30 +141,22 @@ final class WatchedBeans<Q extends Annotation, T, W>
                 }
                 catch ( final Throwable e )
                 {
-                    reportWatcherException( watcher, e );
+                    warn( "Problem notifying watcher: " + watcher.getClass(), e );
                 }
             }
         }
         return beans;
     }
 
-    /**
-     * Reports the given watcher exception to the SLF4J logger if available; otherwise to JUL.
-     * 
-     * @param watcher The bean watcher
-     * @param exception The exception
-     */
-    private void reportWatcherException( final Object watcher, final Throwable exception )
+    private void warn( final String message, final Throwable cause )
     {
-        final String message = "Problem notifying watcher: " + watcher;
-        final Class<?> mediatorType = mediator.getClass();
         try
         {
-            org.slf4j.LoggerFactory.getLogger( mediatorType ).warn( message, exception );
+            org.slf4j.LoggerFactory.getLogger( mediator.getClass() ).warn( message, cause );
         }
         catch ( final Throwable ignore )
         {
-            Logger.getLogger( mediatorType.getName() ).log( Level.WARNING, message, exception );
+            Logger.getLogger( mediator.getClass().getName() ).log( Level.WARNING, message, cause );
         }
     }
 }

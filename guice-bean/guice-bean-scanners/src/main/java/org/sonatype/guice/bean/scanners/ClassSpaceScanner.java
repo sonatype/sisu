@@ -31,6 +31,8 @@ public final class ClassSpaceScanner
     // Constants
     // ----------------------------------------------------------------------
 
+    private static final Logger LOGGER = Logger.getLogger( ClassSpaceScanner.class.getName() );
+
     private static final int ASM_FLAGS = ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES;
 
     // ----------------------------------------------------------------------
@@ -99,7 +101,7 @@ public final class ClassSpaceScanner
         }
         catch ( final Throwable e )
         {
-            reportScanningException( url, e );
+            reportResourceProblem( url, e );
         }
     }
 
@@ -107,22 +109,11 @@ public final class ClassSpaceScanner
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    /**
-     * Reports the given resource exception to the SLF4J logger if available; otherwise to JUL.
-     * 
-     * @param url The resource URL
-     * @param exception The exception
-     */
-    private static void reportScanningException( final URL url, final Throwable exception )
+    private static void reportResourceProblem( final URL url, final Throwable cause )
     {
-        final String message = "Problem scanning resource: " + url;
-        try
+        if ( LOGGER.isLoggable( Level.FINE ) )
         {
-            org.slf4j.LoggerFactory.getLogger( ClassSpaceScanner.class ).debug( message, exception );
-        }
-        catch ( final Throwable ignore )
-        {
-            Logger.getLogger( ClassSpaceScanner.class.getName() ).log( Level.FINE, message, exception );
+            LOGGER.fine( "Problem scanning resource: " + url + " cause: " + cause );
         }
     }
 }

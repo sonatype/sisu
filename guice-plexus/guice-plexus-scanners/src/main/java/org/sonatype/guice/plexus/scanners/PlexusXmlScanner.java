@@ -45,6 +45,12 @@ import org.sonatype.guice.plexus.config.Strategies;
 public final class PlexusXmlScanner
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final Logger LOGGER = Logger.getLogger( PlexusXmlScanner.class.getName() );
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
@@ -166,7 +172,7 @@ public final class PlexusXmlScanner
         }
         catch ( final Throwable e )
         {
-            reportParsingException( url, e );
+            reportResourceProblem( url, e );
         }
     }
 
@@ -203,7 +209,7 @@ public final class PlexusXmlScanner
         }
         catch ( final Throwable e )
         {
-            reportParsingException( url, e );
+            reportResourceProblem( url, e );
         }
     }
 
@@ -471,22 +477,11 @@ public final class PlexusXmlScanner
         return parser.nextText().trim();
     }
 
-    /**
-     * Reports the given resource exception to the SLF4J logger if available; otherwise to JUL.
-     * 
-     * @param url The resource URL
-     * @param exception The exception
-     */
-    private static void reportParsingException( final URL url, final Throwable exception )
+    private static void reportResourceProblem( final URL url, final Throwable cause )
     {
-        final String message = "Problem parsing resource: " + url;
-        try
+        if ( LOGGER.isLoggable( Level.FINE ) )
         {
-            org.slf4j.LoggerFactory.getLogger( PlexusXmlScanner.class ).debug( message, exception );
-        }
-        catch ( final Throwable ignore )
-        {
-            Logger.getLogger( PlexusXmlScanner.class.getName() ).log( Level.FINE, message, exception );
+            LOGGER.fine( "Problem parsing resource: " + url + " cause: " + cause );
         }
     }
 }
