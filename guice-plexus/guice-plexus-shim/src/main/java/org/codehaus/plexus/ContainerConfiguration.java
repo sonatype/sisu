@@ -47,4 +47,8 @@ public interface ContainerConfiguration
     ContainerConfiguration setClassPathScanning( boolean on );
 
     boolean getClassPathScanning();
+
+    ContainerConfiguration setAutoWiring( boolean on );
+
+    boolean getAutoWiring();
 }

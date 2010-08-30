@@ -37,6 +37,8 @@ public final class DefaultContainerConfiguration
 
     private boolean classPathScanning;
 
+    private boolean autoWiring = true;
+
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
@@ -121,5 +123,16 @@ public final class DefaultContainerConfiguration
     public boolean getClassPathScanning()
     {
         return classPathScanning;
+    }
+
+    public ContainerConfiguration setAutoWiring( final boolean autoWiring )
+    {
+        this.autoWiring = autoWiring;
+        return this;
+    }
+
+    public boolean getAutoWiring()
+    {
+        return autoWiring;
     }
 }

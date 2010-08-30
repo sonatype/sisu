@@ -121,6 +121,8 @@ public final class DefaultPlexusContainer
 
     private final boolean isClassPathScanningEnabled;
 
+    private final boolean isAutoWiringEnabled;
+
     private final Module bootModule = new BootModule();
 
     private final Module setupModule = new SetupModule();
@@ -155,7 +157,10 @@ public final class DefaultPlexusContainer
 
         containerRealm = lookupContainerRealm( configuration );
         lifecycleManager = new PlexusLifecycleManager( this, context );
+
         componentVisibility = configuration.getComponentVisibility();
+        isClassPathScanningEnabled = configuration.getClassPathScanning();
+        isAutoWiringEnabled = configuration.getAutoWiring();
 
         plexusBeanLocator = new DefaultPlexusBeanLocator( qualifiedBeanLocator, componentVisibility );
 
@@ -166,7 +171,6 @@ public final class DefaultPlexusContainer
 
         final ClassSpace space = new URLClassSpace( containerRealm );
         beanModules.add( new PlexusXmlBeanModule( space, variables, plexusXml ) );
-        isClassPathScanningEnabled = configuration.getClassPathScanning();
         if ( isClassPathScanningEnabled )
         {
             beanModules.add( new PlexusAnnotatedBeanModule( space, variables ) );
@@ -430,7 +434,7 @@ public final class DefaultPlexusContainer
         modules.add( new PlexusBindingModule( lifecycleManager, beanModules ) );
         modules.add( loggerModule );
 
-        Guice.createInjector( isClassPathScanningEnabled ? new WireModule( modules ) : new MergedModule( modules ) );
+        Guice.createInjector( isAutoWiringEnabled ? new WireModule( modules ) : new MergedModule( modules ) );
     }
 
     // ----------------------------------------------------------------------
