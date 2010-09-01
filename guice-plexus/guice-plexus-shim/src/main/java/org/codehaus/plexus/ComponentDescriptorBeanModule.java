@@ -32,6 +32,7 @@ import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.DeferredProvider;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
+import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 import org.sonatype.guice.plexus.binders.PlexusTypeBinder;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanModule;
@@ -102,6 +103,9 @@ final class ComponentDescriptorBeanModule
         @Inject
         private PlexusContainer container;
 
+        @Inject
+        private PlexusBeanManager manager;
+
         private final ComponentDescriptor<?> cd;
 
         private final String hint;
@@ -134,7 +138,12 @@ final class ComponentDescriptorBeanModule
             try
             {
                 final ComponentFactory factory = container.lookup( ComponentFactory.class, hint );
-                return factory.newInstance( cd, container.getLookupRealm(), container );
+                final Object o = factory.newInstance( cd, container.getLookupRealm(), container );
+                if ( null != o && manager.manage( o.getClass() ) )
+                {
+                    manager.manage( o );
+                }
+                return o;
             }
             catch ( final Throwable e )
             {
