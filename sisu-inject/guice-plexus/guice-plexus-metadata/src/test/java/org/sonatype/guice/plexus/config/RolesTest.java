@@ -12,6 +12,9 @@
  */
 package org.sonatype.guice.plexus.config;
 
+import java.util.List;
+import java.util.Map;
+
 import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -31,6 +34,8 @@ public class RolesTest
     private static final TypeLiteral<Object> OBJECT_LITERAL = TypeLiteral.get( Object.class );
 
     private static final TypeLiteral<String> STRING_LITERAL = TypeLiteral.get( String.class );
+
+    private static final TypeLiteral<Integer> INTEGER_LITERAL = TypeLiteral.get( Integer.class );
 
     private static final Key<Object> OBJECT_COMPONENT_KEY = Key.get( Object.class );
 
@@ -71,8 +76,15 @@ public class RolesTest
                       Roles.roleType( requirement( Object.class ), TypeLiteral.get( Types.listOf( String.class ) ) ) );
 
         assertEquals( STRING_LITERAL,
+                      Roles.roleType( requirement( List.class ), TypeLiteral.get( Types.listOf( String.class ) ) ) );
+
+        assertEquals( INTEGER_LITERAL,
                       Roles.roleType( requirement( Object.class ),
-                                      TypeLiteral.get( Types.mapOf( Object.class, String.class ) ) ) );
+                                      TypeLiteral.get( Types.mapOf( String.class, Integer.class ) ) ) );
+
+        assertEquals( INTEGER_LITERAL,
+                      Roles.roleType( requirement( Map.class ),
+                                      TypeLiteral.get( Types.mapOf( String.class, Integer.class ) ) ) );
     }
 
     private static Component component( final String hint )

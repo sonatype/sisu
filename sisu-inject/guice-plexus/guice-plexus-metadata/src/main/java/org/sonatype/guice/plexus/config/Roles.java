@@ -90,7 +90,7 @@ public final class Roles
     public static TypeLiteral<?> roleType( final Requirement requirement, final TypeLiteral<?> asType )
     {
         final Type role = requirement.role();
-        if ( role != Object.class )
+        if ( role != Object.class && role != Map.class && role != List.class )
         {
             return TypeLiteral.get( role );
         }
