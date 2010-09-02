@@ -51,7 +51,7 @@ final class ZipEntryIterator
             }
             else
             {
-                entryNames = getEntryNames( new ZipInputStream( url.openStream() ) );
+                entryNames = getEntryNames( new ZipInputStream( Streams.openStream( url ) ) );
             }
         }
         catch ( final IOException e )

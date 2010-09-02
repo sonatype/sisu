@@ -35,6 +35,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.Streams;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.Hints;
@@ -132,7 +133,7 @@ public final class PlexusXmlScanner
     {
         try
         {
-            final InputStream in = url.openStream();
+            final InputStream in = Streams.openStream( url );
             try
             {
                 final MXParser parser = new MXParser();
@@ -185,7 +186,7 @@ public final class PlexusXmlScanner
     {
         try
         {
-            final InputStream in = url.openStream();
+            final InputStream in = Streams.openStream( url );
             try
             {
                 final MXParser parser = new MXParser();

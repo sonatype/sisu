@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.Streams;
 
 /**
  * ASM-style scanner that makes a {@link ClassSpaceVisitor} visit an existing {@link ClassSpace}.
@@ -89,7 +90,7 @@ public final class ClassSpaceScanner
         }
         try
         {
-            final InputStream in = url.openStream();
+            final InputStream in = Streams.openStream( url );
             try
             {
                 new ClassReader( in ).accept( visitor, ASM_FLAGS );
