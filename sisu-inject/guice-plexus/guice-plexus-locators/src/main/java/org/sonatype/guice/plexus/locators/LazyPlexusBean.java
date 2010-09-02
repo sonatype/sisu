@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import org.sonatype.guice.bean.locators.QualifiedBean;
 import org.sonatype.guice.plexus.config.PlexusBean;
 import org.sonatype.guice.plexus.config.PlexusBeanDescription;
+import org.sonatype.inject.Description;
 
 import com.google.inject.name.Named;
 
@@ -66,6 +67,15 @@ final class LazyPlexusBean<T>
         if ( source instanceof PlexusBeanDescription )
         {
             return ( (PlexusBeanDescription) source ).getDescription();
+        }
+        final Class<T> clazz = bean.getImplementationClass();
+        if ( null != clazz )
+        {
+            final Description description = clazz.getAnnotation( Description.class );
+            if ( null != description )
+            {
+                return description.value();
+            }
         }
         return null;
     }
