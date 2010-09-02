@@ -245,19 +245,19 @@ public class BeanPropertiesTest
         }
     }
 
+    @SuppressWarnings( "unused" )
     public void testInterface()
     {
-        for ( @SuppressWarnings( "unused" )
-        final BeanProperty<?> bp : new BeanProperties( A.class ) )
+        for ( final BeanProperty<?> bp : new BeanProperties( A.class ) )
         {
             fail( "Expected no bean properties" );
         }
     }
 
+    @SuppressWarnings( "unused" )
     public void testEmptyClass()
     {
-        for ( @SuppressWarnings( "unused" )
-        final BeanProperty<?> bp : new BeanProperties( B.class ) )
+        for ( final BeanProperty<?> bp : new BeanProperties( B.class ) )
         {
             fail( "Expected no bean properties" );
         }
@@ -305,10 +305,10 @@ public class BeanPropertiesTest
         assertEquals( setter.toString(), propertySetter.toString() );
     }
 
+    @SuppressWarnings( "unused" )
     public void testSkipInvalidSetters()
     {
-        for ( @SuppressWarnings( "unused" )
-        final BeanProperty<?> bp : new BeanProperties( E.class ) )
+        for ( final BeanProperty<?> bp : new BeanProperties( E.class ) )
         {
             fail( "Expected no bean properties" );
         }
