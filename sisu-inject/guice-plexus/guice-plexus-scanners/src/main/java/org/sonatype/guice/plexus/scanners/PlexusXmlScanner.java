@@ -91,8 +91,7 @@ public final class PlexusXmlScanner
             parsePlexusXml( plexusXml, registry );
         }
 
-        // limit search to the current space, don't pull in components from any surrounding spaces
-        final Enumeration<URL> e = space.findEntries( "META-INF/plexus/", "components.xml", false );
+        final Enumeration<URL> e = space.getResources( "META-INF/plexus/components.xml" );
         while ( e.hasMoreElements() )
         {
             parseComponentsXml( e.nextElement(), registry );

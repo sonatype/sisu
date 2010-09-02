@@ -342,14 +342,6 @@ public class PlexusXmlScannerTest
                       metadata.get( DefaultBean.class.getName() ).getConfiguration( new NamedProperty( "variable" ) ).value() );
     }
 
-    public void testLocalizedXmlScanning()
-    {
-        final ClassLoader parent = PlexusXmlScannerTest.class.getClassLoader();
-        final ClassSpace space = new URLClassSpace( parent, null );
-
-        assertTrue( new PlexusXmlScanner( null, null, null ).scan( space ).isEmpty() );
-    }
-
     public void testOptionalLogging()
         throws Exception
     {
