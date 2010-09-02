@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.sonatype.sisu</groupId>
+    <artifactId>sisu-examples</artifactId>
+    <version>1.4.0-SNAPSHOT</version>
+  </parent>
+
+  <packaging>pom</packaging>
+
+  <groupId>org.sonatype.sisu.examples</groupId>
+  <artifactId>guice-swing</artifactId>
+
+  <name>Guice - Swing example</name>
+
+  <modules>
+    <module>guice-swing-button-tab</module>
+    <module>guice-swing-checkbox-tab</module>
+    <module>guice-swing-nested-tab</module>
+    <module>guice-swing-window</module>
+    <module>guice-swing-main</module>
+  </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.sonatype.sisu</groupId>
+      <artifactId>sisu-inject-bean</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
