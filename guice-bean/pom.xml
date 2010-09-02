@@ -20,7 +20,7 @@
   <name>Guice - Bean</name>
 
   <properties>
-    <guice.patches.version>2.1.6</guice.patches.version>
+    <sisu.guice.version>2.1.7-SNAPSHOT</sisu.guice.version>
     <guice.bean.version>1.3.5-SNAPSHOT</guice.bean.version>
   </properties>
 
@@ -40,15 +40,15 @@
 
       <!-- patched locally -->
       <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-patches</artifactId>
-        <version>${guice.patches.version}</version>
+        <groupId>org.sonatype.sisu</groupId>
+        <artifactId>sisu-guice</artifactId>
+        <version>${sisu.guice.version}</version>
       </dependency>
       <!-- patched (no-AOP) -->
       <dependency>
-        <groupId>org.sonatype.spice.inject</groupId>
-        <artifactId>guice-patches</artifactId>
-        <version>${guice.patches.version}</version>
+        <groupId>org.sonatype.sisu</groupId>
+        <artifactId>sisu-guice</artifactId>
+        <version>${sisu.guice.version}</version>
         <classifier>noaop</classifier>
       </dependency>
 

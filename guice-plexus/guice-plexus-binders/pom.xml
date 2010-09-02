@@ -74,8 +74,8 @@
       <artifactId>javax.inject</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-patches</artifactId>
+      <groupId>org.sonatype.sisu</groupId>
+      <artifactId>sisu-guice</artifactId>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>

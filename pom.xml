@@ -14,7 +14,6 @@
 
   <modules>
     <module>pom</module>
-    <module>guice-patches</module>
     <module>guice-bean</module>
     <module>guice-plexus</module>
   </modules>

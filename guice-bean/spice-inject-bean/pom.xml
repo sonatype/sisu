@@ -141,8 +141,8 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.sonatype.spice.inject</groupId>
-      <artifactId>guice-patches</artifactId>
+      <groupId>org.sonatype.sisu</groupId>
+      <artifactId>sisu-guice</artifactId>
       <classifier>noaop</classifier>
       <exclusions>
         <exclusion>
