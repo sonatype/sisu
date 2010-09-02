@@ -47,7 +47,7 @@ public final class URLClassSpace
 
     private final ClassLoader loader;
 
-    private final URL[] classPath;
+    private URL[] classPath;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -62,20 +62,7 @@ public final class URLClassSpace
     public URLClassSpace( final ClassLoader loader )
     {
         this.loader = loader;
-        for ( ClassLoader l = loader; l != null; l = l.getParent() )
-        {
-            if ( l instanceof URLClassLoader )
-            {
-                // pick first class loader with non-empty class path
-                final URL[] path = ( (URLClassLoader) l ).getURLs();
-                if ( null != path && path.length > 0 )
-                {
-                    classPath = expandClassPath( path );
-                    return;
-                }
-            }
-        }
-        classPath = NO_URLS; // no detectable Class-Path
+        // compute class path on demand
     }
 
     /**
@@ -132,12 +119,12 @@ public final class URLClassSpace
 
     public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
     {
-        return new ResourceEnumeration( path, glob, recurse, classPath );
+        return new ResourceEnumeration( path, glob, recurse, getClassPath() );
     }
 
     public URL[] getURLs()
     {
-        return classPath.clone();
+        return getClassPath().clone();
     }
 
     @Override
@@ -169,6 +156,31 @@ public final class URLClassSpace
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
+
+    private synchronized URL[] getClassPath()
+    {
+        if ( null == classPath )
+        {
+            for ( ClassLoader l = loader; l != null; l = l.getParent() )
+            {
+                if ( l instanceof URLClassLoader )
+                {
+                    // pick first class loader with non-empty class path
+                    final URL[] path = ( (URLClassLoader) l ).getURLs();
+                    if ( null != path && path.length > 0 )
+                    {
+                        classPath = expandClassPath( path );
+                        break;
+                    }
+                }
+            }
+            if ( null == classPath )
+            {
+                classPath = NO_URLS; // no detectable Class-Path
+            }
+        }
+        return classPath;
+    }
 
     /**
      * Expands the given {@link URL} class path to include Class-Path entries from local manifests.
