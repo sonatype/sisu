@@ -84,7 +84,7 @@ public final class PlexusXmlScanner
     // Public methods
     // ----------------------------------------------------------------------
 
-    public Map<Component, DeferredClass<?>> scan( final ClassSpace space )
+    public Map<Component, DeferredClass<?>> scan( final ClassSpace space, final boolean root )
     {
         final PlexusTypeRegistry registry = new PlexusTypeRegistry( space );
         if ( null != plexusXml )
@@ -92,7 +92,15 @@ public final class PlexusXmlScanner
             parsePlexusXml( plexusXml, registry );
         }
 
-        final Enumeration<URL> e = space.getResources( "META-INF/plexus/components.xml" );
+        final Enumeration<URL> e;
+        if ( root )
+        {
+            e = space.getResources( "META-INF/plexus/components.xml" );
+        }
+        else
+        {
+            e = space.findEntries( "META-INF/plexus", "components.xml", false );
+        }
         while ( e.hasMoreElements() )
         {
             parseComponentsXml( e.nextElement(), registry );

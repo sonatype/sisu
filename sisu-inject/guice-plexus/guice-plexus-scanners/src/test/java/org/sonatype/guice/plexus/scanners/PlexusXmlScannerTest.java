@@ -144,7 +144,7 @@ public class PlexusXmlScannerTest
         final URL plexusXml = getClass().getResource( "/META-INF/plexus/plexus.xml" );
         final PlexusXmlScanner scanner = new PlexusXmlScanner( null, plexusXml, null );
 
-        final Map<Component, DeferredClass<?>> componentMap = scanner.scan( new EmptyClassSpace() );
+        final Map<Component, DeferredClass<?>> componentMap = scanner.scan( new EmptyClassSpace(), true );
 
         assertEquals( 2, componentMap.size() );
 
@@ -160,7 +160,7 @@ public class PlexusXmlScannerTest
     {
         final ClassSpace space = new URLClassSpace( PlexusXmlScannerTest.class.getClassLoader() );
         final URL plexusXml = getClass().getResource( "/META-INF/plexus/bad_plexus_1.xml" );
-        new PlexusXmlScanner( null, plexusXml, null ).scan( space );
+        new PlexusXmlScanner( null, plexusXml, null ).scan( space, true );
     }
 
     @SuppressWarnings( "deprecation" )
@@ -171,7 +171,7 @@ public class PlexusXmlScannerTest
         final Map<String, PlexusBeanMetadata> metadata = new HashMap<String, PlexusBeanMetadata>();
         final PlexusXmlScanner scanner = new PlexusXmlScanner( null, null, metadata );
 
-        final Map<Component, DeferredClass<?>> componentMap = scanner.scan( space );
+        final Map<Component, DeferredClass<?>> componentMap = scanner.scan( space, true );
 
         assertEquals( 4, componentMap.size() );
 
@@ -295,10 +295,10 @@ public class PlexusXmlScannerTest
         ClassSpace space;
 
         space = new FixedClassSpace( "/META-INF/plexus/bad_components_1.xml" );
-        new PlexusXmlScanner( null, null, null ).scan( space );
+        new PlexusXmlScanner( null, null, null ).scan( space, true );
 
         space = new FixedClassSpace( "/META-INF/plexus/bad_components_2.xml" );
-        new PlexusXmlScanner( null, null, null ).scan( space );
+        new PlexusXmlScanner( null, null, null ).scan( space, true );
 
         try
         {
@@ -306,7 +306,7 @@ public class PlexusXmlScannerTest
             final Map<String, PlexusBeanMetadata> metadata = new HashMap<String, PlexusBeanMetadata>();
             final PlexusXmlScanner scanner = new PlexusXmlScanner( null, null, metadata );
 
-            scanner.scan( space );
+            scanner.scan( space, true );
 
             final Requirement badReq =
                 metadata.get( DefaultBean.class.getName() ).getRequirement( new NamedProperty( "no.such.class" ) );
@@ -320,7 +320,7 @@ public class PlexusXmlScannerTest
 
         space = new FixedClassSpace( "/META-INF/plexus/bad_components_4.xml" );
         final PlexusXmlScanner scanner = new PlexusXmlScanner( null, null, null );
-        assertTrue( scanner.scan( space ).isEmpty() );
+        assertTrue( scanner.scan( space, true ).isEmpty() );
     }
 
     public void testInterpolatedComponentsXml()
@@ -329,17 +329,25 @@ public class PlexusXmlScannerTest
 
         final Map<String, PlexusBeanMetadata> metadata = new HashMap<String, PlexusBeanMetadata>();
 
-        new PlexusXmlScanner( null, null, metadata ).scan( space );
+        new PlexusXmlScanner( null, null, metadata ).scan( space, true );
 
         assertEquals( "${some.value}",
                       metadata.get( DefaultBean.class.getName() ).getConfiguration( new NamedProperty( "variable" ) ).value() );
 
         final Map<?, ?> variables = Collections.singletonMap( "some.value", "INTERPOLATED" );
 
-        new PlexusXmlScanner( variables, null, metadata ).scan( space );
+        new PlexusXmlScanner( variables, null, metadata ).scan( space, true );
 
         assertEquals( "INTERPOLATED",
                       metadata.get( DefaultBean.class.getName() ).getConfiguration( new NamedProperty( "variable" ) ).value() );
+    }
+
+    public void testLocalizedXmlScanning()
+    {
+        final ClassSpace space = new URLClassSpace( PlexusXmlScannerTest.class.getClassLoader(), null );
+
+        assertFalse( new PlexusXmlScanner( null, null, null ).scan( space, true ).isEmpty() );
+        assertTrue( new PlexusXmlScanner( null, null, null ).scan( space, false ).isEmpty() );
     }
 
     public void testOptionalLogging()

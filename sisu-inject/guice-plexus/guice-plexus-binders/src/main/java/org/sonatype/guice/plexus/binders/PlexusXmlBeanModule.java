@@ -43,6 +43,8 @@ public final class PlexusXmlBeanModule
 
     private final URL plexusXml;
 
+    private final boolean root;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -59,6 +61,7 @@ public final class PlexusXmlBeanModule
         this.space = space;
         this.variables = variables;
         this.plexusXml = plexusXml;
+        root = true;
     }
 
     /**
@@ -72,6 +75,7 @@ public final class PlexusXmlBeanModule
         this.space = space;
         this.variables = variables;
         plexusXml = null;
+        root = false;
     }
 
     // ----------------------------------------------------------------------
@@ -83,7 +87,7 @@ public final class PlexusXmlBeanModule
         final PlexusTypeBinder plexusTypeBinder = new PlexusTypeBinder( binder );
         final Map<String, PlexusBeanMetadata> metadataMap = new HashMap<String, PlexusBeanMetadata>();
         final PlexusXmlScanner scanner = new PlexusXmlScanner( variables, plexusXml, metadataMap );
-        for ( final Entry<Component, DeferredClass<?>> entry : scanner.scan( space ).entrySet() )
+        for ( final Entry<Component, DeferredClass<?>> entry : scanner.scan( space, root ).entrySet() )
         {
             plexusTypeBinder.hear( entry.getKey(), entry.getValue(), space );
         }
