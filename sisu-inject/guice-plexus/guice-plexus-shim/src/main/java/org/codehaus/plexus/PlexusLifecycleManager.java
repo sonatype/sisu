@@ -15,6 +15,7 @@ package org.codehaus.plexus;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.logging.LogEnabled;
@@ -131,7 +132,16 @@ final class PlexusLifecycleManager
             final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
             try
             {
-                Thread.currentThread().setContextClassLoader( bean.getClass().getClassLoader() );
+                for ( Class<?> clazz = bean.getClass(); clazz != null; clazz = clazz.getSuperclass() )
+                {
+                    // need to check hierarchy in case bean is proxied
+                    final ClassLoader loader = clazz.getClassLoader();
+                    if ( loader instanceof ClassRealm )
+                    {
+                        Thread.currentThread().setContextClassLoader( loader );
+                        break;
+                    }
+                }
                 if ( isContextualizable )
                 {
                     contextualize( (Contextualizable) bean );
