@@ -121,6 +121,8 @@ public final class DefaultPlexusContainer
 
     private final boolean isClassPathScanningEnabled;
 
+    private final boolean isClassPathCachingEnabled;
+
     private final boolean isAutoWiringEnabled;
 
     private final Module bootModule = new BootModule();
@@ -160,6 +162,7 @@ public final class DefaultPlexusContainer
 
         componentVisibility = configuration.getComponentVisibility();
         isClassPathScanningEnabled = configuration.getClassPathScanning();
+        isClassPathCachingEnabled = configuration.getClassPathCaching();
         isAutoWiringEnabled = configuration.getAutoWiring();
 
         plexusBeanLocator = new DefaultPlexusBeanLocator( qualifiedBeanLocator, componentVisibility );
@@ -173,7 +176,7 @@ public final class DefaultPlexusContainer
         beanModules.add( new PlexusXmlBeanModule( space, variables, plexusXml ) );
         if ( isClassPathScanningEnabled )
         {
-            beanModules.add( new PlexusAnnotatedBeanModule( space, variables ) );
+            beanModules.add( new PlexusAnnotatedBeanModule( space, variables, isClassPathCachingEnabled ) );
         }
 
         try
@@ -409,7 +412,7 @@ public final class DefaultPlexusContainer
                 beanModules.add( new PlexusXmlBeanModule( space, variables ) );
                 if ( isClassPathScanningEnabled )
                 {
-                    beanModules.add( new PlexusAnnotatedBeanModule( space, variables ) );
+                    beanModules.add( new PlexusAnnotatedBeanModule( space, variables, isClassPathCachingEnabled ) );
                 }
             }
             if ( !beanModules.isEmpty() )

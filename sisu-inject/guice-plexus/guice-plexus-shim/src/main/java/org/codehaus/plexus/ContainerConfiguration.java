@@ -48,6 +48,10 @@ public interface ContainerConfiguration
 
     boolean getClassPathScanning();
 
+    ContainerConfiguration setClassPathCaching( boolean on );
+
+    boolean getClassPathCaching();
+
     ContainerConfiguration setAutoWiring( boolean on );
 
     boolean getAutoWiring();

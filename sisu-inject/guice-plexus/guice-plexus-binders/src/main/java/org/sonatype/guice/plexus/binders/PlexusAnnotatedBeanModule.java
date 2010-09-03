@@ -12,6 +12,8 @@
  */
 package org.sonatype.guice.plexus.binders;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -24,6 +26,9 @@ import org.sonatype.guice.plexus.scanners.PlexusAnnotatedMetadata;
 import org.sonatype.guice.plexus.scanners.PlexusTypeVisitor;
 
 import com.google.inject.Binder;
+import com.google.inject.Module;
+import com.google.inject.spi.Element;
+import com.google.inject.spi.Elements;
 
 /**
  * {@link PlexusBeanModule} that registers Plexus beans by scanning classes for runtime annotations.
@@ -35,9 +40,13 @@ public final class PlexusAnnotatedBeanModule
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    private static final Map<String, List<Element>> CACHED_ELEMENTS = new HashMap<String, List<Element>>();
+
     private final ClassSpace space;
 
     private final Map<?, ?> variables;
+
+    private final boolean caching;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -51,8 +60,21 @@ public final class PlexusAnnotatedBeanModule
      */
     public PlexusAnnotatedBeanModule( final ClassSpace space, final Map<?, ?> variables )
     {
+        this( space, variables, false );
+    }
+
+    /**
+     * Creates a bean source that scans the given class space for Plexus annotations using the given scanner.
+     * 
+     * @param space The local class space
+     * @param variables The filter variables
+     * @param caching Cache the results?
+     */
+    public PlexusAnnotatedBeanModule( final ClassSpace space, final Map<?, ?> variables, final boolean caching )
+    {
         this.space = space;
         this.variables = variables;
+        this.caching = caching;
     }
 
     // ----------------------------------------------------------------------
@@ -61,16 +83,57 @@ public final class PlexusAnnotatedBeanModule
 
     public PlexusBeanSource configure( final Binder binder )
     {
-        if ( null != space )
+        if ( caching )
         {
-            new ClassSpaceScanner( space ).accept( new PlexusTypeVisitor( new PlexusTypeBinder( binder ) ) );
+            cachingScan( binder );
+        }
+        else
+        {
+            scan( binder );
         }
         return new PlexusAnnotatedBeanSource( variables );
     }
 
     // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    void scan( final Binder binder )
+    {
+        if ( null != space )
+        {
+            new ClassSpaceScanner( space ).accept( new PlexusTypeVisitor( new PlexusTypeBinder( binder ) ) );
+        }
+    }
+
+    private void cachingScan( final Binder binder )
+    {
+        synchronized ( CACHED_ELEMENTS )
+        {
+            final String key = String.valueOf( space );
+            if ( !CACHED_ELEMENTS.containsKey( key ) )
+            {
+                CACHED_ELEMENTS.put( key, Elements.getElements( new RecordingModule() ) );
+            }
+            for ( final Element e : CACHED_ELEMENTS.get( key ) )
+            {
+                e.applyTo( binder );
+            }
+        }
+    }
+
+    // ----------------------------------------------------------------------
     // Implementation types
     // ----------------------------------------------------------------------
+
+    final class RecordingModule
+        implements Module
+    {
+        public void configure( final Binder binder )
+        {
+            scan( binder );
+        }
+    }
 
     private static final class PlexusAnnotatedBeanSource
         implements PlexusBeanSource

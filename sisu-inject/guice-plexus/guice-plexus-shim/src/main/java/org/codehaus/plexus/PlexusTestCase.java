@@ -78,7 +78,7 @@ public abstract class PlexusTestCase
         final String config = getCustomConfigurationName();
 
         final ContainerConfiguration containerConfiguration =
-            new DefaultContainerConfiguration().setName( "test" ).setContext( context.getContextData() );
+            new DefaultContainerConfiguration().setName( "test" ).setContext( context.getContextData() ).setClassPathCaching( true );
 
         if ( config != null )
         {
