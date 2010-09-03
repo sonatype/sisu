@@ -90,11 +90,6 @@ public final class Activator
 
     public Object addingBundle( final Bundle bundle, final BundleEvent event )
     {
-        if ( "org.sonatype.inject".equals( bundle.getSymbolicName() ) )
-        {
-            return null; // don't bother scanning the primary infrastructure bundle
-        }
-
         final String imports = (String) bundle.getHeaders().get( Constants.IMPORT_PACKAGE );
         if ( null == imports || !imports.contains( "javax.inject" ) )
         {
