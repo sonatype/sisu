@@ -16,6 +16,8 @@ import java.util.Map;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
+import com.google.inject.Module;
+
 public interface ContainerConfiguration
 {
     ContainerConfiguration setName( String name );
@@ -44,6 +46,14 @@ public interface ContainerConfiguration
 
     String getComponentVisibility();
 
+    ContainerConfiguration setBootModules( Module... modules );
+
+    Module[] getBootModules();
+
+    ContainerConfiguration setAutoWiring( boolean on );
+
+    boolean getAutoWiring();
+
     ContainerConfiguration setClassPathScanning( boolean on );
 
     boolean getClassPathScanning();
@@ -51,8 +61,4 @@ public interface ContainerConfiguration
     ContainerConfiguration setClassPathCaching( boolean on );
 
     boolean getClassPathCaching();
-
-    ContainerConfiguration setAutoWiring( boolean on );
-
-    boolean getAutoWiring();
 }

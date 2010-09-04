@@ -125,8 +125,6 @@ public final class DefaultPlexusContainer
 
     private final boolean isAutoWiringEnabled;
 
-    private final Module bootModule = new BootModule();
-
     private final Module setupModule = new SetupModule();
 
     private final Module loggerModule = new LoggerModule();
@@ -181,7 +179,7 @@ public final class DefaultPlexusContainer
 
         try
         {
-            addPlexusInjector( beanModules, bootModule );
+            addPlexusInjector( beanModules, new BootModule( configuration.getBootModules() ) );
         }
         catch ( final RuntimeException e )
         {
@@ -722,10 +720,21 @@ public final class DefaultPlexusContainer
     final class BootModule
         extends AbstractModule
     {
+        private final Module[] customBootModules;
+
+        BootModule( final Module[] customBootModules )
+        {
+            this.customBootModules = customBootModules;
+        }
+
         @Override
         protected void configure()
         {
             requestInjection( DefaultPlexusContainer.this );
+            for ( final Module m : customBootModules )
+            {
+                install( m );
+            }
         }
     }
 
