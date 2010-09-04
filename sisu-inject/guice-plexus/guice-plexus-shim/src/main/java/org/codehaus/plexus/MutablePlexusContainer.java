@@ -10,14 +10,18 @@
  */
 package org.codehaus.plexus;
 
-import java.util.List;
-
-import org.sonatype.guice.plexus.config.PlexusBeanModule;
-
-import com.google.inject.Module;
+import org.codehaus.plexus.classworlds.ClassWorld;
+import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.logging.LoggerManager;
 
 public interface MutablePlexusContainer
     extends PlexusContainer
 {
-    void addPlexusInjector( List<PlexusBeanModule> beanModules, Module... customModules );
+    LoggerManager getLoggerManager();
+
+    void setLoggerManager( LoggerManager loggerManager );
+
+    Logger getLogger();
+
+    ClassWorld getClassWorld();
 }

@@ -13,7 +13,6 @@ package org.codehaus.plexus;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.composition.CycleDetectedInComponentGraphException;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
@@ -21,8 +20,6 @@ import org.codehaus.plexus.component.repository.exception.ComponentLifecycleExce
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.configuration.PlexusConfigurationException;
 import org.codehaus.plexus.context.Context;
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.logging.LoggerManager;
 
 public interface PlexusContainer
 {
@@ -83,8 +80,6 @@ public interface PlexusContainer
     List<ComponentDescriptor<?>> discoverComponents( ClassRealm classRealm )
         throws PlexusConfigurationException;
 
-    ClassWorld getClassWorld();
-
     ClassRealm getContainerRealm();
 
     ClassRealm setLookupRealm( ClassRealm realm );
@@ -92,12 +87,6 @@ public interface PlexusContainer
     ClassRealm getLookupRealm();
 
     ClassRealm createChildRealm( String id );
-
-    LoggerManager getLoggerManager();
-
-    void setLoggerManager( LoggerManager loggerManager );
-
-    Logger getLogger();
 
     void release( Object component )
         throws ComponentLifecycleException;

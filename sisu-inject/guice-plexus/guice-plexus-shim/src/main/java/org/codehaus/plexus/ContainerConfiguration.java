@@ -16,8 +16,6 @@ import java.util.Map;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
-import com.google.inject.Module;
-
 public interface ContainerConfiguration
 {
     ContainerConfiguration setName( String name );
@@ -45,10 +43,6 @@ public interface ContainerConfiguration
     ContainerConfiguration setComponentVisibility( String visibility );
 
     String getComponentVisibility();
-
-    ContainerConfiguration setBootModules( Module... modules );
-
-    Module[] getBootModules();
 
     ContainerConfiguration setAutoWiring( boolean on );
 

@@ -146,7 +146,7 @@ public final class DefaultPlexusContainer
     }
 
     @SuppressWarnings( "finally" )
-    public DefaultPlexusContainer( final ContainerConfiguration configuration )
+    public DefaultPlexusContainer( final ContainerConfiguration configuration, final Module... customModules )
         throws PlexusContainerException
     {
         final URL plexusXml = lookupPlexusXml( configuration );
@@ -179,7 +179,7 @@ public final class DefaultPlexusContainer
 
         try
         {
-            addPlexusInjector( beanModules, new BootModule( configuration.getBootModules() ) );
+            addPlexusInjector( beanModules, new BootModule( customModules ) );
         }
         catch ( final RuntimeException e )
         {
@@ -755,13 +755,15 @@ public final class DefaultPlexusContainer
 
             bind( MutableBeanLocator.class ).toInstance( qualifiedBeanLocator );
 
-            bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
             bind( PlexusBeanConverter.class ).toInstance( beanConverter );
             bind( PlexusBeanLocator.class ).toInstance( plexusBeanLocator );
             bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
 
+            bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
+            bind( MutablePlexusContainer.class ).to( DefaultPlexusContainer.class );
+
             // use provider wrapper to avoid repeated injections later on when configuring plugin injectors
-            bind( MutablePlexusContainer.class ).toProvider( Providers.of( DefaultPlexusContainer.this ) );
+            bind( DefaultPlexusContainer.class ).toProvider( Providers.of( DefaultPlexusContainer.this ) );
         }
     }
 

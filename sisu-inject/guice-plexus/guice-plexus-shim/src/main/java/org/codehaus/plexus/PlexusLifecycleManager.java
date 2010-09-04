@@ -46,7 +46,7 @@ final class PlexusLifecycleManager
 
     private final List<Disposable> disposableBeans = new ArrayList<Disposable>();
 
-    private final PlexusContainer container;
+    private final MutablePlexusContainer container;
 
     private final Context context;
 
@@ -54,7 +54,7 @@ final class PlexusLifecycleManager
     // Constructors
     // ----------------------------------------------------------------------
 
-    PlexusLifecycleManager( final PlexusContainer container, final Context context )
+    PlexusLifecycleManager( final MutablePlexusContainer container, final Context context )
     {
         this.container = container;
         this.context = context;

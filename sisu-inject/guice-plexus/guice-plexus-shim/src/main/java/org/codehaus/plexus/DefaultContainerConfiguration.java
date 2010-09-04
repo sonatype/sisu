@@ -16,8 +16,6 @@ import java.util.Map;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
-import com.google.inject.Module;
-
 public final class DefaultContainerConfiguration
     implements ContainerConfiguration
 {
@@ -36,8 +34,6 @@ public final class DefaultContainerConfiguration
     private Map<Object, Object> contextData;
 
     private String componentVisibility = PlexusConstants.REALM_VISIBILITY;
-
-    private Module[] bootModules = {};
 
     private boolean autoWiring = true;
 
@@ -129,17 +125,6 @@ public final class DefaultContainerConfiguration
     public boolean getAutoWiring()
     {
         return autoWiring;
-    }
-
-    public ContainerConfiguration setBootModules( final Module... bootModules )
-    {
-        this.bootModules = bootModules;
-        return this;
-    }
-
-    public Module[] getBootModules()
-    {
-        return bootModules;
     }
 
     public ContainerConfiguration setClassPathScanning( final boolean classPathScanning )
