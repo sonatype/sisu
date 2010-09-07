@@ -145,6 +145,12 @@ public final class DefaultPlexusContainer
         this( new DefaultContainerConfiguration() );
     }
 
+    public DefaultPlexusContainer( final ContainerConfiguration configuration )
+        throws PlexusContainerException
+    {
+        this( configuration, new Module[0] );
+    }
+
     @SuppressWarnings( "finally" )
     public DefaultPlexusContainer( final ContainerConfiguration configuration, final Module... customModules )
         throws PlexusContainerException
