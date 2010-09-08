@@ -14,23 +14,16 @@ package org.sonatype.guice.bean.converters;
 
 import java.io.File;
 
-import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
-import com.google.inject.matcher.Matchers;
 import com.google.inject.spi.TypeConverter;
 
 /**
  * {@link TypeConverter} {@link Module} that converts constants to {@link File}s.
  */
 public final class FileTypeConverter
-    implements TypeConverter, Module
+    extends AbstractTypeConverter<File>
 {
-    public void configure( final Binder binder )
-    {
-        binder.convertToTypes( Matchers.only( TypeLiteral.get( File.class ) ), this );
-    }
-
     public Object convert( final String value, final TypeLiteral<?> toType )
     {
         return new File( value );

@@ -12,29 +12,24 @@
  */
 package org.sonatype.guice.bean.converters;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import org.sonatype.guice.bean.reflect.TypeParameters;
 
+import com.google.inject.Binder;
 import com.google.inject.Module;
-import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.spi.TypeConverter;
 
 /**
- * {@link TypeConverter} {@link Module} that converts constants to {@link URL}s.
+ * Abstract {@link TypeConverter} {@link Module} that automatically registers the converter based on the type parameter.
  */
-public final class URLTypeConverter
-    extends AbstractTypeConverter<URL>
+public abstract class AbstractTypeConverter<T>
+    implements TypeConverter, Module
 {
-    public Object convert( final String value, final TypeLiteral<?> toType )
+    public final void configure( final Binder binder )
     {
-        try
-        {
-            return new URL( value );
-        }
-        catch ( final MalformedURLException e )
-        {
-            throw new ProvisionException( e.toString() );
-        }
+        // make sure we pick up the right super type parameter, i.e. Foo from AbstractTypeConverter<Foo>
+        final TypeLiteral<?> superType = TypeLiteral.get( getClass() ).getSupertype( AbstractTypeConverter.class );
+        binder.convertToTypes( Matchers.only( TypeParameters.get( superType, 0 ) ), this );
     }
 }
