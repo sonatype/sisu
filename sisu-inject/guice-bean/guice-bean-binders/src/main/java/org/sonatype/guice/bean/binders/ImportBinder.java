@@ -14,7 +14,6 @@ package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -113,7 +112,7 @@ final class ImportBinder
         if ( 2 == parameters.length && null == key.getAnnotation() )
         {
             final Class qualifierType = parameters[0].getRawType();
-            final Type bindingType = parameters[1].getType();
+            final Class bindingType = parameters[1].getRawType();
             if ( qualifierType == String.class )
             {
                 binder.bind( key ).toProvider( new NamedBeanMapProvider( bindingType ) );
@@ -136,7 +135,7 @@ final class ImportBinder
         final TypeLiteral<?>[] parameters = TypeParameters.get( key.getTypeLiteral() );
         if ( 1 == parameters.length && null == key.getAnnotation() )
         {
-            final Type bindingType = parameters[0].getType();
+            final Class bindingType = parameters[0].getRawType();
             binder.bind( key ).toProvider( new BeanListProvider( Key.get( bindingType ) ) );
         }
     }
@@ -146,23 +145,25 @@ final class ImportBinder
      * 
      * @param key The dependency key
      */
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
     private <T> void bindBeanImport( final Key<T> key )
     {
         final Annotation qualifier = key.getAnnotation();
         final String name = qualifier instanceof Named ? ( (Named) qualifier ).value() : "CUSTOM";
+        final Class bindingType = key.getTypeLiteral().getRawType();
         if ( name.contains( "${" ) )
         {
-            binder.bind( key ).toProvider( new PlaceholderBeanProvider<T>( key ) );
+            binder.bind( key ).toProvider( new PlaceholderBeanProvider<T>( key.ofType( bindingType ) ) );
         }
         else if ( name.length() == 0 )
         {
-            // special case for wildcard @Named dependencies: match any @Named bean regardless of actual name
-            binder.bind( key ).toProvider( new BeanProvider<T>( Key.get( key.getTypeLiteral(), Named.class ) ) );
+            // special case for wildcard @Named dependencies: match any @Named bean regardless of name
+            binder.bind( key ).toProvider( new BeanProvider<T>( Key.get( bindingType, Named.class ) ) );
         }
         else if ( !isImplicit( key ) )
         {
             // avoid messing with any unqualified implicit bindings
-            binder.bind( key ).toProvider( new BeanProvider<T>( key ) );
+            binder.bind( key ).toProvider( new BeanProvider<T>( key.ofType( bindingType ) ) );
         }
     }
 

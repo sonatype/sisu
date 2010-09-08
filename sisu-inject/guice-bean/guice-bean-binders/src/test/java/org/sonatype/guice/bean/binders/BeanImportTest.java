@@ -82,6 +82,10 @@ public class BeanImportTest
     {
     }
 
+    interface Z<T>
+    {
+    }
+
     @ProvidedBy( XProvider.class )
     interface ImplicitX
         extends X
@@ -116,7 +120,13 @@ public class BeanImportTest
     {
     }
 
-    abstract static class Abstract
+    static class ZImpl<T>
+        implements Z<T>
+    {
+        T element;
+    }
+
+    static abstract class AbstractX
         implements X
     {
         @Inject
@@ -151,7 +161,7 @@ public class BeanImportTest
     }
 
     static class UnrestrictedInstance
-        extends Abstract
+        extends AbstractX
     {
         final Y single;
 
@@ -164,14 +174,14 @@ public class BeanImportTest
     }
 
     static class UnrestrictedList
-        extends Abstract
+        extends AbstractX
     {
         @Inject
         List<Y> list;
     }
 
     static class NamedType
-        extends Abstract
+        extends AbstractX
     {
         final Y single;
 
@@ -184,7 +194,7 @@ public class BeanImportTest
     }
 
     static class NamedInstance
-        extends Abstract
+        extends AbstractX
     {
         final Y single;
 
@@ -202,14 +212,14 @@ public class BeanImportTest
     }
 
     static class HintMap
-        extends Abstract
+        extends AbstractX
     {
         @Inject
         Map<String, Y> map;
     }
 
     static class PlaceholderInstance
-        extends Abstract
+        extends AbstractX
     {
         @Inject
         @Nullable
@@ -218,7 +228,7 @@ public class BeanImportTest
     }
 
     static class PlaceholderString
-        extends Abstract
+        extends AbstractX
     {
         @Inject
         @Nullable
@@ -227,7 +237,7 @@ public class BeanImportTest
     }
 
     static class PlaceholderConfig
-        extends Abstract
+        extends AbstractX
     {
         @Inject
         @Nullable
@@ -274,6 +284,16 @@ public class BeanImportTest
         Map<Named, Y> map;
     }
 
+    static class GenericInstance
+        implements X
+    {
+        @Inject
+        Z<Integer> integer;
+
+        @Inject
+        Z<String> string;
+    }
+
     static Map<String, String> PROPS = new HashMap<String, String>();
 
     class TestModule
@@ -296,8 +316,12 @@ public class BeanImportTest
             bind( X.class ).annotatedWith( Names.named( "PS" ) ).to( PlaceholderString.class );
             bind( X.class ).annotatedWith( Names.named( "PC" ) ).to( PlaceholderConfig.class );
 
+            bind( X.class ).annotatedWith( Names.named( "GI" ) ).to( GenericInstance.class );
+
             bind( Y.class ).annotatedWith( Names.named( "local" ) ).toInstance( new YImpl() );
             bind( Y.class ).annotatedWith( new FuzzyImpl() ).toInstance( new YImpl() );
+
+            bind( Z.class ).to( ZImpl.class );
 
             bind( ParameterKeys.PROPERTIES ).toInstance( PROPS );
         }
@@ -488,5 +512,16 @@ public class BeanImportTest
         catch ( final CreationException e )
         {
         }
+    }
+
+    public void testGenericInjection()
+    {
+        final Injector injector = Guice.createInjector( new WireModule( new TestModule() ) );
+
+        final GenericInstance genericInstance =
+            (GenericInstance) injector.getInstance( Key.get( X.class, Names.named( "GI" ) ) );
+
+        assertNotNull( genericInstance.integer );
+        assertNotNull( genericInstance.string );
     }
 }
