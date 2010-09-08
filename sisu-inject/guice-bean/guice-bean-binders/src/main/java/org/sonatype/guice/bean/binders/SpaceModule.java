@@ -48,6 +48,8 @@ public final class SpaceModule
 
     public void configure( final Binder binder )
     {
+        binder.bind( ClassSpace.class ).toInstance( space );
+
         new ClassSpaceScanner( space ).accept( new QualifiedTypeVisitor( new QualifiedTypeBinder( binder ) ) );
     }
 }

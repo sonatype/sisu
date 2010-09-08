@@ -41,10 +41,14 @@ public class QualifiedModuleTest
     @javax.inject.Named( "CustomConstant" )
     private String value;
 
+    @Inject
+    private ClassSpace surroundingSpace;
+
     public void testQualifiedModule()
     {
         final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
         Guice.createInjector( new SpaceModule( space ) ).injectMembers( this );
+        assertEquals( surroundingSpace, space );
         assertEquals( "CustomValue", value );
     }
 }
