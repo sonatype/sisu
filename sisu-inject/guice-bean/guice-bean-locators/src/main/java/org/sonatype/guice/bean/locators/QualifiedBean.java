@@ -17,135 +17,17 @@ import java.util.Map.Entry;
 
 import javax.inject.Provider;
 
-import org.sonatype.inject.Description;
-
 import com.google.inject.Binding;
-import com.google.inject.Scope;
-import com.google.inject.Scopes;
-import com.google.inject.spi.DefaultBindingScopingVisitor;
 
 /**
  * Qualified bean {@link Entry} and {@link Provider} backed by an injector {@link Binding}.
  */
-public final class QualifiedBean<Q extends Annotation, T>
-    extends DefaultBindingScopingVisitor<Provider<T>>
-    implements Entry<Q, T>, Provider<T>
+public interface QualifiedBean<Q extends Annotation, T>
+    extends Entry<Q, T>, Provider<T>
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
+    String getDescription();
 
-    static final ImplementationVisitor IMPLEMENTATION_VISITOR = new ImplementationVisitor();
+    Class<T> getImplementationClass();
 
-    // ----------------------------------------------------------------------
-    // Implementation fields
-    // ----------------------------------------------------------------------
-
-    private final Q qualifier;
-
-    private final Binding<T> binding;
-
-    private final Provider<T> provider;
-
-    // ----------------------------------------------------------------------
-    // Constructors
-    // ----------------------------------------------------------------------
-
-    QualifiedBean( final Q qualifier, final Binding<T> binding )
-    {
-        this.qualifier = qualifier;
-        this.binding = binding;
-
-        this.provider = binding.acceptScopingVisitor( this );
-    }
-
-    // ----------------------------------------------------------------------
-    // Public methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * @return Qualified bean binding
-     */
-    public Binding<? extends T> getBinding()
-    {
-        return binding;
-    }
-
-    public Q getKey()
-    {
-        return qualifier;
-    }
-
-    public T getValue()
-    {
-        return provider.get();
-    }
-
-    public T setValue( final T value )
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    public T get()
-    {
-        return getValue();
-    }
-
-    /**
-     * @return Qualified bean description
-     */
-    public String getDescription()
-    {
-        final Object source = binding.getSource();
-        if ( source instanceof BeanDescription )
-        {
-            return ( (BeanDescription) source ).getDescription();
-        }
-        final Class<T> clazz = getImplementationClass();
-        if ( null != clazz )
-        {
-            final Description description = clazz.getAnnotation( Description.class );
-            if ( null != description )
-            {
-                return description.value();
-            }
-        }
-        return null;
-    }
-
-    @SuppressWarnings( "unchecked" )
-    public Class<T> getImplementationClass()
-    {
-        return (Class<T>) binding.acceptTargetVisitor( IMPLEMENTATION_VISITOR );
-    }
-
-    @Override
-    public String toString()
-    {
-        return getKey() + "=" + getValue();
-    }
-
-    @Override
-    public Provider<T> visitEagerSingleton()
-    {
-        return binding.getProvider();
-    }
-
-    @Override
-    public Provider<T> visitScope( final Scope scope )
-    {
-        return Scopes.SINGLETON.equals( scope ) ? visitEagerSingleton() : visitOther();
-    }
-
-    @Override
-    public Provider<T> visitScopeAnnotation( final Class<? extends Annotation> scopeAnnotation )
-    {
-        return "Singleton".equals( scopeAnnotation.getSimpleName() ) ? visitEagerSingleton() : visitOther();
-    }
-
-    @Override
-    protected Provider<T> visitOther()
-    {
-        return Scopes.SINGLETON.scope( binding.getKey(), binding.getProvider() );
-    }
+    Binding<? extends T> getBinding();
 }

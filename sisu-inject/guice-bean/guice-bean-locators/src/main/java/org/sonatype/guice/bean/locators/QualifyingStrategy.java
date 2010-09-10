@@ -57,7 +57,7 @@ enum QualifyingStrategy
         final Annotation qualify( final Key<?> expectedKey, final Binding<?> binding )
         {
             final Class<? extends Annotation> markerType = expectedKey.getAnnotationType();
-            final Class<?> implementation = binding.acceptTargetVisitor( QualifiedBean.IMPLEMENTATION_VISITOR );
+            final Class<?> implementation = binding.acceptTargetVisitor( ImplementationVisitor.THIS );
             return null != implementation ? implementation.getAnnotation( markerType ) : null;
         }
     },

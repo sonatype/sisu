@@ -52,7 +52,7 @@ public class QualifiedBeanTest
         } );
 
         final Entry<Annotation, Object> countingEntry =
-            new QualifiedBean<Annotation, Object>( null, injector.getBinding( Object.class ) );
+            new LazyQualifiedBean<Annotation, Object>( null, injector.getBinding( Object.class ) );
 
         final Thread[] pool = new Thread[8];
         for ( int i = 0; i < pool.length; i++ )
@@ -118,7 +118,7 @@ public class QualifiedBeanTest
         } );
 
         final Entry<Named, String> textEntry =
-            new QualifiedBean<Named, String>( (Named) key.getAnnotation(), injector.getBinding( key ) );
+            new LazyQualifiedBean<Named, String>( (Named) key.getAnnotation(), injector.getBinding( key ) );
 
         assertEquals( Names.named( "KEY" ) + "=VALUE", textEntry.toString() );
     }

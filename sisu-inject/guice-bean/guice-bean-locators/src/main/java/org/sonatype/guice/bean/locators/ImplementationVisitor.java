@@ -25,6 +25,8 @@ import com.google.inject.spi.UntargettedBinding;
 final class ImplementationVisitor
     extends DefaultBindingTargetVisitor<Object, Class<?>>
 {
+    static final ImplementationVisitor THIS = new ImplementationVisitor();
+
     @Override
     public Class<?> visit( final UntargettedBinding<?> binding )
     {

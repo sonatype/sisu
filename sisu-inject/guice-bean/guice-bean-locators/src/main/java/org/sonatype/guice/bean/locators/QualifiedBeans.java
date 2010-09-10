@@ -109,7 +109,7 @@ class QualifiedBeans<Q extends Annotation, T>
                 final Q qualifier = (Q) strategy.qualify( key, binding );
                 if ( null != qualifier )
                 {
-                    final QualifiedBean<Q, T> bean = new QualifiedBean<Q, T>( qualifier, binding );
+                    final QualifiedBean<Q, T> bean = new LazyQualifiedBean<Q, T>( qualifier, binding );
                     if ( DEFAULT_QUALIFIER.equals( qualifier ) )
                     {
                         newBeans.add( pivot++, bean );
