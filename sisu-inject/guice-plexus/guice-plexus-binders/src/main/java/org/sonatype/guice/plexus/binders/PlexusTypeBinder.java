@@ -16,9 +16,9 @@ import java.lang.annotation.Annotation;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.binders.QualifiedTypeBinder;
+import org.sonatype.guice.bean.locators.BeanDescription;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
-import org.sonatype.guice.plexus.config.PlexusBeanDescription;
 import org.sonatype.guice.plexus.config.Roles;
 import org.sonatype.guice.plexus.config.Strategies;
 import org.sonatype.guice.plexus.scanners.PlexusTypeListener;
@@ -108,7 +108,7 @@ public final class PlexusTypeBinder
     {
         if ( null != description && description.length() > 0 )
         {
-            return binder.withSource( new DefaultPlexusBeanDescription( source, description ) );
+            return binder.withSource( new PlexusBeanDescription( source, description ) );
         }
         return binder.withSource( source );
     }
@@ -117,14 +117,14 @@ public final class PlexusTypeBinder
     // Implementation types
     // ----------------------------------------------------------------------
 
-    private static final class DefaultPlexusBeanDescription
-        implements PlexusBeanDescription
+    private static final class PlexusBeanDescription
+        implements BeanDescription
     {
         private final Object source;
 
         private final String description;
 
-        DefaultPlexusBeanDescription( final Object source, final String description )
+        PlexusBeanDescription( final Object source, final String description )
         {
             this.source = source;
             this.description = description;

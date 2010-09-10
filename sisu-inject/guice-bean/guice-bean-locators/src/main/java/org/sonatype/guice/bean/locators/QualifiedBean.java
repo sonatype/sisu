@@ -17,6 +17,8 @@ import java.util.Map.Entry;
 
 import javax.inject.Provider;
 
+import org.sonatype.inject.Description;
+
 import com.google.inject.Binding;
 import com.google.inject.Scope;
 import com.google.inject.Scopes;
@@ -69,12 +71,6 @@ public final class QualifiedBean<Q extends Annotation, T>
         return binding;
     }
 
-    @SuppressWarnings( "unchecked" )
-    public Class<T> getImplementationClass()
-    {
-        return (Class<T>) binding.acceptTargetVisitor( IMPLEMENTATION_VISITOR );
-    }
-
     public Q getKey()
     {
         return qualifier;
@@ -93,6 +89,34 @@ public final class QualifiedBean<Q extends Annotation, T>
     public T get()
     {
         return getValue();
+    }
+
+    /**
+     * @return Qualified bean description
+     */
+    public String getDescription()
+    {
+        final Object source = binding.getSource();
+        if ( source instanceof BeanDescription )
+        {
+            return ( (BeanDescription) source ).getDescription();
+        }
+        final Class<T> clazz = getImplementationClass();
+        if ( null != clazz )
+        {
+            final Description description = clazz.getAnnotation( Description.class );
+            if ( null != description )
+            {
+                return description.value();
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public Class<T> getImplementationClass()
+    {
+        return (Class<T>) binding.acceptTargetVisitor( IMPLEMENTATION_VISITOR );
     }
 
     @Override
