@@ -35,7 +35,7 @@ public final class DefaultContainerConfiguration
 
     private String componentVisibility = PlexusConstants.REALM_VISIBILITY;
 
-    private boolean autoWiring = true;
+    private boolean autoWiring;
 
     private boolean classPathScanning;
 
@@ -130,6 +130,10 @@ public final class DefaultContainerConfiguration
     public ContainerConfiguration setClassPathScanning( final boolean classPathScanning )
     {
         this.classPathScanning = classPathScanning;
+        if ( classPathScanning )
+        {
+            autoWiring = true;
+        }
         return this;
     }
 
