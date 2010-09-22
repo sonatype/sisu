@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonatype.sisu</groupId>
     <artifactId>sisu-parent</artifactId>
-    <version>1.4.1-SNAPSHOT</version>
+    <version>1.4.1</version>
   </parent>
 
   <packaging>pom</packaging>

@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonatype.sisu.examples</groupId>
     <artifactId>guice-rcp</artifactId>
-    <version>1.4.1-SNAPSHOT</version>
+    <version>1.4.1</version>
   </parent>
 
   <packaging>eclipse-plugin</packaging>
