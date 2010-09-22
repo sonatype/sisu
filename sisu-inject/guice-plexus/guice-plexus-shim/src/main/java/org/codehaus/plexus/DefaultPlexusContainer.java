@@ -182,6 +182,10 @@ public final class DefaultPlexusContainer
         {
             beanModules.add( new PlexusAnnotatedBeanModule( space, variables, isClassPathCachingEnabled ) );
         }
+        else
+        {
+            beanModules.add( new PlexusAnnotatedBeanModule( null, variables, false ) );
+        }
 
         try
         {
