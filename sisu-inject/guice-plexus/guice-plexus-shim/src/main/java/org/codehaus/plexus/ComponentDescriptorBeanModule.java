@@ -30,6 +30,7 @@ import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.DeferredProvider;
+import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
@@ -57,20 +58,27 @@ final class ComponentDescriptorBeanModule
         for ( int i = 0, size = descriptors.size(); i < size; i++ )
         {
             final ComponentDescriptor<?> cd = descriptors.get( i );
-            final String implementation = cd.getImplementation();
+            final Component component = newComponent( cd );
             final String factory = cd.getComponentFactory();
             if ( null == factory || "java".equals( factory ) )
             {
-                componentMap.put( newComponent( cd ), space.deferLoadClass( implementation ) );
+                try
+                {
+                    componentMap.put( component, new LoadedClass<Object>( cd.getImplementationClass() ) );
+                }
+                catch ( final Throwable e )
+                {
+                    componentMap.put( component, space.deferLoadClass( cd.getImplementation() ) );
+                }
             }
             else
             {
-                componentMap.put( newComponent( cd ), new DeferredFactoryClass( cd, factory ) );
+                componentMap.put( component, new DeferredFactoryClass( cd, factory ) );
             }
             final List<ComponentRequirement> requirements = cd.getRequirements();
             if ( !requirements.isEmpty() )
             {
-                metadataMap.put( implementation, new ComponentMetadata( space, requirements ) );
+                metadataMap.put( cd.getImplementation(), new ComponentMetadata( space, requirements ) );
             }
         }
     }

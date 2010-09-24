@@ -24,12 +24,12 @@ package org.codehaus.plexus.component.configurator;
  * SOFTWARE.
  */
 
+import junit.framework.TestCase;
+
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
-
-import junit.framework.TestCase;
 
 /**
  * @author Benjamin Bentmann
