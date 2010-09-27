@@ -18,10 +18,10 @@ public final class ConsoleLoggerManager
     extends AbstractLoggerManager
 {
     // ----------------------------------------------------------------------
-    // Constants
+    // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final static Logger LOGGER = new ConsoleLogger( Logger.LEVEL_INFO, "console" );
+    private final Logger logger = new ConsoleLogger( Logger.LEVEL_INFO, "console" );
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -29,12 +29,12 @@ public final class ConsoleLoggerManager
 
     public void setThreshold( final String threshold )
     {
-        LOGGER.setThreshold( BaseLoggerManager.parseThreshold( threshold ) );
+        logger.setThreshold( BaseLoggerManager.parseThreshold( threshold ) );
     }
 
     public Logger getLoggerForComponent( final String role, final String hint )
     {
-        return LOGGER;
+        return logger;
     }
 
     public void returnComponentLogger( final String role, final String hint )
@@ -44,17 +44,17 @@ public final class ConsoleLoggerManager
 
     public int getThreshold()
     {
-        return LOGGER.getThreshold();
+        return logger.getThreshold();
     }
 
     public void setThreshold( final int currentThreshold )
     {
-        LOGGER.setThreshold( currentThreshold );
+        logger.setThreshold( currentThreshold );
     }
 
     public void setThresholds( final int currentThreshold )
     {
-        LOGGER.setThreshold( currentThreshold );
+        logger.setThreshold( currentThreshold );
     }
 
     public int getActiveLoggerCount()

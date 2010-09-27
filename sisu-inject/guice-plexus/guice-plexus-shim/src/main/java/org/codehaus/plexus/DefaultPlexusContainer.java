@@ -92,8 +92,6 @@ public final class DefaultPlexusContainer
 
     private static final String DEFAULT_REALM_NAME = "plexus.core";
 
-    private static final LoggerManager CONSOLE_LOGGER_MANAGER = new ConsoleLoggerManager();
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -129,7 +127,7 @@ public final class DefaultPlexusContainer
 
     private final Module loggerModule = new LoggerModule();
 
-    private LoggerManager loggerManager = CONSOLE_LOGGER_MANAGER;
+    private LoggerManager loggerManager = new ConsoleLoggerManager();
 
     private Logger logger;
 
@@ -511,7 +509,7 @@ public final class DefaultPlexusContainer
         }
         else
         {
-            this.loggerManager = CONSOLE_LOGGER_MANAGER;
+            this.loggerManager = new ConsoleLoggerManager();
         }
         logger = null; // refresh our local logger
     }

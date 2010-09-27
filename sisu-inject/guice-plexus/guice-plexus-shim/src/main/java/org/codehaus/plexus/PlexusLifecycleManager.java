@@ -17,15 +17,12 @@ import java.util.List;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.context.Context;
-import org.codehaus.plexus.context.ContextException;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.InitializationException;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
-import org.codehaus.plexus.personality.plexus.lifecycle.phase.StartingException;
 import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
@@ -214,33 +211,51 @@ final class PlexusLifecycleManager
         {
             bean.contextualize( context );
         }
-        catch ( final ContextException e )
+        catch ( final Throwable e )
         {
-            throw new ProvisionException( "Error contextualizing: " + bean.getClass(), e );
+            final String message = "Error contextualizing: " + bean.getClass();
+            warn( message, e );
+            if ( e instanceof RuntimeException )
+            {
+                throw (RuntimeException) e;
+            }
+            throw new ProvisionException( message, e );
         }
     }
 
-    private static void initialize( final Initializable bean )
+    private void initialize( final Initializable bean )
     {
         try
         {
             bean.initialize();
         }
-        catch ( final InitializationException e )
+        catch ( final Throwable e )
         {
-            throw new ProvisionException( "Error initializing: " + bean.getClass(), e );
+            final String message = "Error initializing: " + bean.getClass();
+            warn( message, e );
+            if ( e instanceof RuntimeException )
+            {
+                throw (RuntimeException) e;
+            }
+            throw new ProvisionException( message, e );
         }
     }
 
-    private static void start( final Startable bean )
+    private void start( final Startable bean )
     {
         try
         {
             bean.start();
         }
-        catch ( final StartingException e )
+        catch ( final Throwable e )
         {
-            throw new ProvisionException( "Error starting: " + bean.getClass(), e );
+            final String message = "Error starting: " + bean.getClass();
+            warn( message, e );
+            if ( e instanceof RuntimeException )
+            {
+                throw (RuntimeException) e;
+            }
+            throw new ProvisionException( message, e );
         }
     }
 
