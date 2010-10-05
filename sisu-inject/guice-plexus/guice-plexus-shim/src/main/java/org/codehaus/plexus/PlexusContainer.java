@@ -52,6 +52,10 @@ public interface PlexusContainer
     <T> Map<String, T> lookupMap( Class<T> role )
         throws ComponentLookupException;
 
+    boolean hasComponent( String role );
+
+    boolean hasComponent( String role, String hint );
+
     boolean hasComponent( Class<?> role );
 
     boolean hasComponent( Class<?> role, String hint );

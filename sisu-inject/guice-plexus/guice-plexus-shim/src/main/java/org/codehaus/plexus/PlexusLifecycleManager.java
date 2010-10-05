@@ -63,9 +63,9 @@ final class PlexusLifecycleManager
 
     public boolean manage( final Class<?> clazz )
     {
-        return LogEnabled.class.isAssignableFrom( clazz ) || Contextualizable.class.isAssignableFrom( clazz )
-            || Initializable.class.isAssignableFrom( clazz ) || Startable.class.isAssignableFrom( clazz )
-            || Disposable.class.isAssignableFrom( clazz );
+        return LogEnabled.class.isAssignableFrom( clazz ) /* || Serviceable.class.isAssignableFrom( clazz ) */
+            || Contextualizable.class.isAssignableFrom( clazz ) || Initializable.class.isAssignableFrom( clazz )
+            || Startable.class.isAssignableFrom( clazz ) || Disposable.class.isAssignableFrom( clazz );
     }
 
     @SuppressWarnings( "rawtypes" )
@@ -120,6 +120,10 @@ final class PlexusLifecycleManager
         {
             ( (LogEnabled) bean ).enableLogging( getPlexusLogger( bean ) );
         }
+        // if ( bean instanceof Serviceable )
+        // {
+        // ( (Serviceable) bean ).service( new PlexusContainerLocator( container ) );
+        // }
 
         /*
          * Run through the startup phase of the standard plexus "personality"

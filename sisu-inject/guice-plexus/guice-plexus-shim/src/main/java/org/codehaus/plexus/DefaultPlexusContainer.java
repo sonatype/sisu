@@ -280,7 +280,17 @@ public final class DefaultPlexusContainer
     // Query methods
     // ----------------------------------------------------------------------
 
-    public boolean hasComponent( final Class<?> role )
+    public boolean hasComponent( final String role )
+    {
+        return hasComponent( role, "" );
+    }
+
+    public boolean hasComponent( final String role, final String hint )
+    {
+        return hasComponent( null, role, hint );
+    }
+
+    public boolean hasComponent( final Class role )
     {
         return hasComponent( role, "" );
     }
@@ -311,7 +321,7 @@ public final class DefaultPlexusContainer
         }
     }
 
-    public <T> void addComponent( final T component, final java.lang.Class<?> role, final String hint )
+    public <T> void addComponent( final T component, final Class<?> role, final String hint )
     {
         // this is only used in Maven3 tests, so keep it simple...
         qualifiedBeanLocator.add( Guice.createInjector( new AbstractModule()
