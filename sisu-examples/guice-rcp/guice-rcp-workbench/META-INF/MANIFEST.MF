@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: guice-rcp-workbench
+Bundle-SymbolicName: guice-rcp-workbench
+Bundle-Version: 1.4.3.qualifier
+Import-Package: javax.inject
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

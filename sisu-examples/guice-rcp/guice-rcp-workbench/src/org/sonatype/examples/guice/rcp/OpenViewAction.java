@@ -1,14 +1,22 @@
 package org.sonatype.examples.guice.rcp;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 
 public class OpenViewAction extends Action {
 	
+    @Inject
+    @Named("${PLUGIN_ID}")
+    String PLUGIN_ID;
+    
 	private final IWorkbenchWindow window;
 	private int instanceNum = 0;
 	private final String viewId;
@@ -21,7 +29,7 @@ public class OpenViewAction extends Action {
 		setId(ICommandIds.CMD_OPEN);
         // Associate the action with a pre-defined command, to allow key bindings.
 		setActionDefinitionId(ICommandIds.CMD_OPEN);
-		setImageDescriptor(org.sonatype.examples.guice.rcp.Activator.getImageDescriptor("/icons/sample2.gif"));
+		setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, "/icons/sample2.gif"));
 	}
 	
 	public void run() {

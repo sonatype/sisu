@@ -17,6 +17,7 @@
   <name>Guice - RCP example</name>
 
   <modules>
+    <module>guice-rcp-workbench</module>
     <module>guice-rcp-plugin</module>
     <module>guice-rcp-app</module>
   </modules>
@@ -47,6 +48,7 @@
         <version>${tycho-version}</version>
         <configuration>
           <resolver>p2</resolver>
+          <pomDependencies>consider</pomDependencies>
           <environments>
             <environment>
               <os>linux</os>

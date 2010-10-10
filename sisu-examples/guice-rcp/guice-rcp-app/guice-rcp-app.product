@@ -16,6 +16,9 @@
    </vm>
 
    <plugins>
+      <plugin id="org.sonatype.sisu.guice"/>
+      <plugin id="org.sonatype.inject"/>
+      <plugin id="guice-rcp-workbench"/>
       <plugin id="guice-rcp"/>
       <plugin id="com.ibm.icu"/>
       <plugin id="org.eclipse.core.commands"/>
