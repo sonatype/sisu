@@ -113,6 +113,8 @@ public abstract class InjectedTestCase
 
     /**
      * Custom injection bindings.
+     * 
+     * @param binder The Guice binder
      */
     public void configure( final Binder binder )
     {
@@ -121,6 +123,8 @@ public abstract class InjectedTestCase
 
     /**
      * Custom property values.
+     * 
+     * @param properties The test properties
      */
     public void configure( final Properties properties )
     {

@@ -34,6 +34,7 @@ import junit.framework.TestCase;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Types;
 
+@SuppressWarnings( "unused" )
 public class BeanPropertiesTest
     extends TestCase
 {
@@ -91,7 +92,6 @@ public class BeanPropertiesTest
         {
         }
 
-        @SuppressWarnings( "unused" )
         private void setName( final String name )
         {
         }
@@ -245,7 +245,6 @@ public class BeanPropertiesTest
         }
     }
 
-    @SuppressWarnings( "unused" )
     public void testInterface()
     {
         for ( final BeanProperty<?> bp : new BeanProperties( A.class ) )
@@ -254,7 +253,6 @@ public class BeanPropertiesTest
         }
     }
 
-    @SuppressWarnings( "unused" )
     public void testEmptyClass()
     {
         for ( final BeanProperty<?> bp : new BeanProperties( B.class ) )
@@ -305,7 +303,6 @@ public class BeanPropertiesTest
         assertEquals( setter.toString(), propertySetter.toString() );
     }
 
-    @SuppressWarnings( "unused" )
     public void testSkipInvalidSetters()
     {
         for ( final BeanProperty<?> bp : new BeanProperties( E.class ) )

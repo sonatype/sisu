@@ -43,7 +43,7 @@ import com.google.inject.Module;
 /**
  * {@link BundleActivator} that maintains a dynamic {@link Injector} graph by scanning bundles as they come and go.
  */
-public final class Activator
+public final class SisuActivator
     implements BundleActivator, BundleTrackerCustomizer, ServiceTrackerCustomizer
 {
     // ----------------------------------------------------------------------
@@ -77,6 +77,19 @@ public final class Activator
         bundleTracker.open();
     }
 
+    public static void inject( final BundleContext context, final Object that )
+    {
+        final ServiceReference ref = getBundleInjectorService( context.getBundle() );
+        if ( null != ref )
+        {
+            final BundleInjector bundleInjector = (BundleInjector) context.getService( ref );
+            if ( null != bundleInjector )
+            {
+                bundleInjector.getInjector().injectMembers( that );
+            }
+        }
+    }
+
     public void stop( final BundleContext context )
     {
         bundleTracker.close();
@@ -91,29 +104,13 @@ public final class Activator
     public Object addingBundle( final Bundle bundle, final BundleEvent event )
     {
         final String imports = (String) bundle.getHeaders().get( Constants.IMPORT_PACKAGE );
-        if ( null == imports || !imports.contains( "javax.inject" ) )
+        if ( null != imports && imports.contains( "javax.inject" ) )
         {
-            return null; // bundle doesn't import @Inject, so won't have any beans
-        }
-
-        final ServiceReference[] serviceReferences = bundle.getRegisteredServices();
-        if ( null != serviceReferences )
-        {
-            for ( final ServiceReference ref : serviceReferences )
+            if ( getBundleInjectorService( bundle ) == null )
             {
-                for ( final String name : (String[]) ref.getProperty( Constants.OBJECTCLASS ) )
-                {
-                    if ( BUNDLE_INJECTOR_CLASS_NAME.equals( name ) )
-                    {
-                        return null; // this bundle already has an injector registered
-                    }
-                }
+                new BundleInjector( bundle );
             }
         }
-
-        // bootstrap new injector
-        new BundleInjector( bundle );
-
         return null;
     }
 
@@ -146,6 +143,29 @@ public final class Activator
     public void removedService( final ServiceReference reference, final Object service )
     {
         LOCATOR.remove( ( (BundleInjector) service ).getInjector() );
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private static ServiceReference getBundleInjectorService( final Bundle bundle )
+    {
+        final ServiceReference[] serviceReferences = bundle.getRegisteredServices();
+        if ( null != serviceReferences )
+        {
+            for ( final ServiceReference ref : serviceReferences )
+            {
+                for ( final String name : (String[]) ref.getProperty( Constants.OBJECTCLASS ) )
+                {
+                    if ( BUNDLE_INJECTOR_CLASS_NAME.equals( name ) )
+                    {
+                        return ref;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     // ----------------------------------------------------------------------

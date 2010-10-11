@@ -28,7 +28,7 @@ public class DeferredClassTest
     protected void setUp()
         throws MalformedURLException
     {
-        testLoader = URLClassLoader.newInstance( new URL[] { new File( "target/test-classes" ).toURL() }, null );
+        testLoader = URLClassLoader.newInstance( new URL[] { new File( "target/test-classes" ).toURI().toURL() }, null );
     }
 
     private static class Dummy

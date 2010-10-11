@@ -17,7 +17,6 @@
   <name>Guice - RCP example</name>
 
   <modules>
-    <module>guice-rcp-workbench</module>
     <module>guice-rcp-plugin</module>
     <module>guice-rcp-app</module>
   </modules>

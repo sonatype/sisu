@@ -10,18 +10,23 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
+package org.sonatype.inject;
 
-/**
- * Bean containers.
- *
- * <p>The principal members of this package are:
- * <dl>
- * <dt>{@link org.sonatype.guice.bean.containers.Main}
- * <dd>Classic main entry point that creates a static {@link com.google.inject.Injector} for the current class-path.
- * <dt>{@link org.sonatype.guice.bean.containers.SisuActivator}
- * <dd>OSGi {@link org.osgi.framework.BundleActivator} that maintains a dynamic injector graph as bundles come and go.
- * <dt>{@link org.sonatype.guice.bean.containers.InjectedTestCase}
- * <dd>JUnit {@link junit.framework.TestCase} that automatically binds and injects itself.
- * </dl>
- */
-package org.sonatype.guice.bean.containers;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import javax.inject.Qualifier;
+
+@Qualifier
+@Target( value = { ElementType.FIELD, ElementType.PARAMETER } )
+@Retention( RetentionPolicy.RUNTIME )
+@Documented
+public @interface Configuration
+{
+    String named() default "";
+
+    String defaultsTo() default "";
+}

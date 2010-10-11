@@ -71,7 +71,7 @@ public class PropertyListenerTest
     static class Bean4
         extends Bean1
     {
-        void setA( final String unused )
+        void setA( @SuppressWarnings( "unused" ) final String unused )
         {
             assertNull( a ); // hidden by our setter method
             assertNotNull( b ); // should be injected first

@@ -1,7 +1,9 @@
 package org.sonatype.examples.guice.rcp;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.swt.widgets.Display;
@@ -9,9 +11,12 @@ import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
+import org.sonatype.guice.bean.containers.SisuActivator;
+
 /**
  * This class controls all aspects of the application's execution
  */
+@Named
 public class Application implements IApplication {
 
 	@Inject
@@ -21,6 +26,7 @@ public class Application implements IApplication {
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	public Object start(IApplicationContext context) {
+		SisuActivator.inject(Platform.getBundle("guice-rcp").getBundleContext(), this);
 		Display display = PlatformUI.createDisplay();
 		try {
 			int returnCode = PlatformUI.createAndRunWorkbench(display, workbenchAdvisor);

@@ -13,10 +13,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public class OpenViewAction extends Action {
 	
-    @Inject
-    @Named("${PLUGIN_ID}")
-    String PLUGIN_ID;
-    
 	private final IWorkbenchWindow window;
 	private int instanceNum = 0;
 	private final String viewId;
@@ -29,7 +25,7 @@ public class OpenViewAction extends Action {
 		setId(ICommandIds.CMD_OPEN);
         // Associate the action with a pre-defined command, to allow key bindings.
 		setActionDefinitionId(ICommandIds.CMD_OPEN);
-		setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, "/icons/sample2.gif"));
+		setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin("guice-rcp", "/icons/sample2.gif"));
 	}
 	
 	public void run() {

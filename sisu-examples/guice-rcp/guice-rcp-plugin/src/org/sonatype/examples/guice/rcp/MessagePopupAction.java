@@ -11,10 +11,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public class MessagePopupAction extends Action {
 
-    @Inject
-    @Named("${PLUGIN_ID}")
-    String PLUGIN_ID;
-    
     private final IWorkbenchWindow window;
 
     MessagePopupAction(String text, IWorkbenchWindow window) {
@@ -24,7 +20,7 @@ public class MessagePopupAction extends Action {
         setId(ICommandIds.CMD_OPEN_MESSAGE);
         // Associate the action with a pre-defined command, to allow key bindings.
         setActionDefinitionId(ICommandIds.CMD_OPEN_MESSAGE);
-        setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin(PLUGIN_ID, "/icons/sample3.gif"));
+        setImageDescriptor(AbstractUIPlugin.imageDescriptorFromPlugin("guice-rcp", "/icons/sample3.gif"));
     }
 
     public void run() {
