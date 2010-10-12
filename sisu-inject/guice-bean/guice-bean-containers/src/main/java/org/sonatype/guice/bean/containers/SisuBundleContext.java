@@ -17,10 +17,9 @@ import org.osgi.framework.FrameworkUtil;
 import com.google.inject.Injector;
 
 public final class SisuBundleContext
-    extends AbstractSisuContext
+    implements SisuContext
 {
-    @Override
-    protected Injector injector( final Class<?> type )
+    public Injector injector( final Class<?> type )
     {
         return SisuActivator.getInjector( FrameworkUtil.getBundle( type ) );
     }

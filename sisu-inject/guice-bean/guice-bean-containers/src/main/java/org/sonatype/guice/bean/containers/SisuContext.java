@@ -14,19 +14,7 @@ package org.sonatype.guice.bean.containers;
 
 import com.google.inject.Injector;
 
-public final class SisuInjectorContext
-    extends AbstractSisuContext
+interface SisuContext
 {
-    private final Injector injector;
-
-    public SisuInjectorContext( final Injector injector )
-    {
-        this.injector = injector;
-    }
-
-    @Override
-    protected Injector injector( final Class<?> type )
-    {
-        return injector;
-    }
+    Injector injector( Class<?> type );
 }

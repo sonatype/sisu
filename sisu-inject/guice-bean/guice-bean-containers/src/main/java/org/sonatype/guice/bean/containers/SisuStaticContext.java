@@ -10,22 +10,22 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.inject;
+package org.sonatype.guice.bean.containers;
 
-import java.lang.annotation.Annotation;
-import java.util.Map;
+import com.google.inject.Injector;
 
-public interface SisuContext
+public final class SisuStaticContext
+    implements SisuContext
 {
-    void configure( Class<?> type, Map<String, String> properties );
+    private final Injector injector;
 
-    <T> T lookup( Class<T> type );
+    public SisuStaticContext( final Injector injector )
+    {
+        this.injector = injector;
+    }
 
-    <T> T lookup( Class<T> type, String name );
-
-    <T> T lookup( Class<T> type, Class<? extends Annotation> qualifier );
-
-    <T> T lookup( Class<T> type, Annotation qualifier );
-
-    void inject( Object that );
+    public Injector injector( final Class<?> type )
+    {
+        return injector;
+    }
 }

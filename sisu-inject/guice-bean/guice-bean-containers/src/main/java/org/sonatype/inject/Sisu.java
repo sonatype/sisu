@@ -16,26 +16,13 @@ import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.Properties;
 
+import org.sonatype.guice.bean.containers.SisuContainer;
+
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+
 public final class Sisu
 {
-    private static final SisuContext MISSING_CONTEXT = new MissingContext();
-
-    private static final ThreadLocal<SisuContext> CONTEXT = new InheritableThreadLocal<SisuContext>();
-
-    public static SisuContext context( final SisuContext newContext )
-    {
-        final SisuContext oldContext = CONTEXT.get();
-        if ( null != newContext )
-        {
-            CONTEXT.set( newContext );
-        }
-        else
-        {
-            CONTEXT.remove();
-        }
-        return oldContext;
-    }
-
     @SuppressWarnings( { "unchecked", "rawtypes" } )
     public void configure( final Class<?> type, final Properties properties )
     {
@@ -44,73 +31,31 @@ public final class Sisu
 
     public void configure( final Class<?> type, final Map<String, String> properties )
     {
-        context().configure( type, properties );
+        SisuContainer.configure( type, properties );
     }
 
     public static <T> T lookup( final Class<T> type )
     {
-        return context().lookup( type );
+        return SisuContainer.lookup( Key.get( type ) );
     }
 
     public static <T> T lookup( final Class<T> type, final String name )
     {
-        return context().lookup( type, name );
+        return SisuContainer.lookup( Key.get( type, Names.named( name ) ) );
     }
 
     public static <T> T lookup( final Class<T> type, final Annotation qualifier )
     {
-        return context().lookup( type, qualifier );
+        return SisuContainer.lookup( Key.get( type, qualifier ) );
     }
 
     public static <T> T lookup( final Class<T> type, final Class<? extends Annotation> qualifier )
     {
-        return context().lookup( type, qualifier );
+        return SisuContainer.lookup( Key.get( type, qualifier ) );
     }
 
     public static void inject( final Object that )
     {
-        context().inject( that );
-    }
-
-    private static SisuContext context()
-    {
-        final SisuContext context = CONTEXT.get();
-        return null != context ? context : MISSING_CONTEXT;
-    }
-
-    static final class MissingContext
-        implements SisuContext
-    {
-        private static final String MISSING_CONTEXT_MESSAGE = "No Sisu Context for thread: ";
-
-        public void configure( final Class<?> type, final Map<String, String> properties )
-        {
-            throw new IllegalStateException( MISSING_CONTEXT_MESSAGE + Thread.currentThread() );
-        }
-
-        public <T> T lookup( final Class<T> type )
-        {
-            throw new IllegalStateException( MISSING_CONTEXT_MESSAGE + Thread.currentThread() );
-        }
-
-        public <T> T lookup( final Class<T> type, final String name )
-        {
-            throw new IllegalStateException( MISSING_CONTEXT_MESSAGE + Thread.currentThread() );
-        }
-
-        public <T> T lookup( final Class<T> type, final Class<? extends Annotation> qualifier )
-        {
-            throw new IllegalStateException( MISSING_CONTEXT_MESSAGE + Thread.currentThread() );
-        }
-
-        public <T> T lookup( final Class<T> type, final Annotation qualifier )
-        {
-            throw new IllegalStateException( MISSING_CONTEXT_MESSAGE + Thread.currentThread() );
-        }
-
-        public void inject( final Object that )
-        {
-            throw new IllegalStateException( MISSING_CONTEXT_MESSAGE + Thread.currentThread() );
-        }
+        SisuContainer.inject( that );
     }
 }

@@ -34,7 +34,6 @@ import org.sonatype.guice.bean.locators.DefaultBeanLocator;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.BundleClassSpace;
 import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.inject.Sisu;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;
@@ -71,13 +70,13 @@ public final class SisuActivator
 
     public void start( final BundleContext context )
     {
+        SisuContainer.context( new SisuBundleContext() );
+
         bundleContext = context;
         serviceTracker = new ServiceTracker( context, BUNDLE_INJECTOR_CLASS_NAME, this );
         serviceTracker.open();
         bundleTracker = new BundleTracker( context, Bundle.ACTIVE, this );
         bundleTracker.open();
-
-        Sisu.context( new SisuBundleContext() );
     }
 
     public static Injector getInjector( final Bundle bundle )
@@ -97,6 +96,8 @@ public final class SisuActivator
         bundleTracker.close();
         serviceTracker.close();
         LOCATOR.clear();
+
+        SisuContainer.context( null );
     }
 
     // ----------------------------------------------------------------------
