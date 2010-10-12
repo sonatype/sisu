@@ -10,39 +10,23 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.inject.guice;
-
-import java.util.Map;
-
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.sonatype.guice.bean.containers.SisuActivator;
+package org.sonatype.guice.bean.containers;
 
 import com.google.inject.Injector;
 
-public final class SisuBundleContext
+public final class SisuInjectorContext
     extends AbstractSisuContext
 {
-    private final Bundle bundle;
+    private final Injector injector;
 
-    public SisuBundleContext( final Bundle bundle )
+    public SisuInjectorContext( final Injector injector )
     {
-        this.bundle = bundle;
-    }
-
-    public SisuBundleContext( final BundleContext context )
-    {
-        this.bundle = context.getBundle();
-    }
-
-    public void configure( final Map<String, String> properties )
-    {
-        // FIXME
+        this.injector = injector;
     }
 
     @Override
-    protected Injector injector()
+    protected Injector injector( final Class<?> type )
     {
-        return SisuActivator.getInjector( bundle );
+        return injector;
     }
 }

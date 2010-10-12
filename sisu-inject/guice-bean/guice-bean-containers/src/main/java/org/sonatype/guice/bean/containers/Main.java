@@ -26,7 +26,6 @@ import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.inject.Parameters;
 import org.sonatype.inject.Sisu;
-import org.sonatype.inject.guice.SisuInjectorContext;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;

@@ -17,7 +17,7 @@ import java.util.Map;
 
 public interface SisuContext
 {
-    void configure( Map<String, String> properties );
+    void configure( Class<?> type, Map<String, String> properties );
 
     <T> T lookup( Class<T> type );
 

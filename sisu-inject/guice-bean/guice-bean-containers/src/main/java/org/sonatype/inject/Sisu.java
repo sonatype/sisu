@@ -37,14 +37,14 @@ public final class Sisu
     }
 
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    public void configure( final Properties properties )
+    public void configure( final Class<?> type, final Properties properties )
     {
-        context().configure( (Map) properties );
+        configure( type, (Map) properties );
     }
 
-    public void configure( final Map<String, String> properties )
+    public void configure( final Class<?> type, final Map<String, String> properties )
     {
-        context().configure( properties );
+        context().configure( type, properties );
     }
 
     public static <T> T lookup( final Class<T> type )
@@ -83,7 +83,7 @@ public final class Sisu
     {
         private static final String MISSING_CONTEXT_MESSAGE = "No Sisu Context for thread: ";
 
-        public void configure( final Map<String, String> properties )
+        public void configure( final Class<?> type, final Map<String, String> properties )
         {
             throw new IllegalStateException( MISSING_CONTEXT_MESSAGE + Thread.currentThread() );
         }

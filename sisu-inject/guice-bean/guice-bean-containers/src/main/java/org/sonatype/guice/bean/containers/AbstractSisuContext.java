@@ -10,12 +10,14 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.inject.guice;
+package org.sonatype.guice.bean.containers;
 
 import java.lang.annotation.Annotation;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.inject.SisuContext;
 
@@ -26,6 +28,11 @@ import com.google.inject.name.Names;
 public abstract class AbstractSisuContext
     implements SisuContext
 {
+    public void configure( Class<?> type, Map<String, String> properties )
+    {
+        injector( type ).getInstance( ParameterKeys.PROPERTIES ).putAll( properties );
+    }
+
     public final <T> T lookup( final Class<T> type )
     {
         return lookup( Key.get( type ) );
@@ -48,14 +55,14 @@ public abstract class AbstractSisuContext
 
     public final void inject( final Object that )
     {
-        injector().injectMembers( that );
+        injector( that.getClass() ).injectMembers( that );
     }
 
-    protected abstract Injector injector();
+    protected abstract Injector injector( final Class<?> type );
 
     private final <T> T lookup( final Key<T> key )
     {
-        final BeanLocator locator = injector().getInstance( BeanLocator.class );
+        final BeanLocator locator = injector( key.getTypeLiteral().getRawType() ).getInstance( BeanLocator.class );
         final Iterator<? extends Entry<Annotation, T>> i = locator.locate( key, null ).iterator();
         return i.hasNext() ? i.next().getValue() : null;
     }

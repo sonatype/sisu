@@ -4,9 +4,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import org.sonatype.inject.Sisu;
-import org.sonatype.inject.guice.SisuBundleContext;
-
 /**
  * The activator class controls the plug-in life cycle
  */
@@ -29,7 +26,6 @@ public class Activator extends AbstractUIPlugin {
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
 	public void start(BundleContext context) throws Exception {
-		Sisu.context(new SisuBundleContext(context));
 		super.start(context);
 		plugin = this;
 	}
