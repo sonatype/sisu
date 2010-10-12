@@ -77,16 +77,15 @@ public final class SisuActivator
         bundleTracker.open();
     }
 
-    public static void inject( final BundleContext context, final Object that )
+    public static Injector getInjector( final Bundle bundle )
     {
-        final ServiceReference ref = getBundleInjectorService( context.getBundle() );
-        if ( null != ref )
+        try
         {
-            final BundleInjector bundleInjector = (BundleInjector) context.getService( ref );
-            if ( null != bundleInjector )
-            {
-                bundleInjector.getInjector().injectMembers( that );
-            }
+            return ( (BundleInjector) bundle.getBundleContext().getService( getBundleInjectorService( bundle ) ) ).getInjector();
+        }
+        catch ( Throwable e )
+        {
+            throw new IllegalStateException( "No Sisu Context for bundle: " + bundle, e );
         }
     }
 

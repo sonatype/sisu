@@ -6,7 +6,7 @@ Bundle-Version: 1.4.3.qualifier
 Bundle-Activator: org.sonatype.examples.guice.rcp.Activator
 Import-Package: javax.inject,
  org.sonatype.inject,
- org.sonatype.guice.bean.containers
+ org.sonatype.inject.guice
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime
 Bundle-ActivationPolicy: lazy

@@ -58,8 +58,7 @@
               org.slf4j,junit.framework
             </DynamicImport-Package>
             <Export-Package>
-              org.sonatype.inject;-noimport:=true;-split-package:=merge-first;version=${project.version},
-              org.sonatype.guice.bean.containers;-noimport:=true;version=${project.version},
+              org.sonatype.inject.*;-noimport:=true;-split-package:=merge-first;version=${project.version},
               javax.*|org.aopalliance.*;version=1
             </Export-Package>
             <Private-Package>

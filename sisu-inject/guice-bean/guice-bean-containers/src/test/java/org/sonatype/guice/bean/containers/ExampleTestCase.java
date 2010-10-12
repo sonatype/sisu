@@ -18,7 +18,6 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.google.inject.Key;
 import com.google.inject.name.Names;
 
 public final class ExampleTestCase
@@ -61,12 +60,12 @@ public final class ExampleTestCase
     public void testContainerLookup()
     {
         assertTrue( lookup( Foo.class ) instanceof DefaultFoo );
-        assertTrue( lookup( Key.get( Foo.class, Named.class ) ) instanceof DefaultFoo );
+        assertTrue( lookup( Foo.class, Named.class ) instanceof DefaultFoo );
         assertTrue( lookup( Foo.class, "NameTag" ) instanceof NamedAndTaggedFoo );
-        assertTrue( lookup( Key.get( Foo.class, Names.named( "NameTag" ) ) ) instanceof NamedAndTaggedFoo );
-        assertTrue( lookup( Key.get( Foo.class, Tag.class ) ).getClass().isAnnotationPresent( Tag.class ) );
-        assertTrue( lookup( Key.get( Foo.class, new TagImpl( "A" ) ) ) instanceof TaggedFoo );
-        assertNull( lookup( Key.get( Foo.class, new TagImpl( "X" ) ) ) );
+        assertTrue( lookup( Foo.class, Names.named( "NameTag" ) ) instanceof NamedAndTaggedFoo );
+        assertTrue( lookup( Foo.class, Tag.class ).getClass().isAnnotationPresent( Tag.class ) );
+        assertTrue( lookup( Foo.class, new TagImpl( "A" ) ) instanceof TaggedFoo );
+        assertNull( lookup( Foo.class, new TagImpl( "X" ) ) );
         assertNull( lookup( Integer.class ) );
     }
 }

@@ -11,7 +11,7 @@ import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
-import org.sonatype.guice.bean.containers.SisuActivator;
+import org.sonatype.inject.Sisu;
 
 /**
  * This class controls all aspects of the application's execution
@@ -19,17 +19,13 @@ import org.sonatype.guice.bean.containers.SisuActivator;
 @Named
 public class Application implements IApplication {
 
-	@Inject
-	private WorkbenchAdvisor workbenchAdvisor;
-
 	/* (non-Javadoc)
 	 * @see org.eclipse.equinox.app.IApplication#start(org.eclipse.equinox.app.IApplicationContext)
 	 */
 	public Object start(IApplicationContext context) {
-		SisuActivator.inject(Platform.getBundle("guice-rcp").getBundleContext(), this);
 		Display display = PlatformUI.createDisplay();
 		try {
-			int returnCode = PlatformUI.createAndRunWorkbench(display, workbenchAdvisor);
+			int returnCode = PlatformUI.createAndRunWorkbench(display, Sisu.lookup(WorkbenchAdvisor.class));
 			if (returnCode == PlatformUI.RETURN_RESTART) {
 				return IApplication.EXIT_RESTART;
 			}

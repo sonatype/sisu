@@ -25,6 +25,8 @@ import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.inject.Parameters;
+import org.sonatype.inject.Sisu;
+import org.sonatype.inject.guice.SisuInjectorContext;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;
@@ -79,7 +81,12 @@ public final class Main
     public static Injector boot( final Map<String, String> properties, final String... args )
     {
         final ClassSpace space = new URLClassSpace( Main.class.getClassLoader() );
-        return Guice.createInjector( new WireModule( new Main( properties, args ), new SpaceModule( space ) ) );
+        final Module[] modules = { new Main( properties, args ), new SpaceModule( space ) };
+        final Injector injector = Guice.createInjector( new WireModule( modules ) );
+
+        Sisu.context( new SisuInjectorContext( injector ) );
+
+        return injector;
     }
 
     // ----------------------------------------------------------------------
