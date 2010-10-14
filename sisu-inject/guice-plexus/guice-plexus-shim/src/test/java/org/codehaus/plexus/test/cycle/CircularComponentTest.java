@@ -8,6 +8,6 @@ public class CircularComponentTest
     public void testCircularComponents()
         throws Exception
     {
-        lookup( CycleComponent.class, "C" ); // FIXME: fails if we lookup A
+        lookup( CycleComponent.class, "A" );
     }
 }

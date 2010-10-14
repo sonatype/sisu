@@ -23,6 +23,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
+import org.sonatype.guice.bean.inject.BeanListener;
 import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
@@ -38,6 +39,8 @@ final class PlexusLifecycleManager
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
+
+    private final List<Object> lifecycleBeans = new ArrayList<Object>();
 
     private final List<Startable> startableBeans = new ArrayList<Startable>();
 
@@ -63,9 +66,7 @@ final class PlexusLifecycleManager
 
     public boolean manage( final Class<?> clazz )
     {
-        return LogEnabled.class.isAssignableFrom( clazz ) /* || Serviceable.class.isAssignableFrom( clazz ) */
-            || Contextualizable.class.isAssignableFrom( clazz ) || Initializable.class.isAssignableFrom( clazz )
-            || Startable.class.isAssignableFrom( clazz ) || Disposable.class.isAssignableFrom( clazz );
+        return true;
     }
 
     @SuppressWarnings( "rawtypes" )
@@ -99,68 +100,29 @@ final class PlexusLifecycleManager
 
     public synchronized boolean manage( final Object bean )
     {
-        final boolean isStartable = bean instanceof Startable;
-        final boolean isContextualizable = bean instanceof Contextualizable;
-        final boolean isInitializable = bean instanceof Initializable;
-        final boolean isDisposable = bean instanceof Disposable;
-
-        /*
-         * Record this information before starting, in case there's a problem
-         */
-        if ( isStartable )
-        {
-            startableBeans.add( (Startable) bean );
-        }
-        if ( isDisposable )
+        if ( bean instanceof Disposable )
         {
             disposableBeans.add( (Disposable) bean );
         }
-
         if ( bean instanceof LogEnabled )
         {
             ( (LogEnabled) bean ).enableLogging( getPlexusLogger( bean ) );
         }
-        // if ( bean instanceof Serviceable )
-        // {
-        // ( (Serviceable) bean ).service( new PlexusContainerLocator( container ) );
-        // }
-
-        /*
-         * Run through the startup phase of the standard plexus "personality"
-         */
-        if ( isContextualizable || isInitializable || isStartable )
+        if ( bean instanceof Contextualizable || bean instanceof Initializable || bean instanceof Startable )
         {
-            final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
-            try
-            {
-                for ( Class<?> clazz = bean.getClass(); clazz != null; clazz = clazz.getSuperclass() )
-                {
-                    // need to check hierarchy in case bean is proxied
-                    final ClassLoader loader = clazz.getClassLoader();
-                    if ( loader instanceof ClassRealm )
-                    {
-                        Thread.currentThread().setContextClassLoader( loader );
-                        break;
-                    }
-                }
-                if ( isContextualizable )
-                {
-                    contextualize( (Contextualizable) bean );
-                }
-                if ( isInitializable )
-                {
-                    initialize( (Initializable) bean );
-                }
-                if ( isStartable )
-                {
-                    start( (Startable) bean );
-                }
-            }
-            finally
-            {
-                Thread.currentThread().setContextClassLoader( tccl );
-            }
+            lifecycleBeans.add( bean );
         }
+
+        // delay lifecycle management until all outstanding injections are complete
+        if ( lifecycleBeans.isEmpty() == false && BeanListener.isActive() == false )
+        {
+            for ( int i = 0; i < lifecycleBeans.size(); i++ )
+            {
+                manageLifecycle( lifecycleBeans.get( i ) );
+            }
+            lifecycleBeans.clear();
+        }
+
         return true;
     }
 
@@ -208,6 +170,46 @@ final class PlexusLifecycleManager
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
+
+    private void manageLifecycle( final Object bean )
+    {
+        final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        try
+        {
+            for ( Class<?> clazz = bean.getClass(); clazz != null; clazz = clazz.getSuperclass() )
+            {
+                // need to check hierarchy in case bean is proxied
+                final ClassLoader loader = clazz.getClassLoader();
+                if ( loader instanceof ClassRealm )
+                {
+                    Thread.currentThread().setContextClassLoader( loader );
+                    break;
+                }
+            }
+            /*
+             * Run through the startup phase of the standard plexus "personality"
+             */
+            if ( bean instanceof Contextualizable )
+            {
+                contextualize( (Contextualizable) bean );
+            }
+            if ( bean instanceof Initializable )
+            {
+                initialize( (Initializable) bean );
+            }
+            if ( bean instanceof Startable )
+            {
+                // register before calling start in case it fails
+                final Startable startableBean = (Startable) bean;
+                startableBeans.add( startableBean );
+                start( startableBean );
+            }
+        }
+        finally
+        {
+            Thread.currentThread().setContextClassLoader( tccl );
+        }
+    }
 
     private void contextualize( final Contextualizable bean )
     {

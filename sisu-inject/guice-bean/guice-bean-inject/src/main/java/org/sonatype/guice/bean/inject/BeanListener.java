@@ -86,4 +86,9 @@ public final class BeanListener
             encounter.register( new BeanInjector<B>( bindings.values() ) );
         }
     }
+
+    public static boolean isActive()
+    {
+        return BeanInjector.ACTIVE_COUNT.intValue() > 0;
+    }
 }

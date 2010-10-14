@@ -13,6 +13,7 @@
 package org.sonatype.guice.bean.inject;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.inject.MembersInjector;
 
@@ -22,6 +23,12 @@ import com.google.inject.MembersInjector;
 final class BeanInjector<B>
     implements MembersInjector<B>
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    static final AtomicInteger ACTIVE_COUNT = new AtomicInteger();
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -48,9 +55,13 @@ final class BeanInjector<B>
 
     public void injectMembers( final B bean )
     {
+        ACTIVE_COUNT.incrementAndGet();
+
         for ( final PropertyBinding b : bindings )
         {
             b.injectProperty( bean );
         }
+
+        ACTIVE_COUNT.getAndDecrement();
     }
 }
