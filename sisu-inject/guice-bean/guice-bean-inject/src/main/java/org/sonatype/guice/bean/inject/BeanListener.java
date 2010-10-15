@@ -87,8 +87,8 @@ public final class BeanListener
         }
     }
 
-    public static boolean isActive()
+    public static boolean isInjecting()
     {
-        return BeanInjector.ACTIVE_COUNT.intValue() > 0;
+        return BeanInjector.isInjecting();
     }
 }

@@ -40,7 +40,14 @@ final class PlexusLifecycleManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final List<Object> lifecycleBeans = new ArrayList<Object>();
+    private static final ThreadLocal<List<Object>> lifecycleBeans = new ThreadLocal<List<Object>>()
+    {
+        @Override
+        protected List<Object> initialValue()
+        {
+            return new ArrayList<Object>( 4 );
+        }
+    };
 
     private final List<Startable> startableBeans = new ArrayList<Startable>();
 
@@ -49,6 +56,8 @@ final class PlexusLifecycleManager
     private final MutablePlexusContainer container;
 
     private final Context context;
+
+    private int numDeferredBeans;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -108,21 +117,21 @@ final class PlexusLifecycleManager
         {
             ( (LogEnabled) bean ).enableLogging( getPlexusLogger( bean ) );
         }
+        if ( numDeferredBeans > 0 && !BeanListener.isInjecting() )
+        {
+            manageDeferredLifecycles();
+        }
         if ( bean instanceof Contextualizable || bean instanceof Initializable || bean instanceof Startable )
         {
-            lifecycleBeans.add( bean );
-        }
-
-        // delay lifecycle management until all outstanding injections are complete
-        if ( lifecycleBeans.isEmpty() == false && BeanListener.isActive() == false )
-        {
-            for ( int i = 0; i < lifecycleBeans.size(); i++ )
+            if ( BeanListener.isInjecting() )
             {
-                manageLifecycle( lifecycleBeans.get( i ) );
+                deferLifecycle( bean );
             }
-            lifecycleBeans.clear();
+            else
+            {
+                manageLifecycle( bean );
+            }
         }
-
         return true;
     }
 
@@ -170,6 +179,24 @@ final class PlexusLifecycleManager
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
+
+    private void deferLifecycle( final Object bean )
+    {
+        lifecycleBeans.get().add( bean );
+        numDeferredBeans++;
+    }
+
+    private void manageDeferredLifecycles()
+    {
+        final List<Object> beans = new ArrayList<Object>( lifecycleBeans.get() );
+        numDeferredBeans -= beans.size();
+        lifecycleBeans.remove();
+
+        for ( final Object bean : beans )
+        {
+            manageLifecycle( bean );
+        }
+    }
 
     private void manageLifecycle( final Object bean )
     {

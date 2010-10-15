@@ -13,7 +13,6 @@
 package org.sonatype.guice.bean.inject;
 
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.inject.MembersInjector;
 
@@ -24,14 +23,17 @@ final class BeanInjector<B>
     implements MembersInjector<B>
 {
     // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    static final AtomicInteger ACTIVE_COUNT = new AtomicInteger();
-
-    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
+
+    private static final ThreadLocal<boolean[]> isInjectingHolder = new ThreadLocal<boolean[]>()
+    {
+        @Override
+        protected boolean[] initialValue()
+        {
+            return new boolean[] { false };
+        }
+    };
 
     private final PropertyBinding[] bindings;
 
@@ -55,13 +57,39 @@ final class BeanInjector<B>
 
     public void injectMembers( final B bean )
     {
-        ACTIVE_COUNT.incrementAndGet();
+        final boolean[] isInjecting = isInjectingHolder.get();
+        if ( !isInjecting[0] )
+        {
+            isInjecting[0] = true;
+            try
+            {
+                doInjection( bean );
+            }
+            finally
+            {
+                isInjecting[0] = false;
+            }
+        }
+        else
+        {
+            doInjection( bean );
+        }
+    }
 
+    public static boolean isInjecting()
+    {
+        return isInjectingHolder.get()[0];
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private void doInjection( final Object bean )
+    {
         for ( final PropertyBinding b : bindings )
         {
             b.injectProperty( bean );
         }
-
-        ACTIVE_COUNT.getAndDecrement();
     }
 }
