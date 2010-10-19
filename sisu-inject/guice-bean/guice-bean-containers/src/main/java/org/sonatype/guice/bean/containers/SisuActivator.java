@@ -85,7 +85,7 @@ public final class SisuActivator
         {
             return ( (BundleInjector) bundle.getBundleContext().getService( getBundleInjectorService( bundle ) ) ).getInjector();
         }
-        catch ( Throwable e )
+        catch ( final Throwable e )
         {
             throw new IllegalStateException( "No Sisu Context for bundle: " + bundle, e );
         }

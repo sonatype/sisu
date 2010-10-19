@@ -29,7 +29,7 @@ public final class SisuContainer
 
     private static SisuContext context;
 
-    public static void configure( Class<?> type, Map<String, String> properties )
+    public static void configure( final Class<?> type, final Map<String, String> properties )
     {
         injector( type ).getInstance( ParameterKeys.PROPERTIES ).putAll( properties );
     }
@@ -59,7 +59,7 @@ public final class SisuContainer
     static final class MissingContext
         implements SisuContext
     {
-        public Injector injector( Class<?> type )
+        public Injector injector( final Class<?> type )
         {
             throw new IllegalStateException( "No Sisu Context for thread: " + Thread.currentThread() );
         }

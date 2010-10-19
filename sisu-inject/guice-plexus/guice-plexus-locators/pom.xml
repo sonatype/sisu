@@ -25,10 +25,6 @@
     </dependency>
     <dependency>
       <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-bean-reflect</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
       <artifactId>guice-bean-locators</artifactId>
     </dependency>
     <dependency>
