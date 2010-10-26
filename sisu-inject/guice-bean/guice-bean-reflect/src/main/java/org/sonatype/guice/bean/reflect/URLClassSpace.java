@@ -157,6 +157,9 @@ public final class URLClassSpace
     // Implementation methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Returns the associated {@link URL} class path; this can either be explicit or implicit.
+     */
     private synchronized URL[] getClassPath()
     {
         if ( null == classPath )

@@ -18,6 +18,7 @@ import java.lang.reflect.Method;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -26,12 +27,6 @@ import com.google.inject.TypeLiteral;
 final class BeanPropertySetter<T>
     implements BeanProperty<T>, PrivilegedAction<Void>
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final String BEAN_SETTER_ERROR = "Error calling bean setter: %s reason: %s";
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -84,11 +79,11 @@ final class BeanPropertySetter<T>
         }
         catch ( final InvocationTargetException e )
         {
-            throw new RuntimeException( String.format( BEAN_SETTER_ERROR, method, e.getTargetException() ) );
+            throw new ProvisionException( "Error injecting: " + method, e.getTargetException() );
         }
         catch ( final Throwable e )
         {
-            throw new RuntimeException( String.format( BEAN_SETTER_ERROR, method, e ) );
+            throw new ProvisionException( "Error injecting: " + method, e );
         }
     }
 

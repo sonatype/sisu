@@ -15,6 +15,7 @@ package org.sonatype.guice.bean.reflect;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
 
@@ -32,6 +33,8 @@ public class URLClassSpaceTest
     private static final URL COMMONS_LOGGING_JAR = TEST_LOADER.getResource( "commons-logging-1.1.1.jar" );
 
     private static final URL CORRUPT_MANIFEST = TEST_LOADER.getResource( "corrupt.manifest/" );
+
+    private static final URL BROKEN_JAR = TEST_LOADER.getResource( "broken.jar" );
 
     public void testHashCodeAndEquals()
     {
@@ -112,7 +115,7 @@ public class URLClassSpaceTest
     {
         System.setProperty( "java.protocol.handler.pkgs", getClass().getPackage().getName() );
 
-        final ClassSpace space =
+        final URLClassSpace space =
             new URLClassSpace( URLClassLoader.newInstance( new URL[] { SIMPLE_JAR, CLASS_PATH_JAR, null,
                 new URL( "barf:up/" ), CLASS_PATH_JAR, CORRUPT_MANIFEST } ) );
 
@@ -126,6 +129,10 @@ public class URLClassSpaceTest
         assertTrue( e.hasMoreElements() );
         assertTrue( e.nextElement().getPath().startsWith( COMMONS_LOGGING_JAR.toString() ) );
         assertFalse( e.hasMoreElements() );
+
+        System.out.println( Arrays.toString( space.getURLs() ) );
+        assertTrue( Arrays.equals( new URL[] { SIMPLE_JAR, CLASS_PATH_JAR, new URL( "barf:up/" ), CORRUPT_MANIFEST,
+            BROKEN_JAR, COMMONS_LOGGING_JAR }, space.getURLs() ) );
     }
 
     public void testNullSearchPath()
@@ -175,7 +182,9 @@ public class URLClassSpaceTest
             }
         };
 
-        final Enumeration<URL> e = new URLClassSpace( grandchild ).findEntries( "META-INF", "*.MF", false );
+        final Enumeration<URL> e = new URLClassSpace( new ClassLoader( grandchild )
+        {
+        } ).findEntries( "META-INF", "*.MF", false );
 
         // expect to see three results
         assertTrue( e.hasMoreElements() );

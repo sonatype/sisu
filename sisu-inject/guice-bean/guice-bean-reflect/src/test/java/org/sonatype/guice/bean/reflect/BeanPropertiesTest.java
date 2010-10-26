@@ -245,6 +245,34 @@ public class BeanPropertiesTest
         }
     }
 
+    static class O1
+    {
+        private String a1;
+
+        void setA( final String a )
+        {
+        }
+    }
+
+    @IgnoreSetters
+    static class O2
+        extends O1
+    {
+        private String b2;
+
+        void setB( final String b )
+        {
+        }
+    }
+
+    static class O3
+        extends O2
+    {
+        void setC( final String c )
+        {
+        }
+    }
+
     public void testInterface()
     {
         for ( final BeanProperty<?> bp : new BeanProperties( A.class ) )
@@ -454,5 +482,16 @@ public class BeanPropertiesTest
     {
         assertFalse( new BeanProperties( L.class ).iterator().hasNext() );
         assertFalse( new BeanProperties( M.class ).iterator().hasNext() );
+    }
+
+    public void testIgnoreSetters()
+    {
+        final Iterator<BeanProperty<Object>> i = new BeanProperties( O3.class ).iterator();
+
+        assertTrue( i.hasNext() );
+        assertEquals( "b2", i.next().getName() );
+        assertTrue( i.hasNext() );
+        assertEquals( "a1", i.next().getName() );
+        assertFalse( i.hasNext() );
     }
 }

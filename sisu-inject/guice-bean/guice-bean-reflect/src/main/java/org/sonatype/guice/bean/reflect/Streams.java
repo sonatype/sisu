@@ -48,6 +48,9 @@ public final class Streams
     // Utility methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Opens an input stream to the given URL; disables JAR caching on Windows.
+     */
     public static InputStream openStream( final URL url )
         throws IOException
     {

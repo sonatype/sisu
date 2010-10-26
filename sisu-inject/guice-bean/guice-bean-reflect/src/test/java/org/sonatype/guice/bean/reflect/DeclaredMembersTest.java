@@ -139,4 +139,10 @@ public class DeclaredMembersTest
         }
         assertEquals( 6, i );
     }
+
+    public void testRobustIteration()
+        throws ClassNotFoundException
+    {
+        assertFalse( new DeclaredMembers( Class.forName( "Missing" ) ).iterator().hasNext() );
+    }
 }

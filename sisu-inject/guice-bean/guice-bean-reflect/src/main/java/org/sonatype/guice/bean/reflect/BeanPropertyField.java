@@ -17,6 +17,7 @@ import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
+import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -25,12 +26,6 @@ import com.google.inject.TypeLiteral;
 final class BeanPropertyField<T>
     implements BeanProperty<T>, PrivilegedAction<Void>
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final String BEAN_FIELD_ERROR = "Error updating bean field: %s reason: %s";
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -80,7 +75,7 @@ final class BeanPropertyField<T>
         }
         catch ( final Throwable e )
         {
-            throw new RuntimeException( String.format( BEAN_FIELD_ERROR, field, e ) );
+            throw new ProvisionException( "Error injecting: " + field, e );
         }
     }
 
