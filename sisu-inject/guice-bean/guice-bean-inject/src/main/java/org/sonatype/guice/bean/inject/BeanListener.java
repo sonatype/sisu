@@ -18,6 +18,7 @@ import java.util.Map;
 import org.sonatype.guice.bean.reflect.BeanProperties;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 
+import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
@@ -77,7 +78,7 @@ public final class BeanListener
             }
             catch ( final Throwable e )
             {
-                encounter.addError( "Error binding bean property: " + property + " reason: " + e );
+                encounter.addError( new ProvisionException( "Error binding: " + property, e ) );
             }
         }
 
@@ -87,6 +88,9 @@ public final class BeanListener
         }
     }
 
+    /**
+     * @return {@code true} if this thread is performing bean injection; otherwise {@code false}
+     */
     public static boolean isInjecting()
     {
         return BeanInjector.isInjecting();

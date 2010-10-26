@@ -72,10 +72,14 @@ final class BeanInjector<B>
         }
         else
         {
+            // nested injection
             doInjection( bean );
         }
     }
 
+    /**
+     * @return {@code true} if this thread is performing bean injection; otherwise {@code false}
+     */
     public static boolean isInjecting()
     {
         return isInjectingHolder.get()[0];
@@ -85,6 +89,11 @@ final class BeanInjector<B>
     // Implementation methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Injects properties into the given bean.
+     * 
+     * @param bean The bean to inject
+     */
     private void doInjection( final Object bean )
     {
         for ( final PropertyBinding b : bindings )

@@ -20,6 +20,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.spi.TypeEncounter;
@@ -42,6 +43,8 @@ public class PropertyListenerTest
         extends Base
     {
         String b;
+
+        Bean2 bean;
     }
 
     static class Bean2
@@ -79,7 +82,7 @@ public class PropertyListenerTest
         }
     }
 
-    static class NamedPropertyBinder
+    class NamedPropertyBinder
         implements PropertyBinder
     {
         public <T> PropertyBinding bindProperty( final BeanProperty<T> property )
@@ -96,18 +99,32 @@ public class PropertyListenerTest
             {
                 throw new RuntimeException( "Broken binding" );
             }
+            if ( "bean".equals( property.getName() ) )
+            {
+                return new PropertyBinding()
+                {
+                    public void injectProperty( final Object bean )
+                    {
+                        assertTrue( BeanListener.isInjecting() );
+                        property.set( bean, injector.getInstance( Key.get( property.getType() ) ) );
+                        assertTrue( BeanListener.isInjecting() );
+                    }
+                };
+            }
             return new PropertyBinding()
             {
                 @SuppressWarnings( "unchecked" )
                 public void injectProperty( final Object bean )
                 {
+                    assertTrue( BeanListener.isInjecting() );
                     property.set( bean, (T) ( property.getName() + "Value" ) );
+                    assertTrue( BeanListener.isInjecting() );
                 }
             };
         }
     }
 
-    static final PropertyBinder namedPropertyBinder = new NamedPropertyBinder();
+    final PropertyBinder namedPropertyBinder = new NamedPropertyBinder();
 
     Injector injector;
 
@@ -150,7 +167,9 @@ public class PropertyListenerTest
 
     public void testPropertyBindings()
     {
+        assertFalse( BeanListener.isInjecting() );
         final Bean1 bean1 = injector.getInstance( Bean1.class );
+        assertFalse( BeanListener.isInjecting() );
         assertEquals( "bValue", bean1.b );
         assertEquals( "aValue", bean1.a );
     }
