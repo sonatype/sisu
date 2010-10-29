@@ -696,9 +696,14 @@ public final class DefaultPlexusContainer
         {
             visibleRealms.add( currentLookupRealm );
         }
+        final ClassRealm threadContextRealm = ClassRealmUtils.contextRealm();
+        if ( null != threadContextRealm )
+        {
+            visibleRealms.add( threadContextRealm );
+        }
         if ( PlexusConstants.REALM_VISIBILITY.equals( componentVisibility ) )
         {
-            final Collection<String> visibleNames = ClassRealmUtils.visibleRealmNames( ClassRealmUtils.contextRealm() );
+            final Collection<String> visibleNames = ClassRealmUtils.visibleRealmNames( threadContextRealm );
             if ( !visibleNames.isEmpty() )
             {
                 for ( int i = realms.length - 1; i >= 0; i-- )
