@@ -13,7 +13,9 @@
 package org.codehaus.plexus;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.context.Context;
@@ -49,15 +51,15 @@ final class PlexusLifecycleManager
         }
     };
 
-    private final List<Startable> startableBeans = new ArrayList<Startable>();
+    private final List<Startable> startableBeans = Collections.synchronizedList( new ArrayList<Startable>() );
 
-    private final List<Disposable> disposableBeans = new ArrayList<Disposable>();
+    private final List<Disposable> disposableBeans = Collections.synchronizedList( new ArrayList<Disposable>() );
+
+    private final AtomicInteger numDeferredBeans = new AtomicInteger();
 
     private final MutablePlexusContainer container;
 
     private final Context context;
-
-    private int numDeferredBeans;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -107,7 +109,7 @@ final class PlexusLifecycleManager
         return null;
     }
 
-    public synchronized boolean manage( final Object bean )
+    public boolean manage( final Object bean )
     {
         if ( bean instanceof Disposable )
         {
@@ -117,7 +119,7 @@ final class PlexusLifecycleManager
         {
             ( (LogEnabled) bean ).enableLogging( getPlexusLogger( bean ) );
         }
-        if ( numDeferredBeans > 0 && !BeanListener.isInjecting() )
+        if ( numDeferredBeans.get() > 0 && !BeanListener.isInjecting() )
         {
             manageDeferredLifecycles();
         }
@@ -183,13 +185,13 @@ final class PlexusLifecycleManager
     private void deferLifecycle( final Object bean )
     {
         lifecycleBeans.get().add( bean );
-        numDeferredBeans++;
+        numDeferredBeans.incrementAndGet();
     }
 
     private void manageDeferredLifecycles()
     {
         final List<Object> beans = new ArrayList<Object>( lifecycleBeans.get() );
-        numDeferredBeans -= beans.size();
+        numDeferredBeans.addAndGet( -beans.size() );
         lifecycleBeans.remove();
 
         for ( final Object bean : beans )

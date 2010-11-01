@@ -1,0 +1,23 @@
+<plexus>
+  <components>
+    <component>
+      <implementation>org.codehaus.plexus.test.cycle.EagerComponent</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.cycle.LockComponent</role>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <implementation>org.codehaus.plexus.test.cycle.LockComponent</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.PlexusContainer</role>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <implementation>org.codehaus.plexus.test.cycle.LazyComponent</implementation>
+    </component>
+  </components>
+</plexus>
