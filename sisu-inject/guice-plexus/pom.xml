@@ -7,7 +7,7 @@
     <relativePath>../guice-bean</relativePath>
     <groupId>org.sonatype.sisu.inject</groupId>
     <artifactId>guice-bean</artifactId>
-    <version>1.4.3</version>
+    <version>1.4.4-SNAPSHOT</version>
   </parent>
 
   <packaging>pom</packaging>
