@@ -27,6 +27,7 @@ import javax.inject.Singleton;
 
 import org.codehaus.plexus.util.xml.pull.MXParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParser;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.guice.bean.reflect.BeanProperties;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.TypeParameters;
@@ -232,15 +233,27 @@ public final class PlexusXmlBeanConverter
     {
         final Class<?> clazz = loadImplementation( parseImplementation( parser ), rawType );
 
-        // simple bean with string constructor
+        // simple bean? assumes string constructor
         if ( parser.next() == XmlPullParser.TEXT )
         {
             final String text = parser.getText();
+
+            // confirm element doesn't contain nested XML
             if ( parser.next() != XmlPullParser.START_TAG )
             {
-                // try to use the original reified type, unless we have different implementation
                 return convertText( text, clazz == rawType ? toType : TypeLiteral.get( clazz ) );
             }
+        }
+
+        if ( String.class == clazz )
+        {
+            // mimic plexus: discard any strings containing nested XML
+            while ( parser.getEventType() == XmlPullParser.START_TAG )
+            {
+                parser.skipSubTree();
+                parser.nextTag();
+            }
+            return "";
         }
 
         final Object bean = newImplementation( clazz );
@@ -267,8 +280,7 @@ public final class PlexusXmlBeanConverter
             }
             else
             {
-                parser.skipSubTree(); // ignore mismatched configuration
-                parser.nextTag();
+                throw new XmlPullParserException( "Unknown bean property: " + parser.getName(), parser, null );
             }
         }
 

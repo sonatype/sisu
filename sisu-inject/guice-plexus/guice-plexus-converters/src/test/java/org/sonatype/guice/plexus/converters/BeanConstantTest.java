@@ -52,9 +52,8 @@ public class BeanConstantTest
                 bindBean( "EmptyBean", EmptyBean.class.getName(), " " );
                 bindBean( "MissingType", "some.unknown.type", "" );
 
-                bindBean( "BeanWithProperty", BeanWithProperty.class.getName(), "<value>4.2</value>" );
-                bindBean( "MissingProperty", BeanWithProperty.class.getName(),
-                          " <one><two>three</two></one><value>4.2</value><four><five>six</five></four> " );
+                bindBean( "BeanWithProperty", BeanWithProperties.class.getName(), "<text/><value>4.2</value>" );
+                bindBean( "MissingProperty", EmptyBean.class.getName(), " <value>4.2</value>" );
 
                 bindBean( "MissingDefaultConstructor", MissingDefaultConstructor.class.getName(), "" );
                 bindBean( "BrokenDefaultConstructor", BrokenDefaultConstructor.class.getName(), "" );
@@ -76,7 +75,7 @@ public class BeanConstantTest
     {
     }
 
-    static class BeanWithProperty
+    static class BeanWithProperties
     {
         float value;
 
@@ -84,6 +83,8 @@ public class BeanConstantTest
         {
             value = _value;
         }
+
+        String text;
     }
 
     static class MissingDefaultConstructor
@@ -154,14 +155,22 @@ public class BeanConstantTest
         }
     }
 
-    public void testBeanWithPropertyConversion()
+    public void testBeanWithPropertiesConversion()
     {
-        assertEquals( 4.2f, ( (BeanWithProperty) getBean( "BeanWithProperty", Object.class ) ).value, 0f );
+        final BeanWithProperties beanWithProperties = (BeanWithProperties) getBean( "BeanWithProperty", Object.class );
+        assertEquals( 4.2f, beanWithProperties.value, 0f );
+        assertTrue( beanWithProperties.text.isEmpty() );
     }
 
     public void testMissingPropertyConversion()
     {
-        assertEquals( 4.2f, ( (BeanWithProperty) getBean( "MissingProperty", Object.class ) ).value, 0f );
+        testFailedConversion( "MissingProperty", Object.class );
+    }
+
+    public void testStringXMLConversion()
+    {
+        final PlexusBeanConverter configurator = injector.getInstance( PlexusBeanConverter.class );
+        assertTrue( configurator.convert( TypeLiteral.get( String.class ), "<one><two/></one>" ).isEmpty() );
     }
 
     public void testMissingDefaultConstructor()
