@@ -159,7 +159,7 @@ public class BeanConstantTest
     {
         final BeanWithProperties beanWithProperties = (BeanWithProperties) getBean( "BeanWithProperty", Object.class );
         assertEquals( 4.2f, beanWithProperties.value, 0f );
-        assertTrue( beanWithProperties.text.isEmpty() );
+        assertEquals( beanWithProperties.text.length(), 0 );
     }
 
     public void testMissingPropertyConversion()
@@ -170,7 +170,7 @@ public class BeanConstantTest
     public void testStringXMLConversion()
     {
         final PlexusBeanConverter configurator = injector.getInstance( PlexusBeanConverter.class );
-        assertTrue( configurator.convert( TypeLiteral.get( String.class ), "<one><two/></one>" ).isEmpty() );
+        assertEquals( configurator.convert( TypeLiteral.get( String.class ), "<one><two/></one>" ).length(), 0 );
     }
 
     public void testMissingDefaultConstructor()
