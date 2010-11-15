@@ -53,7 +53,8 @@ public class BeanConstantTest
                 bindBean( "MissingType", "some.unknown.type", "" );
 
                 bindBean( "BeanWithProperty", BeanWithProperty.class.getName(), "<value>4.2</value>" );
-                bindBean( "MissingProperty", EmptyBean.class.getName(), " <value>4.2</value>" );
+                bindBean( "MissingProperty", BeanWithProperty.class.getName(),
+                          " <one><two>three</two></one><value>4.2</value><four><five>six</five></four> " );
 
                 bindBean( "MissingDefaultConstructor", MissingDefaultConstructor.class.getName(), "" );
                 bindBean( "BrokenDefaultConstructor", BrokenDefaultConstructor.class.getName(), "" );
@@ -160,7 +161,7 @@ public class BeanConstantTest
 
     public void testMissingPropertyConversion()
     {
-        testFailedConversion( "MissingProperty", Object.class );
+        assertEquals( 4.2f, ( (BeanWithProperty) getBean( "MissingProperty", Object.class ) ).value, 0f );
     }
 
     public void testMissingDefaultConstructor()

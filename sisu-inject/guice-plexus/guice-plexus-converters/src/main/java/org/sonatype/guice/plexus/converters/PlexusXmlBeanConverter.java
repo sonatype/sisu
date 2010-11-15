@@ -27,7 +27,6 @@ import javax.inject.Singleton;
 
 import org.codehaus.plexus.util.xml.pull.MXParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParser;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.guice.bean.reflect.BeanProperties;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.TypeParameters;
@@ -71,7 +70,7 @@ public final class PlexusXmlBeanConverter
         {
             try
             {
-                final XmlPullParser parser = new MXParser();
+                final MXParser parser = new MXParser();
                 parser.setInput( new StringReader( value ) );
                 parser.nextTag();
 
@@ -108,7 +107,7 @@ public final class PlexusXmlBeanConverter
      * @param toType The target type
      * @return Converted instance of the target type
      */
-    private Object parse( final XmlPullParser parser, final TypeLiteral<?> toType )
+    private Object parse( final MXParser parser, final TypeLiteral<?> toType )
         throws Exception
     {
         parser.require( XmlPullParser.START_TAG, null, null );
@@ -170,7 +169,7 @@ public final class PlexusXmlBeanConverter
      * @param parser The XML parser
      * @return Converted Map instance
      */
-    private Map<String, Object> parseMap( final XmlPullParser parser, final TypeLiteral<?> toType )
+    private Map<String, Object> parseMap( final MXParser parser, final TypeLiteral<?> toType )
         throws Exception
     {
         @SuppressWarnings( "unchecked" )
@@ -188,7 +187,7 @@ public final class PlexusXmlBeanConverter
      * @param parser The XML parser
      * @return Converted Collection instance
      */
-    private Collection<Object> parseCollection( final XmlPullParser parser, final TypeLiteral<?> toType )
+    private Collection<Object> parseCollection( final MXParser parser, final TypeLiteral<?> toType )
         throws Exception
     {
         @SuppressWarnings( "unchecked" )
@@ -206,7 +205,7 @@ public final class PlexusXmlBeanConverter
      * @param parser The XML parser
      * @return Converted array instance
      */
-    private Object parseArray( final XmlPullParser parser, final TypeLiteral<?> toType )
+    private Object parseArray( final MXParser parser, final TypeLiteral<?> toType )
         throws Exception
     {
         // convert to a collection first then convert that into an array
@@ -228,7 +227,7 @@ public final class PlexusXmlBeanConverter
      * @param parser The XML parser
      * @return Converted bean instance
      */
-    private Object parseBean( final XmlPullParser parser, final TypeLiteral<?> toType, final Class<?> rawType )
+    private Object parseBean( final MXParser parser, final TypeLiteral<?> toType, final Class<?> rawType )
         throws Exception
     {
         final Class<?> clazz = loadImplementation( parseImplementation( parser ), rawType );
@@ -268,7 +267,8 @@ public final class PlexusXmlBeanConverter
             }
             else
             {
-                throw new XmlPullParserException( "Unknown bean property: " + parser.getName(), parser, null );
+                parser.skipSubTree(); // ignore mismatched configuration
+                parser.nextTag();
             }
         }
 
