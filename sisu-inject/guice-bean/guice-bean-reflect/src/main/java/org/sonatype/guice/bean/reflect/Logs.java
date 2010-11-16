@@ -16,7 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Utility methods for dealing with logs.
+ * Utility methods for dealing with internal container logs.
  */
 public final class Logs
 {
@@ -65,30 +65,45 @@ public final class Logs
     // Utility methods
     // ----------------------------------------------------------------------
 
-    public static void debug( final Class<?> clazz, final String fmt, final Object o1, final Object o2 )
+    /**
+     * Formats and logs the given debug message under the given context class
+     * 
+     * @param clazz The context class
+     * @param format The debug message format
+     * @param arg1 First object to format
+     * @param arg2 Second object to format
+     */
+    public static void debug( final Class<?> clazz, final String format, final Object arg1, final Object arg2 )
     {
         if ( DEBUG_ENABLED )
         {
             if ( SLF4J_ENABLED )
             {
-                org.slf4j.LoggerFactory.getLogger( clazz ).debug( fmt, o1, o2 );
+                org.slf4j.LoggerFactory.getLogger( clazz ).debug( format, arg1, arg2 );
             }
             else
             {
-                Logger.getLogger( clazz.getName() ).fine( format( format( fmt, o1 ), o2 ) );
+                Logger.getLogger( clazz.getName() ).fine( format( format( format, arg1 ), arg2 ) );
             }
         }
     }
 
-    public static void warn( final Class<?> clazz, final String msg, final Throwable e )
+    /**
+     * Logs the given warning message and cause under the given context class
+     * 
+     * @param clazz The context class
+     * @param message The warning message
+     * @param cause The cause
+     */
+    public static void warn( final Class<?> clazz, final String message, final Throwable cause )
     {
         if ( SLF4J_ENABLED )
         {
-            org.slf4j.LoggerFactory.getLogger( clazz ).warn( msg, e );
+            org.slf4j.LoggerFactory.getLogger( clazz ).warn( message, cause );
         }
         else
         {
-            Logger.getLogger( clazz.getName() ).log( Level.WARNING, msg, e );
+            Logger.getLogger( clazz.getName() ).log( Level.WARNING, message, cause );
         }
     }
 
@@ -96,8 +111,30 @@ public final class Logs
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private static String format( final String fmt, final Object o )
+    /**
+     * Replaces the first available formatting anchor with the given object.
+     * 
+     * @param format The format string
+     * @param arg The object to format
+     */
+    private static String format( final String format, final Object arg )
     {
-        return fmt.replaceFirst( ANCHOR, String.valueOf( o ) );
+        int cursor = format.indexOf( ANCHOR );
+        if ( cursor < 0 )
+        {
+            return format;
+        }
+        final StringBuilder buf = new StringBuilder();
+        if ( cursor > 0 )
+        {
+            buf.append( format.substring( 0, cursor ) );
+        }
+        buf.append( arg );
+        cursor += ANCHOR.length();
+        if ( cursor < format.length() )
+        {
+            buf.append( format.substring( cursor, format.length() ) );
+        }
+        return buf.toString();
     }
 }
