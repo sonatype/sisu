@@ -14,8 +14,8 @@ package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.sonatype.guice.bean.reflect.Logs;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -76,21 +76,9 @@ final class NotifyingBeans<Q extends Annotation, T>
             }
             catch ( final Throwable e )
             {
-                warn( "Problem notifying: " + notify.getClass(), e );
+                Logs.warn( getClass(), "Problem notifying: " + notify.getClass(), e );
             }
         }
         return beans;
-    }
-
-    private static void warn( final String message, final Throwable cause )
-    {
-        try
-        {
-            org.slf4j.LoggerFactory.getLogger( NotifyingBeans.class ).warn( message, cause );
-        }
-        catch ( final Throwable ignore )
-        {
-            Logger.getLogger( NotifyingBeans.class.getName() ).log( Level.WARNING, message, cause );
-        }
     }
 }

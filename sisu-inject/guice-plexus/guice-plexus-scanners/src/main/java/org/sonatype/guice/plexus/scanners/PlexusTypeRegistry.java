@@ -19,12 +19,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.Hints;
@@ -41,8 +40,6 @@ final class PlexusTypeRegistry
     // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
-
-    private static final Logger LOGGER = Logger.getLogger( PlexusTypeRegistry.class.getName() );
 
     private static final Component LOAD_ON_START_PLACEHOLDER = new ComponentImpl( Object.class, "",
                                                                                   Strategies.LOAD_ON_START, "" );
@@ -163,11 +160,8 @@ final class PlexusTypeRegistry
             return oldImplementation; // merge configuration
         }
 
-        if ( LOGGER.isLoggable( Level.FINE ) )
-        {
-            LOGGER.fine( "Duplicate implementations found for Plexus component: " + key );
-            LOGGER.fine( "Using: " + oldImplementation + " ignoring: " + implementation );
-        }
+        Logs.debug( getClass(), "Duplicate implementations found for Plexus component {}", key, null );
+        Logs.debug( getClass(), "Using: {} ignoring: {}", oldImplementation, implementation );
 
         return null;
     }
@@ -210,10 +204,7 @@ final class PlexusTypeRegistry
         }
         catch ( final Throwable e )
         {
-            if ( LOGGER.isLoggable( Level.FINE ) )
-            {
-                LOGGER.fine( "Ignoring Plexus role: " + role + " cause: " + e );
-            }
+            Logs.debug( getClass(), "Ignoring Plexus role: {} cause: {}", role, e );
         }
         return null;
     }

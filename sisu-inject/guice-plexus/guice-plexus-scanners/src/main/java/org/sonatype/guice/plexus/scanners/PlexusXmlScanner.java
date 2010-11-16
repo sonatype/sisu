@@ -21,8 +21,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
@@ -35,6 +33,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.Streams;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
@@ -45,12 +44,6 @@ import org.sonatype.guice.plexus.config.Strategies;
 
 public final class PlexusXmlScanner
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final Logger LOGGER = Logger.getLogger( PlexusXmlScanner.class.getName() );
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -180,7 +173,7 @@ public final class PlexusXmlScanner
         }
         catch ( final Throwable e )
         {
-            reportResourceProblem( url, e );
+            Logs.debug( getClass(), "Problem parsing resource: {} cause: {}", url, e );
         }
     }
 
@@ -217,7 +210,7 @@ public final class PlexusXmlScanner
         }
         catch ( final Throwable e )
         {
-            reportResourceProblem( url, e );
+            Logs.debug( getClass(), "Problem parsing resource: {} cause: {}", url, e );
         }
     }
 
@@ -483,13 +476,5 @@ public final class PlexusXmlScanner
         throws XmlPullParserException, IOException
     {
         return parser.nextText().trim();
-    }
-
-    private static void reportResourceProblem( final URL url, final Throwable cause )
-    {
-        if ( LOGGER.isLoggable( Level.FINE ) )
-        {
-            LOGGER.fine( "Problem parsing resource: " + url + " cause: " + cause );
-        }
     }
 }

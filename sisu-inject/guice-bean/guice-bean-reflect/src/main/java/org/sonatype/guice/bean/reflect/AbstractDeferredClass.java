@@ -52,7 +52,7 @@ abstract class AbstractDeferredClass<T>
             final String message = "Error injecting: " + getName();
             try
             {
-                org.slf4j.LoggerFactory.getLogger( getClass() ).error( message, e );
+                Logs.warn( getClass(), message, e );
             }
             finally
             {

@@ -16,11 +16,10 @@ import java.lang.annotation.Annotation;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.inject.Provider;
 
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.inject.Mediator;
 
 import com.google.inject.Injector;
@@ -141,22 +140,10 @@ final class WatchedBeans<Q extends Annotation, T, W>
                 }
                 catch ( final Throwable e )
                 {
-                    warn( "Problem notifying watcher: " + watcher.getClass(), e );
+                    Logs.warn( mediator.getClass(), "Problem notifying watcher: " + watcher.getClass(), e );
                 }
             }
         }
         return beans;
-    }
-
-    private void warn( final String message, final Throwable cause )
-    {
-        try
-        {
-            org.slf4j.LoggerFactory.getLogger( mediator.getClass() ).warn( message, cause );
-        }
-        catch ( final Throwable ignore )
-        {
-            Logger.getLogger( mediator.getClass().getName() ).log( Level.WARNING, message, cause );
-        }
     }
 }

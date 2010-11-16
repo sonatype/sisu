@@ -15,12 +15,11 @@ package org.sonatype.guice.bean.scanners;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.Logs;
 
 /**
  * ASM-style scanner that makes a {@link ClassSpaceVisitor} visit an existing {@link ClassSpace}.
@@ -30,8 +29,6 @@ public final class ClassSpaceScanner
     // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
-
-    private static final Logger LOGGER = Logger.getLogger( ClassSpaceScanner.class.getName() );
 
     private static final int ASM_FLAGS = ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES;
 
@@ -101,19 +98,7 @@ public final class ClassSpaceScanner
         }
         catch ( final Throwable e )
         {
-            reportResourceProblem( url, e );
-        }
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    private static void reportResourceProblem( final URL url, final Throwable cause )
-    {
-        if ( LOGGER.isLoggable( Level.FINE ) )
-        {
-            LOGGER.fine( "Problem scanning resource: " + url + " cause: " + cause );
+            Logs.debug( ClassSpaceScanner.class, "Problem scanning resource: {} cause: {}", url, e );
         }
     }
 }
