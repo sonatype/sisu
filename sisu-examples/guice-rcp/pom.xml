@@ -29,7 +29,6 @@
     <dependency>
       <groupId>org.sonatype.sisu</groupId>
       <artifactId>sisu-inject-bean</artifactId>
-      <version>${project.version}</version>
     </dependency>
   </dependencies>
 

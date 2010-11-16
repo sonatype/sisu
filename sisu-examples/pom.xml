@@ -20,4 +20,14 @@
     <module>guice-rcp</module>
   </modules>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sonatype.sisu</groupId>
+        <artifactId>sisu-inject-bean</artifactId>
+        <version>1.4.3.1</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
 </project>
