@@ -71,6 +71,8 @@ public final class LoadedClass<T>
     @Override
     public String toString()
     {
-        return "Loaded " + clazz;
+        final String id = "Loaded " + clazz;
+        final ClassLoader space = clazz.getClassLoader();
+        return null != space ? id + " from " + space : id;
     }
 }

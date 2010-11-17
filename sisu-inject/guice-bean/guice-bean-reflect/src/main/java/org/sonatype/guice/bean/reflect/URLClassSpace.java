@@ -76,7 +76,14 @@ public final class URLClassSpace
     public URLClassSpace( final ClassLoader loader, final URL[] path )
     {
         this.loader = loader;
-        classPath = expandClassPath( path );
+        if ( null != path && path.length > 0 )
+        {
+            classPath = expandClassPath( path );
+        }
+        else
+        {
+            classPath = NO_URLS;
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -193,11 +200,6 @@ public final class URLClassSpace
      */
     private static URL[] expandClassPath( final URL[] classPath )
     {
-        if ( null == classPath || classPath.length == 0 )
-        {
-            return NO_URLS;
-        }
-
         final List<URL> searchPath = new ArrayList<URL>();
         Collections.addAll( searchPath, classPath );
 

@@ -83,7 +83,7 @@ public class DeferredClassTest
 
     public void testLoadedClass()
     {
-        final DeferredClass<?> objectClazz = new LoadedClass<Object>( Object.class );
+        final DeferredClass<?> dummyClazz = new LoadedClass<Dummy>( Dummy.class );
         final DeferredClass<?> stringClazz = new LoadedClass<String>( String.class );
 
         assertEquals( String.class.getName(), stringClazz.getName() );
@@ -92,11 +92,13 @@ public class DeferredClassTest
 
         assertEquals( stringClazz, stringClazz );
 
-        assertFalse( stringClazz.equals( objectClazz ) );
+        assertFalse( stringClazz.equals( dummyClazz ) );
         assertFalse( stringClazz.equals( String.class ) );
 
         assertEquals( String.class.hashCode(), stringClazz.hashCode() );
-        assertEquals( "Loaded " + String.class.toString(), stringClazz.toString() );
+        assertEquals( "Loaded " + String.class, stringClazz.toString() );
+
+        assertEquals( "Loaded " + Dummy.class + " from " + Dummy.class.getClassLoader(), dummyClazz.toString() );
     }
 
     public void testMissingStrongDeferredClass()
@@ -104,6 +106,8 @@ public class DeferredClassTest
         try
         {
             final ClassSpace space = new URLClassSpace( testLoader );
+            System.out.println( new NamedClass<Object>( space, "unknown-class" ) );
+            System.out.println( new LoadedClass<Object>( getClass() ) );
             new NamedClass<Object>( space, "unknown-class" ).load();
             fail( "Expected TypeNotPresentException" );
         }
