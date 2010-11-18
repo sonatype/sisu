@@ -39,6 +39,8 @@ public final class QualifiedTypeVisitor
 
     private ClassSpace space;
 
+    private URL location;
+
     private String source;
 
     private String clazzName;
@@ -61,11 +63,12 @@ public final class QualifiedTypeVisitor
     public void visit( final ClassSpace _space )
     {
         space = _space;
-        source = _space.toString();
+        source = null;
     }
 
     public ClassVisitor visitClass( final URL url )
     {
+        location = url;
         clazzName = null;
         clazz = null;
         return this;
@@ -92,6 +95,14 @@ public final class QualifiedTypeVisitor
                 if ( null == clazz )
                 {
                     clazz = space.loadClass( clazzName.replace( '/', '.' ) );
+
+                    // compressed record of class location
+                    final String path = location.getPath();
+                    if ( null == source || !path.startsWith( source ) )
+                    {
+                        final int i = path.indexOf( clazzName );
+                        source = i < 0 ? path : path.substring( 0, i );
+                    }
                 }
                 listener.hear( clazz.getAnnotation( qualifierType ), clazz, source );
             }
