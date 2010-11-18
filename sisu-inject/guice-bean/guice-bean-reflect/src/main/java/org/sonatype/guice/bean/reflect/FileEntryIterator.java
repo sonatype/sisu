@@ -42,7 +42,7 @@ final class FileEntryIterator
      * Creates an iterator that iterates over entries beneath the given file URL and sub-path.
      * 
      * @param url The root file URL
-     * @param subPath An optional path below the root URL
+     * @param subPath The path below the root URL
      * @param recurse When {@code true} include sub-directories; otherwise don't
      */
     FileEntryIterator( final URL url, final String subPath, final boolean recurse )
