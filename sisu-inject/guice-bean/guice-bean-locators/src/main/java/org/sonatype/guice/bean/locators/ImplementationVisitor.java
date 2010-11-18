@@ -15,6 +15,7 @@ package org.sonatype.guice.bean.locators;
 import org.sonatype.guice.bean.reflect.DeferredProvider;
 
 import com.google.inject.Provider;
+import com.google.inject.spi.BindingTargetVisitor;
 import com.google.inject.spi.ConstructorBinding;
 import com.google.inject.spi.DefaultBindingTargetVisitor;
 import com.google.inject.spi.InstanceBinding;
@@ -22,10 +23,21 @@ import com.google.inject.spi.LinkedKeyBinding;
 import com.google.inject.spi.ProviderInstanceBinding;
 import com.google.inject.spi.UntargettedBinding;
 
+/**
+ * {@link BindingTargetVisitor} that tries to discover implementations behind bindings.
+ */
 final class ImplementationVisitor
     extends DefaultBindingTargetVisitor<Object, Class<?>>
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
     static final ImplementationVisitor THIS = new ImplementationVisitor();
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
     @Override
     public Class<?> visit( final UntargettedBinding<?> binding )
@@ -36,6 +48,7 @@ final class ImplementationVisitor
     @Override
     public Class<?> visit( final LinkedKeyBinding<?> binding )
     {
+        // this assumes only one level of indirection: api-->impl
         return binding.getLinkedKey().getTypeLiteral().getRawType();
     }
 
@@ -59,6 +72,7 @@ final class ImplementationVisitor
         {
             try
             {
+                // deferred providers let us peek at the underlying implementation type
                 return ( (DeferredProvider<?>) provider ).getImplementationClass().load();
             }
             catch ( final TypeNotPresentException e ) // NOPMD

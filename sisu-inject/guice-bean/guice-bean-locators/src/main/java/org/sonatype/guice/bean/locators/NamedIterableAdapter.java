@@ -135,8 +135,7 @@ public final class NamedIterableAdapter<V>
         @Override
         public String toString()
         {
-            // getValue() may have unexpected side-effects, so instead we adjust original text
-            return getKey() + entry.toString().substring( entry.getKey().toString().length() );
+            return getKey() + "=" + getValue();
         }
     }
 }

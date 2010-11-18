@@ -15,7 +15,7 @@ package org.sonatype.guice.bean.locators;
 import com.google.inject.Binder;
 
 /**
- * The {@link BeanLocator} will ignore any binding whose source is tagged with this interface.
+ * Binding sources should implement this interface to hide the binding from the {@link BeanLocator}.
  * 
  * @see Binder#withSource(Object)
  */

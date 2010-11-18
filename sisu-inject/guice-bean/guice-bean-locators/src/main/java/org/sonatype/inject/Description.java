@@ -19,7 +19,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Describes a component.
+ * Describes a bean.
  */
 @Target( value = { ElementType.TYPE } )
 @Retention( RetentionPolicy.RUNTIME )

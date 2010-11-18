@@ -66,7 +66,7 @@ final class NotifyingBeans<Q extends Annotation, T>
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private final List<QualifiedBean<Q, T>> sendUpdate( final List<QualifiedBean<Q, T>> beans )
+    private List<QualifiedBean<Q, T>> sendUpdate( final List<QualifiedBean<Q, T>> beans )
     {
         if ( !beans.isEmpty() )
         {

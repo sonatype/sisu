@@ -12,7 +12,17 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import com.google.inject.Binder;
+
+/**
+ * Binding sources should implement this interface to supply descriptions to the {@link BeanLocator}.
+ * 
+ * @see Binder#withSource(Object)
+ */
 public interface BeanDescription
 {
+    /**
+     * @return Human-readable description
+     */
     String getDescription();
 }

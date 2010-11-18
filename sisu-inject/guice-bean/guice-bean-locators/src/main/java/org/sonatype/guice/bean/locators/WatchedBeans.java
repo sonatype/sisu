@@ -140,7 +140,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
                 }
                 catch ( final Throwable e )
                 {
-                    Logs.warn( mediator.getClass(), "Problem notifying watcher: " + watcher.getClass(), e );
+                    Logs.warn( mediator.getClass(), "Problem notifying: " + watcher.getClass(), e );
                 }
             }
         }

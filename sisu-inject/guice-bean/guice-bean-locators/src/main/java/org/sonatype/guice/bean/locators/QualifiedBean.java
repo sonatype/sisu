@@ -25,9 +25,18 @@ import com.google.inject.Binding;
 public interface QualifiedBean<Q extends Annotation, T>
     extends Entry<Q, T>, Provider<T>
 {
+    /**
+     * @return Human-readable description
+     */
     String getDescription();
 
+    /**
+     * @return Implementation type
+     */
     Class<T> getImplementationClass();
 
+    /**
+     * @return Underlying binding
+     */
     Binding<? extends T> getBinding();
 }

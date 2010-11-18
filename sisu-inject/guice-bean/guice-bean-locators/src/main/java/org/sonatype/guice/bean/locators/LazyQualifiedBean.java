@@ -19,15 +19,12 @@ import javax.inject.Provider;
 import org.sonatype.inject.Description;
 
 import com.google.inject.Binding;
-import com.google.inject.Scope;
 import com.google.inject.Scopes;
-import com.google.inject.spi.DefaultBindingScopingVisitor;
 
 /**
  * Lazy {@link QualifiedBean}.
  */
 final class LazyQualifiedBean<Q extends Annotation, T>
-    extends DefaultBindingScopingVisitor<Provider<T>>
     implements QualifiedBean<Q, T>
 {
     // ----------------------------------------------------------------------
@@ -49,7 +46,14 @@ final class LazyQualifiedBean<Q extends Annotation, T>
         this.qualifier = qualifier;
         this.binding = binding;
 
-        this.provider = binding.acceptScopingVisitor( this );
+        if ( Scopes.isSingleton( binding ) )
+        {
+            this.provider = binding.getProvider();
+        }
+        else
+        {
+            this.provider = Scopes.SINGLETON.scope( binding.getKey(), binding.getProvider() );
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -110,29 +114,5 @@ final class LazyQualifiedBean<Q extends Annotation, T>
     public String toString()
     {
         return getKey() + "=" + getValue();
-    }
-
-    @Override
-    public Provider<T> visitEagerSingleton()
-    {
-        return binding.getProvider();
-    }
-
-    @Override
-    public Provider<T> visitScope( final Scope scope )
-    {
-        return Scopes.SINGLETON.equals( scope ) ? visitEagerSingleton() : visitOther();
-    }
-
-    @Override
-    public Provider<T> visitScopeAnnotation( final Class<? extends Annotation> scopeAnnotation )
-    {
-        return "Singleton".equals( scopeAnnotation.getSimpleName() ) ? visitEagerSingleton() : visitOther();
-    }
-
-    @Override
-    protected Provider<T> visitOther()
-    {
-        return Scopes.SINGLETON.scope( binding.getKey(), binding.getProvider() );
     }
 }
