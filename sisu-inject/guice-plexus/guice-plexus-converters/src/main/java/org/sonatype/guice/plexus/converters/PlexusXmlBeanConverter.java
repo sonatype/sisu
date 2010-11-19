@@ -18,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -58,7 +57,7 @@ public final class PlexusXmlBeanConverter
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private List<TypeConverterBinding> typeConverterBindings;
+    private Collection<TypeConverterBinding> typeConverterBindings;
 
     // ----------------------------------------------------------------------
     // Public methods

@@ -21,7 +21,7 @@
   </modules>
 
   <properties>
-    <sisu.guice.version>2.9.1</sisu.guice.version>
+    <sisu.guice.version>3.0-SNAPSHOT</sisu.guice.version>
   </properties>
 
   <dependencyManagement>

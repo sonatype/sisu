@@ -13,7 +13,7 @@
 package org.sonatype.guice.plexus.converters;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import javax.inject.Inject;
 
@@ -31,7 +31,7 @@ public class ConfigurationConverter
     extends AbstractMatcher<TypeLiteral<?>>
     implements TypeConverter, Module
 {
-    private List<TypeConverterBinding> otherConverterBindings;
+    private Collection<TypeConverterBinding> otherConverterBindings;
 
     @Inject
     private PlexusBeanConverter beanConverter;

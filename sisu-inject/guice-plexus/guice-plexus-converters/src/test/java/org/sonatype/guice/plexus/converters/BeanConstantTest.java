@@ -110,7 +110,7 @@ public class BeanConstantTest
     {
         public BrokenStringConstructor( final String text )
         {
-            throw new RuntimeException();
+            throw new RuntimeException( text );
         }
     }
 
