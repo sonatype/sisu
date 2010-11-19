@@ -20,6 +20,9 @@ import org.sonatype.guice.bean.reflect.Logs;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 
+/**
+ * {@link Iterable} sequence of qualified beans that notifies a listener whenever the sequence changes.
+ */
 final class NotifyingBeans<Q extends Annotation, T>
     extends QualifiedBeans<Q, T>
 {
@@ -27,17 +30,17 @@ final class NotifyingBeans<Q extends Annotation, T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Runnable notify;
+    private final Runnable listener;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    NotifyingBeans( final Key<T> key, final Runnable notify )
+    NotifyingBeans( final Key<T> key, final Runnable listener )
     {
         super( key );
 
-        this.notify = notify;
+        this.listener = listener;
     }
 
     // ----------------------------------------------------------------------
@@ -66,17 +69,23 @@ final class NotifyingBeans<Q extends Annotation, T>
     // Implementation methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Notifies the listener that the qualified bean sequence has changed.
+     * 
+     * @param beans The affected beans
+     * @return The affected beans
+     */
     private List<QualifiedBean<Q, T>> sendUpdate( final List<QualifiedBean<Q, T>> beans )
     {
         if ( !beans.isEmpty() )
         {
             try
             {
-                notify.run();
+                listener.run();
             }
             catch ( final Throwable e )
             {
-                Logs.warn( getClass(), "Problem notifying: " + notify.getClass(), e );
+                Logs.warn( getClass(), "Problem notifying: " + listener.getClass(), e );
             }
         }
         return beans;

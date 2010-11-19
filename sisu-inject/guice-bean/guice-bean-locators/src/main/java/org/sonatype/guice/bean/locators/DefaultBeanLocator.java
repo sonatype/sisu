@@ -135,7 +135,7 @@ public final class DefaultBeanLocator
      * Initializes a sequence of qualified beans based on the current list of {@link Injector}s.
      * 
      * @param beans The beans to initialize
-     * @return Initialized beans
+     * @return Passed-in beans; now initialized
      */
     private <B extends QualifiedBeans<?, ?>> B initialize( final B beans )
     {

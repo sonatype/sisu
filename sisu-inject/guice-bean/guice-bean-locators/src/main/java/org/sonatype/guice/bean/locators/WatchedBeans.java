@@ -66,19 +66,19 @@ final class WatchedBeans<Q extends Annotation, T, W>
     @Override
     public synchronized List<QualifiedBean<Q, T>> add( final Injector injector )
     {
-        return reportBeans( BeanEvent.ADD, super.add( injector ) );
+        return reportBeans( MediatedEvent.ADD, super.add( injector ) );
     }
 
     @Override
     public synchronized List<QualifiedBean<Q, T>> remove( final Injector injector )
     {
-        return reportBeans( BeanEvent.REMOVE, super.remove( injector ) );
+        return reportBeans( MediatedEvent.REMOVE, super.remove( injector ) );
     }
 
     @Override
     public synchronized List<QualifiedBean<Q, T>> clear()
     {
-        return reportBeans( BeanEvent.REMOVE, super.clear() );
+        return reportBeans( MediatedEvent.REMOVE, super.clear() );
     }
 
     // ----------------------------------------------------------------------
@@ -86,15 +86,15 @@ final class WatchedBeans<Q extends Annotation, T, W>
     // ----------------------------------------------------------------------
 
     /**
-     * Enumerate the various bean events that can be sent via the {@link Mediator}.
+     * Enumerate the various events that the {@link Mediator} can handle.
      */
-    private static enum BeanEvent
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    private static enum MediatedEvent
     {
         ADD
         {
             @Override
-            public <Q extends Annotation, T, W> void send( final Mediator<Q, T, W> mediator,
-                                                           final QualifiedBean<Q, T> bean, final W watcher )
+            void send( final Mediator mediator, final QualifiedBean bean, final Object watcher )
                 throws Exception
             {
                 mediator.add( bean.getKey(), bean, watcher );
@@ -103,16 +103,14 @@ final class WatchedBeans<Q extends Annotation, T, W>
         REMOVE
         {
             @Override
-            public <Q extends Annotation, T, W> void send( final Mediator<Q, T, W> mediator,
-                                                           final QualifiedBean<Q, T> bean, final W watcher )
+            void send( final Mediator mediator, final QualifiedBean bean, final Object watcher )
                 throws Exception
             {
                 mediator.remove( bean.getKey(), bean, watcher );
             }
         };
 
-        public abstract <Q extends Annotation, T, W> void send( final Mediator<Q, T, W> mediator,
-                                                                QualifiedBean<Q, T> bean, W watcher )
+        abstract void send( final Mediator mediator, QualifiedBean bean, Object watcher )
             throws Exception;
     }
 
@@ -121,13 +119,13 @@ final class WatchedBeans<Q extends Annotation, T, W>
     // ----------------------------------------------------------------------
 
     /**
-     * Uses the given event to report a series of qualified beans to a watcher via the {@link Mediator}.
+     * Uses the given event to report a series of qualified bean updates to a watcher via the {@link Mediator}.
      * 
-     * @param event The bean event
+     * @param event The mediated event
      * @param beans The qualified beans
      * @return The reported beans
      */
-    private List<QualifiedBean<Q, T>> reportBeans( final BeanEvent event, final List<QualifiedBean<Q, T>> beans )
+    private List<QualifiedBean<Q, T>> reportBeans( final MediatedEvent event, final List<QualifiedBean<Q, T>> beans )
     {
         final W watcher = watcherRef.get();
         if ( null != watcher )
