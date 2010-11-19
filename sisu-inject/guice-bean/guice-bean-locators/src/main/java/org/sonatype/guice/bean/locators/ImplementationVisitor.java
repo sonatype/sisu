@@ -24,7 +24,7 @@ import com.google.inject.spi.ProviderInstanceBinding;
 import com.google.inject.spi.UntargettedBinding;
 
 /**
- * {@link BindingTargetVisitor} that tries to discover implementations behind bindings.
+ * {@link BindingTargetVisitor} that attempts to discover implementations behind bindings.
  */
 final class ImplementationVisitor
     extends DefaultBindingTargetVisitor<Object, Class<?>>

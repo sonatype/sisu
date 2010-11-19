@@ -12,7 +12,6 @@
  */
 package org.sonatype.guice.bean.locators;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -47,19 +46,18 @@ public final class DefaultBeanLocator
     // Public methods
     // ----------------------------------------------------------------------
 
-    public synchronized <Q extends Annotation, T> Iterable<QualifiedBean<Q, T>> locate( final Key<T> key,
-                                                                                        final Runnable notify )
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    public synchronized Iterable<QualifiedBean> locate( final Key key, final Runnable listener )
     {
-        final QualifiedBeans<Q, T> beans =
-            initialize( null == notify ? new QualifiedBeans<Q, T>( key ) : new NotifyingBeans<Q, T>( key, notify ) );
-        exposedBeans.add( new WeakBeanReference<Q, T>( beans ) );
+        final QualifiedBeans beans = null == listener ? new QualifiedBeans( key ) : new NotifyingBeans( key, listener );
+        exposedBeans.add( new WeakBeanReference( initialize( beans ) ) );
         return beans;
     }
 
-    public synchronized <Q extends Annotation, T, W> void watch( final Key<T> key, final Mediator<Q, T, W> mediator,
-                                                                 final W watcher )
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )
     {
-        exposedBeans.add( initialize( new WatchedBeans<Q, T, W>( key, mediator, watcher ) ) );
+        exposedBeans.add( initialize( new WatchedBeans( key, mediator, watcher ) ) );
     }
 
     @Inject
@@ -128,7 +126,7 @@ public final class DefaultBeanLocator
      * Initializes a sequence of qualified beans based on the current list of {@link Injector}s.
      * 
      * @param beans The beans to initialize
-     * @return Initialize beans
+     * @return Initialized beans
      */
     private <B extends QualifiedBeans<?, ?>> B initialize( final B beans )
     {
@@ -136,7 +134,7 @@ public final class DefaultBeanLocator
         {
             beans.add( injector );
         }
-        // take a moment to check previous sequences
+        // take a moment to clear stale bean sequences
         for ( int i = 0; i < exposedBeans.size(); i++ )
         {
             if ( null == exposedBeans.get( i ).get() )
