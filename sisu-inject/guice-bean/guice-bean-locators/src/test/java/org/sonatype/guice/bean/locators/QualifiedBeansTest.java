@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import javax.inject.Qualifier;
+import javax.inject.Singleton;
 
 import junit.framework.TestCase;
 
@@ -32,13 +33,14 @@ import com.google.inject.Guice;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.Provides;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 public class QualifiedBeansTest
     extends TestCase
 {
-    static final HiddenSource TEST_HIDDEN_SOURCE = new HiddenSource()
+    static final HiddenBinding TEST_HIDDEN_SOURCE = new HiddenBinding()
     {
     };
 
@@ -47,6 +49,13 @@ public class QualifiedBeansTest
     @Qualifier
     public @interface Fuzzy
     {
+    }
+
+    @Retention( RUNTIME )
+    @Qualifier
+    public @interface Tag
+    {
+        String value();
     }
 
     static class FuzzyImpl
@@ -90,6 +99,7 @@ public class QualifiedBeansTest
     {
     }
 
+    @Singleton
     static class BBean
         implements ImplicitDefaultBean
     {
@@ -102,6 +112,12 @@ public class QualifiedBeansTest
 
     @Fuzzy
     static class FuzzyBean
+        implements ImplicitDefaultBean
+    {
+    }
+
+    @Tag( "example" )
+    static class TaggedBean
         implements ImplicitDefaultBean
     {
     }
@@ -578,7 +594,7 @@ public class QualifiedBeansTest
         assertEquals( DefaultBean.class, mapping.getValue().getClass() );
     }
 
-    public void testFuzzyQualifierInstance()
+    public void testQualifierWithoutAttributesInstance()
     {
         final Injector injector = Guice.createInjector( new AbstractModule()
         {
@@ -590,6 +606,14 @@ public class QualifiedBeansTest
                 bind( Bean.class ).annotatedWith( Names.named( "fuzzy" ) ).to( FuzzyBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
                 bind( Bean.class ).to( DefaultBean.class );
+            }
+
+            @Provides
+            @Tag( "example" )
+            @SuppressWarnings( "unused" )
+            Bean taggedBean()
+            {
+                return new TaggedBean();
             }
         } );
 
@@ -610,6 +634,49 @@ public class QualifiedBeansTest
         assertEquals( Fuzzy.class, mapping.getKey().annotationType() );
         assertEquals( FuzzyBean.class, fuzzyBean.getClass() );
         assertSame( fuzzyBean, mapping.getValue() );
+        assertFalse( i.hasNext() );
+    }
+
+    public void testQualifierWithAttributeInstance()
+    {
+        final Injector injector = Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                bind( Bean.class ).annotatedWith( Names.named( "default" ) ).to( ABean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "C" ) ).to( CBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "fuzzy" ) ).to( FuzzyBean.class );
+                bind( Bean.class ).annotatedWith( Names.named( "A" ) ).to( ABean.class );
+                bind( Bean.class ).to( DefaultBean.class );
+            }
+
+            @Provides
+            @Tag( "example" )
+            @SuppressWarnings( "unused" )
+            Bean taggedBean()
+            {
+                return new TaggedBean();
+            }
+        } );
+
+        final QualifiedBeans<Tag, Bean> taggedBeans =
+            new QualifiedBeans<Tag, Bean>( Key.get( Bean.class, TaggedBean.class.getAnnotation( Tag.class ) ) );
+
+        taggedBeans.add( injector );
+
+        Iterator<? extends Entry<Tag, Bean>> i;
+        Entry<Tag, Bean> mapping;
+        Bean taggedBean;
+
+        i = taggedBeans.iterator();
+        assertTrue( i.hasNext() );
+        mapping = i.next();
+
+        taggedBean = mapping.getValue();
+        assertEquals( Tag.class, mapping.getKey().annotationType() );
+        assertEquals( TaggedBean.class, taggedBean.getClass() );
+        assertSame( taggedBean, mapping.getValue() );
         assertFalse( i.hasNext() );
     }
 
@@ -648,6 +715,14 @@ public class QualifiedBeansTest
                 bind( Bean.class ).annotatedWith( new FuzzyImpl() ).to( CBean.class );
                 bind( Bean.class ).annotatedWith( Names.named( "B" ) ).to( BBean.class );
             }
+
+            @Provides
+            @Tag( "example" )
+            @SuppressWarnings( "unused" )
+            Bean taggedBean()
+            {
+                return new TaggedBean();
+            }
         } );
 
         final QualifiedBeans<Annotation, Bean> beans = new QualifiedBeans<Annotation, Bean>( Key.get( Bean.class ) );
@@ -656,7 +731,7 @@ public class QualifiedBeansTest
 
         Iterator<? extends Entry<Annotation, Bean>> i;
         Entry<Annotation, Bean> mapping;
-        Bean defaultBean, aBean, bBean, cBean, fBean;
+        Bean defaultBean, aBean, bBean, cBean, fBean, tBean;
 
         i = beans.iterator();
         assertTrue( i.hasNext() );
@@ -699,6 +774,14 @@ public class QualifiedBeansTest
         assertEquals( BBean.class, bBean.getClass() );
         assertSame( bBean, mapping.getValue() );
 
+        assertTrue( i.hasNext() );
+        mapping = i.next();
+
+        tBean = mapping.getValue();
+        assertEquals( Tag.class, mapping.getKey().annotationType() );
+        assertEquals( TaggedBean.class, tBean.getClass() );
+        assertSame( tBean, mapping.getValue() );
+
         assertFalse( i.hasNext() );
 
         i = beans.iterator();
@@ -707,6 +790,7 @@ public class QualifiedBeansTest
         assertEquals( Names.named( "A" ), i.next().getKey() );
         assertEquals( new FuzzyImpl(), i.next().getKey() );
         assertEquals( Names.named( "B" ), i.next().getKey() );
+        assertEquals( Tag.class, i.next().getKey().annotationType() );
 
         i = beans.iterator();
         assertSame( defaultBean, i.next().getValue() );
@@ -714,6 +798,7 @@ public class QualifiedBeansTest
         assertSame( aBean, i.next().getValue() );
         assertSame( fBean, i.next().getValue() );
         assertSame( bBean, i.next().getValue() );
+        assertSame( tBean, i.next().getValue() );
 
         try
         {

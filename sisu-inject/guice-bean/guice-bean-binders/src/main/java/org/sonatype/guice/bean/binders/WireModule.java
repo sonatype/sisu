@@ -18,7 +18,7 @@ import java.util.List;
 import org.sonatype.guice.bean.converters.FileTypeConverter;
 import org.sonatype.guice.bean.converters.URLTypeConverter;
 import org.sonatype.guice.bean.locators.BeanLocator;
-import org.sonatype.guice.bean.locators.HiddenSource;
+import org.sonatype.guice.bean.locators.HiddenBinding;
 
 import com.google.inject.Binder;
 import com.google.inject.Module;
@@ -35,7 +35,7 @@ public final class WireModule
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final HiddenSource HIDDEN_SOURCE = new HiddenSource()
+    private static final HiddenBinding HIDDEN_SOURCE = new HiddenBinding()
     {
         @Override
         public String toString()

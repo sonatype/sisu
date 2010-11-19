@@ -22,7 +22,7 @@
  * <dd>Qualified bean {@link java.util.Map.Entry} and {@link javax.inject.Provider}.
  * <dt>{@link org.sonatype.guice.bean.locators.BeanDescription}
  * <dd>Mixin interface used to supply descriptions to the {@link org.sonatype.guice.bean.locators.BeanLocator}.
- * <dt>{@link org.sonatype.guice.bean.locators.HiddenSource}
+ * <dt>{@link org.sonatype.guice.bean.locators.HiddenBinding}
  * <dd>Marker interface used to hide bindings from the {@link org.sonatype.guice.bean.locators.BeanLocator}.
  * </dl>
  */

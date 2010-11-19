@@ -104,7 +104,7 @@ class QualifiedBeans<Q extends Annotation, T>
         final List<QualifiedBean<Q, T>> newBeans = new ArrayList<QualifiedBean<Q, T>>();
         for ( final Binding binding : bindings )
         {
-            if ( false == binding.getSource() instanceof HiddenSource )
+            if ( false == binding.getSource() instanceof HiddenBinding )
             {
                 final Q qualifier = (Q) strategy.qualify( key, binding );
                 if ( null != qualifier )

@@ -22,7 +22,7 @@ import org.codehaus.plexus.classworlds.ClassWorldException;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
 import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
 import org.sonatype.guice.bean.locators.DefaultBeanLocator;
-import org.sonatype.guice.bean.locators.HiddenSource;
+import org.sonatype.guice.bean.locators.HiddenBinding;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 
 import com.google.inject.AbstractModule;
@@ -39,7 +39,7 @@ import com.google.inject.name.Names;
 public class PlexusBeanLocatorTest
     extends TestCase
 {
-    static final HiddenSource TEST_HIDDEN_SOURCE = new HiddenSource()
+    static final HiddenBinding TEST_HIDDEN_SOURCE = new HiddenBinding()
     {
     };
 

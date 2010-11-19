@@ -19,6 +19,6 @@ import com.google.inject.Binder;
  * 
  * @see Binder#withSource(Object)
  */
-public interface HiddenSource
+public interface HiddenBinding
 {
 }
