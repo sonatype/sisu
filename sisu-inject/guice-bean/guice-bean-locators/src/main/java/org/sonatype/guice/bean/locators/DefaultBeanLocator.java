@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.inject.Mediator;
 
 import com.google.inject.Injector;
@@ -67,6 +68,9 @@ public final class DefaultBeanLocator
         {
             return; // injector already tracked
         }
+
+        Logs.debug( getClass(), "Adding Injector@{}: {}", Integer.toHexString( injector.hashCode() ), injector );
+
         for ( int i = 0; i < exposedBeans.size(); i++ )
         {
             final QualifiedBeans<?, ?> beans = exposedBeans.get( i ).get();
@@ -87,6 +91,9 @@ public final class DefaultBeanLocator
         {
             return; // injector wasn't tracked
         }
+
+        Logs.debug( getClass(), "Removing Injector@{}:", Integer.toHexString( injector.hashCode() ), null );
+
         for ( int i = 0; i < exposedBeans.size(); i++ )
         {
             final QualifiedBeans<?, ?> beans = exposedBeans.get( i ).get();
@@ -103,6 +110,8 @@ public final class DefaultBeanLocator
 
     public synchronized void clear()
     {
+        Logs.debug( getClass(), "Clearing all Injectors", null, null );
+
         for ( int i = 0; i < exposedBeans.size(); i++ )
         {
             final QualifiedBeans<?, ?> beans = exposedBeans.get( i ).get();
