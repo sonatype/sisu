@@ -50,19 +50,19 @@ final class NotifyingBeans<Q extends Annotation, T>
     @Override
     public synchronized List<QualifiedBean<Q, T>> add( final Injector injector )
     {
-        return sendUpdate( super.add( injector ) );
+        return sendEvent( super.add( injector ) );
     }
 
     @Override
     public synchronized List<QualifiedBean<Q, T>> remove( final Injector injector )
     {
-        return sendUpdate( super.remove( injector ) );
+        return sendEvent( super.remove( injector ) );
     }
 
     @Override
     public synchronized List<QualifiedBean<Q, T>> clear()
     {
-        return sendUpdate( super.clear() );
+        return sendEvent( super.clear() );
     }
 
     // ----------------------------------------------------------------------
@@ -75,7 +75,7 @@ final class NotifyingBeans<Q extends Annotation, T>
      * @param beans The affected beans
      * @return The affected beans
      */
-    private List<QualifiedBean<Q, T>> sendUpdate( final List<QualifiedBean<Q, T>> beans )
+    private List<QualifiedBean<Q, T>> sendEvent( final List<QualifiedBean<Q, T>> beans )
     {
         if ( !beans.isEmpty() )
         {

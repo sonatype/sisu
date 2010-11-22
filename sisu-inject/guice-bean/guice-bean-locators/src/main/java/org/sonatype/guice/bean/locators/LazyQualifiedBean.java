@@ -22,7 +22,7 @@ import com.google.inject.Binding;
 import com.google.inject.Scopes;
 
 /**
- * Lazy {@link QualifiedBean}.
+ * Lazy {@link QualifiedBean} that always returns the same bean instance.
  */
 final class LazyQualifiedBean<Q extends Annotation, T>
     implements QualifiedBean<Q, T>
@@ -52,6 +52,7 @@ final class LazyQualifiedBean<Q extends Annotation, T>
         }
         else
         {
+            // use Guice's singleton logic to get lazy-loading without introducing extra locks
             this.provider = Scopes.SINGLETON.scope( binding.getKey(), binding.getProvider() );
         }
     }

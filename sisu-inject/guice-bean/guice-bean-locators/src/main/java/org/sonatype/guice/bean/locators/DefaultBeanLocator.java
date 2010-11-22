@@ -51,79 +51,45 @@ public final class DefaultBeanLocator
     public synchronized Iterable<QualifiedBean> locate( final Key key, final Runnable listener )
     {
         final QualifiedBeans beans = null == listener ? new QualifiedBeans( key ) : new NotifyingBeans( key, listener );
-        exposedBeans.add( new WeakBeanReference( initialize( beans ) ) );
+
+        // store weak-reference to returned beans for automatic clean-up
+        exposedBeans.add( new WeakBeanReference( populate( beans ) ) );
+
         return beans;
     }
 
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )
     {
-        exposedBeans.add( initialize( new WatchedBeans( key, mediator, watcher ) ) );
+        // watched beans use a weak-reference to the watcher for automatic clean-up
+        exposedBeans.add( populate( new WatchedBeans( key, mediator, watcher ) ) );
     }
 
     @Inject
     public synchronized void add( final Injector injector )
     {
-        if ( null == injector || !injectors.add( injector ) )
+        if ( null != injector && injectors.add( injector ) )
         {
-            return; // injector already tracked
-        }
-
-        Logs.debug( getClass(), "Adding Injector@{}: {}", Integer.toHexString( injector.hashCode() ), injector );
-
-        for ( int i = 0; i < exposedBeans.size(); i++ )
-        {
-            final QualifiedBeans<?, ?> beans = exposedBeans.get( i ).get();
-            if ( null != beans )
-            {
-                beans.add( injector ); // update exposed sequence to include new injector
-            }
-            else
-            {
-                exposedBeans.remove( i-- ); // sequence GC'd, so no need to track anymore
-            }
+            final String hash = Integer.toHexString( injector.hashCode() );
+            Logs.debug( getClass(), "Adding Injector@{}: {}", hash, injector );
+            sendEvent( InjectorEvent.ADD, injector );
         }
     }
 
     public synchronized void remove( final Injector injector )
     {
-        if ( null == injector || !injectors.remove( injector ) )
+        if ( null != injector && injectors.remove( injector ) )
         {
-            return; // injector wasn't tracked
-        }
-
-        Logs.debug( getClass(), "Removing Injector@{}:", Integer.toHexString( injector.hashCode() ), null );
-
-        for ( int i = 0; i < exposedBeans.size(); i++ )
-        {
-            final QualifiedBeans<?, ?> beans = exposedBeans.get( i ).get();
-            if ( null != beans )
-            {
-                beans.remove( injector ); // update exposed sequence to ignore old injector
-            }
-            else
-            {
-                exposedBeans.remove( i-- ); // sequence GC'd, so no need to track anymore
-            }
+            final String hash = Integer.toHexString( injector.hashCode() );
+            Logs.debug( getClass(), "Removing Injector@{}:", hash, null );
+            sendEvent( InjectorEvent.REMOVE, injector );
         }
     }
 
     public synchronized void clear()
     {
         Logs.debug( getClass(), "Clearing all Injectors", null, null );
-
-        for ( int i = 0; i < exposedBeans.size(); i++ )
-        {
-            final QualifiedBeans<?, ?> beans = exposedBeans.get( i ).get();
-            if ( null != beans )
-            {
-                beans.clear();
-            }
-            else
-            {
-                exposedBeans.remove( i-- ); // sequence GC'd, so no need to track anymore
-            }
-        }
+        sendEvent( InjectorEvent.CLEAR, null );
         injectors.clear();
     }
 
@@ -132,12 +98,68 @@ public final class DefaultBeanLocator
     // ----------------------------------------------------------------------
 
     /**
-     * Initializes a sequence of qualified beans based on the current list of {@link Injector}s.
-     * 
-     * @param beans The beans to initialize
-     * @return Passed-in beans; now initialized
+     * Enumerate the various {@link Injector} events that {@link QualifiedBeans} can receive.
      */
-    private <B extends QualifiedBeans<?, ?>> B initialize( final B beans )
+    @SuppressWarnings( "rawtypes" )
+    private static enum InjectorEvent
+    {
+        ADD
+        {
+            @Override
+            void send( final QualifiedBeans beans, final Injector injector )
+            {
+                beans.add( injector );
+            }
+        },
+        REMOVE
+        {
+            @Override
+            void send( final QualifiedBeans beans, final Injector injector )
+            {
+                beans.remove( injector );
+            }
+        },
+        CLEAR
+        {
+            @Override
+            void send( final QualifiedBeans beans, final Injector injector )
+            {
+                beans.clear();
+            }
+        };
+
+        abstract void send( final QualifiedBeans beans, final Injector injector );
+    }
+
+    /**
+     * Sends the given {@link Injector} event to all exposed beans known to the locator.
+     * 
+     * @param event The injector event
+     * @param injector The injector
+     */
+    private void sendEvent( final InjectorEvent event, final Injector injector )
+    {
+        for ( int i = 0; i < exposedBeans.size(); i++ )
+        {
+            final QualifiedBeans<?, ?> beans = exposedBeans.get( i ).get();
+            if ( null != beans )
+            {
+                event.send( beans, injector );
+            }
+            else
+            {
+                exposedBeans.remove( i-- ); // sequence GC'd, so no need to track anymore
+            }
+        }
+    }
+
+    /**
+     * Populates a sequence of qualified beans based on the current group of {@link Injector}s.
+     * 
+     * @param beans The sequence to populate
+     * @return The populated bean sequence
+     */
+    private <B extends QualifiedBeans<?, ?>> B populate( final B beans )
     {
         for ( final Injector injector : injectors )
         {
