@@ -19,16 +19,20 @@ import java.util.regex.Pattern;
  */
 enum GlobberStrategy
 {
+    // ----------------------------------------------------------------------
+    // Enumerated values
+    // ----------------------------------------------------------------------
+
     ANYTHING
     {
         @Override
-        final Object compile( final String glob )
+        public final Object compile( final String glob )
         {
             return null;
         }
 
         @Override
-        final boolean match( final Object globPattern, final String filename )
+        public final boolean matches( final Object globPattern, final String filename )
         {
             return true;
         }
@@ -36,13 +40,13 @@ enum GlobberStrategy
     SUFFIX
     {
         @Override
-        final Object compile( final String glob )
+        public final Object compile( final String glob )
         {
             return glob.substring( 1 ); // remove leading asterisk
         }
 
         @Override
-        final boolean match( final Object globPattern, final String filename )
+        public final boolean matches( final Object globPattern, final String filename )
         {
             return filename.endsWith( (String) globPattern ); // no need for basename(...)
         }
@@ -50,13 +54,13 @@ enum GlobberStrategy
     PREFIX
     {
         @Override
-        final Object compile( final String glob )
+        public final Object compile( final String glob )
         {
             return glob.substring( 0, glob.length() - 1 ); // remove trailing asterisk
         }
 
         @Override
-        final boolean match( final Object globPattern, final String filename )
+        public final boolean matches( final Object globPattern, final String filename )
         {
             return basename( filename ).startsWith( (String) globPattern );
         }
@@ -64,13 +68,13 @@ enum GlobberStrategy
     EXACT
     {
         @Override
-        final Object compile( final String glob )
+        public final Object compile( final String glob )
         {
             return glob;
         }
 
         @Override
-        final boolean match( final Object globPattern, final String filename )
+        public final boolean matches( final Object globPattern, final String filename )
         {
             return ( (String) globPattern ).equals( basename( filename ) );
         }
@@ -78,17 +82,21 @@ enum GlobberStrategy
     PATTERN
     {
         @Override
-        final Object compile( final String glob )
+        public final Object compile( final String glob )
         {
             return Pattern.compile( glob.replaceAll( "[^*]+", "\\\\Q$0\\\\E" ).replaceAll( "\\*+", ".*" ) );
         }
 
         @Override
-        final boolean match( final Object globPattern, final String filename )
+        public final boolean matches( final Object globPattern, final String filename )
         {
             return ( (Pattern) globPattern ).matcher( basename( filename ) ).matches();
         }
     };
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
     /**
      * Compiles the given plain-text glob into an optimized pattern.
@@ -96,7 +104,7 @@ enum GlobberStrategy
      * @param glob The plain-text glob
      * @return Compiled glob pattern
      */
-    abstract Object compile( final String glob );
+    public abstract Object compile( final String glob );
 
     /**
      * Attempts to match the given compiled glob pattern against a filename.
@@ -105,7 +113,11 @@ enum GlobberStrategy
      * @param filename The candidate filename
      * @return {@code true} if the pattern matches; otherwise {@code false}
      */
-    abstract boolean match( final Object globPattern, final String filename );
+    public abstract boolean matches( final Object globPattern, final String filename );
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
 
     /**
      * Extracts the basename segment from the given filename.

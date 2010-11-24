@@ -106,7 +106,7 @@ class QualifiedBeans<Q extends Annotation, T>
         {
             if ( false == binding.getSource() instanceof HiddenBinding )
             {
-                final Q qualifier = (Q) strategy.qualify( key, binding );
+                final Q qualifier = (Q) strategy.qualifies( key, binding );
                 if ( null != qualifier )
                 {
                     final QualifiedBean<Q, T> bean = new LazyQualifiedBean<Q, T>( qualifier, binding );

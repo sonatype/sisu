@@ -14,54 +14,62 @@ package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
 
+import javax.inject.Qualifier;
+
 import com.google.inject.Binding;
 import com.google.inject.Key;
 import com.google.inject.name.Named;
+import com.google.inject.name.Names;
 
+/**
+ * Enumerates the different strategies for qualifying {@link Binding}s against requirement {@link Key}s.
+ */
 enum QualifyingStrategy
 {
+    // ----------------------------------------------------------------------
+    // Enumerated values
+    // ----------------------------------------------------------------------
+
     UNRESTRICTED
     {
         @Override
-        final Annotation qualify( final Key<?> expectedKey, final Binding<?> binding )
+        public final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
         {
-            final Key<?> key = binding.getKey();
-            if ( null != key.getAnnotationType() )
-            {
-                return key.getAnnotation();
-            }
-            return QualifiedBeans.DEFAULT_QUALIFIER;
+            final Annotation qualifier = qualify( binding.getKey() );
+            return null != qualifier ? qualifier : BLANK_QUALIFIER;
         }
     },
     NAMED
     {
         @Override
-        final Annotation qualify( final Key<?> expectedKey, final Binding<?> binding )
+        public final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
         {
-            final Annotation qualifier = UNRESTRICTED.qualify( expectedKey, binding );
+            final Annotation qualifier = qualify( binding.getKey() );
             return qualifier instanceof Named ? qualifier : null;
         }
     },
     NAMED_WITH_ATTRIBUTES
     {
         @Override
-        final Annotation qualify( final Key<?> expectedKey, final Binding<?> binding )
+        public final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
         {
-            final Annotation qualifier = NAMED.qualify( expectedKey, binding );
-            return expectedKey.getAnnotation().equals( qualifier ) ? qualifier : null;
+            final Annotation qualifier = qualify( binding.getKey() );
+            return requirement.getAnnotation().equals( qualifier ) ? qualifier : null;
         }
     },
     MARKED
     {
         @Override
-        final Annotation qualify( final Key<?> expectedKey, final Binding<?> binding )
+        public final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
         {
-            final Class<? extends Annotation> markerType = expectedKey.getAnnotationType();
-            final Annotation qualifier = UNRESTRICTED.qualify( expectedKey, binding );
-            if ( markerType.isInstance( qualifier ) )
+            final Class<? extends Annotation> markerType = requirement.getAnnotationType();
+
+            final Annotation qualifier = qualify( binding.getKey() );
+            if ( null != qualifier && markerType == qualifier.annotationType() )
             {
                 return qualifier;
             }
+
             final Class<?> implementation = binding.acceptTargetVisitor( ImplementationVisitor.THIS );
             return null != implementation ? implementation.getAnnotation( markerType ) : null;
         }
@@ -69,12 +77,47 @@ enum QualifyingStrategy
     MARKED_WITH_ATTRIBUTES
     {
         @Override
-        final Annotation qualify( final Key<?> expectedKey, final Binding<?> binding )
+        public final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
         {
-            final Annotation qualifier = MARKED.qualify( expectedKey, binding );
-            return expectedKey.getAnnotation().equals( qualifier ) ? qualifier : null;
+            final Annotation qualifier = MARKED.qualifies( requirement, binding );
+            return requirement.getAnnotation().equals( qualifier ) ? qualifier : null;
         }
     };
 
-    abstract Annotation qualify( final Key<?> expectedKey, final Binding<?> binding );
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    static final Annotation DEFAULT_QUALIFIER = Names.named( "default" );
+
+    static final Annotation BLANK_QUALIFIER = Names.named( "" );
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Attempts to qualify the given {@link Binding} against the requirement {@link Key}.
+     * 
+     * @param requirement The requirement key
+     * @param binding The binding to qualify
+     * @return Qualifier annotation when the binding qualifies; otherwise {@code null}
+     */
+    public abstract Annotation qualifies( final Key<?> requirement, final Binding<?> binding );
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Computes a canonical {@link Qualifier} annotation for the given binding {@link Key}.
+     * 
+     * @param key The key to qualify
+     * @return Qualifier for the key
+     */
+    static final Annotation qualify( final Key<?> key )
+    {
+        // map bindings with no annotation (or annotation type) to the default qualifier
+        return null != key.getAnnotationType() ? key.getAnnotation() : DEFAULT_QUALIFIER;
+    }
 }
