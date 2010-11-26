@@ -27,7 +27,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.sonatype.guice.bean.scanners;
+package org.sonatype.guice.bean.scanners.asm;
 
 /**
  * Information about an exception handler block.

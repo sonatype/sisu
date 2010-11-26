@@ -18,6 +18,7 @@ import com.google.inject.Provider;
 import com.google.inject.spi.BindingTargetVisitor;
 import com.google.inject.spi.ConstructorBinding;
 import com.google.inject.spi.DefaultBindingTargetVisitor;
+import com.google.inject.spi.ExposedBinding;
 import com.google.inject.spi.InstanceBinding;
 import com.google.inject.spi.LinkedKeyBinding;
 import com.google.inject.spi.ProviderInstanceBinding;
@@ -81,5 +82,11 @@ final class ImplementationVisitor
             }
         }
         return null;
+    }
+
+    @Override
+    public Class<?> visit( final ExposedBinding<? extends Object> binding )
+    {
+        return binding.getPrivateElements().getInjector().getBinding( binding.getKey() ).acceptTargetVisitor( this );
     }
 }

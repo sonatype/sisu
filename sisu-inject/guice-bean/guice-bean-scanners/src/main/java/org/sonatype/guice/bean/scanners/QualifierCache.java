@@ -19,6 +19,9 @@ import java.util.Map;
 import javax.inject.Qualifier;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.scanners.asm.AnnotationVisitor;
+import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
+import org.sonatype.guice.bean.scanners.asm.Type;
 
 /**
  * Caching {@link ClassVisitor} that maintains a map of known {@link Qualifier} annotations.

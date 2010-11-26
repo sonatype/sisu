@@ -18,6 +18,9 @@ import java.net.URL;
 import javax.inject.Qualifier;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.scanners.asm.AnnotationVisitor;
+import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
+import org.sonatype.guice.bean.scanners.asm.Opcodes;
 
 /**
  * {@link ClassSpaceVisitor} that reports types annotated with {@link Qualifier} annotations.

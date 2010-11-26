@@ -33,6 +33,8 @@ import junit.framework.TestCase;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
+import org.sonatype.guice.bean.scanners.asm.AnnotationVisitor;
+import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
 
 public class QualifiedScanningTest
     extends TestCase

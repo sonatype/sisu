@@ -12,6 +12,12 @@
  */
 package org.sonatype.guice.bean.scanners;
 
+import org.sonatype.guice.bean.scanners.asm.AnnotationVisitor;
+import org.sonatype.guice.bean.scanners.asm.Attribute;
+import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
+import org.sonatype.guice.bean.scanners.asm.FieldVisitor;
+import org.sonatype.guice.bean.scanners.asm.MethodVisitor;
+
 /**
  * Skeletal {@link ClassVisitor} that helps minimize the effort required to implement bytecode scanners.
  */

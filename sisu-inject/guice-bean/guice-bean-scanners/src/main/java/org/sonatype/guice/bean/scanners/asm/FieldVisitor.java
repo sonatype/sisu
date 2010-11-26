@@ -27,49 +27,38 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.sonatype.guice.bean.scanners;
+package org.sonatype.guice.bean.scanners.asm;
 
 /**
- * An edge in the control flow graph of a method body. See {@link Label Label}.
+ * A visitor to visit a Java field. The methods of this interface must be called
+ * in the following order: ( <tt>visitAnnotation</tt> |
+ * <tt>visitAttribute</tt> )* <tt>visitEnd</tt>.
  * 
  * @author Eric Bruneton
  */
-class Edge {
+public interface FieldVisitor {
 
     /**
-     * Denotes a normal control flow graph edge.
+     * Visits an annotation of the field.
+     * 
+     * @param desc the class descriptor of the annotation class.
+     * @param visible <tt>true</tt> if the annotation is visible at runtime.
+     * @return a visitor to visit the annotation values, or <tt>null</tt> if
+     *         this visitor is not interested in visiting this annotation.
      */
-    static final int NORMAL = 0;
+    AnnotationVisitor visitAnnotation(String desc, boolean visible);
 
     /**
-     * Denotes a control flow graph edge corresponding to an exception handler.
-     * More precisely any {@link Edge} whose {@link #info} is strictly positive
-     * corresponds to an exception handler. The actual value of {@link #info} is
-     * the index, in the {@link ClassWriter} type table, of the exception that
-     * is catched.
+     * Visits a non standard attribute of the field.
+     * 
+     * @param attr an attribute.
      */
-    static final int EXCEPTION = 0x7FFFFFFF;
+    void visitAttribute(Attribute attr);
 
     /**
-     * Information about this control flow graph edge. If
-     * {@link ClassWriter#COMPUTE_MAXS} is used this field is the (relative)
-     * stack size in the basic block from which this edge originates. This size
-     * is equal to the stack size at the "jump" instruction to which this edge
-     * corresponds, relatively to the stack size at the beginning of the
-     * originating basic block. If {@link ClassWriter#COMPUTE_FRAMES} is used,
-     * this field is the kind of this control flow graph edge (i.e. NORMAL or
-     * EXCEPTION).
+     * Visits the end of the field. This method, which is the last one to be
+     * called, is used to inform the visitor that all the annotations and
+     * attributes of the field have been visited.
      */
-    int info;
-
-    /**
-     * The successor block of the basic block from which this edge originates.
-     */
-    Label successor;
-
-    /**
-     * The next edge in the list of successors of the originating basic block.
-     * See {@link Label#successors successors}.
-     */
-    Edge next;
+    void visitEnd();
 }

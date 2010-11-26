@@ -15,6 +15,7 @@ package org.sonatype.guice.bean.scanners;
 import java.net.URL;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
 
 /**
  * ASM-style visitor that visits a {@link ClassSpace}. The methods of this interface must be called in the following

@@ -15,9 +15,9 @@ package org.sonatype.guice.plexus.scanners;
 import java.lang.reflect.Modifier;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.scanners.ClassWriter;
-import org.sonatype.guice.bean.scanners.MethodVisitor;
-import org.sonatype.guice.bean.scanners.Opcodes;
+import org.sonatype.guice.bean.scanners.asm.ClassWriter;
+import org.sonatype.guice.bean.scanners.asm.MethodVisitor;
+import org.sonatype.guice.bean.scanners.asm.Opcodes;
 
 final class CloningClassLoader
     extends ClassLoader
