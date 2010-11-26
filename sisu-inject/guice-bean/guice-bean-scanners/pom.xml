@@ -22,10 +22,6 @@
       <groupId>org.sonatype.sisu.inject</groupId>
       <artifactId>guice-bean-reflect</artifactId>
     </dependency>
-    <dependency>
-      <groupId>asm</groupId>
-      <artifactId>asm</artifactId>
-    </dependency>
   </dependencies>
 
 </project>

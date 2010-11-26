@@ -17,9 +17,6 @@ import java.net.URL;
 
 import javax.inject.Qualifier;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Opcodes;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 
 /**

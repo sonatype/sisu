@@ -114,12 +114,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
     <dependencies>
 
       <dependency>
-        <groupId>asm</groupId>
-        <artifactId>asm</artifactId>
-        <version>3.3</version>
-      </dependency>
-
-      <dependency>
         <groupId>javax.inject</groupId>
         <artifactId>javax.inject</artifactId>
         <version>1</version>
@@ -188,15 +182,6 @@ See the Apache License Version 2.0 for the specific language governing permissio
               </_removeheaders>
             </instructions>
           </configuration>
-        </plugin>
-        <plugin>
-          <artifactId>maven-shade-plugin</artifactId>
-          <version>1.4</version>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>build-helper-maven-plugin</artifactId>
-          <version>1.5</version>
         </plugin>
         <plugin>
           <artifactId>maven-javadoc-plugin</artifactId>

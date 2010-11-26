@@ -18,9 +18,6 @@ import java.util.Map;
 
 import javax.inject.Qualifier;
 
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.Type;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 
 /**

@@ -14,7 +14,6 @@ package org.sonatype.guice.bean.scanners;
 
 import java.net.URL;
 
-import org.objectweb.asm.ClassVisitor;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 
 /**

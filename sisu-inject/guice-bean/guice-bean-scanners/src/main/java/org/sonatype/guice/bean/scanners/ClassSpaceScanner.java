@@ -16,8 +16,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.Streams;
