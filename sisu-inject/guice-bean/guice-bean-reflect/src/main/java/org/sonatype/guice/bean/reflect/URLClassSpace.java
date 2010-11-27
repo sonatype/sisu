@@ -20,7 +20,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.LinkedHashSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.Manifest;
@@ -203,15 +203,18 @@ public final class URLClassSpace
         final List<URL> searchPath = new ArrayList<URL>();
         Collections.addAll( searchPath, classPath );
 
+        final List<URL> expandedPath = new ArrayList<URL>();
+        final Set<String> visited = new HashSet<String>();
+
         // search path may grow, so use index not iterator
-        final Set<URL> expandedPath = new LinkedHashSet<URL>();
         for ( int i = 0; i < searchPath.size(); i++ )
         {
             final URL url = searchPath.get( i );
-            if ( null == url || !expandedPath.add( url ) )
+            if ( null == url || !visited.add( url.toString() ) )
             {
                 continue; // already processed
             }
+            expandedPath.add( url );
             final String[] classPathEntries;
             try
             {
