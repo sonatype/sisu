@@ -12,7 +12,7 @@
  */
 package org.sonatype.guice.bean.inject;
 
-import java.util.Collection;
+import java.util.List;
 
 import com.google.inject.MembersInjector;
 
@@ -41,13 +41,14 @@ final class BeanInjector<B>
     // Constructors
     // ----------------------------------------------------------------------
 
-    BeanInjector( final Collection<PropertyBinding> bindings )
+    BeanInjector( final List<PropertyBinding> bindings )
     {
-        int n = bindings.size();
-        this.bindings = new PropertyBinding[n];
-        for ( final PropertyBinding b : bindings )
+        final int size = bindings.size();
+        this.bindings = new PropertyBinding[size];
+        for ( int i = 0, n = size; i < size; i++ )
         {
-            this.bindings[--n] = b; // inject properties in reverse order of discovery
+            // reverse: inject superclass before sub
+            this.bindings[i] = bindings.get( --n );
         }
     }
 

@@ -12,8 +12,10 @@
  */
 package org.sonatype.guice.bean.inject;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.sonatype.guice.bean.reflect.BeanProperties;
 import org.sonatype.guice.bean.reflect.BeanProperty;
@@ -56,35 +58,36 @@ public final class BeanListener
             return; // no properties to bind
         }
 
-        final Map<String, PropertyBinding> bindings = new LinkedHashMap<String, PropertyBinding>();
+        final List<PropertyBinding> bindings = new ArrayList<PropertyBinding>();
+        final Set<String> visited = new HashSet<String>();
+
         for ( final BeanProperty<?> property : new BeanProperties( type.getRawType() ) )
         {
             final String name = property.getName();
-            if ( bindings.containsKey( name ) )
+            if ( visited.add( name ) )
             {
-                continue; // already have a binding for this property
-            }
-            try
-            {
-                final PropertyBinding binding = propertyBinder.bindProperty( property );
-                if ( binding == PropertyBinder.LAST_BINDING )
+                try
                 {
-                    break; // no more bindings
+                    final PropertyBinding binding = propertyBinder.bindProperty( property );
+                    if ( binding == PropertyBinder.LAST_BINDING )
+                    {
+                        break; // no more bindings
+                    }
+                    if ( binding != null )
+                    {
+                        bindings.add( binding );
+                    }
                 }
-                if ( binding != null )
+                catch ( final Throwable e )
                 {
-                    bindings.put( name, binding );
+                    encounter.addError( new ProvisionException( "Error binding: " + property, e ) );
                 }
-            }
-            catch ( final Throwable e )
-            {
-                encounter.addError( new ProvisionException( "Error binding: " + property, e ) );
             }
         }
 
         if ( !bindings.isEmpty() )
         {
-            encounter.register( new BeanInjector<B>( bindings.values() ) );
+            encounter.register( new BeanInjector<B>( bindings ) );
         }
     }
 
