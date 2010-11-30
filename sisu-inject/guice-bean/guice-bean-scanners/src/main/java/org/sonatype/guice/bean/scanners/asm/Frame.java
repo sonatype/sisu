@@ -29,7 +29,6 @@
  */
 package org.sonatype.guice.bean.scanners.asm;
 
-
 /**
  * Information about the input and output stack map frames of a basic block.
  * 

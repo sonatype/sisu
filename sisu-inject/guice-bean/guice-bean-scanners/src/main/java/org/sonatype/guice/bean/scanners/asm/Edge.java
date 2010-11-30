@@ -29,7 +29,6 @@
  */
 package org.sonatype.guice.bean.scanners.asm;
 
-
 /**
  * An edge in the control flow graph of a method body. See {@link Label Label}.
  * 
