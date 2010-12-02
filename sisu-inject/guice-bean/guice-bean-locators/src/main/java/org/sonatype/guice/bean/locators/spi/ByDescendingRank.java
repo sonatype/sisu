@@ -10,11 +10,18 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.bean.locators.registry;
+package org.sonatype.guice.bean.locators.spi;
 
-public interface BeanSource
+import java.util.Comparator;
+
+/**
+ * {@link Comparator} that orders {@link Rankable} instances by descending rank.
+ */
+public final class ByDescendingRank
+    implements Comparator<Rankable>
 {
-    <T> void populate( BeanSequence<T> beans );
-
-    int ranking();
+    public int compare( final Rankable lhs, final Rankable rhs )
+    {
+        return rhs.rank() - lhs.rank();
+    }
 }

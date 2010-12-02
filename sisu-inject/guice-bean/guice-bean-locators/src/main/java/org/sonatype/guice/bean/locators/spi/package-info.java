@@ -10,18 +10,18 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.bean.locators.registry;
 
-import com.google.inject.Binding;
-import com.google.inject.TypeLiteral;
-
-public interface BeanSequence<T>
-{
-    TypeLiteral<T> type();
-
-    void add( Binding<T> binding );
-
-    void remove( Binding<T> binding );
-
-    void clear();
-}
+/**
+ * SPI for contributing {@link com.google.inject.Binding}s to the {@link org.sonatype.guice.bean.locators.MutableBeanLocator}.
+ *
+ * <p>The principal members of this package are:
+ * <dl>
+ * <dt>{@link org.sonatype.guice.bean.locators.spi.Bindings}
+ * <dd>Contributes {@link com.google.inject.Binding}s.
+ * <dt>{@link org.sonatype.guice.bean.locators.spi.BindingHub}
+ * <dd>Distributes {@link com.google.inject.Binding}s to {@link org.sonatype.guice.bean.locators.spi.BindingSpoke}s.
+ * <dt>{@link org.sonatype.guice.bean.locators.spi.BindingSpoke}
+ * <dd>Observes {@link com.google.inject.Binding}s.
+ * </dl>
+ */
+package org.sonatype.guice.bean.locators.spi;
