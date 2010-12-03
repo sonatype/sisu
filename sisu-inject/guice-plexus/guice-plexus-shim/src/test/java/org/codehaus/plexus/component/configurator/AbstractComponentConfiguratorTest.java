@@ -29,6 +29,7 @@ import java.io.StringReader;
 import java.lang.annotation.ElementType;
 import java.net.URI;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -994,6 +995,35 @@ public abstract class AbstractComponentConfiguratorTest
         assertEquals( "check integer value", 16, component.getIntValue() );
 
         assertEquals( "check long value", 8589934592L, component.getLongValue() );
+    }
+
+    public void testComponentConfiguratorCollectionInlined()
+        throws Exception
+    {
+        final String xml =
+            "<configuration>" + "<string>a</string>" + "<integer>1</integer>" + "<string>b</string>"
+                + "<integer>2</integer>" + "</configuration>";
+
+        final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
+
+        final ComponentWithInlinedCollection component = new ComponentWithInlinedCollection();
+
+        final ComponentDescriptor<?> descriptor = new ComponentDescriptor<Object>();
+
+        descriptor.setRole( "role" );
+
+        descriptor.setImplementation( component.getClass().getName() );
+
+        descriptor.setConfiguration( configuration );
+
+        final ClassWorld classWorld = new ClassWorld();
+
+        final ClassRealm realm = classWorld.newRealm( "test", getClass().getClassLoader() );
+
+        configureComponent( component, descriptor, realm );
+
+        assertEquals( Arrays.asList( "a", "b" ), component.getStrings() );
+        assertEquals( Arrays.asList( Integer.valueOf( 1 ), Integer.valueOf( 2 ) ), component.getIntegers() );
     }
 
 }

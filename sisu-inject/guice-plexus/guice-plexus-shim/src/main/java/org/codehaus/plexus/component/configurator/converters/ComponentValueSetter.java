@@ -19,6 +19,7 @@ package org.codehaus.plexus.component.configurator.converters;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.codehaus.plexus.component.configurator.ConfigurationListener;
@@ -26,6 +27,7 @@ import org.codehaus.plexus.component.configurator.converters.lookup.ConverterLoo
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.util.ReflectionUtils;
+import org.codehaus.plexus.util.StringUtils;
 
 /** @author <a href="mailto:kenney@codehaus.org">Kenney Westerhof</a> */
 @SuppressWarnings( "rawtypes" )
@@ -77,8 +79,8 @@ public class ComponentValueSetter
 
         if ( setter == null && field == null )
         {
-            throw new ComponentConfigurationException( "Cannot find setter nor field in " + object.getClass().getName()
-                + " for '" + fieldName + "'" );
+            throw new ComponentConfigurationException( "Cannot find setter, adder nor field in "
+                + object.getClass().getName() + " for '" + fieldName + "'" );
         }
 
         if ( setterTypeConverter == null && fieldTypeConverter == null )
@@ -94,7 +96,12 @@ public class ComponentValueSetter
 
         if ( setter == null )
         {
-            return;
+            setter = getAdder( fieldName, object.getClass() );
+
+            if ( setter == null )
+            {
+                return;
+            }
         }
 
         setterParamType = setter.getParameterTypes()[0];
@@ -107,6 +114,26 @@ public class ComponentValueSetter
         {
             // ignore, handle later
         }
+    }
+
+    private static Method getAdder( final String fieldName, final Class clazz )
+    {
+        Method[] methods = clazz.getMethods();
+
+        String adderName = "add" + StringUtils.capitalizeFirstLetter( fieldName );
+
+        for ( int i = 0; i < methods.length; i++ )
+        {
+            Method method = methods[i];
+
+            if ( adderName.equals( method.getName() ) && !Modifier.isStatic( method.getModifiers() )
+                && method.getParameterTypes().length == 1 )
+            {
+                return method;
+            }
+        }
+
+        return null;
     }
 
     private void initField()
