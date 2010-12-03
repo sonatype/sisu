@@ -928,4 +928,72 @@ public abstract class AbstractComponentConfiguratorTest
         assertEquals( new File( "dir", "test.txt" ), component.getFileArray()[1] );
     }
 
+    public void testComponentConfiguratorDecodesHexNumbers()
+        throws Exception
+    {
+        final String xml =
+            "<configuration>" + "  <byte-value>0x40</byte-value>" + "  <short-value>-0X10</short-value>"
+                + "  <int-value>#20</int-value>" + "  <long-value>0x200000000</long-value>" + "</configuration>";
+
+        final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
+
+        final ConfigurableComponent component = new ConfigurableComponent();
+
+        final ComponentDescriptor descriptor = new ComponentDescriptor();
+
+        descriptor.setRole( "role" );
+
+        descriptor.setImplementation( component.getClass().getName() );
+
+        descriptor.setConfiguration( configuration );
+
+        final ClassWorld classWorld = new ClassWorld();
+
+        final ClassRealm realm = classWorld.newRealm( "test", getClass().getClassLoader() );
+
+        configureComponent( component, descriptor, realm );
+
+        assertEquals( "check byte value", 64, component.getByteValue() );
+
+        assertEquals( "check short value", -16, component.getShortValue() );
+
+        assertEquals( "check integer value", 32, component.getIntValue() );
+
+        assertEquals( "check long value", 8589934592L, component.getLongValue() );
+    }
+
+    public void testComponentConfiguratorDecodesOctalNumbers()
+        throws Exception
+    {
+        final String xml =
+            "<configuration>" + "  <byte-value>040</byte-value>" + "  <short-value>-010</short-value>"
+                + "  <int-value>020</int-value>" + "  <long-value>0100000000000</long-value>" + "</configuration>";
+
+        final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
+
+        final ConfigurableComponent component = new ConfigurableComponent();
+
+        final ComponentDescriptor descriptor = new ComponentDescriptor();
+
+        descriptor.setRole( "role" );
+
+        descriptor.setImplementation( component.getClass().getName() );
+
+        descriptor.setConfiguration( configuration );
+
+        final ClassWorld classWorld = new ClassWorld();
+
+        final ClassRealm realm = classWorld.newRealm( "test", getClass().getClassLoader() );
+
+        configureComponent( component, descriptor, realm );
+
+        assertEquals( "check byte value", 32, component.getByteValue() );
+
+        assertEquals( "check short value", -8, component.getShortValue() );
+
+        assertEquals( "check integer value", 16, component.getIntValue() );
+
+        assertEquals( "check long value", 8589934592L, component.getLongValue() );
+    }
+
 }

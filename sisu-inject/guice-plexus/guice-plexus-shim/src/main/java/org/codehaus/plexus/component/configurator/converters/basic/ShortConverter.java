@@ -1,5 +1,7 @@
 package org.codehaus.plexus.component.configurator.converters.basic;
 
+import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
+
 /*
  * The MIT License
  *
@@ -35,8 +37,16 @@ public class ShortConverter
 
     @Override
     public Object fromString( final String str )
+        throws ComponentConfigurationException
     {
-        return Short.valueOf( str );
+        try
+        {
+            return Short.decode( str );
+        }
+        catch ( final NumberFormatException e )
+        {
+            throw new ComponentConfigurationException( "Not a number: '" + str + "'", e );
+        }
     }
 
 }

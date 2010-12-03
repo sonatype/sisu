@@ -41,7 +41,7 @@ public class IntConverter
     {
         try
         {
-            return Integer.valueOf( str );
+            return Integer.decode( str );
         }
         catch ( final NumberFormatException e )
         {

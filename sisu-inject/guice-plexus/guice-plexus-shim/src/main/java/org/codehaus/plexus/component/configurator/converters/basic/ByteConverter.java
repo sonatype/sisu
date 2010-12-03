@@ -1,5 +1,7 @@
 package org.codehaus.plexus.component.configurator.converters.basic;
 
+import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
+
 /*
  * The MIT License
  *
@@ -35,8 +37,16 @@ public class ByteConverter
 
     @Override
     public Object fromString( final String str )
+        throws ComponentConfigurationException
     {
-        return new Byte( (byte) Integer.parseInt( str ) );
+        try
+        {
+            return Byte.decode( str );
+        }
+        catch ( final NumberFormatException e )
+        {
+            throw new ComponentConfigurationException( "Not a number: '" + str + "'", e );
+        }
     }
 
 }
