@@ -1026,4 +1026,31 @@ public abstract class AbstractComponentConfiguratorTest
         assertEquals( Arrays.asList( Integer.valueOf( 1 ), Integer.valueOf( 2 ) ), component.getIntegers() );
     }
 
+    public void testComponentConfigurationWhereUserOnlySetsThePrimaryBeanProperty()
+        throws Exception
+    {
+        final String xml = "<configuration>" + "<beans><bean>dir/test.txt</bean></beans>" + "</configuration>";
+
+        final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
+
+        final ComponentWithDefaultProperty component = new ComponentWithDefaultProperty();
+
+        final ComponentDescriptor<?> descriptor = new ComponentDescriptor<Object>();
+
+        descriptor.setRole( "role" );
+
+        descriptor.setImplementation( component.getClass().getName() );
+
+        descriptor.setConfiguration( configuration );
+
+        final ClassWorld classWorld = new ClassWorld();
+
+        final ClassRealm realm = classWorld.newRealm( "test", getClass().getClassLoader() );
+
+        configureComponent( component, descriptor, realm );
+
+        assertEquals( 1, component.beans.length );
+        assertEquals( new File( "dir", "test.txt" ), component.beans[0].getFile() );
+    }
+
 }

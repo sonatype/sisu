@@ -70,11 +70,11 @@ public class ObjectWithFieldsConverter
                                      final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
-        Object retValue = fromExpression( configuration, expressionEvaluator, type );
+        Object retValue = fromExpression( configuration, expressionEvaluator );
 
-        if ( retValue == null )
+        try
         {
-            try
+            if ( retValue == null )
             {
                 // it is a "composite" - we compose it from its children. It does not have a value of its own
                 final Class implementation = getClassForImplementationHint( type, configuration, classLoader );
@@ -89,16 +89,30 @@ public class ObjectWithFieldsConverter
                 processConfiguration( converterLookup, retValue, classLoader, configuration, expressionEvaluator,
                                       listener );
             }
-            catch ( final ComponentConfigurationException e )
+            else if ( !type.isInstance( retValue ) )
             {
-                if ( e.getFailedConfiguration() == null )
-                {
-                    e.setFailedConfiguration( configuration );
-                }
+                final Class implementation = getClassForImplementationHint( type, configuration, classLoader );
 
-                throw e;
+                Object propertyValue = retValue;
+
+                retValue = instantiateObject( implementation );
+
+                ComponentDefaultValueSetter valueSetter =
+                    new ComponentDefaultValueSetter( retValue, converterLookup, listener );
+
+                valueSetter.configure( propertyValue, configuration, classLoader, expressionEvaluator );
             }
         }
+        catch ( final ComponentConfigurationException e )
+        {
+            if ( e.getFailedConfiguration() == null )
+            {
+                e.setFailedConfiguration( configuration );
+            }
+
+            throw e;
+        }
+
         return retValue;
     }
 
