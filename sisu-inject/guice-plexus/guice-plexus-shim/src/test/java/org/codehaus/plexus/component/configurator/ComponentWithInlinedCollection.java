@@ -32,29 +32,27 @@ import java.util.List;
 public class ComponentWithInlinedCollection
 {
 
-    private final List<String> strings = new ArrayList<String>();
+    private final List<Object> items = new ArrayList<Object>();
 
-    private final List<Integer> integers = new ArrayList<Integer>();
+    public List<Object> getItems()
+    {
+        return items;
+    }
 
     public void addString( String string )
     {
-        strings.add( string );
-    }
-
-    public List<String> getStrings()
-    {
-        return strings;
+        items.add( string );
     }
 
     public ComponentWithInlinedCollection addInteger( Integer integer )
     {
-        integers.add( integer );
+        items.add( integer );
         return this;
     }
 
-    public List<Integer> getIntegers()
+    public void addBoolean( Boolean bool )
     {
-        return integers;
+        items.add( bool );
     }
 
 }

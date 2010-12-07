@@ -778,7 +778,7 @@ public abstract class AbstractComponentConfiguratorTest
     {
         final String xml =
             "<configuration>" + "<string>a</string>" + "<integer>1</integer>" + "<string>b</string>"
-                + "<integer>2</integer>" + "</configuration>";
+                + "<boolean>true</boolean>" + "</configuration>";
 
         final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
 
@@ -786,8 +786,7 @@ public abstract class AbstractComponentConfiguratorTest
 
         configureComponent( component, configuration );
 
-        assertEquals( Arrays.asList( "a", "b" ), component.getStrings() );
-        assertEquals( Arrays.asList( Integer.valueOf( 1 ), Integer.valueOf( 2 ) ), component.getIntegers() );
+        assertEquals( Arrays.<Object> asList( "a", Integer.valueOf( 1 ), "b", Boolean.TRUE ), component.getItems() );
     }
 
     public void testComponentConfigurationWhereUserOnlySetsThePrimaryBeanProperty()
