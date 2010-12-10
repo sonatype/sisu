@@ -117,7 +117,7 @@ enum QualifyingStrategy
      */
     static final Annotation qualify( final Key<?> key )
     {
-        // map bindings with no annotation (or annotation type) to the default qualifier
+        // map bindings with no annotation details (value/type) to the default qualifier
         return null != key.getAnnotationType() ? key.getAnnotation() : DEFAULT_QUALIFIER;
     }
 }

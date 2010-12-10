@@ -12,16 +12,27 @@
  */
 package org.sonatype.guice.bean.locators.spi;
 
-import java.util.Comparator;
+import com.google.inject.Binding;
+import com.google.inject.TypeLiteral;
 
 /**
- * {@link Comparator} that orders {@link Rankable} instances by ascending rank.
+ * Exports {@link Binding}s of various types.
  */
-public final class ByAscendingRank
-    implements Comparator<Rankable>
+public interface BindingExporter
 {
-    public int compare( final Rankable lhs, final Rankable rhs )
-    {
-        return lhs.rank() - rhs.rank();
-    }
+    /**
+     * Adds {@link Binding}s of the requested type to the given {@link BindingImporter}.
+     * 
+     * @param type The binding type
+     * @param importer The importer
+     */
+    <T> void add( TypeLiteral<T> type, BindingImporter importer );
+
+    /**
+     * Removes {@link Binding}s of the requested type from the given {@link BindingImporter}.
+     * 
+     * @param type The binding type
+     * @param importer The importer
+     */
+    <T> void remove( TypeLiteral<T> type, BindingImporter importer );
 }

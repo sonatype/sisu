@@ -15,26 +15,26 @@ package org.sonatype.inject;
 import javax.inject.Provider;
 
 /**
- * Mediates bean events sent from the {@code BeanLocator} to associated watchers.
+ * Mediates bean events sent from the {@code BeanLocator} to interested watchers.
  */
 public interface Mediator<Q, T, W>
 {
     /**
-     * Notifies the associated watcher that a qualified bean has been added.
+     * Notifies the watcher that a qualified bean implementation has been added.
      * 
      * @param qualifier The bean qualifier
      * @param bean The bean provider
-     * @param watcher The associated watcher
+     * @param watcher The interested watcher
      */
     void add( Q qualifier, Provider<T> bean, W watcher )
         throws Exception;
 
     /**
-     * Notifies the associated watcher that a qualified bean has been removed.
+     * Notifies the watcher that a qualified bean implementation has been removed.
      * 
      * @param qualifier The bean qualifier
      * @param bean The bean provider
-     * @param watcher The associated watcher
+     * @param watcher The interested watcher
      */
     void remove( Q qualifier, Provider<T> bean, W watcher )
         throws Exception;

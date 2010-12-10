@@ -12,16 +12,30 @@
  */
 package org.sonatype.guice.bean.locators.spi;
 
-import java.util.Comparator;
+import com.google.inject.Binding;
 
 /**
- * {@link Comparator} that orders {@link Rankable} instances by descending rank.
+ * Imports {@link Binding}s of various types.
  */
-public final class ByDescendingRank
-    implements Comparator<Rankable>
+public interface BindingImporter
 {
-    public int compare( final Rankable lhs, final Rankable rhs )
-    {
-        return rhs.rank() - lhs.rank();
-    }
+    /**
+     * Adds the given ranked {@link Binding} to the importer.
+     * 
+     * @param binding The new binding
+     * @param rank The assigned rank
+     */
+    <T> void add( Binding<T> binding, int rank );
+
+    /**
+     * Removes the given {@link Binding} from the importer.
+     * 
+     * @param binding The old binding
+     */
+    <T> void remove( Binding<T> binding );
+
+    /**
+     * Removes all known {@link Binding}s from the importer.
+     */
+    void clear();
 }

@@ -16,12 +16,11 @@
  *
  * <p>The principal members of this package are:
  * <dl>
- * <dt>{@link org.sonatype.guice.bean.locators.spi.Bindings}
- * <dd>Contributes {@link com.google.inject.Binding}s.
- * <dt>{@link org.sonatype.guice.bean.locators.spi.BindingHub}
- * <dd>Distributes {@link com.google.inject.Binding}s to {@link org.sonatype.guice.bean.locators.spi.BindingSpoke}s.
- * <dt>{@link org.sonatype.guice.bean.locators.spi.BindingSpoke}
- * <dd>Observes {@link com.google.inject.Binding}s.
+ * <dt>{@link org.sonatype.guice.bean.locators.spi.BindingExporter}
+ * <dd>Exports {@link Binding}s of various types.
+ * <dt>{@link org.sonatype.guice.bean.locators.spi.BindingImporter}
+ * <dd>Imports {@link Binding}s of various types.
  * </dl>
  */
 package org.sonatype.guice.bean.locators.spi;
+

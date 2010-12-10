@@ -46,9 +46,15 @@ public final class EntryListAdapter<K, V>
     // ----------------------------------------------------------------------
 
     @Override
+    public Iterator<V> iterator()
+    {
+        return new ValueIterator<K, V>( iterable );
+    }
+
+    @Override
     public ListIterator<V> listIterator( final int index )
     {
-        return new ValueIterator<K, V>( iterable, index );
+        return new ValueListIterator<K, V>( iterable, index );
     }
 
     @Override
@@ -67,9 +73,50 @@ public final class EntryListAdapter<K, V>
     // ----------------------------------------------------------------------
 
     /**
-     * {@link ListIterator} backed by a cache of map entries, fed from an {@link Iterator}.
+     * Value {@link Iterator} backed by a Key:Value {@link Iterator}.
      */
     private static final class ValueIterator<K, V>
+        implements Iterator<V>
+    {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
+        private final Iterator<? extends Entry<K, V>> iterator;
+
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
+        ValueIterator( final Iterable<? extends Entry<K, V>> iterable )
+        {
+            this.iterator = iterable.iterator();
+        }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
+
+        public boolean hasNext()
+        {
+            return iterator.hasNext();
+        }
+
+        public V next()
+        {
+            return iterator.next().getValue();
+        }
+
+        public void remove()
+        {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Value {@link ListIterator} backed by a cached Key:Value {@link Iterator}.
+     */
+    private static final class ValueListIterator<K, V>
         implements ListIterator<V>
     {
         // ----------------------------------------------------------------------
@@ -86,7 +133,7 @@ public final class EntryListAdapter<K, V>
         // Constructors
         // ----------------------------------------------------------------------
 
-        ValueIterator( final Iterable<? extends Entry<K, V>> iterable, final int index )
+        ValueListIterator( final Iterable<? extends Entry<K, V>> iterable, final int index )
         {
             if ( index < 0 )
             {
@@ -153,12 +200,12 @@ public final class EntryListAdapter<K, V>
             throw new UnsupportedOperationException();
         }
 
-        public void remove()
+        public void set( final V o )
         {
             throw new UnsupportedOperationException();
         }
 
-        public void set( final V o )
+        public void remove()
         {
             throw new UnsupportedOperationException();
         }

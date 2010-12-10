@@ -20,11 +20,21 @@ import javax.inject.Provider;
 import com.google.inject.Binding;
 
 /**
- * Qualified bean {@link Entry} and {@link Provider} backed by an injector {@link Binding}.
+ * Qualified bean mapping; the Key is the qualifier annotation, the Value is the bean instance.
  */
 public interface QualifiedBean<Q extends Annotation, T>
     extends Entry<Q, T>, Provider<T>
 {
+    /**
+     * @return Qualifier annotation
+     */
+    Q getKey();
+
+    /**
+     * @return Bean instance (lazily-created)
+     */
+    T getValue();
+
     /**
      * @return Human-readable description
      */

@@ -17,18 +17,20 @@ import org.sonatype.guice.bean.reflect.DeferredProvider;
 import com.google.inject.Provider;
 import com.google.inject.spi.BindingTargetVisitor;
 import com.google.inject.spi.ConstructorBinding;
-import com.google.inject.spi.DefaultBindingTargetVisitor;
+import com.google.inject.spi.ConvertedConstantBinding;
 import com.google.inject.spi.ExposedBinding;
 import com.google.inject.spi.InstanceBinding;
 import com.google.inject.spi.LinkedKeyBinding;
+import com.google.inject.spi.ProviderBinding;
 import com.google.inject.spi.ProviderInstanceBinding;
+import com.google.inject.spi.ProviderKeyBinding;
 import com.google.inject.spi.UntargettedBinding;
 
 /**
  * {@link BindingTargetVisitor} that attempts to discover implementations behind bindings.
  */
 final class ImplementationVisitor
-    extends DefaultBindingTargetVisitor<Object, Class<?>>
+    implements BindingTargetVisitor<Object, Class<?>>
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -40,32 +42,27 @@ final class ImplementationVisitor
     // Public methods
     // ----------------------------------------------------------------------
 
-    @Override
     public Class<?> visit( final UntargettedBinding<?> binding )
     {
         return binding.getKey().getTypeLiteral().getRawType();
     }
 
-    @Override
     public Class<?> visit( final LinkedKeyBinding<?> binding )
     {
         // this assumes only one level of indirection: api-->impl
         return binding.getLinkedKey().getTypeLiteral().getRawType();
     }
 
-    @Override
     public Class<?> visit( final ConstructorBinding<?> binding )
     {
         return binding.getConstructor().getDeclaringType().getRawType();
     }
 
-    @Override
     public Class<?> visit( final InstanceBinding<?> binding )
     {
         return binding.getInstance().getClass();
     }
 
-    @Override
     public Class<?> visit( final ProviderInstanceBinding<?> binding )
     {
         final Provider<?> provider = binding.getProviderInstance();
@@ -84,9 +81,27 @@ final class ImplementationVisitor
         return null;
     }
 
-    @Override
-    public Class<?> visit( final ExposedBinding<? extends Object> binding )
+    public Class<?> visit( final ExposedBinding<?> binding )
     {
         return binding.getPrivateElements().getInjector().getBinding( binding.getKey() ).acceptTargetVisitor( this );
+    }
+
+    // ----------------------------------------------------------------------
+    // These bindings can't give us the implementation without side-effects
+    // ----------------------------------------------------------------------
+
+    public Class<?> visit( final ProviderBinding<?> binding )
+    {
+        return null;
+    }
+
+    public Class<?> visit( final ProviderKeyBinding<?> binding )
+    {
+        return null;
+    }
+
+    public Class<?> visit( final ConvertedConstantBinding<?> binding )
+    {
+        return null;
     }
 }

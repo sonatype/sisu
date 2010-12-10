@@ -22,26 +22,26 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Key;
 
 /**
- * Dynamic locator of beans annotated with {@link Qualifier} annotations.
+ * Finds and tracks bean implementations annotated with {@link Qualifier} annotations.
  */
 @ImplementedBy( MutableBeanLocator.class )
 public interface BeanLocator
 {
     /**
-     * Locates beans that match the given qualified binding {@link Key}.
+     * Finds beans that match the given qualified binding {@link Key}.
      * 
      * @param key The qualified key
-     * @param listener Optional callback; invoked when the bean sequence changes
+     * @param listener Optional callback; invoked when the sequence changes
      * @return Sequence of beans that match the given key
      */
     <Q extends Annotation, T> Iterable<QualifiedBean<Q, T>> locate( Key<T> key, Runnable listener );
 
     /**
-     * Watches out for beans that match the given qualified binding {@link Key}. <br>
-     * The {@link Mediator} mediates bean events between locator and watcher.
+     * Tracks beans that match the given qualified binding {@link Key}. <br>
+     * Uses the {@link Mediator} pattern to send events to the watcher.
      * 
      * @param key The qualified key
-     * @param mediator The update mediator
+     * @param mediator The event mediator
      * @param watcher The bean watcher
      */
     <Q extends Annotation, T, W> void watch( Key<T> key, Mediator<Q, T, W> mediator, W watcher );

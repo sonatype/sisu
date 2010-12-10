@@ -12,14 +12,16 @@
  */
 
 /**
- * Dynamic bean location.
+ * Qualified bean location.
  *
  * <p>The principal members of this package are:
  * <dl>
  * <dt>{@link org.sonatype.guice.bean.locators.BeanLocator}
- * <dd>Dynamic locator of beans annotated with {@link javax.inject.Qualifier} annotations.
+ * <dd>Finds and tracks beans annotated with {@link javax.inject.Qualifier} annotations.
+ * <dt>{@link org.sonatype.guice.bean.locators.MutableBeanLocator}
+ * <dd>Mutable {@link org.sonatype.guice.bean.locators.BeanLocator} that searches bindings from zero or more {@link org.sonatype.guice.bean.locators.spi.BindingExporter}s.
  * <dt>{@link org.sonatype.guice.bean.locators.QualifiedBean}
- * <dd>Qualified bean {@link java.util.Map.Entry} and {@link javax.inject.Provider}.
+ * <dd>Qualified bean mapping; the Key is the qualifier annotation, the Value is the bean instance.
  * <dt>{@link org.sonatype.guice.bean.locators.BeanDescription}
  * <dd>Mixin interface used to supply descriptions to the {@link org.sonatype.guice.bean.locators.BeanLocator}.
  * <dt>{@link org.sonatype.guice.bean.locators.HiddenBinding}

@@ -22,7 +22,7 @@ import com.google.inject.Binding;
 import com.google.inject.Scopes;
 
 /**
- * Lazy {@link QualifiedBean} that always returns the same bean instance.
+ * Lazy {@link QualifiedBean} backed by a qualified {@link Binding}.
  */
 final class LazyQualifiedBean<Q extends Annotation, T>
     implements QualifiedBean<Q, T>
