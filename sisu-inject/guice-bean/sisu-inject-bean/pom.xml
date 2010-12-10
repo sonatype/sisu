@@ -20,7 +20,7 @@
     <dependency>
       <groupId>org.sonatype.sisu</groupId>
       <artifactId>sisu-guice</artifactId>
-      <classifier>noaop</classifier>
+      <classifier>no_aop</classifier>
       <exclusions>
         <exclusion>
           <groupId>javax.inject</groupId>
