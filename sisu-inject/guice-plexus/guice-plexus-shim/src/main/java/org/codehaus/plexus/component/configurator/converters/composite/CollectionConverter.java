@@ -67,48 +67,8 @@ public class CollectionConverter
             return retValue;
         }
 
-        final Class implementation = getClassForImplementationHint( null, configuration, classLoader );
+        retValue = newCollection( configuration, type, classLoader );
 
-        if ( implementation != null )
-        {
-            retValue = instantiateObject( implementation );
-        }
-        else
-        {
-            // we can have 2 cases here:
-            // - provided collection class which is not abstract
-            // like Vector, ArrayList, HashSet - so we will just instantantiate it
-            // - we have an abtract class so we have to use default collection type
-            final int modifiers = type.getModifiers();
-
-            if ( Modifier.isAbstract( modifiers ) )
-            {
-                retValue = getDefaultCollection( type );
-            }
-            else
-            {
-                try
-                {
-                    retValue = type.newInstance();
-                }
-                catch ( final IllegalAccessException e )
-                {
-                    final String msg =
-                        "An attempt to convert configuration entry " + configuration.getName() + "' into " + type
-                            + " object failed: " + e.getMessage();
-
-                    throw new ComponentConfigurationException( msg, e );
-                }
-                catch ( final InstantiationException e )
-                {
-                    final String msg =
-                        "An attempt to convert configuration entry " + configuration.getName() + "' into " + type
-                            + " object failed: " + e.getMessage();
-
-                    throw new ComponentConfigurationException( msg, e );
-                }
-            }
-        }
         // now we have collection and we have to add some objects to it
 
         for ( int i = 0; i < configuration.getChildCount(); i++ )
@@ -187,6 +147,58 @@ public class CollectionConverter
         }
 
         return retValue;
+    }
+
+    private Object newCollection( final PlexusConfiguration configuration, final Class type,
+                                  final ClassLoader classLoader )
+        throws ComponentConfigurationException
+    {
+        Object collection;
+
+        final Class<?> implementation = getClassForImplementationHint( null, configuration, classLoader );
+
+        if ( implementation != null )
+        {
+            collection = instantiateObject( implementation );
+        }
+        else
+        {
+            // we can have 2 cases here:
+            // - provided collection class which is not abstract
+            // like Vector, ArrayList, HashSet - so we will just instantantiate it
+            // - we have an abtract class so we have to use default collection type
+            final int modifiers = type.getModifiers();
+
+            if ( Modifier.isAbstract( modifiers ) )
+            {
+                collection = getDefaultCollection( type );
+            }
+            else
+            {
+                try
+                {
+                    collection = type.newInstance();
+                }
+                catch ( final IllegalAccessException e )
+                {
+                    final String msg =
+                        "An attempt to convert configuration entry " + configuration.getName() + "' into " + type
+                            + " object failed: " + e.getMessage();
+
+                    throw new ComponentConfigurationException( msg, e );
+                }
+                catch ( final InstantiationException e )
+                {
+                    final String msg =
+                        "An attempt to convert configuration entry " + configuration.getName() + "' into " + type
+                            + " object failed: " + e.getMessage();
+
+                    throw new ComponentConfigurationException( msg, e );
+                }
+            }
+        }
+
+        return collection;
     }
 
     protected Collection getDefaultCollection( final Class collectionType )
