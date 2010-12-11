@@ -13,7 +13,6 @@
 package org.sonatype.guice.bean.locators;
 
 import java.util.AbstractList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
@@ -48,11 +47,7 @@ final class RankedList<T>
     public synchronized void add( final int rank, final T element )
     {
         final long uniqueRank = uniqueRank( rank );
-        final int index = ~Arrays.binarySearch( ranks, 0, size, uniqueRank );
-        if ( index < 0 )
-        {
-            throw new IllegalStateException( "Duplicate Rank: " + uniqueRank );
-        }
+        final int index = safeBinarySearch( uniqueRank );
         if ( index >= elements.length )
         {
             final int capacity = index * 3 / 2 + 1;
@@ -126,6 +121,30 @@ final class RankedList<T>
         return -rank << 32 | 0x00000000FFFFFFFFL & uid++;
     }
 
+    int safeBinarySearch( final long rank )
+    {
+        int max = ranks[0] < rank ? size - 1 : 0;
+        int min = rank < ranks[max] ? 0 : max;
+        while ( min <= max )
+        {
+            final int m = min + max >>> 1;
+            final long midRank = ranks[m];
+            if ( rank < midRank )
+            {
+                max = m - 1;
+            }
+            else if ( midRank < rank )
+            {
+                min = m + 1;
+            }
+            else
+            {
+                return m;
+            }
+        }
+        return min;
+    }
+
     // ----------------------------------------------------------------------
     // Implementation types
     // ----------------------------------------------------------------------
@@ -144,11 +163,7 @@ final class RankedList<T>
             {
                 synchronized ( RankedList.this )
                 {
-                    int index = Arrays.binarySearch( ranks, 0, size, rank );
-                    if ( index < 0 )
-                    {
-                        index = ~index;
-                    }
+                    int index = RankedList.this.safeBinarySearch( rank );
                     nextElement = index < size ? (T) elements[index] : null;
                     rank = ++index < size ? ranks[index] : Long.MAX_VALUE;
                 }
