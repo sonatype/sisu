@@ -24,6 +24,8 @@ package org.codehaus.plexus.component.configurator;
  * SOFTWARE.
  */
 
+import static org.junit.Assert.assertArrayEquals;
+
 import java.io.File;
 import java.io.StringReader;
 import java.lang.annotation.ElementType;
@@ -802,6 +804,60 @@ public abstract class AbstractComponentConfiguratorTest
 
         assertEquals( 1, component.beans.length );
         assertEquals( new File( "dir", "test.txt" ), component.beans[0].getFile() );
+    }
+
+    public void testComponentConfigurationWhereArrayIsConfiguredFromCollectionExpression()
+        throws Exception
+    {
+        final String xml = "<configuration>" + "<stringArray>${collection}</stringArray>" + "</configuration>";
+
+        final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
+
+        final ComponentWithArrayFields component = new ComponentWithArrayFields();
+
+        final ExpressionEvaluator evaluator = new DefaultExpressionEvaluator()
+        {
+            public Object evaluate( String expression )
+            {
+                if ( "${collection}".equals( expression ) )
+                {
+                    return Arrays.asList( "0", "1", "2" );
+                }
+                return super.evaluate( expression );
+            }
+        };
+
+        configureComponent( component, configuration, evaluator );
+
+        assertNotNull( component.getStringArray() );
+        assertArrayEquals( new String[] { "0", "1", "2" }, component.getStringArray() );
+    }
+
+    public void testComponentConfigurationWhereCollectionIsConfiguredFromArrayExpression()
+        throws Exception
+    {
+        final String xml = "<configuration>" + "<list>${array}</list>" + "</configuration>";
+
+        final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
+
+        final ComponentWithCollectionFields component = new ComponentWithCollectionFields();
+
+        final ExpressionEvaluator evaluator = new DefaultExpressionEvaluator()
+        {
+            public Object evaluate( String expression )
+            {
+                if ( "${array}".equals( expression ) )
+                {
+                    return new String[] { "0", "1", "2" };
+                }
+                return super.evaluate( expression );
+            }
+        };
+
+        configureComponent( component, configuration, evaluator );
+
+        assertNotNull( component.getList() );
+        assertEquals( Arrays.asList( "0", "1", "2" ), component.getList() );
     }
 
 }

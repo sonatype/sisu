@@ -57,9 +57,19 @@ public class ArrayConverter
                                      final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
-        final Object retValue = fromExpression( configuration, expressionEvaluator, type );
+        Object retValue = fromExpression( configuration, expressionEvaluator );
+
         if ( retValue != null )
         {
+            if ( retValue instanceof Collection )
+            {
+                retValue = toArray( type, (Collection<?>) retValue );
+            }
+            else
+            {
+                failIfNotTypeCompatible( retValue, type, configuration );
+            }
+
             return retValue;
         }
 

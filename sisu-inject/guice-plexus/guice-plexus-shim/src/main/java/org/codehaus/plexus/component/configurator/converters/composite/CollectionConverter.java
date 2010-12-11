@@ -27,6 +27,7 @@ package org.codehaus.plexus.component.configurator.converters.composite;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,9 +62,21 @@ public class CollectionConverter
                                      final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
-        Object retValue = fromExpression( configuration, expressionEvaluator, type );
+        Object retValue = fromExpression( configuration, expressionEvaluator );
+
         if ( retValue != null )
         {
+            if ( retValue instanceof Object[] )
+            {
+                Object[] values = (Object[]) retValue;
+                retValue = newCollection( configuration, type, classLoader );
+                Collections.addAll( (Collection<Object>) retValue, values );
+            }
+            else
+            {
+                failIfNotTypeCompatible( retValue, type, configuration );
+            }
+
             return retValue;
         }
 
