@@ -148,23 +148,28 @@ public abstract class AbstractConfigurationConverter
         return StringUtils.addAndDeHump( fieldName );
     }
 
-    @SuppressWarnings( "unchecked" )
+    protected void failIfNotTypeCompatible( final Object value, final Class<?> type,
+                                            final PlexusConfiguration configuration )
+        throws ComponentConfigurationException
+    {
+        if ( value != null && type != null && !type.isInstance( value ) )
+        {
+            final String msg =
+                "Cannot assign configuration entry '" + configuration.getName() + "' with value '"
+                    + configuration.getValue( null ) + "' of type " + value.getClass().getCanonicalName()
+                    + " to property of type " + type.getCanonicalName();
+            throw new ComponentConfigurationException( configuration, msg );
+        }
+    }
+
     protected Object fromExpression( final PlexusConfiguration configuration,
                                      final ExpressionEvaluator expressionEvaluator, final Class type )
         throws ComponentConfigurationException
     {
         final Object v = fromExpression( configuration, expressionEvaluator );
 
-        if ( v != null )
-        {
-            if ( !type.isAssignableFrom( v.getClass() ) )
-            {
-                final String msg =
-                    "Cannot assign configuration entry '" + configuration.getName() + "' to '" + type + "' from '"
-                        + configuration.getValue( null ) + "', which is of type " + v.getClass();
-                throw new ComponentConfigurationException( configuration, msg );
-            }
-        }
+        failIfNotTypeCompatible( v, type, configuration );
+
         return v;
     }
 

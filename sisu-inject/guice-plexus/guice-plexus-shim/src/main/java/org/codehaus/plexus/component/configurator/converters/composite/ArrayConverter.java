@@ -26,6 +26,7 @@ package org.codehaus.plexus.component.configurator.converters.composite;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
@@ -135,9 +136,15 @@ public class ArrayConverter
             values.add( object );
         }
 
+        return toArray( type, values );
+    }
+
+    private Object toArray( final Class<?> type, final Collection<?> values )
+        throws ComponentConfigurationException
+    {
         try
         {
-            return values.toArray( (Object[]) Array.newInstance( type.getComponentType(), 0 ) );
+            return values.toArray( (Object[]) Array.newInstance( type.getComponentType(), values.size() ) );
         }
         catch ( final ArrayStoreException e )
         {
