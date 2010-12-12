@@ -13,10 +13,15 @@
 package org.sonatype.guice.bean.locators;
 
 import java.util.AbstractList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
+/**
+ * Sorted {@link List} where each element is given a rank; allows concurrent iteration and modification.
+ */
 final class RankedList<T>
     extends AbstractList<T>
     implements RandomAccess
@@ -43,14 +48,18 @@ final class RankedList<T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    @Override
-    public synchronized void add( final int rank, final T element )
+    /**
+     * Inserts the given element into the sorted list, using the assigned rank as a guide.<br>
+     * The rank can be any value from {@link Integer#MIN_VALUE} to {@link Integer#MAX_VALUE}.
+     * 
+     * @param element The element to insert
+     * @param rank The assigned rank
+     */
+    public synchronized void insert( final T element, final int rank )
     {
-        final long uniqueRank = uniqueRank( rank );
-        final int index = safeBinarySearch( uniqueRank );
-        if ( index >= elements.length )
+        if ( size >= elements.length )
         {
-            final int capacity = index * 3 / 2 + 1;
+            final int capacity = size * 3 / 2 + 1;
 
             final Object[] newElements = new Object[capacity];
             System.arraycopy( elements, 0, newElements, 0, size );
@@ -60,6 +69,8 @@ final class RankedList<T>
             System.arraycopy( ranks, 0, newRanks, 0, size );
             ranks = newRanks;
         }
+        final long uniqueRank = uniqueRank( rank );
+        final int index = safeBinarySearch( uniqueRank );
         if ( index < size++ )
         {
             final int to = index + 1, len = size - to;
@@ -71,33 +82,32 @@ final class RankedList<T>
     }
 
     @Override
-    public synchronized boolean remove( final Object element )
+    @SuppressWarnings( "unchecked" )
+    public synchronized T get( final int index )
     {
-        for ( int index = 0; index < size; index++ )
+        if ( index < 0 || index >= size )
         {
-            if ( element == elements[index] )
-            {
-                if ( index < --size )
-                {
-                    final int from = index + 1, len = size - index;
-                    System.arraycopy( elements, from, elements, index, len );
-                    System.arraycopy( ranks, from, ranks, index, len );
-                }
-                return true;
-            }
+            throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
         }
-        return false;
+        return (T) elements[index];
     }
 
     @Override
     @SuppressWarnings( "unchecked" )
-    public synchronized T get( final int index )
+    public synchronized T remove( final int index )
     {
-        if ( index >= 0 && index < size )
+        if ( index < 0 || index >= size )
         {
-            return (T) elements[index];
+            throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
         }
-        throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
+        final T element = (T) elements[index];
+        if ( index < --size )
+        {
+            final int from = index + 1, len = size - index;
+            System.arraycopy( elements, from, elements, index, len );
+            System.arraycopy( ranks, from, ranks, index, len );
+        }
+        return element;
     }
 
     @Override
@@ -116,14 +126,32 @@ final class RankedList<T>
     // Implementation methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Attempts to turn the given non-unique rank into a unique rank by appending a counter.
+     * 
+     * @param rank The non-unique rank
+     * @return The unique rank
+     */
     private long uniqueRank( final long rank )
     {
-        return -rank << 32 | 0x00000000FFFFFFFFL & uid++;
+        return ~rank << 32 | 0x00000000FFFFFFFFL & uid++;
     }
 
+    /**
+     * Finds the insertion point nearest to the given rank, regardless of whether the rank is in the list or not.<br>
+     * Unlike {@link Arrays#binarySearch} this always returns a natural number from zero to {@link #size()} inclusive.
+     * 
+     * @param rank The rank to find
+     * @return Index nearest to rank
+     */
     int safeBinarySearch( final long rank )
     {
-        int max = ranks[0] < rank ? size - 1 : 0;
+        if ( size == 0 || rank <= ranks[0] )
+        {
+            return 0;
+        }
+
+        int max = size - 1;
         int min = rank < ranks[max] ? 0 : max;
         while ( min <= max )
         {
@@ -149,23 +177,37 @@ final class RankedList<T>
     // Implementation types
     // ----------------------------------------------------------------------
 
+    /**
+     * Custom {@link Iterator} that copes with modification by repositioning itself in the updated list.
+     */
     final class Itr
         implements Iterator<T>
     {
-        private long rank = Long.MIN_VALUE;
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
+        private long nextRank = Long.MIN_VALUE;
 
         private T nextElement;
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
 
         @SuppressWarnings( "unchecked" )
         public boolean hasNext()
         {
-            if ( null == nextElement )
+            if ( null == nextElement && nextRank < Long.MAX_VALUE )
             {
                 synchronized ( RankedList.this )
                 {
-                    int index = RankedList.this.safeBinarySearch( rank );
-                    nextElement = index < size ? (T) elements[index] : null;
-                    rank = ++index < size ? ranks[index] : Long.MAX_VALUE;
+                    final int index = safeBinarySearch( nextRank );
+                    if ( index < size )
+                    {
+                        nextElement = (T) elements[index];
+                        nextRank = ranks[index] + 1;
+                    }
                 }
             }
             return null != nextElement;
@@ -175,6 +217,7 @@ final class RankedList<T>
         {
             if ( hasNext() )
             {
+                // populated by hasNext()
                 final T element = nextElement;
                 nextElement = null;
                 return element;
