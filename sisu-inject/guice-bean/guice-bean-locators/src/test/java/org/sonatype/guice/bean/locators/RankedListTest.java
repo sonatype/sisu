@@ -134,6 +134,24 @@ public class RankedListTest
 
         assertEquals( 7, list.size() );
         assertEquals( Integer.MAX_VALUE, list.topRank() );
+
+        assertFalse( list.isEmpty() );
+        list.clear();
+        assertTrue( list.isEmpty() );
+
+        assertEquals( 0, list.size() );
+        assertEquals( Integer.MIN_VALUE, list.topRank() );
+
+        list.insert( "G", Integer.MIN_VALUE );
+        list.insert( "D", 0 );
+        list.insert( "B", Integer.MAX_VALUE - 1 );
+        list.insert( "C", 1 );
+        list.insert( "F", Integer.MIN_VALUE + 1 );
+        list.insert( "E", -1 );
+        list.insert( "A", Integer.MAX_VALUE );
+
+        assertEquals( 7, list.size() );
+        assertEquals( Integer.MAX_VALUE, list.topRank() );
         list.remove( 0 );
         assertEquals( 6, list.size() );
         assertEquals( Integer.MAX_VALUE - 1, list.topRank() );
@@ -256,6 +274,30 @@ public class RankedListTest
         }
     }
 
+    public void testCloneable()
+    {
+        final RankedList<String> list = new RankedList<String>();
+
+        list.insert( "X", -1 );
+        list.insert( "Y", 0 );
+        list.insert( "Z", 1 );
+
+        final RankedList<String> clone = list.clone();
+
+        clone.insert( clone.remove( 0 ), -1 );
+        clone.insert( clone.remove( 1 ), 1 );
+
+        assertEquals( "Z", list.remove( 0 ) );
+        assertEquals( "Y", list.remove( 0 ) );
+        assertEquals( "X", list.remove( 0 ) );
+        assertTrue( list.isEmpty() );
+
+        assertEquals( "X", clone.remove( 0 ) );
+        assertEquals( "Y", clone.remove( 0 ) );
+        assertEquals( "Z", clone.remove( 0 ) );
+        assertTrue( clone.isEmpty() );
+    }
+
     public void testConcurrentIteration()
     {
         final Thread[] threads = new Thread[3 * CONCURRENCY];
@@ -360,7 +402,7 @@ public class RankedListTest
                     while ( itr.hasNext() )
                     {
                         Thread.yield();
-                        final int rank = itr.next();
+                        final int rank = itr.next().intValue();
                         Thread.yield();
                         assertTrue( "Rank should descend during iteration", lastRank >= rank );
                         lastRank = rank;

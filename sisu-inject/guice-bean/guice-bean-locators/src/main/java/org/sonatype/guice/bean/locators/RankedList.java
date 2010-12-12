@@ -24,7 +24,7 @@ import java.util.RandomAccess;
  */
 final class RankedList<T>
     extends AbstractList<T>
-    implements RandomAccess
+    implements RandomAccess, Cloneable
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -38,9 +38,9 @@ final class RankedList<T>
 
     private int uid;
 
-    Object[] elements = new Object[INITIAL_CAPACITY];
+    Object[] elements;
 
-    long[] ranks = new long[INITIAL_CAPACITY];
+    long[] ranks;
 
     int size;
 
@@ -57,7 +57,12 @@ final class RankedList<T>
      */
     public synchronized void insert( final T element, final int rank )
     {
-        if ( size >= elements.length )
+        if ( null == elements )
+        {
+            elements = new Object[INITIAL_CAPACITY];
+            ranks = new long[INITIAL_CAPACITY];
+        }
+        else if ( size >= elements.length )
         {
             final int capacity = size * 3 / 2 + 1;
 
@@ -114,9 +119,34 @@ final class RankedList<T>
     }
 
     @Override
+    public synchronized void clear()
+    {
+        uid = 0;
+        elements = null;
+        ranks = null;
+        size = 0;
+    }
+
+    @Override
     public int size()
     {
         return size;
+    }
+
+    /**
+     * @return Shallow copy of this {@link RankedList} instance.
+     */
+    @Override
+    public synchronized RankedList<T> clone()
+    {
+        final RankedList<T> clone = new RankedList<T>();
+
+        clone.uid = uid;
+        clone.elements = elements.clone();
+        clone.ranks = ranks.clone();
+        clone.size = size;
+
+        return clone;
     }
 
     @Override
