@@ -20,7 +20,7 @@ import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
 /**
- * Sorted {@link List} where each element is given a rank; allows concurrent iteration and modification.
+ * Sorted {@link List} which arranges elements by descending rank; allows concurrent iteration and modification.
  */
 final class RankedList<T>
     extends AbstractList<T>
@@ -90,6 +90,14 @@ final class RankedList<T>
             throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
         }
         return (T) elements[index];
+    }
+
+    /**
+     * @return The top-most rank; this is the rank assigned to the first element in the list.
+     */
+    public int topRank()
+    {
+        return size > 0 ? (int) ( ~ranks[0] >>> 32 ) : Integer.MIN_VALUE;
     }
 
     @Override

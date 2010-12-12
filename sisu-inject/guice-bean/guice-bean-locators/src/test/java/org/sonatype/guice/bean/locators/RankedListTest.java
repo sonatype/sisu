@@ -35,7 +35,7 @@ public class RankedListTest
 
     static final RankedList<Integer> rankedList = new RankedList<Integer>();
 
-    public void testRanking()
+    public void testOrdering()
     {
         final RankedList<String> list = new RankedList<String>();
 
@@ -115,6 +115,47 @@ public class RankedListTest
         assertEquals( "F", itr.next() );
         assertEquals( "G1", itr.next() );
         assertEquals( "G2", itr.next() );
+    }
+
+    public void testTopRank()
+    {
+        final RankedList<String> list = new RankedList<String>();
+
+        assertEquals( 0, list.size() );
+        assertEquals( Integer.MIN_VALUE, list.topRank() );
+
+        list.insert( "G", Integer.MIN_VALUE );
+        list.insert( "D", 0 );
+        list.insert( "B", Integer.MAX_VALUE - 1 );
+        list.insert( "C", 1 );
+        list.insert( "F", Integer.MIN_VALUE + 1 );
+        list.insert( "E", -1 );
+        list.insert( "A", Integer.MAX_VALUE );
+
+        assertEquals( 7, list.size() );
+        assertEquals( Integer.MAX_VALUE, list.topRank() );
+        list.remove( 0 );
+        assertEquals( 6, list.size() );
+        assertEquals( Integer.MAX_VALUE - 1, list.topRank() );
+        list.remove( 0 );
+        assertEquals( 5, list.size() );
+        assertEquals( 1, list.topRank() );
+        list.remove( 0 );
+        assertEquals( 4, list.size() );
+        assertEquals( 0, list.topRank() );
+        list.remove( 0 );
+        assertEquals( 3, list.size() );
+        assertEquals( -1, list.topRank() );
+        list.remove( 0 );
+        assertEquals( 2, list.size() );
+        assertEquals( Integer.MIN_VALUE + 1, list.topRank() );
+        list.remove( 0 );
+        assertEquals( 1, list.size() );
+        assertEquals( Integer.MIN_VALUE, list.topRank() );
+        list.remove( 0 );
+
+        assertEquals( 0, list.size() );
+        assertEquals( Integer.MIN_VALUE, list.topRank() );
     }
 
     public void testEmptyList()
