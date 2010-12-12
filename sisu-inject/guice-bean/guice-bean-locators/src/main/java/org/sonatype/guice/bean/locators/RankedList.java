@@ -136,8 +136,8 @@ final class RankedList<T>
         {
             @SuppressWarnings( "unchecked" )
             final RankedList<T> clone = (RankedList<T>) super.clone();
-            clone.elements = elements.clone();
-            clone.ranks = ranks.clone();
+            clone.elements = null != elements ? elements.clone() : null;
+            clone.ranks = null != ranks ? ranks.clone() : null;
             return clone;
         }
         catch ( final CloneNotSupportedException e )

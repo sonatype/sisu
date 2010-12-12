@@ -44,7 +44,14 @@ final class RankedBindings<T>
     public RankedBindings( final TypeLiteral<T> type, final RankedList<BindingExporter> exporters )
     {
         this.type = type;
-        this.pendingExporters = exporters.clone();
+        if ( null != exporters )
+        {
+            pendingExporters = exporters.clone();
+        }
+        else
+        {
+            pendingExporters = new RankedList<BindingExporter>();
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -111,8 +118,8 @@ final class RankedBindings<T>
                     return true;
                 }
             }
-            return false;
         }
+        return false;
     }
 
     // ----------------------------------------------------------------------
@@ -151,8 +158,8 @@ final class RankedBindings<T>
                         return false;
                     }
                 }
-                return true;
             }
+            return true;
         }
 
         public Binding<T> next()

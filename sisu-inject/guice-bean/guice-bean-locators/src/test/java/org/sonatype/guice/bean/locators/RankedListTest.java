@@ -338,7 +338,7 @@ public class RankedListTest
 
         try
         {
-            Thread.sleep( 30 * 1000 );
+            Thread.sleep( 10 * 1000 );
         }
         catch ( final InterruptedException e )
         {
