@@ -98,11 +98,19 @@ final class RankedList<T>
     }
 
     /**
-     * @return The top-most rank; this is the rank assigned to the first element in the list.
+     * @return The highest rank; this is the rank assigned to the first element in the list.
      */
-    public synchronized int topRank()
+    public synchronized int maxRank()
     {
         return size > 0 ? (int) ( ~ranks[0] >>> 32 ) : Integer.MIN_VALUE;
+    }
+
+    /**
+     * @return The lowest rank; this is the rank assigned to the last element in the list.
+     */
+    public synchronized int minRank()
+    {
+        return size > 0 ? (int) ( ~ranks[size - 1] >>> 32 ) : Integer.MIN_VALUE;
     }
 
     @Override

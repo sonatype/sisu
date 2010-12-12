@@ -117,12 +117,14 @@ public class RankedListTest
         assertEquals( "G2", itr.next() );
     }
 
-    public void testTopRank()
+    public void testMinMaxRank()
     {
         final RankedList<String> list = new RankedList<String>();
 
         assertEquals( 0, list.size() );
-        assertEquals( Integer.MIN_VALUE, list.topRank() );
+
+        assertEquals( Integer.MIN_VALUE, list.maxRank() );
+        assertEquals( Integer.MIN_VALUE, list.minRank() );
 
         list.insert( "G", Integer.MIN_VALUE );
         list.insert( "D", 0 );
@@ -133,14 +135,18 @@ public class RankedListTest
         list.insert( "A", Integer.MAX_VALUE );
 
         assertEquals( 7, list.size() );
-        assertEquals( Integer.MAX_VALUE, list.topRank() );
+
+        assertEquals( Integer.MAX_VALUE, list.maxRank() );
+        assertEquals( Integer.MIN_VALUE, list.minRank() );
 
         assertFalse( list.isEmpty() );
         list.clear();
         assertTrue( list.isEmpty() );
 
         assertEquals( 0, list.size() );
-        assertEquals( Integer.MIN_VALUE, list.topRank() );
+
+        assertEquals( Integer.MIN_VALUE, list.maxRank() );
+        assertEquals( Integer.MIN_VALUE, list.minRank() );
 
         list.insert( "G", Integer.MIN_VALUE );
         list.insert( "D", 0 );
@@ -151,29 +157,44 @@ public class RankedListTest
         list.insert( "A", Integer.MAX_VALUE );
 
         assertEquals( 7, list.size() );
-        assertEquals( Integer.MAX_VALUE, list.topRank() );
+        assertEquals( Integer.MAX_VALUE, list.maxRank() );
+        assertEquals( Integer.MIN_VALUE, list.minRank() );
         list.remove( 0 );
+
         assertEquals( 6, list.size() );
-        assertEquals( Integer.MAX_VALUE - 1, list.topRank() );
-        list.remove( 0 );
+        assertEquals( Integer.MAX_VALUE - 1, list.maxRank() );
+        assertEquals( Integer.MIN_VALUE, list.minRank() );
+        list.remove( 5 );
+
         assertEquals( 5, list.size() );
-        assertEquals( 1, list.topRank() );
+        assertEquals( Integer.MAX_VALUE - 1, list.maxRank() );
+        assertEquals( Integer.MIN_VALUE + 1, list.minRank() );
         list.remove( 0 );
+
         assertEquals( 4, list.size() );
-        assertEquals( 0, list.topRank() );
-        list.remove( 0 );
+        assertEquals( 1, list.maxRank() );
+        assertEquals( Integer.MIN_VALUE + 1, list.minRank() );
+        list.remove( 3 );
+
         assertEquals( 3, list.size() );
-        assertEquals( -1, list.topRank() );
+        assertEquals( 1, list.maxRank() );
+        assertEquals( -1, list.minRank() );
         list.remove( 0 );
+
         assertEquals( 2, list.size() );
-        assertEquals( Integer.MIN_VALUE + 1, list.topRank() );
-        list.remove( 0 );
+        assertEquals( 0, list.maxRank() );
+        assertEquals( -1, list.minRank() );
+        list.remove( 1 );
+
         assertEquals( 1, list.size() );
-        assertEquals( Integer.MIN_VALUE, list.topRank() );
+        assertEquals( 0, list.maxRank() );
+        assertEquals( 0, list.minRank() );
         list.remove( 0 );
 
         assertEquals( 0, list.size() );
-        assertEquals( Integer.MIN_VALUE, list.topRank() );
+
+        assertEquals( Integer.MIN_VALUE, list.maxRank() );
+        assertEquals( Integer.MIN_VALUE, list.minRank() );
     }
 
     public void testEmptyList()
