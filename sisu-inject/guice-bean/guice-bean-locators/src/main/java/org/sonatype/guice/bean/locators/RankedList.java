@@ -93,14 +93,9 @@ final class RankedList<T>
     }
 
     @Override
-    @SuppressWarnings( "unchecked" )
     public synchronized T remove( final int index )
     {
-        if ( index < 0 || index >= size )
-        {
-            throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
-        }
-        final T element = (T) elements[index];
+        final T element = get( index );
         if ( index < --size )
         {
             final int from = index + 1, len = size - index;
