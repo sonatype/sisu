@@ -100,7 +100,7 @@ final class RankedList<T>
     /**
      * @return The top-most rank; this is the rank assigned to the first element in the list.
      */
-    public int topRank()
+    public synchronized int topRank()
     {
         return size > 0 ? (int) ( ~ranks[0] >>> 32 ) : Integer.MIN_VALUE;
     }
@@ -118,6 +118,26 @@ final class RankedList<T>
         return element;
     }
 
+    /**
+     * @return Shallow copy of this {@link RankedList} instance.
+     */
+    @Override
+    public synchronized RankedList<T> clone()
+    {
+        try
+        {
+            @SuppressWarnings( "unchecked" )
+            final RankedList<T> clone = (RankedList<T>) super.clone();
+            clone.elements = elements.clone();
+            clone.ranks = ranks.clone();
+            return clone;
+        }
+        catch ( final CloneNotSupportedException e )
+        {
+            throw new InternalError();
+        }
+    }
+
     @Override
     public synchronized void clear()
     {
@@ -131,22 +151,6 @@ final class RankedList<T>
     public int size()
     {
         return size;
-    }
-
-    /**
-     * @return Shallow copy of this {@link RankedList} instance.
-     */
-    @Override
-    public synchronized RankedList<T> clone()
-    {
-        final RankedList<T> clone = new RankedList<T>();
-
-        clone.uid = uid;
-        clone.elements = elements.clone();
-        clone.ranks = ranks.clone();
-        clone.size = size;
-
-        return clone;
     }
 
     @Override
