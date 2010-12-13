@@ -33,17 +33,7 @@ public class RankedBindingsTest
     {
     }
 
-    static class Bean1
-        implements Bean
-    {
-    }
-
-    static class Bean2
-        implements Bean
-    {
-    }
-
-    static class Bean3
+    static class BeanImpl
         implements Bean
     {
     }
@@ -53,7 +43,7 @@ public class RankedBindingsTest
         @Override
         protected void configure()
         {
-            bind( Bean.class ).annotatedWith( Names.named( "1" ) ).to( Bean1.class );
+            bind( Bean.class ).annotatedWith( Names.named( "1" ) ).to( BeanImpl.class );
         }
     } );
 
@@ -62,7 +52,8 @@ public class RankedBindingsTest
         @Override
         protected void configure()
         {
-            bind( Bean.class ).annotatedWith( Names.named( "2" ) ).to( Bean1.class );
+            bind( Bean.class ).annotatedWith( Names.named( "2" ) ).to( BeanImpl.class );
+            bind( Bean.class ).to( BeanImpl.class );
         }
     } );
 
@@ -71,7 +62,7 @@ public class RankedBindingsTest
         @Override
         protected void configure()
         {
-            bind( Bean.class ).annotatedWith( Names.named( "3" ) ).to( Bean1.class );
+            bind( Bean.class ).annotatedWith( Names.named( "3" ) ).to( BeanImpl.class );
         }
     } );
 
@@ -90,6 +81,12 @@ public class RankedBindingsTest
         assertEquals( 0, bindings.bindings.size() );
         assertTrue( itr.hasNext() );
         assertEquals( 3, bindings.bindings.size() );
+
+        assertNull( itr.next().getKey().getAnnotation() );
+
+        assertEquals( 3, bindings.bindings.size() );
+        assertTrue( itr.hasNext() );
+        assertEquals( 4, bindings.bindings.size() );
 
         assertEquals( Names.named( "3" ), itr.next().getKey().getAnnotation() );
         assertTrue( itr.hasNext() );
@@ -133,42 +130,33 @@ public class RankedBindingsTest
         assertEquals( 0, bindings.bindings.size() );
 
         assertTrue( itr.hasNext() );
-        assertEquals( 1, bindings.bindings.size() );
-        assertEquals( Names.named( "2" ), itr.next().getKey().getAnnotation() );
-        assertEquals( 1, bindings.bindings.size() );
+        assertEquals( 2, bindings.bindings.size() );
+        assertNull( itr.next().getKey().getAnnotation() );
+        assertEquals( 2, bindings.bindings.size() );
 
-        assertFalse( itr.hasNext() );
-        assertEquals( 1, bindings.bindings.size() );
+        assertTrue( itr.hasNext() );
+        assertEquals( 2, bindings.bindings.size() );
         bindings.add( new InjectorBindingExporter( injector3, (short) 3 ), 3 );
-        assertEquals( 1, bindings.bindings.size() );
-
-        assertFalse( itr.hasNext() );
-        assertEquals( 2, bindings.bindings.size() );
-
-        try
-        {
-            itr.next();
-            fail( "Expected NoSuchElementException" );
-        }
-        catch ( final NoSuchElementException e )
-        {
-            // expected
-        }
-
-        assertEquals( 2, bindings.bindings.size() );
-        bindings.add( new InjectorBindingExporter( injector1, (short) 1 ), 1 );
         assertEquals( 2, bindings.bindings.size() );
 
         assertTrue( itr.hasNext() );
         assertEquals( 3, bindings.bindings.size() );
-        assertEquals( Names.named( "1" ), itr.next().getKey().getAnnotation() );
+
+        assertEquals( 3, bindings.bindings.size() );
+        bindings.add( new InjectorBindingExporter( injector1, (short) 1 ), 1 );
         assertEquals( 3, bindings.bindings.size() );
 
-        assertFalse( itr.hasNext() );
-        assertEquals( 3, bindings.bindings.size() );
+        assertTrue( itr.hasNext() );
+        assertEquals( 4, bindings.bindings.size() );
+        assertEquals( Names.named( "2" ), itr.next().getKey().getAnnotation() );
+        assertEquals( 4, bindings.bindings.size() );
+
+        assertTrue( itr.hasNext() );
+        assertEquals( 4, bindings.bindings.size() );
 
         itr = bindings.iterator();
 
+        assertNull( itr.next().getKey().getAnnotation() );
         assertEquals( Names.named( "3" ), itr.next().getKey().getAnnotation() );
         assertEquals( Names.named( "2" ), itr.next().getKey().getAnnotation() );
         assertEquals( Names.named( "1" ), itr.next().getKey().getAnnotation() );
@@ -191,8 +179,9 @@ public class RankedBindingsTest
         Iterator<Binding<Bean>> itr = bindings.iterator();
 
         bindings.remove( exporter1 );
-        assertEquals( Names.named( "3" ), itr.next().getKey().getAnnotation() );
+        assertNull( itr.next().getKey().getAnnotation() );
         bindings.remove( exporter2 );
+        bindings.remove( exporter3 );
 
         assertFalse( itr.hasNext() );
 
@@ -204,6 +193,7 @@ public class RankedBindingsTest
         bindings.add( exporter1, 0 );
         bindings.add( exporter2, 0 );
 
+        assertNull( itr.next().getKey().getAnnotation() );
         assertEquals( Names.named( "3" ), itr.next().getKey().getAnnotation() );
         assertEquals( Names.named( "2" ), itr.next().getKey().getAnnotation() );
         assertEquals( Names.named( "1" ), itr.next().getKey().getAnnotation() );

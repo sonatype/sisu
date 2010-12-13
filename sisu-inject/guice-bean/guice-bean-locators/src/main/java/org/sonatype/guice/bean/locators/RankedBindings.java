@@ -136,7 +136,7 @@ final class RankedBindings<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final Iterator<Binding<T>> i = bindings.iterator();
+        private final RankedList<Binding<T>>.Itr i = bindings.iterator();
 
         // ----------------------------------------------------------------------
         // Public methods
@@ -146,20 +146,12 @@ final class RankedBindings<T>
         {
             synchronized ( pendingExporters )
             {
-                // only import more bindings if it will affect the potential next element
-                while ( pendingExporters.maxRank() > bindings.minRank() || !i.hasNext() )
+                while ( !pendingExporters.isEmpty() && pendingExporters.rank( 0 ) >= i.peekNextRank() )
                 {
-                    if ( !pendingExporters.isEmpty() )
-                    {
-                        pendingExporters.remove( 0 ).add( type, RankedBindings.this );
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    pendingExporters.remove( 0 ).add( type, RankedBindings.this );
                 }
             }
-            return true;
+            return i.hasNext();
         }
 
         public Binding<T> next()

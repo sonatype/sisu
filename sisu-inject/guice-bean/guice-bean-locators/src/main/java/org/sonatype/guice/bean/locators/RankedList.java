@@ -36,11 +36,11 @@ final class RankedList<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private int uid;
+    private int counter;
 
     Object[] elements;
 
-    long[] ranks;
+    long[] uids;
 
     int size;
 
@@ -60,7 +60,7 @@ final class RankedList<T>
         if ( null == elements )
         {
             elements = new Object[INITIAL_CAPACITY];
-            ranks = new long[INITIAL_CAPACITY];
+            uids = new long[INITIAL_CAPACITY];
         }
         else if ( size >= elements.length )
         {
@@ -70,20 +70,20 @@ final class RankedList<T>
             System.arraycopy( elements, 0, newElements, 0, size );
             elements = newElements;
 
-            final long[] newRanks = new long[capacity];
-            System.arraycopy( ranks, 0, newRanks, 0, size );
-            ranks = newRanks;
+            final long[] newUIDs = new long[capacity];
+            System.arraycopy( uids, 0, newUIDs, 0, size );
+            uids = newUIDs;
         }
-        final long uniqueRank = uniqueRank( rank );
-        final int index = safeBinarySearch( uniqueRank );
+        final long uid = rank2uid( rank );
+        final int index = safeBinarySearch( uid );
         if ( index < size++ )
         {
             final int to = index + 1, len = size - to;
             System.arraycopy( elements, index, elements, to, len );
-            System.arraycopy( ranks, index, ranks, to, len );
+            System.arraycopy( uids, index, uids, to, len );
         }
         elements[index] = element;
-        ranks[index] = uniqueRank;
+        uids[index] = uid;
     }
 
     @Override
@@ -98,19 +98,18 @@ final class RankedList<T>
     }
 
     /**
-     * @return The highest rank; this is the rank assigned to the first element in the list.
+     * Returns the rank assigned to the element at the given index.
+     * 
+     * @param index The element index
+     * @return Rank assigned to the element
      */
-    public synchronized int maxRank()
+    public synchronized int rank( final int index )
     {
-        return size > 0 ? (int) ( ~ranks[0] >>> 32 ) : Integer.MIN_VALUE;
-    }
-
-    /**
-     * @return The lowest rank; this is the rank assigned to the last element in the list.
-     */
-    public synchronized int minRank()
-    {
-        return size > 0 ? (int) ( ~ranks[size - 1] >>> 32 ) : Integer.MIN_VALUE;
+        if ( index < 0 || index >= size )
+        {
+            throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
+        }
+        return uid2rank( uids[index] );
     }
 
     @Override
@@ -121,7 +120,7 @@ final class RankedList<T>
         {
             final int from = index + 1, len = size - index;
             System.arraycopy( elements, from, elements, index, len );
-            System.arraycopy( ranks, from, ranks, index, len );
+            System.arraycopy( uids, from, uids, index, len );
         }
         return element;
     }
@@ -136,8 +135,11 @@ final class RankedList<T>
         {
             @SuppressWarnings( "unchecked" )
             final RankedList<T> clone = (RankedList<T>) super.clone();
-            clone.elements = null != elements ? elements.clone() : null;
-            clone.ranks = null != ranks ? ranks.clone() : null;
+            if ( null != elements )
+            {
+                clone.elements = elements.clone();
+                clone.uids = uids.clone();
+            }
             return clone;
         }
         catch ( final CloneNotSupportedException e )
@@ -149,9 +151,9 @@ final class RankedList<T>
     @Override
     public synchronized void clear()
     {
-        uid = 0;
+        counter = 0;
         elements = null;
-        ranks = null;
+        uids = null;
         size = 0;
     }
 
@@ -162,7 +164,7 @@ final class RankedList<T>
     }
 
     @Override
-    public Iterator<T> iterator()
+    public Itr iterator()
     {
         return new Itr();
     }
@@ -172,41 +174,52 @@ final class RankedList<T>
     // ----------------------------------------------------------------------
 
     /**
-     * Attempts to turn the given non-unique rank into a unique rank by appending a counter.
+     * Turns the given (potentially non-unique) rank into a unique id by appending a counter.
      * 
-     * @param rank The non-unique rank
-     * @return The unique rank
+     * @param rank The assigned rank
+     * @return The unique id
      */
-    private long uniqueRank( final long rank )
+    private long rank2uid( final int rank )
     {
-        return ~rank << 32 | 0x00000000FFFFFFFFL & uid++;
+        return (long) ~rank << 32 | 0x00000000FFFFFFFFL & counter++;
     }
 
     /**
-     * Finds the insertion point nearest to the given rank, regardless of whether the rank is in the list or not.<br>
-     * Unlike {@link Arrays#binarySearch} this always returns a natural number from zero to {@link #size()} inclusive.
+     * Extracts the original (potentially non-unique) assigned rank from the given unique id.
      * 
-     * @param rank The rank to find
-     * @return Index nearest to rank
+     * @param uid The unique id
+     * @return Assigned rank
      */
-    int safeBinarySearch( final long rank )
+    static int uid2rank( final long uid )
     {
-        if ( size == 0 || rank <= ranks[0] )
+        return (int) ( ~uid >>> 32 );
+    }
+
+    /**
+     * Finds the insertion point with the nearest UID, regardless of whether the UID is in the list or not.<br>
+     * Unlike {@link Arrays#binarySearch} this will always return a number from zero to {@link #size()} inclusive.
+     * 
+     * @param uid The UID to find
+     * @return Index with nearest UID
+     */
+    int safeBinarySearch( final long uid )
+    {
+        if ( size == 0 || uid <= uids[0] )
         {
             return 0;
         }
 
         int max = size - 1;
-        int min = rank < ranks[max] ? 0 : max;
+        int min = uid < uids[max] ? 0 : max;
         while ( min <= max )
         {
             final int m = min + max >>> 1;
-            final long midRank = ranks[m];
-            if ( rank < midRank )
+            final long midUID = uids[m];
+            if ( uid < midUID )
             {
                 max = m - 1;
             }
-            else if ( midRank < rank )
+            else if ( midUID < uid )
             {
                 min = m + 1;
             }
@@ -232,7 +245,7 @@ final class RankedList<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private long nextRank = Long.MIN_VALUE;
+        private long nextUID = Long.MIN_VALUE;
 
         private T nextElement;
 
@@ -243,19 +256,35 @@ final class RankedList<T>
         @SuppressWarnings( "unchecked" )
         public boolean hasNext()
         {
-            if ( null == nextElement && nextRank < Long.MAX_VALUE )
+            if ( null == nextElement && nextUID < Long.MAX_VALUE )
             {
                 synchronized ( RankedList.this )
                 {
-                    final int index = safeBinarySearch( nextRank );
+                    final int index = safeBinarySearch( nextUID );
                     if ( index < size )
                     {
                         nextElement = (T) elements[index];
-                        nextRank = ranks[index] + 1;
+                        nextUID = uids[index] + 1;
                     }
                 }
             }
             return null != nextElement;
+        }
+
+        /**
+         * @return Rank assigned to the next element; returns {@link Integer#MIN_VALUE} if there is no next element.
+         */
+        public int peekNextRank()
+        {
+            if ( null == nextElement && nextUID < Long.MAX_VALUE )
+            {
+                synchronized ( RankedList.this )
+                {
+                    final int index = safeBinarySearch( nextUID );
+                    return index < size ? uid2rank( uids[index] ) : Integer.MIN_VALUE;
+                }
+            }
+            return uid2rank( nextUID );
         }
 
         public T next()
