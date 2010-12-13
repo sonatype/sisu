@@ -204,29 +204,24 @@ final class RankedList<T>
      */
     int safeBinarySearch( final long uid )
     {
-        if ( size == 0 || uid <= uids[0] )
-        {
-            return 0;
-        }
-
+        int min = 0;
         int max = size - 1;
-        int min = uid < uids[max] ? 0 : max;
-        while ( min <= max )
+        final int end = max;
+        while ( min < max )
         {
             final int m = min + max >>> 1;
-            final long midUID = uids[m];
-            if ( uid < midUID )
+            if ( uid <= uids[m] )
             {
-                max = m - 1;
-            }
-            else if ( midUID < uid )
-            {
-                min = m + 1;
+                max = m;
             }
             else
             {
-                return m;
+                min = m + 1;
             }
+        }
+        if ( end == min && uids[min] < uid )
+        {
+            return min + 1; // append
         }
         return min;
     }

@@ -31,7 +31,7 @@ public class RankedListTest
 
     static final Random random = new Random( System.currentTimeMillis() );
 
-    static final int CONCURRENCY = 4;
+    static final int CONCURRENCY = 3;
 
     static final RankedList<Integer> rankedList = new RankedList<Integer>();
 
