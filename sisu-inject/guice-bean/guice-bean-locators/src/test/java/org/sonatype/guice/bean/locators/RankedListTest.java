@@ -31,7 +31,7 @@ public class RankedListTest
 
     static final Random random = new Random( System.currentTimeMillis() );
 
-    static final int CONCURRENCY = 32;
+    static final int CONCURRENCY = 4;
 
     static final RankedList<Integer> rankedList = new RankedList<Integer>();
 
@@ -397,6 +397,7 @@ public class RankedListTest
         {
             while ( active.get() )
             {
+                Thread.yield();
                 final int rank = random.nextInt();
                 rankedList.insert( Integer.valueOf( rank ), rank );
                 Thread.yield();
@@ -413,6 +414,7 @@ public class RankedListTest
             {
                 while ( active.get() || !rankedList.isEmpty() )
                 {
+                    Thread.yield();
                     synchronized ( rankedList )
                     {
                         if ( !rankedList.isEmpty() )
@@ -439,6 +441,7 @@ public class RankedListTest
             {
                 while ( active.get() )
                 {
+                    Thread.yield();
                     int lastRank = Integer.MAX_VALUE;
                     final Iterator<Integer> itr = rankedList.iterator();
                     while ( itr.hasNext() )
@@ -449,6 +452,7 @@ public class RankedListTest
                         assertTrue( "Rank should descend during iteration", lastRank >= rank );
                         lastRank = rank;
                     }
+                    Thread.yield();
                 }
             }
             catch ( final Throwable e )

@@ -256,19 +256,21 @@ final class RankedList<T>
         @SuppressWarnings( "unchecked" )
         public boolean hasNext()
         {
-            if ( null == nextElement && nextUID < Long.MAX_VALUE )
+            if ( null != nextElement )
             {
-                synchronized ( RankedList.this )
+                return true;
+            }
+            synchronized ( RankedList.this )
+            {
+                final int index = safeBinarySearch( nextUID );
+                if ( index < size )
                 {
-                    final int index = safeBinarySearch( nextUID );
-                    if ( index < size )
-                    {
-                        nextElement = (T) elements[index];
-                        nextUID = uids[index] + 1;
-                    }
+                    nextElement = (T) elements[index];
+                    nextUID = uids[index] + 1;
+                    return true;
                 }
             }
-            return null != nextElement;
+            return false;
         }
 
         /**
@@ -276,15 +278,19 @@ final class RankedList<T>
          */
         public int peekNextRank()
         {
-            if ( null == nextElement && nextUID < Long.MAX_VALUE )
+            if ( null != nextElement )
             {
-                synchronized ( RankedList.this )
+                return uid2rank( nextUID );
+            }
+            synchronized ( RankedList.this )
+            {
+                final int index = safeBinarySearch( nextUID );
+                if ( index < size )
                 {
-                    final int index = safeBinarySearch( nextUID );
-                    return index < size ? uid2rank( uids[index] ) : Integer.MIN_VALUE;
+                    return uid2rank( uids[index] );
                 }
             }
-            return uid2rank( nextUID );
+            return Integer.MIN_VALUE;
         }
 
         public T next()
