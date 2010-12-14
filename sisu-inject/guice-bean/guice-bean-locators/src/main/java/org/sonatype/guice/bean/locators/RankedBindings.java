@@ -44,19 +44,17 @@ final class RankedBindings<T>
     public RankedBindings( final TypeLiteral<T> type, final RankedList<BindingExporter> exporters )
     {
         this.type = type;
-        if ( null != exporters )
-        {
-            pendingExporters = exporters.clone();
-        }
-        else
-        {
-            pendingExporters = new RankedList<BindingExporter>();
-        }
+        pendingExporters = null != exporters ? exporters.clone() : new RankedList<BindingExporter>();
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
+
+    public TypeLiteral<T> type()
+    {
+        return type;
+    }
 
     public void add( final BindingExporter exporter, final int rank )
     {
@@ -65,8 +63,8 @@ final class RankedBindings<T>
 
     public void remove( final BindingExporter exporter )
     {
-        // pending exporters haven't added bindings yet
-        if ( !removeExact( pendingExporters, exporter ) )
+        // check if this exporter been activated
+        if ( !pendingExporters.remove( exporter ) )
         {
             exporter.remove( type, this );
         }
@@ -78,10 +76,10 @@ final class RankedBindings<T>
         bindings.insert( binding, rank );
     }
 
-    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    @SuppressWarnings( "rawtypes" )
     public void remove( final Binding binding )
     {
-        removeExact( bindings, binding );
+        bindings.remove( binding );
     }
 
     public Iterator<Binding<T>> iterator()
@@ -93,33 +91,6 @@ final class RankedBindings<T>
     {
         pendingExporters.clear();
         bindings.clear();
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * Removes the exact given element from the list; uses identity comparison instead of equality.
-     * 
-     * @param list The list
-     * @param element The element to remove
-     * @return {@code true} if the element was removed; otherwise {@code false}
-     */
-    private static <S, T extends S> boolean removeExact( final RankedList<S> list, final T element )
-    {
-        synchronized ( list )
-        {
-            for ( int i = 0, size = list.size(); i < size; i++ )
-            {
-                if ( element == list.get( i ) )
-                {
-                    list.remove( i );
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     // ----------------------------------------------------------------------
@@ -146,7 +117,7 @@ final class RankedBindings<T>
         {
             synchronized ( pendingExporters )
             {
-                while ( !pendingExporters.isEmpty() && pendingExporters.rank( 0 ) >= i.peekNextRank() )
+                while ( !pendingExporters.isEmpty() && pendingExporters.getRank( 0 ) >= i.peekNextRank() )
                 {
                     pendingExporters.remove( 0 ).add( type, RankedBindings.this );
                 }

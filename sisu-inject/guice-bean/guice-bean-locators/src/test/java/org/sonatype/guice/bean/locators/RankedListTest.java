@@ -133,8 +133,8 @@ public class RankedListTest
 
         assertEquals( 7, list.size() );
 
-        assertEquals( Integer.MAX_VALUE, list.rank( 0 ) );
-        assertEquals( Integer.MIN_VALUE, list.rank( 6 ) );
+        assertEquals( Integer.MAX_VALUE, list.getRank( 0 ) );
+        assertEquals( Integer.MIN_VALUE, list.getRank( 6 ) );
 
         assertFalse( list.isEmpty() );
         list.clear();
@@ -151,37 +151,37 @@ public class RankedListTest
         list.insert( "A", Integer.MAX_VALUE );
 
         assertEquals( 7, list.size() );
-        assertEquals( Integer.MAX_VALUE, list.rank( 0 ) );
-        assertEquals( Integer.MIN_VALUE, list.rank( 6 ) );
+        assertEquals( Integer.MAX_VALUE, list.getRank( 0 ) );
+        assertEquals( Integer.MIN_VALUE, list.getRank( 6 ) );
         list.remove( 0 );
 
         assertEquals( 6, list.size() );
-        assertEquals( Integer.MAX_VALUE - 1, list.rank( 0 ) );
-        assertEquals( Integer.MIN_VALUE, list.rank( 5 ) );
+        assertEquals( Integer.MAX_VALUE - 1, list.getRank( 0 ) );
+        assertEquals( Integer.MIN_VALUE, list.getRank( 5 ) );
         list.remove( 5 );
 
         assertEquals( 5, list.size() );
-        assertEquals( Integer.MAX_VALUE - 1, list.rank( 0 ) );
-        assertEquals( Integer.MIN_VALUE + 1, list.rank( 4 ) );
+        assertEquals( Integer.MAX_VALUE - 1, list.getRank( 0 ) );
+        assertEquals( Integer.MIN_VALUE + 1, list.getRank( 4 ) );
         list.remove( 0 );
 
         assertEquals( 4, list.size() );
-        assertEquals( 1, list.rank( 0 ) );
-        assertEquals( Integer.MIN_VALUE + 1, list.rank( 3 ) );
+        assertEquals( 1, list.getRank( 0 ) );
+        assertEquals( Integer.MIN_VALUE + 1, list.getRank( 3 ) );
         list.remove( 3 );
 
         assertEquals( 3, list.size() );
-        assertEquals( 1, list.rank( 0 ) );
-        assertEquals( -1, list.rank( 2 ) );
+        assertEquals( 1, list.getRank( 0 ) );
+        assertEquals( -1, list.getRank( 2 ) );
         list.remove( 0 );
 
         assertEquals( 2, list.size() );
-        assertEquals( 0, list.rank( 0 ) );
-        assertEquals( -1, list.rank( 1 ) );
+        assertEquals( 0, list.getRank( 0 ) );
+        assertEquals( -1, list.getRank( 1 ) );
         list.remove( 1 );
 
         assertEquals( 1, list.size() );
-        assertEquals( 0, list.rank( 0 ) );
+        assertEquals( 0, list.getRank( 0 ) );
         list.remove( 0 );
 
         assertEquals( 0, list.size() );
@@ -242,7 +242,7 @@ public class RankedListTest
 
         try
         {
-            list.rank( -1 );
+            list.getRank( -1 );
             fail( "Expected IndexOutOfBoundsException" );
         }
         catch ( final IndexOutOfBoundsException e )
@@ -251,7 +251,7 @@ public class RankedListTest
         }
 
         assertEquals( "Test", list.get( 0 ) );
-        assertEquals( 42, list.rank( 0 ) );
+        assertEquals( 42, list.getRank( 0 ) );
 
         try
         {
@@ -275,7 +275,7 @@ public class RankedListTest
 
         try
         {
-            list.rank( 1 );
+            list.getRank( 1 );
             fail( "Expected IndexOutOfBoundsException" );
         }
         catch ( final IndexOutOfBoundsException e )
@@ -307,7 +307,7 @@ public class RankedListTest
 
         try
         {
-            list.rank( 0 );
+            list.getRank( 0 );
             fail( "Expected IndexOutOfBoundsException" );
         }
         catch ( final IndexOutOfBoundsException e )

@@ -36,7 +36,7 @@ final class RankedList<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private int counter;
+    int modCount;
 
     Object[] elements;
 
@@ -103,7 +103,7 @@ final class RankedList<T>
      * @param index The element index
      * @return Rank assigned to the element
      */
-    public synchronized int rank( final int index )
+    public synchronized int getRank( final int index )
     {
         if ( index < 0 || index >= size )
         {
@@ -123,6 +123,25 @@ final class RankedList<T>
             System.arraycopy( uids, from, uids, index, len );
         }
         return element;
+    }
+
+    /**
+     * Removes the given element from the list; uses <b>identity</b> comparison instead of equality.
+     * 
+     * @param element The element to remove
+     * @return {@code true} if the element was removed; otherwise {@code false}
+     */
+    @Override
+    public synchronized boolean remove( final Object element )
+    {
+        for ( int i = 0; i < size; i++ )
+        {
+            if ( element == elements[i] )
+            {
+                return null != remove( i );
+            }
+        }
+        return false;
     }
 
     /**
@@ -151,7 +170,7 @@ final class RankedList<T>
     @Override
     public synchronized void clear()
     {
-        counter = 0;
+        modCount = 0;
         elements = null;
         uids = null;
         size = 0;
@@ -181,7 +200,7 @@ final class RankedList<T>
      */
     private long rank2uid( final int rank )
     {
-        return (long) ~rank << 32 | 0x00000000FFFFFFFFL & counter++;
+        return (long) ~rank << 32 | 0x00000000FFFFFFFFL & modCount++;
     }
 
     /**
@@ -240,9 +259,13 @@ final class RankedList<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
+        private int lastModCount = modCount;
+
         private long nextUID = Long.MIN_VALUE;
 
         private T nextElement;
+
+        private int index;
 
         // ----------------------------------------------------------------------
         // Public methods
@@ -257,7 +280,12 @@ final class RankedList<T>
             }
             synchronized ( RankedList.this )
             {
-                final int index = safeBinarySearch( nextUID );
+                if ( lastModCount != modCount )
+                {
+                    // reposition ourselves in the list
+                    index = safeBinarySearch( nextUID );
+                    lastModCount = modCount;
+                }
                 if ( index < size )
                 {
                     nextElement = (T) elements[index];
@@ -279,7 +307,12 @@ final class RankedList<T>
             }
             synchronized ( RankedList.this )
             {
-                final int index = safeBinarySearch( nextUID );
+                if ( lastModCount != modCount )
+                {
+                    // reposition ourselves in the list
+                    index = safeBinarySearch( nextUID );
+                    lastModCount = modCount;
+                }
                 if ( index < size )
                 {
                     return uid2rank( uids[index] );
@@ -292,6 +325,8 @@ final class RankedList<T>
         {
             if ( hasNext() )
             {
+                index++;
+
                 // populated by hasNext()
                 final T element = nextElement;
                 nextElement = null;
