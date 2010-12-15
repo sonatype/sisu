@@ -25,7 +25,7 @@
       <dependency>
         <groupId>org.sonatype.sisu</groupId>
         <artifactId>sisu-inject-bean</artifactId>
-        <version>1.4.3.1</version>
+        <version>1.4.4-SNAPSHOT</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

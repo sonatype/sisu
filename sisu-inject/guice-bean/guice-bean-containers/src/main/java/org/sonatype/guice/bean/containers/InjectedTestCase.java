@@ -174,7 +174,7 @@ public abstract class InjectedTestCase
 
     private final <T> T lookup( final Key<T> key )
     {
-        final Iterator<? extends Entry<Annotation, T>> i = locator.locate( key, null ).iterator();
+        final Iterator<? extends Entry<Annotation, T>> i = locator.locate( key ).iterator();
         return i.hasNext() ? i.next().getValue() : null;
     }
 }

@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
+import org.sonatype.guice.bean.locators.QualifiedBean;
 import org.sonatype.guice.plexus.config.PlexusBean;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 
@@ -68,23 +69,12 @@ public final class DefaultPlexusBeanLocator
 
     public <T> Iterable<PlexusBean<T>> locate( final TypeLiteral<T> role, final String... hints )
     {
-        final PlexusBeans<T> plexusBeans;
+        final Key<T> key = hints.length == 1 ? Key.get( role, Names.named( hints[0] ) ) : Key.get( role, Named.class );
+        Iterable<QualifiedBean<Named, T>> beans = beanLocator.locate( key );
         if ( REALM_VISIBILITY.equalsIgnoreCase( visibility ) )
         {
-            plexusBeans = new RealmPlexusBeans<T>( role, hints );
+            beans = new RealmFilter<T>( beans );
         }
-        else
-        {
-            plexusBeans = new GlobalPlexusBeans<T>( role, hints );
-        }
-        if ( hints.length == 1 )
-        {
-            plexusBeans.setBeans( beanLocator.<Named, T> locate( Key.get( role, Names.named( hints[0] ) ), plexusBeans ) );
-        }
-        else
-        {
-            plexusBeans.setBeans( beanLocator.<Named, T> locate( Key.get( role, Named.class ), plexusBeans ) );
-        }
-        return plexusBeans;
+        return hints.length <= 1 ? new DefaultPlexusBeans<T>( beans ) : new HintedPlexusBeans<T>( beans, role, hints );
     }
 }

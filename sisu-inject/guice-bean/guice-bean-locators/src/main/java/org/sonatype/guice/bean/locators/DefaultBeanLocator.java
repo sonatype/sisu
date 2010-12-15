@@ -12,25 +12,28 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import org.sonatype.guice.bean.reflect.Logs;
+import org.sonatype.guice.bean.locators.spi.BindingExporter;
 import org.sonatype.inject.Mediator;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
 /**
- * Default {@link BeanLocator} that locates qualified beans across a dynamic group of {@link Injector}s.
+ * Default {@link MutableBeanLocator} that finds qualified beans across a dynamic group of {@link BindingExporter}s.
  */
 @Singleton
+@SuppressWarnings( { "rawtypes", "unchecked" } )
 public final class DefaultBeanLocator
     implements MutableBeanLocator
 {
@@ -38,59 +41,103 @@ public final class DefaultBeanLocator
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final List<Provider<? extends QualifiedBeans<?, ?>>> exposedBeans =
-        new ArrayList<Provider<? extends QualifiedBeans<?, ?>>>();
+    private final RankedList<BindingExporter> exporters = new RankedList<BindingExporter>();
 
-    private final Set<Injector> injectors = new LinkedHashSet<Injector>();
+    private final Map<TypeLiteral, RankedBindings> bindingsCache = new HashMap<TypeLiteral, RankedBindings>();
+
+    private final Map<Object, TypeLiteral> keepAlive = new WeakHashMap<Object, TypeLiteral>();
+
+    private final List<WatchedBeans> watchedBeans = new ArrayList<WatchedBeans>();
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( { "rawtypes", "unchecked" } )
-    public synchronized Iterable<QualifiedBean> locate( final Key key, final Runnable listener )
+    public synchronized Iterable<QualifiedBean> locate( final Key key )
     {
-        final QualifiedBeans beans = null == listener ? new QualifiedBeans( key ) : new NotifyingBeans( key, listener );
+        final RankedBindings bindings = bindingsForType( key.getTypeLiteral() );
+        final QualifiedBeans beans = new QualifiedBeans( key, bindings );
 
-        // store weak-reference to returned beans for automatic clean-up
-        exposedBeans.add( new WeakBeanReference( populate( beans ) ) );
+        keepAlive.put( beans, bindings.type() );
 
+        expungeStaleBindings();
         return beans;
     }
 
-    @SuppressWarnings( { "rawtypes", "unchecked" } )
     public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )
     {
-        // watched beans use a weak-reference to the watcher for automatic clean-up
-        exposedBeans.add( populate( new WatchedBeans( key, mediator, watcher ) ) );
+        final WatchedBeans beans = new WatchedBeans( key, mediator, watcher );
+        for ( final BindingExporter exporter : exporters )
+        {
+            beans.add( exporter );
+        }
+
+        watchedBeans.add( beans );
+
+        expungeStaleBindings();
     }
 
-    @Inject
-    public synchronized void add( final Injector injector )
+    public synchronized void add( final BindingExporter exporter, final int rank )
     {
-        if ( null != injector && injectors.add( injector ) )
+        exporters.insert( exporter, rank );
+        for ( final RankedBindings bindings : bindingsCache.values() )
         {
-            final String hash = Integer.toHexString( injector.hashCode() );
-            Logs.debug( getClass(), "Adding Injector@{}: {}", hash, injector );
-            sendEvent( InjectorEvent.ADD, injector );
+            bindings.add( exporter, rank );
         }
+        for ( final WatchedBeans beans : watchedBeans )
+        {
+            beans.add( exporter );
+        }
+        expungeStaleBindings();
     }
 
-    public synchronized void remove( final Injector injector )
+    public synchronized void remove( final BindingExporter exporter )
     {
-        if ( null != injector && injectors.remove( injector ) )
+        exporters.remove( exporter );
+        for ( final RankedBindings bindings : bindingsCache.values() )
         {
-            final String hash = Integer.toHexString( injector.hashCode() );
-            Logs.debug( getClass(), "Removing Injector@{}:", hash, null );
-            sendEvent( InjectorEvent.REMOVE, injector );
+            bindings.remove( exporter );
         }
+        for ( final WatchedBeans beans : watchedBeans )
+        {
+            beans.remove( exporter );
+        }
+        expungeStaleBindings();
     }
 
     public synchronized void clear()
     {
-        Logs.debug( getClass(), "Clearing all Injectors", null, null );
-        sendEvent( InjectorEvent.CLEAR, null );
-        injectors.clear();
+        for ( final RankedBindings bindings : bindingsCache.values() )
+        {
+            bindings.clear();
+        }
+        bindingsCache.clear();
+    }
+
+    private final Map<Injector, BindingExporter> injectorExporters = new HashMap<Injector, BindingExporter>();
+
+    private short injectorRank = Short.MIN_VALUE;
+
+    @Inject
+    @SuppressWarnings( "deprecation" )
+    public synchronized void add( final Injector injector )
+    {
+        if ( !injectorExporters.containsKey( injector ) )
+        {
+            final BindingExporter exporter = new InjectorBindingExporter( injector, injectorRank );
+            injectorExporters.put( injector, exporter );
+            add( exporter, injectorRank++ );
+        }
+    }
+
+    @SuppressWarnings( "deprecation" )
+    public synchronized void remove( final Injector injector )
+    {
+        final BindingExporter exporter = injectorExporters.remove( injector );
+        if ( null != exporter )
+        {
+            remove( exporter );
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -98,81 +145,34 @@ public final class DefaultBeanLocator
     // ----------------------------------------------------------------------
 
     /**
-     * Enumerate the various {@link Injector} events that {@link QualifiedBeans} can receive.
+     * Returns the {@link RankedBindings} tracking the type; creates a new instance if one doesn't already exist.
+     * 
+     * @param type The required type
+     * @return Sequence of ranked bindings
      */
-    @SuppressWarnings( "rawtypes" )
-    private static enum InjectorEvent
+    private <T> RankedBindings bindingsForType( final TypeLiteral<T> type )
     {
-        ADD
+        RankedBindings bindings = bindingsCache.get( type );
+        if ( null == bindings )
         {
-            @Override
-            void send( final QualifiedBeans beans, final Injector injector )
-            {
-                beans.add( injector );
-            }
-        },
-        REMOVE
-        {
-            @Override
-            void send( final QualifiedBeans beans, final Injector injector )
-            {
-                beans.remove( injector );
-            }
-        },
-        CLEAR
-        {
-            @Override
-            void send( final QualifiedBeans beans, final Injector injector )
-            {
-                beans.clear();
-            }
-        };
-
-        abstract void send( final QualifiedBeans beans, final Injector injector );
+            bindings = new RankedBindings( type, exporters );
+            bindingsCache.put( type, bindings );
+        }
+        return bindings;
     }
 
     /**
-     * Sends the given {@link Injector} event to all exposed beans known to the locator.
-     * 
-     * @param event The injector event
-     * @param injector The injector
+     * Expunges any unused {@link RankedBindings}; relies on {@link WeakReference}s to keep-alive used elements.
      */
-    private void sendEvent( final InjectorEvent event, final Injector injector )
+    private void expungeStaleBindings()
     {
-        for ( int i = 0; i < exposedBeans.size(); i++ )
+        bindingsCache.keySet().retainAll( keepAlive.values() );
+        for ( int i = 0; i < watchedBeans.size(); i++ )
         {
-            final QualifiedBeans<?, ?> beans = exposedBeans.get( i ).get();
-            if ( null != beans )
+            if ( watchedBeans.get( i ).inactive() )
             {
-                event.send( beans, injector );
-            }
-            else
-            {
-                exposedBeans.remove( i-- ); // sequence GC'd, so no need to track anymore
+                watchedBeans.remove( i-- );
             }
         }
-    }
-
-    /**
-     * Populates a sequence of qualified beans based on the current group of {@link Injector}s.
-     * 
-     * @param beans The sequence to populate
-     * @return The populated bean sequence
-     */
-    private <B extends QualifiedBeans<?, ?>> B populate( final B beans )
-    {
-        for ( final Injector injector : injectors )
-        {
-            beans.add( injector );
-        }
-        // take a moment to clear stale bean sequences
-        for ( int i = 0; i < exposedBeans.size(); i++ )
-        {
-            if ( null == exposedBeans.get( i ).get() )
-            {
-                exposedBeans.remove( i-- ); // sequence GC'd, so no need to track anymore
-            }
-        }
-        return beans;
     }
 }

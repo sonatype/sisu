@@ -12,76 +12,62 @@
  */
 package org.sonatype.guice.plexus.locators;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.Iterator;
 
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.sonatype.guice.bean.locators.QualifiedBean;
+import org.sonatype.guice.plexus.config.PlexusBean;
 
-import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 
-final class RealmPlexusBeans<T>
-    extends GlobalPlexusBeans<T>
+final class DefaultPlexusBeans<T>
+    implements Iterable<PlexusBean<T>>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private ClassRealm cachedContextRealm;
+    Iterable<QualifiedBean<Named, T>> beans;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    RealmPlexusBeans( final TypeLiteral<T> role, final String... hints )
+    DefaultPlexusBeans( final Iterable<QualifiedBean<Named, T>> beans )
     {
-        super( role, hints );
+        this.beans = beans;
     }
 
     // ----------------------------------------------------------------------
-    // Customizable methods
+    // Public methods
     // ----------------------------------------------------------------------
 
-    @Override
-    protected boolean refreshCache()
+    public Iterator<PlexusBean<T>> iterator()
     {
-        final ClassRealm contextRealm = ClassRealmUtils.contextRealm();
-        if ( contextRealm == cachedContextRealm )
-        {
-            return false;
-        }
-        cachedContextRealm = contextRealm;
-        return true;
-    }
-
-    @Override
-    protected Iterable<QualifiedBean<Named, T>> getVisibleBeans()
-    {
-        return getVisibleBeans( cachedContextRealm );
+        return new Itr();
     }
 
     // ----------------------------------------------------------------------
-    // Implementation methods
+    // Implementation types
     // ----------------------------------------------------------------------
 
-    private Iterable<QualifiedBean<Named, T>> getVisibleBeans( final ClassRealm contextRealm )
+    final class Itr
+        implements Iterator<PlexusBean<T>>
     {
-        final Set<String> visibleRealmNames = ClassRealmUtils.visibleRealmNames( contextRealm );
-        if ( visibleRealmNames.isEmpty() )
+        private final Iterator<QualifiedBean<Named, T>> itr = beans.iterator();
+
+        public boolean hasNext()
         {
-            return beans;
+            return itr.hasNext();
         }
-        final List<QualifiedBean<Named, T>> visibleBeans = new ArrayList<QualifiedBean<Named, T>>();
-        for ( final QualifiedBean<Named, T> bean : beans )
+
+        public PlexusBean<T> next()
         {
-            final String source = bean.getBinding().getSource().toString();
-            if ( !source.startsWith( "ClassRealm" ) || visibleRealmNames.contains( source ) )
-            {
-                visibleBeans.add( bean );
-            }
+            return new LazyPlexusBean<T>( itr.next() );
         }
-        return visibleBeans;
+
+        public void remove()
+        {
+            throw new UnsupportedOperationException();
+        }
     }
 }

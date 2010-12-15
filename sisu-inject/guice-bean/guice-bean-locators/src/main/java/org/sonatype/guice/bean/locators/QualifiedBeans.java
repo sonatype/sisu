@@ -12,183 +12,71 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import static org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.Option.IDENTITY_COMPARISONS;
+import static org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.ReferenceType.STRONG;
+import static org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.ReferenceType.WEAK;
+
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Iterator;
-import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentMap;
+
+import javax.inject.Named;
+
+import org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.Option;
 
 import com.google.inject.Binding;
-import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
-import com.google.inject.name.Named;
-import com.google.inject.name.Names;
 
-/**
- * {@link Iterable} sequence of qualified beans backed by bindings from one or more {@link Injector}s.
- */
-class QualifiedBeans<Q extends Annotation, T>
+final class QualifiedBeans<Q extends Annotation, T>
     implements Iterable<QualifiedBean<Q, T>>
 {
     // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
 
-    static final Annotation DEFAULT_QUALIFIER = Names.named( "default" );
+    private static final EnumSet<Option> IDENTITY = EnumSet.of( IDENTITY_COMPARISONS );
 
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final QualifyingStrategy strategy;
+    final Key<T> key;
 
-    private final Key<T> key;
+    final RankedBindings<T> bindings;
 
-    private ArrayList<QualifiedBean<Q, T>> beans = null;
+    final QualifyingStrategy strategy;
 
-    private boolean exposed;
+    final ConcurrentMap<Binding<T>, QualifiedBean<Q, T>> beanMap =
+        new ConcurrentReferenceHashMap<Binding<T>, QualifiedBean<Q, T>>( WEAK, STRONG, IDENTITY );
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    QualifiedBeans( final Key<T> key )
+    QualifiedBeans( final Key<T> key, final RankedBindings<T> bindings )
     {
-        this.strategy = selectQualifyingStrategy( key );
         this.key = key;
+        this.bindings = bindings;
+
+        strategy = selectQualifyingStrategy( key );
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
-    public final synchronized Iterator<QualifiedBean<Q, T>> iterator()
+    public Iterator<QualifiedBean<Q, T>> iterator()
     {
-        if ( null != beans )
-        {
-            exposed = true;
-            return beans.iterator();
-        }
-        return Collections.EMPTY_LIST.iterator();
-    }
-
-    /**
-     * Adds qualified beans from the given injector to the current sequence.
-     * 
-     * @param injector The new injector
-     * @return Added beans
-     */
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
-    public List<QualifiedBean<Q, T>> add( final Injector injector )
-    {
-        final Collection<Binding<?>> bindings;
-        final TypeLiteral bindingType = key.getTypeLiteral();
-        if ( strategy == QualifyingStrategy.NAMED_WITH_ATTRIBUTES )
-        {
-            final boolean isDefault = DEFAULT_QUALIFIER.equals( key.getAnnotation() );
-            final Binding<?> b = injector.getBindings().get( isDefault ? Key.get( bindingType ) : key );
-            bindings = null != b ? Collections.singletonList( b ) : Collections.EMPTY_LIST;
-        }
-        else
-        {
-            bindings = injector.findBindingsByType( bindingType );
-        }
-        if ( bindings.isEmpty() )
-        {
-            return Collections.EMPTY_LIST;
-        }
-        int pivot = 0;
-        final List<QualifiedBean<Q, T>> newBeans = new ArrayList<QualifiedBean<Q, T>>();
-        for ( final Binding binding : bindings )
-        {
-            if ( false == binding.getSource() instanceof HiddenBinding )
-            {
-                final Q qualifier = (Q) strategy.qualifies( key, binding );
-                if ( null != qualifier )
-                {
-                    final QualifiedBean<Q, T> bean = new LazyQualifiedBean<Q, T>( qualifier, binding );
-                    if ( DEFAULT_QUALIFIER.equals( qualifier ) )
-                    {
-                        newBeans.add( pivot++, bean );
-                    }
-                    else
-                    {
-                        newBeans.add( bean );
-                    }
-                }
-            }
-        }
-        if ( !newBeans.isEmpty() )
-        {
-            mergeQualifiedBeans( pivot, newBeans );
-        }
-        return newBeans;
-    }
-
-    /**
-     * Removes qualified beans from the given injector from the current sequence.
-     * 
-     * @param injector The old injector
-     * @return Removed beans
-     */
-    public synchronized List<QualifiedBean<Q, T>> remove( final Injector injector )
-    {
-        if ( null == beans )
-        {
-            return Collections.emptyList();
-        }
-        // use binding membership to identify which beans belong to removed injector
-        final List<QualifiedBean<Q, T>> oldBeans = new ArrayList<QualifiedBean<Q, T>>();
-        final Collection<Binding<?>> bindings = injector.getBindings().values();
-        for ( int i = 0; i < beans.size(); i++ )
-        {
-            if ( bindings.contains( beans.get( i ).getBinding() ) )
-            {
-                if ( exposed )
-                {
-                    // take defensive copy to avoid disturbing iterators
-                    beans = new ArrayList<QualifiedBean<Q, T>>( beans );
-                    exposed = false;
-                }
-                oldBeans.add( beans.remove( i-- ) );
-            }
-        }
-        if ( beans.isEmpty() )
-        {
-            beans = null;
-        }
-        else if ( !oldBeans.isEmpty() )
-        {
-            beans.trimToSize();
-        }
-        return oldBeans;
-    }
-
-    /**
-     * Clears all qualified beans from the current sequence.
-     * 
-     * @return Cleared beans
-     */
-    public synchronized List<QualifiedBean<Q, T>> clear()
-    {
-        if ( null != beans )
-        {
-            final List<QualifiedBean<Q, T>> oldBeans = beans;
-            beans = null;
-            exposed = false;
-            return oldBeans;
-        }
-        return Collections.emptyList();
+        return new QualifiedBeanIterator();
     }
 
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private static final QualifyingStrategy selectQualifyingStrategy( final Key<?> key )
+    static final QualifyingStrategy selectQualifyingStrategy( final Key<?> key )
     {
         final Class<?> qualifierType = key.getAnnotationType();
         if ( null == qualifierType )
@@ -202,29 +90,70 @@ class QualifiedBeans<Q extends Annotation, T>
         return key.hasAttributes() ? QualifyingStrategy.MARKED_WITH_ATTRIBUTES : QualifyingStrategy.MARKED;
     }
 
-    private synchronized void mergeQualifiedBeans( final int pivot, final List<QualifiedBean<Q, T>> newBeans )
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    final class QualifiedBeanIterator
+        implements Iterator<QualifiedBean<Q, T>>
     {
-        final int newBeansLength = newBeans.size();
-        if ( null == beans )
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
+        private final Iterator<Binding<T>> itr = bindings.iterator();
+
+        private QualifiedBean<Q, T> nextBean;
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
+
+        public boolean hasNext()
         {
-            beans = new ArrayList<QualifiedBean<Q, T>>( newBeansLength );
-        }
-        else
-        {
-            beans.ensureCapacity( beans.size() + newBeansLength );
-        }
-        if ( pivot > 0 )
-        {
-            beans.addAll( 0, newBeans.subList( 0, pivot ) );
-        }
-        if ( pivot < newBeansLength )
-        {
-            int i = pivot;
-            while ( i < beans.size() && DEFAULT_QUALIFIER.equals( beans.get( i ).getKey() ) )
+            if ( null != nextBean )
             {
-                i++;
+                return true;
             }
-            beans.addAll( i, newBeans.subList( pivot, newBeansLength ) );
+            while ( itr.hasNext() )
+            {
+                final Binding<T> binding = itr.next();
+                nextBean = beanMap.get( binding );
+                if ( null != nextBean )
+                {
+                    return true;
+                }
+                @SuppressWarnings( "unchecked" )
+                final Q qualifier = (Q) strategy.qualifies( key, binding );
+                if ( null != qualifier )
+                {
+                    nextBean = new LazyQualifiedBean<Q, T>( qualifier, binding );
+                    final QualifiedBean<Q, T> oldBean = beanMap.putIfAbsent( binding, nextBean );
+                    if ( null != oldBean )
+                    {
+                        nextBean = oldBean;
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public QualifiedBean<Q, T> next()
+        {
+            if ( hasNext() )
+            {
+                // populated by hasNext()
+                final QualifiedBean<Q, T> bean = nextBean;
+                nextBean = null;
+                return bean;
+            }
+            throw new NoSuchElementException();
+        }
+
+        public void remove()
+        {
+            throw new UnsupportedOperationException();
         }
     }
 }

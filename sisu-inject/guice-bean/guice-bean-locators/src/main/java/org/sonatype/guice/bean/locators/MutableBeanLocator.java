@@ -12,32 +12,41 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import org.sonatype.guice.bean.locators.spi.BindingExporter;
+
 import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
 
 /**
- * Mutable {@link BeanLocator} that tracks zero or more {@link Injector}s.
+ * Mutable {@link BeanLocator} that searches bindings from zero or more {@link BindingExporter}s.
  */
 @ImplementedBy( DefaultBeanLocator.class )
 public interface MutableBeanLocator
     extends BeanLocator
 {
     /**
-     * Adds qualified beans belonging to the given injector to any exposed/watched sequences.
+     * Adds qualified beans exported by the given ranked {@link BindingExporter} to any exposed/watched collections.
      * 
-     * @param injector The new injector
+     * @param exporter The new exporter
+     * @param rank The assigned rank
      */
-    void add( Injector injector );
+    void add( BindingExporter exporter, int rank );
 
     /**
-     * Removes qualified beans belonging to the given injector from any exposed/watched sequences.
+     * Removes qualified beans exported by the given {@link BindingExporter} from any exposed/watched collections.
      * 
-     * @param injector The old injector
+     * @param exporter The old exporter
      */
-    void remove( Injector injector );
+    void remove( BindingExporter exporter );
 
     /**
-     * Removes all known qualified beans from any exposed/watched sequences.
+     * Removes all qualified beans from any exposed/watched collections.
      */
     void clear();
+
+    @Deprecated
+    void add( Injector injector );
+
+    @Deprecated
+    void remove( Injector injector );
 }

@@ -13,7 +13,6 @@
 package org.sonatype.guice.bean.locators;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import org.sonatype.guice.bean.locators.spi.BindingExporter;
 import org.sonatype.guice.bean.locators.spi.BindingImporter;
@@ -127,11 +126,7 @@ final class RankedBindings<T>
 
         public Binding<T> next()
         {
-            if ( hasNext() )
-            {
-                return i.next(); // populated by hasNext()
-            }
-            throw new NoSuchElementException();
+            return i.next();
         }
 
         public void remove()

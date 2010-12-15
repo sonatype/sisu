@@ -12,11 +12,8 @@
  */
 package org.sonatype.guice.bean.locators;
 
-import java.lang.reflect.Field;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -104,7 +101,7 @@ public class DefaultBeanLocatorTest
         assertSame( locator, parent.getInstance( MutableBeanLocator.class ) );
 
         final Iterable<? extends Entry<Named, Bean>> roles =
-            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ), null );
+            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
 
         final Iterator<? extends Entry<Named, Bean>> i = roles.iterator();
         assertEquals( Names.named( "A" ), i.next().getKey() );
@@ -118,7 +115,7 @@ public class DefaultBeanLocatorTest
         final MutableBeanLocator locator = new DefaultBeanLocator();
 
         final Iterable<? extends Entry<Named, Bean>> roles =
-            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ), null );
+            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
 
         locator.add( parent );
         locator.add( child1 );
@@ -228,7 +225,7 @@ public class DefaultBeanLocatorTest
         locator.add( child1 );
 
         final Iterable<? extends Entry<Named, Bean>> roles =
-            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ), null );
+            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
 
         locator.add( child2 );
         locator.add( child3 );
@@ -246,104 +243,5 @@ public class DefaultBeanLocatorTest
         assertEquals( Names.named( "-" ), i.next().getKey() );
         assertEquals( Names.named( "Z" ), i.next().getKey() );
         assertFalse( i.hasNext() );
-    }
-
-    public void testWeakSequences()
-        throws Exception
-    {
-        final MutableBeanLocator locator = new DefaultBeanLocator();
-
-        final Field exposedBeansField = DefaultBeanLocator.class.getDeclaredField( "exposedBeans" );
-        exposedBeansField.setAccessible( true );
-
-        final List<?> exposedBeans = (List<?>) exposedBeansField.get( locator );
-
-        assertEquals( 0, exposedBeans.size() );
-        Iterable<?> a = locator.locate( Key.get( Bean.class ), null );
-        assertEquals( 1, exposedBeans.size() );
-        Iterable<?> b = locator.locate( Key.get( Bean.class ), null );
-        assertEquals( 2, exposedBeans.size() );
-        Iterable<?> c = locator.locate( Key.get( Bean.class ), null );
-        assertEquals( 3, exposedBeans.size() );
-
-        a.iterator();
-        b.iterator();
-        c.iterator();
-
-        forceGC();
-
-        assertEquals( 3, exposedBeans.size() );
-        locator.add( child2 );
-        assertEquals( 3, exposedBeans.size() );
-
-        b.iterator();
-        b = null;
-        forceGC();
-
-        assertEquals( 3, exposedBeans.size() );
-        locator.remove( child2 );
-        assertEquals( 2, exposedBeans.size() );
-
-        a.iterator();
-        a = null;
-        forceGC();
-
-        assertEquals( 2, exposedBeans.size() );
-        locator.add( child2 );
-        assertEquals( 1, exposedBeans.size() );
-
-        c.iterator();
-        c = null;
-        forceGC();
-
-        assertEquals( 1, exposedBeans.size() );
-        locator.locate( Key.get( Bean.class ), null );
-        assertEquals( 1, exposedBeans.size() );
-    }
-
-    public void testInjectorManagement()
-        throws Exception
-    {
-        final MutableBeanLocator locator = new DefaultBeanLocator();
-
-        final Field injectorsField = DefaultBeanLocator.class.getDeclaredField( "injectors" );
-        injectorsField.setAccessible( true );
-
-        final Set<?> injectors = (Set<?>) injectorsField.get( locator );
-
-        assertEquals( 0, injectors.size() );
-        locator.add( null );
-        assertEquals( 0, injectors.size() );
-        locator.remove( null );
-        assertEquals( 0, injectors.size() );
-        locator.add( parent );
-        assertEquals( 1, injectors.size() );
-        locator.add( child1 );
-        assertEquals( 2, injectors.size() );
-        locator.add( parent );
-        assertEquals( 2, injectors.size() );
-        locator.remove( parent );
-        assertEquals( 1, injectors.size() );
-        locator.remove( parent );
-        assertEquals( 1, injectors.size() );
-    }
-
-    private static String[] forceGC()
-    {
-        String[] buf;
-        System.gc();
-        buf = new String[8 * 1024 * 1024];
-        buf = null;
-        System.gc();
-        buf = new String[8 * 1024 * 1024];
-        buf = null;
-        System.gc();
-        buf = new String[8 * 1024 * 1024];
-        buf = null;
-        System.gc();
-        buf = new String[8 * 1024 * 1024];
-        buf = null;
-        System.gc();
-        return buf;
     }
 }

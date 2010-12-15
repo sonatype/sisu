@@ -70,7 +70,7 @@ final class BeanListProvider<K extends Annotation, V>
 
     public List<V> get()
     {
-        return new EntryListAdapter<Annotation, V>( locator.locate( key, null ) );
+        return new EntryListAdapter<Annotation, V>( locator.locate( key ) );
     }
 }
 
@@ -107,7 +107,7 @@ final class BeanMapProvider<K extends Annotation, V>
 
     public Map<K, V> get()
     {
-        return new EntryMapAdapter( locator.locate( key, null ) );
+        return new EntryMapAdapter( locator.locate( key ) );
     }
 }
 
@@ -144,7 +144,7 @@ final class NamedBeanMapProvider<V>
 
     public Map<String, V> get()
     {
-        return new EntryMapAdapter( new NamedIterableAdapter( locator.locate( key, null ) ) );
+        return new EntryMapAdapter( new NamedIterableAdapter( locator.locate( key ) ) );
     }
 }
 
@@ -189,7 +189,7 @@ final class BeanProvider<V>
 
     static <T> T get( final BeanLocator locator, final Key<T> key )
     {
-        final Iterator<? extends Entry<Annotation, T>> i = locator.locate( key, null ).iterator();
+        final Iterator<? extends Entry<Annotation, T>> i = locator.locate( key ).iterator();
         return i.hasNext() ? i.next().getValue() : null; // TODO: dynamic proxy??
     }
 }

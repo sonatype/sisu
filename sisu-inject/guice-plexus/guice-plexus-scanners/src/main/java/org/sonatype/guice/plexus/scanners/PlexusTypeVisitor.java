@@ -56,6 +56,8 @@ public final class PlexusTypeVisitor
 
     private ClassSpace space;
 
+    private String source;
+
     private String implementation;
 
     // ----------------------------------------------------------------------
@@ -75,6 +77,7 @@ public final class PlexusTypeVisitor
     public void visit( final ClassSpace _space )
     {
         space = _space;
+        source = _space.toString();
         qualifiedTypeVisitor.visit( _space );
     }
 
@@ -121,7 +124,8 @@ public final class PlexusTypeVisitor
                     // direct binding, make sure it's valid
                     InjectionPoint.forConstructorOf( role );
                 }
-                plexusTypeListener.hear( component, new LoadedClass<Object>( space.loadClass( implementation ) ), space );
+                final LoadedClass<?> clazz = new LoadedClass<Object>( space.loadClass( implementation ) );
+                plexusTypeListener.hear( component, clazz, source );
             }
             implementation = null;
         }

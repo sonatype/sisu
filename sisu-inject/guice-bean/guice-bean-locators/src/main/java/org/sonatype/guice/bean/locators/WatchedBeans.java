@@ -12,33 +12,47 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import static org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.Option.IDENTITY_COMPARISONS;
+import static org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.ReferenceType.STRONG;
+import static org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.ReferenceType.WEAK;
+
 import java.lang.annotation.Annotation;
-import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.util.List;
+import java.util.EnumSet;
+import java.util.concurrent.ConcurrentMap;
 
-import javax.inject.Provider;
-
+import org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.Option;
+import org.sonatype.guice.bean.locators.spi.BindingExporter;
+import org.sonatype.guice.bean.locators.spi.BindingImporter;
 import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.inject.Mediator;
 
-import com.google.inject.Injector;
+import com.google.inject.Binding;
 import com.google.inject.Key;
 
-/**
- * {@link Iterable} sequence of qualified beans that uses a {@link Mediator} to send updates to watching objects.
- */
 final class WatchedBeans<Q extends Annotation, T, W>
-    extends QualifiedBeans<Q, T>
-    implements Provider<QualifiedBeans<Q, T>>
+    implements BindingImporter
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final EnumSet<Option> IDENTITY = EnumSet.of( IDENTITY_COMPARISONS );
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Reference<W> watcherRef;
+    private final Key<T> key;
 
     private final Mediator<Q, T, W> mediator;
+
+    private final QualifyingStrategy strategy;
+
+    private final WeakReference<W> watcherRef;
+
+    private final ConcurrentMap<Binding<T>, QualifiedBean<Q, T>> beanMap =
+        new ConcurrentReferenceHashMap<Binding<T>, QualifiedBean<Q, T>>( WEAK, STRONG, IDENTITY );
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -46,95 +60,46 @@ final class WatchedBeans<Q extends Annotation, T, W>
 
     WatchedBeans( final Key<T> key, final Mediator<Q, T, W> mediator, final W watcher )
     {
-        super( key );
-
-        // use weak-ref to detect when watcher disappears
-        this.watcherRef = new WeakReference<W>( watcher );
+        this.key = key;
         this.mediator = mediator;
+
+        strategy = QualifiedBeans.selectQualifyingStrategy( key );
+        watcherRef = new WeakReference<W>( watcher );
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public QualifiedBeans<Q, T> get()
+    public boolean inactive()
     {
-        // bean sequence disappears when watcher does
-        return null != watcherRef.get() ? this : null;
+        return null == watcherRef.get();
     }
 
-    @Override
-    public synchronized List<QualifiedBean<Q, T>> add( final Injector injector )
+    public void add( final BindingExporter exporter )
     {
-        return sendEvent( BeanEvent.ADD, super.add( injector ) );
+        exporter.add( key.getTypeLiteral(), this );
     }
 
-    @Override
-    public synchronized List<QualifiedBean<Q, T>> remove( final Injector injector )
+    public void remove( final BindingExporter exporter )
     {
-        return sendEvent( BeanEvent.REMOVE, super.remove( injector ) );
+        exporter.remove( key.getTypeLiteral(), this );
     }
 
-    @Override
-    public synchronized List<QualifiedBean<Q, T>> clear()
-    {
-        return sendEvent( BeanEvent.REMOVE, super.clear() );
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation types
-    // ----------------------------------------------------------------------
-
-    /**
-     * Enumerate the various bean events that the {@link Mediator} can receive.
-     */
     @SuppressWarnings( { "rawtypes", "unchecked" } )
-    private static enum BeanEvent
+    public void add( final Binding binding, final int rank )
     {
-        ADD
+        final Q qualifier = (Q) strategy.qualifies( key, binding );
+        if ( null != qualifier )
         {
-            @Override
-            void send( final Mediator mediator, final QualifiedBean bean, final Object watcher )
-                throws Exception
+            final W watcher = watcherRef.get();
+            if ( null != watcher )
             {
-                mediator.add( bean.getKey(), bean, watcher );
-            }
-        },
-        REMOVE
-        {
-            @Override
-            void send( final Mediator mediator, final QualifiedBean bean, final Object watcher )
-                throws Exception
-            {
-                mediator.remove( bean.getKey(), bean, watcher );
-            }
-        };
-
-        abstract void send( final Mediator mediator, final QualifiedBean bean, final Object watcher )
-            throws Exception;
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * Sends the given bean event to the watcher via the {@link Mediator}.
-     * 
-     * @param event The bean event
-     * @param beans The affected beans
-     * @return The affected beans
-     */
-    private List<QualifiedBean<Q, T>> sendEvent( final BeanEvent event, final List<QualifiedBean<Q, T>> beans )
-    {
-        final W watcher = watcherRef.get();
-        if ( null != watcher )
-        {
-            for ( int i = 0, size = beans.size(); i < size; i++ )
-            {
+                final QualifiedBean<Q, T> bean = new LazyQualifiedBean<Q, T>( qualifier, binding );
+                beanMap.put( binding, bean );
                 try
                 {
-                    event.send( mediator, beans.get( i ), watcher );
+                    mediator.add( qualifier, bean, watcher );
                 }
                 catch ( final Throwable e )
                 {
@@ -142,6 +107,34 @@ final class WatchedBeans<Q extends Annotation, T, W>
                 }
             }
         }
-        return beans;
+    }
+
+    @SuppressWarnings( "rawtypes" )
+    public void remove( final Binding binding )
+    {
+        final QualifiedBean<Q, T> bean = beanMap.get( binding );
+        if ( null != bean )
+        {
+            final W watcher = watcherRef.get();
+            if ( null != watcher )
+            {
+                try
+                {
+                    mediator.remove( bean.getKey(), bean, watcher );
+                }
+                catch ( final Throwable e )
+                {
+                    Logs.warn( mediator.getClass(), "Problem notifying: " + watcher.getClass(), e );
+                }
+            }
+        }
+    }
+
+    public void clear()
+    {
+        for ( final Binding<T> binding : beanMap.keySet() )
+        {
+            remove( binding );
+        }
     }
 }

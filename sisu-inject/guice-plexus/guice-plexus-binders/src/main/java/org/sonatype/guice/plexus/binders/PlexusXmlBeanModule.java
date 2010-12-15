@@ -87,10 +87,13 @@ public final class PlexusXmlBeanModule
         final PlexusTypeBinder plexusTypeBinder = new PlexusTypeBinder( binder );
         final Map<String, PlexusBeanMetadata> metadataMap = new HashMap<String, PlexusBeanMetadata>();
         final PlexusXmlScanner scanner = new PlexusXmlScanner( variables, plexusXml, metadataMap );
+
+        final String source = space.toString();
         for ( final Entry<Component, DeferredClass<?>> entry : scanner.scan( space, root ).entrySet() )
         {
-            plexusTypeBinder.hear( entry.getKey(), entry.getValue(), space );
+            plexusTypeBinder.hear( entry.getKey(), entry.getValue(), source );
         }
+
         return new PlexusXmlBeanSource( metadataMap );
     }
 

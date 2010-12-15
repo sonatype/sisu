@@ -37,7 +37,7 @@ public final class SisuContainer
     public static <T> T lookup( final Key<T> key )
     {
         final BeanLocator locator = injector( key.getTypeLiteral().getRawType() ).getInstance( BeanLocator.class );
-        final Iterator<? extends Entry<Annotation, T>> i = locator.locate( key, null ).iterator();
+        final Iterator<? extends Entry<Annotation, T>> i = locator.locate( key ).iterator();
         return i.hasNext() ? i.next().getValue() : null;
     }
 

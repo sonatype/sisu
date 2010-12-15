@@ -179,6 +179,7 @@ public class RankedBindingsTest
         Iterator<Binding<Bean>> itr = bindings.iterator();
 
         bindings.remove( exporter1 );
+        assertTrue( itr.hasNext() );
         assertNull( itr.next().getKey().getAnnotation() );
         bindings.remove( exporter2 );
         bindings.remove( exporter3 );
@@ -193,10 +194,15 @@ public class RankedBindingsTest
         bindings.add( exporter1, 0 );
         bindings.add( exporter2, 0 );
 
+        assertTrue( itr.hasNext() );
         assertNull( itr.next().getKey().getAnnotation() );
+        assertTrue( itr.hasNext() );
         assertEquals( Names.named( "3" ), itr.next().getKey().getAnnotation() );
+        assertTrue( itr.hasNext() );
         assertEquals( Names.named( "2" ), itr.next().getKey().getAnnotation() );
+        assertTrue( itr.hasNext() );
         assertEquals( Names.named( "1" ), itr.next().getKey().getAnnotation() );
+        assertFalse( itr.hasNext() );
 
         assertFalse( itr.hasNext() );
     }
