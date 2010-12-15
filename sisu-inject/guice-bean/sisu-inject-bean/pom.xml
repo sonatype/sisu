@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonatype.sisu.inject</groupId>
     <artifactId>guice-bean</artifactId>
-    <version>1.4.3.1</version>
+    <version>1.4.3.2</version>
   </parent>
 
   <packaging>bundle</packaging>
@@ -20,7 +20,7 @@
     <dependency>
       <groupId>org.sonatype.sisu</groupId>
       <artifactId>sisu-guice</artifactId>
-      <classifier>noaop</classifier>
+      <classifier>no_aop</classifier>
       <exclusions>
         <exclusion>
           <groupId>javax.inject</groupId>

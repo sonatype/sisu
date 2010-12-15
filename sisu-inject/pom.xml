@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonatype.sisu</groupId>
     <artifactId>sisu-parent</artifactId>
-    <version>1.4.3.1</version>
+    <version>1.4.3.2</version>
   </parent>
 
   <packaging>pom</packaging>
@@ -21,7 +21,7 @@
   </modules>
 
   <properties>
-    <sisu.guice.version>2.9.1</sisu.guice.version>
+    <sisu.guice.version>2.9.2</sisu.guice.version>
   </properties>
 
   <dependencyManagement>
@@ -36,7 +36,7 @@
         <groupId>org.sonatype.sisu</groupId>
         <artifactId>sisu-guice</artifactId>
         <version>${sisu.guice.version}</version>
-        <classifier>noaop</classifier>
+        <classifier>no_aop</classifier>
       </dependency>
 
     </dependencies>
