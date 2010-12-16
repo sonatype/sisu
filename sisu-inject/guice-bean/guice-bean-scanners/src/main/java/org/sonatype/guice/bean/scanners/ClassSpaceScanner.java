@@ -87,7 +87,7 @@ public final class ClassSpaceScanner
         }
         try
         {
-            final InputStream in = Streams.openStream( url );
+            final InputStream in = url.openStream();
             try
             {
                 new ClassReader( in ).accept( visitor, ASM_FLAGS );

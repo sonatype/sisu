@@ -60,7 +60,6 @@ public final class DefaultBeanLocator
 
         keepAlive.put( beans, bindings.type() );
 
-        expungeStaleBindings();
         return beans;
     }
 
@@ -73,8 +72,6 @@ public final class DefaultBeanLocator
         }
 
         watchedBeans.add( beans );
-
-        expungeStaleBindings();
     }
 
     public synchronized void add( final BindingExporter exporter, final int rank )

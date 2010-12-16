@@ -114,11 +114,14 @@ final class RankedBindings<T>
 
         public boolean hasNext()
         {
-            synchronized ( pendingExporters )
+            if ( !pendingExporters.isEmpty() )
             {
-                while ( !pendingExporters.isEmpty() && pendingExporters.getRank( 0 ) >= i.peekNextRank() )
+                synchronized ( pendingExporters )
                 {
-                    pendingExporters.remove( 0 ).add( type, RankedBindings.this );
+                    while ( !pendingExporters.isEmpty() && pendingExporters.getRank( 0 ) >= i.peekNextRank() )
+                    {
+                        pendingExporters.remove( 0 ).add( type, RankedBindings.this );
+                    }
                 }
             }
             return i.hasNext();

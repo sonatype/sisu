@@ -49,7 +49,7 @@ final class QualifiedBeans<Q extends Annotation, T>
     final QualifyingStrategy strategy;
 
     final ConcurrentMap<Binding<T>, QualifiedBean<Q, T>> beanMap =
-        new ConcurrentReferenceHashMap<Binding<T>, QualifiedBean<Q, T>>( WEAK, STRONG, IDENTITY );
+        new ConcurrentReferenceHashMap<Binding<T>, QualifiedBean<Q, T>>( 16, 0.75f, 1, WEAK, STRONG, IDENTITY );
 
     // ----------------------------------------------------------------------
     // Constructors
