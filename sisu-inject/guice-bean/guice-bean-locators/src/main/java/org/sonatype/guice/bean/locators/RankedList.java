@@ -36,13 +36,13 @@ final class RankedList<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    int modCount;
+    int insertCount;
 
     Object[] elements;
 
     long[] uids;
 
-    int size;
+    volatile int size;
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -74,7 +74,7 @@ final class RankedList<T>
             System.arraycopy( uids, 0, newUIDs, 0, size );
             uids = newUIDs;
         }
-        final long uid = rank2uid( rank );
+        final long uid = rank2uid( rank, insertCount++ );
         final int index = safeBinarySearch( uid );
         if ( index < size++ )
         {
@@ -170,7 +170,7 @@ final class RankedList<T>
     @Override
     public synchronized void clear()
     {
-        modCount = 0;
+        insertCount = 0;
         elements = null;
         uids = null;
         size = 0;
@@ -196,11 +196,12 @@ final class RankedList<T>
      * Turns the given (potentially non-unique) rank into a unique id by appending a counter.
      * 
      * @param rank The assigned rank
+     * @param uniq The unique counter
      * @return The unique id
      */
-    private long rank2uid( final int rank )
+    private static long rank2uid( final int rank, final int uniq )
     {
-        return (long) ~rank << 32 | 0x00000000FFFFFFFFL & modCount++;
+        return (long) ~rank << 32 | 0x00000000FFFFFFFFL & uniq;
     }
 
     /**
@@ -259,7 +260,7 @@ final class RankedList<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private int lastModCount = modCount;
+        private long lastKnownState;
 
         private long nextUID = Long.MIN_VALUE;
 
@@ -280,13 +281,7 @@ final class RankedList<T>
             }
             synchronized ( RankedList.this )
             {
-                if ( lastModCount != modCount )
-                {
-                    // reposition ourselves in the list
-                    index = safeBinarySearch( nextUID );
-                    lastModCount = modCount;
-                }
-                if ( index < size )
+                if ( safeHasNext() )
                 {
                     nextElement = (T) elements[index];
                     nextUID = uids[index] + 1;
@@ -307,13 +302,7 @@ final class RankedList<T>
             }
             synchronized ( RankedList.this )
             {
-                if ( lastModCount != modCount )
-                {
-                    // reposition ourselves in the list
-                    index = safeBinarySearch( nextUID );
-                    lastModCount = modCount;
-                }
-                if ( index < size )
+                if ( safeHasNext() )
                 {
                     return uid2rank( uids[index] );
                 }
@@ -338,6 +327,27 @@ final class RankedList<T>
         public void remove()
         {
             throw new UnsupportedOperationException();
+        }
+
+        // ----------------------------------------------------------------------
+        // Implementation methods
+        // ----------------------------------------------------------------------
+
+        /**
+         * Finds out if there is a next element, regardless of any intervening updates to the list.
+         * 
+         * @return {@code true} if there is a next element; otherwise {@code false}
+         */
+        private boolean safeHasNext()
+        {
+            final long currentState = (long) size << 32 | insertCount;
+            if ( lastKnownState != currentState )
+            {
+                // reposition ourselves in the list
+                index = safeBinarySearch( nextUID );
+                lastKnownState = currentState;
+            }
+            return index < size;
         }
     }
 }

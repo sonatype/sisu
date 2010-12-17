@@ -44,7 +44,7 @@ final class QualifiedBeans<Q extends Annotation, T>
 
     final Key<T> key;
 
-    final RankedBindings<T> bindings;
+    final Iterable<Binding<T>> bindings;
 
     final QualifyingStrategy strategy;
 
@@ -55,7 +55,7 @@ final class QualifiedBeans<Q extends Annotation, T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    QualifiedBeans( final Key<T> key, final RankedBindings<T> bindings )
+    QualifiedBeans( final Key<T> key, final Iterable<Binding<T>> bindings )
     {
         this.key = key;
         this.bindings = bindings;

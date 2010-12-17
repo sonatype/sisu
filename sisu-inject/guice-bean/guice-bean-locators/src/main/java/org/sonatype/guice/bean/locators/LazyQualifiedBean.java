@@ -114,6 +114,15 @@ final class LazyQualifiedBean<Q extends Annotation, T>
     @Override
     public String toString()
     {
-        return getKey() + "=" + getValue();
+        final StringBuilder buf = new StringBuilder().append( getKey() ).append( '=' );
+        try
+        {
+            buf.append( getValue() );
+        }
+        catch ( final Throwable e )
+        {
+            buf.append( e );
+        }
+        return buf.toString();
     }
 }
