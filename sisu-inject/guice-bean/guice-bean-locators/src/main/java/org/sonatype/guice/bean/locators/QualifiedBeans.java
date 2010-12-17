@@ -13,15 +13,12 @@
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
-import java.util.EnumSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.inject.Named;
-
-import org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.Option;
-import org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.ReferenceType;
 
 import com.google.inject.Binding;
 import com.google.inject.Key;
@@ -30,22 +27,16 @@ final class QualifiedBeans<Q extends Annotation, T>
     implements Iterable<QualifiedBean<Q, T>>
 {
     // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final EnumSet<Option> IDENTITY = EnumSet.of( Option.IDENTITY_COMPARISONS );
-
-    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
+
+    private Map<Binding<T>, QualifiedBean<Q, T>> beanCache;
 
     final Key<T> key;
 
     final Iterable<Binding<T>> bindings;
 
     final QualifyingStrategy strategy;
-
-    private ConcurrentMap<Binding<T>, QualifiedBean<Q, T>> beanMap;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -86,20 +77,19 @@ final class QualifiedBeans<Q extends Annotation, T>
         return key.hasAttributes() ? QualifyingStrategy.MARKED_WITH_ATTRIBUTES : QualifyingStrategy.MARKED;
     }
 
-    @SuppressWarnings( { "rawtypes", "unchecked" } )
     synchronized QualifiedBean<Q, T> saveBean( final Binding<T> binding, final QualifiedBean<Q, T> bean )
     {
-        if ( null == beanMap )
+        if ( null == beanCache )
         {
-            beanMap = new ConcurrentReferenceHashMap( 16, 0.75f, 1, ReferenceType.WEAK, ReferenceType.STRONG, IDENTITY );
+            beanCache = new IdentityHashMap<Binding<T>, QualifiedBean<Q, T>>();
         }
-        beanMap.put( binding, bean );
+        beanCache.put( binding, bean );
         return bean;
     }
 
-    QualifiedBean<Q, T> loadBean( final Binding<T> binding )
+    synchronized QualifiedBean<Q, T> loadBean( final Binding<T> binding )
     {
-        return null != beanMap ? beanMap.get( binding ) : null;
+        return null != beanCache ? beanCache.get( binding ) : null;
     }
 
     // ----------------------------------------------------------------------

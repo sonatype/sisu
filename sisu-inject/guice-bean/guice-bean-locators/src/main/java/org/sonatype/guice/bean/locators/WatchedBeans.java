@@ -12,16 +12,11 @@
  */
 package org.sonatype.guice.bean.locators;
 
-import static org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.Option.IDENTITY_COMPARISONS;
-import static org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.ReferenceType.STRONG;
-import static org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.ReferenceType.WEAK;
-
 import java.lang.annotation.Annotation;
 import java.lang.ref.WeakReference;
-import java.util.EnumSet;
-import java.util.concurrent.ConcurrentMap;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
-import org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.Option;
 import org.sonatype.guice.bean.locators.spi.BindingExporter;
 import org.sonatype.guice.bean.locators.spi.BindingImporter;
 import org.sonatype.guice.bean.reflect.Logs;
@@ -34,14 +29,11 @@ final class WatchedBeans<Q extends Annotation, T, W>
     implements BindingImporter
 {
     // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final EnumSet<Option> IDENTITY = EnumSet.of( IDENTITY_COMPARISONS );
-
-    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
+
+    private final Map<Binding<T>, QualifiedBean<Q, T>> beanCache =
+        new IdentityHashMap<Binding<T>, QualifiedBean<Q, T>>();
 
     private final Key<T> key;
 
@@ -50,9 +42,6 @@ final class WatchedBeans<Q extends Annotation, T, W>
     private final QualifyingStrategy strategy;
 
     private final WeakReference<W> watcherRef;
-
-    private final ConcurrentMap<Binding<T>, QualifiedBean<Q, T>> beanMap =
-        new ConcurrentReferenceHashMap<Binding<T>, QualifiedBean<Q, T>>( WEAK, STRONG, IDENTITY );
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -87,7 +76,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
     }
 
     @SuppressWarnings( { "rawtypes", "unchecked" } )
-    public void add( final Binding binding, final int rank )
+    public synchronized void add( final Binding binding, final int rank )
     {
         final Q qualifier = (Q) strategy.qualifies( key, binding );
         if ( null != qualifier )
@@ -96,7 +85,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
             if ( null != watcher )
             {
                 final QualifiedBean<Q, T> bean = new LazyQualifiedBean<Q, T>( qualifier, binding );
-                beanMap.put( binding, bean );
+                beanCache.put( binding, bean );
                 try
                 {
                     mediator.add( qualifier, bean, watcher );
@@ -110,9 +99,9 @@ final class WatchedBeans<Q extends Annotation, T, W>
     }
 
     @SuppressWarnings( "rawtypes" )
-    public void remove( final Binding binding )
+    public synchronized void remove( final Binding binding )
     {
-        final QualifiedBean<Q, T> bean = beanMap.get( binding );
+        final QualifiedBean<Q, T> bean = beanCache.remove( binding );
         if ( null != bean )
         {
             final W watcher = watcherRef.get();
@@ -130,9 +119,9 @@ final class WatchedBeans<Q extends Annotation, T, W>
         }
     }
 
-    public void clear()
+    public synchronized void clear()
     {
-        for ( final Binding<T> binding : beanMap.keySet() )
+        for ( final Binding<T> binding : beanCache.keySet() )
         {
             remove( binding );
         }
