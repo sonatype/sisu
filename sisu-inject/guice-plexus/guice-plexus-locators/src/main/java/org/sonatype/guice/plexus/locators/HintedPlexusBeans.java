@@ -12,8 +12,9 @@
  */
 package org.sonatype.guice.plexus.locators;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.sonatype.guice.bean.locators.QualifiedBean;
 import org.sonatype.guice.plexus.config.PlexusBean;
@@ -30,9 +31,7 @@ final class HintedPlexusBeans<T>
 
     private final Iterable<QualifiedBean<Named, T>> beans;
 
-    private final TypeLiteral<T> role;
-
-    private final String[] hints;
+    private final List<PlexusBean<T>> missingPlexusBeans;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -41,8 +40,12 @@ final class HintedPlexusBeans<T>
     HintedPlexusBeans( final Iterable<QualifiedBean<Named, T>> beans, final TypeLiteral<T> role, final String[] hints )
     {
         this.beans = beans;
-        this.role = role;
-        this.hints = hints;
+
+        missingPlexusBeans = new ArrayList<PlexusBean<T>>( hints.length );
+        for ( final String h : hints )
+        {
+            missingPlexusBeans.add( new MissingPlexusBean<T>( role, h ) );
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -51,33 +54,25 @@ final class HintedPlexusBeans<T>
 
     public Iterator<PlexusBean<T>> iterator()
     {
-        @SuppressWarnings( "unchecked" )
-        final PlexusBean<T>[] plexusBeans = new PlexusBean[hints.length];
+        final List<PlexusBean<T>> plexusBeans = new ArrayList<PlexusBean<T>>( missingPlexusBeans );
 
-        int beanCount = 0;
+        final int size = plexusBeans.size();
         final Iterator<QualifiedBean<Named, T>> itr = beans.iterator();
-        while ( beanCount < hints.length && itr.hasNext() )
+        for ( int numFound = 0; numFound < size && itr.hasNext(); )
         {
-            final QualifiedBean<Named, T> bean = itr.next();
-            final String hint = bean.getKey().value();
-            for ( int i = 0; i < hints.length; i++ )
+            final QualifiedBean<Named, T> candidate = itr.next();
+            final String hint = candidate.getKey().value();
+            for ( int i = 0; i < size; i++ )
             {
-                if ( hints[i].equals( hint ) && plexusBeans[i] == null )
+                final PlexusBean<T> element = plexusBeans.get( i );
+                if ( element instanceof MissingPlexusBean<?> && hint.equals( element.getKey() ) )
                 {
-                    plexusBeans[i] = new LazyPlexusBean<T>( bean );
-                    beanCount++;
+                    plexusBeans.set( i, new LazyPlexusBean<T>( candidate ) );
+                    numFound++;
                 }
             }
         }
 
-        for ( int i = 0; i < hints.length; i++ )
-        {
-            if ( plexusBeans[i] == null )
-            {
-                plexusBeans[i] = new MissingPlexusBean<T>( role, hints[i] );
-            }
-        }
-
-        return Arrays.asList( plexusBeans ).iterator();
+        return plexusBeans.iterator();
     }
 }

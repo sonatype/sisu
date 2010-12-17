@@ -105,7 +105,7 @@ final class RealmFilter<T>
             if ( hasNext() )
             {
                 // populated by hasNext()
-                QualifiedBean<Named, T> bean = nextBean;
+                final QualifiedBean<Named, T> bean = nextBean;
                 nextBean = null;
                 return bean;
             }

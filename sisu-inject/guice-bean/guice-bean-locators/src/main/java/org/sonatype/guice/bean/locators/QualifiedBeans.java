@@ -12,10 +12,6 @@
  */
 package org.sonatype.guice.bean.locators;
 
-import static org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.Option.IDENTITY_COMPARISONS;
-import static org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.ReferenceType.STRONG;
-import static org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.ReferenceType.WEAK;
-
 import java.lang.annotation.Annotation;
 import java.util.EnumSet;
 import java.util.Iterator;
@@ -25,6 +21,7 @@ import java.util.concurrent.ConcurrentMap;
 import javax.inject.Named;
 
 import org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.Option;
+import org.sonatype.guice.bean.locators.ConcurrentReferenceHashMap.ReferenceType;
 
 import com.google.inject.Binding;
 import com.google.inject.Key;
@@ -36,7 +33,7 @@ final class QualifiedBeans<Q extends Annotation, T>
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final EnumSet<Option> IDENTITY = EnumSet.of( IDENTITY_COMPARISONS );
+    private static final EnumSet<Option> IDENTITY = EnumSet.of( Option.IDENTITY_COMPARISONS );
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -48,8 +45,7 @@ final class QualifiedBeans<Q extends Annotation, T>
 
     final QualifyingStrategy strategy;
 
-    final ConcurrentMap<Binding<T>, QualifiedBean<Q, T>> beanMap =
-        new ConcurrentReferenceHashMap<Binding<T>, QualifiedBean<Q, T>>( 16, 0.75f, 1, WEAK, STRONG, IDENTITY );
+    private ConcurrentMap<Binding<T>, QualifiedBean<Q, T>> beanMap;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -76,7 +72,7 @@ final class QualifiedBeans<Q extends Annotation, T>
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    static final QualifyingStrategy selectQualifyingStrategy( final Key<?> key )
+    static QualifyingStrategy selectQualifyingStrategy( final Key<?> key )
     {
         final Class<?> qualifierType = key.getAnnotationType();
         if ( null == qualifierType )
@@ -88,6 +84,22 @@ final class QualifiedBeans<Q extends Annotation, T>
             return key.hasAttributes() ? QualifyingStrategy.NAMED_WITH_ATTRIBUTES : QualifyingStrategy.NAMED;
         }
         return key.hasAttributes() ? QualifyingStrategy.MARKED_WITH_ATTRIBUTES : QualifyingStrategy.MARKED;
+    }
+
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    synchronized QualifiedBean<Q, T> saveBean( final Binding<T> binding, final QualifiedBean<Q, T> bean )
+    {
+        if ( null == beanMap )
+        {
+            beanMap = new ConcurrentReferenceHashMap( 16, 0.75f, 1, ReferenceType.WEAK, ReferenceType.STRONG, IDENTITY );
+        }
+        beanMap.put( binding, bean );
+        return bean;
+    }
+
+    QualifiedBean<Q, T> loadBean( final Binding<T> binding )
+    {
+        return null != beanMap ? beanMap.get( binding ) : null;
     }
 
     // ----------------------------------------------------------------------
@@ -118,7 +130,7 @@ final class QualifiedBeans<Q extends Annotation, T>
             while ( itr.hasNext() )
             {
                 final Binding<T> binding = itr.next();
-                nextBean = beanMap.get( binding );
+                nextBean = loadBean( binding );
                 if ( null != nextBean )
                 {
                     return true;
@@ -127,12 +139,7 @@ final class QualifiedBeans<Q extends Annotation, T>
                 final Q qualifier = (Q) strategy.qualifies( key, binding );
                 if ( null != qualifier )
                 {
-                    nextBean = new LazyQualifiedBean<Q, T>( qualifier, binding );
-                    final QualifiedBean<Q, T> oldBean = beanMap.putIfAbsent( binding, nextBean );
-                    if ( null != oldBean )
-                    {
-                        nextBean = oldBean;
-                    }
+                    nextBean = saveBean( binding, new LazyQualifiedBean<Q, T>( qualifier, binding ) );
                     return true;
                 }
             }
