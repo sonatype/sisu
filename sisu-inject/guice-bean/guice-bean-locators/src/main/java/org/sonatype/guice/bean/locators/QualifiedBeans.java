@@ -15,6 +15,7 @@ package org.sonatype.guice.bean.locators;
 import java.lang.annotation.Annotation;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -24,7 +25,7 @@ import com.google.inject.Binding;
 import com.google.inject.Key;
 
 final class QualifiedBeans<Q extends Annotation, T>
-    implements Iterable<QualifiedBean<Q, T>>
+    implements Iterable<QualifiedBean<Q, T>>, BeanCache<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -59,6 +60,14 @@ final class QualifiedBeans<Q extends Annotation, T>
         return new QualifiedBeanIterator();
     }
 
+    public synchronized void keepAlive( final List<Binding<T>> activeBindings )
+    {
+        if ( null != beanCache )
+        {
+            beanCache.keySet().retainAll( activeBindings );
+        }
+    }
+
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
@@ -77,13 +86,18 @@ final class QualifiedBeans<Q extends Annotation, T>
         return key.hasAttributes() ? QualifyingStrategy.MARKED_WITH_ATTRIBUTES : QualifyingStrategy.MARKED;
     }
 
-    synchronized QualifiedBean<Q, T> saveBean( final Binding<T> binding, final QualifiedBean<Q, T> bean )
+    synchronized QualifiedBean<Q, T> saveBean( final Q qualifier, final Binding<T> binding )
     {
         if ( null == beanCache )
         {
             beanCache = new IdentityHashMap<Binding<T>, QualifiedBean<Q, T>>();
         }
-        beanCache.put( binding, bean );
+        QualifiedBean<Q, T> bean = beanCache.get( binding );
+        if ( null == bean )
+        {
+            bean = new LazyQualifiedBean<Q, T>( qualifier, binding );
+            beanCache.put( binding, bean );
+        }
         return bean;
     }
 
@@ -129,7 +143,7 @@ final class QualifiedBeans<Q extends Annotation, T>
                 final Q qualifier = (Q) strategy.qualifies( key, binding );
                 if ( null != qualifier )
                 {
-                    nextBean = saveBean( binding, new LazyQualifiedBean<Q, T>( qualifier, binding ) );
+                    nextBean = saveBean( qualifier, binding );
                     return true;
                 }
             }

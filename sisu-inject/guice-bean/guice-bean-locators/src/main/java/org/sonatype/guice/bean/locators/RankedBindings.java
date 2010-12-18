@@ -12,8 +12,13 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
+import org.sonatype.guice.bean.locators.spi.BindingDistributor;
 import org.sonatype.guice.bean.locators.spi.BindingExporter;
 import org.sonatype.guice.bean.locators.spi.BindingImporter;
 
@@ -24,7 +29,7 @@ import com.google.inject.TypeLiteral;
  * Ordered {@link Iterable} sequence that imports {@link Binding}s from {@link BindingExporter}s on demand.
  */
 final class RankedBindings<T>
-    implements Iterable<Binding<T>>, BindingImporter
+    implements BindingDistributor, BindingImporter, Iterable<Binding<T>>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -32,9 +37,11 @@ final class RankedBindings<T>
 
     final TypeLiteral<T> type;
 
-    final RankedList<BindingExporter> pendingExporters;
-
     final RankedList<Binding<T>> bindings = new RankedList<Binding<T>>();
+
+    final List<Reference<BeanCache<T>>> beanCaches = new ArrayList<Reference<BeanCache<T>>>();
+
+    final RankedList<BindingExporter> pendingExporters;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -43,6 +50,7 @@ final class RankedBindings<T>
     public RankedBindings( final TypeLiteral<T> type, final RankedList<BindingExporter> exporters )
     {
         this.type = type;
+
         pendingExporters = null != exporters ? exporters.clone() : new RankedList<BindingExporter>();
     }
 
@@ -53,6 +61,28 @@ final class RankedBindings<T>
     public TypeLiteral<T> type()
     {
         return type;
+    }
+
+    public synchronized void addBeanCache( final BeanCache<T> cache )
+    {
+        beanCaches.add( new WeakReference<BeanCache<T>>( cache ) );
+    }
+
+    public synchronized boolean isActive()
+    {
+        boolean isActive = false;
+        for ( int i = 0; i < beanCaches.size(); i++ )
+        {
+            if ( null != beanCaches.get( i ).get() )
+            {
+                isActive = true;
+            }
+            else
+            {
+                beanCaches.remove( i-- );
+            }
+        }
+        return isActive;
     }
 
     public void add( final BindingExporter exporter, final int rank )
@@ -66,6 +96,7 @@ final class RankedBindings<T>
         if ( !pendingExporters.remove( exporter ) )
         {
             exporter.remove( type, this );
+            flushBeanCaches();
         }
     }
 
@@ -90,6 +121,23 @@ final class RankedBindings<T>
     {
         pendingExporters.clear();
         bindings.clear();
+        flushBeanCaches();
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private synchronized void flushBeanCaches()
+    {
+        for ( int i = 0, size = beanCaches.size(); i < size; i++ )
+        {
+            final BeanCache<T> cache = beanCaches.get( i ).get();
+            if ( null != cache )
+            {
+                cache.keepAlive( bindings );
+            }
+        }
     }
 
     // ----------------------------------------------------------------------

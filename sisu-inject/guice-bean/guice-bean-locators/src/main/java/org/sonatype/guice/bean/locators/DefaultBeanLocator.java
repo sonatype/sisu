@@ -12,16 +12,16 @@
  */
 package org.sonatype.guice.bean.locators;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.sonatype.guice.bean.locators.spi.BindingDistributor;
 import org.sonatype.guice.bean.locators.spi.BindingExporter;
 import org.sonatype.inject.Mediator;
 
@@ -45,8 +45,6 @@ public final class DefaultBeanLocator
 
     private final Map<TypeLiteral, RankedBindings> bindingsCache = new HashMap<TypeLiteral, RankedBindings>();
 
-    private final Map<Object, TypeLiteral> keepAlive = new WeakHashMap<Object, TypeLiteral>();
-
     private final List<WatchedBeans> watchedBeans = new ArrayList<WatchedBeans>();
 
     // ----------------------------------------------------------------------
@@ -57,9 +55,7 @@ public final class DefaultBeanLocator
     {
         final RankedBindings bindings = bindingsForType( key.getTypeLiteral() );
         final QualifiedBeans beans = new QualifiedBeans( key, bindings );
-
-        keepAlive.put( beans, bindings.type() );
-
+        bindings.addBeanCache( beans );
         return beans;
     }
 
@@ -68,47 +64,27 @@ public final class DefaultBeanLocator
         final WatchedBeans beans = new WatchedBeans( key, mediator, watcher );
         for ( final BindingExporter exporter : exporters )
         {
-            beans.add( exporter );
+            beans.add( exporter, 0 );
         }
-
         watchedBeans.add( beans );
     }
 
     public synchronized void add( final BindingExporter exporter, final int rank )
     {
         exporters.insert( exporter, rank );
-        for ( final RankedBindings bindings : bindingsCache.values() )
-        {
-            bindings.add( exporter, rank );
-        }
-        for ( final WatchedBeans beans : watchedBeans )
-        {
-            beans.add( exporter );
-        }
-        expungeStaleBindings();
+        distribute( BindingEvent.INSERT, exporter, rank );
     }
 
     public synchronized void remove( final BindingExporter exporter )
     {
         exporters.remove( exporter );
-        for ( final RankedBindings bindings : bindingsCache.values() )
-        {
-            bindings.remove( exporter );
-        }
-        for ( final WatchedBeans beans : watchedBeans )
-        {
-            beans.remove( exporter );
-        }
-        expungeStaleBindings();
+        distribute( BindingEvent.REMOVE, exporter, 0 );
     }
 
     public synchronized void clear()
     {
-        for ( final RankedBindings bindings : bindingsCache.values() )
-        {
-            bindings.clear();
-        }
-        bindingsCache.clear();
+        exporters.clear();
+        distribute( BindingEvent.CLEAR, null, 0 );
     }
 
     private final Map<Injector, BindingExporter> injectorExporters = new HashMap<Injector, BindingExporter>();
@@ -158,18 +134,66 @@ public final class DefaultBeanLocator
         return bindings;
     }
 
-    /**
-     * Expunges any unused {@link RankedBindings}; relies on {@link WeakReference}s to keep-alive used elements.
-     */
-    private void expungeStaleBindings()
+    private void distribute( final BindingEvent event, final BindingExporter exporter, final int rank )
     {
-        bindingsCache.keySet().retainAll( keepAlive.values() );
+        for ( final Iterator<RankedBindings> itr = bindingsCache.values().iterator(); itr.hasNext(); )
+        {
+            final RankedBindings bindings = itr.next();
+            if ( bindings.isActive() )
+            {
+                event.apply( bindings, exporter, rank );
+            }
+            else
+            {
+                itr.remove();
+            }
+        }
+
         for ( int i = 0; i < watchedBeans.size(); i++ )
         {
-            if ( watchedBeans.get( i ).inactive() )
+            final WatchedBeans beans = watchedBeans.get( i );
+            if ( beans.isActive() )
+            {
+                event.apply( beans, exporter, rank );
+            }
+            else
             {
                 watchedBeans.remove( i-- );
             }
         }
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    private static enum BindingEvent
+    {
+        INSERT
+        {
+            @Override
+            void apply( final BindingDistributor distributor, final BindingExporter exporter, final int rank )
+            {
+                distributor.add( exporter, rank );
+            }
+        },
+        REMOVE
+        {
+            @Override
+            void apply( final BindingDistributor distributor, final BindingExporter exporter, final int rank )
+            {
+                distributor.remove( exporter );
+            }
+        },
+        CLEAR
+        {
+            @Override
+            void apply( final BindingDistributor distributor, final BindingExporter exporter, final int rank )
+            {
+                distributor.clear();
+            }
+        };
+
+        abstract void apply( final BindingDistributor distributor, final BindingExporter exporter, final int rank );
     }
 }

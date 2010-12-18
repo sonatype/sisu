@@ -10,19 +10,13 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
+package org.sonatype.guice.bean.locators;
 
-/**
- * SPI for contributing {@link com.google.inject.Binding}s to the {@link org.sonatype.guice.bean.locators.MutableBeanLocator}.
- *
- * <p>The principal members of this package are:
- * <dl>
- * <dt>{@link org.sonatype.guice.bean.locators.spi.BindingExporter}
- * <dd>Exports {@link Binding}s of various types.
- * <dt>{@link org.sonatype.guice.bean.locators.spi.BindingDistributor}
- * <dd>Distributes {@link Binding}s of various types.
- * <dt>{@link org.sonatype.guice.bean.locators.spi.BindingImporter}
- * <dd>Imports {@link Binding}s of various types.
- * </dl>
- */
-package org.sonatype.guice.bean.locators.spi;
+import java.util.List;
 
+import com.google.inject.Binding;
+
+interface BeanCache<T>
+{
+    void keepAlive( List<Binding<T>> bindings );
+}

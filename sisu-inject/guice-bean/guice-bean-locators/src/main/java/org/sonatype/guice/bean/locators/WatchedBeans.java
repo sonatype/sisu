@@ -13,10 +13,12 @@
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
+import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
+import org.sonatype.guice.bean.locators.spi.BindingDistributor;
 import org.sonatype.guice.bean.locators.spi.BindingExporter;
 import org.sonatype.guice.bean.locators.spi.BindingImporter;
 import org.sonatype.guice.bean.reflect.Logs;
@@ -26,7 +28,7 @@ import com.google.inject.Binding;
 import com.google.inject.Key;
 
 final class WatchedBeans<Q extends Annotation, T, W>
-    implements BindingImporter
+    implements BindingDistributor, BindingImporter
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -41,7 +43,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
 
     private final QualifyingStrategy strategy;
 
-    private final WeakReference<W> watcherRef;
+    private final Reference<W> watcherRef;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -60,12 +62,12 @@ final class WatchedBeans<Q extends Annotation, T, W>
     // Public methods
     // ----------------------------------------------------------------------
 
-    public boolean inactive()
+    public boolean isActive()
     {
-        return null == watcherRef.get();
+        return null != watcherRef.get();
     }
 
-    public void add( final BindingExporter exporter )
+    public void add( final BindingExporter exporter, final int rank )
     {
         exporter.add( key.getTypeLiteral(), this );
     }
@@ -121,7 +123,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
 
     public synchronized void clear()
     {
-        for ( final Binding<T> binding : beanCache.keySet() )
+        for ( final Binding<T> binding : beanCache.keySet().toArray( new Binding[beanCache.size()] ) )
         {
             remove( binding );
         }
