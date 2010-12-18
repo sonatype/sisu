@@ -69,7 +69,7 @@ final class ResourceEnumeration
     ResourceEnumeration( final String subPath, final String glob, final boolean recurse, final URL[] urls )
     {
         this.subPath = normalizeSearchPath( subPath );
-        globber = selectGlobberStrategy( glob );
+        globber = GlobberStrategy.selectFor( glob );
         globPattern = globber.compile( glob );
         this.recurse = recurse;
 
@@ -161,38 +161,6 @@ final class ResourceEnumeration
             buf.append( '/' );
         }
         return buf.toString();
-    }
-
-    /**
-     * Selects the best globber strategy for the given plain-text glob;
-     * 
-     * @param glob The plain-text glob
-     * @return Globber strategy
-     */
-    private static GlobberStrategy selectGlobberStrategy( final String glob )
-    {
-        if ( null == glob || "*".equals( glob ) )
-        {
-            return GlobberStrategy.ANYTHING;
-        }
-        final int firstWildcard = glob.indexOf( '*' );
-        if ( firstWildcard < 0 )
-        {
-            return GlobberStrategy.EXACT;
-        }
-        final int lastWildcard = glob.lastIndexOf( '*' );
-        if ( firstWildcard == lastWildcard )
-        {
-            if ( firstWildcard == 0 )
-            {
-                return GlobberStrategy.SUFFIX;
-            }
-            if ( lastWildcard == glob.length() - 1 )
-            {
-                return GlobberStrategy.PREFIX;
-            }
-        }
-        return GlobberStrategy.PATTERN;
     }
 
     /**

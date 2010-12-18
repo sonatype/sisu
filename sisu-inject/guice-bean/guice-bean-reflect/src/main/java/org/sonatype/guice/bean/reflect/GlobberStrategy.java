@@ -99,6 +99,38 @@ enum GlobberStrategy
     // ----------------------------------------------------------------------
 
     /**
+     * Selects the optimal globber strategy for the given plain-text glob.
+     * 
+     * @param glob The plain-text glob
+     * @return Optimal globber strategy
+     */
+    public static GlobberStrategy selectFor( final String glob )
+    {
+        if ( null == glob || "*".equals( glob ) )
+        {
+            return GlobberStrategy.ANYTHING;
+        }
+        final int firstWildcard = glob.indexOf( '*' );
+        if ( firstWildcard < 0 )
+        {
+            return GlobberStrategy.EXACT;
+        }
+        final int lastWildcard = glob.lastIndexOf( '*' );
+        if ( firstWildcard == lastWildcard )
+        {
+            if ( firstWildcard == 0 )
+            {
+                return GlobberStrategy.SUFFIX;
+            }
+            if ( lastWildcard == glob.length() - 1 )
+            {
+                return GlobberStrategy.PREFIX;
+            }
+        }
+        return GlobberStrategy.PATTERN;
+    }
+
+    /**
      * Compiles the given plain-text glob into an optimized pattern.
      * 
      * @param glob The plain-text glob

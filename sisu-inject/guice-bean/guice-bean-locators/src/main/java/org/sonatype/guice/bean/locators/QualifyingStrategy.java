@@ -96,6 +96,20 @@ enum QualifyingStrategy
     // Public methods
     // ----------------------------------------------------------------------
 
+    public static QualifyingStrategy selectFor( final Key<?> key )
+    {
+        final Class<?> qualifierType = key.getAnnotationType();
+        if ( null == qualifierType )
+        {
+            return QualifyingStrategy.UNRESTRICTED;
+        }
+        if ( Named.class == qualifierType )
+        {
+            return key.hasAttributes() ? QualifyingStrategy.NAMED_WITH_ATTRIBUTES : QualifyingStrategy.NAMED;
+        }
+        return key.hasAttributes() ? QualifyingStrategy.MARKED_WITH_ATTRIBUTES : QualifyingStrategy.MARKED;
+    }
+
     /**
      * Attempts to qualify the given {@link Binding} against the requirement {@link Key}.
      * 

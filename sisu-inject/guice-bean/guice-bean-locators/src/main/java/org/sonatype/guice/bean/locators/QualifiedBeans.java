@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import javax.inject.Named;
-
 import com.google.inject.Binding;
 import com.google.inject.Key;
 
@@ -48,7 +46,7 @@ final class QualifiedBeans<Q extends Annotation, T>
         this.key = key;
         this.bindings = bindings;
 
-        strategy = selectQualifyingStrategy( key );
+        strategy = QualifyingStrategy.selectFor( key );
     }
 
     // ----------------------------------------------------------------------
@@ -71,20 +69,6 @@ final class QualifiedBeans<Q extends Annotation, T>
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
-
-    static QualifyingStrategy selectQualifyingStrategy( final Key<?> key )
-    {
-        final Class<?> qualifierType = key.getAnnotationType();
-        if ( null == qualifierType )
-        {
-            return QualifyingStrategy.UNRESTRICTED;
-        }
-        if ( Named.class == qualifierType )
-        {
-            return key.hasAttributes() ? QualifyingStrategy.NAMED_WITH_ATTRIBUTES : QualifyingStrategy.NAMED;
-        }
-        return key.hasAttributes() ? QualifyingStrategy.MARKED_WITH_ATTRIBUTES : QualifyingStrategy.MARKED;
-    }
 
     synchronized QualifiedBean<Q, T> saveBean( final Q qualifier, final Binding<T> binding )
     {

@@ -54,7 +54,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
         this.key = key;
         this.mediator = mediator;
 
-        strategy = QualifiedBeans.selectQualifyingStrategy( key );
+        strategy = QualifyingStrategy.selectFor( key );
         watcherRef = new WeakReference<W>( watcher );
     }
 
