@@ -36,7 +36,7 @@ final class RankedList<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    int insertCount;
+    volatile int insertCount;
 
     Object[] elements;
 
@@ -260,6 +260,10 @@ final class RankedList<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
+        private Object[] cachedElements;
+
+        private long[] cachedUIDs;
+
         private long lastKnownState;
 
         private long nextUID = Long.MIN_VALUE;
@@ -279,14 +283,11 @@ final class RankedList<T>
             {
                 return true;
             }
-            synchronized ( RankedList.this )
+            if ( safeHasNext() )
             {
-                if ( safeHasNext() )
-                {
-                    nextElement = (T) elements[index];
-                    nextUID = uids[index] + 1;
-                    return true;
-                }
+                nextElement = (T) cachedElements[index];
+                nextUID = cachedUIDs[index] + 1;
+                return true;
             }
             return false;
         }
@@ -300,12 +301,9 @@ final class RankedList<T>
             {
                 return uid2rank( nextUID );
             }
-            synchronized ( RankedList.this )
+            if ( safeHasNext() )
             {
-                if ( safeHasNext() )
-                {
-                    return uid2rank( uids[index] );
-                }
+                return uid2rank( cachedUIDs[index] );
             }
             return Integer.MIN_VALUE;
         }
@@ -340,14 +338,20 @@ final class RankedList<T>
          */
         private boolean safeHasNext()
         {
-            final long currentState = (long) size << 32 | insertCount;
-            if ( lastKnownState != currentState )
+            if ( lastKnownState != ( (long) size << 32 | insertCount ) )
             {
-                // reposition ourselves in the list
-                index = safeBinarySearch( nextUID );
-                lastKnownState = currentState;
+                synchronized ( RankedList.this )
+                {
+                    // reposition ourselves in the list
+                    index = safeBinarySearch( nextUID );
+
+                    cachedElements = elements.clone();
+                    cachedUIDs = uids.clone();
+
+                    lastKnownState = ( (long) size << 32 | insertCount );
+                }
             }
-            return index < size;
+            return index < ( lastKnownState >>> 32 );
         }
     }
 }
