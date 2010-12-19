@@ -35,13 +35,13 @@ final class RankedBindings<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    final TypeLiteral<T> type;
-
     final RankedList<Binding<T>> bindings = new RankedList<Binding<T>>();
 
     final List<Reference<BeanCache<T>>> beanCaches = new ArrayList<Reference<BeanCache<T>>>();
 
     final RankedList<BindingExporter> pendingExporters;
+
+    final TypeLiteral<T> type;
 
     // ----------------------------------------------------------------------
     // Constructors

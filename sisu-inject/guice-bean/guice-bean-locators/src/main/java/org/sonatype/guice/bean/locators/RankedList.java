@@ -260,11 +260,11 @@ final class RankedList<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
+        private long lastKnownState;
+
         private Object[] cachedElements;
 
         private long[] cachedUIDs;
-
-        private long lastKnownState;
 
         private long nextUID = Long.MIN_VALUE;
 

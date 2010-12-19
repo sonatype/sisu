@@ -16,7 +16,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
@@ -55,6 +57,12 @@ public final class ClassRealmUtils
     }
 
     // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private static Map<ClassRealm, RealmInfo> realmCache = new WeakHashMap<ClassRealm, RealmInfo>();
+
+    // ----------------------------------------------------------------------
     // Utility methods
     // ----------------------------------------------------------------------
 
@@ -70,32 +78,57 @@ public final class ClassRealmUtils
         return null;
     }
 
-    @SuppressWarnings( "unchecked" )
     public static Set<String> visibleRealmNames( final ClassRealm contextRealm )
     {
         if ( false == GET_IMPORT_REALMS_SUPPORTED || null == contextRealm )
         {
-            return Collections.EMPTY_SET;
+            return Collections.emptySet();
         }
 
-        final Set<String> visibleRealms = new HashSet<String>();
-        final List<ClassRealm> searchRealms = new ArrayList<ClassRealm>();
-
-        searchRealms.add( contextRealm );
-        for ( int i = 0; i < searchRealms.size(); i++ )
+        synchronized ( realmCache )
         {
-            final ClassRealm realm = searchRealms.get( i );
-            if ( visibleRealms.add( realm.toString() ) )
+            RealmInfo realmInfo = realmCache.get( contextRealm );
+            if ( null == realmInfo )
             {
-                searchRealms.addAll( realm.getImportRealms() );
-                final ClassRealm parent = realm.getParentRealm();
-                if ( null != parent )
+                realmInfo = new RealmInfo( contextRealm );
+                realmCache.put( contextRealm, realmInfo );
+            }
+            return realmInfo.getVisibleRealmNames();
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    private static final class RealmInfo
+    {
+        private final Set<String> visibleRealmNames = new HashSet<String>();
+
+        @SuppressWarnings( "unchecked" )
+        RealmInfo( final ClassRealm forRealm )
+        {
+            final List<ClassRealm> searchRealms = new ArrayList<ClassRealm>();
+
+            searchRealms.add( forRealm );
+            for ( int i = 0; i < searchRealms.size(); i++ )
+            {
+                final ClassRealm realm = searchRealms.get( i );
+                if ( visibleRealmNames.add( realm.toString() ) )
                 {
-                    searchRealms.add( parent );
+                    searchRealms.addAll( realm.getImportRealms() );
+                    final ClassRealm parent = realm.getParentRealm();
+                    if ( null != parent )
+                    {
+                        searchRealms.add( parent );
+                    }
                 }
             }
         }
 
-        return visibleRealms;
+        public Set<String> getVisibleRealmNames()
+        {
+            return visibleRealmNames;
+        }
     }
 }

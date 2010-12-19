@@ -12,12 +12,10 @@
  */
 package org.sonatype.guice.plexus.locators;
 
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.sonatype.guice.bean.locators.QualifiedBean;
 
 import com.google.inject.name.Named;
@@ -30,10 +28,6 @@ final class RealmFilter<T>
     // ----------------------------------------------------------------------
 
     final Iterable<QualifiedBean<Named, T>> beans;
-
-    private ClassRealm cachedContextRealm;
-
-    private Set<String> visibleRealmNames;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -48,19 +42,14 @@ final class RealmFilter<T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    public synchronized Iterator<QualifiedBean<Named, T>> iterator()
+    public Iterator<QualifiedBean<Named, T>> iterator()
     {
-        final ClassRealm contextRealm = ClassRealmUtils.contextRealm();
-        if ( contextRealm != cachedContextRealm )
+        final Set<String> realmNames = ClassRealmUtils.visibleRealmNames( ClassRealmUtils.contextRealm() );
+        if ( null != realmNames && realmNames.size() > 0 )
         {
-            visibleRealmNames = ClassRealmUtils.visibleRealmNames( contextRealm );
-            cachedContextRealm = contextRealm;
+            return new FilteredItr( realmNames );
         }
-        if ( null == visibleRealmNames || visibleRealmNames.isEmpty() )
-        {
-            return beans.iterator();
-        }
-        return new FilteredItr( new HashSet<String>( visibleRealmNames ) );
+        return beans.iterator();
     }
 
     // ----------------------------------------------------------------------
