@@ -58,8 +58,11 @@ public final class Main
             throws BundleException
         {
             final Map<String, String> configuration = new HashMap<String, String>();
+
             configuration.put( Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT );
             configuration.put( Constants.FRAMEWORK_STORAGE, "target/bundlecache" );
+
+            configuration.putAll( (Map)System.getProperties() );
 
             final FrameworkFactory frameworkFactory = ServiceRegistry.lookupProviders( FrameworkFactory.class ).next();
             final Framework framework = frameworkFactory.newFramework( configuration );
