@@ -36,13 +36,15 @@ final class RankedList<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    volatile int insertCount;
-
     Object[] elements;
 
     long[] uids;
 
     volatile int size;
+
+    volatile int insertCount;
+
+    boolean isCached;
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -74,6 +76,12 @@ final class RankedList<T>
             System.arraycopy( uids, 0, newUIDs, 0, size );
             uids = newUIDs;
         }
+        else if ( isCached )
+        {
+            isCached = false;
+            elements = elements.clone();
+            uids = uids.clone();
+        }
         final long uid = rank2uid( rank, insertCount++ );
         final int index = safeBinarySearch( uid );
         if ( index < size++ )
@@ -84,6 +92,39 @@ final class RankedList<T>
         }
         elements[index] = element;
         uids[index] = uid;
+    }
+
+    @Override
+    public synchronized T remove( final int index )
+    {
+        final T element = get( index );
+        if ( isCached )
+        {
+            isCached = false;
+            elements = elements.clone();
+            uids = uids.clone();
+        }
+        if ( index < --size )
+        {
+            final int from = index + 1, len = size - index;
+            System.arraycopy( elements, from, elements, index, len );
+            System.arraycopy( uids, from, uids, index, len );
+        }
+        elements[size] = null;
+        return element;
+    }
+
+    public synchronized void update( final T element, final int rank )
+    {
+        for ( int i = 0; i < size; i++ )
+        {
+            if ( element.equals( elements[i] ) )
+            {
+                remove( i );
+                break;
+            }
+        }
+        insert( element, rank );
     }
 
     @Override
@@ -113,16 +154,16 @@ final class RankedList<T>
     }
 
     @Override
-    public synchronized T remove( final int index )
+    public synchronized boolean remove( final Object element )
     {
-        final T element = get( index );
-        if ( index < --size )
+        for ( int i = 0; i < size; i++ )
         {
-            final int from = index + 1, len = size - index;
-            System.arraycopy( elements, from, elements, index, len );
-            System.arraycopy( uids, from, uids, index, len );
+            if ( element.equals( elements[i] ) )
+            {
+                return null != remove( i );
+            }
         }
-        return element;
+        return false;
     }
 
     /**
@@ -131,8 +172,7 @@ final class RankedList<T>
      * @param element The element to remove
      * @return {@code true} if the element was removed; otherwise {@code false}
      */
-    @Override
-    public synchronized boolean remove( final Object element )
+    public synchronized boolean removeSame( final Object element )
     {
         for ( int i = 0; i < size; i++ )
         {
@@ -170,10 +210,12 @@ final class RankedList<T>
     @Override
     public synchronized void clear()
     {
-        insertCount = 0;
         elements = null;
         uids = null;
+
         size = 0;
+        insertCount = 0;
+        isCached = false;
     }
 
     @Override
@@ -260,11 +302,11 @@ final class RankedList<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private long lastKnownState;
-
         private Object[] cachedElements;
 
         private long[] cachedUIDs;
+
+        private long lastKnownState;
 
         private long nextUID = Long.MIN_VALUE;
 
@@ -338,20 +380,22 @@ final class RankedList<T>
          */
         private boolean safeHasNext()
         {
-            if ( lastKnownState != ( (long) size << 32 | insertCount ) )
+            if ( lastKnownState != ( (long) insertCount << 32 | size ) )
             {
                 synchronized ( RankedList.this )
                 {
                     // reposition ourselves in the list
                     index = safeBinarySearch( nextUID );
-
-                    cachedElements = elements.clone();
-                    cachedUIDs = uids.clone();
-
-                    lastKnownState = ( (long) size << 32 | insertCount );
+                    if ( index < size )
+                    {
+                        isCached = true;
+                        cachedElements = elements;
+                        cachedUIDs = uids;
+                    }
+                    lastKnownState = ( (long) insertCount << 32 | size );
                 }
             }
-            return index < ( lastKnownState >>> 32 );
+            return index < (int) lastKnownState;
         }
     }
 }

@@ -109,7 +109,7 @@ final class RankedBindings<T>
     @SuppressWarnings( "rawtypes" )
     public void remove( final Binding binding )
     {
-        bindings.remove( binding );
+        bindings.removeSame( binding );
     }
 
     public Iterator<Binding<T>> iterator()
