@@ -22,6 +22,7 @@ import org.sonatype.guice.bean.locators.spi.BindingDistributor;
 import org.sonatype.guice.bean.locators.spi.BindingExporter;
 import org.sonatype.guice.bean.locators.spi.BindingImporter;
 import org.sonatype.guice.bean.reflect.Logs;
+import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Mediator;
 
 import com.google.inject.Binding;
@@ -34,8 +35,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<Binding<T>, QualifiedBean<Q, T>> beanCache =
-        new IdentityHashMap<Binding<T>, QualifiedBean<Q, T>>();
+    private final Map<Binding<T>, BeanEntry<Q, T>> beanCache = new IdentityHashMap<Binding<T>, BeanEntry<Q, T>>();
 
     private final Key<T> key;
 
@@ -86,7 +86,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
             final W watcher = watcherRef.get();
             if ( null != watcher )
             {
-                final QualifiedBean<Q, T> bean = new LazyQualifiedBean<Q, T>( qualifier, binding );
+                final BeanEntry<Q, T> bean = new LazyQualifiedBean<Q, T>( qualifier, binding );
                 beanCache.put( binding, bean );
                 try
                 {
@@ -103,7 +103,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
     @SuppressWarnings( "rawtypes" )
     public synchronized void remove( final Binding binding )
     {
-        final QualifiedBean<Q, T> bean = beanCache.remove( binding );
+        final BeanEntry<Q, T> bean = beanCache.remove( binding );
         if ( null != bean )
         {
             final W watcher = watcherRef.get();

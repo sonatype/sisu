@@ -16,16 +16,17 @@ import java.lang.annotation.Annotation;
 
 import javax.inject.Provider;
 
+import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Description;
 
 import com.google.inject.Binding;
 import com.google.inject.Scopes;
 
 /**
- * Lazy {@link QualifiedBean} backed by a qualified {@link Binding}.
+ * Lazy {@link BeanEntry} backed by a qualified {@link Binding}.
  */
 final class LazyQualifiedBean<Q extends Annotation, T>
-    implements QualifiedBean<Q, T>
+    implements BeanEntry<Q, T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields

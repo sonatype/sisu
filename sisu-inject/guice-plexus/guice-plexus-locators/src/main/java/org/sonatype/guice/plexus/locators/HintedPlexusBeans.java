@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.sonatype.guice.bean.locators.QualifiedBean;
 import org.sonatype.guice.plexus.config.PlexusBean;
+import org.sonatype.inject.BeanEntry;
 
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
@@ -29,7 +29,7 @@ final class HintedPlexusBeans<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Iterable<QualifiedBean<Named, T>> beans;
+    private final Iterable<BeanEntry<Named, T>> beans;
 
     private final List<PlexusBean<T>> missingPlexusBeans;
 
@@ -37,7 +37,7 @@ final class HintedPlexusBeans<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    HintedPlexusBeans( final Iterable<QualifiedBean<Named, T>> beans, final TypeLiteral<T> role, final String[] hints )
+    HintedPlexusBeans( final Iterable<BeanEntry<Named, T>> beans, final TypeLiteral<T> role, final String[] hints )
     {
         this.beans = beans;
 
@@ -57,10 +57,10 @@ final class HintedPlexusBeans<T>
         final List<PlexusBean<T>> plexusBeans = new ArrayList<PlexusBean<T>>( missingPlexusBeans );
 
         final int size = plexusBeans.size();
-        final Iterator<QualifiedBean<Named, T>> itr = beans.iterator();
+        final Iterator<BeanEntry<Named, T>> itr = beans.iterator();
         for ( int numFound = 0; numFound < size && itr.hasNext(); )
         {
-            final QualifiedBean<Named, T> candidate = itr.next();
+            final BeanEntry<Named, T> candidate = itr.next();
             final String hint = candidate.getKey().value();
             for ( int i = 0; i < size; i++ )
             {

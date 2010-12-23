@@ -16,24 +16,24 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.sonatype.guice.bean.locators.QualifiedBean;
+import org.sonatype.inject.BeanEntry;
 
 import com.google.inject.name.Named;
 
 final class RealmFilter<T>
-    implements Iterable<QualifiedBean<Named, T>>
+    implements Iterable<BeanEntry<Named, T>>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    final Iterable<QualifiedBean<Named, T>> beans;
+    final Iterable<BeanEntry<Named, T>> beans;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    RealmFilter( final Iterable<QualifiedBean<Named, T>> beans )
+    RealmFilter( final Iterable<BeanEntry<Named, T>> beans )
     {
         this.beans = beans;
     }
@@ -42,7 +42,7 @@ final class RealmFilter<T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    public Iterator<QualifiedBean<Named, T>> iterator()
+    public Iterator<BeanEntry<Named, T>> iterator()
     {
         final Set<String> realmNames = ClassRealmUtils.visibleRealmNames( ClassRealmUtils.contextRealm() );
         if ( null != realmNames && realmNames.size() > 0 )
@@ -57,13 +57,13 @@ final class RealmFilter<T>
     // ----------------------------------------------------------------------
 
     final class FilteredItr
-        implements Iterator<QualifiedBean<Named, T>>
+        implements Iterator<BeanEntry<Named, T>>
     {
-        private final Iterator<QualifiedBean<Named, T>> itr = beans.iterator();
+        private final Iterator<BeanEntry<Named, T>> itr = beans.iterator();
 
         private final Set<String> realmNames;
 
-        private QualifiedBean<Named, T> nextBean;
+        private BeanEntry<Named, T> nextBean;
 
         public FilteredItr( final Set<String> realmNames )
         {
@@ -89,12 +89,12 @@ final class RealmFilter<T>
             return false;
         }
 
-        public QualifiedBean<Named, T> next()
+        public BeanEntry<Named, T> next()
         {
             if ( hasNext() )
             {
                 // populated by hasNext()
-                final QualifiedBean<Named, T> bean = nextBean;
+                final BeanEntry<Named, T> bean = nextBean;
                 nextBean = null;
                 return bean;
             }

@@ -23,6 +23,7 @@ import javax.inject.Singleton;
 
 import org.sonatype.guice.bean.locators.spi.BindingDistributor;
 import org.sonatype.guice.bean.locators.spi.BindingExporter;
+import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Mediator;
 
 import com.google.inject.Injector;
@@ -51,7 +52,7 @@ public final class DefaultBeanLocator
     // Public methods
     // ----------------------------------------------------------------------
 
-    public synchronized Iterable<QualifiedBean> locate( final Key key )
+    public synchronized Iterable<BeanEntry> locate( final Key key )
     {
         final RankedBindings bindings = bindingsForType( key.getTypeLiteral() );
         final QualifiedBeans beans = new QualifiedBeans( key, bindings );

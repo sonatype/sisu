@@ -14,8 +14,8 @@ package org.sonatype.guice.plexus.locators;
 
 import java.util.Iterator;
 
-import org.sonatype.guice.bean.locators.QualifiedBean;
 import org.sonatype.guice.plexus.config.PlexusBean;
+import org.sonatype.inject.BeanEntry;
 
 import com.google.inject.name.Named;
 
@@ -26,13 +26,13 @@ final class DefaultPlexusBeans<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    Iterable<QualifiedBean<Named, T>> beans;
+    Iterable<BeanEntry<Named, T>> beans;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    DefaultPlexusBeans( final Iterable<QualifiedBean<Named, T>> beans )
+    DefaultPlexusBeans( final Iterable<BeanEntry<Named, T>> beans )
     {
         this.beans = beans;
     }
@@ -53,7 +53,7 @@ final class DefaultPlexusBeans<T>
     final class Itr
         implements Iterator<PlexusBean<T>>
     {
-        private final Iterator<QualifiedBean<Named, T>> itr = beans.iterator();
+        private final Iterator<BeanEntry<Named, T>> itr = beans.iterator();
 
         public boolean hasNext()
         {

@@ -16,9 +16,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
-import org.sonatype.guice.bean.locators.QualifiedBean;
 import org.sonatype.guice.plexus.config.PlexusBean;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+import org.sonatype.inject.BeanEntry;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -70,7 +70,7 @@ public final class DefaultPlexusBeanLocator
     public <T> Iterable<PlexusBean<T>> locate( final TypeLiteral<T> role, final String... hints )
     {
         final Key<T> key = hints.length == 1 ? Key.get( role, Names.named( hints[0] ) ) : Key.get( role, Named.class );
-        Iterable<QualifiedBean<Named, T>> beans = beanLocator.locate( key );
+        Iterable<BeanEntry<Named, T>> beans = beanLocator.locate( key );
         if ( REALM_VISIBILITY.equalsIgnoreCase( visibility ) )
         {
             beans = new RealmFilter<T>( beans );

@@ -16,6 +16,7 @@ import java.lang.annotation.Annotation;
 
 import javax.inject.Qualifier;
 
+import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Mediator;
 
 import com.google.inject.ImplementedBy;
@@ -33,7 +34,7 @@ public interface BeanLocator
      * @param key The qualified key
      * @return Sequence of beans that match the given key
      */
-    <Q extends Annotation, T> Iterable<QualifiedBean<Q, T>> locate( Key<T> key );
+    <Q extends Annotation, T> Iterable<BeanEntry<Q, T>> locate( Key<T> key );
 
     /**
      * Tracks beans that match the given qualified binding {@link Key}. <br>

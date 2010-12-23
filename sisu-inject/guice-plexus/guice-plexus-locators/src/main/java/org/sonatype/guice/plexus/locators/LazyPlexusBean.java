@@ -14,8 +14,8 @@ package org.sonatype.guice.plexus.locators;
 
 import java.util.Map.Entry;
 
-import org.sonatype.guice.bean.locators.QualifiedBean;
 import org.sonatype.guice.plexus.config.PlexusBean;
+import org.sonatype.inject.BeanEntry;
 
 import com.google.inject.name.Named;
 
@@ -29,13 +29,13 @@ final class LazyPlexusBean<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final QualifiedBean<Named, T> bean;
+    private final BeanEntry<Named, T> bean;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    LazyPlexusBean( final QualifiedBean<Named, T> bean )
+    LazyPlexusBean( final BeanEntry<Named, T> bean )
     {
         this.bean = bean;
     }

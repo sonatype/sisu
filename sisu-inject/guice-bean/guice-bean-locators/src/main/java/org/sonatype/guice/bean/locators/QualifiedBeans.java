@@ -19,17 +19,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.sonatype.inject.BeanEntry;
+
 import com.google.inject.Binding;
 import com.google.inject.Key;
 
 final class QualifiedBeans<Q extends Annotation, T>
-    implements Iterable<QualifiedBean<Q, T>>, BeanCache<T>
+    implements Iterable<BeanEntry<Q, T>>, BeanCache<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private Map<Binding<T>, QualifiedBean<Q, T>> beanCache;
+    private Map<Binding<T>, BeanEntry<Q, T>> beanCache;
 
     final Key<T> key;
 
@@ -53,7 +55,7 @@ final class QualifiedBeans<Q extends Annotation, T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    public Iterator<QualifiedBean<Q, T>> iterator()
+    public Iterator<BeanEntry<Q, T>> iterator()
     {
         return new QualifiedBeanIterator();
     }
@@ -70,13 +72,13 @@ final class QualifiedBeans<Q extends Annotation, T>
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    synchronized QualifiedBean<Q, T> saveBean( final Q qualifier, final Binding<T> binding )
+    synchronized BeanEntry<Q, T> saveBean( final Q qualifier, final Binding<T> binding )
     {
         if ( null == beanCache )
         {
-            beanCache = new IdentityHashMap<Binding<T>, QualifiedBean<Q, T>>();
+            beanCache = new IdentityHashMap<Binding<T>, BeanEntry<Q, T>>();
         }
-        QualifiedBean<Q, T> bean = beanCache.get( binding );
+        BeanEntry<Q, T> bean = beanCache.get( binding );
         if ( null == bean )
         {
             bean = new LazyQualifiedBean<Q, T>( qualifier, binding );
@@ -85,7 +87,7 @@ final class QualifiedBeans<Q extends Annotation, T>
         return bean;
     }
 
-    synchronized QualifiedBean<Q, T> loadBean( final Binding<T> binding )
+    synchronized BeanEntry<Q, T> loadBean( final Binding<T> binding )
     {
         return null != beanCache ? beanCache.get( binding ) : null;
     }
@@ -95,7 +97,7 @@ final class QualifiedBeans<Q extends Annotation, T>
     // ----------------------------------------------------------------------
 
     final class QualifiedBeanIterator
-        implements Iterator<QualifiedBean<Q, T>>
+        implements Iterator<BeanEntry<Q, T>>
     {
         // ----------------------------------------------------------------------
         // Implementation fields
@@ -103,7 +105,7 @@ final class QualifiedBeans<Q extends Annotation, T>
 
         private final Iterator<Binding<T>> itr = bindings.iterator();
 
-        private QualifiedBean<Q, T> nextBean;
+        private BeanEntry<Q, T> nextBean;
 
         // ----------------------------------------------------------------------
         // Public methods
@@ -134,12 +136,12 @@ final class QualifiedBeans<Q extends Annotation, T>
             return false;
         }
 
-        public QualifiedBean<Q, T> next()
+        public BeanEntry<Q, T> next()
         {
             if ( hasNext() )
             {
                 // populated by hasNext()
-                final QualifiedBean<Q, T> bean = nextBean;
+                final BeanEntry<Q, T> bean = nextBean;
                 nextBean = null;
                 return bean;
             }
