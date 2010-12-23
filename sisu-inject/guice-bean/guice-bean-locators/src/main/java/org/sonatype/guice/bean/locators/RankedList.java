@@ -392,7 +392,7 @@ final class RankedList<T>
                         cachedElements = elements;
                         cachedUIDs = uids;
                     }
-                    lastKnownState = ( (long) insertCount << 32 | size );
+                    lastKnownState = (long) insertCount << 32 | size;
                 }
             }
             return index < (int) lastKnownState;

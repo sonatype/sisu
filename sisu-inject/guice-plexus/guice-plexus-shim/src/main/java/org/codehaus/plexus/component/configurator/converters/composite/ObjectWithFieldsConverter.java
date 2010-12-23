@@ -93,11 +93,11 @@ public class ObjectWithFieldsConverter
             {
                 final Class implementation = getClassForImplementationHint( type, configuration, classLoader );
 
-                Object propertyValue = retValue;
+                final Object propertyValue = retValue;
 
                 retValue = instantiateObject( implementation );
 
-                ComponentDefaultValueSetter valueSetter =
+                final ComponentDefaultValueSetter valueSetter =
                     new ComponentDefaultValueSetter( retValue, converterLookup, listener );
 
                 valueSetter.configure( propertyValue, configuration, classLoader, expressionEvaluator );

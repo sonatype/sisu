@@ -18,7 +18,6 @@ import java.util.Enumeration;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.Logs;
-import org.sonatype.guice.bean.reflect.Streams;
 import org.sonatype.guice.bean.scanners.asm.ClassReader;
 import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
 

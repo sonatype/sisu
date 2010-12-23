@@ -68,7 +68,7 @@ public class CollectionConverter
         {
             if ( retValue instanceof Object[] )
             {
-                Object[] values = (Object[]) retValue;
+                final Object[] values = (Object[]) retValue;
                 retValue = newCollection( configuration, type, classLoader );
                 Collections.addAll( (Collection<Object>) retValue, values );
             }

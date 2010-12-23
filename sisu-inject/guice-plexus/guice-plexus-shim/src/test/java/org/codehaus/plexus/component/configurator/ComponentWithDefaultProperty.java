@@ -38,7 +38,7 @@ public class ComponentWithDefaultProperty
 
         private File file;
 
-        public void set( File file )
+        public void set( final File file )
         {
             this.file = file;
         }

@@ -39,18 +39,18 @@ public class ComponentWithInlinedCollection
         return items;
     }
 
-    public void addString( String string )
+    public void addString( final String string )
     {
         items.add( string );
     }
 
-    public ComponentWithInlinedCollection addInteger( Integer integer )
+    public ComponentWithInlinedCollection addInteger( final Integer integer )
     {
         items.add( integer );
         return this;
     }
 
-    public void addBoolean( Boolean bool )
+    public void addBoolean( final Boolean bool )
     {
         items.add( bool );
     }

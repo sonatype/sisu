@@ -59,12 +59,12 @@ class ComponentDefaultValueSetter
         this.lookup = lookup;
         this.listener = listener;
 
-        this.setter = getDefaultSetter( object );
+        setter = getDefaultSetter( object );
     }
 
     private static Method getDefaultSetter( final Object object )
     {
-        for ( Method method : object.getClass().getMethods() )
+        for ( final Method method : object.getClass().getMethods() )
         {
             if ( "set".equals( method.getName() ) && method.getParameterTypes().length == 1
                 && !Modifier.isStatic( method.getModifiers() ) )
@@ -85,7 +85,7 @@ class ComponentDefaultValueSetter
                 + object.getClass().getName() + " from " + value );
         }
 
-        Class<?> propertyType = setter.getParameterTypes()[0];
+        final Class<?> propertyType = setter.getParameterTypes()[0];
 
         Object propertyValue;
 
@@ -95,7 +95,7 @@ class ComponentDefaultValueSetter
         }
         else
         {
-            ConfigurationConverter converter = lookup.lookupConverterForType( propertyType );
+            final ConfigurationConverter converter = lookup.lookupConverterForType( propertyType );
 
             if ( !( converter instanceof AbstractBasicConverter ) )
             {
@@ -117,11 +117,11 @@ class ComponentDefaultValueSetter
         {
             setter.invoke( object, propertyValue );
         }
-        catch ( IllegalAccessException e )
+        catch ( final IllegalAccessException e )
         {
             throw new ComponentConfigurationException( config, "Cannot access method " + setter, e );
         }
-        catch ( InvocationTargetException e )
+        catch ( final InvocationTargetException e )
         {
             throw new ComponentConfigurationException( config, "Could not invoke method " + setter + ": "
                 + e.getCause(), e.getCause() );

@@ -118,14 +118,12 @@ public class ComponentValueSetter
 
     private static Method getAdder( final String fieldName, final Class clazz )
     {
-        Method[] methods = clazz.getMethods();
+        final Method[] methods = clazz.getMethods();
 
-        String adderName = "add" + StringUtils.capitalizeFirstLetter( fieldName );
+        final String adderName = "add" + StringUtils.capitalizeFirstLetter( fieldName );
 
-        for ( int i = 0; i < methods.length; i++ )
+        for ( final Method method : methods )
         {
-            Method method = methods[i];
-
             if ( adderName.equals( method.getName() ) && !Modifier.isStatic( method.getModifiers() )
                 && method.getParameterTypes().length == 1 )
             {
