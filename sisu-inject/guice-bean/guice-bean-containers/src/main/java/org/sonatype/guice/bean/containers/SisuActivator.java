@@ -134,7 +134,7 @@ public final class SisuActivator
     public Object addingService( final ServiceReference reference )
     {
         final Object service = bundleContext.getService( reference );
-        LOCATOR.add( ( (BundleInjector) service ).getInjector() );
+        LOCATOR.publish( ( (BundleInjector) service ).getInjector() );
         return service;
     }
 

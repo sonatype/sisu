@@ -47,14 +47,14 @@ public final class InjectorBindingExporter
     // Public methods
     // ----------------------------------------------------------------------
 
-    public <T> void add( final TypeLiteral<T> type, final BindingImporter importer )
+    public <T> void publish( final TypeLiteral<T> type, final BindingImporter importer )
     {
         int r = partition( maxRank );
         for ( final Binding<T> binding : injector.findBindingsByType( type ) )
         {
             if ( false == binding.getSource() instanceof HiddenBinding )
             {
-                importer.add( binding, isDefault( binding ) ? maxRank : r-- );
+                importer.publish( binding, isDefault( binding ) ? maxRank : r-- );
             }
         }
     }

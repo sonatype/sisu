@@ -21,15 +21,17 @@ import com.google.inject.TypeLiteral;
 public interface BindingExporter
 {
     /**
-     * Adds {@link Binding}s of the requested type to the given {@link BindingImporter}.
+     * Publishes {@link Binding}s of the requested type to the given {@link BindingImporter}.<br>
+     * The {@link BindingExporter} is allowed to publish bindings asynchronously if it wants.
      * 
      * @param type The binding type
      * @param importer The importer
      */
-    <T> void add( TypeLiteral<T> type, BindingImporter importer );
+    <T> void publish( TypeLiteral<T> type, BindingImporter importer );
 
     /**
-     * Removes {@link Binding}s of the requested type from the given {@link BindingImporter}.
+     * Removes {@link Binding}s of the requested type from the given {@link BindingImporter}.<br>
+     * The {@link BindingExporter} is allowed to remove bindings asynchronously if it wants.
      * 
      * @param type The binding type
      * @param importer The importer

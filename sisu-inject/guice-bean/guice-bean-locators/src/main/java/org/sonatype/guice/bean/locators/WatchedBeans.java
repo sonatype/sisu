@@ -67,9 +67,9 @@ final class WatchedBeans<Q extends Annotation, T, W>
         return null != watcherRef.get();
     }
 
-    public void add( final BindingExporter exporter, final int rank )
+    public void publish( final BindingExporter exporter, final int rank )
     {
-        exporter.add( key.getTypeLiteral(), this );
+        exporter.publish( key.getTypeLiteral(), this );
     }
 
     public void remove( final BindingExporter exporter )
@@ -78,7 +78,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
     }
 
     @SuppressWarnings( { "rawtypes", "unchecked" } )
-    public synchronized void add( final Binding binding, final int rank )
+    public synchronized void publish( final Binding binding, final int rank )
     {
         final Q qualifier = (Q) strategy.qualifies( key, binding );
         if ( null != qualifier )

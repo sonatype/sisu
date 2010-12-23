@@ -85,7 +85,7 @@ final class RankedBindings<T>
         return isActive;
     }
 
-    public void add( final BindingExporter exporter, final int rank )
+    public void publish( final BindingExporter exporter, final int rank )
     {
         pendingExporters.insert( exporter, rank );
     }
@@ -101,7 +101,7 @@ final class RankedBindings<T>
     }
 
     @SuppressWarnings( { "rawtypes", "unchecked" } )
-    public void add( final Binding binding, final int rank )
+    public void publish( final Binding binding, final int rank )
     {
         bindings.insert( binding, rank );
     }
@@ -170,7 +170,7 @@ final class RankedBindings<T>
                     {
                         // be careful not to remove the exporter until after it is used
                         // otherwise another iterator could skip past the initial check
-                        pendingExporters.get( 0 ).add( type, RankedBindings.this );
+                        pendingExporters.get( 0 ).publish( type, RankedBindings.this );
                         pendingExporters.remove( 0 );
                     }
                 }

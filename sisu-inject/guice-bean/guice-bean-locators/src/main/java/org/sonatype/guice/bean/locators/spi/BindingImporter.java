@@ -20,15 +20,15 @@ import com.google.inject.Binding;
 public interface BindingImporter
 {
     /**
-     * Adds the given ranked {@link Binding} to the importer.
+     * Publishes the given ranked {@link Binding} to the importer.
      * 
      * @param binding The new binding
      * @param rank The assigned rank
      */
-    <T> void add( Binding<T> binding, int rank );
+    <T> void publish( Binding<T> binding, int rank );
 
     /**
-     * Removes the given {@link Binding} from the importer.
+     * Remove the given {@link Binding} from the importer.
      * 
      * @param binding The old binding
      */

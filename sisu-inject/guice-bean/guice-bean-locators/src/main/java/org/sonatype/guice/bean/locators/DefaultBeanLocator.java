@@ -65,12 +65,12 @@ public final class DefaultBeanLocator
         final WatchedBeans beans = new WatchedBeans( key, mediator, watcher );
         for ( final BindingExporter exporter : exporters )
         {
-            beans.add( exporter, 0 );
+            beans.publish( exporter, 0 );
         }
         watchedBeans.add( beans );
     }
 
-    public synchronized void add( final BindingExporter exporter, final int rank )
+    public synchronized void publish( final BindingExporter exporter, final int rank )
     {
         exporters.insert( exporter, rank );
         distribute( BindingEvent.INSERT, exporter, rank );
@@ -94,13 +94,13 @@ public final class DefaultBeanLocator
 
     @Inject
     @SuppressWarnings( "deprecation" )
-    public synchronized void add( final Injector injector )
+    public synchronized void publish( final Injector injector )
     {
         if ( !injectorExporters.containsKey( injector ) )
         {
             final BindingExporter exporter = new InjectorBindingExporter( injector, injectorRank );
             injectorExporters.put( injector, exporter );
-            add( exporter, injectorRank++ );
+            publish( exporter, injectorRank++ );
         }
     }
 
@@ -175,7 +175,7 @@ public final class DefaultBeanLocator
             @Override
             void apply( final BindingDistributor distributor, final BindingExporter exporter, final int rank )
             {
-                distributor.add( exporter, rank );
+                distributor.publish( exporter, rank );
             }
         },
         REMOVE

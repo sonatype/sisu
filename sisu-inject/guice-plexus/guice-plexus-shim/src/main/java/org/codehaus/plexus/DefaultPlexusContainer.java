@@ -324,7 +324,7 @@ public final class DefaultPlexusContainer
     public <T> void addComponent( final T component, final Class<?> role, final String hint )
     {
         // this is only used in Maven3 tests, so keep it simple...
-        qualifiedBeanLocator.add( Guice.createInjector( new AbstractModule()
+        qualifiedBeanLocator.publish( Guice.createInjector( new AbstractModule()
         {
             @Override
             protected void configure()

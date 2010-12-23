@@ -126,7 +126,7 @@ public class RankedBindingsTest
         }
 
         assertEquals( 0, bindings.bindings.size() );
-        bindings.add( new InjectorBindingExporter( injector2, (short) 2 ), 2 );
+        bindings.publish( new InjectorBindingExporter( injector2, (short) 2 ), 2 );
         assertEquals( 0, bindings.bindings.size() );
 
         assertTrue( itr.hasNext() );
@@ -136,14 +136,14 @@ public class RankedBindingsTest
 
         assertTrue( itr.hasNext() );
         assertEquals( 2, bindings.bindings.size() );
-        bindings.add( new InjectorBindingExporter( injector3, (short) 3 ), 3 );
+        bindings.publish( new InjectorBindingExporter( injector3, (short) 3 ), 3 );
         assertEquals( 2, bindings.bindings.size() );
 
         assertTrue( itr.hasNext() );
         assertEquals( 3, bindings.bindings.size() );
 
         assertEquals( 3, bindings.bindings.size() );
-        bindings.add( new InjectorBindingExporter( injector1, (short) 1 ), 1 );
+        bindings.publish( new InjectorBindingExporter( injector1, (short) 1 ), 1 );
         assertEquals( 3, bindings.bindings.size() );
 
         assertTrue( itr.hasNext() );
@@ -172,9 +172,9 @@ public class RankedBindingsTest
 
         final RankedBindings<Bean> bindings = new RankedBindings<Bean>( TypeLiteral.get( Bean.class ), null );
 
-        bindings.add( exporter1, 1 );
-        bindings.add( exporter2, 2 );
-        bindings.add( exporter3, 3 );
+        bindings.publish( exporter1, 1 );
+        bindings.publish( exporter2, 2 );
+        bindings.publish( exporter3, 3 );
 
         Iterator<Binding<Bean>> itr = bindings.iterator();
 
@@ -190,9 +190,9 @@ public class RankedBindingsTest
 
         bindings.clear();
 
-        bindings.add( exporter3, 0 );
-        bindings.add( exporter1, 0 );
-        bindings.add( exporter2, 0 );
+        bindings.publish( exporter3, 0 );
+        bindings.publish( exporter1, 0 );
+        bindings.publish( exporter2, 0 );
 
         assertTrue( itr.hasNext() );
         assertNull( itr.next().getKey().getAnnotation() );

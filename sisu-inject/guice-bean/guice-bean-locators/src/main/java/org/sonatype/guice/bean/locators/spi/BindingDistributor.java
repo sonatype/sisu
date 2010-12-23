@@ -20,22 +20,22 @@ import com.google.inject.Binding;
 public interface BindingDistributor
 {
     /**
-     * Distributes bindings exported by the given ranked {@link BindingExporter}.
+     * Publishes bindings exported by the given ranked {@link BindingExporter}.
      * 
      * @param exporter The new exporter
      * @param rank The assigned rank
      */
-    void add( BindingExporter exporter, int rank );
+    void publish( BindingExporter exporter, int rank );
 
     /**
-     * Withdraws bindings exported by the given {@link BindingExporter}.
+     * Remove bindings exported by the given {@link BindingExporter}.
      * 
      * @param exporter The old exporter
      */
     void remove( BindingExporter exporter );
 
     /**
-     * Withdraws all distributed {@link Binding}s.
+     * Removes all distributed {@link Binding}s.
      */
     void clear();
 }

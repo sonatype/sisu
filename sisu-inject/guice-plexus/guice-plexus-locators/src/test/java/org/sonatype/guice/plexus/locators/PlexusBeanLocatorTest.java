@@ -114,12 +114,12 @@ public class PlexusBeanLocatorTest
         final Iterable<? extends Entry<String, Bean>> roles =
             new DefaultPlexusBeanLocator( locator ).locate( TypeLiteral.get( Bean.class ) );
 
-        locator.add( parent );
-        locator.add( child1 );
-        locator.add( child2 );
-        locator.add( child3 );
+        locator.publish( parent );
+        locator.publish( child1 );
+        locator.publish( child2 );
+        locator.publish( child3 );
         locator.remove( child1 );
-        locator.add( child1 );
+        locator.publish( child1 );
 
         Iterator<? extends Entry<String, Bean>> i;
 
@@ -147,8 +147,8 @@ public class PlexusBeanLocatorTest
         assertFalse( i.hasNext() );
 
         locator.remove( child3 );
-        locator.add( child3 );
-        locator.add( child3 );
+        locator.publish( child3 );
+        locator.publish( child3 );
 
         i = roles.iterator();
         assertEquals( "M3", i.next().getKey() );
@@ -180,12 +180,12 @@ public class PlexusBeanLocatorTest
     {
         final MutableBeanLocator locator = new DefaultBeanLocator();
 
-        locator.add( parent );
-        locator.add( child1 );
+        locator.publish( parent );
+        locator.publish( child1 );
         final Iterable<? extends Entry<String, Bean>> roles =
             new DefaultPlexusBeanLocator( locator ).locate( TypeLiteral.get( Bean.class ) );
-        locator.add( child2 );
-        locator.add( child3 );
+        locator.publish( child2 );
+        locator.publish( child3 );
 
         Iterator<? extends Entry<String, Bean>> i;
 
@@ -243,12 +243,12 @@ public class PlexusBeanLocatorTest
         {
         }
 
-        locator.add( parent );
-        locator.add( child1 );
-        locator.add( child2 );
-        locator.add( child3 );
+        locator.publish( parent );
+        locator.publish( child1 );
+        locator.publish( child2 );
+        locator.publish( child3 );
 
-        locator.add( parent.createChildInjector( new AbstractModule()
+        locator.publish( parent.createChildInjector( new AbstractModule()
         {
             @Override
             protected void configure()
@@ -293,7 +293,7 @@ public class PlexusBeanLocatorTest
         assertNull( m3.getValue() );
 
         locator.remove( child1 );
-        locator.add( child1 );
+        locator.publish( child1 );
 
         i = roles.iterator();
         assertEquals( "A", i.next().getKey() );
@@ -324,7 +324,7 @@ public class PlexusBeanLocatorTest
         final MutableBeanLocator locator = new DefaultBeanLocator();
         final ClassWorld world = new ClassWorld();
 
-        locator.add( Guice.createInjector( new Module()
+        locator.publish( Guice.createInjector( new Module()
         {
             public void configure( final Binder binder )
             {
@@ -339,7 +339,7 @@ public class PlexusBeanLocatorTest
             }
         } ) );
 
-        locator.add( Guice.createInjector( new Module()
+        locator.publish( Guice.createInjector( new Module()
         {
             public void configure( final Binder binder )
             {
@@ -354,7 +354,7 @@ public class PlexusBeanLocatorTest
             }
         } ) );
 
-        locator.add( Guice.createInjector( new Module()
+        locator.publish( Guice.createInjector( new Module()
         {
             public void configure( final Binder binder )
             {
@@ -369,7 +369,7 @@ public class PlexusBeanLocatorTest
             }
         } ) );
 
-        locator.add( Guice.createInjector( new Module()
+        locator.publish( Guice.createInjector( new Module()
         {
             public void configure( final Binder binder )
             {
@@ -384,7 +384,7 @@ public class PlexusBeanLocatorTest
             }
         } ) );
 
-        locator.add( Guice.createInjector( new Module()
+        locator.publish( Guice.createInjector( new Module()
         {
             public void configure( final Binder binder )
             {
@@ -399,7 +399,7 @@ public class PlexusBeanLocatorTest
             }
         } ) );
 
-        locator.add( Guice.createInjector( new Module()
+        locator.publish( Guice.createInjector( new Module()
         {
             public void configure( final Binder binder )
             {
@@ -414,7 +414,7 @@ public class PlexusBeanLocatorTest
             }
         } ) );
 
-        locator.add( Guice.createInjector( new Module()
+        locator.publish( Guice.createInjector( new Module()
         {
             public void configure( final Binder binder )
             {
@@ -429,7 +429,7 @@ public class PlexusBeanLocatorTest
             }
         } ) );
 
-        locator.add( Guice.createInjector( new Module()
+        locator.publish( Guice.createInjector( new Module()
         {
             public void configure( final Binder binder )
             {
@@ -450,7 +450,7 @@ public class PlexusBeanLocatorTest
         world.getRealm( "B2" ).importFrom( "B1", "B1" );
         world.getRealm( "B2" ).importFrom( "B3", "B3" );
 
-        locator.add( Guice.createInjector( new AbstractModule()
+        locator.publish( Guice.createInjector( new AbstractModule()
         {
             @Override
             protected void configure()
