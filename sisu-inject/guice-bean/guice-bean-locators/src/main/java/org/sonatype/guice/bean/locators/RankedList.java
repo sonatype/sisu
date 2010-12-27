@@ -22,7 +22,7 @@ import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
 /**
- * Sorted {@link List} which arranges elements by descending rank; allows concurrent iteration and modification.
+ * Sorted {@link List} that arranges elements by descending rank; supports concurrent iteration and modification.
  */
 final class RankedList<T>
     extends AbstractCollection<T>
@@ -82,6 +82,7 @@ final class RankedList<T>
         }
         else if ( isCached )
         {
+            // copy-on-write
             objs = objs.clone();
             uids = uids.clone();
             isCached = false;
@@ -90,12 +91,13 @@ final class RankedList<T>
         final long uid = rank2uid( rank, uniq++ );
         final int index = safeBinarySearch( uid );
 
-        if ( index < size++ )
+        // make space: use loop as the size will be small
+        for ( int j = size, i = j--; i > index; i = j-- )
         {
-            final int to = index + 1, len = size - to;
-            System.arraycopy( objs, index, objs, to, len );
-            System.arraycopy( uids, index, uids, to, len );
+            objs[i] = objs[j];
+            uids[i] = uids[j];
         }
+        size++;
 
         objs[index] = element;
         uids[index] = uid;
@@ -107,19 +109,21 @@ final class RankedList<T>
 
         if ( isCached )
         {
+            // copy-on-write
             objs = objs.clone();
             uids = uids.clone();
             isCached = false;
         }
 
-        if ( index < --size )
+        // compact space: use loop as the size will be small
+        for ( int j = index, i = j++; j < size; i = j++ )
         {
-            final int from = index + 1, len = size - index;
-            System.arraycopy( objs, from, objs, index, len );
-            System.arraycopy( uids, from, uids, index, len );
+            objs[i] = objs[j];
+            uids[i] = uids[j];
         }
+        size--;
 
-        objs[size] = null;
+        objs[size] = null; // remove dangling reference
 
         return element;
     }
@@ -136,11 +140,17 @@ final class RankedList<T>
         return -1;
     }
 
-    public int indexOfSame( final Object o )
+    /**
+     * Similar function to {@link #indexOf(Object)} except it uses {@code ==} instead of {@code equals}.
+     * 
+     * @param o The exact element to search for
+     * @see #indexOf(Object)
+     */
+    public int indexOfThis( final T element )
     {
         for ( int i = 0; i < size; i++ )
         {
-            if ( o == objs[i] )
+            if ( element == objs[i] )
             {
                 return i;
             }
@@ -173,7 +183,7 @@ final class RankedList<T>
         {
             return (T) objs[index];
         }
-        throw new ArrayIndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
+        throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
     }
 
     /**
@@ -188,7 +198,7 @@ final class RankedList<T>
         {
             return uid2rank( uids[index] );
         }
-        throw new ArrayIndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
+        throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
     }
 
     /**
@@ -282,7 +292,6 @@ final class RankedList<T>
     {
         int min = 0;
         int max = size - 1;
-        final int end = max;
         while ( min < max )
         {
             final int m = min + max >>> 1;
@@ -295,9 +304,9 @@ final class RankedList<T>
                 min = m + 1;
             }
         }
-        if ( end == min && uids[min] < uid )
+        if ( min == size - 1 && uids[min] < uid )
         {
-            return min + 1; // append
+            return size; // append
         }
         return min;
     }
@@ -418,36 +427,47 @@ final class RankedList<T>
         }
     }
 
+    // ----------------------------------------------------------------------
+    // Unsupported methods
+    // ----------------------------------------------------------------------
+
+    @Deprecated
     public void add( final int index, final T element )
     {
         throw new UnsupportedOperationException();
     }
 
+    @Deprecated
     public boolean addAll( final int index, final Collection<? extends T> c )
     {
         throw new UnsupportedOperationException();
     }
 
+    @Deprecated
     public T set( final int index, final T element )
     {
         throw new UnsupportedOperationException();
     }
 
+    @Deprecated
     public int lastIndexOf( final Object o )
     {
         throw new UnsupportedOperationException();
     }
 
+    @Deprecated
     public ListIterator<T> listIterator()
     {
         throw new UnsupportedOperationException();
     }
 
+    @Deprecated
     public ListIterator<T> listIterator( final int index )
     {
         throw new UnsupportedOperationException();
     }
 
+    @Deprecated
     public List<T> subList( final int fromIndex, final int toIndex )
     {
         throw new UnsupportedOperationException();

@@ -126,7 +126,7 @@ final class RankedBindings<T>
     {
         synchronized ( bindings )
         {
-            final int index = bindings.indexOfSame( binding );
+            final int index = bindings.indexOfThis( binding );
             if ( index >= 0 )
             {
                 bindings.remove( index );
