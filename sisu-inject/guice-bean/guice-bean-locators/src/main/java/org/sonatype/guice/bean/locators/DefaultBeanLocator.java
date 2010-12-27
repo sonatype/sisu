@@ -93,7 +93,6 @@ public final class DefaultBeanLocator
     private short injectorRank = Short.MIN_VALUE;
 
     @Inject
-    @SuppressWarnings( "deprecation" )
     public synchronized void publish( final Injector injector )
     {
         if ( !injectorExporters.containsKey( injector ) )
@@ -104,7 +103,6 @@ public final class DefaultBeanLocator
         }
     }
 
-    @SuppressWarnings( "deprecation" )
     public synchronized void remove( final Injector injector )
     {
         final BindingExporter exporter = injectorExporters.remove( injector );

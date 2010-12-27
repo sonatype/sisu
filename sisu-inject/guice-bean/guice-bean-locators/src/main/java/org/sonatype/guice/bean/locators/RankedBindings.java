@@ -63,23 +63,29 @@ final class RankedBindings<T>
         return type;
     }
 
-    public synchronized void addBeanCache( final BeanCache<T> cache )
+    public void addBeanCache( final BeanCache<T> cache )
     {
-        beanCaches.add( new WeakReference<BeanCache<T>>( cache ) );
+        synchronized ( beanCaches )
+        {
+            beanCaches.add( new WeakReference<BeanCache<T>>( cache ) );
+        }
     }
 
-    public synchronized boolean isActive()
+    public boolean isActive()
     {
         boolean isActive = false;
-        for ( int i = 0; i < beanCaches.size(); i++ )
+        synchronized ( beanCaches )
         {
-            if ( null != beanCaches.get( i ).get() )
+            for ( int i = 0; i < beanCaches.size(); i++ )
             {
-                isActive = true;
-            }
-            else
-            {
-                beanCaches.remove( i-- );
+                if ( null != beanCaches.get( i ).get() )
+                {
+                    isActive = true;
+                }
+                else
+                {
+                    beanCaches.remove( i-- );
+                }
             }
         }
         return isActive;
@@ -87,29 +93,45 @@ final class RankedBindings<T>
 
     public void publish( final BindingExporter exporter, final int rank )
     {
-        pendingExporters.insert( exporter, rank );
+        synchronized ( pendingExporters )
+        {
+            pendingExporters.insert( exporter, rank );
+        }
     }
 
     public void remove( final BindingExporter exporter )
     {
-        // check if this exporter been activated
-        if ( !pendingExporters.remove( exporter ) )
+        synchronized ( pendingExporters )
         {
-            exporter.remove( type, this );
-            flushBeanCaches();
+            // check if this exporter been activated
+            if ( !pendingExporters.remove( exporter ) )
+            {
+                exporter.remove( type, this );
+                flushBeanCaches();
+            }
         }
     }
 
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     public void publish( final Binding binding, final int rank )
     {
-        bindings.insert( binding, rank );
+        synchronized ( bindings )
+        {
+            bindings.insert( binding, rank );
+        }
     }
 
-    @SuppressWarnings( "rawtypes" )
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
     public void remove( final Binding binding )
     {
-        bindings.removeSame( binding );
+        synchronized ( bindings )
+        {
+            final int index = bindings.indexOfSame( binding );
+            if ( index >= 0 )
+            {
+                bindings.remove( index );
+            }
+        }
     }
 
     public Iterator<Binding<T>> iterator()
@@ -119,8 +141,14 @@ final class RankedBindings<T>
 
     public void clear()
     {
-        pendingExporters.clear();
-        bindings.clear();
+        synchronized ( pendingExporters )
+        {
+            pendingExporters.clear();
+        }
+        synchronized ( bindings )
+        {
+            bindings.clear();
+        }
         flushBeanCaches();
     }
 
@@ -128,14 +156,17 @@ final class RankedBindings<T>
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private synchronized void flushBeanCaches()
+    private void flushBeanCaches()
     {
-        for ( int i = 0, size = beanCaches.size(); i < size; i++ )
+        synchronized ( beanCaches )
         {
-            final BeanCache<T> cache = beanCaches.get( i ).get();
-            if ( null != cache )
+            for ( int i = 0, size = beanCaches.size(); i < size; i++ )
             {
-                cache.keepAlive( bindings );
+                final BeanCache<T> cache = beanCaches.get( i ).get();
+                if ( null != cache )
+                {
+                    cache.keepAlive( bindings );
+                }
             }
         }
     }

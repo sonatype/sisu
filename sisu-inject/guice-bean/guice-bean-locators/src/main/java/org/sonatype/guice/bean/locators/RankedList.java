@@ -12,10 +12,12 @@
  */
 package org.sonatype.guice.bean.locators;
 
-import java.util.AbstractList;
+import java.util.AbstractCollection;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
@@ -23,8 +25,8 @@ import java.util.RandomAccess;
  * Sorted {@link List} which arranges elements by descending rank; allows concurrent iteration and modification.
  */
 final class RankedList<T>
-    extends AbstractList<T>
-    implements RandomAccess, Cloneable
+    extends AbstractCollection<T>
+    implements List<T>, RandomAccess, Cloneable
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -36,13 +38,13 @@ final class RankedList<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    Object[] elements;
+    Object[] objs;
 
     long[] uids;
 
     volatile int size;
 
-    volatile int insertCount;
+    volatile int uniq;
 
     boolean isCached;
 
@@ -57,85 +59,121 @@ final class RankedList<T>
      * @param element The element to insert
      * @param rank The assigned rank
      */
-    public synchronized void insert( final T element, final int rank )
+    public void insert( final T element, final int rank )
     {
-        if ( null == elements )
+        if ( null == objs )
         {
-            elements = new Object[INITIAL_CAPACITY];
+            objs = new Object[INITIAL_CAPACITY];
             uids = new long[INITIAL_CAPACITY];
         }
-        else if ( size >= elements.length )
+        else if ( size >= objs.length )
         {
             final int capacity = size * 3 / 2 + 1;
 
-            final Object[] newElements = new Object[capacity];
-            System.arraycopy( elements, 0, newElements, 0, size );
-            elements = newElements;
+            final Object[] newObjs = new Object[capacity];
+            System.arraycopy( objs, 0, newObjs, 0, size );
 
             final long[] newUIDs = new long[capacity];
             System.arraycopy( uids, 0, newUIDs, 0, size );
+
+            objs = newObjs;
             uids = newUIDs;
+            isCached = false;
         }
         else if ( isCached )
         {
-            isCached = false;
-            elements = elements.clone();
+            objs = objs.clone();
             uids = uids.clone();
+            isCached = false;
         }
-        final long uid = rank2uid( rank, insertCount++ );
+
+        final long uid = rank2uid( rank, uniq++ );
         final int index = safeBinarySearch( uid );
+
         if ( index < size++ )
         {
             final int to = index + 1, len = size - to;
-            System.arraycopy( elements, index, elements, to, len );
+            System.arraycopy( objs, index, objs, to, len );
             System.arraycopy( uids, index, uids, to, len );
         }
-        elements[index] = element;
+
+        objs[index] = element;
         uids[index] = uid;
     }
 
-    @Override
-    public synchronized T remove( final int index )
+    public T remove( final int index )
     {
         final T element = get( index );
+
         if ( isCached )
         {
-            isCached = false;
-            elements = elements.clone();
+            objs = objs.clone();
             uids = uids.clone();
+            isCached = false;
         }
+
         if ( index < --size )
         {
             final int from = index + 1, len = size - index;
-            System.arraycopy( elements, from, elements, index, len );
+            System.arraycopy( objs, from, objs, index, len );
             System.arraycopy( uids, from, uids, index, len );
         }
-        elements[size] = null;
+
+        objs[size] = null;
+
         return element;
     }
 
-    public synchronized void update( final T element, final int rank )
+    public int indexOf( final Object o )
     {
         for ( int i = 0; i < size; i++ )
         {
-            if ( element.equals( elements[i] ) )
+            if ( o.equals( objs[i] ) )
             {
-                remove( i );
-                break;
+                return i;
             }
         }
-        insert( element, rank );
+        return -1;
+    }
+
+    public int indexOfSame( final Object o )
+    {
+        for ( int i = 0; i < size; i++ )
+        {
+            if ( o == objs[i] )
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
-    @SuppressWarnings( "unchecked" )
-    public synchronized T get( final int index )
+    public boolean contains( final Object o )
     {
-        if ( index < 0 || index >= size )
+        return indexOf( o ) >= 0;
+    }
+
+    @Override
+    public boolean remove( final Object o )
+    {
+        final int index = indexOf( o );
+        if ( index >= 0 )
         {
-            throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
+            remove( index );
+            return true;
         }
-        return (T) elements[index];
+        return false;
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public T get( final int index )
+    {
+        if ( index < size )
+        {
+            return (T) objs[index];
+        }
+        throw new ArrayIndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
     }
 
     /**
@@ -144,59 +182,28 @@ final class RankedList<T>
      * @param index The element index
      * @return Rank assigned to the element
      */
-    public synchronized int getRank( final int index )
+    public int getRank( final int index )
     {
-        if ( index < 0 || index >= size )
+        if ( index < size )
         {
-            throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
+            return uid2rank( uids[index] );
         }
-        return uid2rank( uids[index] );
-    }
-
-    @Override
-    public synchronized boolean remove( final Object element )
-    {
-        for ( int i = 0; i < size; i++ )
-        {
-            if ( element.equals( elements[i] ) )
-            {
-                return null != remove( i );
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Removes the given element from the list; uses <b>identity</b> comparison instead of equality.
-     * 
-     * @param element The element to remove
-     * @return {@code true} if the element was removed; otherwise {@code false}
-     */
-    public synchronized boolean removeSame( final Object element )
-    {
-        for ( int i = 0; i < size; i++ )
-        {
-            if ( element == elements[i] )
-            {
-                return null != remove( i );
-            }
-        }
-        return false;
+        throw new ArrayIndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
     }
 
     /**
      * @return Shallow copy of this {@link RankedList} instance.
      */
     @Override
-    public synchronized RankedList<T> clone()
+    public RankedList<T> clone()
     {
         try
         {
             @SuppressWarnings( "unchecked" )
             final RankedList<T> clone = (RankedList<T>) super.clone();
-            if ( null != elements )
+            if ( null != objs )
             {
-                clone.elements = elements.clone();
+                clone.objs = objs.clone();
                 clone.uids = uids.clone();
             }
             return clone;
@@ -208,13 +215,14 @@ final class RankedList<T>
     }
 
     @Override
-    public synchronized void clear()
+    public void clear()
     {
-        elements = null;
+        objs = null;
         uids = null;
 
         size = 0;
-        insertCount = 0;
+        uniq = 0;
+
         isCached = false;
     }
 
@@ -222,6 +230,12 @@ final class RankedList<T>
     public int size()
     {
         return size;
+    }
+
+    @Override
+    public boolean isEmpty()
+    {
+        return 0 == size;
     }
 
     @Override
@@ -302,15 +316,17 @@ final class RankedList<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private Object[] cachedElements;
+        private Object[] cachedObjs;
 
         private long[] cachedUIDs;
 
-        private long lastKnownState;
+        private int expectedSize;
+
+        private int expectedUniq;
 
         private long nextUID = Long.MIN_VALUE;
 
-        private T nextElement;
+        private T nextObj;
 
         private int index;
 
@@ -321,13 +337,13 @@ final class RankedList<T>
         @SuppressWarnings( "unchecked" )
         public boolean hasNext()
         {
-            if ( null != nextElement )
+            if ( null != nextObj )
             {
                 return true;
             }
             if ( safeHasNext() )
             {
-                nextElement = (T) cachedElements[index];
+                nextObj = (T) cachedObjs[index];
                 nextUID = cachedUIDs[index] + 1;
                 return true;
             }
@@ -339,7 +355,7 @@ final class RankedList<T>
          */
         public int peekNextRank()
         {
-            if ( null != nextElement )
+            if ( null != nextObj )
             {
                 return uid2rank( nextUID );
             }
@@ -357,8 +373,8 @@ final class RankedList<T>
                 index++;
 
                 // populated by hasNext()
-                final T element = nextElement;
-                nextElement = null;
+                final T element = nextObj;
+                nextObj = null;
                 return element;
             }
             throw new NoSuchElementException();
@@ -380,22 +396,60 @@ final class RankedList<T>
          */
         private boolean safeHasNext()
         {
-            if ( lastKnownState != ( (long) insertCount << 32 | size ) )
+            if ( expectedSize != size || expectedUniq != uniq )
             {
                 synchronized ( RankedList.this )
                 {
                     // reposition ourselves in the list
                     index = safeBinarySearch( nextUID );
+
                     if ( index < size )
                     {
-                        isCached = true;
-                        cachedElements = elements;
+                        cachedObjs = objs;
                         cachedUIDs = uids;
+                        isCached = true;
                     }
-                    lastKnownState = (long) insertCount << 32 | size;
+
+                    expectedSize = size;
+                    expectedUniq = uniq;
                 }
             }
-            return index < (int) lastKnownState;
+            return index < expectedSize;
         }
+    }
+
+    public void add( final int index, final T element )
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean addAll( final int index, final Collection<? extends T> c )
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public T set( final int index, final T element )
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public int lastIndexOf( final Object o )
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public ListIterator<T> listIterator()
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public ListIterator<T> listIterator( final int index )
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public List<T> subList( final int fromIndex, final int toIndex )
+    {
+        throw new UnsupportedOperationException();
     }
 }

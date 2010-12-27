@@ -399,7 +399,10 @@ public class RankedListTest
             {
                 Thread.yield();
                 final int rank = random.nextInt();
-                rankedList.insert( Integer.valueOf( rank ), rank );
+                synchronized ( rankedList )
+                {
+                    rankedList.insert( Integer.valueOf( rank ), rank );
+                }
                 Thread.yield();
             }
         }
