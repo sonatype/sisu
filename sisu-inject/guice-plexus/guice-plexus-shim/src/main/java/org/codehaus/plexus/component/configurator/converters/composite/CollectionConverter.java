@@ -100,65 +100,7 @@ public class CollectionConverter
         {
             final PlexusConfiguration c = configuration.getChild( i );
 
-            final String configEntry = c.getName();
-
-            final String name = fromXML( configEntry );
-
-            Class childType = getClassForImplementationHint( null, c, classLoader );
-
-            if ( childType == null && name.indexOf( '.' ) > 0 )
-            {
-                try
-                {
-                    childType = classLoader.loadClass( name );
-                }
-                catch ( final ClassNotFoundException e )
-                {
-                    // not found, continue processing
-                }
-            }
-
-            if ( childType == null )
-            {
-                // Some classloaders don't create Package objects for classes
-                // so we have to resort to slicing up the class name
-
-                final String baseTypeName = baseType.getName();
-
-                final int lastDot = baseTypeName.lastIndexOf( '.' );
-
-                String className;
-
-                if ( lastDot == -1 )
-                {
-                    className = name;
-                }
-                else
-                {
-                    final String basePackage = baseTypeName.substring( 0, lastDot );
-
-                    className = basePackage + "." + StringUtils.capitalizeFirstLetter( name );
-                }
-
-                try
-                {
-                    childType = classLoader.loadClass( className );
-                }
-                catch ( final ClassNotFoundException e )
-                {
-                    if ( c.getChildCount() == 0 )
-                    {
-                        // If no children, try a String.
-                        // TODO: If we had generics we could try that instead - or could the component descriptor list
-                        // an impl?
-                        childType = String.class;
-                    }
-                    else
-                    {
-                        throw new ComponentConfigurationException( "Error loading class '" + className + "'", e );
-                    }
-                }
-            }
+            final Class<?> childType = getChildType( c, baseType, classLoader );
 
             final ConfigurationConverter converter = converterLookup.lookupConverterForType( childType );
 
@@ -171,6 +113,73 @@ public class CollectionConverter
         }
 
         return retValue;
+    }
+
+    private Class<?> getChildType( final PlexusConfiguration childConfiguration, final Class<?> baseType,
+                                   final ClassLoader classLoader )
+        throws ComponentConfigurationException
+    {
+        final String configEntry = childConfiguration.getName();
+
+        final String name = fromXML( configEntry );
+
+        Class childType = getClassForImplementationHint( null, childConfiguration, classLoader );
+
+        if ( childType == null && name.indexOf( '.' ) > 0 )
+        {
+            try
+            {
+                childType = classLoader.loadClass( name );
+            }
+            catch ( final ClassNotFoundException e )
+            {
+                // not found, continue processing
+            }
+        }
+
+        if ( childType == null )
+        {
+            // Some classloaders don't create Package objects for classes
+            // so we have to resort to slicing up the class name
+
+            final String baseTypeName = baseType.getName();
+
+            final int lastDot = baseTypeName.lastIndexOf( '.' );
+
+            String className;
+
+            if ( lastDot == -1 )
+            {
+                className = name;
+            }
+            else
+            {
+                final String basePackage = baseTypeName.substring( 0, lastDot );
+
+                className = basePackage + "." + StringUtils.capitalizeFirstLetter( name );
+            }
+
+            try
+            {
+                childType = classLoader.loadClass( className );
+            }
+            catch ( final ClassNotFoundException e )
+            {
+                if ( childConfiguration.getChildCount() == 0 )
+                {
+                    // If no children, try a String.
+                    // TODO: If we had generics we could try that instead - or could the component descriptor list
+                    // an impl?
+                    childType = String.class;
+                }
+                else
+                {
+                    throw new ComponentConfigurationException( "Error loading class '" + className + "'", e );
+                }
+            }
+        }
+
+        return childType;
     }
 
     private Object newCollection( final PlexusConfiguration configuration, final Class<?> type,
