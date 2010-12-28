@@ -76,78 +76,31 @@ public class CollectionConverter
             {
                 failIfNotTypeCompatible( retValue, type, configuration );
             }
-
-            return retValue;
+        }
+        else
+        {
+            retValue =
+                fromChildren( converterLookup, configuration, type, baseType, classLoader, expressionEvaluator,
+                              listener );
         }
 
-        retValue = newCollection( configuration, type, classLoader );
+        return retValue;
+    }
+
+    private Object fromChildren( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
+                                 final Class type, final Class baseType, final ClassLoader classLoader,
+                                 final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
+        throws ComponentConfigurationException
+    {
+        Object retValue = newCollection( configuration, type, classLoader );
 
         // now we have collection and we have to add some objects to it
 
         for ( int i = 0; i < configuration.getChildCount(); i++ )
         {
             final PlexusConfiguration c = configuration.getChild( i );
-            // Object o = null;
 
-            final String configEntry = c.getName();
-
-            final String name = fromXML( configEntry );
-
-            Class childType = getClassForImplementationHint( null, c, classLoader );
-
-            if ( childType == null && name.indexOf( '.' ) > 0 )
-            {
-                try
-                {
-                    childType = classLoader.loadClass( name );
-                }
-                catch ( final ClassNotFoundException e )
-                {
-                    // not found, continue processing
-                }
-            }
-
-            if ( childType == null )
-            {
-                // Some classloaders don't create Package objects for classes
-                // so we have to resort to slicing up the class name
-
-                final String baseTypeName = baseType.getName();
-
-                final int lastDot = baseTypeName.lastIndexOf( '.' );
-
-                String className;
-
-                if ( lastDot == -1 )
-                {
-                    className = name;
-                }
-                else
-                {
-                    final String basePackage = baseTypeName.substring( 0, lastDot );
-
-                    className = basePackage + "." + StringUtils.capitalizeFirstLetter( name );
-                }
-
-                try
-                {
-                    childType = classLoader.loadClass( className );
-                }
-                catch ( final ClassNotFoundException e )
-                {
-                    if ( c.getChildCount() == 0 )
-                    {
-                        // If no children, try a String.
-                        // TODO: If we had generics we could try that instead - or could the component descriptor list
-                        // an impl?
-                        childType = String.class;
-                    }
-                    else
-                    {
-                        throw new ComponentConfigurationException( "Error loading class '" + className + "'", e );
-                    }
-                }
-            }
+            final Class<?> childType = getChildType( c, baseType, classLoader );
 
             final ConfigurationConverter converter = converterLookup.lookupConverterForType( childType );
 
@@ -162,52 +115,104 @@ public class CollectionConverter
         return retValue;
     }
 
-    private Object newCollection( final PlexusConfiguration configuration, final Class type,
+    private Class<?> getChildType( final PlexusConfiguration childConfiguration, final Class<?> baseType,
+                                   final ClassLoader classLoader )
+        throws ComponentConfigurationException
+    {
+        final String configEntry = childConfiguration.getName();
+
+        final String name = fromXML( configEntry );
+
+        Class childType = getClassForImplementationHint( null, childConfiguration, classLoader );
+
+        if ( childType == null && name.indexOf( '.' ) > 0 )
+        {
+            try
+            {
+                childType = classLoader.loadClass( name );
+            }
+            catch ( final ClassNotFoundException e )
+            {
+                // not found, continue processing
+            }
+        }
+
+        if ( childType == null )
+        {
+            // Some classloaders don't create Package objects for classes
+            // so we have to resort to slicing up the class name
+
+            final String baseTypeName = baseType.getName();
+
+            final int lastDot = baseTypeName.lastIndexOf( '.' );
+
+            String className;
+
+            if ( lastDot == -1 )
+            {
+                className = name;
+            }
+            else
+            {
+                final String basePackage = baseTypeName.substring( 0, lastDot );
+
+                className = basePackage + "." + StringUtils.capitalizeFirstLetter( name );
+            }
+
+            try
+            {
+                childType = classLoader.loadClass( className );
+            }
+            catch ( final ClassNotFoundException e )
+            {
+                if ( childConfiguration.getChildCount() == 0 )
+                {
+                    // If no children, try a String.
+                    // TODO: If we had generics we could try that instead - or could the component descriptor list
+                    // an impl?
+                    childType = String.class;
+                }
+                else
+                {
+                    throw new ComponentConfigurationException( "Error loading class '" + className + "'", e );
+                }
+            }
+        }
+
+        return childType;
+    }
+
+    private Object newCollection( final PlexusConfiguration configuration, final Class<?> type,
                                   final ClassLoader classLoader )
         throws ComponentConfigurationException
     {
         Object collection;
 
-        final Class<?> implementation = getClassForImplementationHint( null, configuration, classLoader );
+        final Class<?> implementation = getClassForImplementationHint( type, configuration, classLoader );
 
-        if ( implementation != null )
+        // we can have 2 cases here:
+        // - provided collection class which is not abstract
+        // like Vector, ArrayList, HashSet - so we will just instantantiate it
+        // - we have an abtract class so we have to use default collection type
+
+        if ( Modifier.isAbstract( implementation.getModifiers() ) )
         {
-            collection = instantiateObject( implementation );
+            collection = getDefaultCollection( implementation );
         }
         else
         {
-            // we can have 2 cases here:
-            // - provided collection class which is not abstract
-            // like Vector, ArrayList, HashSet - so we will just instantantiate it
-            // - we have an abtract class so we have to use default collection type
-            final int modifiers = type.getModifiers();
-
-            if ( Modifier.isAbstract( modifiers ) )
+            try
             {
-                collection = getDefaultCollection( type );
+                collection = instantiateObject( implementation );
             }
-            else
+            catch ( final ComponentConfigurationException e )
             {
-                try
+                if ( e.getFailedConfiguration() == null )
                 {
-                    collection = type.newInstance();
+                    e.setFailedConfiguration( configuration );
                 }
-                catch ( final IllegalAccessException e )
-                {
-                    final String msg =
-                        "An attempt to convert configuration entry " + configuration.getName() + "' into " + type
-                            + " object failed: " + e.getMessage();
 
-                    throw new ComponentConfigurationException( msg, e );
-                }
-                catch ( final InstantiationException e )
-                {
-                    final String msg =
-                        "An attempt to convert configuration entry " + configuration.getName() + "' into " + type
-                            + " object failed: " + e.getMessage();
-
-                    throw new ComponentConfigurationException( msg, e );
-                }
+                throw e;
             }
         }
 

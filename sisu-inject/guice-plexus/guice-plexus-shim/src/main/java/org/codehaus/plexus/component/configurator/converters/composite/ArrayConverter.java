@@ -46,12 +46,12 @@ import org.codehaus.plexus.util.StringUtils;
 public class ArrayConverter
     extends AbstractConfigurationConverter
 {
+
     public boolean canConvert( final Class type )
     {
         return type.isArray();
     }
 
-    @SuppressWarnings( "unchecked" )
     public Object fromConfiguration( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
                                      final Class type, final Class baseType, final ClassLoader classLoader,
                                      final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
@@ -69,73 +69,29 @@ public class ArrayConverter
             {
                 failIfNotTypeCompatible( retValue, type, configuration );
             }
-
-            return retValue;
+        }
+        else
+        {
+            retValue =
+                fromChildren( converterLookup, configuration, type, baseType, classLoader, expressionEvaluator,
+                              listener );
         }
 
-        final List values = new ArrayList();
+        return retValue;
+    }
+
+    private Object fromChildren( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
+                                 final Class type, final Class baseType, final ClassLoader classLoader,
+                                 final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
+        throws ComponentConfigurationException
+    {
+        final List<Object> values = new ArrayList<Object>();
 
         for ( int i = 0; i < configuration.getChildCount(); i++ )
         {
             final PlexusConfiguration childConfiguration = configuration.getChild( i );
 
-            final String configEntry = childConfiguration.getName();
-
-            final String name = fromXML( configEntry );
-
-            Class childType = getClassForImplementationHint( null, childConfiguration, classLoader );
-
-            // check if the name is a fully qualified classname
-
-            if ( childType == null && name.indexOf( '.' ) > 0 )
-            {
-                try
-                {
-                    childType = classLoader.loadClass( name );
-                }
-                catch ( final ClassNotFoundException e )
-                {
-                    // doesn't exist - continue processing
-                }
-            }
-
-            if ( childType == null )
-            {
-                // try to find the class in the package of the baseType
-                // (which is the component being configured)
-
-                final String baseTypeName = baseType.getName();
-
-                final int lastDot = baseTypeName.lastIndexOf( '.' );
-
-                String className;
-
-                if ( lastDot == -1 )
-                {
-                    className = name;
-                }
-                else
-                {
-                    final String basePackage = baseTypeName.substring( 0, lastDot );
-                    className = basePackage + "." + StringUtils.capitalizeFirstLetter( name );
-                }
-
-                try
-                {
-                    childType = classLoader.loadClass( className );
-                }
-                catch ( final ClassNotFoundException e )
-                {
-                    // doesn't exist, continue processing
-                }
-            }
-
-            // finally just try the component type of the array
-
-            if ( childType == null )
-            {
-                childType = type.getComponentType();
-            }
+            final Class<?> childType = getChildType( childConfiguration, type, baseType, classLoader );
 
             final ConfigurationConverter converter = converterLookup.lookupConverterForType( childType );
 
@@ -147,6 +103,71 @@ public class ArrayConverter
         }
 
         return toArray( type, values );
+    }
+
+    private Class<?> getChildType( final PlexusConfiguration childConfiguration, final Class<?> arrayType,
+                                   final Class<?> baseType, final ClassLoader classLoader )
+        throws ComponentConfigurationException
+    {
+        final String configEntry = childConfiguration.getName();
+
+        final String name = fromXML( configEntry );
+
+        Class childType = getClassForImplementationHint( null, childConfiguration, classLoader );
+
+        // check if the name is a fully qualified classname
+
+        if ( childType == null && name.indexOf( '.' ) > 0 )
+        {
+            try
+            {
+                childType = classLoader.loadClass( name );
+            }
+            catch ( final ClassNotFoundException e )
+            {
+                // doesn't exist - continue processing
+            }
+        }
+
+        if ( childType == null )
+        {
+            // try to find the class in the package of the baseType
+            // (which is the component being configured)
+
+            final String baseTypeName = baseType.getName();
+
+            final int lastDot = baseTypeName.lastIndexOf( '.' );
+
+            String className;
+
+            if ( lastDot == -1 )
+            {
+                className = name;
+            }
+            else
+            {
+                final String basePackage = baseTypeName.substring( 0, lastDot );
+                className = basePackage + "." + StringUtils.capitalizeFirstLetter( name );
+            }
+
+            try
+            {
+                childType = classLoader.loadClass( className );
+            }
+            catch ( final ClassNotFoundException e )
+            {
+                // doesn't exist, continue processing
+            }
+        }
+
+        // finally just try the component type of the array
+
+        if ( childType == null )
+        {
+            childType = arrayType.getComponentType();
+        }
+
+        return childType;
     }
 
     private Object toArray( final Class<?> type, final Collection<?> values )
