@@ -791,6 +791,21 @@ public abstract class AbstractComponentConfiguratorTest
         assertEquals( Arrays.<Object> asList( "a", Integer.valueOf( 1 ), "b", Boolean.TRUE ), component.getItems() );
     }
 
+    public void testComponentConfigurationWhereCollectionIsConfiguredWithInterfaceImpl()
+        throws Exception
+    {
+        final String xml = "<configuration>" + "<list implementation='java.util.List'></list>" + "</configuration>";
+
+        final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
+
+        final ComponentWithCollectionFields component = new ComponentWithCollectionFields();
+
+        configureComponent( component, configuration );
+
+        assertNotNull( component.getList() );
+        assertEquals( 0, component.getList().size() );
+    }
+
     public void testComponentConfigurationWhereUserOnlySetsThePrimaryBeanProperty()
         throws Exception
     {

@@ -179,46 +179,31 @@ public class CollectionConverter
     {
         Object collection;
 
-        final Class<?> implementation = getClassForImplementationHint( null, configuration, classLoader );
+        final Class<?> implementation = getClassForImplementationHint( type, configuration, classLoader );
 
-        if ( implementation != null )
+        // we can have 2 cases here:
+        // - provided collection class which is not abstract
+        // like Vector, ArrayList, HashSet - so we will just instantantiate it
+        // - we have an abtract class so we have to use default collection type
+
+        if ( Modifier.isAbstract( implementation.getModifiers() ) )
         {
-            collection = instantiateObject( implementation );
+            collection = getDefaultCollection( implementation );
         }
         else
         {
-            // we can have 2 cases here:
-            // - provided collection class which is not abstract
-            // like Vector, ArrayList, HashSet - so we will just instantantiate it
-            // - we have an abtract class so we have to use default collection type
-            final int modifiers = type.getModifiers();
-
-            if ( Modifier.isAbstract( modifiers ) )
+            try
             {
-                collection = getDefaultCollection( type );
+                collection = instantiateObject( implementation );
             }
-            else
+            catch ( final ComponentConfigurationException e )
             {
-                try
+                if ( e.getFailedConfiguration() == null )
                 {
-                    collection = type.newInstance();
+                    e.setFailedConfiguration( configuration );
                 }
-                catch ( final IllegalAccessException e )
-                {
-                    final String msg =
-                        "An attempt to convert configuration entry " + configuration.getName() + "' into " + type
-                            + " object failed: " + e.getMessage();
 
-                    throw new ComponentConfigurationException( msg, e );
-                }
-                catch ( final InstantiationException e )
-                {
-                    final String msg =
-                        "An attempt to convert configuration entry " + configuration.getName() + "' into " + type
-                            + " object failed: " + e.getMessage();
-
-                    throw new ComponentConfigurationException( msg, e );
-                }
+                throw e;
             }
         }
 
