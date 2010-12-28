@@ -199,7 +199,7 @@ public class ComponentValueSetter
         }
 
         final String exceptionInfo =
-            object.getClass().getName() + "." + setter.getName() + "( " + setterParamType.getClass().getName() + " )";
+            object.getClass().getName() + "." + setter.getName() + "( " + setterParamType.getName() + " )";
 
         if ( listener != null )
         {
