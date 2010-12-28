@@ -132,7 +132,8 @@ public abstract class AbstractConfigurationConverter
         }
         catch ( final InstantiationException e )
         {
-            throw new ComponentConfigurationException( "Class '" + clazz.getName() + "' cannot be instantiated", e );
+            throw new ComponentConfigurationException( "Abstract class or interface '" + clazz.getName()
+                + "' cannot be instantiated", e );
         }
     }
 
