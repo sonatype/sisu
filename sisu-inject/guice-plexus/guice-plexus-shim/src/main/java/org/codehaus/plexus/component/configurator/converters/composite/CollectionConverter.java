@@ -76,18 +76,29 @@ public class CollectionConverter
             {
                 failIfNotTypeCompatible( retValue, type, configuration );
             }
-
-            return retValue;
+        }
+        else
+        {
+            retValue =
+                fromChildren( converterLookup, configuration, type, baseType, classLoader, expressionEvaluator,
+                              listener );
         }
 
-        retValue = newCollection( configuration, type, classLoader );
+        return retValue;
+    }
+
+    private Object fromChildren( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
+                                 final Class type, final Class baseType, final ClassLoader classLoader,
+                                 final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
+        throws ComponentConfigurationException
+    {
+        Object retValue = newCollection( configuration, type, classLoader );
 
         // now we have collection and we have to add some objects to it
 
         for ( int i = 0; i < configuration.getChildCount(); i++ )
         {
             final PlexusConfiguration c = configuration.getChild( i );
-            // Object o = null;
 
             final String configEntry = c.getName();
 
@@ -162,7 +173,7 @@ public class CollectionConverter
         return retValue;
     }
 
-    private Object newCollection( final PlexusConfiguration configuration, final Class type,
+    private Object newCollection( final PlexusConfiguration configuration, final Class<?> type,
                                   final ClassLoader classLoader )
         throws ComponentConfigurationException
     {
