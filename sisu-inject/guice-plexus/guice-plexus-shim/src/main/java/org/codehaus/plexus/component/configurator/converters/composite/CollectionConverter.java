@@ -68,9 +68,9 @@ public class CollectionConverter
         {
             if ( retValue instanceof Object[] )
             {
-                final Object[] values = (Object[]) retValue;
-                retValue = newCollection( configuration, type, classLoader );
-                Collections.addAll( (Collection<Object>) retValue, values );
+                Collection<Object> collection = newCollection( configuration, type, classLoader );
+                Collections.addAll( collection, (Object[]) retValue );
+                retValue = collection;
             }
             else
             {
@@ -92,7 +92,7 @@ public class CollectionConverter
                                  final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
-        Object retValue = newCollection( configuration, type, classLoader );
+        Collection<Object> retValue = newCollection( configuration, type, classLoader );
 
         // now we have collection and we have to add some objects to it
 
@@ -108,8 +108,7 @@ public class CollectionConverter
                 converter.fromConfiguration( converterLookup, c, childType, baseType, classLoader, expressionEvaluator,
                                              listener );
 
-            final Collection collection = (Collection) retValue;
-            collection.add( object );
+            retValue.add( object );
         }
 
         return retValue;
@@ -182,8 +181,8 @@ public class CollectionConverter
         return childType;
     }
 
-    private Object newCollection( final PlexusConfiguration configuration, final Class<?> type,
-                                  final ClassLoader classLoader )
+    private Collection<Object> newCollection( final PlexusConfiguration configuration, final Class<?> type,
+                                              final ClassLoader classLoader )
         throws ComponentConfigurationException
     {
         Object collection;
@@ -216,7 +215,15 @@ public class CollectionConverter
             }
         }
 
-        return collection;
+        try
+        {
+            return Collection.class.cast( collection );
+        }
+        catch ( ClassCastException e )
+        {
+            throw new ComponentConfigurationException( configuration, "The class " + implementation.getName()
+                + " used to configure the property '" + configuration.getName() + "' is not a collection", e );
+        }
     }
 
     protected Collection getDefaultCollection( final Class collectionType )
