@@ -24,6 +24,7 @@ package org.codehaus.plexus.component.configurator.converters.composite;
  * SOFTWARE.
  */
 
+import java.lang.reflect.Modifier;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -77,13 +78,50 @@ public class MapConverter
         return retValue;
     }
 
+    @SuppressWarnings( "unchecked" )
     private Map<Object, Object> newMap( final PlexusConfiguration configuration, final Class<?> type,
                                         final ClassLoader classLoader )
         throws ComponentConfigurationException
     {
-        Map<Object, Object> map = new TreeMap<Object, Object>();
+        Object map;
 
-        return map;
+        final Class<?> implementation = getClassForImplementationHint( type, configuration, classLoader );
+
+        if ( Modifier.isAbstract( implementation.getModifiers() ) )
+        {
+            map = getDefaultMap( implementation );
+        }
+        else
+        {
+            try
+            {
+                map = instantiateObject( implementation );
+            }
+            catch ( final ComponentConfigurationException e )
+            {
+                if ( e.getFailedConfiguration() == null )
+                {
+                    e.setFailedConfiguration( configuration );
+                }
+
+                throw e;
+            }
+        }
+
+        try
+        {
+            return Map.class.cast( map );
+        }
+        catch ( ClassCastException e )
+        {
+            throw new ComponentConfigurationException( configuration, "The class " + implementation.getName()
+                + " used to configure the property '" + configuration.getName() + "' is not a map", e );
+        }
+    }
+
+    private Map<Object, Object> getDefaultMap( final Class<?> mapType )
+    {
+        return new TreeMap<Object, Object>();
     }
 
 }

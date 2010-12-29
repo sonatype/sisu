@@ -527,7 +527,26 @@ public abstract class AbstractComponentConfiguratorTest
         assertEquals( "Kenney", map.get( "firstName" ) );
 
         assertEquals( "Westerhof", map.get( "lastName" ) );
+    }
 
+    public void testComponentConfigurationWithMapFieldUsingCustomImplClass()
+        throws Exception
+    {
+        final String xml =
+            "<configuration>" + "  <map implementation='java.util.Properties'>" + "<key>value</key>" + "  </map>"
+                + "</configuration>";
+
+        final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
+
+        final ComponentWithMapField component = new ComponentWithMapField();
+
+        configureComponent( component, configuration );
+
+        final Map<?, ?> map = component.getMap();
+
+        assertNotNull( map );
+        assertEquals( Properties.class, map.getClass() );
+        assertEquals( "value", map.get( "key" ) );
     }
 
     public void testComponentConfigurationWhereFieldIsBadArray()
