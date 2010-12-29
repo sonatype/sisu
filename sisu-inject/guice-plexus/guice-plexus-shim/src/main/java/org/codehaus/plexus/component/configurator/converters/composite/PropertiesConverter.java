@@ -43,6 +43,7 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 public class PropertiesConverter
     extends AbstractConfigurationConverter
 {
+
     public boolean canConvert( final Class type )
     {
         return Properties.class.isAssignableFrom( type );
@@ -53,13 +54,20 @@ public class PropertiesConverter
                                      final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
+        Object retValue = fromExpression( configuration, expressionEvaluator, type );
 
-        final Object retValueInterpolated = fromExpression( configuration, expressionEvaluator, type );
-        if ( retValueInterpolated != null )
+        if ( retValue == null )
         {
-            return retValueInterpolated;
+            retValue = fromChildren( configuration, expressionEvaluator, listener );
         }
 
+        return retValue;
+    }
+
+    private Object fromChildren( final PlexusConfiguration configuration,
+                                 final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
+        throws ComponentConfigurationException
+    {
         final String element = configuration.getName();
 
         final Properties retValue = new Properties();

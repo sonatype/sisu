@@ -45,29 +45,22 @@ import org.codehaus.plexus.configuration.PlexusConfiguration;
 public class MapConverter
     extends AbstractConfigurationConverter
 {
+
     public boolean canConvert( final Class type )
     {
         return Map.class.isAssignableFrom( type ) && !Properties.class.isAssignableFrom( type );
     }
 
-    @SuppressWarnings( "unchecked" )
     public Object fromConfiguration( final ConverterLookup converterLookup, final PlexusConfiguration configuration,
                                      final Class type, final Class baseType, final ClassLoader classLoader,
                                      final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
-        Object retValue;
+        Object retValue = fromExpression( configuration, expressionEvaluator );
 
-        String expression = configuration.getValue( null );
-
-        if ( expression == null )
+        if ( retValue == null )
         {
-            expression = configuration.getAttribute( "default-value", null );
-        }
-
-        if ( expression == null )
-        {
-            final Map map = new TreeMap();
+            final Map<Object, Object> map = newMap( configuration, type, classLoader );
 
             final PlexusConfiguration[] children = configuration.getChildren();
 
@@ -77,13 +70,20 @@ public class MapConverter
 
                 map.put( name, fromExpression( child, expressionEvaluator ) );
             }
+
             retValue = map;
         }
-        else
-        {
-            retValue = fromExpression( configuration, expressionEvaluator );
-        }
+
         return retValue;
+    }
+
+    private Map<Object, Object> newMap( final PlexusConfiguration configuration, final Class<?> type,
+                                        final ClassLoader classLoader )
+        throws ComponentConfigurationException
+    {
+        Map<Object, Object> map = new TreeMap<Object, Object>();
+
+        return map;
     }
 
 }
