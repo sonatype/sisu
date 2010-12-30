@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
@@ -38,6 +39,7 @@ import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 import org.sonatype.guice.bean.binders.MergedModule;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.WireModule;
+import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.DefaultBeanLocator;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
@@ -93,6 +95,8 @@ public final class DefaultPlexusContainer
     // ----------------------------------------------------------------------
 
     final Set<String> realmIds = new HashSet<String>();
+
+    final AtomicInteger plexusRank = new AtomicInteger();
 
     final Map<ClassRealm, List<ComponentDescriptor<?>>> descriptorMap =
         new ConcurrentHashMap<ClassRealm, List<ComponentDescriptor<?>>>();
@@ -317,6 +321,7 @@ public final class DefaultPlexusContainer
         }
     }
 
+    @SuppressWarnings( "deprecation" )
     public <T> void addComponent( final T component, final Class<?> role, final String hint )
     {
         // this is only used in Maven3 tests, so keep it simple...
@@ -334,7 +339,7 @@ public final class DefaultPlexusContainer
                     bind( (Class) role ).annotatedWith( Names.named( hint ) ).toInstance( component );
                 }
             }
-        } ) );
+        } ), plexusRank.getAndIncrement() );
     }
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
@@ -767,6 +772,8 @@ public final class DefaultPlexusContainer
         @Override
         protected void configure()
         {
+            bindConstant().annotatedWith( Names.named( BeanLocator.INJECTOR_RANKING ) ).to( plexusRank.getAndIncrement() );
+
             bind( Context.class ).toInstance( context );
             bind( ParameterKeys.PROPERTIES ).toInstance( variables );
 

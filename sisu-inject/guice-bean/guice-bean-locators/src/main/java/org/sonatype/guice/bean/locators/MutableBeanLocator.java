@@ -25,7 +25,8 @@ import com.google.inject.Injector;
 public interface MutableBeanLocator
     extends BeanLocator, BindingDistributor
 {
-    void publish( Injector injector );
+    @Deprecated
+    void publish( Injector injector, int rank );
 
     void remove( Injector injector );
 }

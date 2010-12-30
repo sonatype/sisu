@@ -193,11 +193,11 @@ final class RankedBindings<T>
 
         public boolean hasNext()
         {
-            if ( pendingExporters.size > 0 )
+            if ( pendingExporters.size() > 0 )
             {
                 synchronized ( pendingExporters )
                 {
-                    while ( pendingExporters.size > 0 && pendingExporters.getRank( 0 ) >= i.peekNextRank() )
+                    while ( pendingExporters.size() > 0 && pendingExporters.getRank( 0 ) > i.peekNextRank() )
                     {
                         // be careful not to remove the exporter until after it is used
                         // otherwise another iterator could skip past the initial check

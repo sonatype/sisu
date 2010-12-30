@@ -26,9 +26,11 @@ import org.sonatype.guice.bean.locators.spi.BindingExporter;
 import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Mediator;
 
+import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 
 /**
  * Default {@link MutableBeanLocator} that finds qualified beans across a dynamic group of {@link BindingExporter}s.
@@ -38,6 +40,12 @@ import com.google.inject.TypeLiteral;
 public final class DefaultBeanLocator
     implements MutableBeanLocator
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final Key<Integer> INJECTOR_RANKING_KEY = Key.get( Integer.class, Names.named( INJECTOR_RANKING ) );
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -70,16 +78,32 @@ public final class DefaultBeanLocator
         watchedBeans.add( beans );
     }
 
+    @SuppressWarnings( "deprecation" )
+    public void publish( final Injector injector, final int rank )
+    {
+        publish( new InjectorBindingExporter( injector, rank ), rank );
+    }
+
+    public void remove( final Injector injector )
+    {
+        remove( new InjectorBindingExporter( injector, 0 ) );
+    }
+
     public synchronized void publish( final BindingExporter exporter, final int rank )
     {
-        exporters.insert( exporter, rank );
-        distribute( BindingEvent.INSERT, exporter, rank );
+        if ( !exporters.contains( exporter ) )
+        {
+            exporters.insert( exporter, rank );
+            distribute( BindingEvent.PUBLISH, exporter, rank );
+        }
     }
 
     public synchronized void remove( final BindingExporter exporter )
     {
-        exporters.remove( exporter );
-        distribute( BindingEvent.REMOVE, exporter, 0 );
+        if ( exporters.remove( exporter ) )
+        {
+            distribute( BindingEvent.REMOVE, exporter, 0 );
+        }
     }
 
     public synchronized void clear()
@@ -88,33 +112,22 @@ public final class DefaultBeanLocator
         distribute( BindingEvent.CLEAR, null, 0 );
     }
 
-    private final Map<Injector, BindingExporter> injectorExporters = new HashMap<Injector, BindingExporter>();
-
-    private short injectorRank = Short.MIN_VALUE;
-
-    @Inject
-    public synchronized void publish( final Injector injector )
-    {
-        if ( !injectorExporters.containsKey( injector ) )
-        {
-            final BindingExporter exporter = new InjectorBindingExporter( injector, injectorRank );
-            injectorExporters.put( injector, exporter );
-            publish( exporter, injectorRank++ );
-        }
-    }
-
-    public synchronized void remove( final Injector injector )
-    {
-        final BindingExporter exporter = injectorExporters.remove( injector );
-        if ( null != exporter )
-        {
-            remove( exporter );
-        }
-    }
-
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
+
+    @Inject
+    @SuppressWarnings( "unused" )
+    private void autoPublish( final Injector injector )
+    {
+        int rank = 0;
+        final Binding<Integer> rankBinding = (Binding) injector.getBindings().get( INJECTOR_RANKING_KEY );
+        if ( null != rankBinding )
+        {
+            rank = rankBinding.getProvider().get().intValue();
+        }
+        publish( injector, rank );
+    }
 
     /**
      * Returns the {@link RankedBindings} tracking the type; creates a new instance if one doesn't already exist.
@@ -168,7 +181,7 @@ public final class DefaultBeanLocator
 
     private static enum BindingEvent
     {
-        INSERT
+        PUBLISH
         {
             @Override
             void apply( final BindingDistributor distributor, final BindingExporter exporter, final int rank )

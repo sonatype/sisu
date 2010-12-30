@@ -117,10 +117,10 @@ public class DefaultBeanLocatorTest
         final Iterable<? extends Entry<Named, Bean>> roles =
             locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
 
-        locator.publish( parent );
-        locator.publish( child1 );
-        locator.publish( child2 );
-        locator.publish( child3 );
+        locator.publish( parent, 0 );
+        locator.publish( child1, 1 );
+        locator.publish( child2, 2 );
+        locator.publish( child3, 3 );
 
         Iterator<? extends Entry<Named, Bean>> i;
 
@@ -147,7 +147,7 @@ public class DefaultBeanLocatorTest
         assertEquals( Names.named( "Z" ), i.next().getKey() );
         assertFalse( i.hasNext() );
 
-        locator.publish( child1 );
+        locator.publish( child1, 4 );
 
         i = roles.iterator();
         assertEquals( Names.named( "default" ), i.next().getKey() );
@@ -177,8 +177,8 @@ public class DefaultBeanLocatorTest
         assertFalse( i.hasNext() );
 
         locator.remove( child3 );
-        locator.publish( child3 );
-        locator.publish( child3 );
+        locator.publish( child3, 5 );
+        locator.publish( child3, 5 );
 
         i = roles.iterator();
         assertEquals( Names.named( "default" ), i.next().getKey() );
@@ -221,14 +221,14 @@ public class DefaultBeanLocatorTest
     {
         final MutableBeanLocator locator = new DefaultBeanLocator();
 
-        locator.publish( parent );
-        locator.publish( child1 );
+        locator.publish( parent, 0 );
+        locator.publish( child1, 1 );
 
         final Iterable<? extends Entry<Named, Bean>> roles =
             locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
 
-        locator.publish( child2 );
-        locator.publish( child3 );
+        locator.publish( child2, 2 );
+        locator.publish( child3, 3 );
 
         Iterator<? extends Entry<Named, Bean>> i;
 

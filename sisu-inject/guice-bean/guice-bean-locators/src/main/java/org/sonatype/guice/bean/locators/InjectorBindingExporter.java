@@ -22,7 +22,7 @@ import com.google.inject.TypeLiteral;
 /**
  * Exports {@link Binding}s from a single {@link Injector}; assigns each binding a rank up to a maximum value.
  */
-public final class InjectorBindingExporter
+final class InjectorBindingExporter
     implements BindingExporter
 {
     // ----------------------------------------------------------------------
@@ -31,16 +31,21 @@ public final class InjectorBindingExporter
 
     private final Injector injector;
 
-    private final int maxRank;
+    private final int rank;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    public InjectorBindingExporter( final Injector injector, final short maxRank )
+    InjectorBindingExporter( final Injector injector, final int rank )
     {
+        if ( rank < 0 )
+        {
+            throw new IllegalArgumentException( BeanLocator.INJECTOR_RANKING + " must be zero or more" );
+        }
+
         this.injector = injector;
-        this.maxRank = maxRank;
+        this.rank = rank;
     }
 
     // ----------------------------------------------------------------------
@@ -49,12 +54,12 @@ public final class InjectorBindingExporter
 
     public <T> void publish( final TypeLiteral<T> type, final BindingImporter importer )
     {
-        int r = partition( maxRank );
+        final int secondaryRank = rank + Integer.MIN_VALUE;
         for ( final Binding<T> binding : injector.findBindingsByType( type ) )
         {
             if ( false == binding.getSource() instanceof HiddenBinding )
             {
-                importer.publish( binding, isDefault( binding ) ? maxRank : r-- );
+                importer.publish( binding, isDefault( binding ) ? rank : secondaryRank );
             }
         }
     }
@@ -65,11 +70,6 @@ public final class InjectorBindingExporter
         {
             importer.remove( binding );
         }
-    }
-
-    public int rank()
-    {
-        return maxRank;
     }
 
     @Override
@@ -102,17 +102,5 @@ public final class InjectorBindingExporter
     private boolean isDefault( final Binding<?> binding )
     {
         return null == binding.getKey().getAnnotationType();
-    }
-
-    /**
-     * Partitions {@link Integer#MIN_VALUE}..{@link Short#MIN_VALUE} into non-overlapping ranges for each primary rank.
-     * The returned value is the top of the partitioned range; it can accept 32K entries before colliding with the next.
-     * 
-     * @param rank The primary rank
-     * @return Partitioned rank
-     */
-    private static int partition( final int rank )
-    {
-        return rank * Short.MAX_VALUE + Integer.MIN_VALUE / 2;
     }
 }
