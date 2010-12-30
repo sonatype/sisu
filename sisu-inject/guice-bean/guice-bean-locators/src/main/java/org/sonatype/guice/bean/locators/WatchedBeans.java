@@ -123,9 +123,21 @@ final class WatchedBeans<Q extends Annotation, T, W>
 
     public synchronized void clear()
     {
-        for ( final Binding<T> binding : beanCache.keySet().toArray( new Binding[beanCache.size()] ) )
+        final W watcher = watcherRef.get();
+        if ( null != watcher )
         {
-            remove( binding );
+            for ( final BeanEntry<Q, T> bean : beanCache.values() )
+            {
+                try
+                {
+                    mediator.remove( bean, watcher );
+                }
+                catch ( final Throwable e )
+                {
+                    Logs.warn( mediator.getClass(), "Problem notifying: " + watcher.getClass(), e );
+                }
+            }
         }
+        beanCache.clear();
     }
 }
