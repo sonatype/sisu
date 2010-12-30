@@ -87,7 +87,7 @@ public class MapConverter
 
         final Class<?> implementation = getClassForImplementationHint( type, configuration, classLoader );
 
-        if ( Modifier.isAbstract( implementation.getModifiers() ) )
+        if ( null == implementation || Modifier.isAbstract( implementation.getModifiers() ) )
         {
             map = getDefaultMap( implementation );
         }
