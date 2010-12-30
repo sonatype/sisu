@@ -44,8 +44,8 @@ public class MapOrientedComponentConfigurator
 
         @SuppressWarnings( "rawtypes" )
         final Map context =
-            (Map) converter.fromConfiguration( converterLookup, configuration, null, null, containerRealm,
-                                               expressionEvaluator, listener );
+            (Map) converter.fromConfiguration( converterLookup, configuration, Map.class, component.getClass(),
+                                               containerRealm, expressionEvaluator, listener );
 
         ( (MapOrientedComponent) component ).setComponentConfiguration( context );
     }
