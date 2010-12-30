@@ -75,7 +75,7 @@ final class RealmFilter<T>
             while ( itr.hasNext() )
             {
                 nextBean = itr.next();
-                final String source = nextBean.getBinding().getSource().toString();
+                final String source = nextBean.getSource().toString();
                 if ( !source.startsWith( "ClassRealm" ) || realmNames.contains( source ) )
                 {
                     return true;

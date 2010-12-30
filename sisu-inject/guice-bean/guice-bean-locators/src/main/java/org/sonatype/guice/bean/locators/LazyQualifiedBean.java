@@ -38,14 +38,17 @@ final class LazyQualifiedBean<Q extends Annotation, T>
 
     private final Provider<T> provider;
 
+    private final int rank;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    LazyQualifiedBean( final Q qualifier, final Binding<T> binding )
+    LazyQualifiedBean( final Q qualifier, final Binding<T> binding, final int rank )
     {
         this.qualifier = qualifier;
         this.binding = binding;
+        this.rank = rank;
 
         if ( Scopes.isSingleton( binding ) )
         {
@@ -62,8 +65,13 @@ final class LazyQualifiedBean<Q extends Annotation, T>
     // Public methods
     // ----------------------------------------------------------------------
 
+    @SuppressWarnings( "unchecked" )
     public Q getKey()
     {
+        if ( qualifier instanceof com.google.inject.name.Named )
+        {
+            return (Q) new JsrNamed( (com.google.inject.name.Named) qualifier );
+        }
         return qualifier;
     }
 
@@ -107,9 +115,14 @@ final class LazyQualifiedBean<Q extends Annotation, T>
         return (Class<T>) binding.acceptTargetVisitor( ImplementationVisitor.THIS );
     }
 
-    public Binding<? extends T> getBinding()
+    public Object getSource()
     {
-        return binding;
+        return binding.getSource();
+    }
+
+    public int getRank()
+    {
+        return rank;
     }
 
     @Override
@@ -125,5 +138,75 @@ final class LazyQualifiedBean<Q extends Annotation, T>
             buf.append( e );
         }
         return buf.toString();
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    /**
+     * Implementation of @{@link javax.inject.Named} that can also act like @{@link com.google.inject.name.Named}.
+     */
+    private static final class JsrNamed
+        implements com.google.inject.name.Named, javax.inject.Named
+    {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
+        private final String value;
+
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
+        JsrNamed( final com.google.inject.name.Named named )
+        {
+            value = named.value();
+        }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
+
+        public String value()
+        {
+            return value;
+        }
+
+        public Class<? extends Annotation> annotationType()
+        {
+            return javax.inject.Named.class;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return 127 * "value".hashCode() ^ value.hashCode();
+        }
+
+        @Override
+        public boolean equals( final Object rhs )
+        {
+            if ( this == rhs )
+            {
+                return true;
+            }
+            if ( rhs instanceof com.google.inject.name.Named )
+            {
+                return value.equals( ( (com.google.inject.name.Named) rhs ).value() );
+            }
+            if ( rhs instanceof javax.inject.Named )
+            {
+                return value.equals( ( (javax.inject.Named) rhs ).value() );
+            }
+            return false;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "@" + javax.inject.Named.class.getName() + "(value=" + value + ")";
+        }
     }
 }

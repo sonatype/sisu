@@ -236,13 +236,4 @@ See the Apache License Version 2.0 for the specific language governing permissio
     </plugins>
   </reporting>
 
-  <profiles>
-    <profile>
-      <id>examples</id>
-      <modules>
-        <module>sisu-examples</module>
-      </modules>
-    </profile>
-  </profiles>
-
 </project>

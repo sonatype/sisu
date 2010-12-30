@@ -86,11 +86,11 @@ final class WatchedBeans<Q extends Annotation, T, W>
             final W watcher = watcherRef.get();
             if ( null != watcher )
             {
-                final BeanEntry<Q, T> bean = new LazyQualifiedBean<Q, T>( qualifier, binding );
+                final BeanEntry<Q, T> bean = new LazyQualifiedBean<Q, T>( qualifier, binding, rank );
                 beanCache.put( binding, bean );
                 try
                 {
-                    mediator.add( qualifier, bean, watcher );
+                    mediator.add( bean, watcher );
                 }
                 catch ( final Throwable e )
                 {
@@ -111,7 +111,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
             {
                 try
                 {
-                    mediator.remove( bean.getKey(), bean, watcher );
+                    mediator.remove( bean, watcher );
                 }
                 catch ( final Throwable e )
                 {

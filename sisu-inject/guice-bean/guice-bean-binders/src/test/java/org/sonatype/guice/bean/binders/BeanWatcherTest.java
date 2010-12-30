@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.inject.Qualifier;
 
 import junit.framework.TestCase;
@@ -26,6 +25,7 @@ import junit.framework.TestCase;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
+import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.EagerSingleton;
 import org.sonatype.inject.Mediator;
 
@@ -99,18 +99,18 @@ public class BeanWatcherTest
 
     @javax.inject.Named
     static class NamedItemMediator
-        implements Mediator<String, Item, NamedItemWatcher>
+        implements Mediator<javax.inject.Named, Item, NamedItemWatcher>
     {
-        public void add( final String name, final Provider<Item> bean, final NamedItemWatcher watcher )
+        public void add( final BeanEntry<javax.inject.Named, Item> bean, final NamedItemWatcher watcher )
             throws Exception
         {
-            assertNull( watcher.items.put( name, bean.get() ) );
+            assertNull( watcher.items.put( bean.getKey().value(), bean.getValue() ) );
         }
 
-        public void remove( final String name, final Provider<Item> bean, final NamedItemWatcher watcher )
+        public void remove( final BeanEntry<javax.inject.Named, Item> bean, final NamedItemWatcher watcher )
             throws Exception
         {
-            assertEquals( watcher.items.remove( name ), bean.get() );
+            assertEquals( watcher.items.remove( bean.getKey().value() ), bean.getValue() );
         }
     }
 
@@ -118,16 +118,16 @@ public class BeanWatcherTest
     static class MarkedItemMediator
         implements Mediator<Marked, Item, MarkedItemWatcher>
     {
-        public void add( final Marked mark, final Provider<Item> bean, final MarkedItemWatcher watcher )
+        public void add( final BeanEntry<Marked, Item> bean, final MarkedItemWatcher watcher )
             throws Exception
         {
-            assertNull( watcher.items.put( Integer.valueOf( mark.value() ), bean.get() ) );
+            assertNull( watcher.items.put( Integer.valueOf( bean.getKey().value() ), bean.getValue() ) );
         }
 
-        public void remove( final Marked mark, final Provider<Item> bean, final MarkedItemWatcher watcher )
+        public void remove( final BeanEntry<Marked, Item> bean, final MarkedItemWatcher watcher )
             throws Exception
         {
-            assertEquals( watcher.items.remove( Integer.valueOf( mark.value() ) ), bean.get() );
+            assertEquals( watcher.items.remove( Integer.valueOf( bean.getKey().value() ) ), bean.getValue() );
         }
     }
 

@@ -389,6 +389,11 @@ final class RankedList<T>
             throw new NoSuchElementException();
         }
 
+        public int rank()
+        {
+            return uid2rank( nextUID );
+        }
+
         public void remove()
         {
             throw new UnsupportedOperationException();

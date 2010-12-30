@@ -31,11 +31,11 @@ final class QualifiedBeans<Q extends Annotation, T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private Map<Binding<T>, BeanEntry<Q, T>> beanCache;
+    Map<Binding<T>, BeanEntry<Q, T>> beanCache;
 
     final Key<T> key;
 
-    final Iterable<Binding<T>> bindings;
+    final RankedBindings<T> bindings;
 
     final QualifyingStrategy strategy;
 
@@ -43,7 +43,7 @@ final class QualifiedBeans<Q extends Annotation, T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    QualifiedBeans( final Key<T> key, final Iterable<Binding<T>> bindings )
+    QualifiedBeans( final Key<T> key, final RankedBindings<T> bindings )
     {
         this.key = key;
         this.bindings = bindings;
@@ -55,7 +55,7 @@ final class QualifiedBeans<Q extends Annotation, T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    public Iterator<BeanEntry<Q, T>> iterator()
+    public synchronized Iterator<BeanEntry<Q, T>> iterator()
     {
         return new QualifiedBeanIterator();
     }
@@ -72,7 +72,7 @@ final class QualifiedBeans<Q extends Annotation, T>
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    synchronized BeanEntry<Q, T> saveBean( final Q qualifier, final Binding<T> binding )
+    synchronized BeanEntry<Q, T> cacheBean( final Q qualifier, final Binding<T> binding, final int rank )
     {
         if ( null == beanCache )
         {
@@ -81,31 +81,36 @@ final class QualifiedBeans<Q extends Annotation, T>
         BeanEntry<Q, T> bean = beanCache.get( binding );
         if ( null == bean )
         {
-            bean = new LazyQualifiedBean<Q, T>( qualifier, binding );
+            bean = new LazyQualifiedBean<Q, T>( qualifier, binding, rank );
             beanCache.put( binding, bean );
         }
         return bean;
-    }
-
-    synchronized BeanEntry<Q, T> loadBean( final Binding<T> binding )
-    {
-        return null != beanCache ? beanCache.get( binding ) : null;
     }
 
     // ----------------------------------------------------------------------
     // Implementation types
     // ----------------------------------------------------------------------
 
-    final class QualifiedBeanIterator
+    private final class QualifiedBeanIterator
         implements Iterator<BeanEntry<Q, T>>
     {
         // ----------------------------------------------------------------------
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final Iterator<Binding<T>> itr = bindings.iterator();
+        private final RankedBindings<T>.Itr itr = bindings.iterator();
+
+        private Map<Binding<T>, BeanEntry<Q, T>> readCache;
 
         private BeanEntry<Q, T> nextBean;
+
+        QualifiedBeanIterator()
+        {
+            if ( null != beanCache )
+            {
+                readCache = new IdentityHashMap<Binding<T>, BeanEntry<Q, T>>( beanCache );
+            }
+        }
 
         // ----------------------------------------------------------------------
         // Public methods
@@ -120,16 +125,19 @@ final class QualifiedBeans<Q extends Annotation, T>
             while ( itr.hasNext() )
             {
                 final Binding<T> binding = itr.next();
-                nextBean = loadBean( binding );
-                if ( null != nextBean )
+                if ( null != readCache )
                 {
-                    return true;
+                    nextBean = readCache.get( binding );
+                    if ( null != nextBean )
+                    {
+                        return true;
+                    }
                 }
                 @SuppressWarnings( "unchecked" )
                 final Q qualifier = (Q) strategy.qualifies( key, binding );
                 if ( null != qualifier )
                 {
-                    nextBean = saveBean( qualifier, binding );
+                    nextBean = cacheBean( qualifier, binding, itr.rank() );
                     return true;
                 }
             }

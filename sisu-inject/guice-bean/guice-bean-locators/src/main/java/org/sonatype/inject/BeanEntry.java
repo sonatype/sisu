@@ -13,40 +13,56 @@
 package org.sonatype.inject;
 
 import java.lang.annotation.Annotation;
+import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.inject.Provider;
-
-import com.google.inject.Binding;
+import javax.inject.Qualifier;
 
 /**
- * Qualified bean mapping; the Key is the qualifier annotation, the Value is the bean instance.
+ * {@link Map.Entry} that maps a JSR330 @{@link Qualifier} annotation to a bean implementation.
  */
 public interface BeanEntry<Q extends Annotation, T>
-    extends Entry<Q, T>, Provider<T>
+    extends Entry<Q, T>
 {
     /**
+     * Returns the @{@link Qualifier} annotation associated with this particular bean.
+     * 
      * @return Qualifier annotation
      */
     Q getKey();
 
     /**
+     * Creates a bean instance; returns the same instance for each subsequent call.
+     * 
      * @return Bean instance (lazily-created)
      */
     T getValue();
 
     /**
+     * Returns a human-readable description of the bean; see @{@link Description}.
+     * 
      * @return Human-readable description
      */
     String getDescription();
 
     /**
-     * @return Implementation type
+     * Attempts to find the implementation type without creating the bean instance.
+     * 
+     * @return Implementation type; {@code null} if the type cannot be determined
      */
     Class<T> getImplementationClass();
 
     /**
-     * @return Underlying binding
+     * Returns an arbitrary object that describes where this bean was configured.
+     * 
+     * @return Source of the bean
      */
-    Binding<? extends T> getBinding();
+    Object getSource();
+
+    /**
+     * Returns the bean's rank; higher ranked beans override lower ranked beans.
+     * 
+     * @return Assigned rank
+     */
+    int getRank();
 }

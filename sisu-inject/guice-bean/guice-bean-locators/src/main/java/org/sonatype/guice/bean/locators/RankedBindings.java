@@ -134,7 +134,7 @@ final class RankedBindings<T>
         }
     }
 
-    public Iterator<Binding<T>> iterator()
+    public Itr iterator()
     {
         return new Itr();
     }
@@ -185,7 +185,7 @@ final class RankedBindings<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final RankedList<Binding<T>>.Itr i = bindings.iterator();
+        private final RankedList<Binding<T>>.Itr itr = bindings.iterator();
 
         // ----------------------------------------------------------------------
         // Public methods
@@ -197,7 +197,7 @@ final class RankedBindings<T>
             {
                 synchronized ( pendingExporters )
                 {
-                    while ( pendingExporters.size() > 0 && pendingExporters.getRank( 0 ) > i.peekNextRank() )
+                    while ( pendingExporters.size() > 0 && pendingExporters.getRank( 0 ) > itr.peekNextRank() )
                     {
                         // be careful not to remove the exporter until after it is used
                         // otherwise another iterator could skip past the initial check
@@ -206,12 +206,17 @@ final class RankedBindings<T>
                     }
                 }
             }
-            return i.hasNext();
+            return itr.hasNext();
         }
 
         public Binding<T> next()
         {
-            return i.next();
+            return itr.next();
+        }
+
+        public int rank()
+        {
+            return itr.rank();
         }
 
         public void remove()

@@ -21,7 +21,6 @@ import java.util.List;
 import javax.enterprise.inject.Typed;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
-import org.sonatype.guice.bean.locators.NamedMediatorAdapter;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
 import org.sonatype.inject.EagerSingleton;
@@ -103,7 +102,7 @@ public final class QualifiedTypeBinder
      * @param mediatorType The mediator type
      */
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private <Q, T, W> void registerMediator( final Class<Mediator<Q, T, W>> mediatorType )
+    private void registerMediator( final Class<Mediator> mediatorType )
     {
         final TypeLiteral<?>[] params = getSuperTypeParameters( mediatorType, Mediator.class );
         if ( params.length != 3 )
@@ -112,17 +111,10 @@ public final class QualifiedTypeBinder
         }
         else
         {
-            Mediator<Q, T, W> mediator = newInstance( mediatorType );
+            Mediator mediator = newInstance( mediatorType );
             if ( null != mediator )
             {
-                Class qualifierType = params[0].getRawType();
-                if ( String.class == qualifierType )
-                {
-                    // wrap delegating mediator around the original
-                    mediator = new NamedMediatorAdapter( mediator );
-                    qualifierType = Named.class;
-                }
-                mediate( Key.get( params[1], qualifierType ), mediator, (Class<W>) params[2].getRawType() );
+                mediate( Key.get( params[1], (Class) params[0].getRawType() ), mediator, params[2].getRawType() );
             }
         }
     }
@@ -134,7 +126,8 @@ public final class QualifiedTypeBinder
      * @param mediator The bean mediator
      * @param watcherType The watcher type
      */
-    private <Q, T, W> void mediate( final Key<T> key, final Mediator<Q, T, W> mediator, final Class<W> watcherType )
+    @SuppressWarnings( "rawtypes" )
+    private void mediate( final Key key, final Mediator mediator, final Class watcherType )
     {
         if ( null == beanListener )
         {

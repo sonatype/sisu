@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.bean.binders;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,9 +53,10 @@ final class BeanListener
      * @param mediator The bean mediator
      * @param watcherType The watcher type
      */
-    public <Q, T, W> void mediate( final Key<T> key, final Mediator<Q, T, W> mediator, final Class<W> watcherType )
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
+    public void mediate( final Key key, final Mediator mediator, final Class watcherType )
     {
-        mediation.add( new Mediation<Q, T, W>( key, mediator, watcherType ) );
+        mediation.add( new Mediation( key, mediator, watcherType ) );
     }
 
     public <T> void hear( final TypeLiteral<T> type, final TypeEncounter<T> encounter )
@@ -87,7 +89,7 @@ final class BeanListener
     /**
      * Record containing all the necessary details about a mediated watcher.
      */
-    private static final class Mediation<Q, T, W>
+    private static final class Mediation<Q extends Annotation, T, W>
     {
         // ----------------------------------------------------------------------
         // Implementation fields

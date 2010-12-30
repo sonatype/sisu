@@ -22,7 +22,6 @@ import java.util.RandomAccess;
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.inject.Provider;
 import javax.inject.Qualifier;
 
 import junit.framework.TestCase;
@@ -31,6 +30,7 @@ import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
+import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.EagerSingleton;
 import org.sonatype.inject.Mediator;
 
@@ -307,12 +307,12 @@ public class QualifiedTypesTest
     static class RawMediator
         implements Mediator
     {
-        public void add( final Object qualifier, final Provider bean, final Object watcher )
+        public void add( final BeanEntry bean, final Object watcher )
             throws Exception
         {
         }
 
-        public void remove( final Object qualifier, final Provider bean, final Object watcher )
+        public void remove( final BeanEntry bean, final Object watcher )
             throws Exception
         {
         }
@@ -320,11 +320,6 @@ public class QualifiedTypesTest
 
     abstract class AbstractNamedMediator
         implements Mediator<Named, Object, Object>
-    {
-    }
-
-    abstract class AbstractStringMediator
-        implements Mediator<String, Object, Object>
     {
     }
 
@@ -340,7 +335,6 @@ public class QualifiedTypesTest
             listener.hear( Names.named( "raw" ), RawMediator.class, null );
 
             listener.hear( Names.named( "abstract" ), AbstractNamedMediator.class, null );
-            listener.hear( Names.named( "abstract" ), AbstractStringMediator.class, null );
             listener.hear( Names.named( "abstract" ), AbstractModule.class, null );
         }
     }
