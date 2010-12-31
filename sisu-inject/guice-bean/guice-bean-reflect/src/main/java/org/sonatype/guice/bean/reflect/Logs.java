@@ -83,7 +83,8 @@ public final class Logs
             }
             else
             {
-                Logger.getLogger( clazz.getName() ).fine( format( format( format, arg1 ), arg2 ) );
+                final String at = clazz.getName();
+                Logger.getLogger( at ).logp( Level.FINE, at, null, format( format( format, arg1 ), arg2 ) );
             }
         }
     }
@@ -103,7 +104,8 @@ public final class Logs
         }
         else
         {
-            Logger.getLogger( clazz.getName() ).log( Level.WARNING, message, cause );
+            final String at = clazz.getName();
+            Logger.getLogger( at ).logp( Level.WARNING, at, null, message, cause );
         }
     }
 

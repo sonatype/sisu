@@ -25,6 +25,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.sonatype.guice.bean.reflect.BeanProperties;
 import org.sonatype.guice.bean.reflect.BeanProperty;
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.Roles;
@@ -245,6 +246,8 @@ public final class PlexusXmlBeanConverter
             // mimic plexus: discard any strings containing nested XML
             while ( parser.getEventType() == XmlPullParser.START_TAG )
             {
+                final String pos = parser.getPositionDescription();
+                Logs.warn( PlexusXmlBeanConverter.class, "Expected TEXT, not XML:" + pos, null );
                 parser.skipSubTree();
                 parser.nextTag();
             }
