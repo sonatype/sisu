@@ -178,7 +178,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
                 Embed-Dependency,Embed-Transitive,
                 Built-By,Tool,Created-By,Build-Jdk,
                 Include-Resource,Private-Package,
-                Ignore-Package,Bnd-LastModified
+                Bnd-LastModified
               </_removeheaders>
             </instructions>
           </configuration>
