@@ -19,17 +19,17 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.sonatype.guice.bean.locators.spi.BindingDistributor;
-import org.sonatype.guice.bean.locators.spi.BindingExporter;
-import org.sonatype.guice.bean.locators.spi.BindingImporter;
+import org.sonatype.guice.bean.locators.spi.BindingPublisher;
+import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
 
 import com.google.inject.Binding;
 import com.google.inject.TypeLiteral;
 
 /**
- * Ordered {@link Iterable} sequence that imports {@link Binding}s from {@link BindingExporter}s on demand.
+ * Ordered {@link Iterable} sequence of {@link Binding}s that queries {@link BindingPublisher}s on demand.
  */
 final class RankedBindings<T>
-    implements BindingDistributor, BindingImporter, Iterable<Binding<T>>
+    implements BindingDistributor, BindingSubscriber, Iterable<Binding<T>>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -39,7 +39,7 @@ final class RankedBindings<T>
 
     final List<Reference<BeanCache<T>>> beanCaches = new ArrayList<Reference<BeanCache<T>>>();
 
-    final RankedList<BindingExporter> pendingExporters;
+    final RankedList<BindingPublisher> pendingPublishers;
 
     final TypeLiteral<T> type;
 
@@ -47,11 +47,11 @@ final class RankedBindings<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    public RankedBindings( final TypeLiteral<T> type, final RankedList<BindingExporter> exporters )
+    public RankedBindings( final TypeLiteral<T> type, final RankedList<BindingPublisher> publishers )
     {
         this.type = type;
 
-        pendingExporters = null != exporters ? exporters.clone() : new RankedList<BindingExporter>();
+        pendingPublishers = null != publishers ? publishers.clone() : new RankedList<BindingPublisher>();
     }
 
     // ----------------------------------------------------------------------
@@ -91,29 +91,39 @@ final class RankedBindings<T>
         return isActive;
     }
 
-    public void publish( final BindingExporter exporter, final int rank )
+    public void add( final BindingPublisher publisher, final int rank )
     {
-        synchronized ( pendingExporters )
+        synchronized ( pendingPublishers )
         {
-            pendingExporters.insert( exporter, rank );
+            pendingPublishers.insert( publisher, rank );
         }
     }
 
-    public void remove( final BindingExporter exporter )
+    public void remove( final BindingPublisher publisher )
     {
-        synchronized ( pendingExporters )
+        synchronized ( pendingPublishers )
         {
-            // check if this exporter been activated
-            if ( !pendingExporters.remove( exporter ) )
+            // extra cleanup if already subscribed
+            if ( !pendingPublishers.remove( publisher ) )
             {
-                exporter.remove( type, this );
+                publisher.unsubscribe( type, this );
+                synchronized ( bindings )
+                {
+                    for ( int i = 0; i < bindings.size(); i++ )
+                    {
+                        if ( publisher.contains( bindings.get( i ) ) )
+                        {
+                            bindings.remove( i-- );
+                        }
+                    }
+                }
                 flushBeanCaches();
             }
         }
     }
 
     @SuppressWarnings( { "rawtypes", "unchecked" } )
-    public void publish( final Binding binding, final int rank )
+    public void add( final Binding binding, final int rank )
     {
         synchronized ( bindings )
         {
@@ -141,9 +151,9 @@ final class RankedBindings<T>
 
     public void clear()
     {
-        synchronized ( pendingExporters )
+        synchronized ( pendingPublishers )
         {
-            pendingExporters.clear();
+            pendingPublishers.clear();
         }
         synchronized ( bindings )
         {
@@ -175,9 +185,6 @@ final class RankedBindings<T>
     // Implementation types
     // ----------------------------------------------------------------------
 
-    /**
-     * Custom {@link Iterator} that imports bindings from {@link BindingExporter}s on demand.
-     */
     final class Itr
         implements Iterator<Binding<T>>
     {
@@ -193,16 +200,16 @@ final class RankedBindings<T>
 
         public boolean hasNext()
         {
-            if ( pendingExporters.size() > 0 )
+            if ( pendingPublishers.size() > 0 )
             {
-                synchronized ( pendingExporters )
+                synchronized ( pendingPublishers )
                 {
-                    while ( pendingExporters.size() > 0 && pendingExporters.getRank( 0 ) > itr.peekNextRank() )
+                    while ( pendingPublishers.size() > 0 && pendingPublishers.getRank( 0 ) > itr.peekNextRank() )
                     {
-                        // be careful not to remove the exporter until after it is used
-                        // otherwise another iterator could skip past the initial check
-                        pendingExporters.get( 0 ).publish( type, RankedBindings.this );
-                        pendingExporters.remove( 0 );
+                        // be careful not to remove the pending publisher until after it's used
+                        // otherwise another iterator could skip past the initial size() check
+                        pendingPublishers.get( 0 ).subscribe( type, RankedBindings.this );
+                        pendingPublishers.remove( 0 );
                     }
                 }
             }

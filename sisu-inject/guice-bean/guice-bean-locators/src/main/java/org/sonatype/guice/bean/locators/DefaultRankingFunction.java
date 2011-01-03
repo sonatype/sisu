@@ -10,32 +10,36 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.bean.locators.spi;
+package org.sonatype.guice.bean.locators;
 
 import com.google.inject.Binding;
 
-/**
- * Imports {@link Binding}s of various types.
- */
-public interface BindingImporter
+public final class DefaultRankingFunction
+    implements RankingFunction
 {
-    /**
-     * Publishes the given ranked {@link Binding} to the importer.
-     * 
-     * @param binding The new binding
-     * @param rank The assigned rank
-     */
-    <T> void publish( Binding<T> binding, int rank );
+    private final int rank;
 
-    /**
-     * Remove the given {@link Binding} from the importer.
-     * 
-     * @param binding The old binding
-     */
-    <T> void remove( Binding<T> binding );
+    public DefaultRankingFunction()
+    {
+        this( 0 );
+    }
 
-    /**
-     * Removes all known {@link Binding}s from the importer.
-     */
-    void clear();
+    public DefaultRankingFunction( final int rank )
+    {
+        if ( rank < 0 )
+        {
+            throw new IllegalArgumentException( "Default rank must be zero or more" );
+        }
+        this.rank = rank;
+    }
+
+    public int maxRank()
+    {
+        return rank;
+    }
+
+    public <T> int rank( final Binding<T> binding )
+    {
+        return null == binding.getKey().getAnnotationType() ? rank : rank - Integer.MAX_VALUE;
+    }
 }

@@ -13,28 +13,29 @@
 package org.sonatype.guice.bean.locators.spi;
 
 import com.google.inject.Binding;
-import com.google.inject.TypeLiteral;
 
 /**
- * Exports {@link Binding}s of various types.
+ * Subscriber of {@link Binding}s from one or more {@link BindingPublisher}s.
  */
-public interface BindingExporter
+public interface BindingSubscriber
 {
     /**
-     * Publishes {@link Binding}s of the requested type to the given {@link BindingImporter}.<br>
-     * The {@link BindingExporter} is allowed to publish bindings asynchronously if it wants.
+     * Adds the given ranked {@link Binding} to this subscriber.
      * 
-     * @param type The binding type
-     * @param importer The importer
+     * @param binding The new binding
+     * @param rank The assigned rank
      */
-    <T> void publish( TypeLiteral<T> type, BindingImporter importer );
+    <T> void add( Binding<T> binding, int rank );
 
     /**
-     * Removes {@link Binding}s of the requested type from the given {@link BindingImporter}.<br>
-     * The {@link BindingExporter} is allowed to remove bindings asynchronously if it wants.
+     * Removes the given {@link Binding} from this subscriber.
      * 
-     * @param type The binding type
-     * @param importer The importer
+     * @param binding The old binding
      */
-    <T> void remove( TypeLiteral<T> type, BindingImporter importer );
+    <T> void remove( Binding<T> binding );
+
+    /**
+     * Removes all known {@link Binding}s from this subscriber.
+     */
+    void clear();
 }

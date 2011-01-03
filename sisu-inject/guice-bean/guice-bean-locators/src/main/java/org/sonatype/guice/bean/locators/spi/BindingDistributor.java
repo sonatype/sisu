@@ -15,27 +15,27 @@ package org.sonatype.guice.bean.locators.spi;
 import com.google.inject.Binding;
 
 /**
- * Distributes {@link Binding}s of various types.
+ * Distributor of {@link Binding}s retrieved from a series of {@link BindingPublisher}s.
  */
 public interface BindingDistributor
 {
     /**
-     * Publishes bindings exported by the given ranked {@link BindingExporter}.
+     * Adds the given ranked {@link BindingPublisher} and distributes its {@link Binding}s.
      * 
-     * @param exporter The new exporter
+     * @param publisher The new publisher
      * @param rank The assigned rank
      */
-    void publish( BindingExporter exporter, int rank );
+    void add( BindingPublisher publisher, int rank );
 
     /**
-     * Remove bindings exported by the given {@link BindingExporter}.
+     * Removes the given {@link BindingPublisher} and its {@link Binding}s.
      * 
-     * @param exporter The old exporter
+     * @param publisher The old publisher
      */
-    void remove( BindingExporter exporter );
+    void remove( BindingPublisher publisher );
 
     /**
-     * Removes all distributed {@link Binding}s.
+     * Removes all known {@link BindingPublisher}s and their {@link Binding}s.
      */
     void clear();
 }

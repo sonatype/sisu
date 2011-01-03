@@ -22,18 +22,16 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.sonatype.guice.bean.locators.spi.BindingDistributor;
-import org.sonatype.guice.bean.locators.spi.BindingExporter;
+import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Mediator;
 
-import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
-import com.google.inject.name.Names;
 
 /**
- * Default {@link MutableBeanLocator} that finds qualified beans across a dynamic group of {@link BindingExporter}s.
+ * Default {@link MutableBeanLocator} that finds qualified beans across a dynamic group of {@link BindingPublisher}s.
  */
 @Singleton
 @SuppressWarnings( { "rawtypes", "unchecked" } )
@@ -41,16 +39,10 @@ public final class DefaultBeanLocator
     implements MutableBeanLocator
 {
     // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final Key<Integer> INJECTOR_RANKING_KEY = Key.get( Integer.class, Names.named( INJECTOR_RANKING ) );
-
-    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final RankedList<BindingExporter> exporters = new RankedList<BindingExporter>();
+    private final RankedList<BindingPublisher> publishers = new RankedList<BindingPublisher>();
 
     private final Map<TypeLiteral, RankedBindings> bindingsCache = new HashMap<TypeLiteral, RankedBindings>();
 
@@ -71,44 +63,43 @@ public final class DefaultBeanLocator
     public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )
     {
         final WatchedBeans beans = new WatchedBeans( key, mediator, watcher );
-        for ( final BindingExporter exporter : exporters )
+        for ( final BindingPublisher publisher : publishers )
         {
-            beans.publish( exporter, 0 );
+            beans.add( publisher, 0 );
         }
         watchedBeans.add( beans );
     }
 
-    @SuppressWarnings( "deprecation" )
-    public void publish( final Injector injector, final int rank )
+    public void add( final Injector injector, final int rank )
     {
-        publish( new InjectorBindingExporter( injector, rank ), rank );
+        add( new InjectorPublisher( injector, new DefaultRankingFunction( rank ) ), rank );
     }
 
     public void remove( final Injector injector )
     {
-        remove( new InjectorBindingExporter( injector, 0 ) );
+        remove( new InjectorPublisher( injector, null ) );
     }
 
-    public synchronized void publish( final BindingExporter exporter, final int rank )
+    public synchronized void add( final BindingPublisher publisher, final int rank )
     {
-        if ( !exporters.contains( exporter ) )
+        if ( !publishers.contains( publisher ) )
         {
-            exporters.insert( exporter, rank );
-            distribute( BindingEvent.PUBLISH, exporter, rank );
+            publishers.insert( publisher, rank );
+            distribute( BindingEvent.ADD, publisher, rank );
         }
     }
 
-    public synchronized void remove( final BindingExporter exporter )
+    public synchronized void remove( final BindingPublisher publisher )
     {
-        if ( exporters.remove( exporter ) )
+        if ( publishers.remove( publisher ) )
         {
-            distribute( BindingEvent.REMOVE, exporter, 0 );
+            distribute( BindingEvent.REMOVE, publisher, 0 );
         }
     }
 
     public synchronized void clear()
     {
-        exporters.clear();
+        publishers.clear();
         distribute( BindingEvent.CLEAR, null, 0 );
     }
 
@@ -120,13 +111,8 @@ public final class DefaultBeanLocator
     @SuppressWarnings( "unused" )
     private void autoPublish( final Injector injector )
     {
-        int rank = 0;
-        final Binding<Integer> rankBinding = (Binding) injector.getBindings().get( INJECTOR_RANKING_KEY );
-        if ( null != rankBinding )
-        {
-            rank = rankBinding.getProvider().get().intValue();
-        }
-        publish( injector, rank );
+        final RankingFunction function = injector.getInstance( RankingFunction.class );
+        add( new InjectorPublisher( injector, function ), function.maxRank() );
     }
 
     /**
@@ -140,20 +126,20 @@ public final class DefaultBeanLocator
         RankedBindings bindings = bindingsCache.get( type );
         if ( null == bindings )
         {
-            bindings = new RankedBindings( type, exporters );
+            bindings = new RankedBindings( type, publishers );
             bindingsCache.put( type, bindings );
         }
         return bindings;
     }
 
-    private void distribute( final BindingEvent event, final BindingExporter exporter, final int rank )
+    private void distribute( final BindingEvent event, final BindingPublisher publisher, final int rank )
     {
         for ( final Iterator<RankedBindings> itr = bindingsCache.values().iterator(); itr.hasNext(); )
         {
             final RankedBindings bindings = itr.next();
             if ( bindings.isActive() )
             {
-                event.apply( bindings, exporter, rank );
+                event.apply( bindings, publisher, rank );
             }
             else
             {
@@ -166,7 +152,7 @@ public final class DefaultBeanLocator
             final WatchedBeans beans = watchedBeans.get( i );
             if ( beans.isActive() )
             {
-                event.apply( beans, exporter, rank );
+                event.apply( beans, publisher, rank );
             }
             else
             {
@@ -181,31 +167,31 @@ public final class DefaultBeanLocator
 
     private static enum BindingEvent
     {
-        PUBLISH
+        ADD
         {
             @Override
-            void apply( final BindingDistributor distributor, final BindingExporter exporter, final int rank )
+            void apply( final BindingDistributor distributor, final BindingPublisher publisher, final int rank )
             {
-                distributor.publish( exporter, rank );
+                distributor.add( publisher, rank );
             }
         },
         REMOVE
         {
             @Override
-            void apply( final BindingDistributor distributor, final BindingExporter exporter, final int rank )
+            void apply( final BindingDistributor distributor, final BindingPublisher publisher, final int rank )
             {
-                distributor.remove( exporter );
+                distributor.remove( publisher );
             }
         },
         CLEAR
         {
             @Override
-            void apply( final BindingDistributor distributor, final BindingExporter exporter, final int rank )
+            void apply( final BindingDistributor distributor, final BindingPublisher publisher, final int rank )
             {
                 distributor.clear();
             }
         };
 
-        abstract void apply( final BindingDistributor distributor, final BindingExporter exporter, final int rank );
+        abstract void apply( final BindingDistributor distributor, final BindingPublisher publisher, final int rank );
     }
 }

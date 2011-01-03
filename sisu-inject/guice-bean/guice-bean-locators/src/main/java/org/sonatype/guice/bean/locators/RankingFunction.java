@@ -12,21 +12,13 @@
  */
 package org.sonatype.guice.bean.locators;
 
-import org.sonatype.guice.bean.locators.spi.BindingDistributor;
-import org.sonatype.guice.bean.locators.spi.BindingPublisher;
-
+import com.google.inject.Binding;
 import com.google.inject.ImplementedBy;
-import com.google.inject.Injector;
 
-/**
- * Mutable {@link BeanLocator} that distributes bindings from zero or more {@link BindingPublisher}s.
- */
-@ImplementedBy( DefaultBeanLocator.class )
-public interface MutableBeanLocator
-    extends BeanLocator, BindingDistributor
+@ImplementedBy( DefaultRankingFunction.class )
+public interface RankingFunction
 {
-    @Deprecated
-    void add( Injector injector, int rank );
+    int maxRank();
 
-    void remove( Injector injector );
+    <T> int rank( Binding<T> binding );
 }

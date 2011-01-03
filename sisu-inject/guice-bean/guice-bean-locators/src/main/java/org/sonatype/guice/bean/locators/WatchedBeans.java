@@ -15,12 +15,14 @@ package org.sonatype.guice.bean.locators;
 import java.lang.annotation.Annotation;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.sonatype.guice.bean.locators.spi.BindingDistributor;
-import org.sonatype.guice.bean.locators.spi.BindingExporter;
-import org.sonatype.guice.bean.locators.spi.BindingImporter;
+import org.sonatype.guice.bean.locators.spi.BindingPublisher;
+import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
 import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Mediator;
@@ -29,7 +31,7 @@ import com.google.inject.Binding;
 import com.google.inject.Key;
 
 final class WatchedBeans<Q extends Annotation, T, W>
-    implements BindingDistributor, BindingImporter
+    implements BindingDistributor, BindingSubscriber
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -67,18 +69,27 @@ final class WatchedBeans<Q extends Annotation, T, W>
         return null != watcherRef.get();
     }
 
-    public void publish( final BindingExporter exporter, final int rank )
+    public void add( final BindingPublisher publisher, final int rank )
     {
-        exporter.publish( key.getTypeLiteral(), this );
+        publisher.subscribe( key.getTypeLiteral(), this );
     }
 
-    public void remove( final BindingExporter exporter )
+    public synchronized void remove( final BindingPublisher publisher )
     {
-        exporter.remove( key.getTypeLiteral(), this );
+        publisher.unsubscribe( key.getTypeLiteral(), this );
+        final List<Binding<T>> bindings = new ArrayList<Binding<T>>( beanCache.keySet() );
+        for ( int i = 0, size = bindings.size(); i < size; i++ )
+        {
+            final Binding<T> binding = bindings.get( i );
+            if ( publisher.contains( binding ) )
+            {
+                remove( binding );
+            }
+        }
     }
 
     @SuppressWarnings( { "rawtypes", "unchecked" } )
-    public synchronized void publish( final Binding binding, final int rank )
+    public synchronized void add( final Binding binding, final int rank )
     {
         final Q qualifier = (Q) strategy.qualifies( key, binding );
         if ( null != qualifier )

@@ -112,7 +112,7 @@ public class MapConverter
         {
             return Map.class.cast( map );
         }
-        catch ( ClassCastException e )
+        catch ( final ClassCastException e )
         {
             throw new ComponentConfigurationException( configuration, "The class " + implementation.getName()
                 + " used to configure the property '" + configuration.getName() + "' is not a map", e );

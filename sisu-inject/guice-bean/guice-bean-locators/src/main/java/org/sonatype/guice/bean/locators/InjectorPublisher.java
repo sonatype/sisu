@@ -12,18 +12,18 @@
  */
 package org.sonatype.guice.bean.locators;
 
-import org.sonatype.guice.bean.locators.spi.BindingExporter;
-import org.sonatype.guice.bean.locators.spi.BindingImporter;
+import org.sonatype.guice.bean.locators.spi.BindingPublisher;
+import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
 
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
- * Exports {@link Binding}s from a single {@link Injector}; assigns each binding a rank up to a maximum value.
+ * Publisher of {@link Binding}s from a single {@link Injector}; uses a {@link RankingFunction} to rank bindings.
  */
-final class InjectorBindingExporter
-    implements BindingExporter
+final class InjectorPublisher
+    implements BindingPublisher
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -31,45 +31,41 @@ final class InjectorBindingExporter
 
     private final Injector injector;
 
-    private final int rank;
+    private final RankingFunction function;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    InjectorBindingExporter( final Injector injector, final int rank )
+    InjectorPublisher( final Injector injector, final RankingFunction function )
     {
-        if ( rank < 0 )
-        {
-            throw new IllegalArgumentException( BeanLocator.INJECTOR_RANKING + " must be zero or more" );
-        }
-
         this.injector = injector;
-        this.rank = rank;
+        this.function = function;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public <T> void publish( final TypeLiteral<T> type, final BindingImporter importer )
+    public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber importer )
     {
-        final int secondaryRank = rank + Integer.MIN_VALUE;
         for ( final Binding<T> binding : injector.findBindingsByType( type ) )
         {
             if ( false == binding.getSource() instanceof HiddenBinding )
             {
-                importer.publish( binding, isDefault( binding ) ? rank : secondaryRank );
+                importer.add( binding, function.rank( binding ) );
             }
         }
     }
 
-    public <T> void remove( final TypeLiteral<T> type, final BindingImporter importer )
+    public <T> boolean contains( final Binding<T> binding )
     {
-        for ( final Binding<T> binding : injector.findBindingsByType( type ) )
-        {
-            importer.remove( binding );
-        }
+        return binding == injector.getBindings().get( binding.getKey() );
+    }
+
+    public <T> void unsubscribe( final TypeLiteral<T> type, final BindingSubscriber importer )
+    {
+        // nothing to do, we don't publish injector bindings asynchronously
     }
 
     @Override
@@ -85,22 +81,10 @@ final class InjectorBindingExporter
         {
             return true;
         }
-        if ( rhs instanceof InjectorBindingExporter )
+        if ( rhs instanceof InjectorPublisher )
         {
-            return injector.equals( ( (InjectorBindingExporter) rhs ).injector );
+            return injector.equals( ( (InjectorPublisher) rhs ).injector );
         }
         return false;
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * @return {@code true} if this is a default (ie. un-annotated) binding; otherwise {@code false}
-     */
-    private boolean isDefault( final Binding<?> binding )
-    {
-        return null == binding.getKey().getAnnotationType();
     }
 }

@@ -28,8 +28,6 @@ import com.google.inject.Key;
 @ImplementedBy( MutableBeanLocator.class )
 public interface BeanLocator
 {
-    String INJECTOR_RANKING = "injector.ranking";
-
     /**
      * Finds beans that match the given qualified binding {@link Key}.
      * 

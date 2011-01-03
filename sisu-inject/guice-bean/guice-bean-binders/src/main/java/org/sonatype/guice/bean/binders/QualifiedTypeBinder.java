@@ -111,7 +111,7 @@ public final class QualifiedTypeBinder
         }
         else
         {
-            Mediator mediator = newInstance( mediatorType );
+            final Mediator mediator = newInstance( mediatorType );
             if ( null != mediator )
             {
                 mediate( Key.get( params[1], (Class) params[0].getRawType() ), mediator, params[2].getRawType() );

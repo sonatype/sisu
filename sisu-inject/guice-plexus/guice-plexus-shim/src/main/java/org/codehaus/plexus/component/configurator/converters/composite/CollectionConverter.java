@@ -68,7 +68,7 @@ public class CollectionConverter
         {
             if ( retValue instanceof Object[] )
             {
-                Collection<Object> collection = newCollection( configuration, type, classLoader );
+                final Collection<Object> collection = newCollection( configuration, type, classLoader );
                 Collections.addAll( collection, (Object[]) retValue );
                 retValue = collection;
             }
@@ -92,7 +92,7 @@ public class CollectionConverter
                                  final ExpressionEvaluator expressionEvaluator, final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
-        Collection<Object> retValue = newCollection( configuration, type, classLoader );
+        final Collection<Object> retValue = newCollection( configuration, type, classLoader );
 
         // now we have collection and we have to add some objects to it
 
@@ -219,7 +219,7 @@ public class CollectionConverter
         {
             return Collection.class.cast( collection );
         }
-        catch ( ClassCastException e )
+        catch ( final ClassCastException e )
         {
             throw new ComponentConfigurationException( configuration, "The class " + implementation.getName()
                 + " used to configure the property '" + configuration.getName() + "' is not a collection", e );

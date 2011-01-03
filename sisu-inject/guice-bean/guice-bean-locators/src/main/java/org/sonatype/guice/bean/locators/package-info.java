@@ -19,9 +19,7 @@
  * <dt>{@link org.sonatype.guice.bean.locators.BeanLocator}
  * <dd>Finds and tracks beans annotated with {@link javax.inject.Qualifier} annotations.
  * <dt>{@link org.sonatype.guice.bean.locators.MutableBeanLocator}
- * <dd>Mutable {@link org.sonatype.guice.bean.locators.BeanLocator} that searches bindings from zero or more {@link org.sonatype.guice.bean.locators.spi.BindingExporter}s.
- * <dt>{@link org.sonatype.guice.bean.locators.QualifiedBean}
- * <dd>Qualified bean mapping; the Key is the qualifier annotation, the Value is the bean instance.
+ * <dd>Mutable {@link org.sonatype.guice.bean.locators.BeanLocator} that distributes bindings from zero or more {@link org.sonatype.guice.bean.locators.spi.BindingPublisher}s.
  * <dt>{@link org.sonatype.guice.bean.locators.BeanDescription}
  * <dd>Mixin interface used to supply descriptions to the {@link org.sonatype.guice.bean.locators.BeanLocator}.
  * <dt>{@link org.sonatype.guice.bean.locators.HiddenBinding}

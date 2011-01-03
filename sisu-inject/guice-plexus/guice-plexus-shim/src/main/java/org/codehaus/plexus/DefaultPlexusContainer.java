@@ -39,11 +39,12 @@ import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
 import org.sonatype.guice.bean.binders.MergedModule;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.WireModule;
-import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.DefaultBeanLocator;
+import org.sonatype.guice.bean.locators.DefaultRankingFunction;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
+import org.sonatype.guice.bean.locators.RankingFunction;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.DeferredProvider;
@@ -67,6 +68,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
@@ -123,9 +125,9 @@ public final class DefaultPlexusContainer
 
     private final boolean isAutoWiringEnabled;
 
-    private final Module setupModule = new SetupModule();
+    private final Module bootstrapModule = new BootstrapModule();
 
-    private final Module loggerModule = new LoggerModule();
+    private final Module defaultsModule = new DefaultsModule();
 
     private LoggerManager loggerManager = new ConsoleLoggerManager();
 
@@ -325,7 +327,7 @@ public final class DefaultPlexusContainer
     public <T> void addComponent( final T component, final Class<?> role, final String hint )
     {
         // this is only used in Maven3 tests, so keep it simple...
-        qualifiedBeanLocator.publish( Guice.createInjector( new AbstractModule()
+        qualifiedBeanLocator.add( Guice.createInjector( new AbstractModule()
         {
             @Override
             protected void configure()
@@ -449,10 +451,10 @@ public final class DefaultPlexusContainer
     {
         final List<Module> modules = new ArrayList<Module>();
 
-        modules.add( setupModule );
+        modules.add( bootstrapModule );
         Collections.addAll( modules, customModules );
         modules.add( new PlexusBindingModule( lifecycleManager, beanModules ) );
-        modules.add( loggerModule );
+        modules.add( defaultsModule );
 
         Guice.createInjector( isAutoWiringEnabled ? new WireModule( modules ) : new MergedModule( modules ) );
     }
@@ -762,7 +764,7 @@ public final class DefaultPlexusContainer
         }
     }
 
-    final class SetupModule
+    final class BootstrapModule
         extends AbstractModule
     {
         final PlexusDateTypeConverter dateConverter = new PlexusDateTypeConverter();
@@ -772,8 +774,6 @@ public final class DefaultPlexusContainer
         @Override
         protected void configure()
         {
-            bindConstant().annotatedWith( Names.named( BeanLocator.INJECTOR_RANKING ) ).to( plexusRank.getAndIncrement() );
-
             bind( Context.class ).toInstance( context );
             bind( ParameterKeys.PROPERTIES ).toInstance( variables );
 
@@ -793,7 +793,7 @@ public final class DefaultPlexusContainer
         }
     }
 
-    final class LoggerModule
+    final class DefaultsModule
         extends AbstractModule
     {
         final LoggerManagerProvider loggerManagerProvider = new LoggerManagerProvider();
@@ -805,6 +805,11 @@ public final class DefaultPlexusContainer
         {
             bind( LoggerManager.class ).toProvider( loggerManagerProvider );
             bind( Logger.class ).toProvider( loggerProvider );
+
+            // allow plugins to override the default ranking function so we can support component profiles
+            final Key<RankingFunction> plexusRankingKey = Key.get( RankingFunction.class, Names.named( "plexus" ) );
+            bind( plexusRankingKey ).toInstance( new DefaultRankingFunction( plexusRank.getAndIncrement() ) );
+            bind( RankingFunction.class ).to( plexusRankingKey );
         }
     }
 

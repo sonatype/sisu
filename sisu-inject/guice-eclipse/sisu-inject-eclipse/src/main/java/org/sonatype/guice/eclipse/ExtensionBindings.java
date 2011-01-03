@@ -14,11 +14,12 @@ import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.RegistryFactory;
 import org.osgi.framework.Bundle;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
-import org.sonatype.guice.bean.locators.spi.BindingExporter;
-import org.sonatype.guice.bean.locators.spi.BindingImporter;
+import org.sonatype.guice.bean.locators.spi.BindingPublisher;
+import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
 import org.sonatype.inject.EagerSingleton;
 
 import com.google.inject.Binder;
+import com.google.inject.Binding;
 import com.google.inject.Key;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
@@ -32,7 +33,7 @@ import com.google.inject.spi.ProviderInstanceBinding;
 @Named
 @EagerSingleton
 final class ExtensionBindings
-    implements BindingExporter
+    implements BindingPublisher
 {
     private final IExtensionRegistry registry;
 
@@ -40,10 +41,10 @@ final class ExtensionBindings
     ExtensionBindings( final MutableBeanLocator locator )
     {
         registry = RegistryFactory.getRegistry();
-        locator.publish( this, -1 );
+        locator.add( this, -1 );
     }
 
-    public <T> void publish( final TypeLiteral<T> type, final BindingImporter importer )
+    public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
     {
         final Class<?> clazz = type.getRawType();
         final String pointId = clazz.getPackage().getName(); // FIXME
@@ -56,7 +57,7 @@ final class ExtensionBindings
                 {
                     if ( type.getRawType().isAssignableFrom( loadExtensionClass( config, name ) ) )
                     {
-                        importer.publish( new ExtensionBinding<T>( type, config ), 0 );
+                        subscriber.add( new ExtensionBinding<T>( type, config ), 0 );
                     }
                 }
             }
@@ -67,9 +68,14 @@ final class ExtensionBindings
         }
     }
 
-    public <T> void remove( final TypeLiteral<T> type, final BindingImporter importer )
+    public <T> boolean contains( final Binding<T> binding )
     {
-        // TODO Auto-generated method stub
+        return binding instanceof ExtensionBinding<?>;
+    }
+
+    public <T> void unsubscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+    {
+        // nothing to do, we don't publish injector bindings asynchronously
     }
 
     private static final class ExtensionBinding<T>
@@ -129,22 +135,22 @@ final class ExtensionBindings
             return getProvider();
         }
 
-        public void applyTo( Binder binder )
+        public void applyTo( final Binder binder )
         {
             binder.bind( getKey() ).toProvider( getProvider() );
         }
 
-        public <S> S acceptVisitor( ElementVisitor<S> visitor )
+        public <S> S acceptVisitor( final ElementVisitor<S> visitor )
         {
             return visitor.visit( this );
         }
 
-        public <V> V acceptScopingVisitor( BindingScopingVisitor<V> visitor )
+        public <V> V acceptScopingVisitor( final BindingScopingVisitor<V> visitor )
         {
             return visitor.visitNoScoping();
         }
 
-        public <V> V acceptTargetVisitor( BindingTargetVisitor<? super T, V> visitor )
+        public <V> V acceptTargetVisitor( final BindingTargetVisitor<? super T, V> visitor )
         {
             return visitor.visit( this );
         }
@@ -155,8 +161,8 @@ final class ExtensionBindings
     {
         final Bundle bundle = ContributorFactoryOSGi.resolve( config.getContributor() );
 
-        String value = clazzName;
-        int n = value.indexOf( ':' );
+        final String value = clazzName;
+        final int n = value.indexOf( ':' );
 
         return bundle.loadClass( n < 0 ? value : value.substring( 0, n ) );
     }
