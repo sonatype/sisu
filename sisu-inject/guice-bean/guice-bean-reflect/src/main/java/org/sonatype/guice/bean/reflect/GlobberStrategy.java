@@ -26,13 +26,13 @@ enum GlobberStrategy
     ANYTHING
     {
         @Override
-        public final Object compile( final String glob )
+        final Object compile( final String glob )
         {
             return null;
         }
 
         @Override
-        public final boolean matches( final Object globPattern, final String filename )
+        final boolean matches( final Object globPattern, final String filename )
         {
             return true;
         }
@@ -40,13 +40,13 @@ enum GlobberStrategy
     SUFFIX
     {
         @Override
-        public final Object compile( final String glob )
+        final Object compile( final String glob )
         {
             return glob.substring( 1 ); // remove leading asterisk
         }
 
         @Override
-        public final boolean matches( final Object globPattern, final String filename )
+        final boolean matches( final Object globPattern, final String filename )
         {
             return filename.endsWith( (String) globPattern ); // no need for basename(...)
         }
@@ -54,13 +54,13 @@ enum GlobberStrategy
     PREFIX
     {
         @Override
-        public final Object compile( final String glob )
+        final Object compile( final String glob )
         {
             return glob.substring( 0, glob.length() - 1 ); // remove trailing asterisk
         }
 
         @Override
-        public final boolean matches( final Object globPattern, final String filename )
+        final boolean matches( final Object globPattern, final String filename )
         {
             return basename( filename ).startsWith( (String) globPattern );
         }
@@ -68,13 +68,13 @@ enum GlobberStrategy
     EXACT
     {
         @Override
-        public final Object compile( final String glob )
+        final Object compile( final String glob )
         {
             return glob;
         }
 
         @Override
-        public final boolean matches( final Object globPattern, final String filename )
+        final boolean matches( final Object globPattern, final String filename )
         {
             return ( (String) globPattern ).equals( basename( filename ) );
         }
@@ -82,20 +82,20 @@ enum GlobberStrategy
     PATTERN
     {
         @Override
-        public final Object compile( final String glob )
+        final Object compile( final String glob )
         {
             return Pattern.compile( glob.replaceAll( "[^*]+", "\\\\Q$0\\\\E" ).replaceAll( "\\*+", ".*" ) );
         }
 
         @Override
-        public final boolean matches( final Object globPattern, final String filename )
+        final boolean matches( final Object globPattern, final String filename )
         {
             return ( (Pattern) globPattern ).matcher( basename( filename ) ).matches();
         }
     };
 
     // ----------------------------------------------------------------------
-    // Public methods
+    // Local methods
     // ----------------------------------------------------------------------
 
     /**
@@ -104,7 +104,7 @@ enum GlobberStrategy
      * @param glob The plain-text glob
      * @return Optimal globber strategy
      */
-    public static GlobberStrategy selectFor( final String glob )
+    static final GlobberStrategy selectFor( final String glob )
     {
         if ( null == glob || "*".equals( glob ) )
         {
@@ -136,7 +136,7 @@ enum GlobberStrategy
      * @param glob The plain-text glob
      * @return Compiled glob pattern
      */
-    public abstract Object compile( final String glob );
+    abstract Object compile( final String glob );
 
     /**
      * Attempts to match the given compiled glob pattern against a filename.
@@ -145,7 +145,7 @@ enum GlobberStrategy
      * @param filename The candidate filename
      * @return {@code true} if the pattern matches; otherwise {@code false}
      */
-    public abstract boolean matches( final Object globPattern, final String filename );
+    abstract boolean matches( final Object globPattern, final String filename );
 
     // ----------------------------------------------------------------------
     // Implementation methods

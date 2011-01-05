@@ -24,27 +24,27 @@ public final class Logs
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final boolean DEBUG_ENABLED;
+    private static final String ANCHOR = "{}";
 
     private static final boolean SLF4J_ENABLED;
 
-    private static final String ANCHOR = "{}";
+    private static final boolean DEBUG_ENABLED;
 
     static
     {
-        boolean debugEnabled = false;
         boolean slf4jEnabled = true;
+        boolean debugEnabled = false;
         try
         {
             debugEnabled = org.slf4j.LoggerFactory.getLogger( Logs.class ).isDebugEnabled();
         }
         catch ( final Throwable e )
         {
-            debugEnabled = Logger.getLogger( Logs.class.getName() ).isLoggable( Level.FINE );
             slf4jEnabled = false;
+            debugEnabled = Logger.getLogger( Logs.class.getName() ).isLoggable( Level.FINE );
         }
-        DEBUG_ENABLED = debugEnabled;
         SLF4J_ENABLED = slf4jEnabled;
+        DEBUG_ENABLED = debugEnabled;
     }
 
     // ----------------------------------------------------------------------

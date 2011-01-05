@@ -14,7 +14,6 @@ package org.sonatype.guice.bean.reflect;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -36,7 +35,7 @@ final class ResourceEnumeration
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Iterator<URL> urls;
+    private final URL[] urls;
 
     private final String subPath;
 
@@ -45,6 +44,8 @@ final class ResourceEnumeration
     private final Object globPattern;
 
     private final boolean recurse;
+
+    private int index;
 
     private URL currentURL;
 
@@ -72,8 +73,7 @@ final class ResourceEnumeration
         globber = GlobberStrategy.selectFor( glob );
         globPattern = globber.compile( glob );
         this.recurse = recurse;
-
-        this.urls = Arrays.asList( urls ).iterator();
+        this.urls = urls;
     }
 
     // ----------------------------------------------------------------------
@@ -92,9 +92,9 @@ final class ResourceEnumeration
                     nextEntryName = name;
                 }
             }
-            else if ( urls.hasNext() )
+            else if ( index < urls.length )
             {
-                currentURL = urls.next();
+                currentURL = urls[index++];
                 entryNames = scan( currentURL );
             }
             else

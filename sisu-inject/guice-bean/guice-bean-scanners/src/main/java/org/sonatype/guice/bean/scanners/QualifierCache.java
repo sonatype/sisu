@@ -47,6 +47,17 @@ final class QualifierCache
     // Public methods
     // ----------------------------------------------------------------------
 
+    @Override
+    public AnnotationVisitor visitAnnotation( final String desc, final boolean visible )
+    {
+        isQualified |= QUALIFIER_DESC.equals( desc );
+        return null;
+    }
+
+    // ----------------------------------------------------------------------
+    // Local methods
+    // ----------------------------------------------------------------------
+
     /**
      * Attempts to load the potential {@link Qualifier} annotation and return its class.
      * 
@@ -55,7 +66,7 @@ final class QualifierCache
      * @return Qualified annotation class; {@code null} if the annotation is not a qualifier
      */
     @SuppressWarnings( "unchecked" )
-    public Class<Annotation> qualify( final ClassSpace space, final String desc )
+    Class<Annotation> qualify( final ClassSpace space, final String desc )
     {
         if ( !cachedResults.containsKey( desc ) )
         {
@@ -67,12 +78,5 @@ final class QualifierCache
             cachedResults.put( desc, isQualified ? space.loadClass( name.replace( '/', '.' ) ) : null );
         }
         return (Class<Annotation>) cachedResults.get( desc );
-    }
-
-    @Override
-    public AnnotationVisitor visitAnnotation( final String desc, final boolean visible )
-    {
-        isQualified |= QUALIFIER_DESC.equals( desc );
-        return null;
     }
 }

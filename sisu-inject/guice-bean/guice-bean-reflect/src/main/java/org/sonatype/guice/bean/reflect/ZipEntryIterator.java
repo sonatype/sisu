@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -71,11 +70,7 @@ final class ZipEntryIterator
 
     public String next()
     {
-        if ( hasNext() )
-        {
-            return entryNames[index++];
-        }
-        throw new NoSuchElementException();
+        return entryNames[index++];
     }
 
     public void remove()

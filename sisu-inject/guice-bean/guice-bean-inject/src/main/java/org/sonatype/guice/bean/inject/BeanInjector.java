@@ -45,10 +45,10 @@ final class BeanInjector<B>
     {
         final int size = bindings.size();
         this.bindings = new PropertyBinding[size];
-        for ( int i = 0, n = size; i < size; i++ )
+        for ( int i = 0, n = size; i < size; )
         {
             // reverse: inject superclass before sub
-            this.bindings[i] = bindings.get( --n );
+            this.bindings[i++] = bindings.get( --n );
         }
     }
 
@@ -78,10 +78,14 @@ final class BeanInjector<B>
         }
     }
 
+    // ----------------------------------------------------------------------
+    // Local methods
+    // ----------------------------------------------------------------------
+
     /**
      * @return {@code true} if this thread is performing bean injection; otherwise {@code false}
      */
-    public static boolean isInjecting()
+    static boolean isInjecting()
     {
         return isInjectingHolder.get()[0];
     }

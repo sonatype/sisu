@@ -85,7 +85,7 @@ public final class BeanListener
             }
         }
 
-        if ( !bindings.isEmpty() )
+        if ( bindings.size() > 0 )
         {
             encounter.register( new BeanInjector<B>( bindings ) );
         }

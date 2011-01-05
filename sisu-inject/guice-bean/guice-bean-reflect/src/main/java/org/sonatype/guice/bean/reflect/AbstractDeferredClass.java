@@ -56,6 +56,10 @@ abstract class AbstractDeferredClass<T>
             }
             finally
             {
+                if ( e instanceof RuntimeException )
+                {
+                    throw (RuntimeException) e;
+                }
                 throw new ProvisionException( message, e );
             }
         }

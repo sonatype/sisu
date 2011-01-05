@@ -121,6 +121,30 @@ public class DeferredProviderTest
         {
         }
 
+        try
+        {
+            Guice.createInjector( new AbstractModule()
+            {
+                @Override
+                protected void configure()
+                {
+                    bind( C.class ).toProvider( new LoadedClass<C>( CImpl.class ).asProvider() );
+                    bind( CImpl.class ).toProvider( new Provider<CImpl>()
+                    {
+                        public CImpl get()
+                        {
+                            throw new LinkageError( "Broken Provider" );
+                        }
+                    } );
+                }
+            } ).getInstance( C.class );
+
+            fail( "Expected ProvisionException" );
+        }
+        catch ( final ProvisionException e )
+        {
+        }
+
         final ClassSpace space = new URLClassSpace( C.class.getClassLoader(), null );
         try
         {

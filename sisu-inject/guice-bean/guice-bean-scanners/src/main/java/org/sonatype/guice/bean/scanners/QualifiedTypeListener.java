@@ -16,6 +16,8 @@ import java.lang.annotation.Annotation;
 
 import javax.inject.Qualifier;
 
+import com.google.inject.Binder;
+
 /**
  * Listens for types annotated with {@link Qualifier} annotations.
  */
@@ -27,6 +29,7 @@ public interface QualifiedTypeListener
      * @param qualifier The qualifier
      * @param qualifiedType The qualified type
      * @param source The source of this type
+     * @see Binder#withSource(Object)
      */
     void hear( Annotation qualifier, Class<?> qualifiedType, Object source );
 }

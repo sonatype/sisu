@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
 
@@ -31,9 +30,9 @@ public class ZipEntryIteratorTest
         try
         {
             i.next();
-            fail( "Expected NoSuchElementException" );
+            fail( "Expected Exception" );
         }
-        catch ( final NoSuchElementException e )
+        catch ( final Exception e )
         {
         }
     }
@@ -45,9 +44,9 @@ public class ZipEntryIteratorTest
         try
         {
             i.next();
-            fail( "Expected NoSuchElementException" );
+            fail( "Expected Exception" );
         }
-        catch ( final NoSuchElementException e )
+        catch ( final Exception e )
         {
         }
     }
@@ -59,9 +58,9 @@ public class ZipEntryIteratorTest
         try
         {
             i.next();
-            fail( "Expected NoSuchElementException" );
+            fail( "Expected Exception" );
         }
-        catch ( final NoSuchElementException e )
+        catch ( final Exception e )
         {
         }
     }
@@ -75,9 +74,9 @@ public class ZipEntryIteratorTest
         try
         {
             i.next();
-            fail( "Expected NoSuchElementException" );
+            fail( "Expected Exception" );
         }
-        catch ( final NoSuchElementException e )
+        catch ( final Exception e )
         {
         }
     }
@@ -96,9 +95,9 @@ public class ZipEntryIteratorTest
         try
         {
             i.next();
-            fail( "Expected NoSuchElementException" );
+            fail( "Expected Exception" );
         }
-        catch ( final NoSuchElementException e )
+        catch ( final Exception e )
         {
         }
     }
@@ -124,9 +123,9 @@ public class ZipEntryIteratorTest
         try
         {
             i.next();
-            fail( "Expected NoSuchElementException" );
+            fail( "Expected Exception" );
         }
-        catch ( final NoSuchElementException e )
+        catch ( final Exception e )
         {
         }
     }
@@ -149,9 +148,9 @@ public class ZipEntryIteratorTest
         try
         {
             i.next();
-            fail( "Expected NoSuchElementException" );
+            fail( "Expected Exception" );
         }
-        catch ( final NoSuchElementException e )
+        catch ( final Exception e )
         {
         }
     }
@@ -162,9 +161,9 @@ public class ZipEntryIteratorTest
         try
         {
             i.next();
-            fail( "Expected NoSuchElementException" );
+            fail( "Expected Exception" );
         }
-        catch ( final NoSuchElementException e )
+        catch ( final Exception e )
         {
         }
     }

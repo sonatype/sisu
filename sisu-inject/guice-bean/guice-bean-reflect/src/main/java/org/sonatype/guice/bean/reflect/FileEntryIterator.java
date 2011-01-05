@@ -16,7 +16,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.NoSuchElementException;
 
 /**
  * {@link Iterator} that iterates over named entries beneath a file-system directory.
@@ -58,21 +57,17 @@ final class FileEntryIterator
 
     public boolean hasNext()
     {
-        return !entryNames.isEmpty();
+        return entryNames.size() > 0;
     }
 
     public String next()
     {
-        if ( hasNext() )
+        final String name = entryNames.removeFirst();
+        if ( recurse && name.endsWith( "/" ) )
         {
-            final String name = entryNames.removeFirst();
-            if ( recurse && name.endsWith( "/" ) )
-            {
-                appendEntries( name );
-            }
-            return name;
+            appendEntries( name );
         }
-        throw new NoSuchElementException();
+        return name;
     }
 
     public void remove()
