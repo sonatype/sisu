@@ -22,7 +22,7 @@
   </modules>
 
   <properties>
-    <sisu.guice.version>2.9.2</sisu.guice.version>
+    <sisu.guice.version>2.9.3</sisu.guice.version>
   </properties>
 
   <dependencyManagement>
