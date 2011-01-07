@@ -13,6 +13,7 @@
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -57,7 +58,11 @@ final class QualifiedBeans<Q extends Annotation, T>
 
     public synchronized Iterator<BeanEntry<Q, T>> iterator()
     {
-        return new QualifiedBeanIterator();
+        if ( null != beanCache )
+        {
+            return new QualifiedBeanIterator( new IdentityHashMap<Binding<T>, BeanEntry<Q, T>>( beanCache ) );
+        }
+        return new QualifiedBeanIterator( Collections.<Binding<T>, BeanEntry<Q, T>> emptyMap() );
     }
 
     public synchronized void keepAlive( final List<Binding<T>> activeBindings )
@@ -100,16 +105,13 @@ final class QualifiedBeans<Q extends Annotation, T>
 
         private final RankedBindings<T>.Itr itr = bindings.iterator();
 
-        private Map<Binding<T>, BeanEntry<Q, T>> readCache;
+        private final Map<Binding<T>, BeanEntry<Q, T>> readCache;
 
         private BeanEntry<Q, T> nextBean;
 
-        QualifiedBeanIterator()
+        QualifiedBeanIterator( final Map<Binding<T>, BeanEntry<Q, T>> readCache )
         {
-            if ( null != beanCache )
-            {
-                readCache = new IdentityHashMap<Binding<T>, BeanEntry<Q, T>>( beanCache );
-            }
+            this.readCache = readCache;
         }
 
         // ----------------------------------------------------------------------
@@ -125,13 +127,10 @@ final class QualifiedBeans<Q extends Annotation, T>
             while ( itr.hasNext() )
             {
                 final Binding<T> binding = itr.next();
-                if ( null != readCache )
+                nextBean = readCache.get( binding );
+                if ( null != nextBean )
                 {
-                    nextBean = readCache.get( binding );
-                    if ( null != nextBean )
-                    {
-                        return true;
-                    }
+                    return true;
                 }
                 @SuppressWarnings( "unchecked" )
                 final Q qualifier = (Q) strategy.qualifies( key, binding );

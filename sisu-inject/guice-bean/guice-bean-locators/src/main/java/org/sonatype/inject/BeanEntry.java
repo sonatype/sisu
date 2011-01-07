@@ -13,13 +13,12 @@
 package org.sonatype.inject;
 
 import java.lang.annotation.Annotation;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Qualifier;
 
 /**
- * {@link Map.Entry} that maps a JSR330 @{@link Qualifier} annotation to a bean implementation.
+ * Map {@link Entry} that maps a JSR330 @{@link Qualifier} annotation to a bean implementation.
  */
 public interface BeanEntry<Q extends Annotation, T>
     extends Entry<Q, T>
