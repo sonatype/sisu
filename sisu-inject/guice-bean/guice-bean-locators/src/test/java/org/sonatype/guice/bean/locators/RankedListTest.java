@@ -187,6 +187,23 @@ public class RankedListTest
         assertEquals( 0, list.size() );
     }
 
+    public void testIndexing()
+    {
+        final RankedList<String> list = new RankedList<String>();
+
+        final String markerString = new String( "A" );
+
+        list.insert( new String( "A" ), 1 );
+        list.insert( new String( "A" ), 3 );
+        list.insert( markerString, 2 );
+
+        assertEquals( 0, list.indexOf( new String( "A" ) ) );
+        assertEquals( 0, list.indexOf( markerString ) );
+
+        assertEquals( -1, list.indexOfThis( new String( "A" ) ) );
+        assertEquals( 1, list.indexOfThis( markerString ) );
+    }
+
     public void testEmptyList()
     {
         final Iterator<Object> itr = new RankedList<Object>().iterator();
@@ -338,6 +355,82 @@ public class RankedListTest
         assertEquals( "Y", clone.remove( 0 ) );
         assertEquals( "Z", clone.remove( 0 ) );
         assertTrue( clone.isEmpty() );
+    }
+
+    @SuppressWarnings( "deprecation" )
+    public void testUnsupportedMethods()
+    {
+        final RankedList<Object> list = new RankedList<Object>();
+
+        try
+        {
+            list.add( 0, null );
+            fail( "Expected UnsupportedOperationException" );
+        }
+        catch ( final UnsupportedOperationException e )
+        {
+            // expected
+        }
+
+        try
+        {
+            list.addAll( 0, null );
+            fail( "Expected UnsupportedOperationException" );
+        }
+        catch ( final UnsupportedOperationException e )
+        {
+            // expected
+        }
+
+        try
+        {
+            list.set( 0, null );
+            fail( "Expected UnsupportedOperationException" );
+        }
+        catch ( final UnsupportedOperationException e )
+        {
+            // expected
+        }
+
+        try
+        {
+            list.lastIndexOf( null );
+            fail( "Expected UnsupportedOperationException" );
+        }
+        catch ( final UnsupportedOperationException e )
+        {
+            // expected
+        }
+
+        try
+        {
+            list.listIterator();
+            fail( "Expected UnsupportedOperationException" );
+        }
+        catch ( final UnsupportedOperationException e )
+        {
+            // expected
+        }
+
+        try
+        {
+            list.listIterator( 0 );
+            fail( "Expected UnsupportedOperationException" );
+        }
+        catch ( final UnsupportedOperationException e )
+        {
+            // expected
+        }
+
+        try
+        {
+            list.subList( 0, 0 );
+            fail( "Expected UnsupportedOperationException" );
+        }
+        catch ( final UnsupportedOperationException e )
+        {
+            // expected
+        }
     }
 
     public void testConcurrentIteration()

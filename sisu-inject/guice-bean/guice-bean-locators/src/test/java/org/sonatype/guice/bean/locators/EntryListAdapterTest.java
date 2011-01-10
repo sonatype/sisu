@@ -110,6 +110,47 @@ public class EntryListAdapterTest
     }
 
     @SuppressWarnings( "boxing" )
+    public void testIterator()
+    {
+        final Map<Integer, String> map = new LinkedHashMap<Integer, String>();
+
+        map.put( 3, "C" );
+        map.put( 1, "A" );
+        map.put( 2, "B" );
+
+        final Iterator<String> i = new EntryListAdapter<Integer, String>( map.entrySet() ).iterator();
+
+        assertTrue( i.hasNext() );
+
+        try
+        {
+            i.remove();
+            fail( "Expected UnsupportedOperationException" );
+        }
+        catch ( final UnsupportedOperationException e )
+        {
+        }
+
+        assertEquals( "C", i.next() );
+        assertTrue( i.hasNext() );
+
+        assertEquals( "A", i.next() );
+        assertTrue( i.hasNext() );
+
+        assertEquals( "B", i.next() );
+        assertFalse( i.hasNext() );
+
+        try
+        {
+            i.next();
+            fail( "Expected NoSuchElementException" );
+        }
+        catch ( final NoSuchElementException e )
+        {
+        }
+    }
+
+    @SuppressWarnings( "boxing" )
     public void testListIterator()
     {
         final Map<Integer, String> map = new LinkedHashMap<Integer, String>();

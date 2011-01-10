@@ -80,6 +80,9 @@ public class DefaultBeanLocatorTest
             @Override
             protected void configure()
             {
+                binder().withSource( new HiddenBinding()
+                {
+                } ).bind( Bean.class ).annotatedWith( Names.named( "HIDDEN" ) ).to( BeanImpl.class );
             }
         } );
 
@@ -213,6 +216,28 @@ public class DefaultBeanLocatorTest
         assertFalse( i.hasNext() );
 
         locator.remove( child3 );
+
+        i = roles.iterator();
+        assertFalse( i.hasNext() );
+
+        locator.add( parent, 3 );
+        locator.add( child1, 2 );
+        locator.add( child2, 1 );
+        locator.add( child3, 0 );
+
+        i = roles.iterator();
+        assertEquals( Names.named( "default" ), i.next().getKey() );
+        assertEquals( Names.named( "default" ), i.next().getKey() );
+        assertEquals( Names.named( "A" ), i.next().getKey() );
+        assertEquals( Names.named( "-" ), i.next().getKey() );
+        assertEquals( Names.named( "Z" ), i.next().getKey() );
+        assertEquals( Names.named( "M1" ), i.next().getKey() );
+        assertEquals( Names.named( "N1" ), i.next().getKey() );
+        assertEquals( Names.named( "M3" ), i.next().getKey() );
+        assertEquals( Names.named( "N3" ), i.next().getKey() );
+        assertFalse( i.hasNext() );
+
+        locator.clear();
 
         i = roles.iterator();
         assertFalse( i.hasNext() );

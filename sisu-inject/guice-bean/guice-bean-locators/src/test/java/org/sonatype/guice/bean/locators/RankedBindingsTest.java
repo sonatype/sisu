@@ -15,6 +15,8 @@ package org.sonatype.guice.bean.locators;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import javax.inject.Named;
+
 import junit.framework.TestCase;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
@@ -23,6 +25,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
@@ -71,6 +74,16 @@ public class RankedBindingsTest
         final RankedList<BindingPublisher> exporters = new RankedList<BindingPublisher>();
 
         RankingFunction function;
+
+        try
+        {
+            new DefaultRankingFunction( -1 );
+            fail( "Expected IllegalArgumentException" );
+        }
+        catch ( final IllegalArgumentException e )
+        {
+            // expected
+        }
 
         function = new DefaultRankingFunction( 1 );
         exporters.insert( new InjectorPublisher( injector1, function ), function.maxRank() );
@@ -174,6 +187,49 @@ public class RankedBindingsTest
         assertFalse( itr.hasNext() );
     }
 
+    public void testIsActive()
+    {
+        final Key<Bean> key = Key.get( TypeLiteral.get( Bean.class ) );
+        final RankedBindings<Bean> bindings = new RankedBindings<Bean>( key.getTypeLiteral(), null );
+
+        assertFalse( bindings.isActive() );
+        LocatedBeans<Named, Bean> namedBeans1 = new LocatedBeans<Named, Bean>( key, bindings );
+        assertTrue( bindings.isActive() );
+        LocatedBeans<Named, Bean> namedBeans2 = new LocatedBeans<Named, Bean>( key, bindings );
+        assertTrue( bindings.isActive() );
+        LocatedBeans<Named, Bean> namedBeans3 = new LocatedBeans<Named, Bean>( key, bindings );
+        assertTrue( bindings.isActive() );
+
+        assertFalse( namedBeans1.iterator().hasNext() );
+        assertFalse( namedBeans2.iterator().hasNext() );
+        assertFalse( namedBeans3.iterator().hasNext() );
+
+        bindings.add( new InjectorPublisher( injector1, new DefaultRankingFunction( 1 ) ), 1 );
+
+        assertTrue( namedBeans1.iterator().hasNext() );
+        assertTrue( namedBeans2.iterator().hasNext() );
+        assertTrue( namedBeans3.iterator().hasNext() );
+
+        namedBeans2 = null;
+        System.gc();
+
+        assertTrue( namedBeans1.iterator().hasNext() );
+        assertTrue( namedBeans3.iterator().hasNext() );
+
+        bindings.remove( new InjectorPublisher( injector1, null ) );
+
+        assertFalse( namedBeans1.iterator().hasNext() );
+        assertFalse( namedBeans3.iterator().hasNext() );
+
+        assertTrue( bindings.isActive() );
+
+        namedBeans1 = null;
+        namedBeans3 = null;
+        System.gc();
+
+        assertFalse( bindings.isActive() );
+    }
+
     public void testExporterRemoval()
     {
         final BindingPublisher exporter1 = new InjectorPublisher( injector1, new DefaultRankingFunction( 1 ) );
@@ -191,9 +247,9 @@ public class RankedBindingsTest
         bindings.remove( exporter1 );
         assertTrue( itr.hasNext() );
         assertNull( itr.next().getKey().getAnnotation() );
+        bindings.remove( injector3.findBindingsByType( TypeLiteral.get( Bean.class ) ).get( 0 ) );
         bindings.remove( exporter2 );
-        bindings.remove( exporter3 );
-
+        bindings.remove( injector1.findBindingsByType( TypeLiteral.get( Bean.class ) ).get( 0 ) );
         assertFalse( itr.hasNext() );
 
         itr = bindings.iterator();

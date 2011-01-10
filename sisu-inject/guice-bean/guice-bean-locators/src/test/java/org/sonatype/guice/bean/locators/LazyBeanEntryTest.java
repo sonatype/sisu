@@ -25,7 +25,7 @@ import com.google.inject.Provider;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
-public class QualifiedBeanTest
+public class LazyBeanEntryTest
     extends TestCase
 {
     static class CountingProvider
