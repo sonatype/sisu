@@ -54,7 +54,8 @@ public interface BeanEntry<Q extends Annotation, T>
     /**
      * Returns an arbitrary object that describes where this bean was configured.
      * 
-     * @return Source of the bean
+     * @return Source location
+     * @see Object#toString()
      */
     Object getSource();
 

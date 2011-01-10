@@ -23,9 +23,9 @@ import com.google.inject.Binding;
 import com.google.inject.Scopes;
 
 /**
- * Lazy {@link BeanEntry} backed by a qualified {@link Binding}.
+ * Lazy {@link BeanEntry} backed by a qualified {@link Binding} and an assigned rank.
  */
-final class LazyQualifiedBean<Q extends Annotation, T>
+final class LazyBeanEntry<Q extends Annotation, T>
     implements BeanEntry<Q, T>
 {
     // ----------------------------------------------------------------------
@@ -44,7 +44,7 @@ final class LazyQualifiedBean<Q extends Annotation, T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    LazyQualifiedBean( final Q qualifier, final Binding<T> binding, final int rank )
+    LazyBeanEntry( final Q qualifier, final Binding<T> binding, final int rank )
     {
         this.qualifier = qualifier;
         this.binding = binding;

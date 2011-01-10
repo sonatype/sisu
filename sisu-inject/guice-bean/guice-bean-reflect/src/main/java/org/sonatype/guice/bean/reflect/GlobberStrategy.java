@@ -76,7 +76,7 @@ enum GlobberStrategy
         @Override
         final boolean matches( final Object globPattern, final String filename )
         {
-            return ( (String) globPattern ).equals( basename( filename ) );
+            return globPattern.equals( basename( filename ) );
         }
     },
     PATTERN
@@ -84,7 +84,7 @@ enum GlobberStrategy
         @Override
         final Object compile( final String glob )
         {
-            return Pattern.compile( glob.replaceAll( "[^*]+", "\\\\Q$0\\\\E" ).replaceAll( "\\*+", ".*" ) );
+            return Pattern.compile( "\\Q" + glob.replaceAll( "\\*+", "\\\\E.*\\\\Q" ) + "\\E" );
         }
 
         @Override

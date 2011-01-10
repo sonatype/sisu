@@ -130,7 +130,7 @@ public final class PlexusXmlScanner
     {
         try
         {
-            final InputStream in = Streams.openStream( url );
+            final InputStream in = Streams.open( url );
             try
             {
                 final MXParser parser = new MXParser();
@@ -183,7 +183,7 @@ public final class PlexusXmlScanner
     {
         try
         {
-            final InputStream in = Streams.openStream( url );
+            final InputStream in = Streams.open( url );
             try
             {
                 final MXParser parser = new MXParser();

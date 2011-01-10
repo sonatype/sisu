@@ -13,10 +13,10 @@
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -25,14 +25,17 @@ import org.sonatype.inject.BeanEntry;
 import com.google.inject.Binding;
 import com.google.inject.Key;
 
-final class QualifiedBeans<Q extends Annotation, T>
-    implements Iterable<BeanEntry<Q, T>>, BeanCache<T>
+/**
+ * Provides a sequence of {@link BeanEntry}s by searching qualified {@link Binding}s.
+ * 
+ * @see BeanLocator#locate(Key)
+ */
+final class LocatedBeans<Q extends Annotation, T>
+    implements Iterable<BeanEntry<Q, T>>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
-
-    Map<Binding<T>, BeanEntry<Q, T>> beanCache;
 
     final Key<T> key;
 
@@ -40,32 +43,42 @@ final class QualifiedBeans<Q extends Annotation, T>
 
     final QualifyingStrategy strategy;
 
+    Map<Binding<T>, BeanEntry<Q, T>> beanCache;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    QualifiedBeans( final Key<T> key, final RankedBindings<T> bindings )
+    LocatedBeans( final Key<T> key, final RankedBindings<T> bindings )
     {
         this.key = key;
         this.bindings = bindings;
 
         strategy = QualifyingStrategy.selectFor( key );
+
+        bindings.addLocatedBeans( this );
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
     public synchronized Iterator<BeanEntry<Q, T>> iterator()
     {
-        if ( null != beanCache )
-        {
-            return new QualifiedBeanIterator( new IdentityHashMap<Binding<T>, BeanEntry<Q, T>>( beanCache ) );
-        }
-        return new QualifiedBeanIterator( Collections.<Binding<T>, BeanEntry<Q, T>> emptyMap() );
+        return new Itr( null != beanCache ? new IdentityHashMap( beanCache ) : Collections.EMPTY_MAP );
     }
 
-    public synchronized void keepAlive( final List<Binding<T>> activeBindings )
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Evict any stale {@link BeanEntry}s from this collection; an entry is stale if its binding is gone.
+     * 
+     * @param activeBindings The active bindings
+     */
+    synchronized void retainAll( final Collection<Binding<T>> activeBindings )
     {
         if ( null != beanCache )
         {
@@ -73,10 +86,14 @@ final class QualifiedBeans<Q extends Annotation, T>
         }
     }
 
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
+    /**
+     * Caches a {@link BeanEntry} for the given qualified binding; returns existing entry if already cached.
+     * 
+     * @param qualifier The qualifier
+     * @param binding The binding
+     * @param rank The assigned rank
+     * @return Cached bean entry
+     */
     synchronized BeanEntry<Q, T> cacheBean( final Q qualifier, final Binding<T> binding, final int rank )
     {
         if ( null == beanCache )
@@ -86,7 +103,7 @@ final class QualifiedBeans<Q extends Annotation, T>
         BeanEntry<Q, T> bean = beanCache.get( binding );
         if ( null == bean )
         {
-            bean = new LazyQualifiedBean<Q, T>( qualifier, binding, rank );
+            bean = new LazyBeanEntry<Q, T>( qualifier, binding, rank );
             beanCache.put( binding, bean );
         }
         return bean;
@@ -96,7 +113,10 @@ final class QualifiedBeans<Q extends Annotation, T>
     // Implementation types
     // ----------------------------------------------------------------------
 
-    private final class QualifiedBeanIterator
+    /**
+     * {@link BeanEntry} iterator that creates new elements from {@link Binding}s as required.
+     */
+    private final class Itr
         implements Iterator<BeanEntry<Q, T>>
     {
         // ----------------------------------------------------------------------
@@ -109,7 +129,11 @@ final class QualifiedBeans<Q extends Annotation, T>
 
         private BeanEntry<Q, T> nextBean;
 
-        QualifiedBeanIterator( final Map<Binding<T>, BeanEntry<Q, T>> readCache )
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
+        Itr( final Map<Binding<T>, BeanEntry<Q, T>> readCache )
         {
             this.readCache = readCache;
         }

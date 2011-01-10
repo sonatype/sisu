@@ -143,7 +143,6 @@ final class RankedList<T>
     /**
      * Similar function to {@link #indexOf(Object)} except it uses {@code ==} instead of {@code equals}.
      * 
-     * @param o The exact element to search for
      * @see #indexOf(Object)
      */
     public int indexOfThis( final T element )
@@ -353,7 +352,7 @@ final class RankedList<T>
             if ( safeHasNext() )
             {
                 nextObj = (T) cachedObjs[index];
-                nextUID = cachedUIDs[index] + 1;
+                nextUID = cachedUIDs[index];
                 return true;
             }
             return false;
@@ -379,6 +378,7 @@ final class RankedList<T>
         {
             if ( hasNext() )
             {
+                nextUID++; // guarantees progress when re-positioning
                 index++;
 
                 // populated by hasNext()

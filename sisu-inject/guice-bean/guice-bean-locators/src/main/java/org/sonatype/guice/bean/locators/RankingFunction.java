@@ -15,10 +15,24 @@ package org.sonatype.guice.bean.locators;
 import com.google.inject.Binding;
 import com.google.inject.ImplementedBy;
 
+/**
+ * Assigns each {@link Binding} a rank according to some function; higher ranks take precedence over lower ranks.
+ */
 @ImplementedBy( DefaultRankingFunction.class )
 public interface RankingFunction
 {
+    /**
+     * Estimates the maximum possible rank for this function; used to arrange injectors in order of ranking probability.
+     * 
+     * @return Maximum rank
+     */
     int maxRank();
 
+    /**
+     * Assigns a numeric rank to the given binding.
+     * 
+     * @param binding The binding
+     * @return Assigned rank
+     */
     <T> int rank( Binding<T> binding );
 }

@@ -12,34 +12,57 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import javax.inject.Inject;
+
 import com.google.inject.Binding;
 
+/**
+ * Simple {@link RankingFunction} that partitions qualified bindings into two main groups.<br>
+ * Default bindings are given zero or positive ranks; the rest are given negative ranks.
+ */
 public final class DefaultRankingFunction
     implements RankingFunction
 {
-    private final int rank;
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
 
+    private final int primaryRank;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    public DefaultRankingFunction( final int primaryRank )
+    {
+        if ( primaryRank < 0 )
+        {
+            throw new IllegalArgumentException( "Primary rank must be zero or more" );
+        }
+        this.primaryRank = primaryRank;
+    }
+
+    @Inject
     public DefaultRankingFunction()
     {
-        this( 0 );
+        this( 0 ); // use this as the default primary rank unless otherwise configured
     }
 
-    public DefaultRankingFunction( final int rank )
-    {
-        if ( rank < 0 )
-        {
-            throw new IllegalArgumentException( "Default rank must be zero or more" );
-        }
-        this.rank = rank;
-    }
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
     public int maxRank()
     {
-        return rank;
+        return primaryRank;
     }
 
     public <T> int rank( final Binding<T> binding )
     {
-        return null == binding.getKey().getAnnotationType() ? rank : rank - Integer.MAX_VALUE;
+        if ( QualifyingStrategy.DEFAULT_QUALIFIER.equals( QualifyingStrategy.qualify( binding.getKey() ) ) )
+        {
+            return primaryRank;
+        }
+        return primaryRank + Integer.MIN_VALUE; // shifts primary range of [0,MAX_VALUE] down to [MIN_VALUE,-1]
     }
 }

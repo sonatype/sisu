@@ -51,7 +51,7 @@ public final class Streams
     /**
      * Opens an input stream to the given URL; disables JAR caching on Windows.
      */
-    public static InputStream openStream( final URL url )
+    public static InputStream open( final URL url )
         throws IOException
     {
         if ( ON_WINDOWS )

@@ -15,10 +15,10 @@ package org.sonatype.guice.bean.locators;
 import java.lang.annotation.Annotation;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.IdentityHashMap;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.sonatype.guice.bean.locators.spi.BindingDistributor;
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
@@ -30,6 +30,11 @@ import org.sonatype.inject.Mediator;
 import com.google.inject.Binding;
 import com.google.inject.Key;
 
+/**
+ * Provides dynamic {@link BeanEntry} notifications by tracking qualified {@link Binding}s.
+ * 
+ * @see BeanLocator#watch(Key, Mediator, Object)
+ */
 final class WatchedBeans<Q extends Annotation, T, W>
     implements BindingDistributor, BindingSubscriber
 {
@@ -64,12 +69,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
     // Public methods
     // ----------------------------------------------------------------------
 
-    public boolean isActive()
-    {
-        return null != watcherRef.get();
-    }
-
-    public void add( final BindingPublisher publisher, final int rank )
+    public synchronized void add( final BindingPublisher publisher, final int rank )
     {
         publisher.subscribe( key.getTypeLiteral(), this );
     }
@@ -77,13 +77,14 @@ final class WatchedBeans<Q extends Annotation, T, W>
     public synchronized void remove( final BindingPublisher publisher )
     {
         publisher.unsubscribe( key.getTypeLiteral(), this );
-        final List<Binding<T>> bindings = new ArrayList<Binding<T>>( beanCache.keySet() );
-        for ( int i = 0, size = bindings.size(); i < size; i++ )
+
+        for ( final Iterator<Entry<Binding<T>, BeanEntry<Q, T>>> itr = beanCache.entrySet().iterator(); itr.hasNext(); )
         {
-            final Binding<T> binding = bindings.get( i );
-            if ( publisher.contains( binding ) )
+            final Entry<Binding<T>, BeanEntry<Q, T>> cacheEntry = itr.next();
+            if ( publisher.contains( cacheEntry.getKey() ) )
             {
-                remove( binding );
+                notify( WatcherEvent.REMOVE, cacheEntry.getValue() );
+                itr.remove();
             }
         }
     }
@@ -94,20 +95,9 @@ final class WatchedBeans<Q extends Annotation, T, W>
         final Q qualifier = (Q) strategy.qualifies( key, binding );
         if ( null != qualifier )
         {
-            final W watcher = watcherRef.get();
-            if ( null != watcher )
-            {
-                final BeanEntry<Q, T> bean = new LazyQualifiedBean<Q, T>( qualifier, binding, rank );
-                beanCache.put( binding, bean );
-                try
-                {
-                    mediator.add( bean, watcher );
-                }
-                catch ( final Throwable e )
-                {
-                    Logs.warn( mediator.getClass(), "Problem notifying: " + watcher.getClass(), e );
-                }
-            }
+            final BeanEntry<Q, T> bean = new LazyBeanEntry<Q, T>( qualifier, binding, rank );
+            beanCache.put( binding, bean );
+            notify( WatcherEvent.ADD, bean );
         }
     }
 
@@ -117,38 +107,71 @@ final class WatchedBeans<Q extends Annotation, T, W>
         final BeanEntry<Q, T> bean = beanCache.remove( binding );
         if ( null != bean )
         {
-            final W watcher = watcherRef.get();
-            if ( null != watcher )
-            {
-                try
-                {
-                    mediator.remove( bean, watcher );
-                }
-                catch ( final Throwable e )
-                {
-                    Logs.warn( mediator.getClass(), "Problem notifying: " + watcher.getClass(), e );
-                }
-            }
+            notify( WatcherEvent.REMOVE, bean );
         }
     }
 
     public synchronized void clear()
     {
+        for ( final BeanEntry<Q, T> bean : beanCache.values() )
+        {
+            notify( WatcherEvent.REMOVE, bean );
+        }
+        beanCache.clear();
+    }
+
+    // ----------------------------------------------------------------------
+    // Local methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * @return {@code true} if these watched beans are still in use; otherwise {@code false}
+     */
+    boolean isActive()
+    {
+        return null != watcherRef.get();
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Notifies the watching object of the given watcher event; uses the {@link Mediator} pattern.
+     * 
+     * @param event The watcher event
+     * @param bean The bean entry
+     */
+    private void notify( final WatcherEvent event, final BeanEntry<Q, T> bean )
+    {
         final W watcher = watcherRef.get();
         if ( null != watcher )
         {
-            for ( final BeanEntry<Q, T> bean : beanCache.values() )
+            try
             {
-                try
+                switch ( event )
                 {
-                    mediator.remove( bean, watcher );
-                }
-                catch ( final Throwable e )
-                {
-                    Logs.warn( mediator.getClass(), "Problem notifying: " + watcher.getClass(), e );
+                    case ADD:
+                        mediator.add( bean, watcher );
+                        break;
+                    case REMOVE:
+                        mediator.remove( bean, watcher );
+                        break;
                 }
             }
+            catch ( final Throwable e )
+            {
+                Logs.warn( mediator.getClass(), "Problem notifying: " + watcher.getClass(), e );
+            }
         }
-        beanCache.clear();
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    private static enum WatcherEvent
+    {
+        ADD, REMOVE
     }
 }

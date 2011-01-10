@@ -31,7 +31,7 @@ import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 /**
- * Default {@link MutableBeanLocator} that finds qualified beans across a dynamic group of {@link BindingPublisher}s.
+ * Default {@link MutableBeanLocator} that locates qualified beans across a dynamic group of {@link BindingPublisher}s.
  */
 @Singleton
 @SuppressWarnings( { "rawtypes", "unchecked" } )
@@ -54,18 +54,15 @@ public final class DefaultBeanLocator
 
     public synchronized Iterable<BeanEntry> locate( final Key key )
     {
-        final RankedBindings bindings = bindingsForType( key.getTypeLiteral() );
-        final QualifiedBeans beans = new QualifiedBeans( key, bindings );
-        bindings.addBeanCache( beans );
-        return beans;
+        return new LocatedBeans( key, bindingsForType( key.getTypeLiteral() ) );
     }
 
     public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )
     {
         final WatchedBeans beans = new WatchedBeans( key, mediator, watcher );
-        for ( final BindingPublisher publisher : publishers )
+        for ( int i = 0, size = publishers.size(); i < size; i++ )
         {
-            beans.add( publisher, 0 );
+            beans.add( publishers.get( i ), 0 /* unused */);
         }
         watchedBeans.add( beans );
     }
@@ -107,9 +104,13 @@ public final class DefaultBeanLocator
     // Implementation methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Automatically publishes any {@link Injector} containing a binding to this {@link BeanLocator}.
+     * 
+     * @param The injector
+     */
     @Inject
-    @SuppressWarnings( "unused" )
-    private void autoPublish( final Injector injector )
+    void autoPublish( final Injector injector )
     {
         final RankingFunction function = injector.getInstance( RankingFunction.class );
         add( new InjectorPublisher( injector, function ), function.maxRank() );
@@ -121,17 +122,24 @@ public final class DefaultBeanLocator
      * @param type The required type
      * @return Sequence of ranked bindings
      */
-    private <T> RankedBindings bindingsForType( final TypeLiteral<T> type )
+    private <T> RankedBindings<T> bindingsForType( final TypeLiteral<T> type )
     {
-        RankedBindings bindings = bindingsCache.get( type );
+        RankedBindings<T> bindings = bindingsCache.get( type );
         if ( null == bindings )
         {
-            bindings = new RankedBindings( type, publishers );
+            bindings = new RankedBindings<T>( type, publishers );
             bindingsCache.put( type, bindings );
         }
         return bindings;
     }
 
+    /**
+     * Distributes the given binding event to interested parties.
+     * 
+     * @param event The binding event
+     * @param publisher The publisher
+     * @param rank The assigned rank
+     */
     private void distribute( final BindingEvent event, final BindingPublisher publisher, final int rank )
     {
         for ( final Iterator<RankedBindings> itr = bindingsCache.values().iterator(); itr.hasNext(); )
@@ -139,11 +147,11 @@ public final class DefaultBeanLocator
             final RankedBindings bindings = itr.next();
             if ( bindings.isActive() )
             {
-                event.apply( bindings, publisher, rank );
+                notify( bindings, event, publisher, rank );
             }
             else
             {
-                itr.remove();
+                itr.remove(); // cleanup up stale entries
             }
         }
 
@@ -152,12 +160,37 @@ public final class DefaultBeanLocator
             final WatchedBeans beans = watchedBeans.get( i );
             if ( beans.isActive() )
             {
-                event.apply( beans, publisher, rank );
+                notify( beans, event, publisher, rank );
             }
             else
             {
-                watchedBeans.remove( i-- );
+                watchedBeans.remove( i-- ); // cleanup up stale entries
             }
+        }
+    }
+
+    /**
+     * Notifies the given distributor of the given binding event and its optional details.
+     * 
+     * @param distributor The distributor
+     * @param event The binding event
+     * @param publisher The optional publisher
+     * @param rank The optional assigned rank
+     */
+    private static void notify( final BindingDistributor distributor, final BindingEvent event,
+                                final BindingPublisher publisher, final int rank )
+    {
+        switch ( event )
+        {
+            case ADD:
+                distributor.add( publisher, rank );
+                break;
+            case REMOVE:
+                distributor.remove( publisher );
+                break;
+            case CLEAR:
+                distributor.clear();
+                break;
         }
     }
 
@@ -167,31 +200,6 @@ public final class DefaultBeanLocator
 
     private static enum BindingEvent
     {
-        ADD
-        {
-            @Override
-            void apply( final BindingDistributor distributor, final BindingPublisher publisher, final int rank )
-            {
-                distributor.add( publisher, rank );
-            }
-        },
-        REMOVE
-        {
-            @Override
-            void apply( final BindingDistributor distributor, final BindingPublisher publisher, final int rank )
-            {
-                distributor.remove( publisher );
-            }
-        },
-        CLEAR
-        {
-            @Override
-            void apply( final BindingDistributor distributor, final BindingPublisher publisher, final int rank )
-            {
-                distributor.clear();
-            }
-        };
-
-        abstract void apply( final BindingDistributor distributor, final BindingPublisher publisher, final int rank );
+        ADD, REMOVE, CLEAR
     }
 }

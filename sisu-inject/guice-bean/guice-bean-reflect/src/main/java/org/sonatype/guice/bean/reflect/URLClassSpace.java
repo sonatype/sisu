@@ -259,7 +259,7 @@ public final class URLClassSpace
             manifestURL = new URL( "jar:" + url + "!/" + MANIFEST_ENTRY );
         }
 
-        final InputStream in = Streams.openStream( manifestURL );
+        final InputStream in = Streams.open( manifestURL );
         try
         {
             final String classPath = new Manifest( in ).getMainAttributes().getValue( "Class-Path" );

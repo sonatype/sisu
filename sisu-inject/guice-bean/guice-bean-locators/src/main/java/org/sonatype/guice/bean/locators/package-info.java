@@ -12,12 +12,12 @@
  */
 
 /**
- * Qualified bean location.
+ * Locate qualified bean implementations across multiple injectors.
  *
  * <p>The principal members of this package are:
  * <dl>
  * <dt>{@link org.sonatype.guice.bean.locators.BeanLocator}
- * <dd>Finds and tracks beans annotated with {@link javax.inject.Qualifier} annotations.
+ * <dd>Finds and tracks bean implementations annotated with {@link javax.inject.Qualifier} annotations.
  * <dt>{@link org.sonatype.guice.bean.locators.MutableBeanLocator}
  * <dd>Mutable {@link org.sonatype.guice.bean.locators.BeanLocator} that distributes bindings from zero or more {@link org.sonatype.guice.bean.locators.spi.BindingPublisher}s.
  * <dt>{@link org.sonatype.guice.bean.locators.BeanDescription}

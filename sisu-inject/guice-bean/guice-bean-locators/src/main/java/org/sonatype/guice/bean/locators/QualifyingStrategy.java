@@ -33,7 +33,7 @@ enum QualifyingStrategy
     UNRESTRICTED
     {
         @Override
-        public final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
+        final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
         {
             final Annotation qualifier = qualify( binding.getKey() );
             return null != qualifier ? qualifier : BLANK_QUALIFIER;
@@ -42,7 +42,7 @@ enum QualifyingStrategy
     NAMED
     {
         @Override
-        public final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
+        final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
         {
             final Annotation qualifier = qualify( binding.getKey() );
             return qualifier instanceof Named ? qualifier : null;
@@ -51,7 +51,7 @@ enum QualifyingStrategy
     NAMED_WITH_ATTRIBUTES
     {
         @Override
-        public final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
+        final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
         {
             final Annotation qualifier = qualify( binding.getKey() );
             return requirement.getAnnotation().equals( qualifier ) ? qualifier : null;
@@ -60,7 +60,7 @@ enum QualifyingStrategy
     MARKED
     {
         @Override
-        public final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
+        final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
         {
             final Class<? extends Annotation> markerType = requirement.getAnnotationType();
 
@@ -77,7 +77,7 @@ enum QualifyingStrategy
     MARKED_WITH_ATTRIBUTES
     {
         @Override
-        public final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
+        final Annotation qualifies( final Key<?> requirement, final Binding<?> binding )
         {
             final Annotation qualifier = MARKED.qualifies( requirement, binding );
             return requirement.getAnnotation().equals( qualifier ) ? qualifier : null;
@@ -93,10 +93,25 @@ enum QualifyingStrategy
     static final Annotation BLANK_QUALIFIER = Names.named( "" );
 
     // ----------------------------------------------------------------------
-    // Public methods
+    // Local methods
     // ----------------------------------------------------------------------
 
-    public static QualifyingStrategy selectFor( final Key<?> key )
+    /**
+     * Attempts to qualify the given {@link Binding} against the requirement {@link Key}.
+     * 
+     * @param requirement The requirement key
+     * @param binding The binding to qualify
+     * @return Qualifier annotation when the binding qualifies; otherwise {@code null}
+     */
+    abstract Annotation qualifies( final Key<?> requirement, final Binding<?> binding );
+
+    /**
+     * Selects the appropriate qualifying strategy for the given requirement {@link Key}.
+     * 
+     * @param key The requirement key
+     * @return Qualifying strategy
+     */
+    static final QualifyingStrategy selectFor( final Key<?> key )
     {
         final Class<?> qualifierType = key.getAnnotationType();
         if ( null == qualifierType )
@@ -109,19 +124,6 @@ enum QualifyingStrategy
         }
         return key.hasAttributes() ? QualifyingStrategy.MARKED_WITH_ATTRIBUTES : QualifyingStrategy.MARKED;
     }
-
-    /**
-     * Attempts to qualify the given {@link Binding} against the requirement {@link Key}.
-     * 
-     * @param requirement The requirement key
-     * @param binding The binding to qualify
-     * @return Qualifier annotation when the binding qualifies; otherwise {@code null}
-     */
-    public abstract Annotation qualifies( final Key<?> requirement, final Binding<?> binding );
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
 
     /**
      * Computes a canonical {@link Qualifier} annotation for the given binding {@link Key}.

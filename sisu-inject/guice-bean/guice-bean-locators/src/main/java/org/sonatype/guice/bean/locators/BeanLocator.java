@@ -29,16 +29,16 @@ import com.google.inject.Key;
 public interface BeanLocator
 {
     /**
-     * Finds beans that match the given qualified binding {@link Key}.
+     * Finds bean implementations that match the given qualified binding {@link Key}.
      * 
      * @param key The qualified key
-     * @return Sequence of beans that match the given key
+     * @return Sequence of bean entries that match the given key
      */
     <Q extends Annotation, T> Iterable<BeanEntry<Q, T>> locate( Key<T> key );
 
     /**
-     * Tracks beans that match the given qualified binding {@link Key}. <br>
-     * Uses the {@link Mediator} pattern to send events to the watcher.
+     * Tracks bean implementations that match the given qualified binding {@link Key}. <br>
+     * Uses the {@link Mediator} pattern to send events to an arbitrary watcher object.
      * 
      * @param key The qualified key
      * @param mediator The event mediator

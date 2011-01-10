@@ -12,6 +12,8 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import java.util.List;
+
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
 
@@ -20,7 +22,7 @@ import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 
 /**
- * Publisher of {@link Binding}s from a single {@link Injector}; uses a {@link RankingFunction} to rank bindings.
+ * Publisher of {@link Binding}s from a single {@link Injector}; ranked according to a given {@link RankingFunction}.
  */
 final class InjectorPublisher
     implements BindingPublisher
@@ -49,8 +51,10 @@ final class InjectorPublisher
 
     public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber importer )
     {
-        for ( final Binding<T> binding : injector.findBindingsByType( type ) )
+        final List<Binding<T>> bindings = injector.findBindingsByType( type );
+        for ( int i = 0, size = bindings.size(); i < size; i++ )
         {
+            final Binding<T> binding = bindings.get( i );
             if ( false == binding.getSource() instanceof HiddenBinding )
             {
                 importer.add( binding, function.rank( binding ) );
@@ -60,6 +64,7 @@ final class InjectorPublisher
 
     public <T> boolean contains( final Binding<T> binding )
     {
+        // make sure we really own the binding: use identity not equality
         return binding == injector.getBindings().get( binding.getKey() );
     }
 

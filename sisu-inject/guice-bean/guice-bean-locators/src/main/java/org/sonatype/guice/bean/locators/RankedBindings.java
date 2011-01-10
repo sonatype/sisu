@@ -12,6 +12,7 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import java.lang.annotation.Annotation;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import com.google.inject.Binding;
 import com.google.inject.TypeLiteral;
 
 /**
- * Ordered {@link Iterable} sequence of {@link Binding}s that queries {@link BindingPublisher}s on demand.
+ * Ordered sequence of {@link Binding}s that automatically subscribes to {@link BindingPublisher}s on demand.
  */
 final class RankedBindings<T>
     implements BindingDistributor, BindingSubscriber, Iterable<Binding<T>>
@@ -37,7 +38,7 @@ final class RankedBindings<T>
 
     final RankedList<Binding<T>> bindings = new RankedList<Binding<T>>();
 
-    final List<Reference<BeanCache<T>>> beanCaches = new ArrayList<Reference<BeanCache<T>>>();
+    final List<Reference<LocatedBeans<?, T>>> locatedBeans = new ArrayList<Reference<LocatedBeans<?, T>>>();
 
     final RankedList<BindingPublisher> pendingPublishers;
 
@@ -47,49 +48,15 @@ final class RankedBindings<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    public RankedBindings( final TypeLiteral<T> type, final RankedList<BindingPublisher> publishers )
+    RankedBindings( final TypeLiteral<T> type, final RankedList<BindingPublisher> publishers )
     {
-        this.type = type;
-
         pendingPublishers = null != publishers ? publishers.clone() : new RankedList<BindingPublisher>();
+        this.type = type;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
-
-    public TypeLiteral<T> type()
-    {
-        return type;
-    }
-
-    public void addBeanCache( final BeanCache<T> cache )
-    {
-        synchronized ( beanCaches )
-        {
-            beanCaches.add( new WeakReference<BeanCache<T>>( cache ) );
-        }
-    }
-
-    public boolean isActive()
-    {
-        boolean isActive = false;
-        synchronized ( beanCaches )
-        {
-            for ( int i = 0; i < beanCaches.size(); i++ )
-            {
-                if ( null != beanCaches.get( i ).get() )
-                {
-                    isActive = true;
-                }
-                else
-                {
-                    beanCaches.remove( i-- );
-                }
-            }
-        }
-        return isActive;
-    }
 
     public void add( final BindingPublisher publisher, final int rank )
     {
@@ -103,21 +70,26 @@ final class RankedBindings<T>
     {
         synchronized ( pendingPublishers )
         {
-            // extra cleanup if already subscribed
+            // extra cleanup if we're already subscribed
             if ( !pendingPublishers.remove( publisher ) )
             {
                 publisher.unsubscribe( type, this );
                 synchronized ( bindings )
                 {
+                    boolean updated = false;
                     for ( int i = 0; i < bindings.size(); i++ )
                     {
                         if ( publisher.contains( bindings.get( i ) ) )
                         {
                             bindings.remove( i-- );
+                            updated = true;
                         }
                     }
+                    if ( updated )
+                    {
+                        evictStaleBeanEntries();
+                    }
                 }
-                flushBeanCaches();
             }
         }
     }
@@ -144,38 +116,81 @@ final class RankedBindings<T>
         }
     }
 
-    public Itr iterator()
-    {
-        return new Itr();
-    }
-
     public void clear()
     {
         synchronized ( pendingPublishers )
         {
             pendingPublishers.clear();
+            synchronized ( bindings )
+            {
+                bindings.clear();
+                evictStaleBeanEntries();
+            }
         }
-        synchronized ( bindings )
+    }
+
+    public Itr iterator()
+    {
+        return new Itr();
+    }
+
+    // ----------------------------------------------------------------------
+    // Local methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Associates the given {@link LocatedBeans} with this binding sequence so they can receive future updates.
+     * 
+     * @param beans The located beans
+     */
+    <Q extends Annotation> void addLocatedBeans( final LocatedBeans<Q, T> beans )
+    {
+        synchronized ( locatedBeans )
         {
-            bindings.clear();
+            locatedBeans.add( new WeakReference<LocatedBeans<?, T>>( beans ) );
         }
-        flushBeanCaches();
+    }
+
+    /**
+     * @return {@code true} if this binding sequence is still associated with active beans; otherwise {@code false}
+     */
+    boolean isActive()
+    {
+        boolean isActive = false;
+        synchronized ( locatedBeans )
+        {
+            for ( int i = 0; i < locatedBeans.size(); i++ )
+            {
+                if ( null != locatedBeans.get( i ).get() )
+                {
+                    isActive = true;
+                }
+                else
+                {
+                    locatedBeans.remove( i-- );
+                }
+            }
+        }
+        return isActive;
     }
 
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private void flushBeanCaches()
+    /**
+     * Evicts any stale bean entries from the associated {@link LocatedBeans}.
+     */
+    private void evictStaleBeanEntries()
     {
-        synchronized ( beanCaches )
+        synchronized ( locatedBeans )
         {
-            for ( int i = 0, size = beanCaches.size(); i < size; i++ )
+            for ( int i = 0, size = locatedBeans.size(); i < size; i++ )
             {
-                final BeanCache<T> cache = beanCaches.get( i ).get();
-                if ( null != cache )
+                final LocatedBeans<?, T> beans = locatedBeans.get( i ).get();
+                if ( null != beans )
                 {
-                    cache.keepAlive( bindings );
+                    beans.retainAll( bindings );
                 }
             }
         }
@@ -185,6 +200,9 @@ final class RankedBindings<T>
     // Implementation types
     // ----------------------------------------------------------------------
 
+    /**
+     * {@link Binding} iterator that only subscribes to {@link BindingPublisher}s as required.
+     */
     final class Itr
         implements Iterator<Binding<T>>
     {
@@ -204,10 +222,11 @@ final class RankedBindings<T>
             {
                 synchronized ( pendingPublishers )
                 {
+                    // check whether the next publisher _might_ contain a higher ranked binding, and if so use it
                     while ( pendingPublishers.size() > 0 && pendingPublishers.getRank( 0 ) > itr.peekNextRank() )
                     {
                         // be careful not to remove the pending publisher until after it's used
-                        // otherwise another iterator could skip past the initial size() check
+                        // otherwise another iterator could skip past the initial size() check!
                         pendingPublishers.get( 0 ).subscribe( type, RankedBindings.this );
                         pendingPublishers.remove( 0 );
                     }
