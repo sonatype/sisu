@@ -72,43 +72,65 @@ public class PropertiesConverter
 
         final Properties retValue = new Properties();
 
-        final PlexusConfiguration[] children = configuration.getChildren( "property" );
-
-        if ( children != null && children.length > 0 )
+        for ( int i = 0, n = configuration.getChildCount(); i < n; i++ )
         {
-            for ( final PlexusConfiguration child : children )
+            PlexusConfiguration childConfiguration = configuration.getChild( i );
+
+            final Object name;
+            final PlexusConfiguration value;
+
+            if ( "property".equals( childConfiguration.getName() ) && childConfiguration.getChildCount() > 0 )
             {
-                addEntry( retValue, element, child, expressionEvaluator );
+                // <property>
+                // <name>key</name>
+                // <value>val</value>
+                // </property>
+
+                name = fromExpression( childConfiguration.getChild( "name" ), expressionEvaluator );
+
+                value = childConfiguration.getChild( "value" );
             }
+            else if ( childConfiguration.getChildCount() <= 0 )
+            {
+                // <key>val</key>
+
+                name = childConfiguration.getName();
+
+                value = childConfiguration;
+            }
+            else
+            {
+                continue;
+            }
+
+            addEntry( retValue, element, name, value, expressionEvaluator );
         }
 
         return retValue;
     }
 
-    private void addEntry( final Properties properties, final String element, final PlexusConfiguration property,
-                           final ExpressionEvaluator expressionEvaluator )
+    private void addEntry( final Properties properties, final String element, final Object name,
+                           final PlexusConfiguration valueConfiguration, final ExpressionEvaluator expressionEvaluator )
         throws ComponentConfigurationException
     {
-        final Object name = fromExpression( property.getChild( "name" ), expressionEvaluator );
+        final String key = ( name != null ) ? name.toString() : null;
 
-        if ( name == null )
+        if ( key == null )
         {
-            final String msg =
-                "Trying to convert the configuration element: '" + element
-                    + "', missing child element 'name' for property.";
+            final String msg = "Missing name for property of configuration element '" + element + "'";
 
             throw new ComponentConfigurationException( msg );
         }
 
-        final Object value = fromExpression( property.getChild( "value" ), expressionEvaluator );
+        final Object value = fromExpression( valueConfiguration, expressionEvaluator );
 
         if ( value == null )
         {
-            properties.setProperty( name.toString(), "" );
+            properties.setProperty( key, "" );
         }
         else
         {
-            properties.setProperty( name.toString(), value.toString() );
+            properties.setProperty( key, value.toString() );
         }
     }
 
