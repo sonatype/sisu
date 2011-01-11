@@ -42,6 +42,7 @@ import org.codehaus.plexus.component.configurator.converters.ConfigurationConver
 import org.codehaus.plexus.component.configurator.converters.lookup.ConverterLookup;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
+import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.codehaus.plexus.util.StringUtils;
 
 /**
@@ -72,6 +73,21 @@ public class CollectionConverter
                 Collections.addAll( collection, (Object[]) retValue );
                 retValue = collection;
             }
+            else if ( retValue instanceof String
+                && ( !retValue.equals( configuration.getValue() ) || "".equals( retValue ) ) )
+            {
+                /*
+                 * NOTE: String input is supported for expressions only to avoid inconsistent merge behavior when
+                 * configuration DOMs mix cdata value with element content.
+                 */
+
+                PlexusConfiguration syntheticConfiguration =
+                    toConfiguration( configuration.getName(), (String) retValue );
+
+                retValue =
+                    fromChildren( converterLookup, syntheticConfiguration, type, baseType, classLoader,
+                                  expressionEvaluator, listener );
+            }
             else
             {
                 failIfNotTypeCompatible( retValue, type, configuration );
@@ -85,6 +101,21 @@ public class CollectionConverter
         }
 
         return retValue;
+    }
+
+    private PlexusConfiguration toConfiguration( String name, String value )
+    {
+        final PlexusConfiguration configuration = new XmlPlexusConfiguration( name );
+
+        final String[] tokens = ( value != null && value.length() > 0 ) ? value.split( ",", -1 ) : new String[0];
+
+        for ( String token : tokens )
+        {
+            // use a name that can't accidentally clash with any existing bean class
+            configuration.addChild( "#", token );
+        }
+
+        return configuration;
     }
 
     private Object fromChildren( final ConverterLookup converterLookup, final PlexusConfiguration configuration,

@@ -894,4 +894,74 @@ public abstract class AbstractComponentConfiguratorTest
         assertEquals( Arrays.asList( "0", "1", "2" ), component.getList() );
     }
 
+    public void testComponentConfigurationWhereArrayIsConfiguredFromCommaSeparatedStringExpression()
+        throws Exception
+    {
+        final String xml =
+            "<configuration>" + "<stringArray>${arr0}</stringArray>" + "<objectArray>${arr1}</objectArray>"
+                + "</configuration>";
+
+        final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
+
+        final ComponentWithArrayFields component = new ComponentWithArrayFields();
+
+        final ExpressionEvaluator evaluator = new DefaultExpressionEvaluator()
+        {
+            public Object evaluate( final String expression )
+            {
+                if ( "${arr0}".equals( expression ) )
+                {
+                    return " 1 ,,";
+                }
+                else if ( "${arr1}".equals( expression ) )
+                {
+                    return "";
+                }
+                return super.evaluate( expression );
+            }
+        };
+
+        configureComponent( component, configuration, evaluator );
+
+        assertNotNull( component.getStringArray() );
+        assertArrayEquals( new String[] { " 1 ", null, null }, component.getStringArray() );
+
+        assertNotNull( component.getObjectArray() );
+        assertEquals( 0, component.getObjectArray().length );
+    }
+
+    public void testComponentConfigurationWhereCollectionIsConfiguredFromCommaSeparatedStringExpression()
+        throws Exception
+    {
+        final String xml = "<configuration>" + "<list>${list}</list>" + "<set>${set}</set>" + "</configuration>";
+
+        final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
+
+        final ComponentWithCollectionFields component = new ComponentWithCollectionFields();
+
+        final ExpressionEvaluator evaluator = new DefaultExpressionEvaluator()
+        {
+            public Object evaluate( final String expression )
+            {
+                if ( "${list}".equals( expression ) )
+                {
+                    return " 1 ,,";
+                }
+                else if ( "${set}".equals( expression ) )
+                {
+                    return "";
+                }
+                return super.evaluate( expression );
+            }
+        };
+
+        configureComponent( component, configuration, evaluator );
+
+        assertNotNull( component.getList() );
+        assertEquals( Arrays.asList( " 1 ", null, null ), component.getList() );
+
+        assertNotNull( component.getSet() );
+        assertEquals( 0, component.getSet().size() );
+    }
+
 }
