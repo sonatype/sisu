@@ -245,11 +245,6 @@ public abstract class AbstractComponentConfiguratorTest
                 + "       <name>life</name>" + "    </important-thing>" + "  </list>" + "  <stringList>"
                 + "    <something>abc</something>" + "    <somethingElse>def</somethingElse>" + "  </stringList>"
                 + "   <set><something>abc</something></set>" + "   <sortedSet><something>abc</something></sortedSet>" +
-                // TODO: implement List<int> etc..
-                // "<intList>" +
-                // "  <something>12</something>" +
-                // "  <somethingElse>34</somethingElse>" +
-                // "</intList>" +
                 "</configuration>";
 
         final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
@@ -295,6 +290,27 @@ public abstract class AbstractComponentConfiguratorTest
         set = component.getSortedSet();
 
         assertEquals( 1, set.size() );
+    }
+
+    public void testComponentConfigurationWhereFieldsAreGenericCollections()
+        throws Exception
+    {
+        final String xml =
+            "<configuration>" + "<intList>" + "  <something>12</something>" + "  <somethingElse>34</somethingElse>"
+                + "</intList>" + "</configuration>";
+
+        final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
+
+        final ComponentWithCollectionFields component = new ComponentWithCollectionFields();
+
+        configureComponent( component, configuration );
+
+        final List<?> intList = component.getIntList();
+
+        assertEquals( 2, intList.size() );
+        assertEquals( Integer.class, intList.get( 0 ).getClass() );
+        assertEquals( new Integer( 12 ), intList.get( 0 ) );
+        assertEquals( new Integer( 34 ), intList.get( 1 ) );
     }
 
     public void testComponentConfigurationWhereFieldsAreArrays()

@@ -20,6 +20,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.codehaus.plexus.component.configurator.ConfigurationListener;
@@ -45,11 +47,15 @@ public class ComponentValueSetter
 
     private ConfigurationConverter setterTypeConverter;
 
+    private Type[] setterTypeArguments;
+
     private Field field;
 
     private Class fieldType;
 
     private ConfigurationConverter fieldTypeConverter;
+
+    private Type[] fieldTypeArguments;
 
     private final ConfigurationListener listener;
 
@@ -109,6 +115,11 @@ public class ComponentValueSetter
         try
         {
             setterTypeConverter = lookup.lookupConverterForType( setterParamType );
+
+            if ( setterTypeConverter instanceof ParameterizedConfigurationConverter )
+            {
+                setterTypeArguments = getTypeArguments( setter.getGenericParameterTypes()[0] );
+            }
         }
         catch ( final ComponentConfigurationException e )
         {
@@ -148,11 +159,25 @@ public class ComponentValueSetter
         try
         {
             fieldTypeConverter = lookup.lookupConverterForType( fieldType );
+
+            if ( fieldTypeConverter instanceof ParameterizedConfigurationConverter )
+            {
+                fieldTypeArguments = getTypeArguments( field.getGenericType() );
+            }
         }
         catch ( final ComponentConfigurationException e )
         {
             // ignore, handle later
         }
+    }
+
+    private Type[] getTypeArguments( Type type )
+    {
+        if ( type instanceof ParameterizedType )
+        {
+            return ( (ParameterizedType) type ).getActualTypeArguments();
+        }
+        return null;
     }
 
     private void setValueUsingField( final Object value )
@@ -240,9 +265,20 @@ public class ComponentValueSetter
         {
             try
             {
-                value =
-                    setterTypeConverter.fromConfiguration( lookup, config, setterParamType, object.getClass(),
-                                                           classLoader, evaluator, listener );
+                if ( setterTypeArguments != null )
+                {
+                    ParameterizedConfigurationConverter converter =
+                        (ParameterizedConfigurationConverter) setterTypeConverter;
+                    value =
+                        converter.fromConfiguration( lookup, config, setterParamType, setterTypeArguments,
+                                                     object.getClass(), classLoader, evaluator, listener );
+                }
+                else
+                {
+                    value =
+                        setterTypeConverter.fromConfiguration( lookup, config, setterParamType, object.getClass(),
+                                                               classLoader, evaluator, listener );
+                }
 
                 if ( value != null )
                 {
@@ -282,9 +318,19 @@ public class ComponentValueSetter
         // either no value or setting went wrong. Try
         // new converter.
 
-        value =
-            fieldTypeConverter.fromConfiguration( lookup, config, fieldType, object.getClass(), classLoader, evaluator,
-                                                  listener );
+        if ( fieldTypeArguments != null )
+        {
+            ParameterizedConfigurationConverter converter = (ParameterizedConfigurationConverter) fieldTypeConverter;
+            value =
+                converter.fromConfiguration( lookup, config, fieldType, fieldTypeArguments, object.getClass(),
+                                             classLoader, evaluator, listener );
+        }
+        else
+        {
+            value =
+                fieldTypeConverter.fromConfiguration( lookup, config, fieldType, object.getClass(), classLoader,
+                                                      evaluator, listener );
+        }
 
         if ( value != null )
         {

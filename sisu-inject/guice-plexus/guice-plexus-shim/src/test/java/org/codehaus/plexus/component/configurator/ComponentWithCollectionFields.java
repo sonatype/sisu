@@ -44,6 +44,8 @@ public class ComponentWithCollectionFields
 
     private List stringList;
 
+    private List<Integer> intList;
+
     private Set set;
 
     private SortedSet sortedSet;
@@ -77,4 +79,10 @@ public class ComponentWithCollectionFields
     {
         return sortedSet;
     }
+
+    public List<Integer> getIntList()
+    {
+        return intList;
+    }
+
 }
