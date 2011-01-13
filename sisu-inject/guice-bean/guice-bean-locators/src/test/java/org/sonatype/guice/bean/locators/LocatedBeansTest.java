@@ -24,8 +24,8 @@ import javax.inject.Qualifier;
 
 import junit.framework.TestCase;
 
-import org.sonatype.guice.bean.locators.DefaultBeanLocatorTest.Bean;
-import org.sonatype.guice.bean.locators.DefaultBeanLocatorTest.BeanImpl;
+import org.sonatype.guice.bean.locators.RankedBindingsTest.Bean;
+import org.sonatype.guice.bean.locators.RankedBindingsTest.BeanImpl;
 import org.sonatype.inject.BeanEntry;
 
 import com.google.inject.AbstractModule;
@@ -122,19 +122,19 @@ public class LocatedBeansTest
         final Iterator<BeanEntry<Annotation, Bean>> itr = beans.iterator();
 
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( QualifyingStrategy.DEFAULT_QUALIFIER, itr.next().getKey() );
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( QualifyingStrategy.BLANK_QUALIFIER, itr.next().getKey() );
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( Names.named( "Named1" ), itr.next().getKey() );
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( Names.named( "Named2" ), itr.next().getKey() );
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( QualifyingStrategy.BLANK_QUALIFIER, itr.next().getKey() );
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( MarkedBeanImpl1.class.getAnnotation( Marked.class ), itr.next().getKey() );
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( Names.named( "Marked2" ), itr.next().getKey() );
         assertFalse( itr.hasNext() );
     }
 
@@ -144,13 +144,13 @@ public class LocatedBeansTest
         final Iterator<BeanEntry<Named, Bean>> itr = beans.iterator();
 
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( QualifyingStrategy.DEFAULT_QUALIFIER, itr.next().getKey() );
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( Names.named( "Named1" ), itr.next().getKey() );
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( Names.named( "Named2" ), itr.next().getKey() );
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( Names.named( "Marked2" ), itr.next().getKey() );
         assertFalse( itr.hasNext() );
     }
 
@@ -160,7 +160,7 @@ public class LocatedBeansTest
         final Iterator<BeanEntry<Named, Bean>> itr = beans.iterator();
 
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( Names.named( "Named2" ), itr.next().getKey() );
         assertFalse( itr.hasNext() );
     }
 
@@ -170,9 +170,9 @@ public class LocatedBeansTest
         final Iterator<BeanEntry<Marked, Bean>> itr = beans.iterator();
 
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( MarkedBeanImpl1.class.getAnnotation( Marked.class ), itr.next().getKey() );
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( MarkedBeanImpl2.class.getAnnotation( Marked.class ), itr.next().getKey() );
         assertFalse( itr.hasNext() );
     }
 
@@ -183,7 +183,7 @@ public class LocatedBeansTest
         final Iterator<BeanEntry<Marked, Bean>> itr = beans.iterator();
 
         assertTrue( itr.hasNext() );
-        itr.next();
+        assertEquals( MarkedBeanImpl2.class.getAnnotation( Marked.class ), itr.next().getKey() );
         assertFalse( itr.hasNext() );
     }
 

@@ -41,6 +41,11 @@ public class RankedBindingsTest
     {
     }
 
+    static class BeanImpl2
+        implements Bean
+    {
+    }
+
     static Injector injector1 = Guice.createInjector( new AbstractModule()
     {
         @Override

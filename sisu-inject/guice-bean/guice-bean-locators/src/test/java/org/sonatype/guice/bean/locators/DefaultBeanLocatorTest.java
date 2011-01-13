@@ -18,30 +18,24 @@ import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
 
+import org.sonatype.guice.bean.locators.RankedBindingsTest.Bean;
+import org.sonatype.guice.bean.locators.RankedBindingsTest.BeanImpl;
+import org.sonatype.guice.bean.locators.RankedBindingsTest.BeanImpl2;
+import org.sonatype.guice.bean.locators.spi.BindingPublisher;
+import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
+
 import com.google.inject.AbstractModule;
+import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
 public class DefaultBeanLocatorTest
     extends TestCase
 {
-    interface Bean
-    {
-    }
-
-    static class BeanImpl
-        implements Bean
-    {
-    }
-
-    static class BeanImpl2
-        implements Bean
-    {
-    }
-
     Injector parent;
 
     Injector child1;
@@ -134,6 +128,56 @@ public class DefaultBeanLocatorTest
         {
             // expected
         }
+    }
+
+    public void testInjectorPublisherEquality()
+    {
+        final RankingFunction function1 = new DefaultRankingFunction( 1 );
+        final RankingFunction function2 = new DefaultRankingFunction( 2 );
+
+        assertTrue( new InjectorPublisher( parent, function1 ).equals( new InjectorPublisher( parent, function2 ) ) );
+        assertTrue( new InjectorPublisher( parent, function2 ).equals( new InjectorPublisher( parent, function1 ) ) );
+
+        assertFalse( new InjectorPublisher( child1, function1 ).equals( new InjectorPublisher( child2, function1 ) ) );
+        assertFalse( new InjectorPublisher( child2, function2 ).equals( new InjectorPublisher( child1, function2 ) ) );
+
+        assertFalse( new BindingPublisher()
+        {
+            public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            {
+            }
+
+            public <T> boolean contains( final Binding<T> binding )
+            {
+                return false;
+            }
+
+            public <T> void unsubscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            {
+            }
+        }.equals( new InjectorPublisher( child1, function1 ) ) );
+
+        assertFalse( new InjectorPublisher( child2, function2 ).equals( new BindingPublisher()
+        {
+            public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            {
+            }
+
+            public <T> boolean contains( final Binding<T> binding )
+            {
+                return false;
+            }
+
+            public <T> void unsubscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            {
+            }
+        } ) );
+
+        assertTrue( new InjectorPublisher( parent, function1 ).hashCode() == new InjectorPublisher( parent, function2 ).hashCode() );
+        assertTrue( new InjectorPublisher( parent, function2 ).hashCode() == new InjectorPublisher( parent, function1 ).hashCode() );
+
+        assertFalse( new InjectorPublisher( child1, function1 ).hashCode() == new InjectorPublisher( child2, function1 ).hashCode() );
+        assertFalse( new InjectorPublisher( child2, function2 ).hashCode() == new InjectorPublisher( child1, function2 ).hashCode() );
     }
 
     @SuppressWarnings( "deprecation" )
