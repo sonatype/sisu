@@ -14,6 +14,7 @@ package org.sonatype.guice.bean.locators;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
 
@@ -107,10 +108,32 @@ public class DefaultBeanLocatorTest
             locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
 
         final Iterator<? extends Entry<Named, Bean>> i = roles.iterator();
+
+        assertTrue( i.hasNext() );
         assertEquals( Names.named( "A" ), i.next().getKey() );
         assertEquals( Names.named( "-" ), i.next().getKey() );
         assertEquals( Names.named( "Z" ), i.next().getKey() );
         assertFalse( i.hasNext() );
+
+        try
+        {
+            i.next();
+            fail( "Expected NoSuchElementException" );
+        }
+        catch ( final NoSuchElementException e )
+        {
+            // expected
+        }
+
+        try
+        {
+            i.remove();
+            fail( "Expected UnsupportedOperationException" );
+        }
+        catch ( final UnsupportedOperationException e )
+        {
+            // expected
+        }
     }
 
     @SuppressWarnings( "deprecation" )

@@ -58,6 +58,12 @@ public final class EntryListAdapter<K, V>
     }
 
     @Override
+    public boolean isEmpty()
+    {
+        return false == iterator().hasNext();
+    }
+
+    @Override
     public int size()
     {
         int size = 0;

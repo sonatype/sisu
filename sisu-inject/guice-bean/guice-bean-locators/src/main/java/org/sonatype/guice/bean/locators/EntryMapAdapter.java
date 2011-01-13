@@ -49,6 +49,12 @@ public final class EntryMapAdapter<K, V>
         return entrySet;
     }
 
+    @Override
+    public boolean isEmpty()
+    {
+        return entrySet.isEmpty();
+    }
+
     // ----------------------------------------------------------------------
     // Implementation types
     // ----------------------------------------------------------------------
@@ -83,6 +89,12 @@ public final class EntryMapAdapter<K, V>
         public Iterator<Entry<K, V>> iterator()
         {
             return iterable.iterator();
+        }
+
+        @Override
+        public boolean isEmpty()
+        {
+            return false == iterator().hasNext();
         }
 
         @Override

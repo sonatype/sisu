@@ -31,7 +31,7 @@ public interface BeanEntry<Q extends Annotation, T>
     Q getKey();
 
     /**
-     * Creates a bean instance; returns the same instance for each subsequent call.
+     * Creates an instance of the bean; returns same instance for each subsequent call.
      * 
      * @return Bean instance (lazily-created)
      */

@@ -29,7 +29,7 @@ public interface MutableBeanLocator
     /**
      * Adds the given ranked {@link Injector} and distributes its {@link Binding}s. Marked as deprecated because most
      * clients should <b>not</b> call this method; any injector that contains a binding to the {@link BeanLocator} is
-     * automatically added to the locator as part of the bootstrapping process.
+     * automatically added to that locator as part of the bootstrapping process.
      * 
      * @param injector The new injector
      * @param rank The assigned rank

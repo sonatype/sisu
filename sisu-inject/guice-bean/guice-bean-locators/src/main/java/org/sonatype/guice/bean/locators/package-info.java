@@ -21,9 +21,9 @@
  * <dt>{@link org.sonatype.guice.bean.locators.MutableBeanLocator}
  * <dd>Mutable {@link org.sonatype.guice.bean.locators.BeanLocator} that distributes bindings from zero or more {@link org.sonatype.guice.bean.locators.spi.BindingPublisher}s.
  * <dt>{@link org.sonatype.guice.bean.locators.BeanDescription}
- * <dd>Mixin interface used to supply descriptions to the {@link org.sonatype.guice.bean.locators.BeanLocator}.
+ * <dd>Source location mixin used to supply descriptions to the {@link org.sonatype.guice.bean.locators.BeanLocator}.
  * <dt>{@link org.sonatype.guice.bean.locators.HiddenBinding}
- * <dd>Marker interface used to hide bindings from the {@link org.sonatype.guice.bean.locators.BeanLocator}.
+ * <dd>Source location mixin used to hide bindings from the {@link org.sonatype.guice.bean.locators.BeanLocator}.
  * </dl>
  */
 package org.sonatype.guice.bean.locators;

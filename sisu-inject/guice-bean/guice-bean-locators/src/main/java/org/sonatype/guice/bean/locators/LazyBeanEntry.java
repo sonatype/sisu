@@ -68,7 +68,7 @@ final class LazyBeanEntry<Q extends Annotation, T>
     @SuppressWarnings( "unchecked" )
     public Q getKey()
     {
-        if ( qualifier instanceof com.google.inject.name.Named )
+        if ( com.google.inject.name.Named.class == qualifier.annotationType() )
         {
             return (Q) new JsrNamed( (com.google.inject.name.Named) qualifier );
         }
@@ -83,11 +83,6 @@ final class LazyBeanEntry<Q extends Annotation, T>
     public T setValue( final T value )
     {
         throw new UnsupportedOperationException();
-    }
-
-    public T get()
-    {
-        return getValue();
     }
 
     public String getDescription()

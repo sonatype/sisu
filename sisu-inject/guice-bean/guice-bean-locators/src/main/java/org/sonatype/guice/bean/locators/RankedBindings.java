@@ -27,10 +27,10 @@ import com.google.inject.Binding;
 import com.google.inject.TypeLiteral;
 
 /**
- * Ordered sequence of {@link Binding}s that automatically subscribes to {@link BindingPublisher}s on demand.
+ * Ordered sequence of {@link Binding}s of a given type; subscribes to {@link BindingPublisher}s on demand.
  */
 final class RankedBindings<T>
-    implements BindingDistributor, BindingSubscriber, Iterable<Binding<T>>
+    implements Iterable<Binding<T>>, BindingDistributor, BindingSubscriber
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -38,7 +38,7 @@ final class RankedBindings<T>
 
     final RankedList<Binding<T>> bindings = new RankedList<Binding<T>>();
 
-    final List<Reference<LocatedBeans<?, T>>> locatedBeans = new ArrayList<Reference<LocatedBeans<?, T>>>();
+    final List<Reference<LocatedBeans<?, T>>> locatedBeanRefs = new ArrayList<Reference<LocatedBeans<?, T>>>();
 
     final RankedList<BindingPublisher> pendingPublishers;
 
@@ -108,6 +108,7 @@ final class RankedBindings<T>
     {
         synchronized ( bindings )
         {
+            // we only want to remove this _exact_ instance
             final int index = bindings.indexOfThis( binding );
             if ( index >= 0 )
             {
@@ -139,15 +140,15 @@ final class RankedBindings<T>
     // ----------------------------------------------------------------------
 
     /**
-     * Associates the given {@link LocatedBeans} with this binding sequence so they can receive future updates.
+     * Associates the given {@link LocatedBeans} with this binding sequence so stale beans can be eagerly evicted.
      * 
      * @param beans The located beans
      */
-    <Q extends Annotation> void addLocatedBeans( final LocatedBeans<Q, T> beans )
+    <Q extends Annotation> void linkToBeans( final LocatedBeans<Q, T> beans )
     {
-        synchronized ( locatedBeans )
+        synchronized ( locatedBeanRefs )
         {
-            locatedBeans.add( new WeakReference<LocatedBeans<?, T>>( beans ) );
+            locatedBeanRefs.add( new WeakReference<LocatedBeans<?, T>>( beans ) );
         }
     }
 
@@ -157,17 +158,17 @@ final class RankedBindings<T>
     boolean isActive()
     {
         boolean isActive = false;
-        synchronized ( locatedBeans )
+        synchronized ( locatedBeanRefs )
         {
-            for ( int i = 0; i < locatedBeans.size(); i++ )
+            for ( int i = 0; i < locatedBeanRefs.size(); i++ )
             {
-                if ( null != locatedBeans.get( i ).get() )
+                if ( null != locatedBeanRefs.get( i ).get() )
                 {
                     isActive = true;
                 }
                 else
                 {
-                    locatedBeans.remove( i-- );
+                    locatedBeanRefs.remove( i-- );
                 }
             }
         }
@@ -183,11 +184,11 @@ final class RankedBindings<T>
      */
     private void evictStaleBeanEntries()
     {
-        synchronized ( locatedBeans )
+        synchronized ( locatedBeanRefs )
         {
-            for ( int i = 0, size = locatedBeans.size(); i < size; i++ )
+            for ( int i = 0, size = locatedBeanRefs.size(); i < size; i++ )
             {
-                final LocatedBeans<?, T> beans = locatedBeans.get( i ).get();
+                final LocatedBeans<?, T> beans = locatedBeanRefs.get( i ).get();
                 if ( null != beans )
                 {
                     beans.retainAll( bindings );

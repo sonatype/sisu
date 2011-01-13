@@ -105,9 +105,9 @@ public final class DefaultBeanLocator
     // ----------------------------------------------------------------------
 
     /**
-     * Automatically publishes any {@link Injector} containing a binding to this {@link BeanLocator}.
+     * Automatically publishes any {@link Injector} that contains a binding to this {@link BeanLocator}.
      * 
-     * @param The injector
+     * @param injector The injector
      */
     @Inject
     void autoPublish( final Injector injector )
@@ -117,7 +117,7 @@ public final class DefaultBeanLocator
     }
 
     /**
-     * Returns the {@link RankedBindings} tracking the type; creates a new instance if one doesn't already exist.
+     * Returns the {@link RankedBindings} tracking the given type; creates one if it doesn't already exist.
      * 
      * @param type The required type
      * @return Sequence of ranked bindings
@@ -137,8 +137,8 @@ public final class DefaultBeanLocator
      * Distributes the given binding event to interested parties.
      * 
      * @param event The binding event
-     * @param publisher The publisher
-     * @param rank The assigned rank
+     * @param publisher The optional publisher
+     * @param rank The optional assigned rank
      */
     private void distribute( final BindingEvent event, final BindingPublisher publisher, final int rank )
     {

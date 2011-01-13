@@ -26,7 +26,7 @@ import com.google.inject.Binding;
 import com.google.inject.Key;
 
 /**
- * Provides a sequence of {@link BeanEntry}s by searching qualified {@link Binding}s.
+ * Provides a sequence of {@link BeanEntry}s by iterating over qualified {@link Binding}s.
  * 
  * @see BeanLocator#locate(Key)
  */
@@ -56,7 +56,7 @@ final class LocatedBeans<Q extends Annotation, T>
 
         strategy = QualifyingStrategy.selectFor( key );
 
-        bindings.addLocatedBeans( this );
+        bindings.linkToBeans( this );
     }
 
     // ----------------------------------------------------------------------
