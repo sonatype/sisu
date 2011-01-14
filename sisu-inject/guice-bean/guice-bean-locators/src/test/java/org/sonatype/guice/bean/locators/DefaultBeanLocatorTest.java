@@ -98,10 +98,17 @@ public class DefaultBeanLocatorTest
         final BeanLocator locator = parent.getInstance( BeanLocator.class );
         assertSame( locator, parent.getInstance( MutableBeanLocator.class ) );
 
-        final Iterable<? extends Entry<Named, Bean>> roles =
-            locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
+        Iterator<? extends Entry<Named, Bean>> i;
 
-        final Iterator<? extends Entry<Named, Bean>> i = roles.iterator();
+        i = locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) ).iterator();
+
+        assertTrue( i.hasNext() );
+        assertEquals( Names.named( "A" ), i.next().getKey() );
+        assertEquals( Names.named( "-" ), i.next().getKey() );
+        assertEquals( Names.named( "Z" ), i.next().getKey() );
+        assertFalse( i.hasNext() );
+
+        i = locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) ).iterator();
 
         assertTrue( i.hasNext() );
         assertEquals( Names.named( "A" ), i.next().getKey() );
@@ -318,7 +325,7 @@ public class DefaultBeanLocatorTest
         locator.add( parent, 0 );
         locator.add( child1, 1 );
 
-        final Iterable<? extends Entry<Named, Bean>> roles =
+        Iterable<? extends Entry<Named, Bean>> roles =
             locator.<Named, Bean> locate( Key.get( Bean.class, Named.class ) );
 
         locator.add( child2, 2 );
@@ -337,5 +344,11 @@ public class DefaultBeanLocatorTest
         assertEquals( Names.named( "-" ), i.next().getKey() );
         assertEquals( Names.named( "Z" ), i.next().getKey() );
         assertFalse( i.hasNext() );
+
+        i = null;
+        roles = null;
+        System.gc();
+
+        locator.clear();
     }
 }
