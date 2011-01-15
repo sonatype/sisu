@@ -27,3 +27,4 @@
  * </dl>
  */
 package org.sonatype.guice.bean.scanners;
+

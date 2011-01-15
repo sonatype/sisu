@@ -74,7 +74,7 @@ public class ArrayConverter
                  * configuration DOMs mix cdata value with element content.
                  */
 
-                PlexusConfiguration syntheticConfiguration =
+                final PlexusConfiguration syntheticConfiguration =
                     toConfiguration( configuration.getName(), (String) retValue );
 
                 retValue =
@@ -96,13 +96,13 @@ public class ArrayConverter
         return retValue;
     }
 
-    private PlexusConfiguration toConfiguration( String name, String value )
+    private PlexusConfiguration toConfiguration( final String name, final String value )
     {
         final PlexusConfiguration configuration = new XmlPlexusConfiguration( name );
 
-        final String[] tokens = ( value != null && value.length() > 0 ) ? value.split( ",", -1 ) : new String[0];
+        final String[] tokens = value != null && value.length() > 0 ? value.split( ",", -1 ) : new String[0];
 
-        for ( String token : tokens )
+        for ( final String token : tokens )
         {
             // use a name that can't accidentally clash with any existing bean class
             configuration.addChild( "#", token );

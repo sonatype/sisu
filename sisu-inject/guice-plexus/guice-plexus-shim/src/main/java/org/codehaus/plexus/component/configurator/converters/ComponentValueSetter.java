@@ -171,7 +171,7 @@ public class ComponentValueSetter
         }
     }
 
-    private Type[] getTypeArguments( Type type )
+    private Type[] getTypeArguments( final Type type )
     {
         if ( type instanceof ParameterizedType )
         {
@@ -267,7 +267,7 @@ public class ComponentValueSetter
             {
                 if ( setterTypeArguments != null )
                 {
-                    ParameterizedConfigurationConverter converter =
+                    final ParameterizedConfigurationConverter converter =
                         (ParameterizedConfigurationConverter) setterTypeConverter;
                     value =
                         converter.fromConfiguration( lookup, config, setterParamType, setterTypeArguments,
@@ -320,7 +320,8 @@ public class ComponentValueSetter
 
         if ( fieldTypeArguments != null )
         {
-            ParameterizedConfigurationConverter converter = (ParameterizedConfigurationConverter) fieldTypeConverter;
+            final ParameterizedConfigurationConverter converter =
+                (ParameterizedConfigurationConverter) fieldTypeConverter;
             value =
                 converter.fromConfiguration( lookup, config, fieldType, fieldTypeArguments, object.getClass(),
                                              classLoader, evaluator, listener );

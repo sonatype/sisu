@@ -25,3 +25,4 @@
  * </dl>
  */
 package org.sonatype.guice.bean.containers;
+

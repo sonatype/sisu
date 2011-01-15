@@ -15,3 +15,4 @@
  * Optional Sonatype extensions to <a href="http://jcp.org/en/jsr/detail?id=330">JSR330</a>.
  */
 package org.sonatype.inject;
+

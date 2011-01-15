@@ -244,8 +244,8 @@ public abstract class AbstractComponentConfiguratorTest
                 + "   <list implementation=\"java.util.LinkedList\">" + "     <important-thing>"
                 + "       <name>life</name>" + "    </important-thing>" + "  </list>" + "  <stringList>"
                 + "    <something>abc</something>" + "    <somethingElse>def</somethingElse>" + "  </stringList>"
-                + "   <set><something>abc</something></set>" + "   <sortedSet><something>abc</something></sortedSet>" +
-                "</configuration>";
+                + "   <set><something>abc</something></set>" + "   <sortedSet><something>abc</something></sortedSet>"
+                + "</configuration>";
 
         final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
 

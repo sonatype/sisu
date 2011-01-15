@@ -21,3 +21,4 @@
  * Subset of annotations from <a href="http://jcp.org/en/jsr/detail?id=299">JSR299</a>.
  */
 package javax.enterprise.inject;
+

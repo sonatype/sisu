@@ -74,7 +74,7 @@ public class PropertiesConverter
 
         for ( int i = 0, n = configuration.getChildCount(); i < n; i++ )
         {
-            PlexusConfiguration childConfiguration = configuration.getChild( i );
+            final PlexusConfiguration childConfiguration = configuration.getChild( i );
 
             final Object name;
             final PlexusConfiguration value;
@@ -113,7 +113,7 @@ public class PropertiesConverter
                            final PlexusConfiguration valueConfiguration, final ExpressionEvaluator expressionEvaluator )
         throws ComponentConfigurationException
     {
-        final String key = ( name != null ) ? name.toString() : null;
+        final String key = name != null ? name.toString() : null;
 
         if ( key == null )
         {
