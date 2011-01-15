@@ -125,7 +125,7 @@ public final class DefaultPlexusContainer
 
     private final boolean isAutoWiringEnabled;
 
-    private final Module bootstrapModule = new BootstrapModule();
+    private final Module containerModule = new ContainerModule();
 
     private final Module defaultsModule = new DefaultsModule();
 
@@ -162,7 +162,6 @@ public final class DefaultPlexusContainer
         variables = (Map) new ContextMapAdapter( context );
 
         containerRealm = lookupContainerRealm( configuration );
-        lifecycleManager = new PlexusLifecycleManager( this, context );
 
         componentVisibility = configuration.getComponentVisibility();
         isClassPathScanningEnabled = configuration.getClassPathScanning();
@@ -170,6 +169,7 @@ public final class DefaultPlexusContainer
         isAutoWiringEnabled = configuration.getAutoWiring();
 
         plexusBeanLocator = new DefaultPlexusBeanLocator( qualifiedBeanLocator, componentVisibility );
+        lifecycleManager = new PlexusLifecycleManager( this, context );
 
         realmIds.add( containerRealm.getId() );
         setLookupRealm( containerRealm );
@@ -451,7 +451,7 @@ public final class DefaultPlexusContainer
     {
         final List<Module> modules = new ArrayList<Module>();
 
-        modules.add( bootstrapModule );
+        modules.add( containerModule );
         Collections.addAll( modules, customModules );
         modules.add( new PlexusBindingModule( lifecycleManager, beanModules ) );
         modules.add( defaultsModule );
@@ -764,7 +764,7 @@ public final class DefaultPlexusContainer
         }
     }
 
-    final class BootstrapModule
+    final class ContainerModule
         extends AbstractModule
     {
         final PlexusDateTypeConverter dateConverter = new PlexusDateTypeConverter();

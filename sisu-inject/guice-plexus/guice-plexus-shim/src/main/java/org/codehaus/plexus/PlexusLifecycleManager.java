@@ -10,6 +10,7 @@ package org.codehaus.plexus;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -57,6 +58,8 @@ final class PlexusLifecycleManager
 
     private final Context context;
 
+    List<org.slf4j.ILoggerFactory> loggerFactories;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -65,6 +68,15 @@ final class PlexusLifecycleManager
     {
         this.container = container;
         this.context = context;
+
+        try
+        {
+            loggerFactories = container.lookupList( org.slf4j.ILoggerFactory.class );
+        }
+        catch ( final Throwable e )
+        {
+            loggerFactories = Collections.emptyList();
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -87,7 +99,16 @@ final class PlexusLifecycleManager
                 @SuppressWarnings( "unchecked" )
                 public <B> void injectProperty( final B bean )
                 {
-                    property.set( bean, org.slf4j.LoggerFactory.getLogger( bean.getClass() ) );
+                    final String name = bean.getClass().getName();
+                    final Iterator<org.slf4j.ILoggerFactory> itr = loggerFactories.iterator();
+                    if ( itr.hasNext() )
+                    {
+                        property.set( bean, itr.next().getLogger( name ) );
+                    }
+                    else
+                    {
+                        property.set( bean, org.slf4j.LoggerFactory.getILoggerFactory().getLogger( name ) );
+                    }
                 }
             };
         }

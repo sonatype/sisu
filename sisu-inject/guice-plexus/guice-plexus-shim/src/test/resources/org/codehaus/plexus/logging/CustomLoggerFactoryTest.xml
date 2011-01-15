@@ -1,0 +1,22 @@
+<plexus>
+  <load-on-start>
+    <component>
+      <role>org.codehaus.plexus.logging.CustomLoggerFactoryTest$ComponentWithSLF4J</role>
+    </component>
+  </load-on-start>
+  <components>
+    <component>
+      <implementation>org.codehaus.plexus.logging.CustomLoggerFactoryTest$ComponentWithSLF4J</implementation>
+      <requirements>
+        <requirement>
+          <role>org.slf4j.Logger</role>
+          <field-name>loggerRequirement</field-name>
+        </requirement>
+      </requirements>
+    </component>
+    <component>
+      <role>org.slf4j.ILoggerFactory</role>
+      <implementation>org.codehaus.plexus.logging.MockLoggerFactory</implementation>
+    </component>
+  </components>
+</plexus>
