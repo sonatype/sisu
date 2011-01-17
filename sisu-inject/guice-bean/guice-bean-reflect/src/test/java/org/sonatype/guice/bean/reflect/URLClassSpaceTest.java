@@ -13,6 +13,7 @@
 package org.sonatype.guice.bean.reflect;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -130,7 +131,6 @@ public class URLClassSpaceTest
         assertTrue( e.nextElement().getPath().startsWith( COMMONS_LOGGING_JAR.toString() ) );
         assertFalse( e.hasMoreElements() );
 
-        System.out.println( Arrays.toString( space.getURLs() ) );
         assertTrue( Arrays.equals( new URL[] { SIMPLE_JAR, CLASS_PATH_JAR, new URL( "barf:up/" ), CORRUPT_MANIFEST,
             BROKEN_JAR, COMMONS_LOGGING_JAR }, space.getURLs() ) );
     }
@@ -199,5 +199,23 @@ public class URLClassSpaceTest
 
         // expect to see no results
         assertFalse( new URLClassSpace( orphan ).findEntries( "META-INF", "*.MF", false ).hasMoreElements() );
+    }
+
+    public void testJarProtocol()
+        throws MalformedURLException
+    {
+        final URLClassSpace space =
+            new URLClassSpace( URLClassLoader.newInstance( new URL[] { new URL( "jar:" + CLASS_PATH_JAR + "!/" ) } ) );
+
+        final Enumeration<URL> e = space.findEntries( "META-INF", "*.MF", false );
+
+        // expect to see three results
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().getPath().startsWith( CLASS_PATH_JAR.toString() ) );
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().getPath().startsWith( COMMONS_LOGGING_JAR.toString() ) );
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().getPath().startsWith( SIMPLE_JAR.toString() ) );
+        assertFalse( e.hasMoreElements() );
     }
 }

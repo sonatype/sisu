@@ -209,7 +209,7 @@ public final class URLClassSpace
         // search path may grow, so use index not iterator
         for ( int i = 0; i < searchPath.size(); i++ )
         {
-            final URL url = searchPath.get( i );
+            final URL url = normalizeEntry( searchPath.get( i ) );
             if ( null == url || !visited.add( url.toString() ) )
             {
                 continue; // already processed
@@ -238,6 +238,30 @@ public final class URLClassSpace
         }
 
         return expandedPath.toArray( new URL[expandedPath.size()] );
+    }
+
+    /**
+     * Normalizes the given class path entry by removing any extraneous "jar:"..."!/" padding.
+     * 
+     * @param path The URL to normalize
+     * @return Normalized class path entry
+     */
+    private static URL normalizeEntry( final URL url )
+    {
+        if ( null == url || !"jar".equals( url.getProtocol() ) )
+        {
+            return url;
+        }
+        final String s = url.toString();
+        try
+        {
+            return new URL( s.substring( 4, s.indexOf( "!/" ) ) );
+        }
+        catch ( final MalformedURLException e )
+        {
+            // this shouldn't happen, hence illegal state
+            throw new IllegalStateException( e.toString() );
+        }
     }
 
     /**
