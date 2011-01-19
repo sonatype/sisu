@@ -119,6 +119,7 @@ public final class PlexusTypeVisitor
                 {
                     // direct binding, make sure it's valid
                     InjectionPoint.forConstructorOf( role );
+                    InjectionPoint.forInstanceMethodsAndFields( role );
                 }
                 final LoadedClass<?> clazz = new LoadedClass<Object>( space.loadClass( implementation ) );
                 plexusTypeListener.hear( component, clazz, source );

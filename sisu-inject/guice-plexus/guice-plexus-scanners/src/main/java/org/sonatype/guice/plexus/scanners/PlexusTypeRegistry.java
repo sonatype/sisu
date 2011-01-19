@@ -195,6 +195,7 @@ final class PlexusTypeRegistry
             {
                 // direct binding, make sure it's valid
                 InjectionPoint.forConstructorOf( clazz );
+                InjectionPoint.forInstanceMethodsAndFields( clazz );
             }
             return clazz;
         }
