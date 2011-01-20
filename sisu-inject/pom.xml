@@ -17,7 +17,9 @@
 
   <modules>
     <module>guice-bean</module>
+<!--
     <module>guice-eclipse</module>
+-->
     <module>guice-plexus</module>
   </modules>
 
