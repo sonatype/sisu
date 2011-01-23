@@ -36,6 +36,8 @@ public final class ClassSpaceScanner
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    private final ClassFinder finder;
+
     private final ClassSpace space;
 
     // ----------------------------------------------------------------------
@@ -44,6 +46,12 @@ public final class ClassSpaceScanner
 
     public ClassSpaceScanner( final ClassSpace space )
     {
+        this( null, space );
+    }
+
+    public ClassSpaceScanner( final ClassFinder finder, final ClassSpace space )
+    {
+        this.finder = finder;
         this.space = space;
     }
 
@@ -59,10 +67,11 @@ public final class ClassSpaceScanner
     public void accept( final ClassSpaceVisitor visitor )
     {
         visitor.visit( space );
-        final Enumeration<URL> e = space.findEntries( null, "*.class", true );
-        while ( e.hasMoreElements() )
+        final Enumeration<URL> result =
+            null != finder ? finder.findClasses( space ) : space.findEntries( null, "*.class", true );
+        while ( result.hasMoreElements() )
         {
-            final URL url = e.nextElement();
+            final URL url = result.nextElement();
             final ClassVisitor cv = visitor.visitClass( url );
             if ( null != cv )
             {
