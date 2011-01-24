@@ -16,7 +16,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
-import java.util.Collections;
 import java.util.Iterator;
 
 import javax.inject.Named;
@@ -91,7 +90,7 @@ public class LocatedBeansTest
         final Iterator<BeanEntry<Annotation, Bean>> itr1 = beans.iterator();
         final Iterator<BeanEntry<Annotation, Bean>> itr2 = beans.iterator();
 
-        beans.retainAll( Collections.<Binding<Bean>> emptyList() );
+        beans.retainAll( new RankedList<Binding<Bean>>() );
 
         Bean a, b;
 
@@ -103,7 +102,7 @@ public class LocatedBeansTest
         assertSame( a, itr2.next().getValue() );
 
         a = itr1.next().getValue();
-        beans.retainAll( Collections.<Binding<Bean>> emptyList() );
+        beans.retainAll( new RankedList<Binding<Bean>>() );
         b = itr2.next().getValue();
 
         assertFalse( a == b );

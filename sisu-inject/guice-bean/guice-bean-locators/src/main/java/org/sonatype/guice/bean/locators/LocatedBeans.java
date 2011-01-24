@@ -13,7 +13,7 @@
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
@@ -78,11 +78,17 @@ final class LocatedBeans<Q extends Annotation, T>
      * 
      * @param activeBindings The active bindings
      */
-    synchronized void retainAll( final Collection<Binding<T>> activeBindings )
+    synchronized void retainAll( final RankedList<Binding<T>> activeBindings )
     {
         if ( null != beanCache )
         {
-            beanCache.keySet().retainAll( activeBindings );
+            for ( final Binding<T> b : new ArrayList<Binding<T>>( beanCache.keySet() ) )
+            {
+                if ( activeBindings.indexOfThis( b ) < 0 )
+                {
+                    beanCache.remove( b );
+                }
+            }
         }
     }
 

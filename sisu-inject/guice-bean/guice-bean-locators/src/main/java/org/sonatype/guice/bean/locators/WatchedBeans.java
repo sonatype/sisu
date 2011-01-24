@@ -15,10 +15,9 @@ package org.sonatype.guice.bean.locators;
 import java.lang.annotation.Annotation;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.sonatype.guice.bean.locators.spi.BindingDistributor;
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
@@ -78,13 +77,11 @@ final class WatchedBeans<Q extends Annotation, T, W>
     {
         publisher.unsubscribe( key.getTypeLiteral(), this );
 
-        for ( final Iterator<Entry<Binding<T>, BeanEntry<Q, T>>> itr = beanCache.entrySet().iterator(); itr.hasNext(); )
+        for ( final Binding<T> b : new ArrayList<Binding<T>>( beanCache.keySet() ) )
         {
-            final Entry<Binding<T>, BeanEntry<Q, T>> cacheEntry = itr.next();
-            if ( publisher.contains( cacheEntry.getKey() ) )
+            if ( publisher.contains( b ) )
             {
-                notify( WatcherEvent.REMOVE, cacheEntry.getValue() );
-                itr.remove();
+                notify( WatcherEvent.REMOVE, beanCache.remove( b ) );
             }
         }
     }
