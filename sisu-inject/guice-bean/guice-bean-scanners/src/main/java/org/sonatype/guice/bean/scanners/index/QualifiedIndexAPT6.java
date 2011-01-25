@@ -10,7 +10,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.bean.scanners.apt;
+package org.sonatype.guice.bean.scanners.index;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -31,8 +31,8 @@ import javax.tools.Diagnostic;
 import javax.tools.StandardLocation;
 
 @SuppressWarnings( "restriction" )
-public final class NamedProcessor6
-    extends AbstractNamedProcessor
+public final class QualifiedIndexAPT6
+    extends AbstractQualifiedIndex
     implements Processor
 {
     private ProcessingEnvironment environment;

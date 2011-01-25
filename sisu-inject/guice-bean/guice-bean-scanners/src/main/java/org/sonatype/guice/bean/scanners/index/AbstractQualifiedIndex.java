@@ -10,7 +10,7 @@
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
  */
-package org.sonatype.guice.bean.scanners.apt;
+package org.sonatype.guice.bean.scanners.index;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -20,7 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractNamedProcessor
+public abstract class AbstractQualifiedIndex
 {
     private final Map<Object, Set<String>> index = new HashMap<Object, Set<String>>();
 

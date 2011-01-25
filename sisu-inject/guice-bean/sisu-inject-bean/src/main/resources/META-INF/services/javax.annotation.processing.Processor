@@ -1,1 +1,1 @@
-org.sonatype.guice.bean.scanners.apt.NamedProcessor6
+org.sonatype.guice.bean.scanners.index.QualifiedIndexAPT6
