@@ -47,6 +47,9 @@
         <extensions>true</extensions>
         <configuration>
           <instructions>
+            <Main-Class>
+              org.sonatype.guice.bean.containers.Main
+            </Main-Class>
             <Bundle-SymbolicName>
               org.sonatype.inject
             </Bundle-SymbolicName>
@@ -64,16 +67,6 @@
               org.sonatype.guice.bean.*
             </Private-Package>
           </instructions>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>org.sonatype.guice.bean.containers.Main</mainClass>
-            </manifest>
-          </archive>
         </configuration>
       </plugin>
     </plugins>

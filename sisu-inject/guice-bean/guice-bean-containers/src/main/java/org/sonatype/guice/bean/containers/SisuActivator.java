@@ -131,6 +131,7 @@ public final class SisuActivator
     // Service tracking
     // ----------------------------------------------------------------------
 
+    @SuppressWarnings( "deprecation" )
     public Object addingService( final ServiceReference reference )
     {
         final Object service = bundleContext.getService( reference );
