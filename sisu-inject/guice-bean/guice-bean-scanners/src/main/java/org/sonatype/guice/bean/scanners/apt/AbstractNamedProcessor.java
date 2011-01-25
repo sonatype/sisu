@@ -15,18 +15,13 @@ package org.sonatype.guice.bean.scanners.apt;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
 public abstract class AbstractNamedProcessor
 {
-    protected static final Set<String> SUPPORTED_ANNOTATION_TYPES =
-        new HashSet<String>( Arrays.asList( "javax.inject.Named", "com.google.inject.name.Named" ) );
-
     private final Map<Object, Set<String>> index = new HashMap<Object, Set<String>>();
 
     private final Map<Object, BufferedWriter> writers = new HashMap<Object, BufferedWriter>();

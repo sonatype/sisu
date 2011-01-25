@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Set;
 
+import javax.inject.Qualifier;
+
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Filer;
@@ -47,11 +49,14 @@ public final class NamedProcessor5
     {
         for ( final AnnotationTypeDeclaration anno : annotations )
         {
-            for ( final Declaration decl : environment.getDeclarationsAnnotatedWith( anno ) )
+            if ( null != anno.getAnnotation( Qualifier.class ) )
             {
-                if ( decl instanceof ClassDeclaration )
+                for ( final Declaration decl : environment.getDeclarationsAnnotatedWith( anno ) )
                 {
-                    updateIndex( anno.getQualifiedName(), ( (ClassDeclaration) decl ).getQualifiedName() );
+                    if ( decl instanceof ClassDeclaration )
+                    {
+                        updateIndex( anno.getQualifiedName(), ( (ClassDeclaration) decl ).getQualifiedName() );
+                    }
                 }
             }
         }

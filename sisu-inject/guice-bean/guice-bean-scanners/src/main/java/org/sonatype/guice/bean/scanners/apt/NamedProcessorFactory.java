@@ -33,7 +33,7 @@ public final class NamedProcessorFactory
 
     public Collection<String> supportedAnnotationTypes()
     {
-        return AbstractNamedProcessor.SUPPORTED_ANNOTATION_TYPES;
+        return Collections.singleton( "*" );
     }
 
     public Collection<String> supportedOptions()

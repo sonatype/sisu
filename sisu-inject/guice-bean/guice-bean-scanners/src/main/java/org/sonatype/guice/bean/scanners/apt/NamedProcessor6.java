@@ -21,6 +21,7 @@ import javax.annotation.processing.Completion;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
+import javax.inject.Qualifier;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
@@ -45,11 +46,14 @@ public final class NamedProcessor6
     {
         for ( final TypeElement anno : annotations )
         {
-            for ( final Element elem : round.getElementsAnnotatedWith( anno ) )
+            if ( null != anno.getAnnotation( Qualifier.class ) )
             {
-                if ( elem.getKind().isClass() )
+                for ( final Element elem : round.getElementsAnnotatedWith( anno ) )
                 {
-                    updateIndex( anno.getQualifiedName(), ( (TypeElement) elem ).getQualifiedName() );
+                    if ( elem.getKind().isClass() )
+                    {
+                        updateIndex( anno.getQualifiedName(), ( (TypeElement) elem ).getQualifiedName() );
+                    }
                 }
             }
         }
@@ -70,7 +74,7 @@ public final class NamedProcessor6
 
     public Set<String> getSupportedAnnotationTypes()
     {
-        return AbstractNamedProcessor.SUPPORTED_ANNOTATION_TYPES;
+        return Collections.singleton( "*" );
     }
 
     public Set<String> getSupportedOptions()
