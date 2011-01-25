@@ -55,7 +55,7 @@ public abstract class AbstractQualifiedIndex
         writers.put( key, writer );
     }
 
-    protected final void writeIndex()
+    protected final void saveIndex()
     {
         for ( final Object key : index.keySet() )
         {
@@ -66,26 +66,22 @@ public abstract class AbstractQualifiedIndex
             }
             try
             {
-                for ( final String line : index.get( key ) )
+                try
                 {
-                    writer.write( line );
-                    writer.newLine();
+                    for ( final String line : index.get( key ) )
+                    {
+                        writer.write( line );
+                        writer.newLine();
+                    }
+                }
+                finally
+                {
+                    writer.close();
                 }
             }
             catch ( final Throwable e )
             {
                 warn( e.toString() );
-            }
-            finally
-            {
-                try
-                {
-                    writer.close();
-                }
-                catch ( final Throwable e )
-                {
-                    warn( e.toString() );
-                }
             }
         }
     }

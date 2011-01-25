@@ -76,7 +76,7 @@ public final class QualifiedIndexAPT5
         {
             if ( event.getRoundState().finalRound() )
             {
-                writeIndex();
+                saveIndex();
 
                 environment.removeListener( this );
             }

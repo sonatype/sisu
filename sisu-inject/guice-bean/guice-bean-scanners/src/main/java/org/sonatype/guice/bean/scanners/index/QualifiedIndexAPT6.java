@@ -60,7 +60,7 @@ public final class QualifiedIndexAPT6
 
         if ( round.processingOver() )
         {
-            writeIndex();
+            saveIndex();
         }
 
         return false;

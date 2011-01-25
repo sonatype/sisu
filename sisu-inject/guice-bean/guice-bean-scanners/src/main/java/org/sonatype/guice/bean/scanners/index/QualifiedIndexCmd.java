@@ -33,7 +33,7 @@ public final class QualifiedIndexCmd
         final QualifiedIndexCmd indexer = new QualifiedIndexCmd();
         final ClassSpace space = new URLClassSpace( QualifiedIndexCmd.class.getClassLoader() );
         new ClassSpaceScanner( space ).accept( new QualifiedTypeVisitor( indexer ) );
-        indexer.writeIndex();
+        indexer.saveIndex();
     }
 
     public void hear( final Annotation qualifier, final Class<?> qualifiedType, final Object source )
