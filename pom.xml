@@ -27,7 +27,7 @@ See the Apache License Version 2.0 for the specific language governing permissio
 
   <groupId>org.sonatype.sisu</groupId>
   <artifactId>sisu-parent</artifactId>
-  <version>1.4.3</version>
+  <version>1.4.3-server</version>
 
   <name>Sisu</name>
 
