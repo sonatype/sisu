@@ -112,8 +112,9 @@ public final class DeclaredMembers
                 try
                 {
                     // load each view in turn to get next members
-                    members = views[viewIndex++].members( clazz );
+                    members = views[viewIndex].members( clazz );
                     memberIndex = members.length;
+                    viewIndex++;
                 }
                 catch ( final Throwable e )
                 {
