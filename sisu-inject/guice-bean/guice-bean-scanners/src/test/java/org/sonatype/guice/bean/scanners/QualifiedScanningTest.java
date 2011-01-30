@@ -175,6 +175,11 @@ public class QualifiedScanningTest
             {
                 return space.findEntries( path, glob, recurse );
             }
+
+            public boolean definedClass( final Class<?> clazz )
+            {
+                return false;
+            }
         };
 
         new ClassSpaceScanner( brokenResourceSpace ).accept( new QualifiedTypeVisitor( null ) );
@@ -204,6 +209,11 @@ public class QualifiedScanningTest
             public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
             {
                 return space.findEntries( path, glob, recurse );
+            }
+
+            public boolean definedClass( final Class<?> clazz )
+            {
+                return false;
             }
         };
 

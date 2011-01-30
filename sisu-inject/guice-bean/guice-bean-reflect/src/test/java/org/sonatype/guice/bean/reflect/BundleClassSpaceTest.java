@@ -82,6 +82,11 @@ public class BundleClassSpaceTest
                 return space.loadClass( name );
             }
 
+            public DeferredClass<?> deferLoadClass( final String name )
+            {
+                return space.deferLoadClass( name );
+            }
+
             public Enumeration<URL> getResources( final String name )
             {
                 return space.getResources( name );
@@ -97,9 +102,9 @@ public class BundleClassSpaceTest
                 return space.findEntries( path, glob, recurse );
             }
 
-            public DeferredClass<?> deferLoadClass( final String name )
+            public boolean definedClass( final Class<?> clazz )
             {
-                return space.deferLoadClass( name );
+                return false;
             }
         } ) );
 

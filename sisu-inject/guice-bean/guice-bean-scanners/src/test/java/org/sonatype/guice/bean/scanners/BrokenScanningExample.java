@@ -55,6 +55,11 @@ public class BrokenScanningExample
             {
                 return space.findEntries( path, glob, recurse );
             }
+
+            public boolean definedClass( final Class<?> clazz )
+            {
+                return false;
+            }
         };
 
         new ClassSpaceScanner( brokenResourceSpace ).accept( new QualifiedTypeVisitor( null ) );

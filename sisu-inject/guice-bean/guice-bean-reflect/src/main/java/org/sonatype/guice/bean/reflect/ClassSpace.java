@@ -69,4 +69,12 @@ public interface ClassSpace
      * @see Bundle#findEntries(String, String, boolean)
      */
     Enumeration<URL> findEntries( String path, String glob, boolean recurse );
+
+    /**
+     * Determines whether the given class was defined by the local class space.
+     * 
+     * @param clazz The class
+     * @return {@code true} if this space defined the class; otherwise {@code false}
+     */
+    boolean definedClass( Class<?> clazz );
 }

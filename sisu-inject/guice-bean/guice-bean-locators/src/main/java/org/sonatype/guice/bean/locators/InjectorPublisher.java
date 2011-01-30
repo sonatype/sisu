@@ -12,13 +12,16 @@
  */
 package org.sonatype.guice.bean.locators;
 
+import java.lang.reflect.Modifier;
 import java.util.List;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
+import org.sonatype.guice.bean.reflect.ClassSpace;
 
 import com.google.inject.Binding;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -58,6 +61,21 @@ final class InjectorPublisher
             if ( false == binding.getSource() instanceof HiddenBinding )
             {
                 importer.add( binding, function.rank( binding ) );
+            }
+        }
+        final Class<?> clazz = type.getRawType();
+        if ( bindings.isEmpty() && ( clazz.getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) == 0 )
+        {
+            try
+            {
+                if ( injector.getInstance( ClassSpace.class ).definedClass( clazz ) )
+                {
+                    importer.add( injector.getBinding( Key.get( type ) ), -Integer.MAX_VALUE );
+                }
+            }
+            catch ( final Throwable e )
+            {
+                // ignore
             }
         }
     }

@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
 /**
  * {@link ClassSpace} backed by a strongly-referenced {@link Bundle}.
@@ -90,6 +91,11 @@ public final class BundleClassSpace
         @SuppressWarnings( "unchecked" )
         final Enumeration<URL> e = bundle.findEntries( null != path ? path : "/", glob, recurse );
         return null != e ? e : NO_URLS;
+    }
+
+    public boolean definedClass( final Class<?> clazz )
+    {
+        return bundle.equals( FrameworkUtil.getBundle( clazz ) );
     }
 
     @Override

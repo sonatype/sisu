@@ -129,6 +129,11 @@ public final class URLClassSpace
         return new ResourceEnumeration( path, glob, recurse, getClassPath() );
     }
 
+    public boolean definedClass( final Class<?> clazz )
+    {
+        return loader.equals( clazz.getClassLoader() );
+    }
+
     public URL[] getURLs()
     {
         return getClassPath().clone();
