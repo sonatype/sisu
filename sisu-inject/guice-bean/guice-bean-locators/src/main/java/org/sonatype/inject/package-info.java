@@ -9,7 +9,6 @@
  *   http://www.apache.org/licenses/LICENSE-2.0.html
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
-
 /**
  * Optional Sonatype extensions to <a href="http://jcp.org/en/jsr/detail?id=330">JSR330</a>.
  */

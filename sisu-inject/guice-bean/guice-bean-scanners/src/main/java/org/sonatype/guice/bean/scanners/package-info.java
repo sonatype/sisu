@@ -9,7 +9,6 @@
  *   http://www.apache.org/licenses/LICENSE-2.0.html
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
-
 /**
  * <a href="http://asm.ow2.org/">ASM</a>-based bean scanning.
  *

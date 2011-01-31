@@ -9,7 +9,6 @@
  *   http://www.apache.org/licenses/LICENSE-2.0.html
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
-
 package org.sonatype.inject;
 
 import java.lang.annotation.Annotation;
