@@ -1,5 +1,3 @@
-package org.sonatype.guice.plexus.binders;
-
 /*******************************************************************************
  * Copyright (c) 2010-2011 Sonatype, Inc.
  * All rights reserved. This program and the accompanying materials
@@ -11,6 +9,8 @@ package org.sonatype.guice.plexus.binders;
  *   http://www.apache.org/licenses/LICENSE-2.0.html
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
+
+package org.sonatype.guice.plexus.binders;
 
 import java.util.HashMap;
 import java.util.List;

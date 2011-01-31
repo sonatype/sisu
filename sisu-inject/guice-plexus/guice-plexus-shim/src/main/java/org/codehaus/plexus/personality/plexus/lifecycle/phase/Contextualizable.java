@@ -1,5 +1,3 @@
-package org.codehaus.plexus.personality.plexus.lifecycle.phase;
-
 /*******************************************************************************
  * Copyright (c) 2010-2011 Sonatype, Inc.
  * All rights reserved. This program and the accompanying materials
@@ -11,6 +9,8 @@ package org.codehaus.plexus.personality.plexus.lifecycle.phase;
  *   http://www.apache.org/licenses/LICENSE-2.0.html
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
+
+package org.codehaus.plexus.personality.plexus.lifecycle.phase;
 
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.context.ContextException;

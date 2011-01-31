@@ -1,5 +1,3 @@
-package org.sonatype.guice.plexus.annotations;
-
 /*******************************************************************************
  * Copyright (c) 2010-2011 Sonatype, Inc.
  * All rights reserved. This program and the accompanying materials
@@ -11,6 +9,8 @@ package org.sonatype.guice.plexus.annotations;
  *   http://www.apache.org/licenses/LICENSE-2.0.html
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
+
+package org.sonatype.guice.plexus.annotations;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

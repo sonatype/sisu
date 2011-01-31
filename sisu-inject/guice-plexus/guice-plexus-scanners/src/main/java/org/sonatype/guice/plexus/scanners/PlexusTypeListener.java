@@ -1,5 +1,3 @@
-package org.sonatype.guice.plexus.scanners;
-
 /*******************************************************************************
  * Copyright (c) 2010-2011 Sonatype, Inc.
  * All rights reserved. This program and the accompanying materials
@@ -11,6 +9,8 @@ package org.sonatype.guice.plexus.scanners;
  *   http://www.apache.org/licenses/LICENSE-2.0.html
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
+
+package org.sonatype.guice.plexus.scanners;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.DeferredClass;

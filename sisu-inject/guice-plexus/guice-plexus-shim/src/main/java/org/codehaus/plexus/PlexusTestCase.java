@@ -1,5 +1,3 @@
-package org.codehaus.plexus;
-
 /*
  * Copyright 2001-2006 Codehaus Foundation.
  *
@@ -15,6 +13,8 @@ package org.codehaus.plexus;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package org.codehaus.plexus;
 
 import java.io.File;
 import java.io.InputStream;
