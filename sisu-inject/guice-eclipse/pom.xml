@@ -16,14 +16,6 @@
 
   <name>Guice - Eclipse</name>
 
-  <licenses>
-    <license>
-      <name>Eclipse Public License, Version 1.0</name>
-      <url>http://www.eclipse.org/legal/epl-v10.html</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-
   <modules>
     <module>sisu-inject-eclipse</module>
   </modules>
