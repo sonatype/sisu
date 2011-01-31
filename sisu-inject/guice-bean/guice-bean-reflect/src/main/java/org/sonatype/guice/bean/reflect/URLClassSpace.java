@@ -129,7 +129,7 @@ public final class URLClassSpace
         return new ResourceEnumeration( path, glob, recurse, getClassPath() );
     }
 
-    public boolean definedClass( final Class<?> clazz )
+    public boolean loadedClass( final Class<?> clazz )
     {
         return loader.equals( clazz.getClassLoader() );
     }

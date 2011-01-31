@@ -176,7 +176,7 @@ public class QualifiedScanningTest
                 return space.findEntries( path, glob, recurse );
             }
 
-            public boolean definedClass( final Class<?> clazz )
+            public boolean loadedClass( final Class<?> clazz )
             {
                 return false;
             }
@@ -211,7 +211,7 @@ public class QualifiedScanningTest
                 return space.findEntries( path, glob, recurse );
             }
 
-            public boolean definedClass( final Class<?> clazz )
+            public boolean loadedClass( final Class<?> clazz )
             {
                 return false;
             }

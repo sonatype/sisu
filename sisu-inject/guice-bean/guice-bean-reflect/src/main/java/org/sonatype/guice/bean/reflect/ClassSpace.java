@@ -71,10 +71,10 @@ public interface ClassSpace
     Enumeration<URL> findEntries( String path, String glob, boolean recurse );
 
     /**
-     * Determines whether the given class was defined by the local class space.
+     * Determines whether the given class was loaded by this particular class space.
      * 
      * @param clazz The class
-     * @return {@code true} if this space defined the class; otherwise {@code false}
+     * @return {@code true} if this space loaded the class; otherwise {@code false}
      */
-    boolean definedClass( Class<?> clazz );
+    boolean loadedClass( Class<?> clazz );
 }

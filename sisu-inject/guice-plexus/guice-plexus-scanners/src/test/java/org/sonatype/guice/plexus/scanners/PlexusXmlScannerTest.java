@@ -134,7 +134,7 @@ public class PlexusXmlScannerTest
             return Collections.enumeration( Collections.<URL> emptyList() );
         }
 
-        public boolean definedClass( final Class<?> clazz )
+        public boolean loadedClass( final Class<?> clazz )
         {
             return false;
         }
@@ -290,7 +290,7 @@ public class PlexusXmlScannerTest
             return Collections.enumeration( Collections.singleton( getClass().getResource( fixedResourceName ) ) );
         }
 
-        public boolean definedClass( final Class<?> clazz )
+        public boolean loadedClass( final Class<?> clazz )
         {
             return false;
         }

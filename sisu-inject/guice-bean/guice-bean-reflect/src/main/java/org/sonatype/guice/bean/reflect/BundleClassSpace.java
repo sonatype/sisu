@@ -93,7 +93,7 @@ public final class BundleClassSpace
         return null != e ? e : NO_URLS;
     }
 
-    public boolean definedClass( final Class<?> clazz )
+    public boolean loadedClass( final Class<?> clazz )
     {
         return bundle.equals( FrameworkUtil.getBundle( clazz ) );
     }

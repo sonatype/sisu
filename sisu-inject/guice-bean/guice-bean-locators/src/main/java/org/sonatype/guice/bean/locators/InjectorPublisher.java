@@ -68,7 +68,7 @@ final class InjectorPublisher
         {
             try
             {
-                if ( injector.getInstance( ClassSpace.class ).definedClass( clazz ) )
+                if ( injector.getInstance( ClassSpace.class ).loadedClass( clazz ) )
                 {
                     importer.add( injector.getBinding( Key.get( type ) ), -Integer.MAX_VALUE );
                 }
