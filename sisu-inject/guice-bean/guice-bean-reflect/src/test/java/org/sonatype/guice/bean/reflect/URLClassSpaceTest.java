@@ -82,6 +82,14 @@ public class URLClassSpaceTest
         assertEquals( systemLoader.toString(), space.toString() );
     }
 
+    public void testClassMembership()
+    {
+        final ClassSpace space = new URLClassSpace( URLClassLoader.newInstance( new URL[] { COMMONS_LOGGING_JAR } ) );
+
+        assertTrue( space.loadedClass( space.loadClass( "org.apache.commons.logging.Log" ) ) );
+        assertFalse( space.loadedClass( space.loadClass( "java.util.logging.Logger" ) ) );
+    }
+
     public void testClassSpaceResources()
         throws IOException
     {

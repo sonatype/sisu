@@ -111,6 +111,16 @@ public class BundleClassSpaceTest
         assertEquals( testBundle.toString(), space.toString() );
     }
 
+    public void testClassMembership()
+        throws Exception
+    {
+        final Bundle testBundle = framework.getBundleContext().installBundle( COMMONS_LOGGING_JAR.toString() );
+        final ClassSpace space = new BundleClassSpace( testBundle );
+
+        assertTrue( space.loadedClass( space.loadClass( "org.apache.commons.logging.Log" ) ) );
+        assertFalse( space.loadedClass( space.loadClass( "java.util.logging.Logger" ) ) );
+    }
+
     public void testClassSpaceResources()
         throws Exception
     {

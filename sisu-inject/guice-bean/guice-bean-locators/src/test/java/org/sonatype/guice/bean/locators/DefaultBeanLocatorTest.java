@@ -43,6 +43,8 @@ public class DefaultBeanLocatorTest
 
     Injector child3;
 
+    Injector child4;
+
     @Override
     public void setUp()
         throws Exception
@@ -88,6 +90,15 @@ public class DefaultBeanLocatorTest
                 bind( Bean.class ).annotatedWith( Names.named( "M3" ) ).to( BeanImpl.class );
                 bind( Bean.class ).to( BeanImpl2.class );
                 bind( Bean.class ).annotatedWith( Names.named( "N3" ) ).to( BeanImpl.class );
+            }
+        } );
+
+        child4 = parent.createChildInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                // no bindings
             }
         } );
     }
@@ -198,6 +209,7 @@ public class DefaultBeanLocatorTest
         locator.add( child1, 1 );
         locator.add( child2, 2 );
         locator.add( child3, 3 );
+        locator.add( child4, 4 );
 
         Iterator<? extends Entry<Named, Bean>> i;
 

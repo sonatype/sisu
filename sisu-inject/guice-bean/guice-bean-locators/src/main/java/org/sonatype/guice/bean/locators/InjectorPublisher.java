@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
-import java.lang.reflect.Modifier;
 import java.util.List;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
@@ -37,6 +36,8 @@ final class InjectorPublisher
 
     private final RankingFunction function;
 
+    private ClassSpace space;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -45,6 +46,15 @@ final class InjectorPublisher
     {
         this.injector = injector;
         this.function = function;
+
+        try
+        {
+            space = injector.getInstance( ClassSpace.class );
+        }
+        catch ( final Throwable e )
+        {
+            space = null; // no associated class space
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -62,19 +72,16 @@ final class InjectorPublisher
                 importer.add( binding, function.rank( binding ) );
             }
         }
-        final Class<?> clazz = type.getRawType();
-        if ( bindings.isEmpty() && ( clazz.getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) == 0 )
+        // implicit binding; avoid duplication by only checking when injector 'owns' the type
+        if ( bindings.isEmpty() && null != space && space.loadedClass( type.getRawType() ) )
         {
             try
             {
-                if ( injector.getInstance( ClassSpace.class ).loadedClass( clazz ) )
-                {
-                    importer.add( injector.getBinding( Key.get( type ) ), -Integer.MAX_VALUE );
-                }
+                importer.add( injector.getBinding( Key.get( type ) ), Integer.MIN_VALUE );
             }
-            catch ( final Throwable e )
+            catch ( final Throwable e ) // NOPMD
             {
-                // ignore
+                // ignore missing/broken implicit bindings
             }
         }
     }

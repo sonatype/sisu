@@ -344,7 +344,7 @@ public final class DefaultPlexusContainer
                     bind( (Class) role ).annotatedWith( Names.named( hint ) ).toInstance( component );
                 }
             }
-        } ), plexusRank.getAndIncrement() );
+        } ), plexusRank.incrementAndGet() );
     }
 
     public <T> void addComponentDescriptor( final ComponentDescriptor<T> descriptor )
@@ -811,7 +811,7 @@ public final class DefaultPlexusContainer
 
             // allow plugins to override the default ranking function so we can support component profiles
             final Key<RankingFunction> plexusRankingKey = Key.get( RankingFunction.class, Names.named( "plexus" ) );
-            bind( plexusRankingKey ).toInstance( new DefaultRankingFunction( plexusRank.getAndIncrement() ) );
+            bind( plexusRankingKey ).toInstance( new DefaultRankingFunction( plexusRank.incrementAndGet() ) );
             bind( RankingFunction.class ).to( plexusRankingKey );
         }
     }
