@@ -139,16 +139,34 @@ public class DeclaredMembersTest
         assertEquals( 6, i );
     }
 
-    public void testIterationFailsFast()
+    public void testResumableIteration()
         throws ClassNotFoundException
     {
+        final Iterator<Member> itr = new DeclaredMembers( Class.forName( "Incomplete" ) ).iterator();
+        assertTrue( itr.hasNext() );
+        assertEquals( "public Incomplete(java.lang.String)", itr.next().toString() );
         try
         {
-            new DeclaredMembers( Class.forName( "Missing" ) ).iterator().hasNext();
+            itr.hasNext();
             fail( "Expected NoClassDefFoundError" );
         }
         catch ( final NoClassDefFoundError e )
         {
+            assertEquals( "java.lang.NoClassDefFoundError: Param", e.toString() );
         }
+        assertTrue( itr.hasNext() );
+        assertEquals( "public java.lang.String Incomplete.address", itr.next().toString() );
+        try
+        {
+            itr.hasNext();
+            fail( "Expected NoClassDefFoundError" );
+        }
+        catch ( final NoClassDefFoundError e )
+        {
+            assertEquals( "java.lang.NoClassDefFoundError: Param", e.toString() );
+        }
+        assertTrue( itr.hasNext() );
+        assertEquals( "public void IncompleteBase.setName(java.lang.String)", itr.next().toString() );
+        assertFalse( itr.hasNext() );
     }
 }

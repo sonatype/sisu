@@ -108,11 +108,9 @@ public final class DeclaredMembers
                     return false;
                 }
 
-                // load each view in turn to get next members
-                members = views[viewIndex].members( clazz );
+                final int index = viewIndex++;
+                members = views[index].members( clazz );
                 memberIndex = members.length;
-
-                viewIndex++; // increment here rather than inside array access (workaround JIT bug in 1.6.0_23)
             }
 
             return true;
