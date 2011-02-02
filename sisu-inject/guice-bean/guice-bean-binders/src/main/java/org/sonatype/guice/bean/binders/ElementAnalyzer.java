@@ -14,6 +14,8 @@ package org.sonatype.guice.bean.binders;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.sonatype.guice.bean.reflect.Logs;
+
 import com.google.inject.Binder;
 import com.google.inject.Binding;
 import com.google.inject.Key;
@@ -29,14 +31,10 @@ final class ElementAnalyzer
     extends DefaultElementVisitor<Void>
 {
     // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final DependencyAnalyzer<Object> DEPENDENCY_ANALYZER = new DependencyAnalyzer<Object>();
-
-    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
+
+    private final DependencyAnalyzer<Object> analyzer = new DependencyAnalyzer<Object>();
 
     private final Set<Key<?>> localKeys = new HashSet<Key<?>>();
 
@@ -65,20 +63,26 @@ final class ElementAnalyzer
      */
     public Set<Key<?>> getImportedKeys()
     {
-        // finally remove all local bindings
         importedKeys.removeAll( localKeys );
-
         return importedKeys;
     }
 
     @Override
     public <T> Void visit( final Binding<T> binding )
     {
-        // silently remove duplicate bindings
-        if ( localKeys.add( binding.getKey() ) )
+        final Key<T> key = binding.getKey();
+        if ( !localKeys.contains( key ) )
         {
-            binding.applyTo( binder );
-            importedKeys.addAll( binding.acceptTargetVisitor( DEPENDENCY_ANALYZER ) );
+            try
+            {
+                importedKeys.addAll( binding.acceptTargetVisitor( analyzer ) );
+                binding.applyTo( binder );
+                localKeys.add( key );
+            }
+            catch ( final Throwable e )
+            {
+                Logs.debug( ElementAnalyzer.class, "Bad binding: {} cause: {}", binding, e );
+            }
         }
         return null;
     }
@@ -86,8 +90,15 @@ final class ElementAnalyzer
     @Override
     public Void visit( final InjectionRequest<?> injectionRequest )
     {
-        injectionRequest.applyTo( binder );
-        importedKeys.addAll( DependencyAnalyzer.analyze( injectionRequest.getType() ) );
+        try
+        {
+            importedKeys.addAll( analyzer.visit( injectionRequest ) );
+            injectionRequest.applyTo( binder );
+        }
+        catch ( final Throwable e )
+        {
+            Logs.debug( ElementAnalyzer.class, "Bad binding: {} cause: {}", injectionRequest, e );
+        }
         return null;
     }
 

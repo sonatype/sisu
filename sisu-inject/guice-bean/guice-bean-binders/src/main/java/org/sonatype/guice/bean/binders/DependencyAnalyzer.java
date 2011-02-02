@@ -36,6 +36,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.spi.BindingTargetVisitor;
 import com.google.inject.spi.ConstructorBinding;
 import com.google.inject.spi.DefaultBindingTargetVisitor;
+import com.google.inject.spi.InjectionRequest;
 import com.google.inject.spi.InstanceBinding;
 import com.google.inject.spi.LinkedKeyBinding;
 import com.google.inject.spi.ProviderInstanceBinding;
@@ -47,6 +48,18 @@ import com.google.inject.spi.UntargettedBinding;
 final class DependencyAnalyzer<T>
     extends DefaultBindingTargetVisitor<T, Set<Key<?>>>
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final Set<Key<?>> NO_DEPENDENCIES = Collections.emptySet();
+
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final Set<Class<?>> visited = new HashSet<Class<?>>();
+
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
@@ -81,23 +94,21 @@ final class DependencyAnalyzer<T>
         final Provider<? extends T> provider = binding.getProviderInstance();
         if ( provider instanceof DeferredProvider<?> )
         {
-            try
-            {
-                final DeferredProvider<?> deferredProvider = (DeferredProvider<?>) provider;
-                return analyze( TypeLiteral.get( deferredProvider.getImplementationClass().load() ) );
-            }
-            catch ( final Throwable e ) // NOPMD
-            {
-                // can't analyze a broken class
-            }
+            final DeferredProvider<?> deferredProvider = (DeferredProvider<?>) provider;
+            return analyze( TypeLiteral.get( deferredProvider.getImplementationClass().load() ) );
         }
-        return Collections.emptySet();
+        return NO_DEPENDENCIES;
+    }
+
+    public Set<Key<?>> visit( final InjectionRequest<? extends T> injectionRequest )
+    {
+        return analyze( injectionRequest.getType() );
     }
 
     @Override
     public Set<Key<?>> visitOther( final Binding<? extends T> binding )
     {
-        return Collections.emptySet();
+        return NO_DEPENDENCIES;
     }
 
     // ----------------------------------------------------------------------
@@ -110,11 +121,24 @@ final class DependencyAnalyzer<T>
      * @param type The bean type
      * @return Set of dependency keys
      */
-    static Set<Key<?>> analyze( final TypeLiteral<?> type )
+    private Set<Key<?>> analyze( final TypeLiteral<?> type )
     {
+        Class<?> clazz = type.getRawType();
+        if ( !visited.add( clazz ) )
+        {
+            return NO_DEPENDENCIES;
+        }
+
         final DependencySet dependencies = new DependencySet();
         for ( final Member m : new DeclaredMembers( type.getRawType() ) )
         {
+            final Class<?> mClazz = m.getDeclaringClass();
+            if ( clazz != mClazz && !visited.add( mClazz ) )
+            {
+                break;
+            }
+            clazz = mClazz;
+
             final AnnotatedElement element = (AnnotatedElement) m;
             if ( element.isAnnotationPresent( javax.inject.Inject.class )
                 || element.isAnnotationPresent( com.google.inject.Inject.class ) )

@@ -66,8 +66,10 @@ public final class ClassSpaceScanner
     public void accept( final ClassSpaceVisitor visitor )
     {
         visitor.visit( space );
+
         final Enumeration<URL> result =
             null != finder ? finder.findClasses( space ) : space.findEntries( null, "*.class", true );
+
         while ( result.hasMoreElements() )
         {
             final URL url = result.nextElement();
@@ -77,6 +79,7 @@ public final class ClassSpaceScanner
                 accept( cv, url );
             }
         }
+
         visitor.visitEnd();
     }
 

@@ -139,9 +139,16 @@ public class DeclaredMembersTest
         assertEquals( 6, i );
     }
 
-    public void testRobustIteration()
+    public void testIterationFailsFast()
         throws ClassNotFoundException
     {
-        assertFalse( new DeclaredMembers( Class.forName( "Missing" ) ).iterator().hasNext() );
+        try
+        {
+            new DeclaredMembers( Class.forName( "Missing" ) ).iterator().hasNext();
+            fail( "Expected NoClassDefFoundError" );
+        }
+        catch ( final NoClassDefFoundError e )
+        {
+        }
     }
 }
