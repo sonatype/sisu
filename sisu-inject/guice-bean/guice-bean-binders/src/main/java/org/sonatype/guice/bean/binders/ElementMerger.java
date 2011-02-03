@@ -14,8 +14,6 @@ package org.sonatype.guice.bean.binders;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.sonatype.guice.bean.reflect.Logs;
-
 import com.google.inject.Binder;
 import com.google.inject.Binding;
 import com.google.inject.Key;
@@ -29,7 +27,7 @@ final class ElementMerger
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final DependencyVerifier<Object> verifier = new DependencyVerifier<Object>();
+    private final DependencyVerifier verifier = new DependencyVerifier();
 
     private final Set<Key<?>> localKeys = new HashSet<Key<?>>();
 
@@ -51,19 +49,14 @@ final class ElementMerger
     @Override
     public <T> Void visit( final Binding<T> binding )
     {
-        final Key<T> key = binding.getKey();
-        if ( !localKeys.contains( key ) )
+        if ( localKeys.contains( binding.getKey() ) )
         {
-            try
-            {
-                binding.acceptTargetVisitor( verifier );
-                binding.applyTo( binder );
-                localKeys.add( key );
-            }
-            catch ( final Throwable e )
-            {
-                Logs.debug( ElementMerger.class, "Bad binding: {} cause: {}", binding, e );
-            }
+            return null;
+        }
+        if ( binding.acceptTargetVisitor( verifier ).booleanValue() )
+        {
+            localKeys.add( binding.getKey() );
+            binding.applyTo( binder );
         }
         return null;
     }

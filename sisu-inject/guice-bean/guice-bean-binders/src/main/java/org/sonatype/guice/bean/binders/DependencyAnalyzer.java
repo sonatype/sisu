@@ -11,31 +11,23 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.binders;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.util.Collections;
+import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.inject.Provider;
-import javax.inject.Qualifier;
 
-import org.sonatype.guice.bean.reflect.DeclaredMembers;
 import org.sonatype.guice.bean.reflect.DeferredProvider;
-import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binding;
-import com.google.inject.BindingAnnotation;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.BindingTargetVisitor;
 import com.google.inject.spi.ConstructorBinding;
 import com.google.inject.spi.DefaultBindingTargetVisitor;
+import com.google.inject.spi.Dependency;
+import com.google.inject.spi.InjectionPoint;
 import com.google.inject.spi.InjectionRequest;
 import com.google.inject.spi.InstanceBinding;
 import com.google.inject.spi.LinkedKeyBinding;
@@ -45,175 +37,130 @@ import com.google.inject.spi.UntargettedBinding;
 /**
  * {@link BindingTargetVisitor} that collects the {@link Key}s of any injected dependencies.
  */
-final class DependencyAnalyzer<T>
-    extends DefaultBindingTargetVisitor<T, Set<Key<?>>>
+final class DependencyAnalyzer
+    extends DefaultBindingTargetVisitor<Object, Boolean>
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final Set<Key<?>> NO_DEPENDENCIES = Collections.emptySet();
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Set<Class<?>> visited = new HashSet<Class<?>>();
+    private final Set<TypeLiteral<?>> processedTypes = new HashSet<TypeLiteral<?>>();
+
+    private final Set<Key<?>> requiredKeys = new HashSet<Key<?>>();
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    DependencyAnalyzer()
+    {
+        // properties parameter is implicitly required
+        requiredKeys.add( ParameterKeys.PROPERTIES );
+    }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
+    public Set<Key<?>> getRequiredKeys()
+    {
+        return requiredKeys;
+    }
+
     @Override
-    public Set<Key<?>> visit( final UntargettedBinding<? extends T> binding )
+    public Boolean visit( final UntargettedBinding<?> binding )
     {
         return analyze( binding.getKey().getTypeLiteral() );
     }
 
     @Override
-    public Set<Key<?>> visit( final LinkedKeyBinding<? extends T> binding )
+    public Boolean visit( final LinkedKeyBinding<?> binding )
     {
         return analyze( binding.getLinkedKey().getTypeLiteral() );
     }
 
     @Override
-    public Set<Key<?>> visit( final ConstructorBinding<? extends T> binding )
+    public Boolean visit( final ConstructorBinding<?> binding )
     {
-        return analyze( binding.getConstructor().getDeclaringType() );
+        return collect( binding.getDependencies() );
     }
 
     @Override
-    public Set<Key<?>> visit( final InstanceBinding<? extends T> binding )
+    public Boolean visit( final InstanceBinding<?> binding )
     {
-        return analyze( TypeLiteral.get( binding.getInstance().getClass() ) );
+        return collect( binding.getDependencies() );
     }
 
     @Override
-    public Set<Key<?>> visit( final ProviderInstanceBinding<? extends T> binding )
+    public Boolean visit( final ProviderInstanceBinding<?> binding )
     {
-        final Provider<? extends T> provider = binding.getProviderInstance();
+        final Provider<?> provider = binding.getProviderInstance();
         if ( provider instanceof DeferredProvider<?> )
         {
-            final DeferredProvider<?> deferredProvider = (DeferredProvider<?>) provider;
-            return analyze( TypeLiteral.get( deferredProvider.getImplementationClass().load() ) );
+            try
+            {
+                final DeferredProvider<?> deferredProvider = (DeferredProvider<?>) provider;
+                analyze( TypeLiteral.get( deferredProvider.getImplementationClass().load() ) );
+            }
+            catch ( final Throwable e ) // NOPMD
+            {
+                // deferred provider, so ignore errors for now
+            }
+            return Boolean.TRUE;
         }
-        return NO_DEPENDENCIES;
+        return collect( binding.getDependencies() );
     }
 
-    public Set<Key<?>> visit( final InjectionRequest<? extends T> injectionRequest )
+    public Boolean visit( final InjectionRequest<?> request )
     {
-        return analyze( injectionRequest.getType() );
+        for ( final InjectionPoint p : request.getInjectionPoints() )
+        {
+            collect( p.getDependencies() );
+        }
+        return Boolean.TRUE;
     }
 
     @Override
-    public Set<Key<?>> visitOther( final Binding<? extends T> binding )
+    public Boolean visitOther( final Binding<?> binding )
     {
-        return NO_DEPENDENCIES;
+        return Boolean.TRUE;
     }
 
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    /**
-     * Analyzes the given bean type to determine what dependencies the injector needs to provide.
-     * 
-     * @param type The bean type
-     * @return Set of dependency keys
-     */
-    private Set<Key<?>> analyze( final TypeLiteral<?> type )
+    private Boolean analyze( final TypeLiteral<?> type )
     {
-        Class<?> clazz = type.getRawType();
-        if ( !visited.add( clazz ) )
+        if ( ( type.getRawType().getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) != 0 )
         {
-            return NO_DEPENDENCIES;
+            return Boolean.TRUE;
         }
-
-        final DependencySet dependencies = new DependencySet();
-        for ( final Member m : new DeclaredMembers( type.getRawType() ) )
+        try
         {
-            final Class<?> mClazz = m.getDeclaringClass();
-            if ( clazz != mClazz && !visited.add( mClazz ) )
+            if ( !processedTypes.contains( type ) )
             {
-                break;
+                collect( InjectionPoint.forConstructorOf( type ).getDependencies() );
+                for ( final InjectionPoint p : InjectionPoint.forInstanceMethodsAndFields( type ) )
+                {
+                    collect( p.getDependencies() );
+                }
+                processedTypes.add( type );
             }
-            clazz = mClazz;
-
-            final AnnotatedElement element = (AnnotatedElement) m;
-            if ( element.isAnnotationPresent( javax.inject.Inject.class )
-                || element.isAnnotationPresent( com.google.inject.Inject.class ) )
-            {
-                if ( m instanceof Constructor<?> )
-                {
-                    final Constructor<?> ctor = (Constructor<?>) m;
-                    final List<TypeLiteral<?>> paramTypes = type.getParameterTypes( ctor );
-                    final Annotation[][] paramAnnotations = ctor.getParameterAnnotations();
-                    for ( int i = 0; i < paramAnnotations.length; i++ )
-                    {
-                        dependencies.addDependency( paramTypes.get( i ), paramAnnotations[i] );
-                    }
-                }
-                else if ( m instanceof Method )
-                {
-                    final Method method = (Method) m;
-                    final List<TypeLiteral<?>> paramTypes = type.getParameterTypes( method );
-                    final Annotation[][] paramAnnotations = method.getParameterAnnotations();
-                    for ( int i = 0; i < paramAnnotations.length; i++ )
-                    {
-                        dependencies.addDependency( paramTypes.get( i ), paramAnnotations[i] );
-                    }
-                }
-                else
-                {
-                    final Field f = (Field) m;
-                    dependencies.addDependency( type.getFieldType( f ), f.getAnnotations() );
-                }
-            }
+            return Boolean.TRUE;
         }
-        return dependencies;
+        catch ( final Throwable e )
+        {
+            return Boolean.FALSE;
+        }
     }
 
-    // ----------------------------------------------------------------------
-    // Implementation types
-    // ----------------------------------------------------------------------
-
-    /**
-     * {@link Set} of qualified dependency {@link Key}s.
-     */
-    final static class DependencySet
-        extends HashSet<Key<?>>
+    private Boolean collect( final Collection<Dependency<?>> dependencies )
     {
-        // ----------------------------------------------------------------------
-        // Constants
-        // ----------------------------------------------------------------------
-
-        private static final long serialVersionUID = 1L;
-
-        // ----------------------------------------------------------------------
-        // Implementation methods
-        // ----------------------------------------------------------------------
-
-        /**
-         * Adds the appropriate qualified {@link Key} for the given dependency.
-         * 
-         * @param type The dependency type
-         * @param annotations The dependency annotations
-         */
-        boolean addDependency( final TypeLiteral<?> type, final Annotation[] annotations )
+        for ( final Dependency<?> d : dependencies )
         {
-            final TypeLiteral<?> bindingType =
-                Provider.class != type.getRawType() ? type : TypeParameters.get( type, 0 );
-
-            for ( final Annotation ann : annotations )
-            {
-                final Class<? extends Annotation> annType = ann.annotationType();
-                if ( annType.isAnnotationPresent( Qualifier.class )
-                    || annType.isAnnotationPresent( BindingAnnotation.class ) )
-                {
-                    return add( Key.get( bindingType, ann ) ); // qualified binding
-                }
-            }
-            return add( Key.get( bindingType ) ); // wildcard (unqualified) binding
+            requiredKeys.add( d.getKey() );
         }
+        return Boolean.TRUE;
     }
 }

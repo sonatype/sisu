@@ -14,8 +14,6 @@ package org.sonatype.guice.bean.binders;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.sonatype.guice.bean.reflect.Logs;
-
 import com.google.inject.Binder;
 import com.google.inject.Binding;
 import com.google.inject.Key;
@@ -34,11 +32,9 @@ final class ElementAnalyzer
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final DependencyAnalyzer<Object> analyzer = new DependencyAnalyzer<Object>();
+    private final DependencyAnalyzer analyzer = new DependencyAnalyzer();
 
     private final Set<Key<?>> localKeys = new HashSet<Key<?>>();
-
-    private final Set<Key<?>> importedKeys = new HashSet<Key<?>>();
 
     private final Binder binder;
 
@@ -49,9 +45,6 @@ final class ElementAnalyzer
     ElementAnalyzer( final Binder binder )
     {
         this.binder = binder;
-
-        // properties parameter is implicitly required
-        importedKeys.add( ParameterKeys.PROPERTIES );
     }
 
     // ----------------------------------------------------------------------
@@ -63,42 +56,31 @@ final class ElementAnalyzer
      */
     public Set<Key<?>> getImportedKeys()
     {
-        importedKeys.removeAll( localKeys );
-        return importedKeys;
+        final Set<Key<?>> keys = analyzer.getRequiredKeys();
+        keys.removeAll( localKeys );
+        return keys;
     }
 
     @Override
     public <T> Void visit( final Binding<T> binding )
     {
-        final Key<T> key = binding.getKey();
-        if ( !localKeys.contains( key ) )
+        if ( localKeys.contains( binding.getKey() ) )
         {
-            try
-            {
-                importedKeys.addAll( binding.acceptTargetVisitor( analyzer ) );
-                binding.applyTo( binder );
-                localKeys.add( key );
-            }
-            catch ( final Throwable e )
-            {
-                Logs.debug( ElementAnalyzer.class, "Bad binding: {} cause: {}", binding, e );
-            }
+            return null;
+        }
+        if ( binding.acceptTargetVisitor( analyzer ).booleanValue() )
+        {
+            localKeys.add( binding.getKey() );
+            binding.applyTo( binder );
         }
         return null;
     }
 
     @Override
-    public Void visit( final InjectionRequest<?> injectionRequest )
+    public Void visit( final InjectionRequest<?> request )
     {
-        try
-        {
-            importedKeys.addAll( analyzer.visit( injectionRequest ) );
-            injectionRequest.applyTo( binder );
-        }
-        catch ( final Throwable e )
-        {
-            Logs.debug( ElementAnalyzer.class, "Bad binding: {} cause: {}", injectionRequest, e );
-        }
+        analyzer.visit( request );
+        request.applyTo( binder );
         return null;
     }
 

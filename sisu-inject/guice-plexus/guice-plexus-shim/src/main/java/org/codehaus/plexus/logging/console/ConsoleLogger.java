@@ -32,6 +32,11 @@ public final class ConsoleLogger
         super( threshold, name );
     }
 
+    public ConsoleLogger()
+    {
+        this( Logger.LEVEL_INFO, "console" );
+    }
+
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------

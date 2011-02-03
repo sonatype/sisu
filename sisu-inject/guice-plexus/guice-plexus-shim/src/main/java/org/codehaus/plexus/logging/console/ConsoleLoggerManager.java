@@ -22,7 +22,7 @@ public final class ConsoleLoggerManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Logger logger = new ConsoleLogger( Logger.LEVEL_INFO, "console" );
+    private final Logger logger = new ConsoleLogger();
 
     // ----------------------------------------------------------------------
     // Public methods

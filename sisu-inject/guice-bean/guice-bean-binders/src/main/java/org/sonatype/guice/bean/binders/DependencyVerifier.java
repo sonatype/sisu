@@ -11,75 +11,63 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.binders;
 
-import java.lang.reflect.Member;
-import java.util.HashSet;
-import java.util.Set;
-
-import org.sonatype.guice.bean.reflect.DeclaredMembers;
+import java.lang.reflect.Modifier;
 
 import com.google.inject.Binding;
 import com.google.inject.TypeLiteral;
-import com.google.inject.spi.ConstructorBinding;
+import com.google.inject.spi.BindingTargetVisitor;
 import com.google.inject.spi.DefaultBindingTargetVisitor;
+import com.google.inject.spi.InjectionPoint;
 import com.google.inject.spi.LinkedKeyBinding;
 import com.google.inject.spi.UntargettedBinding;
 
-final class DependencyVerifier<T>
-    extends DefaultBindingTargetVisitor<T, Void>
+/**
+ * {@link BindingTargetVisitor} that verifies any injected dependencies.
+ */
+final class DependencyVerifier
+    extends DefaultBindingTargetVisitor<Object, Boolean>
 {
-    // ----------------------------------------------------------------------
-    // Implementation fields
-    // ----------------------------------------------------------------------
-
-    private final Set<Class<?>> visited = new HashSet<Class<?>>();
-
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
     @Override
-    public Void visit( final UntargettedBinding<? extends T> binding )
+    public Boolean visit( final UntargettedBinding<?> binding )
     {
         return verify( binding.getKey().getTypeLiteral() );
     }
 
     @Override
-    public Void visit( final LinkedKeyBinding<? extends T> binding )
+    public Boolean visit( final LinkedKeyBinding<?> binding )
     {
         return verify( binding.getLinkedKey().getTypeLiteral() );
     }
 
     @Override
-    public Void visit( final ConstructorBinding<? extends T> binding )
+    public Boolean visitOther( final Binding<?> binding )
     {
-        return verify( binding.getConstructor().getDeclaringType() );
-    }
-
-    @Override
-    public Void visitOther( final Binding<? extends T> binding )
-    {
-        return null;
+        return Boolean.TRUE;
     }
 
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private Void verify( final TypeLiteral<?> type )
+    private Boolean verify( final TypeLiteral<?> type )
     {
-        Class<?> clazz = type.getRawType();
-        if ( visited.add( clazz ) )
+        if ( ( type.getRawType().getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) != 0 )
         {
-            for ( final Member m : new DeclaredMembers( type.getRawType() ) )
-            {
-                final Class<?> mClazz = m.getDeclaringClass();
-                if ( clazz != mClazz && !visited.add( mClazz ) )
-                {
-                    break;
-                }
-                clazz = mClazz;
-            }
+            return Boolean.TRUE;
         }
-        return null;
+        try
+        {
+            InjectionPoint.forConstructorOf( type ).getDependencies();
+            InjectionPoint.forInstanceMethodsAndFields( type );
+            return Boolean.TRUE;
+        }
+        catch ( final Throwable e )
+        {
+            return Boolean.FALSE;
+        }
     }
 }
