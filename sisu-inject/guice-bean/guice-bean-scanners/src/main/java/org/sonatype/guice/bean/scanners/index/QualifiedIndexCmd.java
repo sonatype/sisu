@@ -16,23 +16,39 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
-import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
 import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
 import org.sonatype.guice.bean.scanners.QualifiedTypeVisitor;
 
-public final class QualifiedIndexCmd
+public class QualifiedIndexCmd
     extends AbstractQualifiedIndex
     implements QualifiedTypeListener
 {
     public static void main( final String[] args )
+        throws MalformedURLException
     {
+        final URL[] urls = new URL[args.length];
+        for ( int i = 0; i < args.length; i++ )
+        {
+            urls[i] = new File( args[i] ).toURI().toURL();
+        }
+
         final QualifiedIndexCmd indexer = new QualifiedIndexCmd();
-        final ClassSpace space = new URLClassSpace( QualifiedIndexCmd.class.getClassLoader() );
-        new ClassSpaceScanner( space ).accept( new QualifiedTypeVisitor( indexer ) );
-        indexer.saveIndex();
+        try
+        {
+            final ClassLoader parent = QualifiedIndexCmd.class.getClassLoader();
+            final ClassLoader loader = urls.length > 0 ? URLClassLoader.newInstance( urls, parent ) : parent;
+            new ClassSpaceScanner( new URLClassSpace( loader ) ).accept( new QualifiedTypeVisitor( indexer ) );
+        }
+        finally
+        {
+            indexer.saveIndex();
+        }
     }
 
     public void hear( final Annotation qualifier, final Class<?> qualifiedType, final Object source )
