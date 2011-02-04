@@ -49,11 +49,7 @@ public interface ContainerConfiguration
 
     boolean getAutoWiring();
 
-    ContainerConfiguration setClassPathScanning( boolean on );
+    ContainerConfiguration setClassPathScanning( String scanning );
 
-    boolean getClassPathScanning();
-
-    ContainerConfiguration setClassPathCaching( boolean on );
-
-    boolean getClassPathCaching();
+    String getClassPathScanning();
 }

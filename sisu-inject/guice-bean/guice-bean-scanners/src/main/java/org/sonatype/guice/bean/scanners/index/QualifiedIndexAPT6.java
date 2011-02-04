@@ -31,7 +31,7 @@ import javax.tools.StandardLocation;
 
 @SuppressWarnings( "restriction" )
 public final class QualifiedIndexAPT6
-    extends AbstractQualifiedIndex
+    extends AbstractSisuIndex
     implements Processor
 {
     private ProcessingEnvironment environment;

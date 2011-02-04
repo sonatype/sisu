@@ -19,8 +19,10 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractQualifiedIndex
+public abstract class AbstractSisuIndex
 {
+    public static final String META_INF_SISU = "META-INF/sisu/";
+
     private final Map<Object, Set<String>> index = new HashMap<Object, Set<String>>();
 
     private final Map<Object, BufferedWriter> writers = new HashMap<Object, BufferedWriter>();
@@ -45,7 +47,7 @@ public abstract class AbstractQualifiedIndex
         BufferedWriter writer = null;
         try
         {
-            writer = new BufferedWriter( getWriter( "META-INF/sisu/" + key ) );
+            writer = new BufferedWriter( getWriter( META_INF_SISU + key ) );
         }
         catch ( final Throwable e )
         {

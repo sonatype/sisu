@@ -24,13 +24,13 @@ import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.Streams;
 import org.sonatype.guice.bean.scanners.ClassFinder;
 
-public final class QualifiedIndexFinder
+public final class SisuIndexFinder
     implements ClassFinder
 {
     public Enumeration<URL> findClasses( final ClassSpace space )
     {
         final List<URL> components = new ArrayList<URL>();
-        final Enumeration<URL> indices = space.findEntries( "META-INF/sisu", "*", false );
+        final Enumeration<URL> indices = space.findEntries( AbstractSisuIndex.META_INF_SISU, "*", false );
         while ( indices.hasMoreElements() )
         {
             try

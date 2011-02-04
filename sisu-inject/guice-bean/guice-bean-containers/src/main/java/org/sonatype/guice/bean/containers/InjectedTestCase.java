@@ -13,9 +13,7 @@ package org.sonatype.guice.bean.containers;
 
 import java.io.File;
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -24,6 +22,7 @@ import javax.inject.Inject;
 
 import junit.framework.TestCase;
 
+import org.sonatype.guice.bean.binders.BeanScanning;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
@@ -37,8 +36,6 @@ import com.google.inject.Guice;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.name.Names;
-import com.google.inject.spi.Element;
-import com.google.inject.spi.Elements;
 
 /**
  * Abstract {@link TestCase} that automatically binds and injects itself.
@@ -50,8 +47,6 @@ public abstract class InjectedTestCase
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
-
-    private static final Map<String, List<Element>> CACHED_ELEMENTS = new HashMap<String, List<Element>>();
 
     private String basedir;
 
@@ -66,18 +61,8 @@ public abstract class InjectedTestCase
     protected void setUp()
         throws Exception
     {
-        final List<Element> elements;
-        synchronized ( CACHED_ELEMENTS )
-        {
-            final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
-            final String key = String.valueOf( space );
-            if ( !CACHED_ELEMENTS.containsKey( key ) )
-            {
-                CACHED_ELEMENTS.put( key, Elements.getElements( new SpaceModule( space ) ) );
-            }
-            elements = CACHED_ELEMENTS.get( key );
-        }
-        Guice.createInjector( new WireModule( new TestModule(), Elements.getModule( elements ) ) );
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
+        Guice.createInjector( new WireModule( new TestModule(), new SpaceModule( space, BeanScanning.CACHE ) ) );
     }
 
     @Override

@@ -37,6 +37,10 @@
     <module>guice-swing-main</module>
   </modules>
 
+  <properties>
+    <sisu.meta>${project.build.outputDirectory}/META-INF/sisu</sisu.meta>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.sonatype.sisu</groupId>
@@ -50,6 +54,11 @@
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Include-Resource>$(if;$(dir;${sisu.meta});META-INF/sisu=${sisu.meta})</Include-Resource>
+          </instructions>
+        </configuration>
       </plugin>
     </plugins>
   </build>

@@ -40,7 +40,7 @@ public final class QualifiedIndexAPT5
     }
 
     private static class Processor
-        extends AbstractQualifiedIndex
+        extends AbstractSisuIndex
         implements AnnotationProcessor, RoundCompleteListener
     {
         private final Set<AnnotationTypeDeclaration> annotations;

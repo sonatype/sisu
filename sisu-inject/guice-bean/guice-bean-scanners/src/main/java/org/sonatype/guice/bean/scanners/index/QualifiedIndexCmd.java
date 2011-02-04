@@ -26,7 +26,7 @@ import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
 import org.sonatype.guice.bean.scanners.QualifiedTypeVisitor;
 
 public class QualifiedIndexCmd
-    extends AbstractQualifiedIndex
+    extends AbstractSisuIndex
     implements QualifiedTypeListener
 {
     public static void main( final String[] args )

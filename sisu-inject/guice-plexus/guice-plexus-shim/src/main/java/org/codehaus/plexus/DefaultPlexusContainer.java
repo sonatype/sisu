@@ -39,6 +39,7 @@ import org.codehaus.plexus.context.DefaultContext;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
+import org.sonatype.guice.bean.binders.BeanScanning;
 import org.sonatype.guice.bean.binders.MergedModule;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.WireModule;
@@ -122,11 +123,9 @@ public final class DefaultPlexusContainer
 
     private final String componentVisibility;
 
-    private final boolean isClassPathScanningEnabled;
-
-    private final boolean isClassPathCachingEnabled;
-
     private final boolean isAutoWiringEnabled;
+
+    private final BeanScanning scanning;
 
     private final Module containerModule = new ContainerModule();
 
@@ -167,10 +166,9 @@ public final class DefaultPlexusContainer
         containerRealm = lookupContainerRealm( configuration );
 
         componentVisibility = configuration.getComponentVisibility();
-        isClassPathScanningEnabled = configuration.getClassPathScanning();
-        isClassPathCachingEnabled = configuration.getClassPathCaching();
         isAutoWiringEnabled = configuration.getAutoWiring();
 
+        scanning = parseScanningOption( configuration.getClassPathScanning() );
         plexusBeanLocator = new DefaultPlexusBeanLocator( qualifiedBeanLocator, componentVisibility );
         lifecycleManager = new PlexusLifecycleManager( this, context );
 
@@ -181,14 +179,7 @@ public final class DefaultPlexusContainer
 
         final ClassSpace space = new URLClassSpace( containerRealm );
         beanModules.add( new PlexusXmlBeanModule( space, variables, plexusXml ) );
-        if ( isClassPathScanningEnabled )
-        {
-            beanModules.add( new PlexusAnnotatedBeanModule( space, variables, isClassPathCachingEnabled ) );
-        }
-        else
-        {
-            beanModules.add( new PlexusAnnotatedBeanModule( null, variables, false ) );
-        }
+        beanModules.add( new PlexusAnnotatedBeanModule( space, variables, scanning ) );
 
         try
         {
@@ -432,10 +423,7 @@ public final class DefaultPlexusContainer
             if ( realmIds.add( realm.getId() ) )
             {
                 beanModules.add( new PlexusXmlBeanModule( space, variables ) );
-                if ( isClassPathScanningEnabled )
-                {
-                    beanModules.add( new PlexusAnnotatedBeanModule( space, variables, isClassPathCachingEnabled ) );
-                }
+                beanModules.add( new PlexusAnnotatedBeanModule( space, variables, scanning ) );
             }
             if ( !beanModules.isEmpty() )
             {
@@ -577,6 +565,18 @@ public final class DefaultPlexusContainer
     // Implementation methods
     // ----------------------------------------------------------------------
 
+    private static BeanScanning parseScanningOption( final String scanning )
+    {
+        for ( final BeanScanning option : BeanScanning.values() )
+        {
+            if ( option.name().equalsIgnoreCase( scanning ) )
+            {
+                return option;
+            }
+        }
+        return BeanScanning.OFF;
+    }
+
     /**
      * Finds container {@link ClassRealm}, taking existing {@link ClassWorld}s or {@link ClassLoader}s into account.
      * 
@@ -707,7 +707,7 @@ public final class DefaultPlexusContainer
         {
             visibleRealms.add( threadContextRealm );
         }
-        if ( PlexusConstants.REALM_VISIBILITY.equals( componentVisibility ) )
+        if ( PlexusConstants.REALM_VISIBILITY.equalsIgnoreCase( componentVisibility ) )
         {
             final Collection<String> visibleNames = ClassRealmUtils.visibleRealmNames( threadContextRealm );
             if ( !visibleNames.isEmpty() )

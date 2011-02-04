@@ -11,13 +11,13 @@
  *******************************************************************************/
 package org.sonatype.guice.plexus.binders;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.sonatype.guice.bean.binders.BeanScanning;
+import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
+import org.sonatype.guice.bean.scanners.ClassSpaceVisitor;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
@@ -25,9 +25,6 @@ import org.sonatype.guice.plexus.scanners.PlexusAnnotatedMetadata;
 import org.sonatype.guice.plexus.scanners.PlexusTypeVisitor;
 
 import com.google.inject.Binder;
-import com.google.inject.Module;
-import com.google.inject.spi.Element;
-import com.google.inject.spi.Elements;
 
 /**
  * {@link PlexusBeanModule} that registers Plexus beans by scanning classes for runtime annotations.
@@ -39,13 +36,11 @@ public final class PlexusAnnotatedBeanModule
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private static final Map<String, List<Element>> CACHED_ELEMENTS = new HashMap<String, List<Element>>();
-
     private final ClassSpace space;
 
     private final Map<?, ?> variables;
 
-    private final boolean caching;
+    private final BeanScanning scanning;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -59,7 +54,7 @@ public final class PlexusAnnotatedBeanModule
      */
     public PlexusAnnotatedBeanModule( final ClassSpace space, final Map<?, ?> variables )
     {
-        this( space, variables, false );
+        this( space, variables, BeanScanning.ON );
     }
 
     /**
@@ -67,13 +62,13 @@ public final class PlexusAnnotatedBeanModule
      * 
      * @param space The local class space
      * @param variables The filter variables
-     * @param caching Cache the results?
+     * @param scanning The scanning options
      */
-    public PlexusAnnotatedBeanModule( final ClassSpace space, final Map<?, ?> variables, final boolean caching )
+    public PlexusAnnotatedBeanModule( final ClassSpace space, final Map<?, ?> variables, final BeanScanning scanning )
     {
         this.space = space;
         this.variables = variables;
-        this.caching = caching;
+        this.scanning = scanning;
     }
 
     // ----------------------------------------------------------------------
@@ -82,55 +77,29 @@ public final class PlexusAnnotatedBeanModule
 
     public PlexusBeanSource configure( final Binder binder )
     {
-        if ( caching )
+        if ( null != space && scanning != BeanScanning.OFF )
         {
-            cachingScan( binder );
-        }
-        else
-        {
-            scan( binder );
+            new PlexusSpaceModule( space, scanning ).configure( binder );
         }
         return new PlexusAnnotatedBeanSource( variables );
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    void scan( final Binder binder )
-    {
-        if ( null != space )
-        {
-            new ClassSpaceScanner( space ).accept( new PlexusTypeVisitor( new PlexusTypeBinder( binder ) ) );
-        }
-    }
-
-    private void cachingScan( final Binder binder )
-    {
-        synchronized ( CACHED_ELEMENTS )
-        {
-            final String key = String.valueOf( space );
-            if ( !CACHED_ELEMENTS.containsKey( key ) )
-            {
-                CACHED_ELEMENTS.put( key, Elements.getElements( new RecordingModule() ) );
-            }
-            for ( final Element e : CACHED_ELEMENTS.get( key ) )
-            {
-                e.applyTo( binder );
-            }
-        }
     }
 
     // ----------------------------------------------------------------------
     // Implementation types
     // ----------------------------------------------------------------------
 
-    final class RecordingModule
-        implements Module
+    private static final class PlexusSpaceModule
+        extends SpaceModule
     {
-        public void configure( final Binder binder )
+        PlexusSpaceModule( final ClassSpace space, final BeanScanning scanning )
         {
-            scan( binder );
+            super( space, scanning );
+        }
+
+        @Override
+        protected ClassSpaceVisitor visitor( final Binder binder )
+        {
+            return new PlexusTypeVisitor( new PlexusTypeBinder( binder ) );
         }
     }
 

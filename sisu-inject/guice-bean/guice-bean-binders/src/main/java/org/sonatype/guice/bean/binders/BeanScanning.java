@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2011 Sonatype, Inc.
+ * Copyright (c) 2011 Sonatype, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution.
@@ -9,25 +9,9 @@
  *   http://www.apache.org/licenses/LICENSE-2.0.html
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
-package org.codehaus.plexus;
+package org.sonatype.guice.bean.binders;
 
-import org.sonatype.guice.plexus.config.Hints;
-
-public interface PlexusConstants
+public enum BeanScanning
 {
-    String PLEXUS_DEFAULT_HINT = Hints.DEFAULT_HINT;
-
-    String PLEXUS_KEY = "plexus";
-
-    String GLOBAL_VISIBILITY = "global";
-
-    String REALM_VISIBILITY = "realm";
-
-    String SCANNING_ON = "on";
-
-    String SCANNING_OFF = "off";
-
-    String SCANNING_INDEX = "index";
-
-    String SCANNING_CACHE = "cache";
+    ON, OFF, CACHE, INDEX
 }

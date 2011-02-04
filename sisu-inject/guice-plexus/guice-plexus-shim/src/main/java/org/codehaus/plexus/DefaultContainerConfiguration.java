@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.sonatype.guice.bean.binders.BeanScanning;
 
 public final class DefaultContainerConfiguration
     implements ContainerConfiguration
@@ -36,11 +37,9 @@ public final class DefaultContainerConfiguration
 
     private String componentVisibility = PlexusConstants.REALM_VISIBILITY;
 
+    private String classPathScanning = BeanScanning.OFF.name();
+
     private boolean autoWiring;
-
-    private boolean classPathScanning;
-
-    private boolean classPathCaching;
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -117,6 +116,21 @@ public final class DefaultContainerConfiguration
         return componentVisibility;
     }
 
+    public ContainerConfiguration setClassPathScanning( final String classPathScanning )
+    {
+        this.classPathScanning = classPathScanning;
+        if ( !PlexusConstants.SCANNING_OFF.equalsIgnoreCase( classPathScanning ) )
+        {
+            autoWiring = true;
+        }
+        return this;
+    }
+
+    public String getClassPathScanning()
+    {
+        return classPathScanning;
+    }
+
     public ContainerConfiguration setAutoWiring( final boolean autoWiring )
     {
         this.autoWiring = autoWiring;
@@ -126,31 +140,5 @@ public final class DefaultContainerConfiguration
     public boolean getAutoWiring()
     {
         return autoWiring;
-    }
-
-    public ContainerConfiguration setClassPathScanning( final boolean classPathScanning )
-    {
-        this.classPathScanning = classPathScanning;
-        if ( classPathScanning )
-        {
-            autoWiring = true;
-        }
-        return this;
-    }
-
-    public boolean getClassPathScanning()
-    {
-        return classPathScanning;
-    }
-
-    public ContainerConfiguration setClassPathCaching( final boolean classPathCaching )
-    {
-        this.classPathCaching = classPathCaching;
-        return this;
-    }
-
-    public boolean getClassPathCaching()
-    {
-        return classPathCaching;
     }
 }
