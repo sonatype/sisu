@@ -25,10 +25,17 @@ import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
 import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
 import org.sonatype.guice.bean.scanners.QualifiedTypeVisitor;
 
-public class QualifiedIndexCmd
+/**
+ * Command-line utility that can generate {@code META-INF/sisu} index files for a space-separated list of JARs.
+ */
+public final class QualifiedIndexCmd
     extends AbstractSisuIndex
     implements QualifiedTypeListener
 {
+    // ----------------------------------------------------------------------
+    // Public entry points
+    // ----------------------------------------------------------------------
+
     public static void main( final String[] args )
         throws MalformedURLException
     {
@@ -51,10 +58,18 @@ public class QualifiedIndexCmd
         }
     }
 
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
     public void hear( final Annotation qualifier, final Class<?> qualifiedType, final Object source )
     {
-        updateIndex( qualifier.annotationType().getName(), qualifiedType.getName() );
+        addIndexEntry( qualifier.annotationType().getName(), qualifiedType.getName() );
     }
+
+    // ----------------------------------------------------------------------
+    // Customized methods
+    // ----------------------------------------------------------------------
 
     @Override
     protected void info( final String message )
@@ -73,7 +88,10 @@ public class QualifiedIndexCmd
         throws IOException
     {
         final File index = new File( path );
-        index.getParentFile().mkdirs();
-        return new FileWriter( index );
+        if ( index.getParentFile().mkdirs() )
+        {
+            return new FileWriter( index );
+        }
+        throw new IOException( "Error creating: " + index );
     }
 }

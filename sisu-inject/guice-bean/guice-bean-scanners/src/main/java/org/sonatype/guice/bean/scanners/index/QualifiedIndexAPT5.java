@@ -30,22 +30,54 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.ClassDeclaration;
 import com.sun.mirror.declaration.Declaration;
 
+/**
+ * Java 5 {@link AnnotationProcessorFactory} that can generate {@code META-INF/sisu} index files for the current build.
+ */
 public final class QualifiedIndexAPT5
     implements AnnotationProcessorFactory
 {
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
     public AnnotationProcessor getProcessorFor( final Set<AnnotationTypeDeclaration> annotations,
                                                 final AnnotationProcessorEnvironment environment )
     {
         return new Processor( annotations, environment );
     }
 
+    public Collection<String> supportedAnnotationTypes()
+    {
+        return Collections.singleton( "*" );
+    }
+
+    public Collection<String> supportedOptions()
+    {
+        return Collections.emptyList();
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    /**
+     * Java 5 Annotation {@link Processor} that can generate {@code META-INF/sisu} index files for the current build.
+     */
     private static class Processor
         extends AbstractSisuIndex
         implements AnnotationProcessor, RoundCompleteListener
     {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
         private final Set<AnnotationTypeDeclaration> annotations;
 
         private final AnnotationProcessorEnvironment environment;
+
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
 
         Processor( final Set<AnnotationTypeDeclaration> annotations, final AnnotationProcessorEnvironment environment )
         {
@@ -53,6 +85,10 @@ public final class QualifiedIndexAPT5
             this.environment = environment;
             environment.addListener( this );
         }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
 
         public void process()
         {
@@ -64,7 +100,7 @@ public final class QualifiedIndexAPT5
                     {
                         if ( decl instanceof ClassDeclaration )
                         {
-                            updateIndex( anno.getQualifiedName(), ( (ClassDeclaration) decl ).getQualifiedName() );
+                            addIndexEntry( anno.getQualifiedName(), ( (ClassDeclaration) decl ).getQualifiedName() );
                         }
                     }
                 }
@@ -80,6 +116,10 @@ public final class QualifiedIndexAPT5
                 environment.removeListener( this );
             }
         }
+
+        // ----------------------------------------------------------------------
+        // Customized methods
+        // ----------------------------------------------------------------------
 
         @Override
         protected void info( final String msg )
@@ -99,15 +139,5 @@ public final class QualifiedIndexAPT5
         {
             return environment.getFiler().createTextFile( Filer.Location.CLASS_TREE, "", new File( path ), "UTF-8" );
         }
-    }
-
-    public Collection<String> supportedAnnotationTypes()
-    {
-        return Collections.singleton( "*" );
-    }
-
-    public Collection<String> supportedOptions()
-    {
-        return Collections.emptyList();
     }
 }

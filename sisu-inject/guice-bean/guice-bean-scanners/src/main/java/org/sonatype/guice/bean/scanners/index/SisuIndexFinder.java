@@ -12,7 +12,6 @@
 package org.sonatype.guice.bean.scanners.index;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -21,24 +20,33 @@ import java.util.Enumeration;
 import java.util.List;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.Streams;
 import org.sonatype.guice.bean.scanners.ClassFinder;
 
+/**
+ * {@link ClassFinder} that uses the index files under {@code META-INF/sisu} to find interesting classes.
+ */
 public final class SisuIndexFinder
     implements ClassFinder
 {
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
     public Enumeration<URL> findClasses( final ClassSpace space )
     {
         final List<URL> components = new ArrayList<URL>();
         final Enumeration<URL> indices = space.findEntries( AbstractSisuIndex.META_INF_SISU, "*", false );
         while ( indices.hasMoreElements() )
         {
+            final URL url = indices.nextElement();
             try
             {
-                final InputStream in = Streams.open( indices.nextElement() );
+                final BufferedReader reader = new BufferedReader( new InputStreamReader( Streams.open( url ) ) );
                 try
                 {
-                    final BufferedReader reader = new BufferedReader( new InputStreamReader( in ) );
+                    // each index file under META-INF/sisu contains a list of classes, one per line
                     for ( String line = reader.readLine(); line != null; line = reader.readLine() )
                     {
                         components.add( space.getResource( line.replace( '.', '/' ) + ".class" ) );
@@ -46,12 +54,12 @@ public final class SisuIndexFinder
                 }
                 finally
                 {
-                    in.close();
+                    reader.close();
                 }
             }
             catch ( final Throwable e )
             {
-                // ignore
+                Logs.warn( getClass(), "Error reading: " + url, e );
             }
         }
         return Collections.enumeration( components );

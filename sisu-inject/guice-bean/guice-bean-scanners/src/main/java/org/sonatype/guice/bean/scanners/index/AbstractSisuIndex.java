@@ -19,78 +19,136 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Skeleton class that can generate {@code META-INF/sisu} index files.
+ */
 public abstract class AbstractSisuIndex
 {
-    public static final String META_INF_SISU = "META-INF/sisu/";
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    static final String META_INF_SISU = "META-INF/sisu/";
+
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
 
     private final Map<Object, Set<String>> index = new HashMap<Object, Set<String>>();
 
     private final Map<Object, BufferedWriter> writers = new HashMap<Object, BufferedWriter>();
 
-    protected final void updateIndex( final Object key, final Object line )
+    // ----------------------------------------------------------------------
+    // Common methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Adds a new annotated class entry to the index.
+     * 
+     * @param anno The annotation name
+     * @param clazz The class name
+     */
+    protected final void addIndexEntry( final Object anno, final Object clazz )
     {
-        if ( !writers.containsKey( key ) )
+        if ( !writers.containsKey( anno ) )
         {
-            prepareWriter( key );
+            prepareWriter( anno ); // need to do this early on for Java 5 APT
         }
-        Set<String> table = index.get( key );
+        Set<String> table = index.get( anno );
         if ( null == table )
         {
             table = new LinkedHashSet<String>();
-            index.put( key, table );
+            index.put( anno, table );
         }
-        table.add( line.toString() );
+        table.add( clazz.toString() );
     }
 
-    private final void prepareWriter( final Object key )
+    /**
+     * Writes the current index as a series of tables.
+     */
+    protected final void saveIndex()
+    {
+        for ( final Object anno : index.keySet() )
+        {
+            // one index file per annotation class name...
+            final BufferedWriter writer = writers.get( anno );
+            if ( null != writer )
+            {
+                try
+                {
+                    // one line per implementation class name...
+                    for ( final String clazz : index.get( anno ) )
+                    {
+                        writer.write( clazz );
+                        writer.newLine();
+                    }
+                }
+                catch ( final Throwable e )
+                {
+                    warn( e.toString() );
+                }
+                finally
+                {
+                    try
+                    {
+                        writer.close();
+                    }
+                    catch ( final Throwable e )
+                    {
+                        warn( e.toString() );
+                    }
+                }
+            }
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // Customizable methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Reports an informational message.
+     * 
+     * @param message The message
+     */
+    protected abstract void info( final String message );
+
+    /**
+     * Reports a warning message.
+     * 
+     * @param message The message
+     */
+    protected abstract void warn( final String message );
+
+    /**
+     * Creates a new writer for the given output path.
+     * 
+     * @param path The output path
+     * @return The relevant writer
+     */
+    protected abstract Writer getWriter( final String path )
+        throws IOException;
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Prepares a new writer for the given annotation.
+     * 
+     * @param anno The annotation name
+     */
+    private final void prepareWriter( final Object anno )
     {
         BufferedWriter writer = null;
         try
         {
-            writer = new BufferedWriter( getWriter( META_INF_SISU + key ) );
+            writer = new BufferedWriter( getWriter( META_INF_SISU + anno ) );
         }
         catch ( final Throwable e )
         {
             warn( e.toString() );
         }
-        writers.put( key, writer );
+        writers.put( anno, writer );
     }
-
-    protected final void saveIndex()
-    {
-        for ( final Object key : index.keySet() )
-        {
-            final BufferedWriter writer = writers.get( key );
-            if ( null == writer )
-            {
-                continue;
-            }
-            try
-            {
-                try
-                {
-                    for ( final String line : index.get( key ) )
-                    {
-                        writer.write( line );
-                        writer.newLine();
-                    }
-                }
-                finally
-                {
-                    writer.close();
-                }
-            }
-            catch ( final Throwable e )
-            {
-                warn( e.toString() );
-            }
-        }
-    }
-
-    protected abstract void info( final String message );
-
-    protected abstract void warn( final String message );
-
-    protected abstract Writer getWriter( final String path )
-        throws IOException;
 }

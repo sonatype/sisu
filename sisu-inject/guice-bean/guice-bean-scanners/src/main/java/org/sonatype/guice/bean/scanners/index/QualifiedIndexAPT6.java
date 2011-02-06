@@ -29,12 +29,23 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.StandardLocation;
 
+/**
+ * Java 6 Annotation {@link Processor} that can generate {@code META-INF/sisu} index files for the current build.
+ */
 @SuppressWarnings( "restriction" )
 public final class QualifiedIndexAPT6
     extends AbstractSisuIndex
     implements Processor
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     private ProcessingEnvironment environment;
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
     public void init( final ProcessingEnvironment _environment )
     {
@@ -51,7 +62,7 @@ public final class QualifiedIndexAPT6
                 {
                     if ( elem.getKind().isClass() )
                     {
-                        updateIndex( anno.getQualifiedName(), ( (TypeElement) elem ).getQualifiedName() );
+                        addIndexEntry( anno.getQualifiedName(), ( (TypeElement) elem ).getQualifiedName() );
                     }
                 }
             }
@@ -85,6 +96,10 @@ public final class QualifiedIndexAPT6
     {
         return SourceVersion.RELEASE_5;
     }
+
+    // ----------------------------------------------------------------------
+    // Customized methods
+    // ----------------------------------------------------------------------
 
     @Override
     protected void info( final String msg )

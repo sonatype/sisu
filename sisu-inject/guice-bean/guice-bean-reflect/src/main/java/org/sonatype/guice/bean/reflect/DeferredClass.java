@@ -12,7 +12,7 @@
 package org.sonatype.guice.bean.reflect;
 
 /**
- * Placeholder {@link Class} that can be loaded at some time in the future.
+ * Placeholder {@link Class}; postpones classloading until absolutely necessary.
  */
 public interface DeferredClass<T>
 {
