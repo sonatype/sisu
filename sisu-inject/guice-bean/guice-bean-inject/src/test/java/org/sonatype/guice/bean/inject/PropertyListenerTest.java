@@ -14,6 +14,7 @@ package org.sonatype.guice.bean.inject;
 import junit.framework.TestCase;
 
 import org.sonatype.guice.bean.reflect.BeanProperty;
+import org.testng.annotations.Test;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
@@ -24,6 +25,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.spi.TypeEncounter;
 
+@Test
 public class PropertyListenerTest
     extends TestCase
 {

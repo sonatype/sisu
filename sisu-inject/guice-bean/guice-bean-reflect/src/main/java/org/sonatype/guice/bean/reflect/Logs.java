@@ -15,7 +15,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Utility methods for dealing with simple debug and warning messages.
+ * Utility methods for dealing with internal debug and warning messages.
  */
 public final class Logs
 {

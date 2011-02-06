@@ -18,7 +18,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotates class hierarchies that don't want any setter injection.
+ * Annotates class hierarchies that don't want setter injection.
  */
 @Target( value = ElementType.TYPE )
 @Retention( RetentionPolicy.RUNTIME )

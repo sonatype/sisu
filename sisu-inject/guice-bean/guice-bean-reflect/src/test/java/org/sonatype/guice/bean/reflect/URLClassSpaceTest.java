@@ -15,11 +15,15 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
 
 import junit.framework.TestCase;
+
+import org.sonatype.guice.bean.reflect.barf.Handler;
 
 public class URLClassSpaceTest
     extends TestCase
@@ -126,7 +130,18 @@ public class URLClassSpaceTest
     public void testClassPathExpansion()
         throws IOException
     {
-        System.setProperty( "java.protocol.handler.pkgs", getClass().getPackage().getName() );
+        // System.setProperty( "java.protocol.handler.pkgs", getClass().getPackage().getName() );
+        URL.setURLStreamHandlerFactory( new URLStreamHandlerFactory()
+        {
+            public URLStreamHandler createURLStreamHandler( final String protocol )
+            {
+                if ( "barf".equals( protocol ) )
+                {
+                    return new Handler();
+                }
+                return null;
+            }
+        } );
 
         final URLClassSpace space =
             new URLClassSpace( URLClassLoader.newInstance( new URL[] { SIMPLE_JAR, CLASS_PATH_JAR, null,

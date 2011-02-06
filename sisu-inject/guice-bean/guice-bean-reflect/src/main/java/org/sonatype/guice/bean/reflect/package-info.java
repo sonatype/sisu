@@ -19,7 +19,7 @@
  * <dt>{@link org.sonatype.guice.bean.reflect.BeanProperties}
  * <dd>Picks out potential bean properties from declared class members.
  * <dt>{@link org.sonatype.guice.bean.reflect.Logs}
- * <dd>Utility methods for logging simple debug and warning messages.
+ * <dd>Utility methods for logging internal debug and warning messages.
  * <dt>{@link org.sonatype.guice.bean.reflect.TypeParameters}
  * <dd>Utility methods for dealing with generic type parameters.
  * </dl>

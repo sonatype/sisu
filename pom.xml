@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.sonatype.forge</groupId>
     <artifactId>forge-parent</artifactId>
-    <version>6</version>
+    <version>7</version>
   </parent>
 
   <packaging>pom</packaging>
@@ -108,8 +108,7 @@
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
-      <version>5.11</version>
-      <classifier>jdk15</classifier>
+      <version>5.14.9</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -147,7 +146,7 @@
       <dependency>
         <groupId>org.apache.felix</groupId>
         <artifactId>org.apache.felix.framework</artifactId>
-        <version>3.0.7</version>
+        <version>3.0.8</version>
       </dependency>
 
       <dependency>
@@ -207,6 +206,7 @@
           <version>2.7.2</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
+            <useSystemClassLoader>false</useSystemClassLoader>
           </configuration>
         </plugin>
         <plugin>

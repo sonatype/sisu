@@ -17,6 +17,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLStreamHandler;
+import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -34,7 +36,10 @@ import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.bean.scanners.asm.AnnotationVisitor;
 import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
+import org.sonatype.guice.bean.scanners.barf.Handler;
+import org.testng.annotations.Test;
 
+@Test
 public class QualifiedScanningTest
     extends TestCase
 {
@@ -144,7 +149,19 @@ public class QualifiedScanningTest
     public void testBrokenScanning()
         throws IOException
     {
-        System.setProperty( "java.protocol.handler.pkgs", getClass().getPackage().getName() );
+        // System.setProperty( "java.protocol.handler.pkgs", getClass().getPackage().getName() );
+        URL.setURLStreamHandlerFactory( new URLStreamHandlerFactory()
+        {
+            public URLStreamHandler createURLStreamHandler( final String protocol )
+            {
+                if ( "barf".equals( protocol ) )
+                {
+                    return new Handler();
+                }
+                return null;
+            }
+        } );
+
         final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
 
         final URL badURL = new URL( "barf:up/" );

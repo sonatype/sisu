@@ -24,7 +24,6 @@ public class BrokenScanningExample
     public BrokenScanningExample()
         throws MalformedURLException
     {
-        System.setProperty( "java.protocol.handler.pkgs", getClass().getPackage().getName() );
         final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
 
         final URL badURL = new URL( "barf:up/" );

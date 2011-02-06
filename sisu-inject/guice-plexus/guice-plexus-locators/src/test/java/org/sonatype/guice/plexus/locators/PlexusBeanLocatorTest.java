@@ -23,6 +23,7 @@ import org.codehaus.plexus.classworlds.realm.NoSuchRealmException;
 import org.sonatype.guice.bean.locators.DefaultBeanLocator;
 import org.sonatype.guice.bean.locators.HiddenBinding;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
+import org.testng.annotations.Test;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
@@ -35,6 +36,7 @@ import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
+@Test
 public class PlexusBeanLocatorTest
     extends TestCase
 {

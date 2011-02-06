@@ -67,7 +67,8 @@ public class DefaultComponentRegistryTest
         throws Exception
     {
         final File aJar = new File( "src/test/test-components/component-a-1.0-SNAPSHOT.jar" );
-        final ClassLoader customLoader = URLClassLoader.newInstance( new URL[] { aJar.toURL() } );
+        final ClassLoader customLoader =
+            URLClassLoader.newInstance( new URL[] { aJar.toURL() }, getClass().getClassLoader() );
         final Class componentA = customLoader.loadClass( "org.codehaus.plexus.components.DefaultA" );
 
         final PlexusContainer plexus = new DefaultPlexusContainer();
