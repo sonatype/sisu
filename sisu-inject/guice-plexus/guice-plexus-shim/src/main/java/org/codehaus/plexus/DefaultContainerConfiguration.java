@@ -16,7 +16,6 @@ import java.util.Map;
 
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
-import org.sonatype.guice.bean.binders.BeanScanning;
 
 public final class DefaultContainerConfiguration
     implements ContainerConfiguration
@@ -37,7 +36,7 @@ public final class DefaultContainerConfiguration
 
     private String componentVisibility = PlexusConstants.REALM_VISIBILITY;
 
-    private String classPathScanning = BeanScanning.OFF.name();
+    private String classPathScanning = PlexusConstants.SCANNING_OFF;
 
     private boolean autoWiring;
 
