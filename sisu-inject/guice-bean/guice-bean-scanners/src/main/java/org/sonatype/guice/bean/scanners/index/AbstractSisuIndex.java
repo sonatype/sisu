@@ -48,55 +48,55 @@ public abstract class AbstractSisuIndex
      * @param anno The annotation name
      * @param clazz The class name
      */
-    protected final void addIndexEntry( final Object anno, final Object clazz )
+    protected synchronized final void addIndexEntry( final Object anno, final Object clazz )
     {
         if ( !writers.containsKey( anno ) )
         {
             prepareWriter( anno ); // need to do this early on for Java 5 APT
         }
-        Set<String> table = index.get( anno );
-        if ( null == table )
+        if ( writers.get( anno ) != null )
         {
-            table = new LinkedHashSet<String>();
-            index.put( anno, table );
+            Set<String> table = index.get( anno );
+            if ( null == table )
+            {
+                table = new LinkedHashSet<String>();
+                index.put( anno, table );
+            }
+            table.add( clazz.toString() );
         }
-        table.add( clazz.toString() );
     }
 
     /**
      * Writes the current index as a series of tables.
      */
-    protected final void saveIndex()
+    protected synchronized final void saveIndex()
     {
-        for ( final Object anno : index.keySet() )
+        for ( final Object anno : index.keySet().toArray() )
         {
             // one index file per annotation class name...
-            final BufferedWriter writer = writers.get( anno );
-            if ( null != writer )
+            final BufferedWriter writer = writers.remove( anno );
+            try
+            {
+                // one line per implementation class name...
+                for ( final String clazz : index.remove( anno ) )
+                {
+                    writer.write( clazz );
+                    writer.newLine();
+                }
+            }
+            catch ( final Throwable e )
+            {
+                warn( e.toString() );
+            }
+            finally
             {
                 try
                 {
-                    // one line per implementation class name...
-                    for ( final String clazz : index.get( anno ) )
-                    {
-                        writer.write( clazz );
-                        writer.newLine();
-                    }
+                    writer.close();
                 }
                 catch ( final Throwable e )
                 {
                     warn( e.toString() );
-                }
-                finally
-                {
-                    try
-                    {
-                        writer.close();
-                    }
-                    catch ( final Throwable e )
-                    {
-                        warn( e.toString() );
-                    }
                 }
             }
         }

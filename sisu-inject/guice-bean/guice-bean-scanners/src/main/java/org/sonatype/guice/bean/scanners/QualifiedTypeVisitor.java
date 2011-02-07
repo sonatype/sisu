@@ -100,7 +100,7 @@ public final class QualifiedTypeVisitor
                     if ( null == source || !path.startsWith( source ) )
                     {
                         final int i = path.indexOf( clazzName );
-                        source = i < 0 ? path : path.substring( 0, i );
+                        source = i <= 0 ? path : path.substring( 0, i );
                     }
                 }
                 listener.hear( clazz.getAnnotation( qualifierType ), clazz, source );

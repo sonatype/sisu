@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.inject.Named;
 import javax.inject.Qualifier;
 
 import com.sun.mirror.apt.AnnotationProcessor;
@@ -48,7 +49,7 @@ public final class QualifiedIndexAPT5
 
     public Collection<String> supportedAnnotationTypes()
     {
-        return Collections.singleton( "*" );
+        return Collections.singleton( Named.class.getName() );
     }
 
     public Collection<String> supportedOptions()

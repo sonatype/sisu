@@ -20,6 +20,7 @@ import javax.annotation.processing.Completion;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
+import javax.inject.Named;
 import javax.inject.Qualifier;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
@@ -84,7 +85,7 @@ public final class QualifiedIndexAPT6
 
     public Set<String> getSupportedAnnotationTypes()
     {
-        return Collections.singleton( "*" );
+        return Collections.singleton( Named.class.getName() );
     }
 
     public Set<String> getSupportedOptions()

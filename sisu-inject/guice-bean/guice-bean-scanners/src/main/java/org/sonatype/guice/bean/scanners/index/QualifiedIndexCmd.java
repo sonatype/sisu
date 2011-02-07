@@ -88,10 +88,11 @@ public final class QualifiedIndexCmd
         throws IOException
     {
         final File index = new File( path );
-        if ( index.getParentFile().mkdirs() )
+        final File parent = index.getParentFile();
+        if ( parent.isDirectory() || parent.mkdirs() )
         {
-            return new FileWriter( index );
+            return new FileWriter( index, true );
         }
-        throw new IOException( "Error creating: " + index );
+        throw new IOException( "Error creating: " + parent );
     }
 }

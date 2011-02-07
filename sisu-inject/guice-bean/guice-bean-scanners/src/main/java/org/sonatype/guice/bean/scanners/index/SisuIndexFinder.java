@@ -17,7 +17,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.Logs;
@@ -37,6 +39,7 @@ public final class SisuIndexFinder
     public Enumeration<URL> findClasses( final ClassSpace space )
     {
         final List<URL> components = new ArrayList<URL>();
+        final Set<String> visited = new HashSet<String>();
         final Enumeration<URL> indices = space.findEntries( AbstractSisuIndex.META_INF_SISU, "*", false );
         while ( indices.hasMoreElements() )
         {
@@ -49,7 +52,14 @@ public final class SisuIndexFinder
                     // each index file under META-INF/sisu contains a list of classes, one per line
                     for ( String line = reader.readLine(); line != null; line = reader.readLine() )
                     {
-                        components.add( space.getResource( line.replace( '.', '/' ) + ".class" ) );
+                        if ( visited.add( line ) )
+                        {
+                            final URL clazz = space.getResource( line.replace( '.', '/' ) + ".class" );
+                            if ( null != clazz )
+                            {
+                                components.add( clazz );
+                            }
+                        }
                     }
                 }
                 finally

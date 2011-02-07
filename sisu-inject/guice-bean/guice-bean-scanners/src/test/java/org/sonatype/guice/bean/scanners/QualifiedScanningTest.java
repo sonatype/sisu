@@ -15,13 +15,17 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,10 +40,10 @@ import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.bean.scanners.asm.AnnotationVisitor;
 import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
+import org.sonatype.guice.bean.scanners.asm.Type;
 import org.sonatype.guice.bean.scanners.barf.Handler;
-import org.testng.annotations.Test;
+import org.sonatype.guice.bean.scanners.index.SisuIndexFinder;
 
-@Test
 public class QualifiedScanningTest
     extends TestCase
 {
@@ -91,9 +95,12 @@ public class QualifiedScanningTest
     {
         final List<String> ids = new ArrayList<String>();
 
+        final Set<Object> sources = new HashSet<Object>();
+
         public void hear( final Annotation qualifier, final Class<?> clazz, final Object source )
         {
             ids.add( qualifier + ":" + clazz );
+            sources.add( source );
         }
     }
 
@@ -112,7 +119,7 @@ public class QualifiedScanningTest
         assertTrue( listener.ids.contains( "@" + Legacy.class.getName() + "():" + E.class ) );
     }
 
-    public void testFilteredScanning()
+    public void testAdaptedScanning()
     {
         final TestListener listener = new TestListener();
         final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
@@ -138,12 +145,47 @@ public class QualifiedScanningTest
                 visitor.visitEnd();
             }
         } );
+
         assertEquals( 3, listener.ids.size() );
 
         assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + C.class ) );
         assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + E.class ) );
-
         assertTrue( listener.ids.contains( "@" + Legacy.class.getName() + "():" + E.class ) );
+    }
+
+    public void testFilteredScanning()
+    {
+        final TestListener listener = new TestListener();
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
+        final ClassSpaceVisitor visitor = new QualifiedTypeVisitor( listener );
+        new ClassSpaceScanner( new ClassFinder()
+        {
+            public Enumeration<URL> findClasses( final ClassSpace space2 )
+            {
+                return space2.findEntries( null, "*D.class", true );
+            }
+        }, space ).accept( visitor );
+
+        assertEquals( 2, listener.ids.size() );
+
+        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + D.class ) );
+        assertTrue( listener.ids.contains( "@" + Legacy.class.getName() + "():" + D.class ) );
+    }
+
+    public void testIndexedScanning()
+    {
+        final TestListener listener = new TestListener();
+        final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
+        final ClassSpaceVisitor visitor = new QualifiedTypeVisitor( listener );
+        new ClassSpaceScanner( new SisuIndexFinder(), space ).accept( visitor );
+
+        // we deliberately use a partial index
+
+        assertEquals( 3, listener.ids.size() );
+
+        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + C.class ) );
+        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + D.class ) );
+        assertTrue( listener.ids.contains( "@" + Legacy.class.getName() + "():" + D.class ) );
     }
 
     public void testBrokenScanning()
@@ -189,7 +231,7 @@ public class QualifiedScanningTest
 
             public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
             {
-                return space.findEntries( path, glob, recurse );
+                return Collections.enumeration( Collections.singleton( badURL ) );
             }
 
             public boolean loadedClass( final Class<?> clazz )
@@ -236,6 +278,44 @@ public class QualifiedScanningTest
         new ClassSpaceScanner( brokenLoadSpace ).accept( new QualifiedTypeVisitor( null ) );
 
         ClassSpaceScanner.accept( null, null );
+
+        assertFalse( new SisuIndexFinder().findClasses( brokenResourceSpace ).hasMoreElements() );
+    }
+
+    public void testSourceDetection()
+        throws MalformedURLException
+    {
+        final TestListener listener = new TestListener();
+
+        final QualifiedTypeVisitor visitor = new QualifiedTypeVisitor( listener );
+
+        visitor.visit( new URLClassSpace( getClass().getClassLoader() ) );
+
+        assertEquals( 0, listener.sources.size() );
+
+        visitor.visitClass( new URL( "file:target/classes/java/lang/Object.class" ) );
+        visitor.visit( 0, 0, Type.getInternalName( Object.class ), null, null, null );
+        visitor.visitAnnotation( Type.getDescriptor( Named.class ), true );
+
+        assertEquals( 1, listener.sources.size() );
+        assertTrue( listener.sources.contains( "target/classes/" ) );
+
+        visitor.visitClass( new URL( "jar:file:bar.jar!/java/lang/String.class" ) );
+        visitor.visit( 0, 0, Type.getInternalName( String.class ), null, null, null );
+        visitor.visitAnnotation( Type.getDescriptor( Named.class ), true );
+
+        assertEquals( 2, listener.sources.size() );
+        assertTrue( listener.sources.contains( "target/classes/" ) );
+        assertTrue( listener.sources.contains( "file:bar.jar!/" ) );
+
+        visitor.visitClass( new URL( "file:some/obfuscated/location" ) );
+        visitor.visit( 0, 0, Type.getInternalName( Integer.class ), null, null, null );
+        visitor.visitAnnotation( Type.getDescriptor( Named.class ), true );
+
+        assertEquals( 3, listener.sources.size() );
+        assertTrue( listener.sources.contains( "target/classes/" ) );
+        assertTrue( listener.sources.contains( "file:bar.jar!/" ) );
+        assertTrue( listener.sources.contains( "some/obfuscated/location" ) );
     }
 
     public void testOptionalLogging()
