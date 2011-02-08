@@ -29,6 +29,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
+import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.DefaultBeanLocator;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.BundleClassSpace;
@@ -38,6 +39,7 @@ import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.google.inject.util.Providers;
 
 /**
  * {@link BundleActivator} that maintains a dynamic {@link Injector} graph by scanning bundles as they come and go.
@@ -51,11 +53,19 @@ public final class SisuActivator
 
     static final String BUNDLE_INJECTOR_CLASS_NAME = BundleInjector.class.getName();
 
-    static final MutableBeanLocator LOCATOR = new DefaultBeanLocator();
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
+
+    static final MutableBeanLocator locator = new DefaultBeanLocator();
+
+    static final Injector defaultInjector = Guice.createInjector( new Module()
+    {
+        public void configure( final Binder binder )
+        {
+            binder.bind( BeanLocator.class ).toProvider( Providers.of( locator ) );
+        }
+    } );
 
     private BundleContext bundleContext;
 
@@ -74,7 +84,7 @@ public final class SisuActivator
         bundleContext = context;
         serviceTracker = new ServiceTracker( context, BUNDLE_INJECTOR_CLASS_NAME, this );
         serviceTracker.open();
-        bundleTracker = new BundleTracker( context, Bundle.ACTIVE, this );
+        bundleTracker = new BundleTracker( context, Bundle.STARTING | Bundle.ACTIVE, this );
         bundleTracker.open();
     }
 
@@ -86,7 +96,7 @@ public final class SisuActivator
         }
         catch ( final Throwable e )
         {
-            throw new IllegalStateException( "No Sisu Context for bundle: " + bundle, e );
+            return defaultInjector;
         }
     }
 
@@ -94,7 +104,7 @@ public final class SisuActivator
     {
         bundleTracker.close();
         serviceTracker.close();
-        LOCATOR.clear();
+        locator.clear();
 
         SisuContainer.context( null );
     }
@@ -136,7 +146,7 @@ public final class SisuActivator
     public Object addingService( final ServiceReference reference )
     {
         final Object service = bundleContext.getService( reference );
-        LOCATOR.add( ( (BundleInjector) service ).getInjector(), 0 );
+        locator.add( ( (BundleInjector) service ).getInjector(), 0 );
         return service;
     }
 
@@ -147,7 +157,7 @@ public final class SisuActivator
 
     public void removedService( final ServiceReference reference, final Object service )
     {
-        LOCATOR.remove( ( (BundleInjector) service ).getInjector() );
+        locator.remove( ( (BundleInjector) service ).getInjector() );
     }
 
     // ----------------------------------------------------------------------
@@ -217,7 +227,7 @@ public final class SisuActivator
         public void configure( final Binder binder )
         {
             binder.bind( ParameterKeys.PROPERTIES ).toInstance( properties );
-            binder.bind( MutableBeanLocator.class ).toInstance( LOCATOR );
+            binder.bind( MutableBeanLocator.class ).toInstance( locator );
         }
 
         public Injector getInjector()
