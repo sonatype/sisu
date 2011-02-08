@@ -66,17 +66,23 @@
           </excludeDependencies>
           <instructions>
             <Bundle-SymbolicName>
-              org.sonatype.inject.plexus
+              org.sonatype.inject.plexus;singleton:=true
             </Bundle-SymbolicName>
             <Fragment-Host>
               org.sonatype.inject
             </Fragment-Host>
+            <DynamicImport-Package>
+              org.slf4j,junit.framework
+            </DynamicImport-Package>
             <Export-Package>
               org.codehaus.plexus.*;-noimport:=true;-split-package:=merge-first
             </Export-Package>
             <Private-Package>
               META-INF.plexus,org.sonatype.guice.plexus.*
             </Private-Package>
+            <Import-Package>
+              !org.sonatype.guice.bean.*,*
+            </Import-Package>
           </instructions>
         </configuration>
       </plugin>

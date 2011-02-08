@@ -35,29 +35,6 @@
       <groupId>org.sonatype.sisu.inject</groupId>
       <artifactId>guice-bean-reflect</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.eclipse.jdt.apt</groupId>
-      <artifactId>core</artifactId>
-      <version>3.3.0-v20070607-1200</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.eclipse.jdt</groupId>
-          <artifactId>core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.core</groupId>
-          <artifactId>runtime</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.eclipse.core</groupId>
-          <artifactId>resources</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache</groupId>
-          <artifactId>ant</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
   </dependencies>
 
 </project>

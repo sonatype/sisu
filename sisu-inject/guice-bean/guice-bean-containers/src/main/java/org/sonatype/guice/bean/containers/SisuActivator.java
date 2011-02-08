@@ -105,8 +105,10 @@ public final class SisuActivator
 
     public Object addingBundle( final Bundle bundle, final BundleEvent event )
     {
-        final String imports = (String) bundle.getHeaders().get( Constants.IMPORT_PACKAGE );
-        if ( null != imports && imports.contains( "javax.inject" ) )
+        final Dictionary<?, ?> headers = bundle.getHeaders();
+        final String host = (String) headers.get( Constants.FRAGMENT_HOST );
+        final String imports = (String) headers.get( Constants.IMPORT_PACKAGE );
+        if ( null == host && null != imports && imports.contains( "javax.inject" ) )
         {
             if ( getBundleInjectorService( bundle ) == null )
             {

@@ -12,6 +12,8 @@
 package org.sonatype.guice.bean.scanners.index;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.Set;
@@ -28,6 +30,7 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
+import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
 /**
@@ -63,7 +66,7 @@ public final class QualifiedIndexAPT6
                 {
                     if ( elem.getKind().isClass() )
                     {
-                        addIndexEntry( anno.getQualifiedName(), ( (TypeElement) elem ).getQualifiedName() );
+                        addClassToIndex( anno.getQualifiedName(), ( (TypeElement) elem ).getQualifiedName() );
                     }
                 }
             }
@@ -71,7 +74,7 @@ public final class QualifiedIndexAPT6
 
         if ( round.processingOver() )
         {
-            saveIndex();
+            flushIndex();
         }
 
         return false;
@@ -112,6 +115,14 @@ public final class QualifiedIndexAPT6
     protected void warn( final String msg )
     {
         environment.getMessager().printMessage( Diagnostic.Kind.WARNING, msg );
+    }
+
+    @Override
+    protected Reader getReader( final String path )
+        throws IOException
+    {
+        final FileObject file = environment.getFiler().getResource( StandardLocation.CLASS_OUTPUT, "", path );
+        return new InputStreamReader( file.openInputStream() );
     }
 
     @Override

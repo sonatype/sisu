@@ -11,12 +11,15 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.scanners.index;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 /**
@@ -36,8 +39,6 @@ public abstract class AbstractSisuIndex
 
     private final Map<Object, Set<String>> index = new HashMap<Object, Set<String>>();
 
-    private final Map<Object, BufferedWriter> writers = new HashMap<Object, BufferedWriter>();
-
     // ----------------------------------------------------------------------
     // Common methods
     // ----------------------------------------------------------------------
@@ -48,57 +49,25 @@ public abstract class AbstractSisuIndex
      * @param anno The annotation name
      * @param clazz The class name
      */
-    protected synchronized final void addIndexEntry( final Object anno, final Object clazz )
+    protected synchronized final void addClassToIndex( final Object anno, final Object clazz )
     {
-        if ( !writers.containsKey( anno ) )
+        Set<String> table = index.get( anno );
+        if ( null == table )
         {
-            prepareWriter( anno ); // need to do this early on for Java 5 APT
+            table = readTable( anno );
+            index.put( anno, table );
         }
-        if ( writers.get( anno ) != null )
-        {
-            Set<String> table = index.get( anno );
-            if ( null == table )
-            {
-                table = new LinkedHashSet<String>();
-                index.put( anno, table );
-            }
-            table.add( clazz.toString() );
-        }
+        table.add( String.valueOf( clazz ) );
     }
 
     /**
      * Writes the current index as a series of tables.
      */
-    protected synchronized final void saveIndex()
+    protected synchronized final void flushIndex()
     {
-        for ( final Object anno : index.keySet().toArray() )
+        for ( final Entry<Object, Set<String>> entry : index.entrySet() )
         {
-            // one index file per annotation class name...
-            final BufferedWriter writer = writers.remove( anno );
-            try
-            {
-                // one line per implementation class name...
-                for ( final String clazz : index.remove( anno ) )
-                {
-                    writer.write( clazz );
-                    writer.newLine();
-                }
-            }
-            catch ( final Throwable e )
-            {
-                warn( e.toString() );
-            }
-            finally
-            {
-                try
-                {
-                    writer.close();
-                }
-                catch ( final Throwable e )
-                {
-                    warn( e.toString() );
-                }
-            }
+            writeTable( entry.getKey(), entry.getValue() );
         }
     }
 
@@ -121,6 +90,15 @@ public abstract class AbstractSisuIndex
     protected abstract void warn( final String message );
 
     /**
+     * Creates a new reader for the given input path.
+     * 
+     * @param path The input path
+     * @return The relevant reader
+     */
+    protected abstract Reader getReader( final String path )
+        throws IOException;
+
+    /**
      * Creates a new writer for the given output path.
      * 
      * @param path The output path
@@ -133,22 +111,52 @@ public abstract class AbstractSisuIndex
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    /**
-     * Prepares a new writer for the given annotation.
-     * 
-     * @param anno The annotation name
-     */
-    private final void prepareWriter( final Object anno )
+    private final Set<String> readTable( final Object name )
     {
-        BufferedWriter writer = null;
+        final Set<String> table = new LinkedHashSet<String>();
         try
         {
-            writer = new BufferedWriter( getWriter( META_INF_SISU + anno ) );
+            final BufferedReader reader = new BufferedReader( getReader( META_INF_SISU + name ) );
+            try
+            {
+                for ( String line = reader.readLine(); line != null; line = reader.readLine() )
+                {
+                    table.add( line );
+                }
+            }
+            finally
+            {
+                reader.close();
+            }
+        }
+        catch ( final Throwable e ) // NOPMD
+        {
+            // ignore missing files
+        }
+        return table;
+    }
+
+    private final void writeTable( final Object name, final Set<String> table )
+    {
+        try
+        {
+            final BufferedWriter writer = new BufferedWriter( getWriter( META_INF_SISU + name ) );
+            try
+            {
+                for ( final String line : table )
+                {
+                    writer.write( line );
+                    writer.newLine();
+                }
+            }
+            finally
+            {
+                writer.close();
+            }
         }
         catch ( final Throwable e )
         {
             warn( e.toString() );
         }
-        writers.put( anno, writer );
     }
 }

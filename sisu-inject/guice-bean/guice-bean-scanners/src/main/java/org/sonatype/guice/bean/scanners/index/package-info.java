@@ -14,8 +14,6 @@
  *
  * <p>The principal members of this package are:
  * <dl>
- * <dt>{@link org.sonatype.guice.bean.scanners.index.QualifiedIndexAPT5}
- * <dd>Java 5 annotation processor.
  * <dt>{@link org.sonatype.guice.bean.scanners.index.QualifiedIndexAPT6}
  * <dd>Java 6 annotation processor.
  * <dt>{@link org.sonatype.guice.bean.scanners.index.QualifiedIndexCmd}

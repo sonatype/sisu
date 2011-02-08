@@ -12,8 +12,10 @@
 package org.sonatype.guice.bean.scanners.index;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
@@ -54,7 +56,7 @@ public final class QualifiedIndexCmd
         }
         finally
         {
-            indexer.saveIndex();
+            indexer.flushIndex();
         }
     }
 
@@ -64,7 +66,7 @@ public final class QualifiedIndexCmd
 
     public void hear( final Annotation qualifier, final Class<?> qualifiedType, final Object source )
     {
-        addIndexEntry( qualifier.annotationType().getName(), qualifiedType.getName() );
+        addClassToIndex( qualifier.annotationType().getName(), qualifiedType.getName() );
     }
 
     // ----------------------------------------------------------------------
@@ -81,6 +83,13 @@ public final class QualifiedIndexCmd
     protected void warn( final String message )
     {
         System.out.println( "[WARN] " + message );
+    }
+
+    @Override
+    protected Reader getReader( final String path )
+        throws IOException
+    {
+        return new FileReader( path );
     }
 
     @Override
