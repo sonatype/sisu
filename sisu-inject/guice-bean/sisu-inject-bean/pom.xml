@@ -80,7 +80,7 @@
               org.sonatype.guice.bean.*
             </Private-Package>
             <Import-Package>
-              *.inject,javax.*|com.sun.*;resolution:=optional,*
+              *.inject,javax.*;resolution:=optional,*
             </Import-Package>
           </instructions>
         </configuration>

@@ -260,7 +260,6 @@
             <version>1.0</version>
           </signature>
           <ignores>
-            <ignore>com.sun.mirror.*</ignore>
             <ignore>javax.annotation.processing.*</ignore>
             <ignore>javax.lang.model.*</ignore>
             <ignore>javax.tools.*</ignore>
