@@ -39,7 +39,6 @@ import org.codehaus.plexus.context.DefaultContext;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLoggerManager;
-import org.sonatype.guice.bean.binders.BeanScanning;
 import org.sonatype.guice.bean.binders.MergedModule;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.WireModule;
@@ -67,6 +66,7 @@ import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 import org.sonatype.guice.plexus.locators.ClassRealmUtils;
 import org.sonatype.guice.plexus.locators.DefaultPlexusBeanLocator;
+import org.sonatype.inject.BeanScanning;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;

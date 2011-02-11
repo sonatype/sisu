@@ -14,7 +14,6 @@ package org.sonatype.guice.plexus.binders;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.sonatype.guice.bean.binders.BeanScanning;
 import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.scanners.ClassSpaceVisitor;
@@ -23,6 +22,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.scanners.PlexusAnnotatedMetadata;
 import org.sonatype.guice.plexus.scanners.PlexusTypeVisitor;
+import org.sonatype.inject.BeanScanning;
 
 import com.google.inject.Binder;
 

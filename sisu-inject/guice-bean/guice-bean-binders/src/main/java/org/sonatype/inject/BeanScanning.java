@@ -9,7 +9,7 @@
  *   http://www.apache.org/licenses/LICENSE-2.0.html
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
-package org.sonatype.guice.bean.binders;
+package org.sonatype.inject;
 
 public enum BeanScanning
 {

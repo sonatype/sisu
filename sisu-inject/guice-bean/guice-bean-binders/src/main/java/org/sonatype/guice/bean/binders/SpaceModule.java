@@ -22,6 +22,7 @@ import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
 import org.sonatype.guice.bean.scanners.ClassSpaceVisitor;
 import org.sonatype.guice.bean.scanners.QualifiedTypeVisitor;
 import org.sonatype.guice.bean.scanners.index.SisuIndexFinder;
+import org.sonatype.inject.BeanScanning;
 
 import com.google.inject.Binder;
 import com.google.inject.Module;

@@ -23,6 +23,7 @@ import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
+import org.sonatype.inject.BeanScanning;
 import org.sonatype.inject.Parameters;
 
 import com.google.inject.Binder;
@@ -77,13 +78,20 @@ public final class Main
 
     public static Injector boot( final Map<String, String> properties, final String... args )
     {
-        final ClassSpace space = new URLClassSpace( Main.class.getClassLoader() );
-        final Module[] modules = { new Main( properties, args ), new SpaceModule( space ) };
-        final Injector injector = Guice.createInjector( new WireModule( modules ) );
-
+        final BeanScanning scanning = selectScanning( properties );
+        final Module app = wire( scanning, new Main( properties, args ) );
+        final Injector injector = Guice.createInjector( app );
         SisuContainer.context( new SisuStaticContext( injector ) );
-
         return injector;
+    }
+
+    public static Module wire( final BeanScanning scanning, final Module... bindings )
+    {
+        final Module[] modules = new Module[bindings.length + 1];
+        System.arraycopy( bindings, 0, modules, 0, bindings.length );
+        final ClassSpace space = new URLClassSpace( Thread.currentThread().getContextClassLoader() );
+        modules[bindings.length] = new SpaceModule( space, scanning );
+        return new WireModule( modules );
     }
 
     // ----------------------------------------------------------------------
@@ -105,6 +113,23 @@ public final class Main
     String[] parameters()
     {
         return args.clone();
+    }
+
+    static BeanScanning selectScanning( final Map<String, String> properties )
+    {
+        final String option = properties.get( BeanScanning.class.getName() );
+        if ( null == option || option.length() == 0 )
+        {
+            return BeanScanning.ON;
+        }
+        for ( final BeanScanning value : BeanScanning.values() )
+        {
+            if ( value.name().equalsIgnoreCase( option ) )
+            {
+                return value;
+            }
+        }
+        throw new IllegalArgumentException( "Unknown BeanScanning option: " + option );
     }
 
     // ----------------------------------------------------------------------

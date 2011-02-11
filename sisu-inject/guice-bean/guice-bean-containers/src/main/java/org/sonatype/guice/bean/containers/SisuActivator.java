@@ -34,6 +34,7 @@ import org.sonatype.guice.bean.locators.DefaultBeanLocator;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.BundleClassSpace;
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.inject.BeanScanning;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;
@@ -213,7 +214,8 @@ public final class SisuActivator
             properties = new BundleProperties( bundle.getBundleContext() );
 
             final ClassSpace space = new BundleClassSpace( bundle );
-            injector = Guice.createInjector( new WireModule( this, new SpaceModule( space ) ) );
+            final BeanScanning scanning = Main.selectScanning( properties );
+            injector = Guice.createInjector( new WireModule( this, new SpaceModule( space, scanning ) ) );
             final Dictionary<Object, Object> metadata = new Hashtable<Object, Object>();
             metadata.put( Constants.SERVICE_PID, "org.sonatype.inject" );
 

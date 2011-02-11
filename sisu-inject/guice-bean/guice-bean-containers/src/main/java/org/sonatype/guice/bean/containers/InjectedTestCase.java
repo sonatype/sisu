@@ -22,13 +22,13 @@ import javax.inject.Inject;
 
 import junit.framework.TestCase;
 
-import org.sonatype.guice.bean.binders.BeanScanning;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
+import org.sonatype.inject.BeanScanning;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
