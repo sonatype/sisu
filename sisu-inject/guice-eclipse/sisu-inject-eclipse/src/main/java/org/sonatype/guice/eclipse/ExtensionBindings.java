@@ -41,6 +41,9 @@ import com.google.inject.spi.ElementVisitor;
 import com.google.inject.spi.InjectionPoint;
 import com.google.inject.spi.ProviderInstanceBinding;
 
+/**
+ * {@link BindingPublisher} that queries the Eclipse {@link IExtensionRegistry}.
+ */
 @Named
 @EagerSingleton
 final class ExtensionBindings

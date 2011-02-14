@@ -88,4 +88,56 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>aggregate-sources</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>unpack-dependencies</goal>
+                </goals>
+                <configuration>
+                  <classifier>sources</classifier>
+                  <failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
+                  <outputDirectory>${project.build.directory}/aggregate-sources</outputDirectory>
+                  <includes>
+                    org/sonatype/inject/**,javax/**,org/aopalliance/**,org/sonatype/guice/bean/**
+                  </includes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-jar-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+                <configuration>
+                  <classifier>sources</classifier>
+                  <classesDirectory>${project.build.directory}/aggregate-sources</classesDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <configuration>
+              <sourcepath>${project.build.directory}/aggregate-sources</sourcepath>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>
