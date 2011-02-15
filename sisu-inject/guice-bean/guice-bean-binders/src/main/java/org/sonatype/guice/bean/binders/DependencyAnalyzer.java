@@ -32,6 +32,7 @@ import com.google.inject.spi.InjectionRequest;
 import com.google.inject.spi.InstanceBinding;
 import com.google.inject.spi.LinkedKeyBinding;
 import com.google.inject.spi.ProviderInstanceBinding;
+import com.google.inject.spi.StaticInjectionRequest;
 import com.google.inject.spi.UntargettedBinding;
 
 /**
@@ -109,6 +110,15 @@ final class DependencyAnalyzer
             return Boolean.TRUE;
         }
         return collect( binding.getDependencies() );
+    }
+
+    public Boolean visit( final StaticInjectionRequest request )
+    {
+        for ( final InjectionPoint p : request.getInjectionPoints() )
+        {
+            collect( p.getDependencies() );
+        }
+        return Boolean.TRUE;
     }
 
     public Boolean visit( final InjectionRequest<?> request )

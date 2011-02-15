@@ -66,6 +66,12 @@
       <artifactId>junit</artifactId>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>org.sonatype.sisu.inject</groupId>
+      <artifactId>guice-assistedinject</artifactId>
+      <version>${sisu.guice.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>
