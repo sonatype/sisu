@@ -13,7 +13,9 @@ package org.sonatype.guice.bean.binders;
 
 import java.lang.reflect.Modifier;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.inject.Provider;
@@ -45,7 +47,7 @@ final class DependencyAnalyzer
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Set<TypeLiteral<?>> processedTypes = new HashSet<TypeLiteral<?>>();
+    private final Map<TypeLiteral<?>, Boolean> cachedResults = new HashMap<TypeLiteral<?>, Boolean>();
 
     private final Set<Key<?>> requiredKeys = new HashSet<Key<?>>();
 
@@ -71,25 +73,25 @@ final class DependencyAnalyzer
     @Override
     public Boolean visit( final UntargettedBinding<?> binding )
     {
-        return analyze( binding.getKey().getTypeLiteral() );
+        return analyzeImplementation( binding.getKey().getTypeLiteral() );
     }
 
     @Override
     public Boolean visit( final LinkedKeyBinding<?> binding )
     {
-        return analyze( binding.getLinkedKey().getTypeLiteral() );
+        return analyzeImplementation( binding.getLinkedKey().getTypeLiteral() );
     }
 
     @Override
     public Boolean visit( final ConstructorBinding<?> binding )
     {
-        return collect( binding.getDependencies() );
+        return Boolean.valueOf( analyzeDependencies( binding.getDependencies() ) );
     }
 
     @Override
     public Boolean visit( final InstanceBinding<?> binding )
     {
-        return collect( binding.getDependencies() );
+        return Boolean.valueOf( analyzeDependencies( binding.getDependencies() ) );
     }
 
     @Override
@@ -100,8 +102,7 @@ final class DependencyAnalyzer
         {
             try
             {
-                final DeferredProvider<?> deferredProvider = (DeferredProvider<?>) provider;
-                analyze( TypeLiteral.get( deferredProvider.getImplementationClass().load() ) );
+                analyzeImplementation( TypeLiteral.get( ( (DeferredProvider<?>) provider ).getImplementationClass().load() ) );
             }
             catch ( final Throwable e ) // NOPMD
             {
@@ -109,25 +110,17 @@ final class DependencyAnalyzer
             }
             return Boolean.TRUE;
         }
-        return collect( binding.getDependencies() );
+        return Boolean.valueOf( analyzeDependencies( binding.getDependencies() ) );
     }
 
     public Boolean visit( final StaticInjectionRequest request )
     {
-        for ( final InjectionPoint p : request.getInjectionPoints() )
-        {
-            collect( p.getDependencies() );
-        }
-        return Boolean.TRUE;
+        return Boolean.valueOf( analyzeInjectionPoints( request.getInjectionPoints() ) );
     }
 
     public Boolean visit( final InjectionRequest<?> request )
     {
-        for ( final InjectionPoint p : request.getInjectionPoints() )
-        {
-            collect( p.getDependencies() );
-        }
-        return Boolean.TRUE;
+        return Boolean.valueOf( analyzeInjectionPoints( request.getInjectionPoints() ) );
     }
 
     @Override
@@ -140,37 +133,56 @@ final class DependencyAnalyzer
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private Boolean analyze( final TypeLiteral<?> type )
+    private Boolean analyzeImplementation( final TypeLiteral<?> type )
     {
         if ( ( type.getRawType().getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) != 0 )
         {
             return Boolean.TRUE;
         }
-        try
+        Boolean applyBinding = cachedResults.get( type );
+        if ( null == applyBinding )
         {
-            if ( !processedTypes.contains( type ) )
+            boolean result;
+            try
             {
-                collect( InjectionPoint.forConstructorOf( type ).getDependencies() );
-                for ( final InjectionPoint p : InjectionPoint.forInstanceMethodsAndFields( type ) )
-                {
-                    collect( p.getDependencies() );
-                }
-                processedTypes.add( type );
+                result = analyzeDependencies( InjectionPoint.forConstructorOf( type ).getDependencies() );
+                result &= analyzeInjectionPoints( InjectionPoint.forInstanceMethodsAndFields( type ) );
             }
-            return Boolean.TRUE;
+            catch ( final Throwable e )
+            {
+                result = false;
+            }
+            applyBinding = Boolean.valueOf( result );
+            cachedResults.put( type, applyBinding );
         }
-        catch ( final Throwable e )
-        {
-            return Boolean.FALSE;
-        }
+        return applyBinding;
     }
 
-    private Boolean collect( final Collection<Dependency<?>> dependencies )
+    private boolean analyzeInjectionPoints( final Set<InjectionPoint> points )
     {
+        boolean applyBinding = true;
+        for ( final InjectionPoint p : points )
+        {
+            applyBinding &= analyzeDependencies( p.getDependencies() );
+        }
+        return applyBinding;
+    }
+
+    private boolean analyzeDependencies( final Collection<Dependency<?>> dependencies )
+    {
+        boolean applyBinding = true;
         for ( final Dependency<?> d : dependencies )
         {
-            requiredKeys.add( d.getKey() );
+            final Key<?> key = d.getKey();
+            if ( key.hasAttributes() && "Assisted".equals( key.getAnnotationType().getSimpleName() ) )
+            {
+                applyBinding = false; // avoid directly binding AssistedInject based components
+            }
+            else
+            {
+                requiredKeys.add( key );
+            }
         }
-        return Boolean.TRUE;
+        return applyBinding;
     }
 }

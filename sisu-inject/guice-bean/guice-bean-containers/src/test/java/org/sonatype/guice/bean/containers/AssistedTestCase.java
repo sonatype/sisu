@@ -31,6 +31,7 @@ public final class AssistedTestCase
         Foo create( int port );
     }
 
+    @Named
     static class AssistedFoo
         implements Foo
     {
