@@ -26,14 +26,14 @@ import com.google.inject.Binding;
 import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.BindingTargetVisitor;
-import com.google.inject.spi.ConstructorBinding;
 import com.google.inject.spi.DefaultBindingTargetVisitor;
 import com.google.inject.spi.Dependency;
+import com.google.inject.spi.HasDependencies;
 import com.google.inject.spi.InjectionPoint;
 import com.google.inject.spi.InjectionRequest;
-import com.google.inject.spi.InstanceBinding;
 import com.google.inject.spi.LinkedKeyBinding;
 import com.google.inject.spi.ProviderInstanceBinding;
+import com.google.inject.spi.ProviderKeyBinding;
 import com.google.inject.spi.StaticInjectionRequest;
 import com.google.inject.spi.UntargettedBinding;
 
@@ -83,15 +83,9 @@ final class DependencyAnalyzer
     }
 
     @Override
-    public Boolean visit( final ConstructorBinding<?> binding )
+    public Boolean visit( final ProviderKeyBinding<?> binding )
     {
-        return Boolean.valueOf( analyzeDependencies( binding.getDependencies() ) );
-    }
-
-    @Override
-    public Boolean visit( final InstanceBinding<?> binding )
-    {
-        return Boolean.valueOf( analyzeDependencies( binding.getDependencies() ) );
+        return analyzeImplementation( binding.getProviderKey().getTypeLiteral() );
     }
 
     @Override
@@ -113,6 +107,16 @@ final class DependencyAnalyzer
         return Boolean.valueOf( analyzeDependencies( binding.getDependencies() ) );
     }
 
+    @Override
+    public Boolean visitOther( final Binding<?> binding )
+    {
+        if ( binding instanceof HasDependencies )
+        {
+            return Boolean.valueOf( analyzeDependencies( ( (HasDependencies) binding ).getDependencies() ) );
+        }
+        return Boolean.TRUE;
+    }
+
     public Boolean visit( final StaticInjectionRequest request )
     {
         return Boolean.valueOf( analyzeInjectionPoints( request.getInjectionPoints() ) );
@@ -123,34 +127,27 @@ final class DependencyAnalyzer
         return Boolean.valueOf( analyzeInjectionPoints( request.getInjectionPoints() ) );
     }
 
-    @Override
-    public Boolean visitOther( final Binding<?> binding )
-    {
-        return Boolean.TRUE;
-    }
-
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
 
     private Boolean analyzeImplementation( final TypeLiteral<?> type )
     {
-        if ( ( type.getRawType().getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) != 0 )
-        {
-            return Boolean.TRUE;
-        }
         Boolean applyBinding = cachedResults.get( type );
         if ( null == applyBinding )
         {
-            boolean result;
-            try
+            boolean result = true;
+            if ( ( type.getRawType().getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) == 0 )
             {
-                result = analyzeDependencies( InjectionPoint.forConstructorOf( type ).getDependencies() );
-                result &= analyzeInjectionPoints( InjectionPoint.forInstanceMethodsAndFields( type ) );
-            }
-            catch ( final Throwable e )
-            {
-                result = false;
+                try
+                {
+                    result = analyzeDependencies( InjectionPoint.forConstructorOf( type ).getDependencies() );
+                    result &= analyzeInjectionPoints( InjectionPoint.forInstanceMethodsAndFields( type ) );
+                }
+                catch ( final Throwable e )
+                {
+                    result = false;
+                }
             }
             applyBinding = Boolean.valueOf( result );
             cachedResults.put( type, applyBinding );

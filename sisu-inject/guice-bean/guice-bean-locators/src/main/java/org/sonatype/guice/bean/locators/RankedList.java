@@ -90,11 +90,11 @@ final class RankedList<T>
         final long uid = rank2uid( rank, uniq++ );
         final int index = safeBinarySearch( uid );
 
-        // make space: use loop as the size will be small
-        for ( int j = size, i = j--; i > index; i = j-- )
+        final int to = index + 1, len = size - index;
+        if ( len > 0 )
         {
-            objs[i] = objs[j];
-            uids[i] = uids[j];
+            System.arraycopy( objs, index, objs, to, len );
+            System.arraycopy( uids, index, uids, to, len );
         }
         size++;
 
@@ -114,15 +114,13 @@ final class RankedList<T>
             isCached = false;
         }
 
-        // compact space: use loop as the size will be small
-        for ( int j = index, i = j++; j < size; i = j++ )
+        final int from = index + 1, len = size - from;
+        if ( len > 0 )
         {
-            objs[i] = objs[j];
-            uids[i] = uids[j];
+            System.arraycopy( objs, from, objs, index, len );
+            System.arraycopy( uids, from, uids, index, len );
         }
-        size--;
-
-        objs[size] = null; // remove dangling reference
+        objs[--size] = null; // remove dangling reference
 
         return element;
     }
