@@ -280,7 +280,13 @@ final class PlaceholderBeanProvider<V>
                 expressionNum = 0;
                 expressionEnd = y;
             }
-            final Object value = properties.get( buf.substring( x + 2, y - 1 ) );
+            final String key = buf.substring( x + 2, y - 1 );
+            final int anchor = key.indexOf( ":-" );
+            Object value = properties.get( anchor < 0 ? key : key.substring( 0, anchor ) );
+            if ( value == null && anchor >= 0 )
+            {
+                value = key.substring( anchor + 2 );
+            }
             if ( value != null && expressionNum++ < EXPRESSION_RECURSION_LIMIT )
             {
                 final int len = buf.length();

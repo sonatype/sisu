@@ -403,6 +403,21 @@ public class BeanImportTest
         placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
         assertEquals( ">${text", placeholderString.single );
 
+        PROPS.put( "text", "${key:-default}" );
+
+        placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
+        assertEquals( "default", placeholderString.single );
+
+        PROPS.put( "key", "configured" );
+
+        placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
+        assertEquals( "configured", placeholderString.single );
+
+        PROPS.put( "text", "${:-some:-default:-value:-}" );
+
+        placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
+        assertEquals( "some:-default:-value:-", placeholderString.single );
+
         try
         {
             injector.getInstance( Key.get( X.class, Names.named( "PC" ) ) );
