@@ -13,14 +13,14 @@ package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Qualifier;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
+import org.sonatype.guice.bean.locators.HiddenBinding;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binder;
@@ -33,15 +33,40 @@ import com.google.inject.name.Named;
 /**
  * Adds {@link BeanLocator}-backed bindings for non-local bean dependencies.
  */
-final class ImportBinder
+@SuppressWarnings( { "unchecked", "rawtypes" } )
+final class LocatorWiring
+    implements Wiring
 {
     // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final Map<String, String> DEFAULT_PROPERTIES = Collections.emptyMap();
-
     private static final String[] DEFAULT_ARGUMENTS = {};
+
+    private static final Map<String, String> DEFAULT_PROPERTIES;
+
+    static
+    {
+        Map defaultProperties;
+        try
+        {
+            defaultProperties = System.getProperties();
+        }
+        catch ( final Throwable e )
+        {
+            defaultProperties = new HashMap<String, String>();
+        }
+        DEFAULT_PROPERTIES = defaultProperties;
+    }
+
+    private static final HiddenBinding HIDDEN_SOURCE = new HiddenBinding()
+    {
+        @Override
+        public String toString()
+        {
+            return LocatorWiring.class.getName();
+        }
+    };
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -53,46 +78,39 @@ final class ImportBinder
     // Constructors
     // ----------------------------------------------------------------------
 
-    ImportBinder( final Binder binder )
+    LocatorWiring( final Binder binder )
     {
-        this.binder = binder;
+        this.binder = binder.withSource( HIDDEN_SOURCE );
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    /**
-     * Registers {@link BeanLocator}-backed bindings for the given set of non-local dependencies.
-     * 
-     * @param importedKeys Set of non-local dependencies
-     */
-    public void bind( final Set<Key<?>> importedKeys )
+    public boolean wire( final Key<?> key )
     {
-        for ( final Key<?> key : importedKeys )
+        final Class<?> clazz = key.getTypeLiteral().getRawType();
+        if ( ParameterKeys.PROPERTIES.equals( key ) )
         {
-            final Class<?> clazz = key.getTypeLiteral().getRawType();
-            if ( ParameterKeys.PROPERTIES.equals( key ) )
-            {
-                binder.bind( ParameterKeys.PROPERTIES ).toInstance( DEFAULT_PROPERTIES );
-            }
-            else if ( Map.class == clazz )
-            {
-                bindMapImport( key );
-            }
-            else if ( List.class == clazz )
-            {
-                bindListImport( key );
-            }
-            else if ( ParameterKeys.ARGUMENTS.equals( key ) )
-            {
-                binder.bind( ParameterKeys.ARGUMENTS ).toInstance( DEFAULT_ARGUMENTS );
-            }
-            else if ( !isRestricted( clazz ) )
-            {
-                bindBeanImport( key );
-            }
+            binder.bind( ParameterKeys.PROPERTIES ).toInstance( DEFAULT_PROPERTIES );
         }
+        else if ( Map.class == clazz )
+        {
+            bindMapImport( key );
+        }
+        else if ( List.class == clazz )
+        {
+            bindListImport( key );
+        }
+        else if ( ParameterKeys.ARGUMENTS.equals( key ) )
+        {
+            binder.bind( ParameterKeys.ARGUMENTS ).toInstance( DEFAULT_ARGUMENTS );
+        }
+        else if ( !isRestricted( clazz ) )
+        {
+            bindBeanImport( key );
+        }
+        return true;
     }
 
     // ----------------------------------------------------------------------
@@ -104,7 +122,6 @@ final class ImportBinder
      * 
      * @param key The dependency key
      */
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
     private void bindMapImport( final Key<?> key )
     {
         final TypeLiteral<?>[] parameters = TypeParameters.get( key.getTypeLiteral() );
@@ -128,7 +145,6 @@ final class ImportBinder
      * 
      * @param key The dependency key
      */
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
     private void bindListImport( final Key<?> key )
     {
         final TypeLiteral<?>[] parameters = TypeParameters.get( key.getTypeLiteral() );
@@ -144,7 +160,6 @@ final class ImportBinder
      * 
      * @param key The dependency key
      */
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
     private <T> void bindBeanImport( final Key<T> key )
     {
         final Annotation qualifier = key.getAnnotation();

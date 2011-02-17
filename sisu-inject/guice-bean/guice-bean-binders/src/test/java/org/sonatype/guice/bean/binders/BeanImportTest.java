@@ -427,7 +427,7 @@ public class BeanImportTest
     public void testImportSource()
     {
         final Injector injector = Guice.createInjector( new WireModule( new TestModule() ) );
-        assertEquals( ImportBinder.class.getName(), injector.getBinding( Y.class ).getSource().toString() );
+        assertEquals( LocatorWiring.class.getName(), injector.getBinding( Y.class ).getSource().toString() );
     }
 
     public void testInvalidTypeParameters()

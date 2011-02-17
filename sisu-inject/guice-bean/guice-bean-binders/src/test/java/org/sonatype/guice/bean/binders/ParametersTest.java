@@ -12,7 +12,7 @@
 package org.sonatype.guice.bean.binders;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -45,7 +45,7 @@ public class ParametersTest
                 bind( ParametersTest.class );
             }
         } ) ).injectMembers( this );
-        assertEquals( Collections.EMPTY_MAP, properties );
+        assertEquals( System.getProperties(), properties );
         assertEquals( 0, arguments.length );
     }
 
@@ -54,17 +54,16 @@ public class ParametersTest
         Guice.createInjector( new WireModule( new AbstractModule()
         {
             @Override
-            @SuppressWarnings( { "unchecked", "rawtypes" } )
             protected void configure()
             {
                 bind( ParametersTest.class );
 
                 bind( ParameterKeys.ARGUMENTS ).toInstance( new String[] { "Hello", "World" } );
-                bind( ParameterKeys.PROPERTIES ).toInstance( (Map) System.getProperties() );
+                bind( ParameterKeys.PROPERTIES ).toInstance( new HashMap<String, String>() );
             }
         } ) ).injectMembers( this );
 
-        assertEquals( System.getProperties(), properties );
+        assertTrue( properties.isEmpty() );
         assertTrue( Arrays.equals( new String[] { "Hello", "World" }, arguments ) );
     }
 }

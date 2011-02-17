@@ -16,8 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.sonatype.guice.bean.locators.HiddenBinding;
-
 import com.google.inject.Binder;
 import com.google.inject.Binding;
 import com.google.inject.Key;
@@ -36,25 +34,12 @@ final class ElementAnalyzer
     extends DefaultElementVisitor<Void>
 {
     // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final HiddenBinding HIDDEN_SOURCE = new HiddenBinding()
-    {
-        @Override
-        public String toString()
-        {
-            return ImportBinder.class.getName();
-        }
-    };
-
-    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final DependencyAnalyzer analyzer = new DependencyAnalyzer();
-
     private final Set<Key<?>> localKeys = new HashSet<Key<?>>();
+
+    private final DependencyAnalyzer analyzer = new DependencyAnalyzer();
 
     private final List<ElementAnalyzer> privateAnalyzers = new ArrayList<ElementAnalyzer>();
 
@@ -73,20 +58,23 @@ final class ElementAnalyzer
     // Public methods
     // ----------------------------------------------------------------------
 
-    public void bindImports()
+    public void apply( final Wiring wiring )
     {
         // calculate which dependencies are missing from the module
-        final Set<Key<?>> importedKeys = analyzer.getRequiredKeys();
-        importedKeys.removeAll( localKeys );
+        final Set<Key<?>> missingKeys = analyzer.getRequiredKeys();
+        missingKeys.removeAll( localKeys );
 
-        new ImportBinder( binder.withSource( HIDDEN_SOURCE ) ).bind( importedKeys );
+        for ( final Key<?> key : missingKeys )
+        {
+            wiring.wire( key );
+        }
 
         for ( final ElementAnalyzer privateAnalyzer : privateAnalyzers )
         {
-            // can see parent's imported/local dependencies
-            privateAnalyzer.localKeys.addAll( importedKeys );
+            // can see parent's local/wired dependencies
             privateAnalyzer.localKeys.addAll( localKeys );
-            privateAnalyzer.bindImports();
+            privateAnalyzer.localKeys.addAll( missingKeys );
+            privateAnalyzer.apply( wiring );
         }
     }
 

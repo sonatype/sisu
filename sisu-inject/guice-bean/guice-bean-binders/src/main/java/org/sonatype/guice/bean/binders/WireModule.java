@@ -26,7 +26,7 @@ import com.google.inject.spi.Elements;
 /**
  * Guice {@link Module} that automatically adds {@link BeanLocator}-backed bindings for non-local bean dependencies.
  */
-public final class WireModule
+public class WireModule
     implements Module
 {
     // ----------------------------------------------------------------------
@@ -41,7 +41,7 @@ public final class WireModule
 
     public WireModule( final Module... modules )
     {
-        this.modules = Arrays.asList( modules );
+        this( Arrays.asList( modules ) );
     }
 
     public WireModule( final List<Module> modules )
@@ -55,9 +55,6 @@ public final class WireModule
 
     public void configure( final Binder binder )
     {
-        binder.install( new FileTypeConverter() );
-        binder.install( new URLTypeConverter() );
-
         final ElementAnalyzer analyzer = new ElementAnalyzer( binder );
         for ( final Module m : modules )
         {
@@ -66,6 +63,18 @@ public final class WireModule
                 e.acceptVisitor( analyzer );
             }
         }
-        analyzer.bindImports();
+        analyzer.apply( wiring( binder ) );
+    }
+
+    // ----------------------------------------------------------------------
+    // Customizable methods
+    // ----------------------------------------------------------------------
+
+    protected Wiring wiring( final Binder binder )
+    {
+        binder.install( new FileTypeConverter() );
+        binder.install( new URLTypeConverter() );
+
+        return new LocatorWiring( binder );
     }
 }
