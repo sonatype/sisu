@@ -65,7 +65,7 @@ public final class Logs
     // ----------------------------------------------------------------------
 
     /**
-     * Formats and logs the given debug message under the given context class
+     * Formats and logs the given debug message under the given context class; uses "{}" formatting anchors.
      * 
      * @param clazz The context class
      * @param format The debug message format
@@ -89,7 +89,7 @@ public final class Logs
     }
 
     /**
-     * Logs the given warning message and cause under the given context class
+     * Logs the given warning message and cause under the given context class.
      * 
      * @param clazz The context class
      * @param message The warning message

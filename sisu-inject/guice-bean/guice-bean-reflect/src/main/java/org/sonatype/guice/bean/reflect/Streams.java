@@ -26,8 +26,7 @@ public final class Streams
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final boolean ON_WINDOWS =
-        System.getProperty( "os.name" ).toLowerCase( Locale.US ).contains( "windows" );
+    private static final boolean ON_WINDOWS;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -40,7 +39,16 @@ public final class Streams
 
     static
     {
-        new Streams(); // keep Cobertura coverage happy
+        boolean onWindows;
+        try
+        {
+            onWindows = System.getProperty( "os.name" ).toLowerCase( Locale.US ).contains( "windows" );
+        }
+        catch ( final Throwable e )
+        {
+            onWindows = false;
+        }
+        ON_WINDOWS = onWindows;
     }
 
     // ----------------------------------------------------------------------
