@@ -13,6 +13,7 @@ package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +29,9 @@ import org.sonatype.inject.Mediator;
 import com.google.inject.Binder;
 import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
+import com.google.inject.binder.ScopedBindingBuilder;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
@@ -43,9 +46,13 @@ public final class QualifiedTypeBinder
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Binder binder;
+    private final Binder rootBinder;
 
     private BeanListener beanListener;
+
+    private Object currentSource;
+
+    private Binder binder;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -53,6 +60,7 @@ public final class QualifiedTypeBinder
 
     public QualifiedTypeBinder( final Binder binder )
     {
+        rootBinder = binder;
         this.binder = binder;
     }
 
@@ -63,7 +71,25 @@ public final class QualifiedTypeBinder
     @SuppressWarnings( { "unchecked", "rawtypes" } )
     public void hear( final Annotation qualifier, final Class qualifiedType, final Object source )
     {
-        if ( Module.class.isAssignableFrom( qualifiedType ) )
+        if ( currentSource != source )
+        {
+            if ( null != source )
+            {
+                binder = rootBinder.withSource( source );
+                currentSource = source;
+            }
+            else
+            {
+                binder = rootBinder;
+                currentSource = null;
+            }
+        }
+
+        if ( ( qualifiedType.getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) != 0 )
+        {
+            return;
+        }
+        else if ( Module.class.isAssignableFrom( qualifiedType ) )
         {
             installModule( qualifiedType );
         }
@@ -71,9 +97,13 @@ public final class QualifiedTypeBinder
         {
             registerMediator( qualifiedType );
         }
+        else if ( javax.inject.Provider.class.isAssignableFrom( qualifiedType ) )
+        {
+            bindProviderType( qualifiedType );
+        }
         else
         {
-            bindQualifiedType( qualifiedType, null != source ? binder.withSource( source ) : binder );
+            bindQualifiedType( qualifiedType );
         }
     }
 
@@ -138,23 +168,60 @@ public final class QualifiedTypeBinder
     }
 
     /**
+     * Binds the given provider type using a binding key determined by common-use heuristics.
+     * 
+     * @param providerType The provider type
+     */
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
+    private void bindProviderType( final Class<?> providerType )
+    {
+        final TypeLiteral[] params = getSuperTypeParameters( providerType, javax.inject.Provider.class );
+        if ( params.length != 1 )
+        {
+            binder.addError( providerType + " has wrong number of type arguments" );
+        }
+        else
+        {
+            final Named fullName = Names.named( providerType.getName() );
+            final Named customName = getCustomName( providerType );
+
+            final Named bindingName = getBindingName( javax.inject.Provider.class, fullName, customName );
+            final Key key = null != bindingName ? Key.get( params[0], bindingName ) : Key.get( params[0] );
+
+            final ScopedBindingBuilder sbb = binder.bind( key ).toProvider( providerType );
+            if ( providerType.isAnnotationPresent( EagerSingleton.class ) )
+            {
+                sbb.asEagerSingleton();
+            }
+            else if ( providerType.isAnnotationPresent( javax.inject.Singleton.class )
+                || providerType.isAnnotationPresent( com.google.inject.Singleton.class ) )
+            {
+                sbb.in( Scopes.SINGLETON );
+            }
+
+            final Typed typed = providerType.getAnnotation( Typed.class );
+            if ( null != typed )
+            {
+                for ( final Class bindingType : typed.value() )
+                {
+                    binder.bind( key.ofType( bindingType ) ).to( key );
+                }
+            }
+        }
+    }
+
+    /**
      * Binds the given qualified type using a binding key determined by common-use heuristics.
      * 
      * @param qualifiedType The qualified type
-     * @param binder The type binder
      */
     @SuppressWarnings( { "unchecked", "rawtypes" } )
-    private static void bindQualifiedType( final Class<?> qualifiedType, final Binder binder )
+    private void bindQualifiedType( final Class<?> qualifiedType )
     {
         final boolean isEagerSingleton = qualifiedType.isAnnotationPresent( EagerSingleton.class );
         if ( isEagerSingleton )
         {
             binder.bind( qualifiedType ).asEagerSingleton();
-        }
-
-        if ( qualifiedType.isInterface() )
-        {
-            return;
         }
 
         final Named fullName = Names.named( qualifiedType.getName() );

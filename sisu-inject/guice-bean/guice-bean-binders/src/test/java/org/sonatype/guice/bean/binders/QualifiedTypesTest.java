@@ -17,6 +17,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.EventListener;
 import java.util.RandomAccess;
+import java.util.concurrent.Callable;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
@@ -101,24 +102,26 @@ public class QualifiedTypesTest
 
     @Named
     static class B05EventListener
-        implements Runnable, EventListener, Serializable
+        implements Callable<String>, EventListener, Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        public void run()
+        public String call()
         {
+            return "GO";
         }
     }
 
     @Named
-    @Typed( { EventListener.class, Runnable.class } )
+    @Typed( { EventListener.class, Callable.class } )
     static class B06
-        implements Runnable, EventListener, Serializable
+        implements Callable<String>, EventListener, Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        public void run()
+        public String call()
         {
+            return "GO";
         }
     }
 
@@ -177,12 +180,13 @@ public class QualifiedTypesTest
     @Typed( Serializable.class )
     static class SubclassB07
         extends B02
-        implements Runnable, Serializable
+        implements Callable<String>, Serializable
     {
         private static final long serialVersionUID = 1L;
 
-        public void run()
+        public String call()
         {
+            return "GO";
         }
     }
 
@@ -210,11 +214,12 @@ public class QualifiedTypesTest
     }
 
     @Legacy
-    static class LegacyRunnable
-        implements Runnable
+    static class LegacyCallable
+        implements Callable<String>
     {
-        public void run()
+        public String call()
         {
+            return "GO";
         }
     }
 
@@ -283,7 +288,7 @@ public class QualifiedTypesTest
         checkNamedBinding( Serializable.class, SubclassB07.class.getName(), SubclassB07.class );
         checkNamedBinding( Serializable.class, SubclassB08.class.getName(), SubclassB08.class );
 
-        checkLegacyBinding( Runnable.class, LegacyRunnable.class );
+        checkLegacyBinding( Callable.class, LegacyCallable.class );
     }
 
     @ImplementedBy( AImpl.class )
