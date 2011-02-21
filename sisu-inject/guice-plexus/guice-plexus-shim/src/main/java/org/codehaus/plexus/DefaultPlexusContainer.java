@@ -697,15 +697,15 @@ public final class DefaultPlexusContainer
     {
         final Object[] realms = getClassWorld().getRealms().toArray();
         final Set<ClassRealm> visibleRealms = new LinkedHashSet<ClassRealm>( realms.length );
-        final ClassRealm currentLookupRealm = getLookupRealm();
-        if ( null != currentLookupRealm )
-        {
-            visibleRealms.add( currentLookupRealm );
-        }
         final ClassRealm threadContextRealm = ClassRealmUtils.contextRealm();
         if ( null != threadContextRealm )
         {
             visibleRealms.add( threadContextRealm );
+        }
+        final ClassRealm currentLookupRealm = getLookupRealm();
+        if ( null != currentLookupRealm )
+        {
+            visibleRealms.add( currentLookupRealm );
         }
         if ( PlexusConstants.REALM_VISIBILITY.equalsIgnoreCase( componentVisibility ) )
         {
