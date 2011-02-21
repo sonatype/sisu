@@ -12,7 +12,6 @@
 package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -132,7 +131,7 @@ final class NamedBeanMapProvider<V>
     // Constructors
     // ----------------------------------------------------------------------
 
-    NamedBeanMapProvider( final Type valueType )
+    NamedBeanMapProvider( final TypeLiteral<?> valueType )
     {
         this.key = Key.get( valueType, Named.class );
     }

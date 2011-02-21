@@ -61,23 +61,25 @@ final class InjectorPublisher
     // Public methods
     // ----------------------------------------------------------------------
 
-    public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber importer )
+    public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
     {
-        final List<Binding<T>> bindings = injector.findBindingsByType( type );
-        for ( int i = 0, size = bindings.size(); i < size; i++ )
+        // explicit bindings to the type we're interested in; this may or may not be generic
+        int numBindings = publishBindings( subscriber, injector.findBindingsByType( type ) );
+
+        @SuppressWarnings( { "unchecked", "rawtypes" } )
+        final Class<T> clazz = (Class) type.getRawType();
+        if ( !clazz.equals( type.getType() ) )
         {
-            final Binding<T> binding = bindings.get( i );
-            if ( false == binding.getSource() instanceof HiddenBinding )
-            {
-                importer.add( binding, function.rank( binding ) );
-            }
+            // also consider explicit bindings to the raw type; but only if we originally looked for a generic one
+            numBindings += publishBindings( subscriber, injector.findBindingsByType( TypeLiteral.get( clazz ) ) );
         }
-        // implicit binding; avoid duplication by only checking when injector 'owns' the type
-        if ( bindings.isEmpty() && null != space && space.loadedClass( type.getRawType() ) )
+
+        // fall back to implicit binding; avoid dups by only checking when we 'own' the type
+        if ( numBindings == 0 && null != space && space.loadedClass( type.getRawType() ) )
         {
             try
             {
-                importer.add( injector.getBinding( Key.get( type ) ), Integer.MIN_VALUE );
+                subscriber.add( injector.getBinding( Key.get( type ) ), Integer.MIN_VALUE );
             }
             catch ( final Throwable e ) // NOPMD
             {
@@ -115,5 +117,23 @@ final class InjectorPublisher
             return injector.equals( ( (InjectorPublisher) rhs ).injector );
         }
         return false;
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private <T> int publishBindings( final BindingSubscriber subscriber, final List<Binding<T>> bindings )
+    {
+        final int size = bindings.size();
+        for ( int i = 0; i < size; i++ )
+        {
+            final Binding<T> binding = bindings.get( i );
+            if ( false == binding.getSource() instanceof HiddenBinding )
+            {
+                subscriber.add( binding, function.rank( binding ) );
+            }
+        }
+        return size;
     }
 }
