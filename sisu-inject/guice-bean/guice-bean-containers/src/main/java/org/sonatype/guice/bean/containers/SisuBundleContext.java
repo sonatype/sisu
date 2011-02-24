@@ -15,7 +15,7 @@ import org.osgi.framework.FrameworkUtil;
 
 import com.google.inject.Injector;
 
-public final class SisuBundleContext
+final class SisuBundleContext
     implements SisuContext
 {
     public Injector injector( final Class<?> type )

@@ -29,6 +29,7 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
@@ -58,6 +59,7 @@ public final class QualifiedIndexAPT6
 
     public boolean process( final Set<? extends TypeElement> annotations, final RoundEnvironment round )
     {
+        final Elements elementUtils = environment.getElementUtils();
         for ( final TypeElement anno : annotations )
         {
             if ( null != anno.getAnnotation( Qualifier.class ) )
@@ -66,7 +68,8 @@ public final class QualifiedIndexAPT6
                 {
                     if ( elem.getKind().isClass() )
                     {
-                        addClassToIndex( anno.getQualifiedName(), ( (TypeElement) elem ).getQualifiedName() );
+                        addClassToIndex( elementUtils.getBinaryName( anno ),
+                                         elementUtils.getBinaryName( (TypeElement) elem ) );
                     }
                 }
             }

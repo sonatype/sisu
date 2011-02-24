@@ -13,7 +13,7 @@ package org.sonatype.guice.bean.containers;
 
 import com.google.inject.Injector;
 
-public final class SisuStaticContext
+final class SisuStaticContext
     implements SisuContext
 {
     private final Injector injector;
