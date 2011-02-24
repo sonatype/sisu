@@ -40,11 +40,6 @@ public final class TypeParameters
         // static utility class, not allowed to create instances
     }
 
-    static
-    {
-        new TypeParameters(); // keep Cobertura coverage happy
-    }
-
     // ----------------------------------------------------------------------
     // Utility methods
     // ----------------------------------------------------------------------
@@ -98,6 +93,40 @@ public final class TypeParameters
             throw new ArrayIndexOutOfBoundsException( index );
         }
         return OBJECT_TYPE_LITERAL;
+    }
+
+    /**
+     * Determines if the subType can be converted to the generic superType via an identity or widening conversion.
+     * 
+     * @param superType The superType
+     * @param subType The subType
+     * @return {@code 1} if it is strongly assignable; {@code -1} if it is weakly assignable; otherwise {@code 0}
+     * @see Class#isAssignableFrom(Class)
+     */
+    public static int isAssignableFrom( final TypeLiteral<?> superType, final TypeLiteral<?> subType )
+    {
+        final Class<?> superClazz = superType.getRawType();
+        final Class<?> subClazz = subType.getRawType();
+        if ( !superClazz.isAssignableFrom( subClazz ) )
+        {
+            return Object.class == subClazz ? -1 : 0;
+        }
+        int result = 1;
+        final TypeLiteral<?>[] superParams = TypeParameters.get( superType );
+        final TypeLiteral<?>[] subParams = TypeParameters.get( subType.getSupertype( superClazz ) );
+        for ( int i = 0; i < superParams.length && i < subParams.length; i++ )
+        {
+            final int paramResult = isAssignableFrom( superParams[i], subParams[i] );
+            if ( paramResult == 0 )
+            {
+                return 0;
+            }
+            if ( paramResult < 0 )
+            {
+                result = -1;
+            }
+        }
+        return result;
     }
 
     // ----------------------------------------------------------------------

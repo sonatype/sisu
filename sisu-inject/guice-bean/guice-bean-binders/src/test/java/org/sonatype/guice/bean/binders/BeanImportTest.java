@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -28,6 +29,9 @@ import javax.inject.Named;
 import junit.framework.TestCase;
 
 import org.slf4j.Logger;
+import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.TypeParameters;
+import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.inject.Nullable;
 
 import com.google.inject.AbstractModule;
@@ -39,6 +43,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.ProvidedBy;
 import com.google.inject.Provider;
+import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 
@@ -283,14 +288,24 @@ public class BeanImportTest
         Map<Named, Y> map;
     }
 
+    @SuppressWarnings( "rawtypes" )
     static class GenericInstance
         implements X
     {
         @Inject
-        Z<Integer> integer;
+        Z raw;
 
         @Inject
-        Z<String> string;
+        Z<?> wildcard;
+
+        @Inject
+        Z<Number> number;
+
+        @Inject
+        Z<CharSequence> chars;
+
+        @Inject
+        Z<Random> random;
     }
 
     static Map<String, String> PROPS = new HashMap<String, String>();
@@ -301,6 +316,8 @@ public class BeanImportTest
         @Override
         protected void configure()
         {
+            bind( ClassSpace.class ).toInstance( new URLClassSpace( BeanImportTest.class.getClassLoader() ) );
+
             bindInterceptor( Matchers.subclassesOf( X.class ), Matchers.any() );
             requestInjection( BeanImportTest.this );
 
@@ -321,6 +338,13 @@ public class BeanImportTest
             bind( Y.class ).annotatedWith( new FuzzyImpl() ).toInstance( new YImpl() );
 
             bind( Z.class ).to( ZImpl.class );
+
+            bind( Z.class ).annotatedWith( Names.named( "integer" ) ).toInstance( new ZImpl<Integer>()
+            {
+            } );
+            bind( Z.class ).annotatedWith( Names.named( "string" ) ).toInstance( new ZImpl<String>()
+            {
+            } );
 
             bind( ParameterKeys.PROPERTIES ).toInstance( PROPS );
         }
@@ -535,7 +559,16 @@ public class BeanImportTest
         final GenericInstance genericInstance =
             (GenericInstance) injector.getInstance( Key.get( X.class, Names.named( "GI" ) ) );
 
-        assertNotNull( genericInstance.integer );
-        assertNotNull( genericInstance.string );
+        assertEquals( ZImpl.class, genericInstance.raw.getClass() );
+        assertEquals( ZImpl.class, genericInstance.wildcard.getClass() );
+        assertEquals( ZImpl.class, genericInstance.random.getClass() );
+
+        assertEquals( TypeLiteral.get( Integer.class ),
+                      TypeParameters.get( TypeLiteral.get( genericInstance.number.getClass() ).getSupertype( Z.class ),
+                                          0 ) );
+
+        assertEquals( TypeLiteral.get( String.class ),
+                      TypeParameters.get( TypeLiteral.get( genericInstance.chars.getClass() ).getSupertype( Z.class ),
+                                          0 ) );
     }
 }

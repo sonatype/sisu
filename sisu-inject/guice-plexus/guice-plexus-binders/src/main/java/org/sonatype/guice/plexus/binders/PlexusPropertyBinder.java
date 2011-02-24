@@ -29,10 +29,8 @@ final class PlexusPropertyBinder
     implements PropertyBinder
 {
     // ----------------------------------------------------------------------
-    // Constants
+    // Static initialization
     // ----------------------------------------------------------------------
-
-    private static final boolean OPTIONAL_SUPPORTED;
 
     static
     {
@@ -48,6 +46,12 @@ final class PlexusPropertyBinder
         }
         OPTIONAL_SUPPORTED = optionalSupported;
     }
+
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final boolean OPTIONAL_SUPPORTED;
 
     // ----------------------------------------------------------------------
     // Implementation fields

@@ -47,11 +47,6 @@ public final class Roles
         // static utility class, not allowed to create instances
     }
 
-    static
-    {
-        new Roles(); // keep Cobertura coverage happy
-    }
-
     // ----------------------------------------------------------------------
     // Utility methods
     // ----------------------------------------------------------------------

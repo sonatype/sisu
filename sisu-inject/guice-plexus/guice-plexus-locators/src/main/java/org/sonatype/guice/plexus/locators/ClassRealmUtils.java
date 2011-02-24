@@ -24,6 +24,25 @@ import org.codehaus.plexus.classworlds.realm.ClassRealm;
 public final class ClassRealmUtils
 {
     // ----------------------------------------------------------------------
+    // Static initialization
+    // ----------------------------------------------------------------------
+
+    static
+    {
+        boolean getImportRealmsSupported = true;
+        try
+        {
+            // support both old and new forms of Plexus class realms
+            ClassRealm.class.getDeclaredMethod( "getImportRealms" );
+        }
+        catch ( final Throwable e )
+        {
+            getImportRealmsSupported = false;
+        }
+        GET_IMPORT_REALMS_SUPPORTED = getImportRealmsSupported;
+    }
+
+    // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
 
@@ -36,23 +55,6 @@ public final class ClassRealmUtils
     private ClassRealmUtils()
     {
         // static utility class, not allowed to create instances
-    }
-
-    static
-    {
-        new ClassRealmUtils(); // keep Cobertura coverage happy
-
-        boolean getImportRealmsSupported = true;
-        try
-        {
-            // support both old and new forms of Plexus class realms
-            ClassRealm.class.getDeclaredMethod( "getImportRealms" );
-        }
-        catch ( final Throwable e )
-        {
-            getImportRealmsSupported = false;
-        }
-        GET_IMPORT_REALMS_SUPPORTED = getImportRealmsSupported;
     }
 
     // ----------------------------------------------------------------------

@@ -38,12 +38,8 @@ final class LocatorWiring
     implements Wiring
 {
     // ----------------------------------------------------------------------
-    // Constants
+    // Static initialization
     // ----------------------------------------------------------------------
-
-    private static final String[] DEFAULT_ARGUMENTS = {};
-
-    private static final Map<String, String> DEFAULT_PROPERTIES;
 
     static
     {
@@ -58,6 +54,14 @@ final class LocatorWiring
         }
         DEFAULT_PROPERTIES = defaultProperties;
     }
+
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final String[] DEFAULT_ARGUMENTS = {};
+
+    private static final Map<String, String> DEFAULT_PROPERTIES;
 
     private static final HiddenBinding HIDDEN_SOURCE = new HiddenBinding()
     {

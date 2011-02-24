@@ -11,11 +11,13 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binding;
 import com.google.inject.Injector;
@@ -63,23 +65,24 @@ final class InjectorPublisher
 
     public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
     {
-        // explicit bindings to the type we're interested in; this may or may not be generic
-        int numBindings = publishBindings( subscriber, injector.findBindingsByType( type ) );
+        boolean hasBindings = publishBindings( subscriber, type );
 
         @SuppressWarnings( { "unchecked", "rawtypes" } )
         final Class<T> clazz = (Class) type.getRawType();
-        if ( !clazz.equals( type.getType() ) )
+        if ( type.getType() != clazz )
         {
-            // also consider explicit bindings to the raw type; but only if we originally looked for a generic one
-            numBindings += publishBindings( subscriber, injector.findBindingsByType( TypeLiteral.get( clazz ) ) );
+            hasBindings |= publishBindings( subscriber, type, clazz );
         }
 
-        // fall back to implicit binding; avoid dups by only checking when we 'own' the type
-        if ( numBindings == 0 && null != space && space.loadedClass( type.getRawType() ) )
+        if ( !hasBindings && null != space && space.loadedClass( clazz ) )
         {
             try
             {
-                subscriber.add( injector.getBinding( Key.get( type ) ), Integer.MIN_VALUE );
+                final Binding<T> binding = injector.getBinding( Key.get( type ) );
+                if ( isVisible( binding ) )
+                {
+                    subscriber.add( binding, Integer.MIN_VALUE );
+                }
             }
             catch ( final Throwable e ) // NOPMD
             {
@@ -123,17 +126,64 @@ final class InjectorPublisher
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private <T> int publishBindings( final BindingSubscriber subscriber, final List<Binding<T>> bindings )
+    private static boolean isVisible( final Binding<?> binding )
     {
-        final int size = bindings.size();
-        for ( int i = 0; i < size; i++ )
+        return false == binding.getSource() instanceof HiddenBinding;
+    }
+
+    private static int isAssignableFrom( final TypeLiteral<?> type, final Binding<?> binding )
+    {
+        final Class<?> impl = binding.acceptTargetVisitor( ImplementationVisitor.THIS );
+        return null != impl ? TypeParameters.isAssignableFrom( type, TypeLiteral.get( impl ) ) : 0;
+    }
+
+    private boolean publishBindings( final BindingSubscriber subscriber, final TypeLiteral<?> type )
+    {
+        boolean published = false;
+        final List<? extends Binding<?>> bindings = injector.findBindingsByType( type );
+        for ( int i = 0, size = bindings.size(); i < size; i++ )
         {
-            final Binding<T> binding = bindings.get( i );
-            if ( false == binding.getSource() instanceof HiddenBinding )
+            final Binding<?> binding = bindings.get( i );
+            if ( isVisible( binding ) )
             {
                 subscriber.add( binding, function.rank( binding ) );
+                published = true;
             }
         }
-        return size;
+        return published;
+    }
+
+    private boolean publishBindings( final BindingSubscriber subscriber, final TypeLiteral<?> type, final Class<?> clazz )
+    {
+        boolean published = false;
+        final List<Binding<?>> weakBindings = new ArrayList<Binding<?>>();
+        final List<? extends Binding<?>> bindings = injector.findBindingsByType( TypeLiteral.get( clazz ) );
+        for ( int i = 0, size = bindings.size(); i < size; i++ )
+        {
+            final Binding<?> binding = bindings.get( i );
+            if ( isVisible( binding ) )
+            {
+                final int assignable = isAssignableFrom( type, binding );
+                if ( assignable > 0 )
+                {
+                    subscriber.add( binding, function.rank( binding ) );
+                    published = true;
+                }
+                else if ( assignable < 0 )
+                {
+                    weakBindings.add( binding );
+                }
+            }
+        }
+        if ( !published )
+        {
+            for ( int i = 0, size = weakBindings.size(); i < size; i++ )
+            {
+                final Binding<?> binding = weakBindings.get( i );
+                subscriber.add( binding, function.rank( binding ) );
+                published = true;
+            }
+        }
+        return published;
     }
 }

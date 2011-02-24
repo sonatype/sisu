@@ -40,11 +40,6 @@ public final class Hints
         // static utility class, not allowed to create instances
     }
 
-    static
-    {
-        new Hints(); // keep Cobertura coverage happy
-    }
-
     // ----------------------------------------------------------------------
     // Utility methods
     // ----------------------------------------------------------------------

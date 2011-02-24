@@ -20,14 +20,8 @@ import java.util.logging.Logger;
 public final class Logs
 {
     // ----------------------------------------------------------------------
-    // Constants
+    // Static initialization
     // ----------------------------------------------------------------------
-
-    private static final String ANCHOR = "{}";
-
-    private static final boolean SLF4J_ENABLED;
-
-    private static final boolean DEBUG_ENABLED;
 
     static
     {
@@ -47,17 +41,22 @@ public final class Logs
     }
 
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final String ANCHOR = "{}";
+
+    private static final boolean SLF4J_ENABLED;
+
+    private static final boolean DEBUG_ENABLED;
+
+    // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
     private Logs()
     {
         // static utility class, not allowed to create instances
-    }
-
-    static
-    {
-        new Logs(); // keep Cobertura coverage happy
     }
 
     // ----------------------------------------------------------------------

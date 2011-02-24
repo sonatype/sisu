@@ -85,6 +85,10 @@ import com.google.inject.util.Providers;
 public final class DefaultPlexusContainer
     implements MutablePlexusContainer
 {
+    // ----------------------------------------------------------------------
+    // Static initialization
+    // ----------------------------------------------------------------------
+
     static
     {
         System.setProperty( "guice.disable.misplaced.annotation.check", "true" );

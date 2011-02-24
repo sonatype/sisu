@@ -23,19 +23,8 @@ import java.util.Locale;
 public final class Streams
 {
     // ----------------------------------------------------------------------
-    // Constants
+    // Static initialization
     // ----------------------------------------------------------------------
-
-    private static final boolean ON_WINDOWS;
-
-    // ----------------------------------------------------------------------
-    // Constructors
-    // ----------------------------------------------------------------------
-
-    private Streams()
-    {
-        // static utility class, not allowed to create instances
-    }
 
     static
     {
@@ -49,6 +38,21 @@ public final class Streams
             onWindows = false;
         }
         ON_WINDOWS = onWindows;
+    }
+
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final boolean ON_WINDOWS;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    private Streams()
+    {
+        // static utility class, not allowed to create instances
     }
 
     // ----------------------------------------------------------------------
