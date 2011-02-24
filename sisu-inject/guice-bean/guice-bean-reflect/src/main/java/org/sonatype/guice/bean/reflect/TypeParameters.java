@@ -114,7 +114,7 @@ public final class TypeParameters
         int result = 1;
         final TypeLiteral<?>[] superParams = TypeParameters.get( superType );
         final TypeLiteral<?>[] subParams = TypeParameters.get( subType.getSupertype( superClazz ) );
-        for ( int i = 0; i < superParams.length && i < subParams.length; i++ )
+        for ( int i = 0, len = Math.min( superParams.length, subParams.length ); i < len; i++ )
         {
             final int paramResult = isAssignableFrom( superParams[i], subParams[i] );
             if ( paramResult == 0 )
