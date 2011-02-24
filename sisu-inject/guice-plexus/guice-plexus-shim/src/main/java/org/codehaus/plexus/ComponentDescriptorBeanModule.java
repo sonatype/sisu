@@ -19,6 +19,7 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
@@ -37,6 +38,7 @@ import org.sonatype.guice.plexus.binders.PlexusTypeBinder;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
+import org.sonatype.guice.plexus.locators.ClassRealmUtils;
 
 import com.google.inject.Binder;
 import com.google.inject.ProvisionException;
@@ -144,8 +146,17 @@ final class ComponentDescriptorBeanModule
         {
             try
             {
+                ClassRealm contextRealm = container.getLookupRealm();
+                if ( null == contextRealm )
+                {
+                    contextRealm = ClassRealmUtils.contextRealm();
+                }
+                if ( null == contextRealm )
+                {
+                    contextRealm = container.getContainerRealm();
+                }
                 final ComponentFactory factory = container.lookup( ComponentFactory.class, hint );
-                final Object o = factory.newInstance( cd, container.getLookupRealm(), container );
+                final Object o = factory.newInstance( cd, contextRealm, container );
                 if ( null != o && manager.manage( o.getClass() ) )
                 {
                     manager.manage( o );
