@@ -107,25 +107,37 @@ public final class TypeParameters
     {
         final Class<?> superClazz = superType.getRawType();
         final Class<?> subClazz = subType.getRawType();
+
         if ( !superClazz.isAssignableFrom( subClazz ) )
         {
-            return Object.class == subClazz ? -1 : 0;
+            return 0; // raw types don't match -> bail out
         }
+
+        if ( superClazz == superType.getType() )
+        {
+            return 1; // no generic types involved -> OK!
+        }
+
         int result = 1;
         final TypeLiteral<?>[] superParams = TypeParameters.get( superType );
-        final TypeLiteral<?>[] subParams = TypeParameters.get( subType.getSupertype( superClazz ) );
-        for ( int i = 0, len = Math.min( superParams.length, subParams.length ); i < len; i++ )
+        if ( superParams.length > 0 )
         {
-            final int paramResult = isAssignableFrom( superParams[i], subParams[i] );
-            if ( paramResult == 0 )
+            // all parameters must be assignable for the generic type to be assignable
+            final TypeLiteral<?>[] subParams = TypeParameters.get( subType.getSupertype( superClazz ) );
+            for ( int i = 0, len = Math.min( superParams.length, subParams.length ); i < len; i++ )
             {
-                return 0;
-            }
-            if ( paramResult < 0 )
-            {
-                result = -1;
+                final int paramResult = isAssignableFrom( superParams[i], subParams[i] );
+                if ( paramResult == 0 && Object.class != subParams[i].getRawType() )
+                {
+                    return 0; // parameter not assignable, and not "place-holder" like <T>
+                }
+                if ( paramResult <= 0 )
+                {
+                    result = -1; // "place-holder" parameters like <T> are weakly assignable
+                }
             }
         }
+
         return result;
     }
 
