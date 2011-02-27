@@ -131,10 +131,10 @@ final class InjectorPublisher
         return false == binding.getSource() instanceof HiddenBinding;
     }
 
-    private static int isAssignableFrom( final TypeLiteral<?> type, final Binding<?> binding )
+    private static boolean isAssignableFrom( final TypeLiteral<?> type, final Binding<?> binding )
     {
         final Class<?> impl = binding.acceptTargetVisitor( ImplementationVisitor.THIS );
-        return null != impl ? TypeParameters.isAssignableFrom( type, TypeLiteral.get( impl ) ) : 0;
+        return null != impl ? TypeParameters.isAssignableFrom( type, TypeLiteral.get( impl ) ) : false;
     }
 
     private boolean publishBindings( final BindingSubscriber subscriber, final TypeLiteral<?> type )
@@ -156,30 +156,12 @@ final class InjectorPublisher
     private boolean publishBindings( final BindingSubscriber subscriber, final TypeLiteral<?> type, final Class<?> clazz )
     {
         boolean published = false;
-        final List<Binding<?>> weakBindings = new ArrayList<Binding<?>>();
         final List<? extends Binding<?>> bindings = injector.findBindingsByType( TypeLiteral.get( clazz ) );
         for ( int i = 0, size = bindings.size(); i < size; i++ )
         {
             final Binding<?> binding = bindings.get( i );
-            if ( isVisible( binding ) )
+            if ( isVisible( binding ) && isAssignableFrom( type, binding ) )
             {
-                final int assignable = isAssignableFrom( type, binding );
-                if ( assignable > 0 )
-                {
-                    subscriber.add( binding, function.rank( binding ) );
-                    published = true;
-                }
-                else if ( assignable < 0 )
-                {
-                    weakBindings.add( binding );
-                }
-            }
-        }
-        if ( !published )
-        {
-            for ( int i = 0, size = weakBindings.size(); i < size; i++ )
-            {
-                final Binding<?> binding = weakBindings.get( i );
                 subscriber.add( binding, function.rank( binding ) );
                 published = true;
             }

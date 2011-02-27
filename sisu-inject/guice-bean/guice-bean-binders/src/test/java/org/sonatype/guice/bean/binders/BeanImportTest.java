@@ -293,16 +293,10 @@ public class BeanImportTest
         implements X
     {
         @Inject
-        Z raw;
+        Z<? extends Number> number;
 
         @Inject
-        Z<?> wildcard;
-
-        @Inject
-        Z<Number> number;
-
-        @Inject
-        Z<CharSequence> chars;
+        Z<String> chars;
 
         @Inject
         Z<Random> random;
@@ -337,14 +331,13 @@ public class BeanImportTest
             bind( Y.class ).annotatedWith( Names.named( "local" ) ).toInstance( new YImpl() );
             bind( Y.class ).annotatedWith( new FuzzyImpl() ).toInstance( new YImpl() );
 
-            bind( Z.class ).to( ZImpl.class );
-
             bind( Z.class ).annotatedWith( Names.named( "integer" ) ).toInstance( new ZImpl<Integer>()
             {
             } );
             bind( Z.class ).annotatedWith( Names.named( "string" ) ).toInstance( new ZImpl<String>()
             {
             } );
+            bind( Z.class ).annotatedWith( Names.named( "raw" ) ).to( ZImpl.class );
 
             bind( ParameterKeys.PROPERTIES ).toInstance( PROPS );
         }
@@ -559,10 +552,6 @@ public class BeanImportTest
         final GenericInstance genericInstance =
             (GenericInstance) injector.getInstance( Key.get( X.class, Names.named( "GI" ) ) );
 
-        assertEquals( ZImpl.class, genericInstance.raw.getClass() );
-        assertEquals( ZImpl.class, genericInstance.wildcard.getClass() );
-        assertEquals( ZImpl.class, genericInstance.random.getClass() );
-
         assertEquals( TypeLiteral.get( Integer.class ),
                       TypeParameters.get( TypeLiteral.get( genericInstance.number.getClass() ).getSupertype( Z.class ),
                                           0 ) );
@@ -570,5 +559,7 @@ public class BeanImportTest
         assertEquals( TypeLiteral.get( String.class ),
                       TypeParameters.get( TypeLiteral.get( genericInstance.chars.getClass() ).getSupertype( Z.class ),
                                           0 ) );
+
+        assertEquals( ZImpl.class, genericInstance.random.getClass() );
     }
 }
