@@ -31,7 +31,7 @@ public abstract class AbstractSisuIndex
     // Constants
     // ----------------------------------------------------------------------
 
-    public static final String SISU_INJECT_META_DIR = "META-INF/sisu/inject/";
+    public static final String SISU_INDEX_DIR = "META-INF/sisu/";
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -116,7 +116,7 @@ public abstract class AbstractSisuIndex
         final Set<String> table = new LinkedHashSet<String>();
         try
         {
-            final BufferedReader reader = new BufferedReader( getReader( SISU_INJECT_META_DIR + name ) );
+            final BufferedReader reader = new BufferedReader( getReader( SISU_INDEX_DIR + name ) );
             try
             {
                 for ( String line = reader.readLine(); line != null; line = reader.readLine() )
@@ -140,7 +140,7 @@ public abstract class AbstractSisuIndex
     {
         try
         {
-            final BufferedWriter writer = new BufferedWriter( getWriter( SISU_INJECT_META_DIR + name ) );
+            final BufferedWriter writer = new BufferedWriter( getWriter( SISU_INDEX_DIR + name ) );
             try
             {
                 for ( final String line : table )

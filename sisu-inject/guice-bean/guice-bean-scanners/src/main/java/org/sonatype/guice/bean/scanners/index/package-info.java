@@ -10,7 +10,7 @@
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
 /**
- * Qualified class index support {@value org.sonatype.guice.bean.scanners.index.AbstractSisuIndex#SISU_INJECT_META_DIR}.
+ * Qualified class index support {@value org.sonatype.guice.bean.scanners.index.AbstractSisuIndex#SISU_INDEX_DIR}.
  *
  * <p>The principal members of this package are:
  * <dl>
