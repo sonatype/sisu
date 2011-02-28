@@ -28,7 +28,7 @@ import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
 import org.sonatype.guice.bean.scanners.QualifiedTypeVisitor;
 
 /**
- * Command-line utility that can generate {@code META-INF/sisu} index files for a space-separated list of JARs.
+ * Command-line utility that generates a qualified class index for a space-separated list of JARs.
  */
 public final class QualifiedIndexCmd
     extends AbstractSisuIndex

@@ -35,7 +35,7 @@ import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
 /**
- * Java 6 Annotation {@link Processor} that can generate {@code META-INF/sisu} index files for the current build.
+ * Java 6 Annotation {@link Processor} that generates a qualified class index for the current build.
  */
 @SuppressWarnings( "restriction" )
 public final class QualifiedIndexAPT6

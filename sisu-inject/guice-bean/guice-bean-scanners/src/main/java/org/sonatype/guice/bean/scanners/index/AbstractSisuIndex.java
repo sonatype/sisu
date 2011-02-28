@@ -23,7 +23,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Skeleton class that can generate {@code META-INF/sisu} index files.
+ * Skeleton class that generates a qualified class index.
  */
 public abstract class AbstractSisuIndex
 {
@@ -31,7 +31,7 @@ public abstract class AbstractSisuIndex
     // Constants
     // ----------------------------------------------------------------------
 
-    static final String META_INF_SISU = "META-INF/sisu/";
+    public static final String SISU_INJECT_META_DIR = "META-INF/sisu/inject/";
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -116,7 +116,7 @@ public abstract class AbstractSisuIndex
         final Set<String> table = new LinkedHashSet<String>();
         try
         {
-            final BufferedReader reader = new BufferedReader( getReader( META_INF_SISU + name ) );
+            final BufferedReader reader = new BufferedReader( getReader( SISU_INJECT_META_DIR + name ) );
             try
             {
                 for ( String line = reader.readLine(); line != null; line = reader.readLine() )
@@ -140,7 +140,7 @@ public abstract class AbstractSisuIndex
     {
         try
         {
-            final BufferedWriter writer = new BufferedWriter( getWriter( META_INF_SISU + name ) );
+            final BufferedWriter writer = new BufferedWriter( getWriter( SISU_INJECT_META_DIR + name ) );
             try
             {
                 for ( final String line : table )

@@ -10,7 +10,7 @@
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
 /**
- * Component index support (META-INF/sisu).
+ * Qualified class index support {@value org.sonatype.guice.bean.scanners.index.AbstractSisuIndex#SISU_INJECT_META_DIR}.
  *
  * <p>The principal members of this package are:
  * <dl>
