@@ -43,6 +43,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.ProvidedBy;
 import com.google.inject.Provider;
+import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
@@ -400,7 +401,7 @@ public class BeanImportTest
 
         PlaceholderString placeholderString;
         placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
-        assertEquals( "${text}", placeholderString.single );
+        assertNull( placeholderString.single );
 
         PROPS.put( "text", "Hello, world!" );
 
@@ -412,8 +413,15 @@ public class BeanImportTest
         PROPS.put( "two", "<${three}}" );
         PROPS.put( "three", "|${text}|" );
 
-        placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
-        assertEquals( ">-<|>-<|${text}|}={|}={", placeholderString.single );
+        try
+        {
+            placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
+            fail( "Expected ProvisionException" );
+        }
+        catch (final ProvisionException e)
+        {
+            assertTrue( e.getMessage().contains( ">-<|>-<|${text}|}={|}={" ) );
+        }
 
         PROPS.put( "text", ">${text" );
 
