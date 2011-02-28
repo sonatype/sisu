@@ -66,6 +66,7 @@
             <Bundle-SymbolicName>
               org.sonatype.inject;singleton:=true
             </Bundle-SymbolicName>
+            <Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
             <Bundle-Activator>
               org.sonatype.guice.bean.containers.SisuActivator
             </Bundle-Activator>

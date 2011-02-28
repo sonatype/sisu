@@ -21,6 +21,7 @@ import java.util.Set;
 import javax.inject.Provider;
 
 import org.sonatype.guice.bean.reflect.DeferredProvider;
+import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binding;
 import com.google.inject.Key;
@@ -177,7 +178,15 @@ final class DependencyAnalyzer
             }
             else
             {
-                requiredKeys.add( key );
+                final TypeLiteral<?> type = key.getTypeLiteral();
+                if ( Provider.class.isAssignableFrom( type.getRawType() ) )
+                {
+                    requiredKeys.add( key.ofType( TypeParameters.get( type, 0 ) ) );
+                }
+                else
+                {
+                    requiredKeys.add( key );
+                }
             }
         }
         return applyBinding;
