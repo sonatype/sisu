@@ -126,6 +126,16 @@ public final class TypeParameters
                 return isAssignableFrom( superArgs, subArgs );
             }
         }
+        else if ( superType instanceof GenericArrayType )
+        {
+            final Type resolvedType = subLiteral.getSupertype( superClazz ).getType();
+            if ( resolvedType instanceof GenericArrayType )
+            {
+                final Type superComponent = ( (GenericArrayType) superType ).getGenericComponentType();
+                final Type subComponent = ( (GenericArrayType) resolvedType ).getGenericComponentType();
+                return isAssignableFrom( new Type[] { superComponent }, new Type[] { subComponent } );
+            }
+        }
         return false;
     }
 
@@ -166,24 +176,20 @@ public final class TypeParameters
             final Type superType = superArgs[i];
             final Type subType = subArgs[i];
 
-            if ( subType instanceof TypeVariable<?> )
+            /*
+             * Implementations could have unbound type variables, such as ArrayList<T>. We want to support injecting
+             * MyList<T extends Number> into List<Double>. This is why the isAssignableFrom parameters are reversed.
+             */
+            if ( subType instanceof TypeVariable<?> && isAssignableFrom( expand( subType ), expand( superType ) ) )
             {
-                /*
-                 * Implementations could have unbound type variables, such as ArrayList<T>. We want to support injecting
-                 * MyList<T extends Number> into List<Double>. This is why the isAssignableFrom parameters are reversed.
-                 */
-                if ( isAssignableFrom( expand( subType ), expand( superType ) ) )
-                {
-                    continue;
-                }
-                // fall-through...
+                continue;
             }
+            /*
+             * Interfaces can have wild-card types, such as List<? extends Number>. Note: we only check the initial
+             * upper-bound of the super-type against the resolved type (trading absolute accuracy for performance).
+             */
             if ( superType instanceof WildcardType || superType instanceof TypeVariable<?> )
             {
-                /*
-                 * Interfaces can have wild-card types, such as List<? extends Number>. Note: we only check the initial
-                 * upper-bound of the super-type against the resolved type (trading absolute accuracy for performance).
-                 */
                 if ( !isAssignableFrom( expand( superType ), expand( subType ) ) )
                 {
                     return false;
