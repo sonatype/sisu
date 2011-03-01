@@ -13,10 +13,16 @@ package org.sonatype.guice.bean.reflect;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 
 /**
@@ -29,13 +35,17 @@ public final class BundleClassSpace
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final Enumeration<URL> NO_URLS = Collections.enumeration( Collections.<URL> emptyList() );
+    private static final URL[] NO_URLS = new URL[0];
+
+    private static final Enumeration<URL> NO_ENTRIES = Collections.enumeration( Arrays.asList( NO_URLS ) );
 
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
     private final Bundle bundle;
+
+    private URL[] classPath;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -81,15 +91,23 @@ public final class BundleClassSpace
         }
         catch ( final IOException e )
         {
-            return NO_URLS;
+            return NO_ENTRIES;
         }
     }
 
-    public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
+    public synchronized Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
     {
+        if ( null == classPath )
+        {
+            classPath = getBundleClassPath( bundle );
+        }
+        if ( classPath.length > 0 )
+        {
+            return new ResourceEnumeration( path, glob, recurse, classPath );
+        }
         @SuppressWarnings( "unchecked" )
         final Enumeration<URL> e = bundle.findEntries( null != path ? path : "/", glob, recurse );
-        return null != e ? e : NO_URLS;
+        return null != e ? e : NO_ENTRIES;
     }
 
     public boolean loadedClass( final Class<?> clazz )
@@ -121,5 +139,34 @@ public final class BundleClassSpace
     public String toString()
     {
         return bundle.toString();
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private static URL[] getBundleClassPath( final Bundle bundle )
+    {
+        final String path = (String) bundle.getHeaders().get( Constants.BUNDLE_CLASSPATH );
+        if ( null == path || ".".equals( path.trim() ) )
+        {
+            return NO_URLS;
+        }
+
+        final List<URL> classPath = new ArrayList<URL>();
+        final Set<String> visited = new HashSet<String>();
+
+        for ( String entry : path.split( "\\s*,\\s*" ) )
+        {
+            if ( visited.add( entry ) )
+            {
+                final URL url = bundle.getEntry( entry );
+                if ( null != url )
+                {
+                    classPath.add( url );
+                }
+            }
+        }
+        return classPath.toArray( new URL[classPath.size()] );
     }
 }
