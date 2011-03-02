@@ -289,7 +289,6 @@ public class BeanImportTest
         Map<Named, Y> map;
     }
 
-    @SuppressWarnings( "rawtypes" )
     static class GenericInstance
         implements X
     {

@@ -17,23 +17,23 @@ public class LoggingExample
 {
     public LoggingExample()
     {
-        Logs.debug( getClass(), "", null, null );
-        Logs.debug( getClass(), "", "a", "b" );
-        Logs.debug( getClass(), "{", null, null );
-        Logs.debug( getClass(), "}", "a", "b" );
-        Logs.debug( getClass(), "}{", null, null );
-        Logs.debug( getClass(), "{}", "a", "b" );
-        Logs.debug( getClass(), "}{}", null, null );
-        Logs.debug( getClass(), "{{}", "a", "b" );
-        Logs.debug( getClass(), "{}{", null, null );
-        Logs.debug( getClass(), "{}}", "a", "b" );
-        Logs.debug( getClass(), "{{}}", null, null );
-        Logs.debug( getClass(), "}{}{", "a", "b" );
-        Logs.debug( getClass(), "{}{}", null, null );
-        Logs.debug( getClass(), "{}{}", "a", "b" );
-        Logs.debug( getClass(), "{{}}{{}}", null, null );
-        Logs.debug( getClass(), "{}-{}", "a", "b" );
+        Logs.debug( "", null, null );
+        Logs.debug( "", "a", "b" );
+        Logs.debug( "{", null, null );
+        Logs.debug( "}", "a", "b" );
+        Logs.debug( "}{", null, null );
+        Logs.debug( "{}", "a", "b" );
+        Logs.debug( "}{}", null, null );
+        Logs.debug( "{{}", "a", "b" );
+        Logs.debug( "{}{", null, null );
+        Logs.debug( "{}}", "a", "b" );
+        Logs.debug( "{{}}", null, null );
+        Logs.debug( "}{}{", "a", "b" );
+        Logs.debug( "{}{}", null, null );
+        Logs.debug( "{}{}", "a", "b" );
+        Logs.debug( "{{}}{{}}", null, null );
+        Logs.debug( "{}-{}", "a", "b" );
 
-        Logs.warn( getClass(), "oops", new UnexpectedException( "doh!" ) );
+        Logs.warn( "oops", new UnexpectedException( "doh!" ) );
     }
 }

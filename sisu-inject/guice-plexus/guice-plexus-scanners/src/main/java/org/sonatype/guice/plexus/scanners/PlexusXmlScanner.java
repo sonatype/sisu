@@ -172,7 +172,7 @@ public final class PlexusXmlScanner
         }
         catch ( final Throwable e )
         {
-            Logs.debug( getClass(), "Problem parsing resource: {} cause: {}", url, e );
+            Logs.debug( "Problem parsing: {} cause: {}", url, e );
         }
     }
 
@@ -209,7 +209,7 @@ public final class PlexusXmlScanner
         }
         catch ( final Throwable e )
         {
-            Logs.debug( getClass(), "Problem parsing resource: {} cause: {}", url, e );
+            Logs.debug( "Problem parsing: {} cause: {}", url, e );
         }
     }
 

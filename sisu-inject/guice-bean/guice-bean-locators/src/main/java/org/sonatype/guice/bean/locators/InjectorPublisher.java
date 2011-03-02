@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;

@@ -51,7 +51,7 @@ abstract class AbstractDeferredClass<T>
             final String message = "Error injecting: " + getName();
             try
             {
-                Logs.warn( getClass(), message, e );
+                Logs.warn( message, e );
             }
             finally
             {
