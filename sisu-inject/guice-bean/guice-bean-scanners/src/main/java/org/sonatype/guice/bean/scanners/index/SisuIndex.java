@@ -30,10 +30,25 @@ import org.sonatype.guice.bean.scanners.QualifiedTypeVisitor;
 /**
  * Command-line utility that generates a qualified class index for a space-separated list of JARs.
  */
-public final class QualifiedIndexCmd
+public final class SisuIndex
     extends AbstractSisuIndex
     implements QualifiedTypeListener
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final File targetDirectory;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    public SisuIndex( final File targetDirectory )
+    {
+        this.targetDirectory = targetDirectory;
+    }
+
     // ----------------------------------------------------------------------
     // Public entry points
     // ----------------------------------------------------------------------
@@ -46,23 +61,26 @@ public final class QualifiedIndexCmd
         {
             urls[i] = new File( args[i] ).toURI().toURL();
         }
-
-        final QualifiedIndexCmd indexer = new QualifiedIndexCmd();
-        try
-        {
-            final ClassLoader parent = QualifiedIndexCmd.class.getClassLoader();
-            final ClassLoader loader = urls.length > 0 ? URLClassLoader.newInstance( urls, parent ) : parent;
-            new ClassSpaceScanner( new URLClassSpace( loader ) ).accept( new QualifiedTypeVisitor( indexer ) );
-        }
-        finally
-        {
-            indexer.flushIndex();
-        }
+        new SisuIndex( new File( "." ) ).index( urls );
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
+
+    public void index( final URL... urls )
+    {
+        try
+        {
+            final ClassLoader parent = SisuIndex.class.getClassLoader();
+            final ClassLoader loader = urls.length > 0 ? URLClassLoader.newInstance( urls, parent ) : parent;
+            new ClassSpaceScanner( new URLClassSpace( loader ) ).accept( new QualifiedTypeVisitor( this ) );
+        }
+        finally
+        {
+            flushIndex();
+        }
+    }
 
     public void hear( final Annotation qualifier, final Class<?> qualifiedType, final Object source )
     {
@@ -89,14 +107,14 @@ public final class QualifiedIndexCmd
     protected Reader getReader( final String path )
         throws IOException
     {
-        return new FileReader( path );
+        return new FileReader( new File( targetDirectory, path ) );
     }
 
     @Override
     protected Writer getWriter( final String path )
         throws IOException
     {
-        final File index = new File( path );
+        final File index = new File( targetDirectory, path );
         final File parent = index.getParentFile();
         if ( parent.isDirectory() || parent.mkdirs() )
         {

@@ -14,9 +14,9 @@
  *
  * <p>The principal members of this package are:
  * <dl>
- * <dt>{@link org.sonatype.guice.bean.scanners.index.QualifiedIndexAPT6}
+ * <dt>{@link org.sonatype.guice.bean.scanners.index.SisuIndexAPT6}
  * <dd>Java 6 annotation processor.
- * <dt>{@link org.sonatype.guice.bean.scanners.index.QualifiedIndexCmd}
+ * <dt>{@link org.sonatype.guice.bean.scanners.index.SisuIndex}
  * <dd>Command-line tool.
  * </dl>
  */
