@@ -130,7 +130,7 @@ public final class SisuIndex
         final File parent = index.getParentFile();
         if ( parent.isDirectory() || parent.mkdirs() )
         {
-            return new FileWriter( index, true );
+            return new FileWriter( index );
         }
         throw new IOException( "Error creating: " + parent );
     }
