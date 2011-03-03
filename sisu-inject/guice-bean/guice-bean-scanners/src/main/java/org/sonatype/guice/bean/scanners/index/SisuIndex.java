@@ -21,7 +21,10 @@ import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
 import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
@@ -54,26 +57,35 @@ public final class SisuIndex
     // ----------------------------------------------------------------------
 
     public static void main( final String[] args )
-        throws MalformedURLException
     {
-        final URL[] urls = new URL[args.length];
-        for ( int i = 0; i < args.length; i++ )
+        final List<URL> classPath = new ArrayList<URL>( args.length );
+        for ( final String path : args )
         {
-            urls[i] = new File( args[i] ).toURI().toURL();
+            try
+            {
+                classPath.add( new File( path ).toURI().toURL() );
+            }
+            catch ( final MalformedURLException e )
+            {
+                Logs.warn( e.getLocalizedMessage(), null );
+            }
         }
-        new SisuIndex( new File( "." ) ).index( urls );
+        new SisuIndex( new File( "." ) ).index( classPath );
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public void index( final URL... urls )
+    public void index( final List<URL> classPath )
     {
+        final URL[] urls = classPath.toArray( new URL[classPath.size()] );
+
+        final ClassLoader parent = SisuIndex.class.getClassLoader();
+        final ClassLoader loader = urls.length > 0 ? URLClassLoader.newInstance( urls, parent ) : parent;
+
         try
         {
-            final ClassLoader parent = SisuIndex.class.getClassLoader();
-            final ClassLoader loader = urls.length > 0 ? URLClassLoader.newInstance( urls, parent ) : parent;
             new ClassSpaceScanner( new URLClassSpace( loader ) ).accept( new QualifiedTypeVisitor( this ) );
         }
         finally
