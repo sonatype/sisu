@@ -69,7 +69,7 @@ public final class SisuIndexFinder
             }
             catch ( final Throwable e )
             {
-                Logs.warn( "Problem reading: " + url, e );
+                Logs.warn( "Problem reading: {}", url, e );
             }
         }
         return Collections.enumeration( components );

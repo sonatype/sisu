@@ -156,7 +156,7 @@ public final class BundleClassSpace
         final List<URL> classPath = new ArrayList<URL>();
         final Set<String> visited = new HashSet<String>();
 
-        for ( String entry : path.split( "\\s*,\\s*" ) )
+        for ( final String entry : path.split( "\\s*,\\s*" ) )
         {
             if ( visited.add( entry ) )
             {

@@ -157,7 +157,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
             }
             catch ( final Throwable e )
             {
-                Logs.warn( "Problem mediating: " + bean, e );
+                Logs.warn( "Problem mediating: {}", bean, e );
             }
         }
     }

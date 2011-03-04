@@ -195,7 +195,7 @@ final class PlexusTypeRegistry
         }
         catch ( final Throwable e )
         {
-            Logs.debug( "Ignoring Plexus role: {} cause: {}", role, e );
+            Logs.debug( "Ignoring Plexus role: {}", role, e );
         }
         return null;
     }

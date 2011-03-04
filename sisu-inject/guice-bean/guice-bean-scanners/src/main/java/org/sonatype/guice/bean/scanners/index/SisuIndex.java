@@ -67,7 +67,7 @@ public final class SisuIndex
             }
             catch ( final MalformedURLException e )
             {
-                Logs.warn( e.getLocalizedMessage(), null );
+                Logs.warn( "Bad classpath element: {}", path, e );
             }
         }
         new SisuIndex( new File( "." ) ).index( classPath );

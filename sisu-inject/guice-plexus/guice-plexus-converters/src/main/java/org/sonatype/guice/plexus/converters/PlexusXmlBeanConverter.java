@@ -250,7 +250,7 @@ public final class PlexusXmlBeanConverter
             while ( parser.getEventType() == XmlPullParser.START_TAG )
             {
                 final String pos = parser.getPositionDescription();
-                Logs.warn( "Expected TEXT, not XML:" + pos, new Throwable() );
+                Logs.warn( "Expected TEXT, not XML: {}", pos, new Throwable() );
                 parser.skipSubTree();
                 parser.nextTag();
             }

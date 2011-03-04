@@ -417,7 +417,7 @@ public class BeanImportTest
             placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
             fail( "Expected ProvisionException" );
         }
-        catch (final ProvisionException e)
+        catch ( final ProvisionException e )
         {
             assertTrue( e.getMessage().contains( ">-<|>-<|${text}|}={|}={" ) );
         }

@@ -34,6 +34,6 @@ public class LoggingExample
         Logs.debug( "{{}}{{}}", null, null );
         Logs.debug( "{}-{}", "a", "b" );
 
-        Logs.warn( "oops", new UnexpectedException( "doh!" ) );
+        Logs.warn( "oops", null, new UnexpectedException( "doh!" ) );
     }
 }

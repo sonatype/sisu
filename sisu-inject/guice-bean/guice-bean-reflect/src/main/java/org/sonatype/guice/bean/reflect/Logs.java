@@ -71,7 +71,8 @@ public final class Logs
     // ----------------------------------------------------------------------
 
     /**
-     * Formats and logs the given debug message; uses "{}" formatting anchors.
+     * Formats and logs the given debug message; uses "{}" formatting anchors.<br>
+     * Note: pass {@link Throwable} values in the final parameter for special handling.
      * 
      * @param format The debug message format
      * @param arg1 First object to format
@@ -81,32 +82,64 @@ public final class Logs
     {
         if ( DEBUG_ENABLED )
         {
-            if ( SLF4J_ENABLED )
+            final String message = format( format( format, arg1 ), arg2 );
+            if ( arg2 instanceof Throwable )
             {
-                ( (org.slf4j.Logger) LOGGER ).debug( format, arg1, arg2 );
+                if ( SLF4J_ENABLED )
+                {
+                    ( (org.slf4j.Logger) LOGGER ).debug( message, (Throwable) arg2 );
+                }
+                else
+                {
+                    ( (Logger) LOGGER ).log( Level.FINE, message, (Throwable) arg2 );
+                }
             }
             else
             {
-                ( (Logger) LOGGER ).fine( format( format( format, arg1 ), arg2 ) );
+                if ( SLF4J_ENABLED )
+                {
+                    ( (org.slf4j.Logger) LOGGER ).debug( message );
+                }
+                else
+                {
+                    ( (Logger) LOGGER ).fine( message );
+                }
             }
         }
     }
 
     /**
-     * Logs the given warning message and cause.
+     * Formats and logs the given warning message; uses "{}" formatting anchors.<br>
+     * Note: pass {@link Throwable} values in the final parameter for special handling.
      * 
-     * @param message The warning message
-     * @param cause The cause
+     * @param format The warning message format
+     * @param arg1 First object to format
+     * @param arg2 Second object to format
      */
-    public static void warn( final String message, final Throwable cause )
+    public static void warn( final String format, final Object arg1, final Object arg2 )
     {
-        if ( SLF4J_ENABLED )
+        final String message = format( format( format, arg1 ), arg2 );
+        if ( arg2 instanceof Throwable )
         {
-            ( (org.slf4j.Logger) LOGGER ).warn( message, cause );
+            if ( SLF4J_ENABLED )
+            {
+                ( (org.slf4j.Logger) LOGGER ).warn( message, (Throwable) arg2 );
+            }
+            else
+            {
+                ( (Logger) LOGGER ).log( Level.WARNING, message, (Throwable) arg2 );
+            }
         }
         else
         {
-            ( (Logger) LOGGER ).log( java.util.logging.Level.WARNING, message, cause );
+            if ( SLF4J_ENABLED )
+            {
+                ( (org.slf4j.Logger) LOGGER ).warn( message );
+            }
+            else
+            {
+                ( (Logger) LOGGER ).warning( message );
+            }
         }
     }
 
@@ -132,7 +165,14 @@ public final class Logs
         {
             buf.append( format.substring( 0, cursor ) );
         }
-        buf.append( arg );
+        try
+        {
+            buf.append( arg );
+        }
+        catch ( final Throwable e )
+        {
+            buf.append( null != arg ? arg.getClass() : null );
+        }
         cursor += ANCHOR.length();
         if ( cursor < format.length() )
         {
