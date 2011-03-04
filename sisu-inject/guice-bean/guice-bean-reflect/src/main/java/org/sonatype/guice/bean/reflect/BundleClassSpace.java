@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.osgi.framework.Bundle;
@@ -95,19 +96,19 @@ public final class BundleClassSpace
         }
     }
 
+    @SuppressWarnings( "unchecked" )
     public synchronized Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
     {
         if ( null == classPath )
         {
             classPath = getBundleClassPath( bundle );
         }
+        final Enumeration<URL> entries = bundle.findEntries( null != path ? path : "/", glob, recurse );
         if ( classPath.length > 0 )
         {
-            return new ResourceEnumeration( path, glob, recurse, classPath );
+            return new ComboEnumeration<URL>( entries, new ResourceEnumeration( path, glob, recurse, classPath ) );
         }
-        @SuppressWarnings( "unchecked" )
-        final Enumeration<URL> e = bundle.findEntries( null != path ? path : "/", glob, recurse );
-        return null != e ? e : NO_ENTRIES;
+        return null != entries ? entries : NO_ENTRIES;
     }
 
     public boolean loadedClass( final Class<?> clazz )
@@ -168,5 +169,57 @@ public final class BundleClassSpace
             }
         }
         return classPath.toArray( new URL[classPath.size()] );
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    private static final class ComboEnumeration<T>
+        implements Enumeration<T>
+    {
+        private final Enumeration<T>[] enumerations;
+
+        private Enumeration<T> currentEnumeration;
+
+        private T nextElement;
+
+        private int index;
+
+        ComboEnumeration( final Enumeration<T>... enumerations )
+        {
+            this.enumerations = enumerations;
+        }
+
+        public boolean hasMoreElements()
+        {
+            while ( null == nextElement )
+            {
+                if ( null != currentEnumeration && currentEnumeration.hasMoreElements() )
+                {
+                    nextElement = currentEnumeration.nextElement();
+                }
+                else if ( index < enumerations.length )
+                {
+                    currentEnumeration = enumerations[index++];
+                }
+                else
+                {
+                    return false; // no more elements
+                }
+            }
+            return true;
+        }
+
+        public T nextElement()
+        {
+            if ( hasMoreElements() )
+            {
+                final T element = nextElement;
+                nextElement = null;
+                return element;
+            }
+            throw new NoSuchElementException();
+        }
     }
 }

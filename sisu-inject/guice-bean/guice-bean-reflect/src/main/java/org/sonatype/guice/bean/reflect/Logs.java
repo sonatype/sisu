@@ -71,8 +71,7 @@ public final class Logs
     // ----------------------------------------------------------------------
 
     /**
-     * Formats and logs the given debug message; uses "{}" formatting anchors.<br>
-     * Note: pass {@link Throwable} values in the final parameter for special handling.
+     * Logs a debug message; uses "{}" format anchors. Pass {@link Throwable}s in last parameter for special handling.
      * 
      * @param format The debug message format
      * @param arg1 First object to format
@@ -109,8 +108,7 @@ public final class Logs
     }
 
     /**
-     * Formats and logs the given warning message; uses "{}" formatting anchors.<br>
-     * Note: pass {@link Throwable} values in the final parameter for special handling.
+     * Logs a warning message; uses "{}" format anchors. Pass {@link Throwable}s in last parameter for special handling.
      * 
      * @param format The warning message format
      * @param arg1 First object to format
