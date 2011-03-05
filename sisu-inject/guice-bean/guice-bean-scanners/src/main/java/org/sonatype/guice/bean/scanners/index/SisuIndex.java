@@ -24,6 +24,8 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Named;
+
 import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
@@ -37,6 +39,12 @@ public final class SisuIndex
     extends AbstractSisuIndex
     implements QualifiedTypeListener
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    public static final String NAMED = Named.class.getName();
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -96,7 +104,7 @@ public final class SisuIndex
 
     public void hear( final Annotation qualifier, final Class<?> qualifiedType, final Object source )
     {
-        addClassToIndex( qualifier.annotationType().getName(), qualifiedType.getName() );
+        addClassToIndex( SisuIndex.NAMED, qualifiedType.getName() );
     }
 
     // ----------------------------------------------------------------------

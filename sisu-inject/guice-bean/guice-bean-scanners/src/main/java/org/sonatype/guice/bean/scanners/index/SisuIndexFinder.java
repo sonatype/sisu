@@ -40,7 +40,9 @@ public final class SisuIndexFinder
     {
         final List<URL> components = new ArrayList<URL>();
         final Set<String> visited = new HashSet<String>();
-        final Enumeration<URL> indices = space.findEntries( AbstractSisuIndex.SISU_INDEX_DIR, "*", false );
+
+        final Enumeration<URL> indices = space.findEntries( "META-INF/sisu/", SisuIndex.NAMED, false );
+
         while ( indices.hasMoreElements() )
         {
             final URL url = indices.nextElement();

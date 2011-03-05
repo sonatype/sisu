@@ -68,8 +68,7 @@ public final class SisuIndexAPT6
                 {
                     if ( elem.getKind().isClass() )
                     {
-                        addClassToIndex( elementUtils.getBinaryName( anno ),
-                                         elementUtils.getBinaryName( (TypeElement) elem ) );
+                        addClassToIndex( SisuIndex.NAMED, elementUtils.getBinaryName( (TypeElement) elem ) );
                     }
                 }
             }

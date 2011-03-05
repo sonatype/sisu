@@ -28,12 +28,6 @@ import java.util.Set;
 public abstract class AbstractSisuIndex
 {
     // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    public static final String SISU_INDEX_DIR = "META-INF/sisu/";
-
-    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
@@ -116,7 +110,7 @@ public abstract class AbstractSisuIndex
         final Set<String> table = new LinkedHashSet<String>();
         try
         {
-            final BufferedReader reader = new BufferedReader( getReader( SISU_INDEX_DIR + name ) );
+            final BufferedReader reader = new BufferedReader( getReader( "META-INF/sisu/" + name ) );
             try
             {
                 for ( String line = reader.readLine(); line != null; line = reader.readLine() )
@@ -140,7 +134,7 @@ public abstract class AbstractSisuIndex
     {
         try
         {
-            final BufferedWriter writer = new BufferedWriter( getWriter( SISU_INDEX_DIR + name ) );
+            final BufferedWriter writer = new BufferedWriter( getWriter( "META-INF/sisu/" + name ) );
             try
             {
                 for ( final String line : table )
