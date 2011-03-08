@@ -64,7 +64,7 @@ enum QualifyingStrategy
             final Class<? extends Annotation> markerType = requirement.getAnnotationType();
 
             final Annotation qualifier = qualify( binding.getKey() );
-            if ( markerType.isInstance( qualifier ) )
+            if ( null != qualifier && markerType == qualifier.annotationType() )
             {
                 return qualifier;
             }
@@ -132,10 +132,7 @@ enum QualifyingStrategy
      */
     static final Annotation qualify( final Key<?> key )
     {
-        if ( key instanceof WildcardKey )
-        {
-            return ( (WildcardKey) key ).getQualifier();
-        }
+        // map bindings with no annotation details (value/type) to the default qualifier
         return null != key.getAnnotationType() ? key.getAnnotation() : DEFAULT_QUALIFIER;
     }
 }
