@@ -106,7 +106,7 @@ public final class BundleClassSpace
         final Enumeration<URL> entries = bundle.findEntries( null != path ? path : "/", glob, recurse );
         if ( classPath.length > 0 )
         {
-            return new ComboEnumeration<URL>( entries, new ResourceEnumeration( path, glob, recurse, classPath ) );
+            return new ChainedEnumeration<URL>( entries, new ResourceEnumeration( path, glob, recurse, classPath ) );
         }
         return null != entries ? entries : NO_ENTRIES;
     }
@@ -149,7 +149,7 @@ public final class BundleClassSpace
     private static URL[] getBundleClassPath( final Bundle bundle )
     {
         final String path = (String) bundle.getHeaders().get( Constants.BUNDLE_CLASSPATH );
-        if ( null == path || ".".equals( path.trim() ) )
+        if ( null == path )
         {
             return NO_URLS;
         }
@@ -157,7 +157,9 @@ public final class BundleClassSpace
         final List<URL> classPath = new ArrayList<URL>();
         final Set<String> visited = new HashSet<String>();
 
-        for ( final String entry : path.split( "\\s*,\\s*" ) )
+        visited.add( "." );
+
+        for ( final String entry : path.trim().split( "\\s*,\\s*" ) )
         {
             if ( visited.add( entry ) )
             {
@@ -168,14 +170,14 @@ public final class BundleClassSpace
                 }
             }
         }
-        return classPath.toArray( new URL[classPath.size()] );
+        return classPath.isEmpty() ? NO_URLS : classPath.toArray( new URL[classPath.size()] );
     }
 
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private static final class ComboEnumeration<T>
+    private static final class ChainedEnumeration<T>
         implements Enumeration<T>
     {
         private final Enumeration<T>[] enumerations;
@@ -186,7 +188,7 @@ public final class BundleClassSpace
 
         private int index;
 
-        ComboEnumeration( final Enumeration<T>... enumerations )
+        ChainedEnumeration( final Enumeration<T>... enumerations )
         {
             this.enumerations = enumerations;
         }

@@ -50,7 +50,34 @@ public class ResourceEnumerationTest
         }
     }
 
-    public void testStarredEnumeration()
+    public void testFixedEnumeration()
+    {
+        final Enumeration<URL> e1 =
+            new ResourceEnumeration( "org/apache/commons/logging", "LogFactory.clazz", false,
+                                     new URL[] { COMMONS_LOGGING_JAR } );
+
+        assertFalse( e1.hasMoreElements() );
+
+        final Enumeration<URL> e2 =
+            new ResourceEnumeration( "org/apache/commons/logging", "LogFactory.class", false,
+                                     new URL[] { COMMONS_LOGGING_JAR } );
+
+        final String prefix = COMMONS_LOGGING_JAR + "!/";
+        assertEquals( prefix + "org/apache/commons/logging/LogFactory.class", e2.nextElement().getPath() );
+        assertFalse( e2.hasMoreElements() );
+    }
+
+    public void testRecursiveEnumeration()
+    {
+        final Enumeration<URL> e =
+            new ResourceEnumeration( "/", "LogFactory.class", true, new URL[] { COMMONS_LOGGING_JAR } );
+
+        final String prefix = COMMONS_LOGGING_JAR + "!/";
+        assertEquals( prefix + "org/apache/commons/logging/LogFactory.class", e.nextElement().getPath() );
+        assertFalse( e.hasMoreElements() );
+    }
+
+    public void testGlobbedEnumeration()
     {
         int n = 0;
         final Enumeration<URL> e = new ResourceEnumeration( "/", "*", true, new URL[] { COMMONS_LOGGING_JAR } );
@@ -60,16 +87,6 @@ public class ResourceEnumerationTest
             n++;
         }
         assertEquals( 33, n );
-    }
-
-    public void testNoStarEnumeration()
-    {
-        final Enumeration<URL> e =
-            new ResourceEnumeration( "/", "LogFactory.class", true, new URL[] { COMMONS_LOGGING_JAR } );
-
-        final String prefix = COMMONS_LOGGING_JAR + "!/";
-        assertEquals( prefix + "org/apache/commons/logging/LogFactory.class", e.nextElement().getPath() );
-        assertFalse( e.hasMoreElements() );
     }
 
     public void testGlobbedEnumerationStart()

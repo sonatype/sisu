@@ -15,6 +15,15 @@ import java.rmi.UnexpectedException;
 
 public class LoggingExample
 {
+    static class BadValue
+    {
+        @Override
+        public String toString()
+        {
+            throw new RuntimeException( "sigh" );
+        }
+    }
+
     public LoggingExample()
     {
         Logs.debug( "", null, null );
@@ -34,6 +43,29 @@ public class LoggingExample
         Logs.debug( "{{}}{{}}", null, null );
         Logs.debug( "{}-{}", "a", "b" );
 
-        Logs.warn( "oops", null, new UnexpectedException( "doh!" ) );
+        Logs.debug( "{} {}", new BadValue(), new BadValue() );
+
+        Logs.debug( "Error: {} cause: {}", "oops", new UnexpectedException( "doh!" ) );
+
+        Logs.warn( "", null, null );
+        Logs.warn( "", "a", "b" );
+        Logs.warn( "{", null, null );
+        Logs.warn( "}", "a", "b" );
+        Logs.warn( "}{", null, null );
+        Logs.warn( "{}", "a", "b" );
+        Logs.warn( "}{}", null, null );
+        Logs.warn( "{{}", "a", "b" );
+        Logs.warn( "{}{", null, null );
+        Logs.warn( "{}}", "a", "b" );
+        Logs.warn( "{{}}", null, null );
+        Logs.warn( "}{}{", "a", "b" );
+        Logs.warn( "{}{}", null, null );
+        Logs.warn( "{}{}", "a", "b" );
+        Logs.warn( "{{}}{{}}", null, null );
+        Logs.warn( "{}-{}", "a", "b" );
+
+        Logs.warn( "{} {}", new BadValue(), new BadValue() );
+
+        Logs.warn( "Error: {} cause: {}", "oops", new UnexpectedException( "doh!" ) );
     }
 }

@@ -169,7 +169,7 @@ public final class Logs
         }
         catch ( final Throwable e )
         {
-            buf.append( null != arg ? arg.getClass() : null );
+            buf.append( arg.getClass() );
         }
         cursor += ANCHOR.length();
         if ( cursor < format.length() )
