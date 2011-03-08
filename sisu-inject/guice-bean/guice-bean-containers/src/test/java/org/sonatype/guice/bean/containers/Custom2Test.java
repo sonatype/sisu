@@ -13,10 +13,12 @@ package org.sonatype.guice.bean.containers;
 
 import javax.inject.Inject;
 
+import org.testng.Assert;
+
 import com.google.inject.Binder;
 
-public final class Custom2TestCase
-    extends InjectedTestCase
+public final class Custom2Test
+    extends InjectedTest
 {
     @Override
     public void configure( final Binder binder )
@@ -30,6 +32,6 @@ public final class Custom2TestCase
 
     public void testPerTestCaseCustomization()
     {
-        assertTrue( bean instanceof TaggedFoo );
+        Assert.assertTrue( bean instanceof TaggedFoo );
     }
 }

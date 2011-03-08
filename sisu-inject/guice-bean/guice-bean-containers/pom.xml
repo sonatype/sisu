@@ -67,6 +67,11 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.sonatype.sisu.inject</groupId>
       <artifactId>guice-assistedinject</artifactId>
       <version>${sisu.guice.version}</version>
