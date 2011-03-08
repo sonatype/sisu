@@ -240,35 +240,33 @@ public class QualifiedTypesTest
 
     private void checkDefaultBinding( final Class<?> api, final Class<?> imp )
     {
-        assertEquals( imp, injector.getInstance( Key.get( api ) ).getClass() );
-
         final Annotation defaultName = Names.named( "default" );
 
-        assertEquals( imp, locator.locate( Key.get( api ) ).iterator().next().getValue().getClass() );
-        assertEquals( imp, locator.locate( Key.get( api, Named.class ) ).iterator().next().getValue().getClass() );
-        assertEquals( imp, locator.locate( Key.get( api, defaultName ) ).iterator().next().getValue().getClass() );
+        assertSame( imp, locator.locate( Key.get( api ) ).iterator().next().getImplementationClass() );
+        assertSame( imp, locator.locate( Key.get( api, Named.class ) ).iterator().next().getImplementationClass() );
+        assertSame( imp, locator.locate( Key.get( api, defaultName ) ).iterator().next().getImplementationClass() );
     }
 
     private void checkNamedBinding( final Class<?> api, final String name, final Class<?> imp )
     {
-        assertEquals( imp, injector.getInstance( Key.get( api, Names.named( name ) ) ).getClass() );
+        assertSame( imp,
+                    locator.locate( Key.get( api, Names.named( name ) ) ).iterator().next().getImplementationClass() );
     }
 
     private void checkLegacyBinding( final Class<?> api, final Class<?> imp )
     {
-        assertEquals( imp, injector.getInstance( Key.get( api, Names.named( imp.getName() ) ) ).getClass() );
+        assertSame( imp, locator.locate( Key.get( api, Legacy.class ) ).iterator().next().getImplementationClass() );
     }
 
     public void testQualifiedBindings()
     {
         checkDefaultBinding( DefaultB01.class, DefaultB01.class );
+        checkDefaultBinding( DefaultB02.class, DefaultB02.class );
         checkDefaultBinding( DefaultB03.class, DefaultB03.class );
         checkDefaultBinding( DefaultB04.class, DefaultB04.class );
 
         checkDefaultBinding( Thread.class, B01.class );
         checkDefaultBinding( B04.class, B04.class );
-
-        checkNamedBinding( EventListener.class, DefaultB02.class.getName(), DefaultB02.class );
 
         checkNamedBinding( EventListener.class, B02.class.getName(), B02.class );
         checkNamedBinding( EventListener.class, B03.class.getName(), B03.class );
