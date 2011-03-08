@@ -30,8 +30,6 @@ import org.sonatype.inject.Mediator;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.name.Names;
 
 public class BeanWatcherTest
     extends TestCase
@@ -159,12 +157,8 @@ public class BeanWatcherTest
         assertTrue( namedItemWatcher.items.get( CItem.class.getName() ) instanceof CItem );
         assertTrue( namedItemWatcher.items.get( DItem.class.getName() ) instanceof DItem );
 
-        assertNotSame( namedItemWatcher.items.get( AItem.class.getName() ),
-                       injector.getInstance( Key.get( Item.class, Names.named( AItem.class.getName() ) ) ) );
-
-        assertSame( namedItemWatcher.items.get( CItem.class.getName() ),
-                    injector.getInstance( Key.get( Item.class, Names.named( CItem.class.getName() ) ) ) );
-
+        assertNotSame( namedItemWatcher.items.get( AItem.class.getName() ), injector.getInstance( AItem.class ) );
+        assertSame( namedItemWatcher.items.get( CItem.class.getName() ), injector.getInstance( CItem.class ) );
         assertTrue( markedItemWatcher.items.get( Integer.valueOf( 0 ) ) instanceof BItem );
         assertTrue( markedItemWatcher.items.get( Integer.valueOf( 1 ) ) instanceof DItem );
 
