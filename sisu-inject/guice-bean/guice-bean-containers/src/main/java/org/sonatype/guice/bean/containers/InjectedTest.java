@@ -22,7 +22,6 @@ import javax.inject.Inject;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.runners.JUnit4;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
@@ -30,7 +29,6 @@ import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.inject.BeanScanning;
-import org.testng.TestNG;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
@@ -42,7 +40,7 @@ import com.google.inject.Module;
 import com.google.inject.name.Names;
 
 /**
- * Abstract {@link TestNG}/{@link JUnit4} test that automatically binds and injects itself.
+ * Abstract TestNG/JUnit4 test that automatically binds and injects itself.
  */
 public abstract class InjectedTest
     implements Module

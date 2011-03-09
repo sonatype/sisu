@@ -92,18 +92,20 @@
   </dependencies>
 
   <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <forkMode>once</forkMode>
-          <excludes>
-            <exclude>**/Test*.java</exclude>
-            <exclude>**/Abstract*.java</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-    </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <forkMode>once</forkMode>
+            <excludes>
+              <exclude>**/Test*.java</exclude>
+              <exclude>**/Abstract*.java</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 
 </project>

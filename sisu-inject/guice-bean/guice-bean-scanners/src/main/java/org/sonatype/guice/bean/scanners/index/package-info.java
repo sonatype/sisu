@@ -10,14 +10,16 @@
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
 /**
- * Qualified class index support {@value org.sonatype.guice.bean.scanners.index.AbstractSisuIndex#SISU_INDEX_DIR}.
+ * Qualified class index support (META-INF/sisu).
  *
  * <p>The principal members of this package are:
  * <dl>
+ * <dt>{@link org.sonatype.guice.bean.scanners.index.SisuIndex}
+ * <dd>Command-line indexing tool.
  * <dt>{@link org.sonatype.guice.bean.scanners.index.SisuIndexAPT6}
  * <dd>Java 6 annotation processor.
- * <dt>{@link org.sonatype.guice.bean.scanners.index.SisuIndex}
- * <dd>Command-line tool.
+ * <dt>{@link org.sonatype.guice.bean.scanners.index.SisuIndexFinder}
+ * <dd>Index-driven {@link org.sonatype.guice.bean.scanners.ClassFinder}.
  * </dl>
  */
 package org.sonatype.guice.bean.scanners.index;

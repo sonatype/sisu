@@ -51,6 +51,17 @@
       <artifactId>guice-plexus-shim</artifactId>
       <optional>true</optional>
     </dependency>
+    <!-- used by javadoc -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 
   <build>
@@ -68,21 +79,24 @@
             <Bundle-SymbolicName>
               org.sonatype.inject.plexus;singleton:=true
             </Bundle-SymbolicName>
-            <Fragment-Host>
-              org.sonatype.inject
-            </Fragment-Host>
             <DynamicImport-Package>
-              org.slf4j,junit.framework
+              org.slf4j
             </DynamicImport-Package>
             <Export-Package>
-              org.codehaus.plexus.*;-noimport:=true;-split-package:=merge-first
+              <!-- our Plexus shim API -->
+              org.codehaus.plexus.*;-split-package:=merge-first,
+              <!-- our implementation APIs -->
+              org.sonatype.guice.plexus.*;x-internal:=true;version=${project.version}
             </Export-Package>
-            <Private-Package>
-              META-INF.plexus,org.sonatype.guice.plexus.*
-            </Private-Package>
             <Import-Package>
-              !org.sonatype.guice.bean.*,*
+              <!-- Guice, Plexus, and Sisu APIs are required -->
+              com.google.*,org.codehaus.*,org.sonatype.*,
+              <!-- everything else is optional -->
+              *;resolution:=optional
             </Import-Package>
+            <Private-Package>
+              META-INF.plexus
+            </Private-Package>
           </instructions>
         </configuration>
       </plugin>
@@ -131,13 +145,21 @@
               </execution>
             </executions>
           </plugin>
-          <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-              <sourcepath>${project.build.directory}/aggregate-sources</sourcepath>
-            </configuration>
-          </plugin>
         </plugins>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <configuration>
+                <sourcepath>${project.build.directory}/aggregate-sources</sourcepath>
+                <links>
+                  <link>http://slf4j.org/apidocs/</link>
+                  <link>http://junit.org/apidocs/</link>
+                </links>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
       </build>
     </profile>
   </profiles>
