@@ -146,6 +146,12 @@ public final class BundleClassSpace
     // Implementation methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Returns the expanded Bundle-ClassPath; we need this to iterate over embedded JARs.
+     * 
+     * @param bundle The bundle
+     * @return URL class path
+     */
     private static URL[] getBundleClassPath( final Bundle bundle )
     {
         final String path = (String) bundle.getHeaders().get( Constants.BUNDLE_CLASSPATH );
@@ -174,12 +180,19 @@ public final class BundleClassSpace
     }
 
     // ----------------------------------------------------------------------
-    // Implementation methods
+    // Implementation types
     // ----------------------------------------------------------------------
 
+    /**
+     * Chains a series of {@link Enumeration}s together to look like a single {@link Enumeration}.
+     */
     private static final class ChainedEnumeration<T>
         implements Enumeration<T>
     {
+        // ----------------------------------------------------------------------
+        // Implementation methods
+        // ----------------------------------------------------------------------
+
         private final Enumeration<T>[] enumerations;
 
         private Enumeration<T> currentEnumeration;
@@ -188,10 +201,18 @@ public final class BundleClassSpace
 
         private int index;
 
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
         ChainedEnumeration( final Enumeration<T>... enumerations )
         {
             this.enumerations = enumerations;
         }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
 
         public boolean hasMoreElements()
         {
