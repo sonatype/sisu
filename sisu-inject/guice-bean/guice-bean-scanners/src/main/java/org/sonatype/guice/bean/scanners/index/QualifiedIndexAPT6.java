@@ -101,7 +101,7 @@ public final class QualifiedIndexAPT6
 
     public SourceVersion getSupportedSourceVersion()
     {
-        return SourceVersion.RELEASE_5;
+        return SourceVersion.RELEASE_6;
     }
 
     // ----------------------------------------------------------------------
