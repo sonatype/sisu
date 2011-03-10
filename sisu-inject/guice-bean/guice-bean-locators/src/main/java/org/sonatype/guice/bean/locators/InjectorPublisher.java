@@ -129,6 +129,12 @@ final class InjectorPublisher
         return false;
     }
 
+    @Override
+    public String toString()
+    {
+        return injector.toString();
+    }
+
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------

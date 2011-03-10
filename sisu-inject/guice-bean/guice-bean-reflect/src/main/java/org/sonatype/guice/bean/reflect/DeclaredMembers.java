@@ -62,7 +62,7 @@ public final class DeclaredMembers
         // Constants
         // ----------------------------------------------------------------------
 
-        private static final Member[] NO_MEMBERS = new Member[0];
+        private static final Member[] NO_MEMBERS = {};
 
         // ----------------------------------------------------------------------
         // Implementation fields

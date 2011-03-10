@@ -104,7 +104,7 @@
               org.aopalliance.aop,org.aopalliance.intercept,
               <!-- Guice and OSGi APIs are required -->
               com.google.*,org.osgi.*,
-	      <!-- everything else is optional -->
+              <!-- everything else is optional -->
               *;resolution:=optional
             </Import-Package>
           </instructions>

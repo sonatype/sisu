@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.sonatype.guice.bean.reflect.DeferredProvider;
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binding;
@@ -145,6 +146,7 @@ final class DependencyAnalyzer
                 }
                 catch ( final Throwable e )
                 {
+                    Logs.debug( "Ignore: {}", type, e );
                     result = false;
                 }
             }

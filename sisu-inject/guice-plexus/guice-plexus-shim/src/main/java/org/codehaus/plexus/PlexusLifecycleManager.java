@@ -28,6 +28,7 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
 import org.sonatype.guice.bean.inject.BeanListener;
 import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 
 import com.google.inject.ProvisionException;
@@ -262,6 +263,7 @@ final class PlexusLifecycleManager
 
     private void contextualize( final Contextualizable bean )
     {
+        Logs.debug( "Contextualize: {}", bean.getClass(), null );
         try
         {
             bean.contextualize( context );
@@ -280,6 +282,7 @@ final class PlexusLifecycleManager
 
     private void initialize( final Initializable bean )
     {
+        Logs.debug( "Initialize: {}", bean.getClass(), null );
         try
         {
             bean.initialize();
@@ -298,6 +301,7 @@ final class PlexusLifecycleManager
 
     private void start( final Startable bean )
     {
+        Logs.debug( "Start: {}", bean.getClass(), null );
         try
         {
             bean.start();
@@ -316,6 +320,7 @@ final class PlexusLifecycleManager
 
     private void stop( final Startable bean )
     {
+        Logs.debug( "Stop: {}", bean.getClass(), null );
         try
         {
             bean.stop();
@@ -328,6 +333,7 @@ final class PlexusLifecycleManager
 
     private void dispose( final Disposable bean )
     {
+        Logs.debug( "Dispose: {}", bean.getClass(), null );
         try
         {
             bean.dispose();

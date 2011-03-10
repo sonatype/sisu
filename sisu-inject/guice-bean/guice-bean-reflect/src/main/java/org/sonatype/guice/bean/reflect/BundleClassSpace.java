@@ -36,7 +36,7 @@ public final class BundleClassSpace
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final URL[] NO_URLS = new URL[0];
+    private static final URL[] NO_URLS = {};
 
     private static final Enumeration<URL> NO_ENTRIES = Collections.enumeration( Arrays.asList( NO_URLS ) );
 

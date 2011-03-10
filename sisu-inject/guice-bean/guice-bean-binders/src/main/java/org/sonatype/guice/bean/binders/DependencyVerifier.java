@@ -13,6 +13,8 @@ package org.sonatype.guice.bean.binders;
 
 import java.lang.reflect.Modifier;
 
+import org.sonatype.guice.bean.reflect.Logs;
+
 import com.google.inject.Binding;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.BindingTargetVisitor;
@@ -67,6 +69,7 @@ final class DependencyVerifier
         }
         catch ( final Throwable e )
         {
+            Logs.debug( "Ignore: {}", type, e );
             return Boolean.FALSE;
         }
     }
