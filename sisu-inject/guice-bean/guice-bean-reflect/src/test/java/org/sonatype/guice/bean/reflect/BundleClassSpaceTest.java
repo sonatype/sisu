@@ -18,6 +18,7 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.jar.Manifest;
 
 import junit.framework.TestCase;
@@ -34,8 +35,13 @@ import org.osgi.framework.launch.Framework;
 public class BundleClassSpaceTest
     extends TestCase
 {
-    private static final URL COMMONS_LOGGING_JAR =
-        ZipEntryIteratorTest.class.getClassLoader().getResource( "commons-logging-1.1.1.jar" );
+    private static final URL EMPTY_BUNDLE = ZipEntryIteratorTest.class.getClassLoader().getResource( "empty.jar" );
+
+    private static final URL SIMPLE_BUNDLE =
+        ZipEntryIteratorTest.class.getClassLoader().getResource( "simple_bundle.jar" );
+
+    private static final URL LOGGING_BUNDLE =
+        ZipEntryIteratorTest.class.getClassLoader().getResource( "logging_bundle.jar" );
 
     private Framework framework;
 
@@ -67,7 +73,7 @@ public class BundleClassSpaceTest
     public void testHashCodeAndEquals()
         throws Exception
     {
-        final Bundle testBundle = framework.getBundleContext().installBundle( COMMONS_LOGGING_JAR.toString() );
+        final Bundle testBundle = framework.getBundleContext().installBundle( LOGGING_BUNDLE.toString() );
         final ClassSpace space = new BundleClassSpace( testBundle );
 
         assertEquals( space, space );
@@ -114,7 +120,7 @@ public class BundleClassSpaceTest
     public void testClassMembership()
         throws Exception
     {
-        final Bundle testBundle = framework.getBundleContext().installBundle( COMMONS_LOGGING_JAR.toString() );
+        final Bundle testBundle = framework.getBundleContext().installBundle( LOGGING_BUNDLE.toString() );
         final ClassSpace space = new BundleClassSpace( testBundle );
 
         assertTrue( space.loadedClass( space.loadClass( "org.apache.commons.logging.Log" ) ) );
@@ -124,25 +130,63 @@ public class BundleClassSpaceTest
     public void testClassSpaceResources()
         throws Exception
     {
-        final Bundle testBundle = framework.getBundleContext().installBundle( COMMONS_LOGGING_JAR.toString() );
-        final ClassSpace space = new BundleClassSpace( testBundle );
+        final Bundle testBundle1 = framework.getBundleContext().installBundle( LOGGING_BUNDLE.toString() );
+        final ClassSpace space1 = new BundleClassSpace( testBundle1 );
+
+        final Bundle testBundle2 = framework.getBundleContext().installBundle( SIMPLE_BUNDLE.toString() );
+        final ClassSpace space2 = new BundleClassSpace( testBundle2 );
+
+        final Bundle testBundle3 = framework.getBundleContext().installBundle( EMPTY_BUNDLE.toString() );
+        final ClassSpace space3 = new BundleClassSpace( testBundle3 );
 
         Enumeration<URL> e;
 
-        e = space.getResources( "META-INF/MANIFEST.MF" );
+        // logging bundle class-path has repeated entries...
+        e = space1.getResources( "META-INF/MANIFEST.MF" );
         assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().toString().matches( "bundle://.*/META-INF/MANIFEST.MF" ) );
+        assertTrue( e.nextElement().toString().matches( "bundle://.*/META-INF/MANIFEST.MF" ) );
+        assertTrue( e.nextElement().toString().matches( "bundle://.*/META-INF/MANIFEST.MF" ) );
+        assertTrue( e.nextElement().toString().matches( "bundle://.*/META-INF/MANIFEST.MF" ) );
         assertTrue( e.nextElement().toString().matches( "bundle://.*/META-INF/MANIFEST.MF" ) );
         assertFalse( e.hasMoreElements() );
 
-        e = space.findEntries( "META-INF", "*.MF", false );
+        // ...which we try to collapse when using find
+        e = space1.findEntries( "META-INF", "*.MF", false );
         assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().toString().matches( "bundle://.*/META-INF/MANIFEST.MF" ) );
+        assertTrue( e.nextElement().toString().matches( "jar:bundle://.*!/META-INF/MANIFEST.MF" ) );
+        assertFalse( e.hasMoreElements() );
+
+        try
+        {
+            e.nextElement();
+            fail( "Expected NoSuchElementException" );
+        }
+        catch ( final NoSuchElementException t )
+        {
+        }
+
+        e = space2.findEntries( "a/b", "*", true );
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().toString().matches( "bundle://.*/a/b/2" ) );
+        assertTrue( e.nextElement().toString().matches( "bundle://.*/a/b/c/" ) );
+        assertTrue( e.nextElement().toString().matches( "bundle://.*/a/b/c/3" ) );
+        assertFalse( e.hasMoreElements() );
+
+        e = space3.findEntries( "", "*", true );
+        assertTrue( e.nextElement().toString().matches( "bundle://.*/META-INF/" ) );
         assertTrue( e.nextElement().toString().matches( "bundle://.*/META-INF/MANIFEST.MF" ) );
         assertFalse( e.hasMoreElements() );
 
-        e = space.findEntries( null, "missing", true );
+        e = space1.findEntries( null, "missing", true );
+        assertFalse( e.hasMoreElements() );
+        e = space2.findEntries( null, "missing", true );
+        assertFalse( e.hasMoreElements() );
+        e = space3.findEntries( null, "missing", true );
         assertFalse( e.hasMoreElements() );
 
-        final URL manifestURL = space.getResource( "META-INF/MANIFEST.MF" );
+        final URL manifestURL = space1.getResource( "META-INF/MANIFEST.MF" );
         assertNotNull( manifestURL );
         new Manifest( manifestURL.openStream() );
     }
@@ -150,7 +194,7 @@ public class BundleClassSpaceTest
     public void testDeferredClass()
         throws Exception
     {
-        final Bundle testBundle = framework.getBundleContext().installBundle( COMMONS_LOGGING_JAR.toString() );
+        final Bundle testBundle = framework.getBundleContext().installBundle( LOGGING_BUNDLE.toString() );
         final ClassSpace space = new BundleClassSpace( testBundle );
 
         final String clazzName = "org.apache.commons.logging.Log";

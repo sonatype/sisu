@@ -14,12 +14,13 @@ package org.sonatype.guice.bean.reflect;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 
 import com.google.inject.TypeLiteral;
 
 /**
- * Utility methods for dealing with generic type parameters.
+ * Utility methods for dealing with generic type parameters and arguments.
  */
 public final class TypeParameters
 {
@@ -45,23 +46,23 @@ public final class TypeParameters
     // ----------------------------------------------------------------------
 
     /**
-     * Get all type parameters from a generic type, for example {@code [Foo,Bar]} from {@code Map<Foo,Bar>}.
+     * Get all type arguments from a generic type, for example {@code [Foo,Bar]} from {@code Map<Foo,Bar>}.
      * 
-     * @param genericType The generic type
-     * @return Array of type parameters
+     * @param typeLiteral The generic type
+     * @return Array of type arguments
      */
-    public static TypeLiteral<?>[] get( final TypeLiteral<?> genericType )
+    public static TypeLiteral<?>[] get( final TypeLiteral<?> typeLiteral )
     {
-        final Type type = genericType.getType();
+        final Type type = typeLiteral.getType();
         if ( type instanceof ParameterizedType )
         {
-            final Type[] arguments = ( (ParameterizedType) type ).getActualTypeArguments();
-            final TypeLiteral<?>[] parameters = new TypeLiteral[arguments.length];
-            for ( int i = 0; i < arguments.length; i++ )
+            final Type[] argumentTypes = ( (ParameterizedType) type ).getActualTypeArguments();
+            final TypeLiteral<?>[] argumentLiterals = new TypeLiteral[argumentTypes.length];
+            for ( int i = 0; i < argumentTypes.length; i++ )
             {
-                parameters[i] = expand( arguments[i] );
+                argumentLiterals[i] = expand( argumentTypes[i] );
             }
-            return parameters;
+            return argumentLiterals;
         }
         if ( type instanceof GenericArrayType )
         {
@@ -71,15 +72,15 @@ public final class TypeParameters
     }
 
     /**
-     * Get an indexed type parameter from a generic type, for example {@code Bar} from {@code Map<Foo,Bar>}.
+     * Get an indexed type argument from a generic type, for example {@code Bar} from {@code Map<Foo,Bar>}.
      * 
-     * @param genericType The generic type
-     * @param index The parameter index
-     * @return Indexed type parameter; {@code TypeLiteral<Object>} if the given type is a raw class
+     * @param typeLiteral The generic type
+     * @param index The argument index
+     * @return Indexed type argument; {@code TypeLiteral<Object>} if the given type is a raw class
      */
-    public static TypeLiteral<?> get( final TypeLiteral<?> genericType, final int index )
+    public static TypeLiteral<?> get( final TypeLiteral<?> typeLiteral, final int index )
     {
-        final Type type = genericType.getType();
+        final Type type = typeLiteral.getType();
         if ( type instanceof ParameterizedType )
         {
             return expand( ( (ParameterizedType) type ).getActualTypeArguments()[index] );
@@ -96,49 +97,46 @@ public final class TypeParameters
     }
 
     /**
-     * Determines if the subType can be converted to the generic superType via an identity or widening conversion.
+     * Determines if the sub-type can be converted to the generic super-type via an identity or widening conversion.
      * 
-     * @param superType The superType
-     * @param subType The subType
-     * @return {@code 1} if it is strongly assignable; {@code -1} if it is weakly assignable; otherwise {@code 0}
+     * @param superLiteral The generic super-type
+     * @param subLiteral The generic sub-type
+     * @return {@code true} if the sub-type can be converted to the generic super-type; otherwise {@code false}
      * @see Class#isAssignableFrom(Class)
      */
-    public static int isAssignableFrom( final TypeLiteral<?> superType, final TypeLiteral<?> subType )
+    public static boolean isAssignableFrom( final TypeLiteral<?> superLiteral, final TypeLiteral<?> subLiteral )
     {
-        final Class<?> superClazz = superType.getRawType();
-        final Class<?> subClazz = subType.getRawType();
-
-        if ( !superClazz.isAssignableFrom( subClazz ) )
+        final Class<?> superClazz = superLiteral.getRawType();
+        if ( !superClazz.isAssignableFrom( subLiteral.getRawType() ) )
         {
-            return 0; // raw types don't match -> bail out
+            return false;
         }
-
-        if ( superClazz == superType.getType() )
+        final Type superType = superLiteral.getType();
+        if ( superClazz == superType )
         {
-            return 1; // no generic types involved -> OK!
+            return true;
         }
-
-        int result = 1;
-        final TypeLiteral<?>[] superParams = TypeParameters.get( superType );
-        if ( superParams.length > 0 )
+        if ( superType instanceof ParameterizedType )
         {
-            // all parameters must be assignable for the generic type to be assignable
-            final TypeLiteral<?>[] subParams = TypeParameters.get( subType.getSupertype( superClazz ) );
-            for ( int i = 0, len = Math.min( superParams.length, subParams.length ); i < len; i++ )
+            final Type resolvedType = subLiteral.getSupertype( superClazz ).getType();
+            if ( resolvedType instanceof ParameterizedType )
             {
-                final int paramResult = isAssignableFrom( superParams[i], subParams[i] );
-                if ( paramResult == 0 && Object.class != subParams[i].getRawType() )
-                {
-                    return 0; // parameter not assignable, and not "place-holder" like <T>
-                }
-                if ( paramResult <= 0 )
-                {
-                    result = -1; // "place-holder" parameters like <T> are weakly assignable
-                }
+                final Type[] superArgs = ( (ParameterizedType) superType ).getActualTypeArguments();
+                final Type[] subArgs = ( (ParameterizedType) resolvedType ).getActualTypeArguments();
+                return isAssignableFrom( superArgs, subArgs );
             }
         }
-
-        return result;
+        else if ( superType instanceof GenericArrayType )
+        {
+            final Type resolvedType = subLiteral.getSupertype( superClazz ).getType();
+            if ( resolvedType instanceof GenericArrayType )
+            {
+                final Type superComponent = ( (GenericArrayType) superType ).getGenericComponentType();
+                final Type subComponent = ( (GenericArrayType) resolvedType ).getGenericComponentType();
+                return isAssignableFrom( new Type[] { superComponent }, new Type[] { subComponent } );
+            }
+        }
+        return false;
     }
 
     // ----------------------------------------------------------------------
@@ -153,6 +151,58 @@ public final class TypeParameters
      */
     private static TypeLiteral<?> expand( final Type type )
     {
-        return TypeLiteral.get( type instanceof WildcardType ? ( (WildcardType) type ).getUpperBounds()[0] : type );
+        if ( type instanceof WildcardType )
+        {
+            return TypeLiteral.get( ( (WildcardType) type ).getUpperBounds()[0] );
+        }
+        if ( type instanceof TypeVariable<?> )
+        {
+            return TypeLiteral.get( ( (TypeVariable<?>) type ).getBounds()[0] );
+        }
+        return TypeLiteral.get( type );
+    }
+
+    /**
+     * Determines whether the resolved sub-type arguments can be assigned to their generic super-type arguments.
+     * 
+     * @param superArgs The generic super-arguments
+     * @param subArgs The resolved sub-arguments
+     * @return {@code true} if all the super-arguments have assignable resolved arguments; otherwise {@code false}
+     */
+    private static boolean isAssignableFrom( final Type[] superArgs, final Type[] subArgs )
+    {
+        for ( int i = 0, len = Math.min( superArgs.length, subArgs.length ); i < len; i++ )
+        {
+            final Type superType = superArgs[i];
+            final Type subType = subArgs[i];
+
+            /*
+             * Implementations could have unbound type variables, such as ArrayList<T>. We want to support injecting
+             * MyList<T extends Number> into List<Double>. This is why the isAssignableFrom parameters are reversed.
+             */
+            if ( subType instanceof TypeVariable<?> && isAssignableFrom( expand( subType ), expand( superType ) ) )
+            {
+                continue;
+            }
+            /*
+             * Interfaces can have wild-card types, such as List<? extends Number>. Note: we only check the initial
+             * upper-bound of the super-type against the resolved type (trading absolute accuracy for performance).
+             */
+            if ( superType instanceof WildcardType || superType instanceof TypeVariable<?> )
+            {
+                if ( !isAssignableFrom( expand( superType ), expand( subType ) ) )
+                {
+                    return false;
+                }
+            }
+            /*
+             * Non-wild-card arguments must be tested with equals: List<Number> is not assignable from List<Float>.
+             */
+            else if ( !superType.equals( subType ) )
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }

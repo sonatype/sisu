@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2011 Sonatype, Inc.
+ * Copyright (c) 2011 Sonatype, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution.
@@ -9,18 +9,27 @@
  *   http://www.apache.org/licenses/LICENSE-2.0.html
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
-/**
- * Qualified class index support (META-INF/sisu).
- *
- * <p>The principal members of this package are:
- * <dl>
- * <dt>{@link org.sonatype.guice.bean.scanners.index.SisuIndex}
- * <dd>Command-line indexing tool.
- * <dt>{@link org.sonatype.guice.bean.scanners.index.SisuIndexAPT6}
- * <dd>Java 6 annotation processor.
- * <dt>{@link org.sonatype.guice.bean.scanners.index.SisuIndexFinder}
- * <dd>Index-driven {@link org.sonatype.guice.bean.scanners.ClassFinder}.
- * </dl>
- */
-package org.sonatype.guice.bean.scanners.index;
+package org.sonatype.guice.bean.locators;
 
+import java.lang.annotation.Annotation;
+
+import com.google.inject.Key;
+import com.google.inject.name.Names;
+
+public final class WildcardKey
+    extends Key<Object>
+{
+    private final Annotation qualifier;
+
+    public WildcardKey( final Class<?> type, final Annotation qualifier )
+    {
+        super( Names.named( type.getName() ) );
+
+        this.qualifier = qualifier;
+    }
+
+    public Annotation getQualifier()
+    {
+        return qualifier;
+    }
+}

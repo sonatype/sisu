@@ -22,6 +22,7 @@ import javax.inject.Singleton;
 
 import org.sonatype.guice.bean.locators.spi.BindingDistributor;
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Mediator;
 
@@ -80,6 +81,7 @@ public final class DefaultBeanLocator
     {
         if ( !publishers.contains( publisher ) )
         {
+            Logs.debug( "Add: {} rank: {}", publisher, Integer.valueOf( rank ) );
             publishers.insert( publisher, rank );
             distribute( BindingEvent.ADD, publisher, rank );
         }
@@ -89,6 +91,7 @@ public final class DefaultBeanLocator
     {
         if ( publishers.remove( publisher ) )
         {
+            Logs.debug( "Remove: {}", publisher, null );
             distribute( BindingEvent.REMOVE, publisher, 0 );
         }
     }

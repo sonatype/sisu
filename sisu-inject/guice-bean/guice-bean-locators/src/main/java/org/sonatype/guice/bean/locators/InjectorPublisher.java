@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
@@ -30,6 +29,12 @@ import com.google.inject.TypeLiteral;
 final class InjectorPublisher
     implements BindingPublisher
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final TypeLiteral<?> OBJECT_TYPE_LITERAL = TypeLiteral.get( Object.class );
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -65,16 +70,18 @@ final class InjectorPublisher
 
     public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
     {
-        boolean hasBindings = publishBindings( subscriber, type );
-
-        @SuppressWarnings( { "unchecked", "rawtypes" } )
-        final Class<T> clazz = (Class) type.getRawType();
-        if ( type.getType() != clazz )
+        final Class<?> clazz = type.getRawType();
+        boolean matchFound = publishBindings( type, subscriber, null );
+        if ( clazz != type.getType() )
         {
-            hasBindings |= publishBindings( subscriber, type, clazz );
+            matchFound |= publishBindings( TypeLiteral.get( clazz ), subscriber, type );
+        }
+        if ( clazz != Object.class )
+        {
+            matchFound |= publishBindings( OBJECT_TYPE_LITERAL, subscriber, type );
         }
 
-        if ( !hasBindings && null != space && space.loadedClass( clazz ) )
+        if ( !matchFound && null != space && space.loadedClass( clazz ) )
         {
             try
             {
@@ -122,6 +129,12 @@ final class InjectorPublisher
         return false;
     }
 
+    @Override
+    public String toString()
+    {
+        return injector.toString();
+    }
+
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
@@ -131,59 +144,30 @@ final class InjectorPublisher
         return false == binding.getSource() instanceof HiddenBinding;
     }
 
-    private static int isAssignableFrom( final TypeLiteral<?> type, final Binding<?> binding )
+    private static boolean isAssignableFrom( final TypeLiteral<?> superType, final Binding<?> binding )
     {
-        final Class<?> impl = binding.acceptTargetVisitor( ImplementationVisitor.THIS );
-        return null != impl ? TypeParameters.isAssignableFrom( type, TypeLiteral.get( impl ) ) : 0;
+        final Class<?> implementation = binding.acceptTargetVisitor( ImplementationVisitor.THIS );
+        if ( null != implementation )
+        {
+            return TypeParameters.isAssignableFrom( superType, TypeLiteral.get( implementation ) );
+        }
+        return false;
     }
 
-    private boolean publishBindings( final BindingSubscriber subscriber, final TypeLiteral<?> type )
+    private boolean publishBindings( final TypeLiteral<?> searchType, final BindingSubscriber subscriber,
+                                     final TypeLiteral<?> superType )
     {
-        boolean published = false;
-        final List<? extends Binding<?>> bindings = injector.findBindingsByType( type );
+        boolean matchFound = false;
+        final List<? extends Binding<?>> bindings = injector.findBindingsByType( searchType );
         for ( int i = 0, size = bindings.size(); i < size; i++ )
         {
             final Binding<?> binding = bindings.get( i );
-            if ( isVisible( binding ) )
+            if ( isVisible( binding ) && ( null == superType || isAssignableFrom( superType, binding ) ) )
             {
                 subscriber.add( binding, function.rank( binding ) );
-                published = true;
+                matchFound = true;
             }
         }
-        return published;
-    }
-
-    private boolean publishBindings( final BindingSubscriber subscriber, final TypeLiteral<?> type, final Class<?> clazz )
-    {
-        boolean published = false;
-        final List<Binding<?>> weakBindings = new ArrayList<Binding<?>>();
-        final List<? extends Binding<?>> bindings = injector.findBindingsByType( TypeLiteral.get( clazz ) );
-        for ( int i = 0, size = bindings.size(); i < size; i++ )
-        {
-            final Binding<?> binding = bindings.get( i );
-            if ( isVisible( binding ) )
-            {
-                final int assignable = isAssignableFrom( type, binding );
-                if ( assignable > 0 )
-                {
-                    subscriber.add( binding, function.rank( binding ) );
-                    published = true;
-                }
-                else if ( assignable < 0 )
-                {
-                    weakBindings.add( binding );
-                }
-            }
-        }
-        if ( !published )
-        {
-            for ( int i = 0, size = weakBindings.size(); i < size; i++ )
-            {
-                final Binding<?> binding = weakBindings.get( i );
-                subscriber.add( binding, function.rank( binding ) );
-                published = true;
-            }
-        }
-        return published;
+        return matchFound;
     }
 }

@@ -28,6 +28,7 @@ import org.sonatype.inject.Parameters;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Provider;
+import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
@@ -239,6 +240,10 @@ final class PlaceholderBeanProvider<V>
     {
         final TypeLiteral<V> beanType = placeholderKey.getTypeLiteral();
         final String config = interpolate( ( (Named) placeholderKey.getAnnotation() ).value() );
+        if ( "null".equals( config ) )
+        {
+            return null;
+        }
         if ( null != typeConverter )
         {
             return (V) typeConverter.convert( config, beanType );
@@ -286,16 +291,13 @@ final class PlaceholderBeanProvider<V>
             {
                 value = key.substring( anchor + 2 );
             }
-            if ( value != null && expressionNum++ < EXPRESSION_RECURSION_LIMIT )
+            if ( expressionNum++ >= EXPRESSION_RECURSION_LIMIT )
             {
-                final int len = buf.length();
-                buf.replace( x, y, value.toString() );
-                expressionEnd += buf.length() - len;
+                throw new ProvisionException( "Recursive configuration: " + placeholder + " stopped at: " + buf );
             }
-            else
-            {
-                x = y; // skip past missing placeholder
-            }
+            final int len = buf.length();
+            buf.replace( x, y, String.valueOf( value ) );
+            expressionEnd += buf.length() - len;
         }
         return buf.toString();
     }

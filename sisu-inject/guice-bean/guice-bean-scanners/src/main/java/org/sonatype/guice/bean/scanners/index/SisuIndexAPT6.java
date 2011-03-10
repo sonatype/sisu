@@ -35,10 +35,10 @@ import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 
 /**
- * Java 6 Annotation {@link Processor} that can generate {@code META-INF/sisu} index files for the current build.
+ * Java 6 Annotation {@link Processor} that generates a qualified class index for the current build.
  */
 @SuppressWarnings( "restriction" )
-public final class QualifiedIndexAPT6
+public final class SisuIndexAPT6
     extends AbstractSisuIndex
     implements Processor
 {
@@ -68,8 +68,7 @@ public final class QualifiedIndexAPT6
                 {
                     if ( elem.getKind().isClass() )
                     {
-                        addClassToIndex( elementUtils.getBinaryName( anno ),
-                                         elementUtils.getBinaryName( (TypeElement) elem ) );
+                        addClassToIndex( SisuIndex.NAMED, elementUtils.getBinaryName( (TypeElement) elem ) );
                     }
                 }
             }

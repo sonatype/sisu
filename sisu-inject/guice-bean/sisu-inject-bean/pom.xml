@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.sonatype.sisu.inject</groupId>
     <artifactId>guice-bean</artifactId>
-    <version>2.2.0-SNAPSHOT</version>
+    <version>2.3.0-SNAPSHOT</version>
   </parent>
 
   <packaging>bundle</packaging>
@@ -50,6 +50,22 @@
       <artifactId>guice-bean-containers</artifactId>
       <optional>true</optional>
     </dependency>
+    <!-- used by javadoc -->
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 
   <build>
@@ -66,21 +82,30 @@
             <Bundle-SymbolicName>
               org.sonatype.inject;singleton:=true
             </Bundle-SymbolicName>
+            <Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
             <Bundle-Activator>
               org.sonatype.guice.bean.containers.SisuActivator
             </Bundle-Activator>
             <DynamicImport-Package>
-              org.slf4j,junit.framework
+              org.slf4j
             </DynamicImport-Package>
             <Export-Package>
-              org.sonatype.inject;-noimport:=true;-split-package:=merge-first;version=${project.version},
-              javax.*|org.aopalliance.*;version=1
+              <!-- provide these APIs as a convenience -->
+              javax.inject|javax.enterprise.inject;version=1,
+              org.aopalliance.aop|org.aopalliance.intercept;version=1,
+              <!-- our JRS330 extension API -->
+              org.sonatype.inject;-split-package:=merge-first;version=${project.version},
+              <!-- our implementation APIs -->
+              org.sonatype.guice.bean.*;x-internal:=true;version=${project.version}
             </Export-Package>
-            <Private-Package>
-              org.sonatype.guice.bean.*
-            </Private-Package>
             <Import-Package>
-              *.inject,javax.*;resolution:=optional,*
+              <!-- these APIs are substitutable -->
+              javax.inject,javax.enterprise.inject,
+              org.aopalliance.aop,org.aopalliance.intercept,
+              <!-- Guice and OSGi APIs are required -->
+              com.google.*,org.osgi.*,
+              <!-- everything else is optional -->
+              *;resolution:=optional
             </Import-Package>
           </instructions>
         </configuration>
@@ -109,6 +134,9 @@
                   <includes>
                     org/sonatype/inject/**,javax/**,org/aopalliance/**,org/sonatype/guice/bean/**
                   </includes>
+                  <excludes>
+                    org/aopalliance/instrument/**,org/aopalliance/reflect/**
+                  </excludes>
                 </configuration>
               </execution>
             </executions>
@@ -129,13 +157,23 @@
               </execution>
             </executions>
           </plugin>
-          <plugin>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-              <sourcepath>${project.build.directory}/aggregate-sources</sourcepath>
-            </configuration>
-          </plugin>
         </plugins>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <configuration>
+                <sourcepath>${project.build.directory}/aggregate-sources</sourcepath>
+                <links>
+                  <link>http://osgi.org/javadoc/r4v42/</link>
+                  <link>http://slf4j.org/apidocs/</link>
+                  <link>http://testng.org/javadocs/</link>
+                  <link>http://junit.org/apidocs/</link>
+                </links>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
       </build>
     </profile>
   </profiles>

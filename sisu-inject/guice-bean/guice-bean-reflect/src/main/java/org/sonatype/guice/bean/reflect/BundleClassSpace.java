@@ -13,10 +13,17 @@ package org.sonatype.guice.bean.reflect;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 
 /**
@@ -29,13 +36,17 @@ public final class BundleClassSpace
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final Enumeration<URL> NO_URLS = Collections.enumeration( Collections.<URL> emptyList() );
+    private static final URL[] NO_URLS = {};
+
+    private static final Enumeration<URL> NO_ENTRIES = Collections.enumeration( Arrays.asList( NO_URLS ) );
 
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
     private final Bundle bundle;
+
+    private URL[] classPath;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -81,15 +92,23 @@ public final class BundleClassSpace
         }
         catch ( final IOException e )
         {
-            return NO_URLS;
+            return NO_ENTRIES;
         }
     }
 
-    public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
+    @SuppressWarnings( "unchecked" )
+    public synchronized Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
     {
-        @SuppressWarnings( "unchecked" )
-        final Enumeration<URL> e = bundle.findEntries( null != path ? path : "/", glob, recurse );
-        return null != e ? e : NO_URLS;
+        if ( null == classPath )
+        {
+            classPath = getBundleClassPath( bundle );
+        }
+        final Enumeration<URL> entries = bundle.findEntries( null != path ? path : "/", glob, recurse );
+        if ( classPath.length > 0 )
+        {
+            return new ChainedEnumeration<URL>( entries, new ResourceEnumeration( path, glob, recurse, classPath ) );
+        }
+        return null != entries ? entries : NO_ENTRIES;
     }
 
     public boolean loadedClass( final Class<?> clazz )
@@ -121,5 +140,109 @@ public final class BundleClassSpace
     public String toString()
     {
         return bundle.toString();
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * Returns the expanded Bundle-ClassPath; we need this to iterate over embedded JARs.
+     * 
+     * @param bundle The bundle
+     * @return URL class path
+     */
+    private static URL[] getBundleClassPath( final Bundle bundle )
+    {
+        final String path = (String) bundle.getHeaders().get( Constants.BUNDLE_CLASSPATH );
+        if ( null == path )
+        {
+            return NO_URLS;
+        }
+
+        final List<URL> classPath = new ArrayList<URL>();
+        final Set<String> visited = new HashSet<String>();
+
+        visited.add( "." );
+
+        for ( final String entry : path.trim().split( "\\s*,\\s*" ) )
+        {
+            if ( visited.add( entry ) )
+            {
+                final URL url = bundle.getEntry( entry );
+                if ( null != url )
+                {
+                    classPath.add( url );
+                }
+            }
+        }
+        return classPath.isEmpty() ? NO_URLS : classPath.toArray( new URL[classPath.size()] );
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    /**
+     * Chains a series of {@link Enumeration}s together to look like a single {@link Enumeration}.
+     */
+    private static final class ChainedEnumeration<T>
+        implements Enumeration<T>
+    {
+        // ----------------------------------------------------------------------
+        // Implementation methods
+        // ----------------------------------------------------------------------
+
+        private final Enumeration<T>[] enumerations;
+
+        private Enumeration<T> currentEnumeration;
+
+        private T nextElement;
+
+        private int index;
+
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
+        ChainedEnumeration( final Enumeration<T>... enumerations )
+        {
+            this.enumerations = enumerations;
+        }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
+
+        public boolean hasMoreElements()
+        {
+            while ( null == nextElement )
+            {
+                if ( null != currentEnumeration && currentEnumeration.hasMoreElements() )
+                {
+                    nextElement = currentEnumeration.nextElement();
+                }
+                else if ( index < enumerations.length )
+                {
+                    currentEnumeration = enumerations[index++];
+                }
+                else
+                {
+                    return false; // no more elements
+                }
+            }
+            return true;
+        }
+
+        public T nextElement()
+        {
+            if ( hasMoreElements() )
+            {
+                final T element = nextElement;
+                nextElement = null;
+                return element;
+            }
+            throw new NoSuchElementException();
+        }
     }
 }

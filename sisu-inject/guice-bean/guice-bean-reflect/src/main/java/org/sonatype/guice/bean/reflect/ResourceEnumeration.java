@@ -114,7 +114,7 @@ final class ResourceEnumeration
 
             try
             {
-                return isFolder ? new URL( currentURL, name ) : new URL( "jar:" + currentURL + "!/" + name );
+                return getResource( name );
             }
             catch ( final MalformedURLException e )
             {
@@ -172,7 +172,36 @@ final class ResourceEnumeration
     {
         isFolder = url.getPath().endsWith( "/" );
 
+        if ( globber == GlobberStrategy.EXACT && !recurse )
+        {
+            try
+            {
+                // short-cut the nextElement() process
+                nextEntryName = subPath + globPattern;
+
+                // but still need to check resource actually exists!
+                Streams.open( getResource( nextEntryName ) ).close();
+            }
+            catch ( final Throwable e )
+            {
+                nextEntryName = null;
+            }
+            return NO_ENTRIES;
+        }
+
         return isFolder ? new FileEntryIterator( url, subPath, recurse ) : new ZipEntryIterator( url );
+    }
+
+    /**
+     * Returns a {@link URL} pointing to the named resource underneath the current search URL.
+     * 
+     * @param name The resource name
+     * @return URL for the resource
+     */
+    private URL getResource( final String name )
+        throws MalformedURLException
+    {
+        return isFolder ? new URL( currentURL, name ) : new URL( "jar:" + currentURL + "!/" + name );
     }
 
     /**

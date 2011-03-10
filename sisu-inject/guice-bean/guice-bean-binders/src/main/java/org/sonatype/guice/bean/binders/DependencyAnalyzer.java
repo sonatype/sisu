@@ -18,9 +18,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Provider;
-
 import org.sonatype.guice.bean.reflect.DeferredProvider;
+import org.sonatype.guice.bean.reflect.Logs;
+import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binding;
 import com.google.inject.Key;
@@ -91,7 +91,7 @@ final class DependencyAnalyzer
     @Override
     public Boolean visit( final ProviderInstanceBinding<?> binding )
     {
-        final Provider<?> provider = binding.getProviderInstance();
+        final javax.inject.Provider<?> provider = binding.getProviderInstance();
         if ( provider instanceof DeferredProvider<?> )
         {
             try
@@ -146,6 +146,7 @@ final class DependencyAnalyzer
                 }
                 catch ( final Throwable e )
                 {
+                    Logs.debug( "Ignore: {}", type, e );
                     result = false;
                 }
             }
@@ -177,7 +178,15 @@ final class DependencyAnalyzer
             }
             else
             {
-                requiredKeys.add( key );
+                final Class<?> clazz = key.getTypeLiteral().getRawType();
+                if ( javax.inject.Provider.class == clazz || com.google.inject.Provider.class == clazz )
+                {
+                    requiredKeys.add( key.ofType( TypeParameters.get( key.getTypeLiteral(), 0 ) ) );
+                }
+                else
+                {
+                    requiredKeys.add( key );
+                }
             }
         }
         return applyBinding;

@@ -48,10 +48,9 @@ abstract class AbstractDeferredClass<T>
         }
         catch ( final Throwable e )
         {
-            final String message = "Error injecting: " + getName();
             try
             {
-                Logs.warn( getClass(), message, e );
+                Logs.warn( "Error injecting: {}", getName(), e );
             }
             finally
             {
@@ -59,7 +58,7 @@ abstract class AbstractDeferredClass<T>
                 {
                     throw (RuntimeException) e;
                 }
-                throw new ProvisionException( message, e );
+                throw new ProvisionException( "Error injecting: " + getName(), e );
             }
         }
     }

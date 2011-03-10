@@ -17,6 +17,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -36,9 +37,11 @@ public final class URLClassSpace
 
     private static final String MANIFEST_ENTRY = "META-INF/MANIFEST.MF";
 
-    private static final String[] NO_ENTRIES = {};
-
     private static final URL[] NO_URLS = {};
+
+    private static final Enumeration<URL> NO_ENTRIES = Collections.enumeration( Arrays.asList( NO_URLS ) );
+
+    private static final String[] EMPTY_CLASSPATH = {};
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -119,7 +122,7 @@ public final class URLClassSpace
         }
         catch ( final IOException e )
         {
-            return Collections.enumeration( Collections.<URL> emptyList() );
+            return NO_ENTRIES;
         }
     }
 
@@ -291,7 +294,7 @@ public final class URLClassSpace
         try
         {
             final String classPath = new Manifest( in ).getMainAttributes().getValue( "Class-Path" );
-            return null != classPath ? classPath.split( " " ) : NO_ENTRIES;
+            return null != classPath ? classPath.split( " " ) : EMPTY_CLASSPATH;
         }
         finally
         {

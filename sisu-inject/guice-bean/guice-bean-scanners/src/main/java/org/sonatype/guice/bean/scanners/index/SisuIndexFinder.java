@@ -27,7 +27,7 @@ import org.sonatype.guice.bean.reflect.Streams;
 import org.sonatype.guice.bean.scanners.ClassFinder;
 
 /**
- * {@link ClassFinder} that uses the index files under {@code META-INF/sisu} to find interesting classes.
+ * {@link ClassFinder} that uses the qualified class index to select implementations to scan.
  */
 public final class SisuIndexFinder
     implements ClassFinder
@@ -40,7 +40,9 @@ public final class SisuIndexFinder
     {
         final List<URL> components = new ArrayList<URL>();
         final Set<String> visited = new HashSet<String>();
-        final Enumeration<URL> indices = space.findEntries( AbstractSisuIndex.META_INF_SISU, "*", false );
+
+        final Enumeration<URL> indices = space.findEntries( "META-INF/sisu/", SisuIndex.NAMED, false );
+
         while ( indices.hasMoreElements() )
         {
             final URL url = indices.nextElement();
@@ -49,7 +51,7 @@ public final class SisuIndexFinder
                 final BufferedReader reader = new BufferedReader( new InputStreamReader( Streams.open( url ) ) );
                 try
                 {
-                    // each index file under META-INF/sisu contains a list of classes, one per line
+                    // each index file contains a list of classes with that qualifier, one per line
                     for ( String line = reader.readLine(); line != null; line = reader.readLine() )
                     {
                         if ( visited.add( line ) )
@@ -69,7 +71,7 @@ public final class SisuIndexFinder
             }
             catch ( final Throwable e )
             {
-                Logs.warn( getClass(), "Error reading: " + url, e );
+                Logs.warn( "Problem reading: {}", url, e );
             }
         }
         return Collections.enumeration( components );

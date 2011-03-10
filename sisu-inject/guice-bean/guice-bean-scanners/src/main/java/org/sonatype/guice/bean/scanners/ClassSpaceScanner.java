@@ -109,7 +109,7 @@ public final class ClassSpaceScanner
         }
         catch ( final Throwable e )
         {
-            Logs.debug( visitor.getClass(), "Problem scanning resource: {} cause: {}", url, e );
+            Logs.debug( "Problem scanning: {}", url, e );
         }
     }
 }

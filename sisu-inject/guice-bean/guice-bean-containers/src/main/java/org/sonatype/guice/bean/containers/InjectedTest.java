@@ -20,8 +20,8 @@ import java.util.Properties;
 
 import javax.inject.Inject;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
+import org.junit.Before;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
@@ -29,6 +29,8 @@ import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.inject.BeanScanning;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
@@ -38,10 +40,9 @@ import com.google.inject.Module;
 import com.google.inject.name.Names;
 
 /**
- * Abstract JUnit3 {@link TestCase} that automatically binds and injects itself.
+ * Abstract TestNG/JUnit4 test that automatically binds and injects itself.
  */
-public abstract class InjectedTestCase
-    extends TestCase
+public abstract class InjectedTest
     implements Module
 {
     // ----------------------------------------------------------------------
@@ -57,17 +58,17 @@ public abstract class InjectedTestCase
     // Setup
     // ----------------------------------------------------------------------
 
-    @Override
-    protected void setUp()
-        throws Exception
+    @Before
+    @BeforeMethod
+    public void setUp()
     {
         final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
         Guice.createInjector( new WireModule( new TestModule(), new SpaceModule( space, BeanScanning.CACHE ) ) );
     }
 
-    @Override
-    protected void tearDown()
-        throws Exception
+    @After
+    @AfterMethod
+    public void tearDown()
     {
         locator.clear();
     }
@@ -79,15 +80,15 @@ public abstract class InjectedTestCase
         @SuppressWarnings( { "unchecked", "rawtypes" } )
         protected void configure()
         {
-            install( InjectedTestCase.this );
+            install( InjectedTest.this );
 
             final Properties properties = new Properties();
             properties.put( "basedir", getBasedir() );
-            InjectedTestCase.this.configure( properties );
+            InjectedTest.this.configure( properties );
 
             bind( ParameterKeys.PROPERTIES ).toInstance( (Map) properties );
 
-            requestInjection( InjectedTestCase.this );
+            requestInjection( InjectedTest.this );
         }
     }
 

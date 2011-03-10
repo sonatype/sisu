@@ -13,9 +13,12 @@ package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Qualifier;
 
@@ -23,10 +26,17 @@ import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.HiddenBinding;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
+import com.google.inject.Binding;
 import com.google.inject.ImplementedBy;
+import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.MembersInjector;
+import com.google.inject.Module;
 import com.google.inject.ProvidedBy;
+import com.google.inject.Provider;
+import com.google.inject.Scope;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 
@@ -43,6 +53,11 @@ final class LocatorWiring
 
     static
     {
+        RESTRICTED_CLASSES =
+            new HashSet( Arrays.asList( AbstractModule.class, Binder.class, Binding.class, Injector.class, Key.class,
+                                        MembersInjector.class, Module.class, Provider.class, Scope.class,
+                                        TypeLiteral.class ) );
+
         Map defaultProperties;
         try
         {
@@ -58,6 +73,8 @@ final class LocatorWiring
     // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
+
+    private static final Set<Class<?>> RESTRICTED_CLASSES;
 
     private static final String[] DEFAULT_ARGUMENTS = {};
 
@@ -190,7 +207,7 @@ final class LocatorWiring
      */
     private static boolean isRestricted( final Class<?> clazz )
     {
-        return clazz.getName().startsWith( "com.google.inject" );
+        return RESTRICTED_CLASSES.contains( clazz );
     }
 
     /**

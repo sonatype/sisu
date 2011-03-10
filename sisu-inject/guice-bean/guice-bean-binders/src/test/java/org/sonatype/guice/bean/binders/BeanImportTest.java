@@ -43,6 +43,7 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.ProvidedBy;
 import com.google.inject.Provider;
+import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
@@ -288,21 +289,14 @@ public class BeanImportTest
         Map<Named, Y> map;
     }
 
-    @SuppressWarnings( "rawtypes" )
     static class GenericInstance
         implements X
     {
         @Inject
-        Z raw;
+        Z<? extends Number> number;
 
         @Inject
-        Z<?> wildcard;
-
-        @Inject
-        Z<Number> number;
-
-        @Inject
-        Z<CharSequence> chars;
+        Z<String> chars;
 
         @Inject
         Z<Random> random;
@@ -337,14 +331,13 @@ public class BeanImportTest
             bind( Y.class ).annotatedWith( Names.named( "local" ) ).toInstance( new YImpl() );
             bind( Y.class ).annotatedWith( new FuzzyImpl() ).toInstance( new YImpl() );
 
-            bind( Z.class ).to( ZImpl.class );
-
             bind( Z.class ).annotatedWith( Names.named( "integer" ) ).toInstance( new ZImpl<Integer>()
             {
             } );
             bind( Z.class ).annotatedWith( Names.named( "string" ) ).toInstance( new ZImpl<String>()
             {
             } );
+            bind( Z.class ).annotatedWith( Names.named( "raw" ) ).to( ZImpl.class );
 
             bind( ParameterKeys.PROPERTIES ).toInstance( PROPS );
         }
@@ -407,7 +400,7 @@ public class BeanImportTest
 
         PlaceholderString placeholderString;
         placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
-        assertEquals( "${text}", placeholderString.single );
+        assertNull( placeholderString.single );
 
         PROPS.put( "text", "Hello, world!" );
 
@@ -419,8 +412,15 @@ public class BeanImportTest
         PROPS.put( "two", "<${three}}" );
         PROPS.put( "three", "|${text}|" );
 
-        placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
-        assertEquals( ">-<|>-<|${text}|}={|}={", placeholderString.single );
+        try
+        {
+            placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
+            fail( "Expected ProvisionException" );
+        }
+        catch ( final ProvisionException e )
+        {
+            assertTrue( e.getMessage().contains( ">-<|>-<|${text}|}={|}={" ) );
+        }
 
         PROPS.put( "text", ">${text" );
 
@@ -559,10 +559,6 @@ public class BeanImportTest
         final GenericInstance genericInstance =
             (GenericInstance) injector.getInstance( Key.get( X.class, Names.named( "GI" ) ) );
 
-        assertEquals( ZImpl.class, genericInstance.raw.getClass() );
-        assertEquals( ZImpl.class, genericInstance.wildcard.getClass() );
-        assertEquals( ZImpl.class, genericInstance.random.getClass() );
-
         assertEquals( TypeLiteral.get( Integer.class ),
                       TypeParameters.get( TypeLiteral.get( genericInstance.number.getClass() ).getSupertype( Z.class ),
                                           0 ) );
@@ -570,5 +566,7 @@ public class BeanImportTest
         assertEquals( TypeLiteral.get( String.class ),
                       TypeParameters.get( TypeLiteral.get( genericInstance.chars.getClass() ).getSupertype( Z.class ),
                                           0 ) );
+
+        assertEquals( ZImpl.class, genericInstance.random.getClass() );
     }
 }
