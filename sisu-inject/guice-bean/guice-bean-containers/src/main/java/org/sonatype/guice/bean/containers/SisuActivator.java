@@ -52,6 +52,8 @@ public final class SisuActivator
     // Constants
     // ----------------------------------------------------------------------
 
+    static final String CONTAINER_SYMBOLIC_NAME = "org.sonatype.inject";
+
     static final String BUNDLE_INJECTOR_CLASS_NAME = BundleInjector.class.getName();
 
     // ----------------------------------------------------------------------
@@ -59,14 +61,6 @@ public final class SisuActivator
     // ----------------------------------------------------------------------
 
     static final MutableBeanLocator locator = new DefaultBeanLocator();
-
-    static final Injector defaultInjector = Guice.createInjector( new Module()
-    {
-        public void configure( final Binder binder )
-        {
-            binder.bind( BeanLocator.class ).toProvider( Providers.of( locator ) );
-        }
-    } );
 
     private BundleContext bundleContext;
 
@@ -97,7 +91,7 @@ public final class SisuActivator
         }
         catch ( final Throwable e )
         {
-            return defaultInjector;
+            return Defaults.injector;
         }
     }
 
@@ -116,6 +110,10 @@ public final class SisuActivator
 
     public Object addingBundle( final Bundle bundle, final BundleEvent event )
     {
+        if ( CONTAINER_SYMBOLIC_NAME.equals( bundle.getSymbolicName() ) )
+        {
+            return null; // this is our container, ignore it to avoid circularity errors
+        }
         final Dictionary<?, ?> headers = bundle.getHeaders();
         final String host = (String) headers.get( Constants.FRAGMENT_HOST );
         final String imports = (String) headers.get( Constants.IMPORT_PACKAGE );
@@ -188,6 +186,21 @@ public final class SisuActivator
     // Implementation types
     // ----------------------------------------------------------------------
 
+    private static final class Defaults
+    {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
+        static final Injector injector = Guice.createInjector( new Module()
+        {
+            public void configure( final Binder binder )
+            {
+                binder.bind( BeanLocator.class ).toProvider( Providers.of( locator ) );
+            }
+        } );
+    }
+
     private static final class BundleInjector
         implements /* TODO:ManagedService, */Module
     {
@@ -217,7 +230,7 @@ public final class SisuActivator
             final BeanScanning scanning = Main.selectScanning( properties );
             injector = Guice.createInjector( new WireModule( this, new SpaceModule( space, scanning ) ) );
             final Dictionary<Object, Object> metadata = new Hashtable<Object, Object>();
-            metadata.put( Constants.SERVICE_PID, "org.sonatype.inject" );
+            metadata.put( Constants.SERVICE_PID, CONTAINER_SYMBOLIC_NAME );
 
             bundle.getBundleContext().registerService( API, this, metadata );
         }
