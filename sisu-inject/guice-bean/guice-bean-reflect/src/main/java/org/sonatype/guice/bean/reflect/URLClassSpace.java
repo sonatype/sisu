@@ -68,7 +68,7 @@ public final class URLClassSpace
     }
 
     /**
-     * Creates a {@link ClassSpace} backed by a {@link ClassLoader} with a custom class path.
+     * Creates a {@link ClassSpace} backed by a {@link ClassLoader} with a restricted class path.
      * 
      * @param loader The class loader to use when getting resources
      * @param path The class path to use when finding resources

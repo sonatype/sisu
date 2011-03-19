@@ -26,6 +26,7 @@ import java.util.List;
 
 import javax.inject.Named;
 
+import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
@@ -66,35 +67,35 @@ public final class SisuIndex
 
     public static void main( final String[] args )
     {
-        final List<URL> classPath = new ArrayList<URL>( args.length );
+        final List<URL> indexPath = new ArrayList<URL>( args.length );
         for ( final String path : args )
         {
             try
             {
-                classPath.add( new File( path ).toURI().toURL() );
+                indexPath.add( new File( path ).toURI().toURL() );
             }
             catch ( final MalformedURLException e )
             {
                 Logs.warn( "Bad classpath element: {}", path, e );
             }
         }
-        new SisuIndex( new File( "." ) ).index( classPath );
+
+        final ClassLoader parent = SisuIndex.class.getClassLoader();
+        final URL[] urls = indexPath.toArray( new URL[indexPath.size()] );
+        final ClassLoader loader = urls.length > 0 ? URLClassLoader.newInstance( urls, parent ) : parent;
+
+        new SisuIndex( new File( "." ) ).index( new URLClassSpace( loader ) );
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public void index( final List<URL> classPath )
+    public void index( final ClassSpace space )
     {
-        final URL[] urls = classPath.toArray( new URL[classPath.size()] );
-
-        final ClassLoader parent = SisuIndex.class.getClassLoader();
-        final ClassLoader loader = urls.length > 0 ? URLClassLoader.newInstance( urls, parent ) : parent;
-
         try
         {
-            new ClassSpaceScanner( new URLClassSpace( loader ) ).accept( new QualifiedTypeVisitor( this ) );
+            new ClassSpaceScanner( space ).accept( new QualifiedTypeVisitor( this ) );
         }
         finally
         {
