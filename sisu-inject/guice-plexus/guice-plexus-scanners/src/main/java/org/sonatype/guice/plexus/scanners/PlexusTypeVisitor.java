@@ -90,7 +90,7 @@ public final class PlexusTypeVisitor
     public void visit( final int version, final int access, final String name, final String signature,
                        final String superName, final String[] interfaces )
     {
-        if ( ( access & ( Opcodes.ACC_ABSTRACT | Opcodes.ACC_INTERFACE | Opcodes.ACC_SYNTHETIC ) ) == 0 )
+        if ( ( access & ( Opcodes.ACC_INTERFACE | Opcodes.ACC_ABSTRACT | Opcodes.ACC_SYNTHETIC ) ) == 0 )
         {
             implementation = name.replace( '/', '.' );
         }
@@ -117,6 +117,10 @@ public final class PlexusTypeVisitor
             {
                 final LoadedClass<?> clazz = new LoadedClass<Object>( space.loadClass( implementation ) );
                 plexusTypeListener.hear( component, clazz, source );
+            }
+            else
+            {
+                qualifiedTypeVisitor.visitEnd();
             }
             implementation = null;
         }
