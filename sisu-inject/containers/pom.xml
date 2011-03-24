@@ -18,41 +18,20 @@
 
   <parent>
     <groupId>org.sonatype.sisu</groupId>
-    <artifactId>sisu-parent</artifactId>
+    <artifactId>sisu-inject</artifactId>
     <version>2.3.0-SNAPSHOT</version>
   </parent>
 
   <packaging>pom</packaging>
 
-  <artifactId>sisu-inject</artifactId>
+  <groupId>org.sonatype.sisu.inject</groupId>
+  <artifactId>containers</artifactId>
 
-  <name>Sisu :: Inject</name>
+  <name>Sisu :: Inject :: Containers</name>
 
   <modules>
-    <module>containers</module>
-    <module>registries</module>
+    <module>guice-bean</module>
+    <module>guice-plexus</module>
   </modules>
-
-  <properties>
-    <sisu.guice.version>3.0-SNAPSHOT</sisu.guice.version>
-  </properties>
-
-  <dependencyManagement>
-    <dependencies>
-
-      <dependency>
-        <groupId>org.sonatype.sisu</groupId>
-        <artifactId>sisu-guice</artifactId>
-        <version>${sisu.guice.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.sisu</groupId>
-        <artifactId>sisu-guice</artifactId>
-        <version>${sisu.guice.version}</version>
-        <classifier>no_aop</classifier>
-      </dependency>
-
-    </dependencies>
-  </dependencyManagement>
 
 </project>

@@ -18,7 +18,7 @@
 
   <parent>
     <groupId>org.sonatype.sisu.inject</groupId>
-    <artifactId>guice-eclipse</artifactId>
+    <artifactId>registries</artifactId>
     <version>2.3.0-SNAPSHOT</version>
   </parent>
 
@@ -27,16 +27,13 @@
   <groupId>org.sonatype.sisu</groupId>
   <artifactId>sisu-inject-eclipse</artifactId>
 
-  <name>Sisu - Inject (Eclipse extension support)</name>
+  <name>Sisu :: Inject :: Registries :: Eclipse</name>
 
   <dependencies>
     <dependency>
-      <groupId>org.sonatype.sisu</groupId>
-      <artifactId>sisu-inject-bean</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.eclipse.equinox</groupId>
       <artifactId>org.eclipse.equinox.registry</artifactId>
+      <version>3.5.0.v20100503</version>
     </dependency>
   </dependencies>
 
@@ -66,23 +63,5 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>release</id>
-      <build>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <artifactId>maven-javadoc-plugin</artifactId>
-              <configuration>
-                <skip>true</skip>
-              </configuration>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-      </build>
-    </profile>
-  </profiles>
 
 </project>

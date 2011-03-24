@@ -17,42 +17,14 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.sonatype.sisu</groupId>
-    <artifactId>sisu-parent</artifactId>
+    <groupId>org.sonatype.sisu.inject</groupId>
+    <artifactId>registries</artifactId>
     <version>2.3.0-SNAPSHOT</version>
   </parent>
 
-  <packaging>pom</packaging>
+  <groupId>org.sonatype.sisu</groupId>
+  <artifactId>sisu-inject-osgi</artifactId>
 
-  <artifactId>sisu-inject</artifactId>
-
-  <name>Sisu :: Inject</name>
-
-  <modules>
-    <module>containers</module>
-    <module>registries</module>
-  </modules>
-
-  <properties>
-    <sisu.guice.version>3.0-SNAPSHOT</sisu.guice.version>
-  </properties>
-
-  <dependencyManagement>
-    <dependencies>
-
-      <dependency>
-        <groupId>org.sonatype.sisu</groupId>
-        <artifactId>sisu-guice</artifactId>
-        <version>${sisu.guice.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.sisu</groupId>
-        <artifactId>sisu-guice</artifactId>
-        <version>${sisu.guice.version}</version>
-        <classifier>no_aop</classifier>
-      </dependency>
-
-    </dependencies>
-  </dependencyManagement>
+  <name>Sisu :: Inject :: Registries :: OSGi</name>
 
 </project>

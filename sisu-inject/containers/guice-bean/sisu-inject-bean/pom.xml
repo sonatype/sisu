@@ -18,48 +18,52 @@
 
   <parent>
     <groupId>org.sonatype.sisu.inject</groupId>
-    <artifactId>guice-plexus</artifactId>
+    <artifactId>guice-bean</artifactId>
     <version>2.3.0-SNAPSHOT</version>
   </parent>
 
   <packaging>bundle</packaging>
 
   <groupId>org.sonatype.sisu</groupId>
-  <artifactId>sisu-inject-plexus</artifactId>
+  <artifactId>sisu-inject-bean</artifactId>
 
-  <name>Sisu - Inject (Plexus bean support)</name>
+  <name>Sisu :: Inject :: Containers :: Bean (JSR330)</name>
 
   <dependencies>
     <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-component-annotations</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-classworlds</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-utils</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.sonatype.sisu</groupId>
-      <artifactId>sisu-inject-bean</artifactId>
+      <artifactId>sisu-guice</artifactId>
+      <classifier>no_aop</classifier>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.inject</groupId>
+          <artifactId>javax.inject</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>aopalliance</groupId>
+          <artifactId>aopalliance</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-plexus-shim</artifactId>
+      <artifactId>guice-bean-containers</artifactId>
       <optional>true</optional>
     </dependency>
     <!-- used by javadoc -->
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
       <optional>true</optional>
     </dependency>
   </dependencies>
@@ -71,32 +75,38 @@
         <artifactId>maven-bundle-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
-          <excludeDependencies>
-            <!-- external dependencies -->
-            *;groupId=org.codehaus.plexus
-          </excludeDependencies>
           <instructions>
+            <Main-Class>
+              org.sonatype.guice.bean.containers.Main
+            </Main-Class>
             <Bundle-SymbolicName>
-              org.sonatype.inject.plexus;singleton:=true
+              org.sonatype.inject;singleton:=true
             </Bundle-SymbolicName>
+            <Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
+            <Bundle-Activator>
+              org.sonatype.guice.bean.containers.SisuActivator
+            </Bundle-Activator>
             <DynamicImport-Package>
               org.slf4j
             </DynamicImport-Package>
             <Export-Package>
-              <!-- our Plexus shim API -->
-              org.codehaus.plexus.*;-split-package:=merge-first,
+              <!-- provide these APIs as a convenience -->
+              javax.inject|javax.enterprise.inject;version=1,
+              org.aopalliance.aop|org.aopalliance.intercept;version=1,
+              <!-- our JRS330 extension API -->
+              org.sonatype.inject;-split-package:=merge-first;version=${project.version},
               <!-- our implementation APIs -->
-              org.sonatype.guice.plexus.*;x-internal:=true;version=${project.version}
+              org.sonatype.guice.bean.*;x-internal:=true;version=${project.version}
             </Export-Package>
             <Import-Package>
-              <!-- Guice, Plexus, and Sisu APIs are required -->
-              com.google.*,org.codehaus.*,org.sonatype.*,
+              <!-- these APIs are substitutable -->
+              javax.inject,javax.enterprise.inject,
+              org.aopalliance.aop,org.aopalliance.intercept,
+              <!-- Guice and OSGi APIs are required -->
+              com.google.*,org.osgi.*,
               <!-- everything else is optional -->
               *;resolution:=optional
             </Import-Package>
-            <Private-Package>
-              META-INF.plexus
-            </Private-Package>
           </instructions>
         </configuration>
       </plugin>
@@ -121,10 +131,12 @@
                   <classifier>sources</classifier>
                   <failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
                   <outputDirectory>${project.build.directory}/aggregate-sources</outputDirectory>
-                  <excludeGroupIds>org.codehaus.plexus</excludeGroupIds>
                   <includes>
-                    org/codehaus/plexus/**,org/sonatype/guice/plexus/**
+                    org/sonatype/inject/**,javax/**,org/aopalliance/**,org/sonatype/guice/bean/**
                   </includes>
+                  <excludes>
+                    org/aopalliance/instrument/**,org/aopalliance/reflect/**
+                  </excludes>
                 </configuration>
               </execution>
             </executions>
@@ -153,7 +165,9 @@
               <configuration>
                 <sourcepath>${project.build.directory}/aggregate-sources</sourcepath>
                 <links>
+                  <link>http://osgi.org/javadoc/r4v42/</link>
                   <link>http://slf4j.org/apidocs/</link>
+                  <link>http://testng.org/javadocs/</link>
                   <link>http://junit.org/apidocs/</link>
                 </links>
               </configuration>
