@@ -11,12 +11,18 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.reflect;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * {@link Enumeration} of resources found by scanning JARs and directories.
@@ -201,7 +207,16 @@ final class ResourceEnumeration
     private URL getResource( final String name )
         throws MalformedURLException
     {
-        return isFolder ? new URL( currentURL, name ) : new URL( "jar:" + currentURL + "!/" + name );
+        if ( isFolder )
+        {
+            return new URL( currentURL, name );
+        }
+        if ( "jar".equals( currentURL.getProtocol() ) )
+        {
+            // workaround JDK limitation that doesn't allow nested "jar:" URLs
+            return new URL( currentURL, "#" + name, new NestedJarURLHandler() );
+        }
+        return new URL( "jar:" + currentURL + "!/" + name );
     }
 
     /**
@@ -221,5 +236,46 @@ final class ResourceEnumeration
             return false; // inside a sub-directory
         }
         return globber.matches( globPattern, entryName );
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    static final class NestedJarURLHandler
+        extends URLStreamHandler
+    {
+        @Override
+        protected URLConnection openConnection( final URL url )
+            throws IOException
+        {
+            return new URLConnection( url )
+            {
+                @Override
+                public void connect()
+                    throws IOException
+                {
+                    // postpone until someone actually requests an input stream
+                }
+
+                @Override
+                public InputStream getInputStream()
+                    throws IOException
+                {
+                    final URL containingURL = new URL( "jar", null, -1, url.getFile() );
+                    final ZipInputStream is = new ZipInputStream( Streams.open( containingURL ) );
+                    final String entryName = url.getRef();
+
+                    for ( ZipEntry entry = is.getNextEntry(); entry != null; entry = is.getNextEntry() )
+                    {
+                        if ( entryName.equals( entry.getName() ) )
+                        {
+                            return is;
+                        }
+                    }
+                    throw new IOException( url.toString() );
+                }
+            };
+        }
     }
 }
