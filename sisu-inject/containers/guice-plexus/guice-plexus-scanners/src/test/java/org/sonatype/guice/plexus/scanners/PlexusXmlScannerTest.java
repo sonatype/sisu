@@ -12,6 +12,7 @@
 package org.sonatype.guice.plexus.scanners;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
@@ -31,6 +32,9 @@ import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.reflect.DeferredProvider;
 import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
+import org.sonatype.guice.bean.scanners.asm.ClassWriter;
+import org.sonatype.guice.bean.scanners.asm.MethodVisitor;
+import org.sonatype.guice.bean.scanners.asm.Opcodes;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
@@ -191,6 +195,16 @@ public class PlexusXmlScannerTest
 
         final Component component4 = new ComponentImpl( Bean.class, "clone", Strategies.SINGLETON, "" );
         assertEquals( DefaultBean.class, componentMap.get( component4 ).load().getSuperclass() );
+        final Class<?> proxy = CustomTestClassLoader.proxy( componentMap.get( component4 ).load() );
+
+        try
+        {
+            assertNotNull( proxy.getMethod( "TestMe" ) );
+        }
+        catch ( final NoSuchMethodException e )
+        {
+            fail( "Proxied class is missing 'TestMe' method" );
+        }
 
         final PlexusBeanMetadata metadata1 = metadata.get( DefaultBean.class.getName() );
 
@@ -392,6 +406,67 @@ public class PlexusXmlScannerTest
         finally
         {
             Logger.getLogger( "" ).setLevel( level );
+        }
+    }
+
+    static final class CustomTestClassLoader
+        extends ClassLoader
+    {
+        private static final String PROXY_MARKER = "$proxy";
+
+        CustomTestClassLoader( final ClassLoader parent )
+        {
+            super( parent );
+        }
+
+        static Class<?> proxy( final Class<?> clazz )
+        {
+            try
+            {
+                return new CustomTestClassLoader( clazz.getClassLoader() ).loadClass( clazz.getName() + PROXY_MARKER );
+            }
+            catch ( final ClassNotFoundException e )
+            {
+                throw new TypeNotPresentException( clazz.getName(), e );
+            }
+        }
+
+        @Override
+        protected synchronized Class<?> loadClass( String name, boolean resolve )
+            throws ClassNotFoundException
+        {
+            return super.loadClass( name, resolve );
+        }
+
+        @Override
+        protected Class<?> findClass( final String name )
+            throws ClassNotFoundException
+        {
+            final String proxyName = name.replace( '.', '/' );
+            final String superName = proxyName.substring( 0, proxyName.length() - PROXY_MARKER.length() );
+
+            final ClassWriter cw = new ClassWriter( ClassWriter.COMPUTE_MAXS );
+            cw.visit( Opcodes.V1_5, Modifier.PUBLIC | Modifier.FINAL, proxyName, null, superName, null );
+            MethodVisitor mv = cw.visitMethod( Modifier.PUBLIC, "<init>", "()V", null, null );
+
+            mv.visitCode();
+            mv.visitVarInsn( Opcodes.ALOAD, 0 );
+            mv.visitMethodInsn( Opcodes.INVOKESPECIAL, superName, "<init>", "()V" );
+            mv.visitInsn( Opcodes.RETURN );
+            mv.visitMaxs( 0, 0 );
+            mv.visitEnd();
+
+            mv = cw.visitMethod( Modifier.PUBLIC, "TestMe", "()V", null, null );
+
+            mv.visitCode();
+            mv.visitInsn( Opcodes.RETURN );
+            mv.visitMaxs( 0, 0 );
+            mv.visitEnd();
+            cw.visitEnd();
+
+            final byte[] buf = cw.toByteArray();
+
+            return defineClass( name, buf, 0, buf.length );
         }
     }
 }

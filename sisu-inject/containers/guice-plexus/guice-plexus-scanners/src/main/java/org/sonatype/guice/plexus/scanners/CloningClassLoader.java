@@ -34,30 +34,18 @@ final class CloningClassLoader
     protected synchronized Class<?> loadClass( final String name, final boolean resolve )
         throws ClassNotFoundException
     {
-        if ( isClone( name ) )
+        if ( !name.contains( CLONE_MARKER ) )
         {
-            // try to load the cloned wrapper class
-            return super.loadClass( name, resolve );
-        }
-        return space.loadClass( name );
-    }
-
-    static boolean isClone( final String name )
-    {
-        final int cloneMarker = name.indexOf( CLONE_MARKER );
-        if ( cloneMarker < 0 )
-        {
-            return false;
-        }
-        for ( int i = cloneMarker + CLONE_MARKER.length(), size = name.length(); i < size; i++ )
-        {
-            final char c = name.charAt( i );
-            if ( c < '0' || c > '9' )
+            try
             {
-                return false; // additional text suggests this is someone else's proxy
+                return space.loadClass( name );
+            }
+            catch ( final TypeNotPresentException e )
+            {
+                throw new ClassNotFoundException( name );
             }
         }
-        return true;
+        return super.loadClass( name, resolve );
     }
 
     static String proxyName( final String realName, final int cloneId )
@@ -72,8 +60,20 @@ final class CloningClassLoader
 
     static String getRealName( final String proxyName )
     {
-        final int cloneMarker = proxyName.indexOf( CLONE_MARKER );
-        return cloneMarker < 0 ? proxyName : proxyName.substring( '$' == proxyName.charAt( 0 ) ? 1 : 0, cloneMarker );
+        final int cloneMarker = proxyName.lastIndexOf( CLONE_MARKER );
+        if ( cloneMarker < 0 )
+        {
+            return proxyName;
+        }
+        for ( int i = cloneMarker + CLONE_MARKER.length(), end = proxyName.length(); i < end; i++ )
+        {
+            final char c = proxyName.charAt( i );
+            if ( c < '0' || c > '9' )
+            {
+                return proxyName; // belongs to someone else, don't truncate the name
+            }
+        }
+        return proxyName.substring( '$' == proxyName.charAt( 0 ) ? 1 : 0, cloneMarker );
     }
 
     @Override
@@ -83,8 +83,13 @@ final class CloningClassLoader
         final String proxyName = name.replace( '.', '/' );
         final String superName = getRealName( proxyName );
 
+        if ( superName.equals( proxyName ) )
+        {
+            throw new ClassNotFoundException( name );
+        }
+
         final ClassWriter cw = new ClassWriter( ClassWriter.COMPUTE_MAXS );
-        cw.visit( Opcodes.V1_5, Modifier.PUBLIC | Modifier.FINAL, proxyName, null, superName, null );
+        cw.visit( Opcodes.V1_5, Modifier.PUBLIC, proxyName, null, superName, null );
         final MethodVisitor mv = cw.visitMethod( Modifier.PUBLIC, "<init>", "()V", null, null );
 
         mv.visitCode();
