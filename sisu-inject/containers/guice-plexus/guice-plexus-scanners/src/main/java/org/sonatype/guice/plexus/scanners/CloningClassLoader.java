@@ -34,11 +34,30 @@ final class CloningClassLoader
     protected synchronized Class<?> loadClass( final String name, final boolean resolve )
         throws ClassNotFoundException
     {
-        if ( !name.contains( CLONE_MARKER ) )
+        if ( isClone( name ) )
         {
-            return space.loadClass( name );
+            // try to load the cloned wrapper class
+            return super.loadClass( name, resolve );
         }
-        return super.loadClass( name, resolve );
+        return space.loadClass( name );
+    }
+
+    static boolean isClone( final String name )
+    {
+        final int cloneMarker = name.indexOf( CLONE_MARKER );
+        if ( cloneMarker < 0 )
+        {
+            return false;
+        }
+        for ( int i = cloneMarker + CLONE_MARKER.length(), size = name.length(); i < size; i++ )
+        {
+            final char c = name.charAt( i );
+            if ( c < '0' || c > '9' )
+            {
+                return false; // additional text suggests this is someone else's proxy
+            }
+        }
+        return true;
     }
 
     static String proxyName( final String realName, final int cloneId )
