@@ -255,20 +255,23 @@ public final class URLClassSpace
      */
     private static URL normalizeEntry( final URL url )
     {
-        if ( null == url || !"jar".equals( url.getProtocol() ) )
+        if ( null != url && "jar".equals( url.getProtocol() ) )
         {
-            return url;
+            final String path = url.getPath();
+            if ( path.endsWith( "!/" ) )
+            {
+                try
+                {
+                    return new URL( path.substring( 0, path.length() - 2 ) );
+                }
+                catch ( final MalformedURLException e )
+                {
+                    // this shouldn't happen, hence illegal state
+                    throw new IllegalStateException( e.toString() );
+                }
+            }
         }
-        final String s = url.toString();
-        try
-        {
-            return new URL( s.substring( 4, s.indexOf( "!/" ) ) );
-        }
-        catch ( final MalformedURLException e )
-        {
-            // this shouldn't happen, hence illegal state
-            throw new IllegalStateException( e.toString() );
-        }
+        return url;
     }
 
     /**
