@@ -432,7 +432,7 @@ public class PlexusXmlScannerTest
         }
 
         @Override
-        protected synchronized Class<?> loadClass( String name, boolean resolve )
+        protected synchronized Class<?> loadClass( final String name, final boolean resolve )
             throws ClassNotFoundException
         {
             return super.loadClass( name, resolve );

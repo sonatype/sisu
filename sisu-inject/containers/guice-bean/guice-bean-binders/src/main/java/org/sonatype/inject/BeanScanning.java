@@ -13,5 +13,28 @@ package org.sonatype.inject;
 
 public enum BeanScanning
 {
-    ON, OFF, CACHE, INDEX
+    /**
+     * Always scan
+     */
+    ON,
+
+    /**
+     * Never scan
+     */
+    OFF,
+
+    /**
+     * Scan once and cache results
+     */
+    CACHE,
+
+    /**
+     * Use local index (plug-ins)
+     */
+    INDEX,
+
+    /**
+     * Use global index (application)
+     */
+    GLOBAL_INDEX
 }

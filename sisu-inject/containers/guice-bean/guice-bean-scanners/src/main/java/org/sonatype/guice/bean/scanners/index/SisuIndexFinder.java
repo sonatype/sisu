@@ -33,6 +33,21 @@ public final class SisuIndexFinder
     implements ClassFinder
 {
     // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final boolean globalIndex;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    public SisuIndexFinder( final boolean globalIndex )
+    {
+        this.globalIndex = globalIndex;
+    }
+
+    // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
@@ -40,8 +55,16 @@ public final class SisuIndexFinder
     {
         final List<URL> components = new ArrayList<URL>();
         final Set<String> visited = new HashSet<String>();
+        final Enumeration<URL> indices;
 
-        final Enumeration<URL> indices = space.findEntries( "META-INF/sisu/", SisuIndex.NAMED, false );
+        if ( globalIndex )
+        {
+            indices = space.getResources( "META-INF/sisu/" + SisuIndex.NAMED );
+        }
+        else
+        {
+            indices = space.findEntries( "META-INF/sisu/", SisuIndex.NAMED, false );
+        }
 
         while ( indices.hasMoreElements() )
         {

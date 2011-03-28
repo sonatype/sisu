@@ -183,7 +183,8 @@ public final class DefaultPlexusContainer
 
         final ClassSpace space = new URLClassSpace( containerRealm );
         beanModules.add( new PlexusXmlBeanModule( space, variables, plexusXml ) );
-        beanModules.add( new PlexusAnnotatedBeanModule( space, variables, scanning ) );
+        final BeanScanning global = BeanScanning.INDEX == scanning ? BeanScanning.GLOBAL_INDEX : scanning;
+        beanModules.add( new PlexusAnnotatedBeanModule( space, variables, global ) );
 
         try
         {
@@ -427,7 +428,8 @@ public final class DefaultPlexusContainer
             if ( realmIds.add( realm.getId() ) )
             {
                 beanModules.add( new PlexusXmlBeanModule( space, variables ) );
-                beanModules.add( new PlexusAnnotatedBeanModule( space, variables, scanning ) );
+                final BeanScanning local = BeanScanning.GLOBAL_INDEX == scanning ? BeanScanning.INDEX : scanning;
+                beanModules.add( new PlexusAnnotatedBeanModule( space, variables, local ) );
             }
             if ( !beanModules.isEmpty() )
             {

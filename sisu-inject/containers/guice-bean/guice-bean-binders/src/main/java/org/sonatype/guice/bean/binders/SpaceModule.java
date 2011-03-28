@@ -76,7 +76,10 @@ public class SpaceModule
                 scanner = new ClassSpaceScanner( space );
                 break;
             case INDEX:
-                scanner = new ClassSpaceScanner( new SisuIndexFinder(), space );
+                scanner = new ClassSpaceScanner( new SisuIndexFinder( false ), space );
+                break;
+            case GLOBAL_INDEX:
+                scanner = new ClassSpaceScanner( new SisuIndexFinder( true ), space );
                 break;
             case CACHE:
                 binder.install( Elements.getModule( cachedScan() ) );
