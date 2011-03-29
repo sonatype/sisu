@@ -34,7 +34,7 @@
   </modules>
 
   <properties>
-    <sisu.guice.version>3.0.0</sisu.guice.version>
+    <sisu.guice.version>3.0.1-SNAPSHOT</sisu.guice.version>
   </properties>
 
   <dependencyManagement>
