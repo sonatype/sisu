@@ -98,7 +98,17 @@ final class FileEntryIterator
             }
             else if ( '%' == c && i < length - 2 )
             {
-                buf.append( (char) Integer.parseInt( path.substring( ++i, ++i + 1 ), 16 ) );
+                final int hi = Character.digit( path.charAt( i + 1 ), 16 );
+                final int lo = Character.digit( path.charAt( i + 2 ), 16 );
+                if ( hi >= 0 && lo >= 0 )
+                {
+                    buf.append( (char) ( hi << 4 | lo ) );
+                    i += 2;
+                }
+                else
+                {
+                    buf.append( '%' );
+                }
             }
             else
             {

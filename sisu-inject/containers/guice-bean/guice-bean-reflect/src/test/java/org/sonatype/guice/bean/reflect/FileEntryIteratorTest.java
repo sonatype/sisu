@@ -38,6 +38,8 @@ public class FileEntryIteratorTest
         assertEquals( "test", FileEntryIterator.toFile( new URL( "file:test" ) ).getPath() );
         assertEquals( "A B C", FileEntryIterator.toFile( new URL( "file:A B C" ) ).getPath() );
         assertEquals( "A B C%%", FileEntryIterator.toFile( new URL( "file:A B%20C%%" ) ).getPath() );
+        assertEquals( "A%B%C%", FileEntryIterator.toFile( new URL( "file:A%B%C%" ) ).getPath() );
+        assertEquals( "A+%+C", FileEntryIterator.toFile( new URL( "file:A+%+C" ) ).getPath() );
     }
 
     public void testNoSuchFile()
