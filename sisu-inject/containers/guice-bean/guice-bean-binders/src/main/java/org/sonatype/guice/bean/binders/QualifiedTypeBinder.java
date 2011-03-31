@@ -12,6 +12,7 @@
 package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.IncompleteAnnotationException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 
@@ -288,10 +289,17 @@ public final class QualifiedTypeBinder
         final javax.inject.Named jsr330 = qualifiedType.getAnnotation( javax.inject.Named.class );
         if ( null != jsr330 )
         {
-            final String name = jsr330.value();
-            if ( name.length() > 0 )
+            try
             {
-                return "default".equals( name ) ? null : Names.named( name );
+                final String name = jsr330.value();
+                if ( name.length() > 0 )
+                {
+                    return "default".equals( name ) ? null : Names.named( name );
+                }
+            }
+            catch ( final IncompleteAnnotationException e ) // NOPMD
+            {
+                // early prototypes of JSR330 @Named declared no default value
             }
         }
         else
