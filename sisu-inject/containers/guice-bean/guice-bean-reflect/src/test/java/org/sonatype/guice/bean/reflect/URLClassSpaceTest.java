@@ -40,6 +40,8 @@ public class URLClassSpaceTest
 
     private static final URL BROKEN_JAR = TEST_LOADER.getResource( "broken.jar" );
 
+    private static final URL NESTED_WAR = TEST_LOADER.getResource( "nested.war" );
+
     public void testHashCodeAndEquals()
     {
         final ClassLoader systemLoader = ClassLoader.getSystemClassLoader();
@@ -243,6 +245,38 @@ public class URLClassSpaceTest
         assertTrue( e.nextElement().getPath().startsWith( COMMONS_LOGGING_JAR.toString() ) );
         assertTrue( e.hasMoreElements() );
         assertTrue( e.nextElement().getPath().startsWith( SIMPLE_JAR.toString() ) );
+        assertFalse( e.hasMoreElements() );
+    }
+
+    public void testNestedWar()
+        throws MalformedURLException
+    {
+        final URLClassSpace space =
+            new URLClassSpace( URLClassLoader.newInstance( new URL[] {
+                new URL( "jar:" + NESTED_WAR + "!/WEB-INF/classes/" ),
+                new URL( "jar:" + NESTED_WAR + "!/WEB-INF/lib/commons-logging-1.1.1.jar" ) } ) );
+
+        Enumeration<URL> e = space.findEntries( "META-INF", "*.MF", false );
+
+        // expect to see one result
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().toString().endsWith( "/nested.war!/WEB-INF/lib/commons-logging-1.1.1.jar#META-INF/MANIFEST.MF" ) );
+        assertFalse( e.hasMoreElements() );
+
+        e = space.findEntries( null, "Log.class", true );
+
+        // only one result, as can't "glob" embedded directory
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().toString().endsWith( "/nested.war!/WEB-INF/lib/commons-logging-1.1.1.jar#org/apache/commons/logging/Log.class" ) );
+        assertFalse( e.hasMoreElements() );
+
+        e = space.findEntries( "org/apache/commons/logging", "Log.class", false );
+
+        // can see both results, as using non-"globbed" search
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().toString().endsWith( "/nested.war!/WEB-INF/classes/org/apache/commons/logging/Log.class" ) );
+        assertTrue( e.hasMoreElements() );
+        assertTrue( e.nextElement().toString().endsWith( "/nested.war!/WEB-INF/lib/commons-logging-1.1.1.jar#org/apache/commons/logging/Log.class" ) );
         assertFalse( e.hasMoreElements() );
     }
 }
