@@ -24,7 +24,7 @@
 
   <artifactId>guice-bean-inject</artifactId>
 
-  <name>Guice - Bean injection</name>
+  <name>Sisu-Inject-Bean : Property injection</name>
 
   <dependencies>
     <dependency>

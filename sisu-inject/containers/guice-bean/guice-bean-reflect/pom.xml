@@ -24,7 +24,7 @@
 
   <artifactId>guice-bean-reflect</artifactId>
 
-  <name>Guice - Bean reflection</name>
+  <name>Sisu-Inject-Bean : Type reflection</name>
 
   <dependencies>
     <dependency>

@@ -24,7 +24,7 @@
 
   <artifactId>guice-bean-scanners</artifactId>
 
-  <name>Guice - Bean scanners</name>
+  <name>Sisu-Inject-Bean : @Named scanning</name>
 
   <dependencies>
     <dependency>

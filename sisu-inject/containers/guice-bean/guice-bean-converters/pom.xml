@@ -24,7 +24,7 @@
 
   <artifactId>guice-bean-converters</artifactId>
 
-  <name>Guice - Bean converters</name>
+  <name>Sisu-Inject-Bean : Type conversion</name>
 
   <dependencies>
     <dependency>

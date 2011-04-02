@@ -24,7 +24,7 @@
 
   <artifactId>guice-plexus-locators</artifactId>
 
-  <name>Guice - Plexus locators</name>
+  <name>Sisu-Inject-Plexus : Dynamic collections</name>
 
   <dependencies>
     <dependency>

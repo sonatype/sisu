@@ -24,7 +24,7 @@
 
   <artifactId>guice-bean-locators</artifactId>
 
-  <name>Guice - Bean locators</name>
+  <name>Sisu-Inject-Bean : Dynamic bindings</name>
 
   <dependencies>
     <dependency>

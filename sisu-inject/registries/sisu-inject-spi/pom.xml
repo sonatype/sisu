@@ -25,6 +25,6 @@
   <groupId>org.sonatype.sisu</groupId>
   <artifactId>sisu-inject-spi</artifactId>
 
-  <name>Sisu :: Inject :: Registries :: SPI</name>
+  <name>Sisu-Inject-SPI : Provider lookup</name>
 
 </project>

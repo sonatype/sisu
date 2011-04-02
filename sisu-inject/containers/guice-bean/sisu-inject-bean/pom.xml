@@ -27,7 +27,7 @@
   <groupId>org.sonatype.sisu</groupId>
   <artifactId>sisu-inject-bean</artifactId>
 
-  <name>Sisu :: Inject :: Containers :: Bean (JSR330)</name>
+  <name>Sisu-Inject-Bean : Aggregate OSGi bundle</name>
 
   <dependencies>
     <dependency>

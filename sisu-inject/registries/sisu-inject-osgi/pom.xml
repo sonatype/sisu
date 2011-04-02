@@ -25,6 +25,6 @@
   <groupId>org.sonatype.sisu</groupId>
   <artifactId>sisu-inject-osgi</artifactId>
 
-  <name>Sisu :: Inject :: Registries :: OSGi</name>
+  <name>Sisu-Inject-OSGi : Service lookup</name>
 
 </project>

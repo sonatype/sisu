@@ -24,7 +24,7 @@
 
   <artifactId>guice-plexus-shim</artifactId>
 
-  <name>Guice - Plexus shim</name>
+  <name>Sisu-Inject-Plexus : Container API</name>
 
   <dependencies>
     <dependency>

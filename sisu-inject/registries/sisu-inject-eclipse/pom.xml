@@ -27,7 +27,7 @@
   <groupId>org.sonatype.sisu</groupId>
   <artifactId>sisu-inject-eclipse</artifactId>
 
-  <name>Sisu :: Inject :: Registries :: Eclipse</name>
+  <name>Sisu-Inject-Eclipse : Extension lookup</name>
 
   <dependencies>
     <dependency>

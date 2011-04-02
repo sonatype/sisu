@@ -27,7 +27,7 @@
   <groupId>org.sonatype.sisu.inject</groupId>
   <artifactId>containers</artifactId>
 
-  <name>Sisu :: Inject :: Containers</name>
+  <name>Sisu-Inject : Containers</name>
 
   <modules>
     <module>guice-bean</module>

@@ -26,7 +26,7 @@
 
   <artifactId>guice-bean</artifactId>
 
-  <name>Guice - Bean</name>
+  <name>Sisu-Inject : Containers : Bean (JSR330)</name>
 
   <modules>
     <module>guice-bean-reflect</module>

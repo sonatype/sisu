@@ -24,7 +24,7 @@
 
   <artifactId>guice-plexus-scanners</artifactId>
 
-  <name>Guice - Plexus scanners</name>
+  <name>Sisu-Inject-Plexus : @Component scanning</name>
 
   <dependencies>
     <dependency>

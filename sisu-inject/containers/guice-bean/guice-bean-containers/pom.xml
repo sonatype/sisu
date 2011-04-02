@@ -24,7 +24,7 @@
 
   <artifactId>guice-bean-containers</artifactId>
 
-  <name>Guice - Bean containers</name>
+  <name>Sisu-Inject-Bean : Container API</name>
 
   <dependencies>
     <dependency>

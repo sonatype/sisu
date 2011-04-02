@@ -27,7 +27,7 @@
 
   <artifactId>guice-plexus</artifactId>
 
-  <name>Guice - Plexus</name>
+  <name>Sisu-Inject : Containers : Plexus</name>
 
   <modules>
     <module>guice-plexus-metadata</module>

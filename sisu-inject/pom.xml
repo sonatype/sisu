@@ -26,7 +26,7 @@
 
   <artifactId>sisu-inject</artifactId>
 
-  <name>Sisu :: Inject</name>
+  <name>Sisu-Inject</name>
 
   <modules>
     <module>containers</module>

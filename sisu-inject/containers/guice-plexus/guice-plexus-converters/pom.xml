@@ -24,7 +24,7 @@
 
   <artifactId>guice-plexus-converters</artifactId>
 
-  <name>Guice - Plexus converters</name>
+  <name>Sisu-Inject-Plexus : @Configuration conversion</name>
 
   <dependencies>
     <dependency>

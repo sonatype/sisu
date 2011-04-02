@@ -24,7 +24,7 @@
 
   <artifactId>guice-plexus-binders</artifactId>
 
-  <name>Guice - Plexus binders</name>
+  <name>Sisu-Inject-Plexus : @Requirement auto-wiring</name>
 
   <dependencies>
     <dependency>

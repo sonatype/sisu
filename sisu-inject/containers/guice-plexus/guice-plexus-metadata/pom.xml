@@ -24,7 +24,7 @@
 
   <artifactId>guice-plexus-metadata</artifactId>
 
-  <name>Guice - Plexus metadata</name>
+  <name>Sisu-Inject-Plexus : @Component metadata</name>
 
   <dependencies>
     <dependency>

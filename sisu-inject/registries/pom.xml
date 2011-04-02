@@ -27,7 +27,7 @@
   <groupId>org.sonatype.sisu.inject</groupId>
   <artifactId>registries</artifactId>
 
-  <name>Sisu :: Inject :: Registries</name>
+  <name>Sisu-Inject : Registries</name>
 
   <modules>
     <module>sisu-inject-eclipse</module>

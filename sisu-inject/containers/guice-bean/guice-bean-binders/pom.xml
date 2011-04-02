@@ -24,7 +24,7 @@
 
   <artifactId>guice-bean-binders</artifactId>
 
-  <name>Guice - Bean binders</name>
+  <name>Sisu-Inject-Bean : @Inject auto-wiring</name>
 
   <dependencies>
     <dependency>
