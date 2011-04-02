@@ -24,17 +24,16 @@ import javax.inject.Qualifier;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.HiddenBinding;
+import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
 import com.google.inject.Binding;
-import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.MembersInjector;
 import com.google.inject.Module;
-import com.google.inject.ProvidedBy;
 import com.google.inject.Provider;
 import com.google.inject.Scope;
 import com.google.inject.TypeLiteral;
@@ -54,9 +53,9 @@ final class LocatorWiring
     static
     {
         RESTRICTED_CLASSES =
-            new HashSet( Arrays.asList( AbstractModule.class, Binder.class, Binding.class, Injector.class, Key.class,
-                                        MembersInjector.class, Module.class, Provider.class, Scope.class,
-                                        TypeLiteral.class ) );
+            new HashSet( Arrays.asList( BeanLocator.class, MutableBeanLocator.class, AbstractModule.class,
+                                        Binder.class, Binding.class, Injector.class, Key.class, MembersInjector.class,
+                                        Module.class, Provider.class, Scope.class, TypeLiteral.class ) );
 
         Map defaultProperties;
         try
@@ -218,19 +217,19 @@ final class LocatorWiring
      */
     private static boolean isImplicit( final Key<?> key )
     {
-        if ( null != key.getAnnotationType() )
+        // only unqualified keys may be implicit
+        if ( null == key.getAnnotationType() )
         {
-            return false; // qualified key, so implicit rules aren't applied
+            final Class<?> clazz = key.getTypeLiteral().getRawType();
+            if ( ( clazz.getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) == 0 )
+            {
+                return true; // concrete types are considered implicit
+            }
+            if ( clazz.getName().equals( "org.slf4j.Logger" ) )
+            {
+                return true; // automatically handled by the container
+            }
         }
-        final Class<?> clazz = key.getTypeLiteral().getRawType();
-        if ( clazz.getName().equals( "org.slf4j.Logger" ) )
-        {
-            return true; // automatically handled by our patched Guice build
-        }
-        if ( clazz.isInterface() )
-        {
-            return clazz.isAnnotationPresent( ImplementedBy.class ) || clazz.isAnnotationPresent( ProvidedBy.class );
-        }
-        return !Modifier.isAbstract( clazz.getModifiers() ); // concrete types are implicit
+        return false;
     }
 }

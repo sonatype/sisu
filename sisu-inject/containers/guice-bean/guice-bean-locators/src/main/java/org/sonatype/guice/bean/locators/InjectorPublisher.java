@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
+import java.lang.reflect.Modifier;
 import java.util.List;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
@@ -19,8 +20,11 @@ import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binding;
+import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.ProvidedBy;
+import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -85,8 +89,8 @@ final class InjectorPublisher
         {
             try
             {
-                final Binding<T> binding = injector.getBinding( Key.get( type ) );
-                if ( isVisible( binding ) )
+                final Binding<T> binding = getImplicitBinding( type, clazz );
+                if ( null != binding && isVisible( binding ) )
                 {
                     subscriber.add( binding, Integer.MIN_VALUE );
                 }
@@ -170,5 +174,33 @@ final class InjectorPublisher
             }
         }
         return matchFound;
+    }
+
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    private <T> Binding<T> getImplicitBinding( final TypeLiteral<T> type, final Class<?> clazz )
+    {
+        final Key key = Key.get( type );
+        if ( ( clazz.getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) == 0 )
+        {
+            return injector.getBinding( key );
+        }
+        final ImplementedBy implementedBy = clazz.getAnnotation( ImplementedBy.class );
+        if ( null != implementedBy )
+        {
+            return new DelegatingBinding( key, injector.getBinding( implementedBy.value() ) );
+        }
+        final ProvidedBy providedBy = clazz.getAnnotation( ProvidedBy.class );
+        if ( null != providedBy )
+        {
+            return new DelegatingBinding( key, injector.getBinding( providedBy.value() ) )
+            {
+                @Override
+                public Provider getProvider()
+                {
+                    return (Provider) super.getProvider().get();
+                }
+            };
+        }
+        return null;
     }
 }
