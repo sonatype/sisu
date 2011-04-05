@@ -12,7 +12,6 @@
 package org.sonatype.guice.bean.binders;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -23,6 +22,7 @@ import org.sonatype.inject.Parameters;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+import com.google.inject.Provides;
 
 public class ParametersTest
     extends TestCase
@@ -45,10 +45,12 @@ public class ParametersTest
                 bind( ParametersTest.class );
             }
         } ) ).injectMembers( this );
-        assertEquals( System.getProperties(), properties );
+
+        assertTrue( properties.isEmpty() );
         assertEquals( 0, arguments.length );
     }
 
+    @SuppressWarnings( { "unchecked", "rawtypes", "unused" } )
     public void testCustomParameters()
     {
         Guice.createInjector( new WireModule( new AbstractModule()
@@ -57,13 +59,24 @@ public class ParametersTest
             protected void configure()
             {
                 bind( ParametersTest.class );
+            }
 
-                bind( ParameterKeys.ARGUMENTS ).toInstance( new String[] { "Hello", "World" } );
-                bind( ParameterKeys.PROPERTIES ).toInstance( new HashMap<String, String>() );
+            @Provides
+            @Parameters
+            String[] arguments()
+            {
+                return new String[] { "Hello", "World" };
+            }
+
+            @Provides
+            @Parameters
+            Map<String, String> properties()
+            {
+                return (Map) System.getProperties();
             }
         } ) ).injectMembers( this );
 
-        assertTrue( properties.isEmpty() );
+        assertEquals( System.getProperties(), properties );
         assertTrue( Arrays.equals( new String[] { "Hello", "World" }, arguments ) );
     }
 }

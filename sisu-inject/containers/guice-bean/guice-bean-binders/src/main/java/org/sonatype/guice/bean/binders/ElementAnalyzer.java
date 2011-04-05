@@ -14,7 +14,10 @@ package org.sonatype.guice.bean.binders;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+
+import org.sonatype.guice.bean.reflect.Logs;
 
 import com.google.inject.Binder;
 import com.google.inject.Binding;
@@ -24,7 +27,9 @@ import com.google.inject.spi.DefaultElementVisitor;
 import com.google.inject.spi.Element;
 import com.google.inject.spi.ElementVisitor;
 import com.google.inject.spi.InjectionRequest;
+import com.google.inject.spi.InstanceBinding;
 import com.google.inject.spi.PrivateElements;
+import com.google.inject.spi.ProviderInstanceBinding;
 import com.google.inject.spi.StaticInjectionRequest;
 
 /**
@@ -42,6 +47,8 @@ final class ElementAnalyzer
     private final DependencyAnalyzer analyzer = new DependencyAnalyzer();
 
     private final List<ElementAnalyzer> privateAnalyzers = new ArrayList<ElementAnalyzer>();
+
+    private final List<Map<String, String>> params = new ArrayList<Map<String, String>>();
 
     private final Binder binder;
 
@@ -64,6 +71,8 @@ final class ElementAnalyzer
         final Set<Key<?>> missingKeys = analyzer.getRequiredKeys();
         missingKeys.removeAll( localKeys );
 
+        bindParameters( missingKeys );
+
         for ( final Key<?> key : missingKeys )
         {
             wiring.wire( key );
@@ -81,13 +90,18 @@ final class ElementAnalyzer
     @Override
     public <T> Void visit( final Binding<T> binding )
     {
-        if ( localKeys.contains( binding.getKey() ) )
+        final Key<T> key = binding.getKey();
+        if ( localKeys.contains( key ) )
         {
             return null;
         }
-        if ( binding.acceptTargetVisitor( analyzer ).booleanValue() )
+        else if ( ParameterKeys.PROPERTIES.equals( key ) )
         {
-            localKeys.add( binding.getKey() );
+            mergeParameters( binding );
+        }
+        else if ( binding.acceptTargetVisitor( analyzer ).booleanValue() )
+        {
+            localKeys.add( key );
             binding.applyTo( binder );
         }
         return null;
@@ -142,5 +156,40 @@ final class ElementAnalyzer
     {
         element.applyTo( binder );
         return null;
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    @SuppressWarnings( "unchecked" )
+    private <T> void mergeParameters( final Binding<T> binding )
+    {
+        if ( binding instanceof InstanceBinding<?> )
+        {
+            params.add( ( (InstanceBinding<Map<String, String>>) binding ).getInstance() );
+        }
+        else if ( binding instanceof ProviderInstanceBinding<?> )
+        {
+            params.add( ( (ProviderInstanceBinding<Map<String, String>>) binding ).getProviderInstance().get() );
+        }
+        else
+        {
+            Logs.warn( "Ignoring non-instance @Parameters binding: {}", binding, null );
+        }
+    }
+
+    private void bindParameters( final Set<Key<?>> missingKeys )
+    {
+        if ( missingKeys.remove( ParameterKeys.PROPERTIES ) )
+        {
+            binder.bind( ParameterKeys.PROPERTIES ).toInstance( new MergedParameters( params ) );
+            localKeys.add( ParameterKeys.PROPERTIES );
+        }
+        if ( missingKeys.remove( ParameterKeys.ARGUMENTS ) )
+        {
+            binder.bind( ParameterKeys.ARGUMENTS ).toInstance( new String[0] );
+            localKeys.add( ParameterKeys.ARGUMENTS );
+        }
     }
 }

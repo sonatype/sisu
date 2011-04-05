@@ -14,7 +14,6 @@ package org.sonatype.guice.bean.binders;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -56,17 +55,6 @@ final class LocatorWiring
             new HashSet( Arrays.asList( BeanLocator.class, MutableBeanLocator.class, AbstractModule.class,
                                         Binder.class, Binding.class, Injector.class, Key.class, MembersInjector.class,
                                         Module.class, Provider.class, Scope.class, TypeLiteral.class ) );
-
-        Map defaultProperties;
-        try
-        {
-            defaultProperties = System.getProperties();
-        }
-        catch ( final Throwable e )
-        {
-            defaultProperties = new HashMap<String, String>();
-        }
-        DEFAULT_PROPERTIES = defaultProperties;
     }
 
     // ----------------------------------------------------------------------
@@ -74,10 +62,6 @@ final class LocatorWiring
     // ----------------------------------------------------------------------
 
     private static final Set<Class<?>> RESTRICTED_CLASSES;
-
-    private static final String[] DEFAULT_ARGUMENTS = {};
-
-    private static final Map<String, String> DEFAULT_PROPERTIES;
 
     private static final HiddenBinding HIDDEN_SOURCE = new HiddenBinding()
     {
@@ -110,21 +94,13 @@ final class LocatorWiring
     public boolean wire( final Key<?> key )
     {
         final Class<?> clazz = key.getTypeLiteral().getRawType();
-        if ( ParameterKeys.PROPERTIES.equals( key ) )
-        {
-            binder.bind( ParameterKeys.PROPERTIES ).toInstance( DEFAULT_PROPERTIES );
-        }
-        else if ( Map.class == clazz )
+        if ( Map.class == clazz )
         {
             bindMapImport( key );
         }
         else if ( List.class == clazz )
         {
             bindListImport( key );
-        }
-        else if ( ParameterKeys.ARGUMENTS.equals( key ) )
-        {
-            binder.bind( ParameterKeys.ARGUMENTS ).toInstance( DEFAULT_ARGUMENTS );
         }
         else if ( !isRestricted( clazz ) )
         {
