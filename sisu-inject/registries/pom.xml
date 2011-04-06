@@ -30,9 +30,9 @@
   <name>Sisu-Inject : Registries</name>
 
   <modules>
-    <module>sisu-inject-eclipse</module>
-    <module>sisu-inject-osgi</module>
-    <module>sisu-inject-spi</module>
+    <module>sisu-osgi-registry</module>
+    <module>sisu-eclipse-registry</module>
+    <module>sisu-spi-registry</module>
   </modules>
 
   <dependencies>

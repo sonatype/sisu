@@ -23,8 +23,8 @@
   </parent>
 
   <groupId>org.sonatype.sisu</groupId>
-  <artifactId>sisu-inject-osgi</artifactId>
+  <artifactId>sisu-osgi-registry</artifactId>
 
-  <name>Sisu-Inject-OSGi : Service lookup</name>
+  <name>Sisu-OSGi-Registry : Service bindings</name>
 
 </project>

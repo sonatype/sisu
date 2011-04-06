@@ -25,9 +25,9 @@
   <packaging>bundle</packaging>
 
   <groupId>org.sonatype.sisu</groupId>
-  <artifactId>sisu-inject-eclipse</artifactId>
+  <artifactId>sisu-eclipse-registry</artifactId>
 
-  <name>Sisu-Inject-Eclipse : Extension lookup</name>
+  <name>Sisu-Eclipse-Registry : Extension bindings</name>
 
   <dependencies>
     <dependency>

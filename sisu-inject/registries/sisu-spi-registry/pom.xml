@@ -23,8 +23,8 @@
   </parent>
 
   <groupId>org.sonatype.sisu</groupId>
-  <artifactId>sisu-inject-spi</artifactId>
+  <artifactId>sisu-spi-registry</artifactId>
 
-  <name>Sisu-Inject-SPI : Provider lookup</name>
+  <name>Sisu-SPI-Registry : Service bindings</name>
 
 </project>
