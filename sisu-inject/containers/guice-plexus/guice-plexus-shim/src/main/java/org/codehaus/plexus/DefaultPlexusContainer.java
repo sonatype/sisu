@@ -27,6 +27,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.inject.Provider;
+
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.classworlds.realm.DuplicateRealmException;
@@ -64,6 +66,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.converters.PlexusDateTypeConverter;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
+import org.sonatype.guice.plexus.lifecycles.PlexusLifecycleManager;
 import org.sonatype.guice.plexus.locators.ClassRealmUtils;
 import org.sonatype.guice.plexus.locators.DefaultPlexusBeanLocator;
 import org.sonatype.inject.BeanScanning;
@@ -133,7 +136,7 @@ public final class DefaultPlexusContainer
 
     private final Module containerModule = new ContainerModule();
 
-    private final Module defaultsModule = new DefaultsModule();
+    private final DefaultsModule defaultsModule = new DefaultsModule();
 
     private LoggerManager loggerManager = new ConsoleLoggerManager();
 
@@ -174,7 +177,10 @@ public final class DefaultPlexusContainer
 
         scanning = parseScanningOption( configuration.getClassPathScanning() );
         plexusBeanLocator = new DefaultPlexusBeanLocator( qualifiedBeanLocator, componentVisibility );
-        lifecycleManager = new PlexusLifecycleManager( this, context );
+
+        lifecycleManager =
+            new PlexusLifecycleManager( context, defaultsModule.loggerManagerProvider,
+                                        (Provider) new SLF4JLoggerFactoryProvider() );
 
         realmIds.add( containerRealm.getId() );
         setLookupRealm( containerRealm );
@@ -847,6 +853,22 @@ public final class DefaultPlexusContainer
         public DeferredClass<Logger> getImplementationClass()
         {
             return new LoadedClass<Logger>( get().getClass() );
+        }
+    }
+
+    final class SLF4JLoggerFactoryProvider
+        implements Provider<Object>
+    {
+        public Object get()
+        {
+            try
+            {
+                return lookup( org.slf4j.ILoggerFactory.class );
+            }
+            catch ( final Throwable e )
+            {
+                return org.slf4j.LoggerFactory.getILoggerFactory();
+            }
         }
     }
 }

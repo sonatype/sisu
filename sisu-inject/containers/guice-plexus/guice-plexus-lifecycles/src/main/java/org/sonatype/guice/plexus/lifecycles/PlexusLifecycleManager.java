@@ -9,18 +9,20 @@
  *   http://www.apache.org/licenses/LICENSE-2.0.html
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
-package org.codehaus.plexus;
+package org.sonatype.guice.plexus.lifecycles;
 
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import javax.inject.Provider;
+
 import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
@@ -36,7 +38,7 @@ import com.google.inject.ProvisionException;
 /**
  * {@link PlexusBeanManager} that manages Plexus components requiring lifecycle management.
  */
-final class PlexusLifecycleManager
+public final class PlexusLifecycleManager
     implements PlexusBeanManager
 {
     // ----------------------------------------------------------------------
@@ -58,29 +60,23 @@ final class PlexusLifecycleManager
 
     private final AtomicInteger numDeferredBeans = new AtomicInteger();
 
-    private final MutablePlexusContainer container;
-
     private final Context context;
 
-    List<org.slf4j.ILoggerFactory> loggerFactories;
+    private final Provider<LoggerManager> loggerManagerProvider;
+
+    private final Provider<org.slf4j.ILoggerFactory> slf4jLoggerFactoryProvider;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    PlexusLifecycleManager( final MutablePlexusContainer container, final Context context )
+    public PlexusLifecycleManager( final Context context, final Provider<LoggerManager> loggerManagerProvider,
+                                   final Provider<org.slf4j.ILoggerFactory> slf4jLoggerFactoryProvider )
     {
-        this.container = container;
         this.context = context;
 
-        try
-        {
-            loggerFactories = container.lookupList( org.slf4j.ILoggerFactory.class );
-        }
-        catch ( final Throwable e )
-        {
-            loggerFactories = Collections.emptyList();
-        }
+        this.loggerManagerProvider = loggerManagerProvider;
+        this.slf4jLoggerFactoryProvider = slf4jLoggerFactoryProvider;
     }
 
     // ----------------------------------------------------------------------
@@ -103,16 +99,7 @@ final class PlexusLifecycleManager
                 @SuppressWarnings( "unchecked" )
                 public <B> void injectProperty( final B bean )
                 {
-                    final String name = bean.getClass().getName();
-                    final Iterator<org.slf4j.ILoggerFactory> itr = loggerFactories.iterator();
-                    if ( itr.hasNext() )
-                    {
-                        property.set( bean, itr.next().getLogger( name ) );
-                    }
-                    else
-                    {
-                        property.set( bean, org.slf4j.LoggerFactory.getILoggerFactory().getLogger( name ) );
-                    }
+                    property.set( bean, getSLF4JLogger( bean ) );
                 }
             };
         }
@@ -196,7 +183,12 @@ final class PlexusLifecycleManager
 
     Logger getPlexusLogger( final Object bean )
     {
-        return container.getLoggerManager().getLoggerForComponent( bean.getClass().getName(), null );
+        return loggerManagerProvider.get().getLoggerForComponent( bean.getClass().getName(), null );
+    }
+
+    Object getSLF4JLogger( final Object bean )
+    {
+        return slf4jLoggerFactoryProvider.get().getLogger( bean.getClass().getName() );
     }
 
     // ----------------------------------------------------------------------
@@ -230,7 +222,7 @@ final class PlexusLifecycleManager
             {
                 // need to check hierarchy in case bean is proxied
                 final ClassLoader loader = clazz.getClassLoader();
-                if ( loader instanceof ClassRealm )
+                if ( loader instanceof URLClassLoader )
                 {
                     Thread.currentThread().setContextClassLoader( loader );
                     break;
@@ -348,7 +340,7 @@ final class PlexusLifecycleManager
     {
         try
         {
-            container.getLogger().warn( message, cause );
+            getPlexusLogger( this ).warn( message, cause );
         }
         catch ( final Throwable ignore )
         {
