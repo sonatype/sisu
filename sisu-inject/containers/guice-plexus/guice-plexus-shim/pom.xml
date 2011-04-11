@@ -77,6 +77,10 @@
       <artifactId>guice-plexus-binders</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.sonatype.sisu.inject</groupId>
+      <artifactId>guice-plexus-lifecycles</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-classworlds</artifactId>
     </dependency>
