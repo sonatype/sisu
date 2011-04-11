@@ -19,6 +19,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -183,6 +184,9 @@ public class BeanImportTest
     {
         @Inject
         List<Y> list;
+
+        @Inject
+        Iterable<Y> iterable;
     }
 
     static class NamedType
@@ -364,6 +368,13 @@ public class BeanImportTest
         assertSame( unrestrictedList.fuzzy, unrestrictedList.list.get( 1 ) );
 
         assertNotSame( unrestrictedList.list.get( 0 ), unrestrictedList.list.get( 1 ) );
+
+        final Iterator<?> iterator = unrestrictedList.iterable.iterator();
+
+        assertTrue( iterator.hasNext() );
+        assertSame( unrestrictedList.list.get( 0 ), iterator.next() );
+        assertSame( unrestrictedList.list.get( 1 ), iterator.next() );
+        assertFalse( iterator.hasNext() );
     }
 
     public void testNamedImports()

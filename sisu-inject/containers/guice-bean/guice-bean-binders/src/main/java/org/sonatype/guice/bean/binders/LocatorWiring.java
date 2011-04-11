@@ -98,7 +98,7 @@ final class LocatorWiring
         {
             bindMapImport( key );
         }
-        else if ( List.class == clazz )
+        else if ( List.class == clazz || Iterable.class == clazz )
         {
             bindListImport( key );
         }
