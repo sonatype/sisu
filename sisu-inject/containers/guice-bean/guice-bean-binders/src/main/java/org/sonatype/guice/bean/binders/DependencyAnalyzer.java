@@ -34,6 +34,7 @@ import com.google.inject.spi.InjectionRequest;
 import com.google.inject.spi.LinkedKeyBinding;
 import com.google.inject.spi.ProviderInstanceBinding;
 import com.google.inject.spi.ProviderKeyBinding;
+import com.google.inject.spi.ProviderLookup;
 import com.google.inject.spi.StaticInjectionRequest;
 import com.google.inject.spi.UntargettedBinding;
 
@@ -114,6 +115,12 @@ final class DependencyAnalyzer
         {
             return Boolean.valueOf( analyzeDependencies( ( (HasDependencies) binding ).getDependencies() ) );
         }
+        return Boolean.TRUE;
+    }
+
+    public <T> Boolean visit( final ProviderLookup<T> lookup )
+    {
+        requiredKeys.add( lookup.getKey() );
         return Boolean.TRUE;
     }
 

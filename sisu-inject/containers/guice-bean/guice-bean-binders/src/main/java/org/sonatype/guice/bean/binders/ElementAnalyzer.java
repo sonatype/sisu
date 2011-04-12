@@ -30,6 +30,7 @@ import com.google.inject.spi.InjectionRequest;
 import com.google.inject.spi.InstanceBinding;
 import com.google.inject.spi.PrivateElements;
 import com.google.inject.spi.ProviderInstanceBinding;
+import com.google.inject.spi.ProviderLookup;
 import com.google.inject.spi.StaticInjectionRequest;
 
 /**
@@ -132,6 +133,14 @@ final class ElementAnalyzer
             }
         }
 
+        return null;
+    }
+
+    @Override
+    public <T> Void visit( final ProviderLookup<T> lookup )
+    {
+        analyzer.visit( lookup );
+        lookup.applyTo( binder );
         return null;
     }
 
