@@ -9,7 +9,7 @@
  *   http://www.apache.org/licenses/LICENSE-2.0.html
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
-package org.sonatype.guice.plexus.containers;
+package org.sonatype.guice.plexus.shim;
 
 import java.util.Collections;
 import java.util.Iterator;

@@ -9,7 +9,7 @@
  *   http://www.apache.org/licenses/LICENSE-2.0.html
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
-package org.sonatype.guice.plexus.containers;
+package org.sonatype.guice.plexus.shim;
 
 import java.util.Map;
 
@@ -34,12 +34,12 @@ import org.sonatype.inject.Parameters;
 
 import com.google.inject.AbstractModule;
 
-public final class PlexusContainerModule
+public final class PlexusSpaceModule
     extends AbstractModule
 {
     private final ClassSpace space;
 
-    public PlexusContainerModule( final ClassSpace space )
+    public PlexusSpaceModule( final ClassSpace space )
     {
         this.space = space;
     }
