@@ -16,14 +16,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class DefaultContext
+public class DefaultContext
     implements Context
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<Object, Object> contextData = new ConcurrentHashMap<Object, Object>();
+    protected final Map<Object, Object> contextData = new ConcurrentHashMap<Object, Object>();
 
     // ----------------------------------------------------------------------
     // Constructors

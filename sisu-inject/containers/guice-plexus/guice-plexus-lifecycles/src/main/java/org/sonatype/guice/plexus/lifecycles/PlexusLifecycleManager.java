@@ -23,6 +23,7 @@ import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.logging.LogEnabled;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
+import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
@@ -60,22 +61,24 @@ public final class PlexusLifecycleManager
 
     private final AtomicInteger numDeferredBeans = new AtomicInteger();
 
-    private final Context context;
+    private final Logger consoleLogger = new ConsoleLogger();
 
-    private final Provider<LoggerManager> loggerManagerProvider;
+    private final Provider<Context> plexusContextProvider;
 
-    private final Provider<org.slf4j.ILoggerFactory> slf4jLoggerFactoryProvider;
+    private final Provider<LoggerManager> plexusLoggerManagerProvider;
+
+    private final Provider<?> slf4jLoggerFactoryProvider;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    public PlexusLifecycleManager( final Context context, final Provider<LoggerManager> loggerManagerProvider,
-                                   final Provider<org.slf4j.ILoggerFactory> slf4jLoggerFactoryProvider )
+    public PlexusLifecycleManager( final Provider<Context> plexusContextProvider,
+                                   final Provider<LoggerManager> plexusLoggerManagerProvider,
+                                   final Provider<?> slf4jLoggerFactoryProvider )
     {
-        this.context = context;
-
-        this.loggerManagerProvider = loggerManagerProvider;
+        this.plexusContextProvider = plexusContextProvider;
+        this.plexusLoggerManagerProvider = plexusLoggerManagerProvider;
         this.slf4jLoggerFactoryProvider = slf4jLoggerFactoryProvider;
     }
 
@@ -183,12 +186,27 @@ public final class PlexusLifecycleManager
 
     Logger getPlexusLogger( final Object bean )
     {
-        return loggerManagerProvider.get().getLoggerForComponent( bean.getClass().getName(), null );
+        try
+        {
+            return plexusLoggerManagerProvider.get().getLoggerForComponent( bean.getClass().getName(), null );
+        }
+        catch ( final Throwable e )
+        {
+            return consoleLogger;
+        }
     }
 
     Object getSLF4JLogger( final Object bean )
     {
-        return slf4jLoggerFactoryProvider.get().getLogger( bean.getClass().getName() );
+        final String name = bean.getClass().getName();
+        try
+        {
+            return ( (org.slf4j.ILoggerFactory) slf4jLoggerFactoryProvider.get() ).getLogger( name );
+        }
+        catch ( final Throwable e )
+        {
+            return org.slf4j.LoggerFactory.getLogger( name );
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -258,7 +276,7 @@ public final class PlexusLifecycleManager
         Logs.debug( "Contextualize: {}", bean.getClass(), null );
         try
         {
-            bean.contextualize( context );
+            bean.contextualize( plexusContextProvider.get() );
         }
         catch ( final Throwable e )
         {

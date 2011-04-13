@@ -116,6 +116,8 @@ public final class DefaultPlexusContainer
 
     final ThreadLocal<ClassRealm> lookupRealm = new ThreadLocal<ClassRealm>();
 
+    final LoggerManagerProvider loggerManagerProvider = new LoggerManagerProvider();
+
     final MutableBeanLocator qualifiedBeanLocator = new DefaultBeanLocator();
 
     final Context context;
@@ -124,9 +126,9 @@ public final class DefaultPlexusContainer
 
     final ClassRealm containerRealm;
 
-    final PlexusLifecycleManager lifecycleManager;
-
     final PlexusBeanLocator plexusBeanLocator;
+
+    final PlexusBeanManager plexusBeanManager;
 
     private final String componentVisibility;
 
@@ -176,11 +178,10 @@ public final class DefaultPlexusContainer
         isAutoWiringEnabled = configuration.getAutoWiring();
 
         scanning = parseScanningOption( configuration.getClassPathScanning() );
-        plexusBeanLocator = new DefaultPlexusBeanLocator( qualifiedBeanLocator, componentVisibility );
 
-        lifecycleManager =
-            new PlexusLifecycleManager( context, defaultsModule.loggerManagerProvider,
-                                        (Provider) new SLF4JLoggerFactoryProvider() );
+        plexusBeanLocator = new DefaultPlexusBeanLocator( qualifiedBeanLocator, componentVisibility );
+        plexusBeanManager = new PlexusLifecycleManager( Providers.of( context ), loggerManagerProvider, //
+                                                        new SLF4JLoggerFactoryProvider() ); // SLF4J (optional)
 
         realmIds.add( containerRealm.getId() );
         setLookupRealm( containerRealm );
@@ -456,7 +457,7 @@ public final class DefaultPlexusContainer
 
         modules.add( containerModule );
         Collections.addAll( modules, customModules );
-        modules.add( new PlexusBindingModule( lifecycleManager, beanModules ) );
+        modules.add( new PlexusBindingModule( plexusBeanManager, beanModules ) );
         modules.add( defaultsModule );
 
         Guice.createInjector( isAutoWiringEnabled ? new WireModule( modules ) : new MergedModule( modules ) );
@@ -545,7 +546,7 @@ public final class DefaultPlexusContainer
 
     public void release( final Object component )
     {
-        lifecycleManager.unmanage( component );
+        plexusBeanManager.unmanage( component );
     }
 
     public void releaseAll( final Map<String, ?> components )
@@ -568,7 +569,7 @@ public final class DefaultPlexusContainer
     {
         disposing = true;
 
-        lifecycleManager.unmanage();
+        plexusBeanManager.unmanage();
         containerRealm.setParentRealm( null );
         qualifiedBeanLocator.clear();
     }
@@ -798,7 +799,7 @@ public final class DefaultPlexusContainer
 
             bind( PlexusBeanConverter.class ).toInstance( beanConverter );
             bind( PlexusBeanLocator.class ).toInstance( plexusBeanLocator );
-            bind( PlexusBeanManager.class ).toInstance( lifecycleManager );
+            bind( PlexusBeanManager.class ).toInstance( plexusBeanManager );
 
             bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
             bind( MutablePlexusContainer.class ).to( DefaultPlexusContainer.class );
@@ -811,8 +812,6 @@ public final class DefaultPlexusContainer
     final class DefaultsModule
         extends AbstractModule
     {
-        final LoggerManagerProvider loggerManagerProvider = new LoggerManagerProvider();
-
         final LoggerProvider loggerProvider = new LoggerProvider();
 
         @Override
