@@ -860,14 +860,7 @@ public final class DefaultPlexusContainer
     {
         public Object get()
         {
-            try
-            {
-                return lookup( org.slf4j.ILoggerFactory.class );
-            }
-            catch ( final Throwable e )
-            {
-                return org.slf4j.LoggerFactory.getILoggerFactory();
-            }
+            return plexusBeanLocator.locate( TypeLiteral.get( org.slf4j.ILoggerFactory.class ) ).iterator().next().getValue();
         }
     }
 }
