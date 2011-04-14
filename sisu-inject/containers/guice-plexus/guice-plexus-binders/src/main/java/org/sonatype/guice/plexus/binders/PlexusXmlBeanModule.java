@@ -83,6 +83,8 @@ public final class PlexusXmlBeanModule
 
     public PlexusBeanSource configure( final Binder binder )
     {
+        binder.bind( ClassSpace.class ).toInstance( space );
+
         final PlexusTypeBinder plexusTypeBinder = new PlexusTypeBinder( binder );
         final Map<String, PlexusBeanMetadata> metadataMap = new HashMap<String, PlexusBeanMetadata>();
         final PlexusXmlScanner scanner = new PlexusXmlScanner( variables, plexusXml, metadataMap );
