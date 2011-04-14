@@ -80,13 +80,23 @@ final class DependencyAnalyzer
     @Override
     public Boolean visit( final LinkedKeyBinding<?> binding )
     {
-        return analyzeImplementation( binding.getLinkedKey().getTypeLiteral() );
+        final Key<?> linkedKey = binding.getLinkedKey();
+        if ( linkedKey.getAnnotationType() == null )
+        {
+            return analyzeImplementation( linkedKey.getTypeLiteral() );
+        }
+        return Boolean.TRUE; // indirect binding, don't scan
     }
 
     @Override
     public Boolean visit( final ProviderKeyBinding<?> binding )
     {
-        return analyzeImplementation( binding.getProviderKey().getTypeLiteral() );
+        final Key<?> providerKey = binding.getProviderKey();
+        if ( providerKey.getAnnotationType() == null )
+        {
+            return analyzeImplementation( providerKey.getTypeLiteral() );
+        }
+        return Boolean.TRUE; // indirect binding, don't scan
     }
 
     @Override
