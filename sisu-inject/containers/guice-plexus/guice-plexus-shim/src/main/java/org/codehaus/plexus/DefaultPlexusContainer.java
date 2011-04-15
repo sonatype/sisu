@@ -138,7 +138,7 @@ public final class DefaultPlexusContainer
 
     private final Module containerModule = new ContainerModule();
 
-    private final DefaultsModule defaultsModule = new DefaultsModule();
+    private final Module defaultsModule = new DefaultsModule();
 
     private LoggerManager loggerManager = new ConsoleLoggerManager();
 

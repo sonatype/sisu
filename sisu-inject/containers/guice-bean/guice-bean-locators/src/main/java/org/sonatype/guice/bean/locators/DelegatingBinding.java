@@ -47,22 +47,22 @@ class DelegatingBinding<T>
         return binding.getSource();
     }
 
-    public void applyTo( Binder binder )
+    public void applyTo( final Binder binder )
     {
         binder.bind( getKey() ).toProvider( getProvider() );
     }
 
-    public <V> V acceptVisitor( ElementVisitor<V> visitor )
+    public <V> V acceptVisitor( final ElementVisitor<V> visitor )
     {
         return binding.acceptVisitor( visitor );
     }
 
-    public <V> V acceptScopingVisitor( BindingScopingVisitor<V> visitor )
+    public <V> V acceptScopingVisitor( final BindingScopingVisitor<V> visitor )
     {
         return binding.acceptScopingVisitor( visitor );
     }
 
-    public <V> V acceptTargetVisitor( BindingTargetVisitor<? super T, V> visitor )
+    public <V> V acceptTargetVisitor( final BindingTargetVisitor<? super T, V> visitor )
     {
         return binding.acceptTargetVisitor( visitor );
     }
