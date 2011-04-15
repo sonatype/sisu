@@ -50,10 +50,6 @@
     </dependency>
     <dependency>
       <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-bean-inject</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
       <artifactId>guice-bean-locators</artifactId>
     </dependency>
     <dependency>
