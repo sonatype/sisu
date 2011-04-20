@@ -73,7 +73,7 @@
 
   <ciManagement>
     <system>Hudson</system>
-    <url>https://grid.sonatype.org/ci/job/Sisu/</url>
+    <url>https://builds.sonatype.org/job/sisu/</url>
   </ciManagement>
 
   <licenses>
