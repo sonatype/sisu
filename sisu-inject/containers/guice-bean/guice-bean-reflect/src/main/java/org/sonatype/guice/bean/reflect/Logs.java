@@ -12,7 +12,6 @@
 package org.sonatype.guice.bean.reflect;
 
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Utility methods for dealing with internal debug and warning messages.
@@ -25,37 +24,44 @@ public final class Logs
 
     static
     {
-        boolean debugEnabled = false;
-        boolean slf4jEnabled = false;
-        final Object[] logger = { null };
-        final String name = "Sisu";
+        String newLine;
+        boolean debug;
         try
         {
-            logger[0] = org.slf4j.LoggerFactory.getLogger( name );
-            debugEnabled = ( (org.slf4j.Logger) logger[0] ).isDebugEnabled();
-            slf4jEnabled = true;
+            newLine = System.getProperty( "line.separator" );
+            debug = "true".equalsIgnoreCase( System.getProperty( "org.sonatype.inject.debug" ) );
         }
         catch ( final Throwable e )
         {
-            logger[0] = Logger.getLogger( name );
-            debugEnabled = ( (Logger) logger[0] ).isLoggable( Level.FINE );
+            newLine = "\n";
+            debug = false;
         }
-        DEBUG_ENABLED = debugEnabled;
-        SLF4J_ENABLED = slf4jEnabled;
-        LOGGER = logger[0];
+        NEW_LINE = newLine;
+        Sink sink;
+        try
+        {
+            sink = debug ? new ConsoleSink() : new SLF4JSink();
+        }
+        catch ( final Throwable e )
+        {
+            sink = new JULSink();
+        }
+        SINK = sink;
     }
 
     // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
 
+    public static final String NEW_LINE;
+
+    private static final String SISU = "Sisu";
+
+    private static final Sink SINK;
+
+    private static final boolean DEBUG_ENABLED = SINK.hasDebug();
+
     private static final String ANCHOR = "{}";
-
-    private static final boolean DEBUG_ENABLED;
-
-    private static final boolean SLF4J_ENABLED;
-
-    private static final Object LOGGER;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -81,29 +87,7 @@ public final class Logs
     {
         if ( DEBUG_ENABLED )
         {
-            final String message = format( format( format, arg1 ), arg2 );
-            if ( arg2 instanceof Throwable )
-            {
-                if ( SLF4J_ENABLED )
-                {
-                    ( (org.slf4j.Logger) LOGGER ).debug( message, (Throwable) arg2 );
-                }
-                else
-                {
-                    ( (Logger) LOGGER ).log( Level.FINE, message, (Throwable) arg2 );
-                }
-            }
-            else
-            {
-                if ( SLF4J_ENABLED )
-                {
-                    ( (org.slf4j.Logger) LOGGER ).debug( message );
-                }
-                else
-                {
-                    ( (Logger) LOGGER ).fine( message );
-                }
-            }
+            SINK.debug( format( format( format, arg1 ), arg2 ), arg2 instanceof Throwable ? (Throwable) arg2 : null );
         }
     }
 
@@ -116,29 +100,7 @@ public final class Logs
      */
     public static void warn( final String format, final Object arg1, final Object arg2 )
     {
-        final String message = format( format( format, arg1 ), arg2 );
-        if ( arg2 instanceof Throwable )
-        {
-            if ( SLF4J_ENABLED )
-            {
-                ( (org.slf4j.Logger) LOGGER ).warn( message, (Throwable) arg2 );
-            }
-            else
-            {
-                ( (Logger) LOGGER ).log( Level.WARNING, message, (Throwable) arg2 );
-            }
-        }
-        else
-        {
-            if ( SLF4J_ENABLED )
-            {
-                ( (org.slf4j.Logger) LOGGER ).warn( message );
-            }
-            else
-            {
-                ( (Logger) LOGGER ).warning( message );
-            }
-        }
+        SINK.warn( format( format( format, arg1 ), arg2 ), arg2 instanceof Throwable ? (Throwable) arg2 : null );
     }
 
     // ----------------------------------------------------------------------
@@ -177,5 +139,87 @@ public final class Logs
             buf.append( format.substring( cursor, format.length() ) );
         }
         return buf.toString();
+    }
+
+    private interface Sink
+    {
+        boolean hasDebug();
+
+        void debug( String message, Throwable cause );
+
+        void warn( String message, Throwable cause );
+    }
+
+    static final class ConsoleSink
+        implements Sink
+    {
+        private static final String DEBUG = "DEBUG: " + SISU + " - ";
+
+        private static final String WARN = "WARN: " + SISU + " - ";
+
+        public boolean hasDebug()
+        {
+            return true;
+        }
+
+        public void debug( final String message, final Throwable cause )
+        {
+            System.out.println( DEBUG + message );
+            if ( null != cause )
+            {
+                cause.printStackTrace( System.out );
+            }
+        }
+
+        public void warn( final String message, final Throwable cause )
+        {
+            System.err.println( WARN + message );
+            if ( null != cause )
+            {
+                cause.printStackTrace( System.err );
+            }
+        }
+    }
+
+    static final class JULSink
+        implements Sink
+    {
+        private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger( SISU );
+
+        public boolean hasDebug()
+        {
+            return logger.isLoggable( Level.FINE );
+        }
+
+        public void debug( final String message, final Throwable cause )
+        {
+            logger.log( Level.FINE, message, cause );
+        }
+
+        public void warn( final String message, final Throwable cause )
+        {
+            logger.log( Level.WARNING, message, cause );
+        }
+    }
+
+    static final class SLF4JSink
+        implements Sink
+    {
+        private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger( SISU );
+
+        public boolean hasDebug()
+        {
+            return logger.isDebugEnabled();
+        }
+
+        public void debug( final String message, final Throwable cause )
+        {
+            logger.debug( message, cause );
+        }
+
+        public void warn( final String message, final Throwable cause )
+        {
+            logger.warn( message, cause );
+        }
     }
 }

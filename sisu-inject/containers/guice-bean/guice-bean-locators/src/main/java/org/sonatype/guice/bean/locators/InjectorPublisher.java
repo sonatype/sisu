@@ -17,6 +17,7 @@ import java.util.List;
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binding;
@@ -136,7 +137,14 @@ final class InjectorPublisher
     @Override
     public String toString()
     {
-        return injector.toString();
+        final StringBuilder buf = new StringBuilder();
+        buf.append( "Injector@" ).append( Integer.toHexString( System.identityHashCode( injector ) ) ).append( " bindings:" );
+        int i = 0;
+        for ( final Binding<?> b : injector.getBindings().values() )
+        {
+            buf.append( Logs.NEW_LINE ).append( i++ ).append( "=" ).append( b );
+        }
+        return buf.append( Logs.NEW_LINE ).toString();
     }
 
     // ----------------------------------------------------------------------

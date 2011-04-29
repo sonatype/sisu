@@ -94,7 +94,7 @@ final class ElementAnalyzer
         final Key<T> key = binding.getKey();
         if ( localKeys.contains( key ) )
         {
-            return null;
+            Logs.debug( "Ignore duplicate: {}", binding, null );
         }
         else if ( ParameterKeys.PROPERTIES.equals( key ) )
         {
@@ -104,6 +104,10 @@ final class ElementAnalyzer
         {
             localKeys.add( key );
             binding.applyTo( binder );
+        }
+        else
+        {
+            Logs.debug( "Remove binding: {}", binding, null );
         }
         return null;
     }

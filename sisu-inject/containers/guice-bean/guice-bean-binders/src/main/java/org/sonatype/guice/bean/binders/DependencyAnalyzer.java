@@ -158,12 +158,13 @@ final class DependencyAnalyzer
             {
                 try
                 {
-                    result = analyzeDependencies( InjectionPoint.forConstructorOf( type ).getDependencies() );
-                    result &= analyzeInjectionPoints( InjectionPoint.forInstanceMethodsAndFields( type ) );
+                    // some types need analysis but lack a valid constructor, so check methods+fields first
+                    result = analyzeInjectionPoints( InjectionPoint.forInstanceMethodsAndFields( type ) );
+                    result &= analyzeDependencies( InjectionPoint.forConstructorOf( type ).getDependencies() );
                 }
                 catch ( final Throwable e )
                 {
-                    Logs.debug( "Ignore: {}", type, e );
+                    Logs.debug( "Potential problem: {}", type, e );
                     result = false;
                 }
             }
