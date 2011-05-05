@@ -120,7 +120,7 @@ final class ResourceEnumeration
 
             try
             {
-                return getResource( name );
+                return findResource( name );
             }
             catch ( final MalformedURLException e )
             {
@@ -186,7 +186,7 @@ final class ResourceEnumeration
                 nextEntryName = subPath + globPattern;
 
                 // but still need to check resource actually exists!
-                Streams.open( getResource( nextEntryName ) ).close();
+                Streams.open( findResource( nextEntryName ) ).close();
             }
             catch ( final Throwable e )
             {
@@ -204,7 +204,7 @@ final class ResourceEnumeration
      * @param name The resource name
      * @return URL for the resource
      */
-    private URL getResource( final String name )
+    private URL findResource( final String name )
         throws MalformedURLException
     {
         if ( isFolder )

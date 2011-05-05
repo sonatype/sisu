@@ -86,7 +86,7 @@ final class InjectorPublisher
             matchFound |= publishBindings( OBJECT_TYPE_LITERAL, subscriber, type );
         }
 
-        if ( !matchFound && null != space && space.loadedClass( clazz ) )
+        if ( !matchFound && null != space && isImplicit( clazz ) && space.loadedClass( clazz ) )
         {
             try
             {
@@ -184,14 +184,16 @@ final class InjectorPublisher
         return matchFound;
     }
 
+    private static boolean isImplicit( final Class<?> clazz )
+    {
+        return ( clazz.getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) == 0
+            || clazz.isAnnotationPresent( ImplementedBy.class ) || clazz.isAnnotationPresent( ProvidedBy.class );
+    }
+
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     private <T> Binding<T> getImplicitBinding( final TypeLiteral<T> type, final Class<?> clazz )
     {
         final Key key = Key.get( type );
-        if ( ( clazz.getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) == 0 )
-        {
-            return injector.getBinding( key );
-        }
         final ImplementedBy implementedBy = clazz.getAnnotation( ImplementedBy.class );
         if ( null != implementedBy )
         {
@@ -209,6 +211,6 @@ final class InjectorPublisher
                 }
             };
         }
-        return null;
+        return injector.getBinding( key ); // must be concrete class
     }
 }
