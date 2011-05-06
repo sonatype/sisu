@@ -76,6 +76,10 @@ public final class BeanListener
                     {
                         bindings.add( binding );
                     }
+                    else
+                    {
+                        visited.remove( name );
+                    }
                 }
                 catch ( final Throwable e )
                 {
