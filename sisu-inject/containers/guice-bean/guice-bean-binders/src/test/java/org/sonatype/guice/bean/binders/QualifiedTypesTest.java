@@ -58,7 +58,7 @@ public class QualifiedTypesTest
     }
 
     @Named
-    @Typed( EventListener.class )
+    @Typed
     static class DefaultB02
         implements RandomAccess, EventListener
     {
@@ -129,7 +129,7 @@ public class QualifiedTypesTest
     {
     }
 
-    @Typed( EventListener.class )
+    @Typed( { AbstractB02.class, EventListener.class } )
     static abstract class AbstractB02
         implements RandomAccess, EventListener
     {
@@ -171,6 +171,7 @@ public class QualifiedTypesTest
     }
 
     @Named
+    @Typed( B02.class )
     static class SubclassB06
         extends B02
     {
@@ -191,6 +192,7 @@ public class QualifiedTypesTest
     }
 
     @Named
+    @Typed
     static class SubclassB08
         extends B02
         implements Serializable

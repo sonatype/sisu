@@ -199,10 +199,10 @@ public final class QualifiedTypeBinder
                 sbb.in( Scopes.SINGLETON );
             }
 
-            final Typed typed = providerType.getAnnotation( Typed.class );
-            if ( null != typed )
+            final Class<?>[] types = getBindingTypes( providerType );
+            if ( null != types )
             {
-                for ( final Class bindingType : typed.value() )
+                for ( final Class bindingType : types )
                 {
                     binder.bind( key.ofType( bindingType ) ).to( key );
                 }
@@ -225,16 +225,12 @@ public final class QualifiedTypeBinder
         }
 
         final Named bindingName = getBindingName( qualifiedType );
-        final Typed typed = qualifiedType.getAnnotation( Typed.class );
-        if ( null != typed || Object.class == qualifiedType.getSuperclass() )
+        final Class<?>[] types = getBindingTypes( qualifiedType );
+
+        if ( null != types )
         {
-            Class<?>[] interfaces = qualifiedType.getInterfaces();
-            if ( null != typed && typed.value().length > 0 )
-            {
-                interfaces = typed.value();
-            }
             final Key key = getBindingKey( OBJECT_TYPE_LITERAL, bindingName );
-            for ( final Class bindingType : interfaces )
+            for ( final Class bindingType : types )
             {
                 binder.bind( key.ofType( bindingType ) ).to( qualifiedType );
             }
@@ -321,5 +317,18 @@ public final class QualifiedTypeBinder
         }
 
         return Names.named( qualifiedType.getName() );
+    }
+
+    private static Class<?>[] getBindingTypes( final Class<?> clazz )
+    {
+        for ( Class<?> c = clazz; c != Object.class; c = c.getSuperclass() )
+        {
+            final Typed typed = c.getAnnotation( Typed.class );
+            if ( null != typed )
+            {
+                return typed.value().length > 0 ? typed.value() : c.getInterfaces();
+            }
+        }
+        return null;
     }
 }

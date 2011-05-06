@@ -13,6 +13,7 @@ package org.sonatype.guice.bean.binders;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.enterprise.inject.Typed;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -62,6 +63,7 @@ public class QualifiedProviderTest
     }
 
     @Named( "counting" )
+    @Typed
     static class CountingRunnable
         implements Runnable
     {
