@@ -11,9 +11,8 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.binders;
 
-import java.lang.reflect.Modifier;
-
 import org.sonatype.guice.bean.reflect.Logs;
+import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binding;
 import com.google.inject.TypeLiteral;
@@ -57,14 +56,14 @@ final class DependencyVerifier
 
     private Boolean verify( final TypeLiteral<?> type )
     {
-        if ( ( type.getRawType().getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) != 0 )
+        if ( !TypeParameters.isConcrete( type ) )
         {
             return Boolean.TRUE;
         }
         try
         {
-            InjectionPoint.forConstructorOf( type ).getDependencies();
             InjectionPoint.forInstanceMethodsAndFields( type );
+            InjectionPoint.forConstructorOf( type ).getDependencies();
             return Boolean.TRUE;
         }
         catch ( final Throwable e )

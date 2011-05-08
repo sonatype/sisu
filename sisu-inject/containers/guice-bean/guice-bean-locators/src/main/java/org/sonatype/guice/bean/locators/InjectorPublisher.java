@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
-import java.lang.reflect.Modifier;
 import java.util.List;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
@@ -186,8 +185,8 @@ final class InjectorPublisher
 
     private static boolean isImplicit( final Class<?> clazz )
     {
-        return ( clazz.getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) == 0
-            || clazz.isAnnotationPresent( ImplementedBy.class ) || clazz.isAnnotationPresent( ProvidedBy.class );
+        return TypeParameters.isConcrete( clazz ) || clazz.isAnnotationPresent( ImplementedBy.class )
+            || clazz.isAnnotationPresent( ProvidedBy.class );
     }
 
     @SuppressWarnings( { "rawtypes", "unchecked" } )

@@ -242,7 +242,12 @@ public class BeanImportTest
         @Inject
         @Nullable
         @Named( "${text}" )
-        String single;
+        String config;
+
+        @Inject
+        @Nullable
+        @Named( "text" )
+        String plain;
     }
 
     static class PlaceholderConfig
@@ -411,12 +416,32 @@ public class BeanImportTest
 
         PlaceholderString placeholderString;
         placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
-        assertNull( placeholderString.single );
+        assertNull( placeholderString.config );
+        assertEquals( "text", placeholderString.plain );
 
         PROPS.put( "text", "Hello, world!" );
 
         placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
-        assertEquals( "Hello, world!", placeholderString.single );
+        assertEquals( "Hello, world!", placeholderString.config );
+        assertEquals( "Hello, world!", placeholderString.plain );
+
+        PROPS.put( "text", "text" );
+
+        placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
+        assertEquals( "text", placeholderString.config );
+        assertEquals( "text", placeholderString.plain );
+
+        PROPS.put( "text", "${text}" );
+
+        try
+        {
+            placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
+            fail( "Expected ProvisionException" );
+        }
+        catch ( final ProvisionException e )
+        {
+            assertTrue( e.getMessage().contains( "${text}" ) );
+        }
 
         PROPS.put( "text", ">${one}{" );
         PROPS.put( "one", "-${two}=" );
@@ -436,22 +461,26 @@ public class BeanImportTest
         PROPS.put( "text", ">${text" );
 
         placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
-        assertEquals( ">${text", placeholderString.single );
+        assertEquals( ">${text", placeholderString.config );
+        assertEquals( ">${text", placeholderString.plain );
 
         PROPS.put( "text", "${key:-default}" );
 
         placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
-        assertEquals( "default", placeholderString.single );
+        assertEquals( "default", placeholderString.config );
+        assertEquals( "default", placeholderString.plain );
 
         PROPS.put( "key", "configured" );
 
         placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
-        assertEquals( "configured", placeholderString.single );
+        assertEquals( "configured", placeholderString.config );
+        assertEquals( "configured", placeholderString.plain );
 
         PROPS.put( "text", "${:-some:-default:-value:-}" );
 
         placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
-        assertEquals( "some:-default:-value:-", placeholderString.single );
+        assertEquals( "some:-default:-value:-", placeholderString.config );
+        assertEquals( "some:-default:-value:-", placeholderString.plain );
 
         try
         {

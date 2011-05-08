@@ -12,6 +12,7 @@
 package org.sonatype.guice.bean.reflect;
 
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -137,6 +138,16 @@ public final class TypeParameters
             }
         }
         return false;
+    }
+
+    public static boolean isConcrete( final TypeLiteral<?> literal )
+    {
+        return isConcrete( literal.getRawType() );
+    }
+
+    public static boolean isConcrete( final Class<?> clazz )
+    {
+        return 0 == ( clazz.getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) );
     }
 
     // ----------------------------------------------------------------------

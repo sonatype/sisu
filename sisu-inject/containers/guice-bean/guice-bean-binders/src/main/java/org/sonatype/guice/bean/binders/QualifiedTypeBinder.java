@@ -14,7 +14,6 @@ package org.sonatype.guice.bean.binders;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.IncompleteAnnotationException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
 
 import javax.enterprise.inject.Typed;
 
@@ -90,7 +89,7 @@ public final class QualifiedTypeBinder
             }
         }
 
-        if ( ( qualifiedType.getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) != 0 )
+        if ( !TypeParameters.isConcrete( qualifiedType ) )
         {
             return;
         }

@@ -12,12 +12,12 @@
 package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import javax.inject.Qualifier;
 
@@ -54,7 +54,7 @@ final class LocatorWiring
         RESTRICTED_CLASSES =
             new HashSet( Arrays.asList( BeanLocator.class, MutableBeanLocator.class, AbstractModule.class,
                                         Binder.class, Binding.class, Injector.class, Key.class, MembersInjector.class,
-                                        Module.class, Provider.class, Scope.class, TypeLiteral.class ) );
+                                        Module.class, Provider.class, Scope.class, TypeLiteral.class, Logger.class ) );
     }
 
     // ----------------------------------------------------------------------
@@ -157,19 +157,20 @@ final class LocatorWiring
     private <T> void bindBeanImport( final Key<T> key )
     {
         final Annotation qualifier = key.getAnnotation();
-        final String name = qualifier instanceof Named ? ( (Named) qualifier ).value() : "CUSTOM";
-        if ( name.contains( "${" ) )
+        if ( qualifier instanceof Named )
         {
-            binder.bind( key ).toProvider( new PlaceholderBeanProvider<T>( key ) );
+            if ( ( (Named) qualifier ).value().length() == 0 )
+            {
+                // special case for wildcard @Named dependencies: match any @Named bean regardless of actual name
+                binder.bind( key ).toProvider( new BeanProvider<T>( Key.get( key.getTypeLiteral(), Named.class ) ) );
+            }
+            else
+            {
+                binder.bind( key ).toProvider( new PlaceholderBeanProvider<T>( key ) );
+            }
         }
-        else if ( name.length() == 0 )
+        else if ( null != key.getAnnotationType() || !TypeParameters.isConcrete( key.getTypeLiteral() ) )
         {
-            // special case for wildcard @Named dependencies: match any @Named bean regardless of actual name
-            binder.bind( key ).toProvider( new BeanProvider<T>( Key.get( key.getTypeLiteral(), Named.class ) ) );
-        }
-        else if ( !isImplicit( key ) )
-        {
-            // avoid messing with any unqualified implicit bindings
             binder.bind( key ).toProvider( new BeanProvider<T>( key ) );
         }
     }
@@ -182,30 +183,6 @@ final class LocatorWiring
      */
     private static boolean isRestricted( final Class<?> clazz )
     {
-        return RESTRICTED_CLASSES.contains( clazz );
-    }
-
-    /**
-     * Determines whether the given key is an implicit binding which shouldn't be overridden by the import binder.
-     * 
-     * @param key The binding key
-     * @return {@code true} if the implementation of the given type is implicit; otherwise {@code false}
-     */
-    private static boolean isImplicit( final Key<?> key )
-    {
-        // only unqualified keys may be implicit
-        if ( null == key.getAnnotationType() )
-        {
-            final Class<?> clazz = key.getTypeLiteral().getRawType();
-            if ( ( clazz.getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) == 0 )
-            {
-                return true; // concrete types are considered implicit
-            }
-            if ( clazz.getName().equals( "org.slf4j.Logger" ) )
-            {
-                return true; // automatically handled by the container
-            }
-        }
-        return false;
+        return RESTRICTED_CLASSES.contains( clazz ) || clazz.getName().equals( "org.slf4j.Logger" );
     }
 }

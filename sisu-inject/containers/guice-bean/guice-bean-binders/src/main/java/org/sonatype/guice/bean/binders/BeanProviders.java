@@ -12,12 +12,14 @@
 package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
@@ -195,6 +197,46 @@ final class BeanProvider<V>
 
 // ----------------------------------------------------------------------
 
+@Singleton
+final class TypeConverterMap
+    implements TypeConverter
+{
+    @Inject
+    private Injector injector;
+
+    private final Map<TypeLiteral<?>, TypeConverter> converterMap = new HashMap<TypeLiteral<?>, TypeConverter>();
+
+    TypeConverterMap()
+    {
+        converterMap.put( TypeLiteral.get( String.class ), this );
+    }
+
+    public Object convert( final String config, final TypeLiteral<?> type )
+    {
+        return config;
+    }
+
+    synchronized TypeConverter getTypeConverter( final TypeLiteral<?> type )
+    {
+        if ( !converterMap.containsKey( type ) )
+        {
+            for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
+            {
+                if ( b.getTypeMatcher().matches( type ) )
+                {
+                    final TypeConverter converter = b.getTypeConverter();
+                    converterMap.put( type, converter );
+                    return converter;
+                }
+            }
+            converterMap.put( type, null );
+        }
+        return converterMap.get( type );
+    }
+}
+
+// ----------------------------------------------------------------------
+
 /**
  * Provides a single bean; the name used to lookup/convert the bean is selected at runtime.
  */
@@ -213,12 +255,13 @@ final class PlaceholderBeanProvider<V>
 
     @Inject
     @Parameters
-    Map<String, String> properties;
+    private Map<String, String> properties;
+
+    @Inject
+    private TypeConverterMap converterMap;
 
     @Inject
     private BeanLocator locator;
-
-    private TypeConverter typeConverter;
 
     private final Key<V> placeholderKey;
 
@@ -239,43 +282,38 @@ final class PlaceholderBeanProvider<V>
     public V get()
     {
         final TypeLiteral<V> beanType = placeholderKey.getTypeLiteral();
-        final String config = interpolate( ( (Named) placeholderKey.getAnnotation() ).value() );
+        String config = interpolate( ( (Named) placeholderKey.getAnnotation() ).value() );
         if ( "null".equals( config ) )
         {
             return null;
         }
-        if ( null != typeConverter )
+        final Named named = Names.named( config );
+        final V bean = BeanProvider.get( locator, Key.get( beanType, named ) );
+        if ( null == bean )
         {
-            return (V) typeConverter.convert( config, beanType );
+            final TypeConverter converter = converterMap.getTypeConverter( beanType );
+            if ( null != converter )
+            {
+                final String boundConstant = BeanProvider.get( locator, Key.get( String.class, named ) );
+                if ( null != boundConstant )
+                {
+                    config = boundConstant;
+                }
+                return (V) converter.convert( config, beanType );
+            }
         }
-        if ( String.class == beanType.getRawType() )
-        {
-            return (V) config;
-        }
-        return BeanProvider.get( locator, Key.get( beanType, Names.named( config ) ) );
+        return bean;
     }
 
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    @Inject
-    void setTypeConverterBindings( final Injector injector )
+    private String interpolate( final String text )
     {
-        final TypeLiteral<V> beanType = placeholderKey.getTypeLiteral();
-        for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
-        {
-            if ( b.getTypeMatcher().matches( beanType ) )
-            {
-                typeConverter = b.getTypeConverter();
-                break;
-            }
-        }
-    }
+        final StringBuilder buf =
+            new StringBuilder( properties.containsKey( text ) ? String.valueOf( properties.get( text ) ) : text );
 
-    private String interpolate( final String placeholder )
-    {
-        final StringBuilder buf = new StringBuilder( placeholder );
         int x = 0, y, expressionEnd = 0, expressionNum = 0;
         while ( ( x = buf.indexOf( "${", x ) ) >= 0 && ( y = buf.indexOf( "}", x ) + 1 ) > 0 )
         {
@@ -293,7 +331,7 @@ final class PlaceholderBeanProvider<V>
             }
             if ( expressionNum++ >= EXPRESSION_RECURSION_LIMIT )
             {
-                throw new ProvisionException( "Recursive configuration: " + placeholder + " stopped at: " + buf );
+                throw new ProvisionException( "Recursive configuration: " + text + " stopped at: " + buf );
             }
             final int len = buf.length();
             buf.replace( x, y, String.valueOf( value ) );

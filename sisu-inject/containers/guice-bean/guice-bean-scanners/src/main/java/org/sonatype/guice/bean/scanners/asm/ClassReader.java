@@ -29,8 +29,8 @@
  */
 package org.sonatype.guice.bean.scanners.asm;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * A Java class parser to make a {@link ClassVisitor} visit an existing class.

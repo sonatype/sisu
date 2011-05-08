@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.binders;
 
-import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -154,7 +153,7 @@ final class DependencyAnalyzer
         if ( null == applyBinding )
         {
             boolean result = true;
-            if ( ( type.getRawType().getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) ) == 0 )
+            if ( TypeParameters.isConcrete( type ) )
             {
                 try
                 {
