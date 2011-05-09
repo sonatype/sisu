@@ -114,15 +114,9 @@ public final class SisuActivator
         {
             return null; // this is our container, ignore it to avoid circularity errors
         }
-        final Dictionary<?, ?> headers = bundle.getHeaders();
-        final String host = (String) headers.get( Constants.FRAGMENT_HOST );
-        final String imports = (String) headers.get( Constants.IMPORT_PACKAGE );
-        if ( null == host && null != imports && imports.contains( "javax.inject" ) )
+        if ( needsScanning( bundle ) && getBundleInjectorService( bundle ) == null )
         {
-            if ( getBundleInjectorService( bundle ) == null )
-            {
-                new BundleInjector( bundle );
-            }
+            new BundleInjector( bundle );
         }
         return null;
     }
@@ -162,6 +156,22 @@ public final class SisuActivator
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
+
+    private static boolean needsScanning( final Bundle bundle )
+    {
+        final Dictionary<?, ?> headers = bundle.getHeaders();
+        final String host = (String) headers.get( Constants.FRAGMENT_HOST );
+        if ( null != host )
+        {
+            return false; // fragment, we'll scan it when we process the host
+        }
+        final String imports = (String) headers.get( Constants.IMPORT_PACKAGE );
+        if ( null == imports )
+        {
+            return false; // doesn't import any interesting injection packages
+        }
+        return imports.contains( "javax.inject" ) || imports.contains( "com.google.inject" );
+    }
 
     private static ServiceReference getBundleInjectorService( final Bundle bundle )
     {
