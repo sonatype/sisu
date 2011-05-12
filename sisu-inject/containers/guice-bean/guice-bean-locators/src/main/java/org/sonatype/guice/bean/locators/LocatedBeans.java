@@ -81,7 +81,8 @@ final class LocatedBeans<Q extends Annotation, T>
     {
         if ( readCache.size() > 0 )
         {
-            final Map<Binding<T>, BeanEntry<Q, T>> tempCache = cloneCache();
+            @SuppressWarnings( { "rawtypes", "unchecked" } )
+            final Map<Binding<T>, BeanEntry<Q, T>> tempCache = (Map) ( (IdentityHashMap) readCache ).clone();
             for ( final Iterator<Entry<Binding<T>, BeanEntry<Q, T>>> i = tempCache.entrySet().iterator(); i.hasNext(); )
             {
                 if ( activeBindings.indexOfThis( i.next().getKey() ) < 0 )
@@ -104,22 +105,16 @@ final class LocatedBeans<Q extends Annotation, T>
     synchronized BeanEntry<Q, T> cacheBean( final Q qualifier, final Binding<T> binding, final int rank )
     {
         final BeanEntry<Q, T> bean = new LazyBeanEntry<Q, T>( qualifier, binding, rank );
-        final Map<Binding<T>, BeanEntry<Q, T>> tempCache = cloneCache();
+
+        @SuppressWarnings( { "rawtypes", "unchecked" } )
+        final Map<Binding<T>, BeanEntry<Q, T>> tempCache =
+            readCache.size() > 0 ? (Map) ( (IdentityHashMap) readCache ).clone()
+                            : new IdentityHashMap<Binding<T>, BeanEntry<Q, T>>();
 
         tempCache.put( binding, bean );
         readCache = tempCache;
 
         return bean;
-    }
-
-    @SuppressWarnings( { "rawtypes", "unchecked" } )
-    private Map<Binding<T>, BeanEntry<Q, T>> cloneCache()
-    {
-        if ( readCache instanceof IdentityHashMap<?, ?> )
-        {
-            return (IdentityHashMap) ( (IdentityHashMap) readCache ).clone();
-        }
-        return new IdentityHashMap();
     }
 
     // ----------------------------------------------------------------------
