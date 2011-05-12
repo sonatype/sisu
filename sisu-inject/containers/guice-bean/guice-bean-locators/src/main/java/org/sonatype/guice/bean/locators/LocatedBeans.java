@@ -12,11 +12,11 @@
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import org.sonatype.inject.BeanEntry;
@@ -42,7 +42,8 @@ final class LocatedBeans<Q extends Annotation, T>
 
     final QualifyingStrategy strategy;
 
-    Map<Binding<T>, BeanEntry<Q, T>> beanCache;
+    @SuppressWarnings( "unchecked" )
+    volatile Map<Binding<T>, BeanEntry<Q, T>> readCache = Collections.EMPTY_MAP;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -62,10 +63,9 @@ final class LocatedBeans<Q extends Annotation, T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( { "rawtypes", "unchecked" } )
-    public synchronized Iterator<BeanEntry<Q, T>> iterator()
+    public Iterator<BeanEntry<Q, T>> iterator()
     {
-        return new Itr( null != beanCache ? new IdentityHashMap( beanCache ) : Collections.EMPTY_MAP );
+        return new Itr();
     }
 
     // ----------------------------------------------------------------------
@@ -79,15 +79,17 @@ final class LocatedBeans<Q extends Annotation, T>
      */
     synchronized void retainAll( final RankedList<Binding<T>> activeBindings )
     {
-        if ( null != beanCache )
+        if ( readCache.size() > 0 )
         {
-            for ( final Binding<T> b : new ArrayList<Binding<T>>( beanCache.keySet() ) )
+            final Map<Binding<T>, BeanEntry<Q, T>> tempCache = cloneCache();
+            for ( final Iterator<Entry<Binding<T>, BeanEntry<Q, T>>> i = tempCache.entrySet().iterator(); i.hasNext(); )
             {
-                if ( activeBindings.indexOfThis( b ) < 0 )
+                if ( activeBindings.indexOfThis( i.next().getKey() ) < 0 )
                 {
-                    beanCache.remove( b );
+                    i.remove();
                 }
             }
+            readCache = tempCache;
         }
     }
 
@@ -101,17 +103,23 @@ final class LocatedBeans<Q extends Annotation, T>
      */
     synchronized BeanEntry<Q, T> cacheBean( final Q qualifier, final Binding<T> binding, final int rank )
     {
-        if ( null == beanCache )
-        {
-            beanCache = new IdentityHashMap<Binding<T>, BeanEntry<Q, T>>();
-        }
-        BeanEntry<Q, T> bean = beanCache.get( binding );
-        if ( null == bean )
-        {
-            bean = new LazyBeanEntry<Q, T>( qualifier, binding, rank );
-            beanCache.put( binding, bean );
-        }
+        final BeanEntry<Q, T> bean = new LazyBeanEntry<Q, T>( qualifier, binding, rank );
+        final Map<Binding<T>, BeanEntry<Q, T>> tempCache = cloneCache();
+
+        tempCache.put( binding, bean );
+        readCache = tempCache;
+
         return bean;
+    }
+
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    private Map<Binding<T>, BeanEntry<Q, T>> cloneCache()
+    {
+        if ( readCache instanceof IdentityHashMap<?, ?> )
+        {
+            return (IdentityHashMap) ( (IdentityHashMap) readCache ).clone();
+        }
+        return new IdentityHashMap();
     }
 
     // ----------------------------------------------------------------------
@@ -121,7 +129,7 @@ final class LocatedBeans<Q extends Annotation, T>
     /**
      * {@link BeanEntry} iterator that creates new elements from {@link Binding}s as required.
      */
-    private final class Itr
+    final class Itr
         implements Iterator<BeanEntry<Q, T>>
     {
         // ----------------------------------------------------------------------
@@ -130,18 +138,7 @@ final class LocatedBeans<Q extends Annotation, T>
 
         private final RankedBindings<T>.Itr itr = bindings.iterator();
 
-        private final Map<Binding<T>, BeanEntry<Q, T>> readCache;
-
         private BeanEntry<Q, T> nextBean;
-
-        // ----------------------------------------------------------------------
-        // Constructors
-        // ----------------------------------------------------------------------
-
-        Itr( final Map<Binding<T>, BeanEntry<Q, T>> readCache )
-        {
-            this.readCache = readCache;
-        }
 
         // ----------------------------------------------------------------------
         // Public methods
