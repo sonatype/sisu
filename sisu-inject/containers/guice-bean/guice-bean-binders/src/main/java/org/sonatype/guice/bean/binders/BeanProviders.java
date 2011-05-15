@@ -12,11 +12,11 @@
 package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -204,7 +204,8 @@ final class TypeConverterMap
     @Inject
     private Injector injector;
 
-    private final Map<TypeLiteral<?>, TypeConverter> converterMap = new HashMap<TypeLiteral<?>, TypeConverter>();
+    private final Map<TypeLiteral<?>, TypeConverter> converterMap =
+        new ConcurrentHashMap<TypeLiteral<?>, TypeConverter>();
 
     TypeConverterMap()
     {
@@ -216,22 +217,22 @@ final class TypeConverterMap
         return config;
     }
 
-    synchronized TypeConverter getTypeConverter( final TypeLiteral<?> type )
+    TypeConverter getTypeConverter( final TypeLiteral<?> type )
     {
-        if ( !converterMap.containsKey( type ) )
+        TypeConverter converter = converterMap.get( type );
+        if ( null == converter )
         {
             for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
             {
                 if ( b.getTypeMatcher().matches( type ) )
                 {
-                    final TypeConverter converter = b.getTypeConverter();
+                    converter = b.getTypeConverter();
                     converterMap.put( type, converter );
-                    return converter;
+                    break;
                 }
             }
-            converterMap.put( type, null );
         }
-        return converterMap.get( type );
+        return converter;
     }
 }
 
@@ -281,28 +282,39 @@ final class PlaceholderBeanProvider<V>
     @SuppressWarnings( "unchecked" )
     public V get()
     {
-        final TypeLiteral<V> beanType = placeholderKey.getTypeLiteral();
-        String config = interpolate( ( (Named) placeholderKey.getAnnotation() ).value() );
+        final String template = ( (Named) placeholderKey.getAnnotation() ).value();
+        String config = interpolate( template );
         if ( "null".equals( config ) )
         {
-            return null;
+            return null; // no point continuing
         }
         final Named named = Names.named( config );
+        final TypeLiteral<V> beanType = placeholderKey.getTypeLiteral();
         final V bean = BeanProvider.get( locator, Key.get( beanType, named ) );
-        if ( null == bean )
+        if ( null != bean )
+        {
+            return bean;
+        }
+        if ( null != converterMap )
         {
             final TypeConverter converter = converterMap.getTypeConverter( beanType );
-            if ( null != converter )
+            if ( null == converter )
             {
-                final String boundConstant = BeanProvider.get( locator, Key.get( String.class, named ) );
-                if ( null != boundConstant )
+                converterMap = null; // avoid checking again in the future
+            }
+            else
+            {
+                if ( template.equals( config ) )
                 {
-                    config = boundConstant;
+                    config = String.valueOf( BeanProvider.get( locator, Key.get( String.class, named ) ) );
                 }
-                return (V) converter.convert( config, beanType );
+                if ( !"null".equals( config ) )
+                {
+                    return (V) converter.convert( config, beanType );
+                }
             }
         }
-        return bean;
+        return null;
     }
 
     // ----------------------------------------------------------------------
