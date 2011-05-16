@@ -49,7 +49,7 @@ final class DependencyAnalyzer
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<TypeLiteral<?>, Boolean> cachedResults = new HashMap<TypeLiteral<?>, Boolean>();
+    private final Map<TypeLiteral<?>, Boolean> analyzedTypes = new HashMap<TypeLiteral<?>, Boolean>();
 
     private final Set<Key<?>> requiredKeys = new HashSet<Key<?>>();
 
@@ -70,7 +70,6 @@ final class DependencyAnalyzer
     public Set<Key<?>> findMissingKeys( final Set<Key<?>> localKeys )
     {
         final Set<Key<?>> missingKeys = new HashSet<Key<?>>();
-        final Set<Class<?>> visited = new HashSet<Class<?>>();
         while ( requiredKeys.size() > 0 )
         {
             missingKeys.addAll( requiredKeys );
@@ -79,7 +78,7 @@ final class DependencyAnalyzer
 
             for ( final Key<?> key : missingKeys )
             {
-                considerImplicitBindings( visited, key.getTypeLiteral() );
+                analyzeImplicitBindings( key.getTypeLiteral() );
             }
         }
         return missingKeys;
@@ -164,7 +163,7 @@ final class DependencyAnalyzer
 
     private Boolean analyzeImplementation( final TypeLiteral<?> type )
     {
-        Boolean applyBinding = cachedResults.get( type );
+        Boolean applyBinding = analyzedTypes.get( type );
         if ( null == applyBinding )
         {
             applyBinding = Boolean.TRUE;
@@ -185,7 +184,7 @@ final class DependencyAnalyzer
                     applyBinding = Boolean.FALSE;
                 }
             }
-            cachedResults.put( type, applyBinding );
+            analyzedTypes.put( type, applyBinding );
         }
         return applyBinding;
     }
@@ -223,23 +222,34 @@ final class DependencyAnalyzer
         return applyBinding;
     }
 
-    private void considerImplicitBindings( final Set<Class<?>> visited, final TypeLiteral<?> type )
+    private Boolean analyzeImplicitBindings( final TypeLiteral<?> type )
     {
         Class<?> clazz = type.getRawType();
-        while ( visited.add( clazz ) )
+        for ( TypeLiteral<?> t = type; !analyzedTypes.containsKey( t ); t = TypeLiteral.get( clazz ) )
         {
-            if ( clazz.isAnnotationPresent( ImplementedBy.class ) )
+            if ( TypeParameters.isConcrete( clazz ) )
             {
-                clazz = clazz.getAnnotation( ImplementedBy.class ).value();
+                return analyzeImplementation( t );
             }
-            else if ( clazz.isAnnotationPresent( ProvidedBy.class ) )
+            analyzedTypes.put( t, Boolean.TRUE );
+            final ImplementedBy implementedBy = clazz.getAnnotation( ImplementedBy.class );
+            if ( null != implementedBy )
             {
-                clazz = clazz.getAnnotation( ProvidedBy.class ).value();
+                clazz = implementedBy.value();
             }
-            else if ( TypeParameters.isConcrete( clazz ) )
+            else
             {
-                analyzeImplementation( clazz != type.getRawType() ? TypeLiteral.get( clazz ) : type );
+                final ProvidedBy providedBy = clazz.getAnnotation( ProvidedBy.class );
+                if ( null != providedBy )
+                {
+                    clazz = providedBy.value();
+                }
+                else
+                {
+                    break; // reached end of the implicit chain
+                }
             }
         }
+        return Boolean.FALSE;
     }
 }
