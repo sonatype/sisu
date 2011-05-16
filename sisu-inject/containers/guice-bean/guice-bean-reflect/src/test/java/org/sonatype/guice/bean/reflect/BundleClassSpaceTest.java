@@ -106,25 +106,10 @@ public class BundleClassSpaceTest
             {
                 return space.findEntries( path, glob, recurse );
             }
-
-            public boolean loadedClass( final Class<?> clazz )
-            {
-                return false;
-            }
         } ) );
 
         assertEquals( testBundle.hashCode(), space.hashCode() );
         assertEquals( testBundle.toString(), space.toString() );
-    }
-
-    public void testClassMembership()
-        throws Exception
-    {
-        final Bundle testBundle = framework.getBundleContext().installBundle( LOGGING_BUNDLE.toString() );
-        final ClassSpace space = new BundleClassSpace( testBundle );
-
-        assertTrue( space.loadedClass( space.loadClass( "org.apache.commons.logging.Log" ) ) );
-        assertFalse( space.loadedClass( space.loadClass( "java.util.logging.Logger" ) ) );
     }
 
     public void testClassSpaceResources()

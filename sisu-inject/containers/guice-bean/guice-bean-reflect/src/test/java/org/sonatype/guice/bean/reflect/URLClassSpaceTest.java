@@ -77,23 +77,10 @@ public class URLClassSpaceTest
             {
                 return space.findEntries( path, glob, recurse );
             }
-
-            public boolean loadedClass( final Class<?> clazz )
-            {
-                return false;
-            }
         } ) );
 
         assertEquals( systemLoader.hashCode(), space.hashCode() );
         assertEquals( systemLoader.toString(), space.toString() );
-    }
-
-    public void testClassMembership()
-    {
-        final ClassSpace space = new URLClassSpace( URLClassLoader.newInstance( new URL[] { COMMONS_LOGGING_JAR } ) );
-
-        assertTrue( space.loadedClass( space.loadClass( "org.apache.commons.logging.Log" ) ) );
-        assertFalse( space.loadedClass( space.loadClass( "java.util.logging.Logger" ) ) );
     }
 
     public void testClassSpaceResources()

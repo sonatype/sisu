@@ -169,7 +169,7 @@ final class LocatorWiring
                 binder.bind( key ).toProvider( new PlaceholderBeanProvider<T>( key ) );
             }
         }
-        else if ( null != key.getAnnotationType() || !TypeParameters.isConcrete( key.getTypeLiteral() ) )
+        else
         {
             binder.bind( key ).toProvider( new BeanProvider<T>( key ) );
         }

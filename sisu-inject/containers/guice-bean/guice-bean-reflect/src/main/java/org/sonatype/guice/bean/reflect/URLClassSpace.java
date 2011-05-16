@@ -131,26 +131,6 @@ public final class URLClassSpace
         return new ResourceEnumeration( path, glob, recurse, getClassPath() );
     }
 
-    public boolean loadedClass( final Class<?> clazz )
-    {
-        final ClassLoader clazzLoader = clazz.getClassLoader();
-        if ( loader == clazzLoader )
-        {
-            return true;
-        }
-        for ( ClassLoader l = loader; l != null; )
-        {
-            if ( ( l = l.getParent() ) == clazzLoader )
-            {
-                final String path = clazz.getName().replace( '.', '/' );
-                final int nameIndex = path.lastIndexOf( '/' ) + 1;
-
-                return findEntries( path.substring( 0, nameIndex ), path.substring( nameIndex ) + ".class", false ).hasMoreElements();
-            }
-        }
-        return false;
-    }
-
     public URL[] getURLs()
     {
         return getClassPath().clone();

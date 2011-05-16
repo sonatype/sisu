@@ -15,16 +15,11 @@ import java.util.List;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
-import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binding;
-import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
-import com.google.inject.Key;
-import com.google.inject.ProvidedBy;
-import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -47,8 +42,6 @@ final class InjectorPublisher
 
     private final RankingFunction function;
 
-    private ClassSpace space;
-
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -57,15 +50,6 @@ final class InjectorPublisher
     {
         this.injector = injector;
         this.function = function;
-
-        try
-        {
-            space = injector.getInstance( ClassSpace.class );
-        }
-        catch ( final Throwable e )
-        {
-            space = null; // no associated class space
-        }
     }
 
     // ----------------------------------------------------------------------
@@ -74,31 +58,15 @@ final class InjectorPublisher
 
     public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
     {
+        publishBindings( type, subscriber, null );
         final Class<?> clazz = type.getRawType();
-        boolean matchFound = publishBindings( type, subscriber, null );
         if ( clazz != type.getType() )
         {
-            matchFound |= publishBindings( TypeLiteral.get( clazz ), subscriber, type );
+            publishBindings( TypeLiteral.get( clazz ), subscriber, type );
         }
         if ( clazz != Object.class )
         {
-            matchFound |= publishBindings( OBJECT_TYPE_LITERAL, subscriber, type );
-        }
-
-        if ( !matchFound && null != space && isImplicit( clazz ) && space.loadedClass( clazz ) )
-        {
-            try
-            {
-                final Binding<T> binding = getImplicitBinding( type, clazz );
-                if ( null != binding && isVisible( binding ) )
-                {
-                    subscriber.add( binding, Integer.MIN_VALUE );
-                }
-            }
-            catch ( final Throwable e ) // NOPMD
-            {
-                // ignore missing/broken implicit bindings
-            }
+            publishBindings( OBJECT_TYPE_LITERAL, subscriber, type );
         }
     }
 
@@ -181,35 +149,5 @@ final class InjectorPublisher
             }
         }
         return matchFound;
-    }
-
-    private static boolean isImplicit( final Class<?> clazz )
-    {
-        return TypeParameters.isConcrete( clazz ) || clazz.isAnnotationPresent( ImplementedBy.class )
-            || clazz.isAnnotationPresent( ProvidedBy.class );
-    }
-
-    @SuppressWarnings( { "rawtypes", "unchecked" } )
-    private <T> Binding<T> getImplicitBinding( final TypeLiteral<T> type, final Class<?> clazz )
-    {
-        final Key key = Key.get( type );
-        final ImplementedBy implementedBy = clazz.getAnnotation( ImplementedBy.class );
-        if ( null != implementedBy )
-        {
-            return new DelegatingBinding( key, injector.getBinding( implementedBy.value() ) );
-        }
-        final ProvidedBy providedBy = clazz.getAnnotation( ProvidedBy.class );
-        if ( null != providedBy )
-        {
-            return new DelegatingBinding( key, injector.getBinding( providedBy.value() ) )
-            {
-                @Override
-                public Provider getProvider()
-                {
-                    return (Provider) super.getProvider().get();
-                }
-            };
-        }
-        return injector.getBinding( key ); // must be concrete class
     }
 }

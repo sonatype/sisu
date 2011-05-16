@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.Constants;
-import org.osgi.framework.FrameworkUtil;
 
 /**
  * {@link ClassSpace} backed by a strongly-referenced {@link Bundle}.
@@ -109,11 +108,6 @@ public final class BundleClassSpace
             return new ChainedEnumeration<URL>( entries, new ResourceEnumeration( path, glob, recurse, classPath ) );
         }
         return null != entries ? entries : NO_ENTRIES;
-    }
-
-    public boolean loadedClass( final Class<?> clazz )
-    {
-        return bundle.equals( FrameworkUtil.getBundle( clazz ) );
     }
 
     @Override
