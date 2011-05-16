@@ -22,7 +22,9 @@ import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binding;
+import com.google.inject.ImplementedBy;
 import com.google.inject.Key;
+import com.google.inject.ProvidedBy;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.BindingTargetVisitor;
 import com.google.inject.spi.DefaultBindingTargetVisitor;
@@ -65,9 +67,22 @@ final class DependencyAnalyzer
     // Public methods
     // ----------------------------------------------------------------------
 
-    public Set<Key<?>> getRequiredKeys()
+    public Set<Key<?>> findMissingKeys( final Set<Key<?>> localKeys )
     {
-        return requiredKeys;
+        final Set<Key<?>> missingKeys = new HashSet<Key<?>>();
+        final Set<Class<?>> visited = new HashSet<Class<?>>();
+        while ( requiredKeys.size() > 0 )
+        {
+            missingKeys.addAll( requiredKeys );
+            missingKeys.removeAll( localKeys );
+            requiredKeys.clear();
+
+            for ( final Key<?> key : missingKeys )
+            {
+                considerImplicitBindings( visited, key.getTypeLiteral() );
+            }
+        }
+        return missingKeys;
     }
 
     @Override
@@ -152,22 +167,24 @@ final class DependencyAnalyzer
         Boolean applyBinding = cachedResults.get( type );
         if ( null == applyBinding )
         {
-            boolean result = true;
+            applyBinding = Boolean.TRUE;
             if ( TypeParameters.isConcrete( type ) )
             {
                 try
                 {
-                    // some types need analysis but lack a valid constructor, so check methods+fields first
-                    result = analyzeInjectionPoints( InjectionPoint.forInstanceMethodsAndFields( type ) );
-                    result &= analyzeDependencies( InjectionPoint.forConstructorOf( type ).getDependencies() );
+                    // check methods+fields first and avoid short-circuiting to maximize dependency analysis results
+                    final boolean rhs = analyzeInjectionPoints( InjectionPoint.forInstanceMethodsAndFields( type ) );
+                    if ( !analyzeDependencies( InjectionPoint.forConstructorOf( type ).getDependencies() ) || !rhs )
+                    {
+                        applyBinding = Boolean.FALSE;
+                    }
                 }
                 catch ( final Throwable e )
                 {
                     Logs.debug( "Potential problem: {}", type, e );
-                    result = false;
+                    applyBinding = Boolean.FALSE;
                 }
             }
-            applyBinding = Boolean.valueOf( result );
             cachedResults.put( type, applyBinding );
         }
         return applyBinding;
@@ -188,7 +205,7 @@ final class DependencyAnalyzer
         boolean applyBinding = true;
         for ( final Dependency<?> d : dependencies )
         {
-            final Key<?> key = d.getKey();
+            Key<?> key = d.getKey();
             if ( key.hasAttributes() && "Assisted".equals( key.getAnnotationType().getSimpleName() ) )
             {
                 applyBinding = false; // avoid directly binding AssistedInject based components
@@ -198,14 +215,31 @@ final class DependencyAnalyzer
                 final Class<?> clazz = key.getTypeLiteral().getRawType();
                 if ( javax.inject.Provider.class == clazz || com.google.inject.Provider.class == clazz )
                 {
-                    requiredKeys.add( key.ofType( TypeParameters.get( key.getTypeLiteral(), 0 ) ) );
+                    key = key.ofType( TypeParameters.get( key.getTypeLiteral(), 0 ) );
                 }
-                else
-                {
-                    requiredKeys.add( key );
-                }
+                requiredKeys.add( key );
             }
         }
         return applyBinding;
+    }
+
+    private void considerImplicitBindings( final Set<Class<?>> visited, final TypeLiteral<?> type )
+    {
+        Class<?> clazz = type.getRawType();
+        while ( visited.add( clazz ) )
+        {
+            if ( clazz.isAnnotationPresent( ImplementedBy.class ) )
+            {
+                clazz = clazz.getAnnotation( ImplementedBy.class ).value();
+            }
+            else if ( clazz.isAnnotationPresent( ProvidedBy.class ) )
+            {
+                clazz = clazz.getAnnotation( ProvidedBy.class ).value();
+            }
+            else if ( TypeParameters.isConcrete( clazz ) )
+            {
+                analyzeImplementation( clazz != type.getRawType() ? TypeLiteral.get( clazz ) : type );
+            }
+        }
     }
 }

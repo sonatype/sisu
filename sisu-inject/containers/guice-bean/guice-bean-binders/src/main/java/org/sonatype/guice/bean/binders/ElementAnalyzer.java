@@ -68,9 +68,8 @@ final class ElementAnalyzer
 
     public void apply( final Wiring wiring )
     {
-        // calculate which dependencies are missing from the module
-        final Set<Key<?>> missingKeys = analyzer.getRequiredKeys();
-        missingKeys.removeAll( localKeys );
+        // calculate which dependencies are missing from the module elements
+        final Set<Key<?>> missingKeys = analyzer.findMissingKeys( localKeys );
 
         bindParameters( missingKeys );
 
