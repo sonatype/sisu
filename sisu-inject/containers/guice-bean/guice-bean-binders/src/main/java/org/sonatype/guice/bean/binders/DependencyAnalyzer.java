@@ -11,20 +11,29 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.binders;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.sonatype.guice.bean.reflect.DeferredProvider;
 import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
 import com.google.inject.Binding;
 import com.google.inject.ImplementedBy;
+import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.MembersInjector;
+import com.google.inject.Module;
 import com.google.inject.ProvidedBy;
+import com.google.inject.Provider;
+import com.google.inject.Scope;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.BindingTargetVisitor;
 import com.google.inject.spi.DefaultBindingTargetVisitor;
@@ -45,6 +54,25 @@ import com.google.inject.spi.UntargettedBinding;
 final class DependencyAnalyzer
     extends DefaultBindingTargetVisitor<Object, Boolean>
 {
+    // ----------------------------------------------------------------------
+    // Static initialization
+    // ----------------------------------------------------------------------
+
+    static
+    {
+        RESTRICTED_CLASSES =
+            new HashSet<Class<?>>( Arrays.<Class<?>> asList( AbstractModule.class, Binder.class, Binding.class,
+                                                             Injector.class, Key.class, Logger.class,
+                                                             MembersInjector.class, Module.class, Provider.class,
+                                                             Scope.class, TypeLiteral.class ) );
+    }
+
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final Set<Class<?>> RESTRICTED_CLASSES;
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -143,7 +171,7 @@ final class DependencyAnalyzer
 
     public <T> Boolean visit( final ProviderLookup<T> lookup )
     {
-        requiredKeys.add( lookup.getKey() );
+        requireKey( lookup.getKey() );
         return Boolean.TRUE;
     }
 
@@ -160,6 +188,14 @@ final class DependencyAnalyzer
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
+
+    private void requireKey( final Key<?> key )
+    {
+        if ( !RESTRICTED_CLASSES.contains( key.getTypeLiteral().getRawType() ) )
+        {
+            requiredKeys.add( key );
+        }
+    }
 
     private Boolean analyzeImplementation( final TypeLiteral<?> type )
     {
@@ -216,7 +252,7 @@ final class DependencyAnalyzer
                 {
                     key = key.ofType( TypeParameters.get( key.getTypeLiteral(), 0 ) );
                 }
-                requiredKeys.add( key );
+                requireKey( key );
             }
         }
         return applyBinding;

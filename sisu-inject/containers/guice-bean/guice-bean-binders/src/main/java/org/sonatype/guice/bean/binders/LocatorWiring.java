@@ -12,29 +12,17 @@
 package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
 
 import javax.inject.Qualifier;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.HiddenBinding;
-import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
-import com.google.inject.Binding;
-import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.MembersInjector;
-import com.google.inject.Module;
-import com.google.inject.Provider;
-import com.google.inject.Scope;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 
@@ -46,22 +34,8 @@ final class LocatorWiring
     implements Wiring
 {
     // ----------------------------------------------------------------------
-    // Static initialization
-    // ----------------------------------------------------------------------
-
-    static
-    {
-        RESTRICTED_CLASSES =
-            new HashSet( Arrays.asList( BeanLocator.class, MutableBeanLocator.class, AbstractModule.class,
-                                        Binder.class, Binding.class, Injector.class, Key.class, MembersInjector.class,
-                                        Module.class, Provider.class, Scope.class, TypeLiteral.class, Logger.class ) );
-    }
-
-    // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
-
-    private static final Set<Class<?>> RESTRICTED_CLASSES;
 
     private static final HiddenBinding HIDDEN_SOURCE = new HiddenBinding()
     {
@@ -183,6 +157,6 @@ final class LocatorWiring
      */
     private static boolean isRestricted( final Class<?> clazz )
     {
-        return RESTRICTED_CLASSES.contains( clazz ) || clazz.getName().equals( "org.slf4j.Logger" );
+        return clazz.getName().equals( "org.slf4j.Logger" ) || BeanLocator.class.isAssignableFrom( clazz );
     }
 }
