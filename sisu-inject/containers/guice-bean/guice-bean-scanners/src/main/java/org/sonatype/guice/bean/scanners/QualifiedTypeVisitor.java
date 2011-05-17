@@ -69,8 +69,6 @@ public final class QualifiedTypeVisitor
 
     public ClassVisitor visitClass( final URL url )
     {
-        qualifiers.clear();
-
         location = url;
         clazzName = null;
 
@@ -120,6 +118,8 @@ public final class QualifiedTypeVisitor
             {
                 listener.hear( clazz.getAnnotation( qualifiers.get( i ) ), clazz, source );
             }
+
+            qualifiers.clear(); // reset cache for next class
         }
     }
 }

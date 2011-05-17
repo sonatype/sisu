@@ -107,6 +107,10 @@ public final class ClassSpaceScanner
                 in.close();
             }
         }
+        catch ( final ArrayIndexOutOfBoundsException e ) // NOPMD
+        {
+            // ignore broken class constant pool in icu4j
+        }
         catch ( final Throwable e )
         {
             Logs.debug( "Problem scanning: {}", url, e );

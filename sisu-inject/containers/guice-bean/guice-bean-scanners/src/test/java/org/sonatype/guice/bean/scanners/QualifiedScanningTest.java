@@ -233,11 +233,6 @@ public class QualifiedScanningTest
             {
                 return Collections.enumeration( Collections.singleton( badURL ) );
             }
-
-            public boolean loadedClass( final Class<?> clazz )
-            {
-                return false;
-            }
         };
 
         new ClassSpaceScanner( brokenResourceSpace ).accept( new QualifiedTypeVisitor( null ) );
@@ -268,11 +263,6 @@ public class QualifiedScanningTest
             {
                 return space.findEntries( path, glob, recurse );
             }
-
-            public boolean loadedClass( final Class<?> clazz )
-            {
-                return false;
-            }
         };
 
         new ClassSpaceScanner( brokenLoadSpace ).accept( new QualifiedTypeVisitor( null ) );
@@ -296,6 +286,7 @@ public class QualifiedScanningTest
         visitor.visitClass( new URL( "file:target/classes/java/lang/Object.class" ) );
         visitor.visit( 0, 0, Type.getInternalName( Object.class ), null, null, null );
         visitor.visitAnnotation( Type.getDescriptor( Named.class ), true );
+        visitor.visitEnd();
 
         assertEquals( 1, listener.sources.size() );
         assertTrue( listener.sources.contains( "target/classes/" ) );
@@ -303,6 +294,7 @@ public class QualifiedScanningTest
         visitor.visitClass( new URL( "jar:file:bar.jar!/java/lang/String.class" ) );
         visitor.visit( 0, 0, Type.getInternalName( String.class ), null, null, null );
         visitor.visitAnnotation( Type.getDescriptor( Named.class ), true );
+        visitor.visitEnd();
 
         assertEquals( 2, listener.sources.size() );
         assertTrue( listener.sources.contains( "target/classes/" ) );
@@ -311,6 +303,7 @@ public class QualifiedScanningTest
         visitor.visitClass( new URL( "file:some/obfuscated/location" ) );
         visitor.visit( 0, 0, Type.getInternalName( Integer.class ), null, null, null );
         visitor.visitAnnotation( Type.getDescriptor( Named.class ), true );
+        visitor.visitEnd();
 
         assertEquals( 3, listener.sources.size() );
         assertTrue( listener.sources.contains( "target/classes/" ) );
@@ -371,5 +364,16 @@ public class QualifiedScanningTest
         emptyClassVisitor.visitAttribute( null );
         emptyClassVisitor.visitSource( null, null );
         emptyClassVisitor.visitEnd();
+    }
+
+    public void testICU4J()
+    {
+        final ClassLoader loader = getClass().getClassLoader();
+        final URL[] urls = { loader.getResource( "icu4j-2.6.1.jar" ) };
+        final ClassSpace space = new URLClassSpace( loader, urls );
+
+        final TestListener listener = new TestListener();
+        new ClassSpaceScanner( space ).accept( new QualifiedTypeVisitor( listener ) );
+        assertEquals( 0, listener.ids.size() );
     }
 }
