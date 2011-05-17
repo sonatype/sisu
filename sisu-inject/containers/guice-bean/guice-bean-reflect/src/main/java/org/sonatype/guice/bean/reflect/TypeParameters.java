@@ -18,6 +18,8 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 
+import com.google.inject.ImplementedBy;
+import com.google.inject.ProvidedBy;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -140,14 +142,49 @@ public final class TypeParameters
         return false;
     }
 
+    /**
+     * Determines if the given generic type represents a concrete type.
+     * 
+     * @param literal The generic type
+     * @return {@code true} if the generic type is concrete; otherwise {@code false}
+     */
     public static boolean isConcrete( final TypeLiteral<?> literal )
     {
         return isConcrete( literal.getRawType() );
     }
 
+    /**
+     * Determines if the given raw type represents a concrete type.
+     * 
+     * @param clazz The raw type
+     * @return {@code true} if the raw type is concrete; otherwise {@code false}
+     */
     public static boolean isConcrete( final Class<?> clazz )
     {
         return 0 == ( clazz.getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) );
+    }
+
+    /**
+     * Determines if the given generic type represents an implicit binding.
+     * 
+     * @param clazz The generic type
+     * @return {@code true} if the generic type is implicit; otherwise {@code false}
+     */
+    public static boolean isImplicit( final TypeLiteral<?> literal )
+    {
+        return isImplicit( literal.getRawType() );
+    }
+
+    /**
+     * Determines if the given raw type represents an implicit binding.
+     * 
+     * @param clazz The raw type
+     * @return {@code true} if the raw type is implicit; otherwise {@code false}
+     */
+    public static boolean isImplicit( final Class<?> clazz )
+    {
+        return isConcrete( clazz ) || clazz.isAnnotationPresent( ImplementedBy.class )
+            || clazz.isAnnotationPresent( ProvidedBy.class );
     }
 
     // ----------------------------------------------------------------------

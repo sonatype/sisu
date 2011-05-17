@@ -14,7 +14,8 @@ package org.sonatype.guice.bean.reflect;
 import java.util.logging.Level;
 
 /**
- * Utility methods for dealing with internal debug and warning messages.
+ * Utility methods for dealing with internal debug and warning messages.<br>
+ * Use "-Dorg.sonatype.inject.debug=true" to get detailed container logs.
  */
 public final class Logs
 {
@@ -28,7 +29,7 @@ public final class Logs
         boolean debug;
         try
         {
-            newLine = System.getProperty( "line.separator" );
+            newLine = System.getProperty( "line.separator", "\n" );
             debug = "true".equalsIgnoreCase( System.getProperty( "org.sonatype.inject.debug" ) );
         }
         catch ( final Throwable e )
@@ -59,7 +60,7 @@ public final class Logs
 
     private static final Sink SINK;
 
-    private static final boolean DEBUG_ENABLED = SINK.hasDebug();
+    private static final boolean DEBUG_ENABLED = SINK.acceptsDebug();
 
     private static final String ANCHOR = "{}";
 
@@ -141,23 +142,56 @@ public final class Logs
         return buf.toString();
     }
 
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    /**
+     * Something that accepts formatted messages.
+     */
     private interface Sink
     {
-        boolean hasDebug();
+        /**
+         * @return {@code true} if it accepts debug messages; otherwise {@code false}
+         */
+        boolean acceptsDebug();
 
+        /**
+         * Accepts a debug message and optional exception cause.
+         * 
+         * @param message The debug message
+         * @param cause The exception cause
+         */
         void debug( String message, Throwable cause );
 
+        /**
+         * Accepts a warning message and optional exception cause.
+         * 
+         * @param message The warning message
+         * @param cause The exception cause
+         */
         void warn( String message, Throwable cause );
     }
 
+    /**
+     * {@link Sink}s messages to the system console.
+     */
     static final class ConsoleSink
         implements Sink
     {
+        // ----------------------------------------------------------------------
+        // Constants
+        // ----------------------------------------------------------------------
+
         private static final String DEBUG = "DEBUG: " + SISU + " - ";
 
         private static final String WARN = "WARN: " + SISU + " - ";
 
-        public boolean hasDebug()
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
+
+        public boolean acceptsDebug()
         {
             return true;
         }
@@ -181,12 +215,23 @@ public final class Logs
         }
     }
 
+    /**
+     * {@link Sink}s messages to the JDK.
+     */
     static final class JULSink
         implements Sink
     {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
         private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger( SISU );
 
-        public boolean hasDebug()
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
+
+        public boolean acceptsDebug()
         {
             return logger.isLoggable( Level.FINE );
         }
@@ -202,12 +247,23 @@ public final class Logs
         }
     }
 
+    /**
+     * {@link Sink}s messages via SLF4J.
+     */
     static final class SLF4JSink
         implements Sink
     {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
         private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger( SISU );
 
-        public boolean hasDebug()
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
+
+        public boolean acceptsDebug()
         {
             return logger.isDebugEnabled();
         }

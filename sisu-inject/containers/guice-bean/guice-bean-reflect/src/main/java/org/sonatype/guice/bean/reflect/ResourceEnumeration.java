@@ -242,18 +242,19 @@ final class ResourceEnumeration
     // Implementation types
     // ----------------------------------------------------------------------
 
+    /**
+     * Custom {@link URLStreamHandler} that can stream JARs nested inside an arbitrary resource.
+     */
     static final class NestedJarURLHandler
         extends URLStreamHandler
     {
         @Override
         protected URLConnection openConnection( final URL url )
-            throws IOException
         {
             return new URLConnection( url )
             {
                 @Override
                 public void connect()
-                    throws IOException
                 {
                     // postpone until someone actually requests an input stream
                 }

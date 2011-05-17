@@ -15,7 +15,9 @@ import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.AbstractMap;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,6 +25,9 @@ import java.util.concurrent.Callable;
 
 import junit.framework.TestCase;
 
+import com.google.inject.ImplementedBy;
+import com.google.inject.ProvidedBy;
+import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.util.Types;
 
@@ -391,6 +396,69 @@ public class TypeParametersTest
 
         assertFalse( TypeParameters.isAssignableFrom( TypeLiteral.get( callableT ),
                                                       TypeLiteral.get( CallableNumberImpl.class ) ) );
+    }
+
+    public void testIsConcrete()
+    {
+        assertFalse( TypeParameters.isConcrete( Map.class ) );
+        assertFalse( TypeParameters.isConcrete( AbstractMap.class ) );
+        assertTrue( TypeParameters.isConcrete( HashMap.class ) );
+
+        assertFalse( TypeParameters.isConcrete( new TypeLiteral<Map<String, String>>()
+        {
+        } ) );
+        assertFalse( TypeParameters.isConcrete( new TypeLiteral<AbstractMap<String, String>>()
+        {
+        } ) );
+        assertTrue( TypeParameters.isConcrete( new TypeLiteral<HashMap<String, String>>()
+        {
+        } ) );
+    }
+
+    @ImplementedBy( Object.class )
+    static interface Implicit1<T>
+    {
+    }
+
+    static class SomeProvider
+        implements Provider<Object>
+    {
+        public Object get()
+        {
+            return null;
+        }
+    }
+
+    @ProvidedBy( SomeProvider.class )
+    static interface Implicit2<T>
+    {
+    }
+
+    public void testIsImplicit()
+    {
+        assertFalse( TypeParameters.isImplicit( Map.class ) );
+        assertFalse( TypeParameters.isImplicit( AbstractMap.class ) );
+        assertTrue( TypeParameters.isImplicit( HashMap.class ) );
+
+        assertFalse( TypeParameters.isImplicit( new TypeLiteral<Map<String, String>>()
+        {
+        } ) );
+        assertFalse( TypeParameters.isImplicit( new TypeLiteral<AbstractMap<String, String>>()
+        {
+        } ) );
+        assertTrue( TypeParameters.isImplicit( new TypeLiteral<HashMap<String, String>>()
+        {
+        } ) );
+
+        assertTrue( TypeParameters.isImplicit( Implicit1.class ) );
+        assertTrue( TypeParameters.isImplicit( Implicit2.class ) );
+
+        assertTrue( TypeParameters.isImplicit( new TypeLiteral<Implicit1<String>>()
+        {
+        } ) );
+        assertTrue( TypeParameters.isImplicit( new TypeLiteral<Implicit2<String>>()
+        {
+        } ) );
     }
 
     private static TypeLiteral<?> getFieldType( final String name )

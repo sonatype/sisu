@@ -99,4 +99,33 @@ public class LogsTest
             rootLogger.setLevel( level );
         }
     }
+
+    public void testConsoleLogging()
+        throws Exception
+    {
+        System.setProperty( "org.sonatype.inject.debug", "true" );
+        try
+        {
+            final ClassLoader consoleLoader =
+                new URLClassLoader( ( (URLClassLoader) getClass().getClassLoader() ).getURLs(), null )
+                {
+                    @Override
+                    protected synchronized Class<?> loadClass( final String name, final boolean resolve )
+                        throws ClassNotFoundException
+                    {
+                        if ( name.contains( "cobertura" ) )
+                        {
+                            return LogsTest.class.getClassLoader().loadClass( name );
+                        }
+                        return super.loadClass( name, resolve );
+                    }
+                };
+
+            consoleLoader.loadClass( LoggingExample.class.getName() ).newInstance();
+        }
+        finally
+        {
+            System.clearProperty( "org.sonatype.inject.debug" );
+        }
+    }
 }

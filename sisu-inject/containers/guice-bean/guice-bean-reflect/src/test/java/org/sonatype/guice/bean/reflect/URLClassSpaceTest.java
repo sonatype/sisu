@@ -265,5 +265,8 @@ public class URLClassSpaceTest
         assertTrue( e.hasMoreElements() );
         assertTrue( e.nextElement().toString().endsWith( "/nested.war!/WEB-INF/lib/commons-logging-1.1.1.jar#org/apache/commons/logging/Log.class" ) );
         assertFalse( e.hasMoreElements() );
+
+        e = space.findEntries( null, "missing", true );
+        assertFalse( e.hasMoreElements() );
     }
 }
