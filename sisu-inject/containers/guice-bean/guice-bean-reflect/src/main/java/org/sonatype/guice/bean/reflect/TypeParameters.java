@@ -161,7 +161,7 @@ public final class TypeParameters
      */
     public static boolean isConcrete( final Class<?> clazz )
     {
-        return 0 == ( clazz.getModifiers() & ( Modifier.INTERFACE | Modifier.ABSTRACT ) );
+        return !clazz.isInterface() && !Modifier.isAbstract( clazz.getModifiers() );
     }
 
     /**
