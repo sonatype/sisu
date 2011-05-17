@@ -15,7 +15,7 @@ import java.util.logging.Level;
 
 /**
  * Utility methods for dealing with internal debug and warning messages.<br>
- * Use "-Dorg.sonatype.inject.debug=true" to get detailed container logs.
+ * Set <b>-Dorg.sonatype.inject.debug=true</b> to send debug to the console.
  */
 public final class Logs
 {
