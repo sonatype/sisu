@@ -283,18 +283,20 @@ final class PlaceholderBeanProvider<V>
     public V get()
     {
         final String template = ( (Named) placeholderKey.getAnnotation() ).value();
-        String config = interpolate( template );
-        if ( "null".equals( config ) )
+        String value = interpolate( template );
+        if ( "null".equals( value ) )
         {
             return null; // no point continuing
         }
-        final Named named = Names.named( config );
+
+        final Named id = Names.named( value );
         final TypeLiteral<V> beanType = placeholderKey.getTypeLiteral();
-        final V bean = BeanProvider.get( locator, Key.get( beanType, named ) );
+        final V bean = BeanProvider.get( locator, Key.get( beanType, id ) );
         if ( null != bean )
         {
             return bean;
         }
+
         if ( null != converterMap )
         {
             final TypeConverter converter = converterMap.getTypeConverter( beanType );
@@ -304,13 +306,14 @@ final class PlaceholderBeanProvider<V>
             }
             else
             {
-                if ( template.equals( config ) )
+                if ( template == value ) // use == instead of equals to see if template changed at all
                 {
-                    config = String.valueOf( BeanProvider.get( locator, Key.get( String.class, named ) ) );
+                    // no luck interpolating with property map; perhaps it's really a Guice constant?
+                    value = String.valueOf( BeanProvider.get( locator, Key.get( String.class, id ) ) );
                 }
-                if ( !"null".equals( config ) )
+                if ( !"null".equals( value ) )
                 {
-                    return (V) converter.convert( config, beanType );
+                    return (V) converter.convert( value, beanType );
                 }
             }
         }
@@ -321,11 +324,18 @@ final class PlaceholderBeanProvider<V>
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private String interpolate( final String text )
+    private String interpolate( final String template )
     {
-        final StringBuilder buf =
-            new StringBuilder( properties.containsKey( text ) ? String.valueOf( properties.get( text ) ) : text );
-
+        String text = template;
+        if ( properties.containsKey( text ) )
+        {
+            text = String.valueOf( properties.get( text ) );
+        }
+        if ( !text.contains( "${" ) )
+        {
+            return text; // short-circuit; maintains reference
+        }
+        final StringBuilder buf = new StringBuilder( text );
         int x = 0, y, expressionEnd = 0, expressionNum = 0;
         while ( ( x = buf.indexOf( "${", x ) ) >= 0 && ( y = buf.indexOf( "}", x ) + 1 ) > 0 )
         {
