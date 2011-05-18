@@ -212,7 +212,7 @@ final class DependencyAnalyzer
         if ( null == applyBinding )
         {
             applyBinding = Boolean.TRUE;
-            if ( TypeParameters.isConcrete( type ) )
+            if ( TypeParameters.isConcrete( type ) && !type.toString().startsWith( "java" ) )
             {
                 try
                 {

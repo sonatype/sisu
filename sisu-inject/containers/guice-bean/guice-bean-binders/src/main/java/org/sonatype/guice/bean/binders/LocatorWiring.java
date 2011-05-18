@@ -22,7 +22,6 @@ import javax.inject.Qualifier;
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.HiddenBinding;
 import org.sonatype.guice.bean.locators.Implicit;
-import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binder;
@@ -194,9 +193,9 @@ final class LocatorWiring
                 }
             }
         }
-        catch ( final Throwable e )
+        catch ( final Throwable e ) // NOPMD
         {
-            Logs.debug( "Problem binding: {}", type, e );
+            // can safely ignore
         }
     }
 
