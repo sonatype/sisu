@@ -12,6 +12,8 @@
 package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
 import java.util.List;
 import java.util.Map;
 
@@ -19,12 +21,17 @@ import javax.inject.Qualifier;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.HiddenBinding;
+import org.sonatype.guice.bean.locators.Implicit;
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binder;
+import com.google.inject.ImplementedBy;
 import com.google.inject.Key;
+import com.google.inject.ProvidedBy;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
+import com.google.inject.spi.InjectionPoint;
 
 /**
  * Adds {@link BeanLocator}-backed bindings for non-local bean dependencies.
@@ -146,6 +153,50 @@ final class LocatorWiring
         else
         {
             binder.bind( key ).toProvider( new BeanProvider<T>( key ) );
+
+            // capture original implicit binding?
+            if ( null == key.getAnnotationType() )
+            {
+                bindImplicitType( key.getTypeLiteral() );
+            }
+        }
+    }
+
+    /**
+     * Captures the original implicit binding that would have been used by Guice; see the {@link BeanLocator} code.
+     * 
+     * @param type The implicit type
+     */
+    private void bindImplicitType( final TypeLiteral type )
+    {
+        try
+        {
+            final Class<?> clazz = type.getRawType();
+            if ( TypeParameters.isConcrete( clazz ) )
+            {
+                final Member ctor = InjectionPoint.forConstructorOf( type ).getMember();
+                binder.bind( Key.get( clazz, Implicit.class ) ).toConstructor( (Constructor) ctor );
+            }
+            else
+            {
+                final ImplementedBy implementedBy = clazz.getAnnotation( ImplementedBy.class );
+                if ( null != implementedBy )
+                {
+                    binder.bind( Key.get( clazz, Implicit.class ) ).to( (Class) implementedBy.value() );
+                }
+                else
+                {
+                    final ProvidedBy providedBy = clazz.getAnnotation( ProvidedBy.class );
+                    if ( null != providedBy )
+                    {
+                        binder.bind( Key.get( clazz, Implicit.class ) ).toProvider( (Class) providedBy.value() );
+                    }
+                }
+            }
+        }
+        catch ( final Throwable e )
+        {
+            Logs.debug( "Problem binding: {}", type, e );
         }
     }
 
