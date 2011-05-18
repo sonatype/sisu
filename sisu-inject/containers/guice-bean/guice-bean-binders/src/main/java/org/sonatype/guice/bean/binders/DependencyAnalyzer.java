@@ -11,10 +11,12 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.binders;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -100,13 +102,15 @@ final class DependencyAnalyzer
         final Set<Key<?>> missingKeys = new HashSet<Key<?>>();
         while ( requiredKeys.size() > 0 )
         {
-            missingKeys.addAll( requiredKeys );
-            missingKeys.removeAll( localKeys );
-            requiredKeys.clear();
+            final List<Key<?>> candidateKeys = new ArrayList<Key<?>>( requiredKeys );
+            requiredKeys.clear(); // reset so we can detect any implicit requirements
 
-            for ( final Key<?> key : missingKeys )
+            for ( final Key<?> key : candidateKeys )
             {
-                analyzeImplicitBindings( key.getTypeLiteral() );
+                if ( !localKeys.contains( key ) && missingKeys.add( key ) )
+                {
+                    analyzeImplicitBindings( key.getTypeLiteral() );
+                }
             }
         }
         return missingKeys;
@@ -191,7 +195,12 @@ final class DependencyAnalyzer
 
     private void requireKey( final Key<?> key )
     {
-        if ( !RESTRICTED_CLASSES.contains( key.getTypeLiteral().getRawType() ) )
+        final Class<?> clazz = key.getTypeLiteral().getRawType();
+        if ( javax.inject.Provider.class == clazz || com.google.inject.Provider.class == clazz )
+        {
+            requireKey( key.ofType( TypeParameters.get( key.getTypeLiteral(), 0 ) ) );
+        }
+        else if ( !RESTRICTED_CLASSES.contains( clazz ) )
         {
             requiredKeys.add( key );
         }
@@ -240,52 +249,45 @@ final class DependencyAnalyzer
         boolean applyBinding = true;
         for ( final Dependency<?> d : dependencies )
         {
-            Key<?> key = d.getKey();
+            final Key<?> key = d.getKey();
             if ( key.hasAttributes() && "Assisted".equals( key.getAnnotationType().getSimpleName() ) )
             {
                 applyBinding = false; // avoid directly binding AssistedInject based components
             }
             else
             {
-                final Class<?> clazz = key.getTypeLiteral().getRawType();
-                if ( javax.inject.Provider.class == clazz || com.google.inject.Provider.class == clazz )
-                {
-                    key = key.ofType( TypeParameters.get( key.getTypeLiteral(), 0 ) );
-                }
                 requireKey( key );
             }
         }
         return applyBinding;
     }
 
-    private Boolean analyzeImplicitBindings( final TypeLiteral<?> type )
+    private void analyzeImplicitBindings( final TypeLiteral<?> type )
     {
-        Class<?> clazz = type.getRawType();
-        for ( TypeLiteral<?> t = type; !analyzedTypes.containsKey( t ); t = TypeLiteral.get( clazz ) )
+        if ( !analyzedTypes.containsKey( type ) )
         {
+            final Class<?> clazz = type.getRawType();
             if ( TypeParameters.isConcrete( clazz ) )
             {
-                return analyzeImplementation( t );
-            }
-            analyzedTypes.put( t, Boolean.TRUE );
-            final ImplementedBy implementedBy = clazz.getAnnotation( ImplementedBy.class );
-            if ( null != implementedBy )
-            {
-                clazz = implementedBy.value();
+                analyzeImplementation( type );
             }
             else
             {
-                final ProvidedBy providedBy = clazz.getAnnotation( ProvidedBy.class );
-                if ( null != providedBy )
+                analyzedTypes.put( type, Boolean.TRUE );
+                final ImplementedBy implementedBy = clazz.getAnnotation( ImplementedBy.class );
+                if ( null != implementedBy )
                 {
-                    clazz = providedBy.value();
+                    requireKey( Key.get( implementedBy.value() ) );
                 }
                 else
                 {
-                    break; // reached end of the implicit chain
+                    final ProvidedBy providedBy = clazz.getAnnotation( ProvidedBy.class );
+                    if ( null != providedBy )
+                    {
+                        requireKey( Key.get( providedBy.value() ) );
+                    }
                 }
             }
         }
-        return Boolean.FALSE;
     }
 }
