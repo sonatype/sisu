@@ -118,7 +118,8 @@ public final class URLClassSpace
     {
         try
         {
-            return loader.getResources( name );
+            final Enumeration<URL> resources = loader.getResources( name );
+            return null != resources ? resources : NO_ENTRIES;
         }
         catch ( final IOException e )
         {

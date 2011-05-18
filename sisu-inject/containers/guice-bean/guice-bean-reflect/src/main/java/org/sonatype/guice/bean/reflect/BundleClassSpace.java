@@ -87,7 +87,8 @@ public final class BundleClassSpace
     {
         try
         {
-            return bundle.getResources( name );
+            final Enumeration<URL> resources = bundle.getResources( name );
+            return null != resources ? resources : NO_ENTRIES;
         }
         catch ( final IOException e )
         {
