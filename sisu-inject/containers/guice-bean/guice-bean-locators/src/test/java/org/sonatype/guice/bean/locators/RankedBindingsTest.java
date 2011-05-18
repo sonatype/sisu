@@ -19,8 +19,6 @@ import javax.inject.Named;
 import junit.framework.TestCase;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
-import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.reflect.URLClassSpace;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Binding;
@@ -31,7 +29,6 @@ import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
-// FIXME: REWORK IMPLICIT BINDINGS
 public class RankedBindingsTest
     extends TestCase
 {
@@ -55,14 +52,7 @@ public class RankedBindingsTest
     {
     }
 
-    static Injector injector0 = Guice.createInjector( new AbstractModule()
-    {
-        @Override
-        protected void configure()
-        {
-            bind( ClassSpace.class ).toInstance( new URLClassSpace( Bean.class.getClassLoader() ) );
-        }
-    } );
+    static Injector injector0 = Guice.createInjector();
 
     static Injector injector1 = Guice.createInjector( new AbstractModule()
     {
@@ -91,31 +81,6 @@ public class RankedBindingsTest
             bind( Bean.class ).annotatedWith( Names.named( "3" ) ).to( BeanImpl.class );
         }
     } );
-/*
-    public void testImplicitBindings()
-    {
-        RankedBindings<?> bindings;
-
-        bindings = new RankedBindings<Bean>( TypeLiteral.get( Bean.class ), null );
-        bindings.add( new InjectorPublisher( injector0, new DefaultRankingFunction( 0 ) ), 0 );
-        final RankedBindings<?>.Itr itr = bindings.iterator();
-
-        // injector 'owns' Bean
-        assertTrue( itr.hasNext() );
-        assertEquals( BeanImpl2.class, itr.next().acceptTargetVisitor( ImplementationVisitor.THIS ) );
-
-        bindings = new RankedBindings<String>( TypeLiteral.get( String.class ), null );
-        bindings.add( new InjectorPublisher( injector0, new DefaultRankingFunction( 0 ) ), 0 );
-
-        // injector doesn't 'own' String
-        assertFalse( bindings.iterator().hasNext() );
-
-        bindings = new RankedBindings<AbstractBean>( TypeLiteral.get( AbstractBean.class ), null );
-        bindings.add( new InjectorPublisher( injector0, new DefaultRankingFunction( 0 ) ), 0 );
-
-        // AbstractBean has no implicit binding
-        assertFalse( bindings.iterator().hasNext() );
-    }
 
     public void testExistingExporters()
     {
@@ -156,18 +121,13 @@ public class RankedBindingsTest
 
         assertEquals( 3, bindings.bindings.size() );
         assertTrue( itr.hasNext() );
-        assertEquals( 5, bindings.bindings.size() );
+        assertEquals( 4, bindings.bindings.size() );
 
         assertEquals( Names.named( "3" ), itr.next().getKey().getAnnotation() );
         assertTrue( itr.hasNext() );
         assertEquals( Names.named( "2" ), itr.next().getKey().getAnnotation() );
         assertTrue( itr.hasNext() );
         assertEquals( Names.named( "1" ), itr.next().getKey().getAnnotation() );
-        assertTrue( itr.hasNext() );
-
-        final Binding<Bean> implicitBinding = itr.next();
-        assertNull( implicitBinding.getKey().getAnnotation() );
-        assertEquals( BeanImpl2.class, implicitBinding.acceptTargetVisitor( ImplementationVisitor.THIS ) );
 
         assertFalse( itr.hasNext() );
     }
@@ -226,22 +186,22 @@ public class RankedBindingsTest
 
         assertTrue( itr.hasNext() );
 
-        assertEquals( 4, bindings.bindings.size() );
+        assertEquals( 3, bindings.bindings.size() );
 
-        assertEquals( 4, bindings.bindings.size() );
+        assertEquals( 3, bindings.bindings.size() );
         function = new DefaultRankingFunction( 1 );
         bindings.add( new InjectorPublisher( injector1, function ), function.maxRank() );
+        assertEquals( 3, bindings.bindings.size() );
+
+        assertTrue( itr.hasNext() );
+
+        assertEquals( 4, bindings.bindings.size() );
+        assertEquals( Names.named( "2" ), itr.next().getKey().getAnnotation() );
         assertEquals( 4, bindings.bindings.size() );
 
         assertTrue( itr.hasNext() );
 
-        assertEquals( 5, bindings.bindings.size() );
-        assertEquals( Names.named( "2" ), itr.next().getKey().getAnnotation() );
-        assertEquals( 5, bindings.bindings.size() );
-
-        assertTrue( itr.hasNext() );
-
-        assertEquals( 5, bindings.bindings.size() );
+        assertEquals( 4, bindings.bindings.size() );
 
         itr = bindings.iterator();
 
@@ -253,24 +213,20 @@ public class RankedBindingsTest
         assertEquals( Names.named( "2" ), itr.next().getKey().getAnnotation() );
         assertEquals( Names.named( "1" ), itr.next().getKey().getAnnotation() );
 
-        final Binding<Bean> implicitBinding = itr.next();
-        assertNull( implicitBinding.getKey().getAnnotation() );
-        assertEquals( BeanImpl2.class, implicitBinding.acceptTargetVisitor( ImplementationVisitor.THIS ) );
-
         assertFalse( itr.hasNext() );
     }
-*/
+
     public void testIsActive()
     {
         final Key<Bean> key = Key.get( TypeLiteral.get( Bean.class ) );
         final RankedBindings<Bean> bindings = new RankedBindings<Bean>( key.getTypeLiteral(), null );
 
         assertFalse( bindings.isActive() );
-        LocatedBeans<Named, Bean> namedBeans1 = new LocatedBeans<Named, Bean>( key, bindings );
+        LocatedBeans<Named, Bean> namedBeans1 = new LocatedBeans<Named, Bean>( key, bindings, null );
         assertTrue( bindings.isActive() );
-        LocatedBeans<Named, Bean> namedBeans2 = new LocatedBeans<Named, Bean>( key, bindings );
+        LocatedBeans<Named, Bean> namedBeans2 = new LocatedBeans<Named, Bean>( key, bindings, null );
         assertTrue( bindings.isActive() );
-        LocatedBeans<Named, Bean> namedBeans3 = new LocatedBeans<Named, Bean>( key, bindings );
+        LocatedBeans<Named, Bean> namedBeans3 = new LocatedBeans<Named, Bean>( key, bindings, null );
         assertTrue( bindings.isActive() );
 
         assertFalse( namedBeans1.iterator().hasNext() );
@@ -302,7 +258,7 @@ public class RankedBindingsTest
 
         assertFalse( bindings.isActive() );
     }
-/*
+
     public void testExporterRemoval()
     {
         final BindingPublisher exporter0 = new InjectorPublisher( injector0, new DefaultRankingFunction( 0 ) );
@@ -330,12 +286,6 @@ public class RankedBindingsTest
         bindings.remove( exporter2 );
         bindings.remove( injector1.findBindingsByType( TypeLiteral.get( Bean.class ) ).get( 0 ) );
 
-        assertTrue( itr.hasNext() );
-
-        Binding<Bean> implicitBinding = itr.next();
-        assertNull( implicitBinding.getKey().getAnnotation() );
-        assertEquals( BeanImpl2.class, implicitBinding.acceptTargetVisitor( ImplementationVisitor.THIS ) );
-
         assertFalse( itr.hasNext() );
 
         itr = bindings.iterator();
@@ -359,14 +309,8 @@ public class RankedBindingsTest
         assertEquals( Names.named( "2" ), itr.next().getKey().getAnnotation() );
         assertTrue( itr.hasNext() );
         assertEquals( Names.named( "1" ), itr.next().getKey().getAnnotation() );
-        assertTrue( itr.hasNext() );
-
-        implicitBinding = itr.next();
-        assertNull( implicitBinding.getKey().getAnnotation() );
-        assertEquals( BeanImpl2.class, implicitBinding.acceptTargetVisitor( ImplementationVisitor.THIS ) );
 
         assertFalse( itr.hasNext() );
         assertFalse( itr.hasNext() );
     }
-*/
 }

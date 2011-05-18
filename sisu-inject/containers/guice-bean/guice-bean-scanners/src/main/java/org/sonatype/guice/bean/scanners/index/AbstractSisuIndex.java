@@ -105,6 +105,12 @@ public abstract class AbstractSisuIndex
     // Implementation methods
     // ----------------------------------------------------------------------
 
+    /**
+     * Reads the given index table from disk to memory.
+     * 
+     * @param name The table name
+     * @return Table elements
+     */
     private final Set<String> readTable( final Object name )
     {
         final Set<String> table = new LinkedHashSet<String>();
@@ -130,6 +136,12 @@ public abstract class AbstractSisuIndex
         return table;
     }
 
+    /**
+     * Writes the given index table from memory to disk.
+     * 
+     * @param name The table name
+     * @param table The elements
+     */
     private final void writeTable( final Object name, final Set<String> table )
     {
         try

@@ -23,6 +23,7 @@ import javax.inject.Singleton;
 import org.sonatype.guice.bean.locators.spi.BindingDistributor;
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.reflect.Logs;
+import org.sonatype.guice.bean.reflect.TypeParameters;
 import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Mediator;
 
@@ -48,13 +49,17 @@ public final class DefaultBeanLocator
 
     private final List<WatchedBeans> watchedBeans = new ArrayList<WatchedBeans>();
 
+    private final ImplicitBindings implicitBindings = new ImplicitBindings( this );
+
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
     public synchronized Iterable<BeanEntry> locate( final Key key )
     {
-        return new LocatedBeans( key, bindingsForType( key.getTypeLiteral() ) );
+        final TypeLiteral type = key.getTypeLiteral();
+        final boolean isImplicit = key.getAnnotationType() == null && TypeParameters.isImplicit( type );
+        return new LocatedBeans( key, bindingsForType( type ), isImplicit ? implicitBindings : null );
     }
 
     public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )

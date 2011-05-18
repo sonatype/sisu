@@ -115,13 +115,17 @@ final class InjectorPublisher
     }
 
     // ----------------------------------------------------------------------
-    // Implementation methods
+    // Local methods
     // ----------------------------------------------------------------------
 
-    private static boolean isVisible( final Binding<?> binding )
+    static boolean isVisible( final Binding<?> binding )
     {
         return false == binding.getSource() instanceof HiddenBinding;
     }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
 
     private static boolean isAssignableFrom( final TypeLiteral<?> superType, final Binding<?> binding )
     {
@@ -134,10 +138,9 @@ final class InjectorPublisher
         return false;
     }
 
-    private boolean publishBindings( final TypeLiteral<?> searchType, final BindingSubscriber subscriber,
-                                     final TypeLiteral<?> superType )
+    private void publishBindings( final TypeLiteral<?> searchType, final BindingSubscriber subscriber,
+                                  final TypeLiteral<?> superType )
     {
-        boolean matchFound = false;
         final List<? extends Binding<?>> bindings = injector.findBindingsByType( searchType );
         for ( int i = 0, size = bindings.size(); i < size; i++ )
         {
@@ -145,9 +148,7 @@ final class InjectorPublisher
             if ( isVisible( binding ) && ( null == superType || isAssignableFrom( superType, binding ) ) )
             {
                 subscriber.add( binding, function.rank( binding ) );
-                matchFound = true;
             }
         }
-        return matchFound;
     }
 }

@@ -192,6 +192,6 @@ public class LocatedBeansTest
         {
             bindings.add( b, 0 );
         }
-        return new LocatedBeans<Q, T>( key, bindings );
+        return new LocatedBeans<Q, T>( key, bindings, null );
     }
 }

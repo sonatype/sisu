@@ -134,8 +134,8 @@ enum QualifyingStrategy
     {
         if ( key instanceof WildcardKey )
         {
-            final Annotation alias = ( (WildcardKey) key ).getQualifier();
-            return null != alias ? alias : DEFAULT_QUALIFIER;
+            final Annotation qualifier = ( (WildcardKey) key ).getQualifier();
+            return null != qualifier ? qualifier : DEFAULT_QUALIFIER;
         }
         return null != key.getAnnotationType() ? key.getAnnotation() : DEFAULT_QUALIFIER;
     }

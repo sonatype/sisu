@@ -16,18 +16,38 @@ import java.lang.annotation.Annotation;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 
+/**
+ * Binding {@link Key} for implementations that act as "wild-cards", meaning they match against any assignable type.<br>
+ * Wild-card keys use the fully-qualified name as the key's qualifier; the real qualifier is recorded separately.
+ */
 public final class WildcardKey
-    extends Key<Object>
+    extends Key<Object> // all wild-card keys have Object as their type
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     private final Annotation qualifier;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
 
     public WildcardKey( final Class<?> type, final Annotation qualifier )
     {
+        // make unique per-implementation name
         super( Names.named( type.getName() ) );
 
         this.qualifier = qualifier;
     }
 
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
+    /**
+     * @return Real qualifier associated with the implementation
+     */
     public Annotation getQualifier()
     {
         return qualifier;

@@ -38,7 +38,9 @@ final class LocatedBeans<Q extends Annotation, T>
 
     final Key<T> key;
 
-    final RankedBindings<T> bindings;
+    final RankedBindings<T> explicitBindings;
+
+    final ImplicitBindings implicitBindings;
 
     final QualifyingStrategy strategy;
 
@@ -49,14 +51,16 @@ final class LocatedBeans<Q extends Annotation, T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    LocatedBeans( final Key<T> key, final RankedBindings<T> bindings )
+    LocatedBeans( final Key<T> key, final RankedBindings<T> explicitBindings, final ImplicitBindings implicitBindings )
     {
         this.key = key;
-        this.bindings = bindings;
+
+        this.explicitBindings = explicitBindings;
+        this.implicitBindings = implicitBindings;
 
         strategy = QualifyingStrategy.selectFor( key );
 
-        bindings.linkToBeans( this );
+        explicitBindings.linkToBeans( this );
     }
 
     // ----------------------------------------------------------------------
@@ -104,16 +108,19 @@ final class LocatedBeans<Q extends Annotation, T>
      */
     synchronized BeanEntry<Q, T> cacheBean( final Q qualifier, final Binding<T> binding, final int rank )
     {
-        final BeanEntry<Q, T> bean = new LazyBeanEntry<Q, T>( qualifier, binding, rank );
+        BeanEntry<Q, T> bean = readCache.get( binding );
+        if ( null == bean )
+        {
+            bean = new LazyBeanEntry<Q, T>( qualifier, binding, rank );
 
-        @SuppressWarnings( { "rawtypes", "unchecked" } )
-        final Map<Binding<T>, BeanEntry<Q, T>> tempCache =
-            readCache.size() > 0 ? (Map) ( (IdentityHashMap) readCache ).clone()
-                            : new IdentityHashMap<Binding<T>, BeanEntry<Q, T>>();
+            @SuppressWarnings( { "rawtypes", "unchecked" } )
+            final Map<Binding<T>, BeanEntry<Q, T>> tempCache =
+                readCache.size() > 0 ? (Map) ( (IdentityHashMap) readCache ).clone()
+                                : new IdentityHashMap<Binding<T>, BeanEntry<Q, T>>();
 
-        tempCache.put( binding, bean );
-        readCache = tempCache;
-
+            tempCache.put( binding, bean );
+            readCache = tempCache;
+        }
         return bean;
     }
 
@@ -131,7 +138,9 @@ final class LocatedBeans<Q extends Annotation, T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final RankedBindings<T>.Itr itr = bindings.iterator();
+        private final RankedBindings<T>.Itr itr = explicitBindings.iterator();
+
+        private boolean checkImplicitBindings = implicitBindings != null;
 
         private BeanEntry<Q, T> nextBean;
 
@@ -139,6 +148,7 @@ final class LocatedBeans<Q extends Annotation, T>
         // Public methods
         // ----------------------------------------------------------------------
 
+        @SuppressWarnings( "unchecked" )
         public boolean hasNext()
         {
             if ( null != nextBean )
@@ -153,11 +163,20 @@ final class LocatedBeans<Q extends Annotation, T>
                 {
                     return true;
                 }
-                @SuppressWarnings( "unchecked" )
                 final Q qualifier = (Q) strategy.qualifies( key, binding );
                 if ( null != qualifier )
                 {
                     nextBean = cacheBean( qualifier, binding, itr.rank() );
+                    return true;
+                }
+            }
+            if ( checkImplicitBindings )
+            {
+                // last-chance, see if we can locate a valid implicit binding somewhere
+                final Binding<T> binding = implicitBindings.get( key.getTypeLiteral() );
+                if ( null != binding )
+                {
+                    nextBean = cacheBean( (Q) QualifyingStrategy.DEFAULT_QUALIFIER, binding, Integer.MIN_VALUE );
                     return true;
                 }
             }
@@ -168,6 +187,9 @@ final class LocatedBeans<Q extends Annotation, T>
         {
             if ( hasNext() )
             {
+                // no need to check this again
+                checkImplicitBindings = false;
+
                 // populated by hasNext()
                 final BeanEntry<Q, T> bean = nextBean;
                 nextBean = null;
