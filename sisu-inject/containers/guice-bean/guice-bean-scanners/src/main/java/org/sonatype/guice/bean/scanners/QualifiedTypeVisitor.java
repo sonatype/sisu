@@ -105,21 +105,26 @@ public final class QualifiedTypeVisitor
         final int numQualifiers = qualifiers.size();
         if ( numQualifiers > 0 )
         {
-            // compressed record of class location
-            final String path = location.getPath();
-            if ( null == source || !path.startsWith( source ) )
+            try
             {
-                final int i = path.indexOf( clazzName );
-                source = i <= 0 ? path : path.substring( 0, i );
-            }
+                // compressed record of class location
+                final String path = location.getPath();
+                if ( null == source || !path.startsWith( source ) )
+                {
+                    final int i = path.indexOf( clazzName );
+                    source = i <= 0 ? path : path.substring( 0, i );
+                }
 
-            final Class<?> clazz = space.loadClass( clazzName.replace( '/', '.' ) );
-            for ( int i = 0; i < numQualifiers; i++ )
+                final Class<?> clazz = space.loadClass( clazzName.replace( '/', '.' ) );
+                for ( int i = 0; i < numQualifiers; i++ )
+                {
+                    listener.hear( clazz.getAnnotation( qualifiers.get( i ) ), clazz, source );
+                }
+            }
+            finally
             {
-                listener.hear( clazz.getAnnotation( qualifiers.get( i ) ), clazz, source );
+                qualifiers.clear(); // reset cache for next class
             }
-
-            qualifiers.clear(); // reset cache for next class
         }
     }
 }
