@@ -62,8 +62,7 @@ public abstract class InjectedTest
     @BeforeMethod
     public void setUp()
     {
-        final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
-        Guice.createInjector( new WireModule( new TestModule(), new SpaceModule( space, BeanScanning.CACHE ) ) );
+        Guice.createInjector( new WireModule( new SetUpModule(), new SpaceModule( space(), scanning() ) ) );
     }
 
     @After
@@ -73,7 +72,7 @@ public abstract class InjectedTest
         locator.clear();
     }
 
-    final class TestModule
+    final class SetUpModule
         extends AbstractModule
     {
         @Override
@@ -90,6 +89,16 @@ public abstract class InjectedTest
 
             requestInjection( InjectedTest.this );
         }
+    }
+
+    public ClassSpace space()
+    {
+        return new URLClassSpace( getClass().getClassLoader() );
+    }
+
+    public BeanScanning scanning()
+    {
+        return BeanScanning.CACHE;
     }
 
     // ----------------------------------------------------------------------

@@ -61,8 +61,7 @@ public abstract class InjectedTestCase
     protected void setUp()
         throws Exception
     {
-        final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
-        Guice.createInjector( new WireModule( new TestModule(), new SpaceModule( space, BeanScanning.CACHE ) ) );
+        Guice.createInjector( new WireModule( new SetUpModule(), new SpaceModule( space(), scanning() ) ) );
     }
 
     @Override
@@ -72,7 +71,7 @@ public abstract class InjectedTestCase
         locator.clear();
     }
 
-    final class TestModule
+    final class SetUpModule
         extends AbstractModule
     {
         @Override
@@ -89,6 +88,16 @@ public abstract class InjectedTestCase
 
             requestInjection( InjectedTestCase.this );
         }
+    }
+
+    public ClassSpace space()
+    {
+        return new URLClassSpace( getClass().getClassLoader() );
+    }
+
+    public BeanScanning scanning()
+    {
+        return BeanScanning.CACHE;
     }
 
     // ----------------------------------------------------------------------
