@@ -25,6 +25,7 @@ import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
 import org.sonatype.guice.bean.locators.NamedIterableAdapter;
+import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Parameters;
 
 import com.google.inject.Injector;
@@ -40,6 +41,40 @@ import com.google.inject.spi.TypeConverterBinding;
 // ----------------------------------------------------------------------
 // BeanLocator-backed Providers that can provide dynamic bean lookups
 // ----------------------------------------------------------------------
+
+/**
+ * Provides a {@link Iterable} sequence of {@link BeanEntry}s.
+ */
+final class BeanEntryProvider<K extends Annotation, V>
+    implements Provider<Iterable<BeanEntry<K, V>>>
+{
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    @Inject
+    private BeanLocator locator;
+
+    private final Key<V> key;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    BeanEntryProvider( final Key<V> key )
+    {
+        this.key = key;
+    }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
+    public Iterable<BeanEntry<K, V>> get()
+    {
+        return locator.locate( key );
+    }
+}
 
 /**
  * Provides a {@link List} of qualified beans.

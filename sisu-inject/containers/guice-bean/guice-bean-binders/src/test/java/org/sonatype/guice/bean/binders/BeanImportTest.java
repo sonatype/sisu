@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
+import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Nullable;
 
 import com.google.inject.AbstractModule;
@@ -227,6 +228,13 @@ public class BeanImportTest
         Map<String, Y> map;
     }
 
+    static class BeanEntries
+        implements X
+    {
+        @Inject
+        Iterable<BeanEntry<Named, Y>> entries;
+    }
+
     static class PlaceholderInstance
         extends AbstractX
     {
@@ -331,6 +339,8 @@ public class BeanImportTest
             bind( X.class ).annotatedWith( Names.named( "NI" ) ).to( NamedInstance.class );
             bind( X.class ).annotatedWith( Names.named( "HM" ) ).to( HintMap.class );
 
+            bind( X.class ).annotatedWith( Names.named( "BE" ) ).to( BeanEntries.class );
+
             bind( X.class ).annotatedWith( Names.named( "PI" ) ).to( PlaceholderInstance.class );
             bind( X.class ).annotatedWith( Names.named( "PS" ) ).to( PlaceholderString.class );
             bind( X.class ).annotatedWith( Names.named( "PC" ) ).to( PlaceholderConfig.class );
@@ -399,6 +409,20 @@ public class BeanImportTest
         assertSame( namedType.local, hintMap.map.get( "local" ) );
         assertSame( hintMap.local, hintMap.map.get( "local" ) );
         assertEquals( 1, hintMap.map.size() );
+    }
+
+    public void testBeanEntries()
+    {
+        final Injector injector = Guice.createInjector( new WireModule( new TestModule() ) );
+
+        final BeanEntries beans = (BeanEntries) injector.getInstance( Key.get( X.class, Names.named( "BE" ) ) );
+        final HintMap hintMap = (HintMap) injector.getInstance( Key.get( X.class, Names.named( "HM" ) ) );
+
+        final Iterator<BeanEntry<Named, Y>> i = beans.entries.iterator();
+
+        assertTrue( i.hasNext() );
+        assertSame( hintMap.map.get( "local" ), i.next().getValue() );
+        assertFalse( i.hasNext() );
     }
 
     public void testPlaceholderImports()

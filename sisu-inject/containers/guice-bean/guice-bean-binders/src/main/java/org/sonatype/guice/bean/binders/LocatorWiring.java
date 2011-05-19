@@ -23,6 +23,7 @@ import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.HiddenBinding;
 import org.sonatype.guice.bean.locators.Implicit;
 import org.sonatype.guice.bean.reflect.TypeParameters;
+import org.sonatype.inject.BeanEntry;
 
 import com.google.inject.Binder;
 import com.google.inject.ImplementedBy;
@@ -122,10 +123,26 @@ final class LocatorWiring
      */
     private void bindListImport( final Key<?> key )
     {
-        final TypeLiteral<?>[] parameters = TypeParameters.get( key.getTypeLiteral() );
+        TypeLiteral<?>[] parameters = TypeParameters.get( key.getTypeLiteral() );
         if ( 1 == parameters.length && null == key.getAnnotation() )
         {
-            binder.bind( key ).toProvider( new BeanListProvider( Key.get( parameters[0] ) ) );
+            final TypeLiteral<?> elementType = parameters[0];
+            if ( BeanEntry.class == elementType.getRawType() )
+            {
+                parameters = TypeParameters.get( elementType );
+                if ( 2 == parameters.length )
+                {
+                    final Class qualifierType = parameters[0].getRawType();
+                    if ( qualifierType.isAnnotationPresent( Qualifier.class ) )
+                    {
+                        binder.bind( key ).toProvider( new BeanEntryProvider( Key.get( parameters[1], qualifierType ) ) );
+                    }
+                }
+            }
+            else
+            {
+                binder.bind( key ).toProvider( new BeanListProvider( Key.get( elementType ) ) );
+            }
         }
     }
 
