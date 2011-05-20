@@ -16,6 +16,7 @@ import java.lang.annotation.IncompleteAnnotationException;
 import java.lang.reflect.Constructor;
 
 import javax.enterprise.inject.Typed;
+import javax.inject.Provider;
 
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.WildcardKey;
@@ -101,7 +102,7 @@ public final class QualifiedTypeBinder
         {
             registerMediator( qualifiedType );
         }
-        else if ( javax.inject.Provider.class.isAssignableFrom( qualifiedType ) )
+        else if ( Provider.class.isAssignableFrom( qualifiedType ) )
         {
             bindProviderType( qualifiedType );
         }

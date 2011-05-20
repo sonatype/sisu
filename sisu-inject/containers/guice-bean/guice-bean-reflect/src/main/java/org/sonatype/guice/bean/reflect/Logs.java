@@ -60,7 +60,7 @@ public final class Logs
 
     private static final Sink SINK;
 
-    private static final boolean DEBUG_ENABLED = SINK.acceptsDebug();
+    public static final boolean DEBUG_ENABLED = SINK.isDebugEnabled();
 
     private static final String ANCHOR = "{}";
 
@@ -152,9 +152,9 @@ public final class Logs
     private interface Sink
     {
         /**
-         * @return {@code true} if it accepts debug messages; otherwise {@code false}
+         * @return {@code true} if debug is enabled; otherwise {@code false}
          */
-        boolean acceptsDebug();
+        boolean isDebugEnabled();
 
         /**
          * Accepts a debug message and optional exception cause.
@@ -191,7 +191,7 @@ public final class Logs
         // Public methods
         // ----------------------------------------------------------------------
 
-        public boolean acceptsDebug()
+        public boolean isDebugEnabled()
         {
             return true;
         }
@@ -231,7 +231,7 @@ public final class Logs
         // Public methods
         // ----------------------------------------------------------------------
 
-        public boolean acceptsDebug()
+        public boolean isDebugEnabled()
         {
             return logger.isLoggable( Level.FINE );
         }
@@ -263,7 +263,7 @@ public final class Logs
         // Public methods
         // ----------------------------------------------------------------------
 
-        public boolean acceptsDebug()
+        public boolean isDebugEnabled()
         {
             return logger.isDebugEnabled();
         }

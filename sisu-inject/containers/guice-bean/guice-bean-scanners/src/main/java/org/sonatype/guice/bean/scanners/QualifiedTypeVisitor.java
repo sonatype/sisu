@@ -19,9 +19,12 @@ import java.util.List;
 import javax.inject.Qualifier;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.scanners.asm.AnnotationVisitor;
 import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
 import org.sonatype.guice.bean.scanners.asm.Opcodes;
+
+import com.google.inject.Module;
 
 /**
  * {@link ClassSpaceVisitor} that reports types annotated with {@link Qualifier} annotations.
@@ -65,6 +68,11 @@ public final class QualifiedTypeVisitor
     {
         space = _space;
         source = null;
+
+        if ( Logs.DEBUG_ENABLED )
+        {
+            ClassSpaceScanner.verify( _space, Qualifier.class, Module.class );
+        }
     }
 
     public ClassVisitor visitClass( final URL url )

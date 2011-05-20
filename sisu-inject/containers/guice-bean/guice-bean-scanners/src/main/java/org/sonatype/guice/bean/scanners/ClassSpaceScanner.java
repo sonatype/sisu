@@ -116,4 +116,25 @@ public final class ClassSpaceScanner
             Logs.debug( "Problem scanning: {}", url, e );
         }
     }
+
+    public static boolean verify( final ClassSpace space, final Class<?>... specification )
+    {
+        for ( final Class<?> expectedClazz : specification )
+        {
+            try
+            {
+                final Class<?> spaceClazz = space.loadClass( expectedClazz.getName() );
+                if ( spaceClazz != expectedClazz )
+                {
+                    Logs.warn( "Inconsistent ClassLoader for: {} in: {}", expectedClazz, space );
+                    Logs.warn( "Expected: {} saw: {}", expectedClazz.getClassLoader(), spaceClazz.getClassLoader() );
+                }
+            }
+            catch ( final Throwable e )
+            {
+                Logs.debug( "Potential problem: {} is not visible from: {}", expectedClazz, space );
+            }
+        }
+        return true;
+    }
 }

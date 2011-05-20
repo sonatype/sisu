@@ -16,6 +16,8 @@ import java.net.URL;
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.LoadedClass;
+import org.sonatype.guice.bean.reflect.Logs;
+import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
 import org.sonatype.guice.bean.scanners.ClassSpaceVisitor;
 import org.sonatype.guice.bean.scanners.EmptyAnnotationVisitor;
 import org.sonatype.guice.bean.scanners.EmptyClassVisitor;
@@ -76,6 +78,11 @@ public final class PlexusTypeVisitor
         space = _space;
         source = _space.toString();
         qualifiedTypeVisitor.visit( _space );
+
+        if ( Logs.DEBUG_ENABLED )
+        {
+            ClassSpaceScanner.verify( _space, Component.class );
+        }
     }
 
     public ClassVisitor visitClass( final URL url )
