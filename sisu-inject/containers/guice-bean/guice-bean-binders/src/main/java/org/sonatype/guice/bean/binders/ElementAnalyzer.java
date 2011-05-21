@@ -91,22 +91,21 @@ final class ElementAnalyzer
     public <T> Void visit( final Binding<T> binding )
     {
         final Key<T> key = binding.getKey();
-        if ( localKeys.contains( key ) )
+        if ( !localKeys.contains( key ) )
         {
-            Logs.debug( "Ignore duplicate: {}", binding, null );
-        }
-        else if ( ParameterKeys.PROPERTIES.equals( key ) )
-        {
-            mergeParameters( binding );
-        }
-        else if ( binding.acceptTargetVisitor( analyzer ).booleanValue() )
-        {
-            localKeys.add( key );
-            binding.applyTo( binder );
-        }
-        else
-        {
-            Logs.debug( "Remove binding: {}", binding, null );
+            if ( ParameterKeys.PROPERTIES.equals( key ) )
+            {
+                mergeParameters( binding );
+            }
+            else if ( binding.acceptTargetVisitor( analyzer ).booleanValue() )
+            {
+                localKeys.add( key );
+                binding.applyTo( binder );
+            }
+            else
+            {
+                Logs.debug( "Remove binding: {}", binding, null );
+            }
         }
         return null;
     }

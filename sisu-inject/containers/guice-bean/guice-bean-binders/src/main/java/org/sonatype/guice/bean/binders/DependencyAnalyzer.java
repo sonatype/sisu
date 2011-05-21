@@ -119,7 +119,7 @@ final class DependencyAnalyzer
     @Override
     public Boolean visit( final UntargettedBinding<?> binding )
     {
-        return analyzeImplementation( binding.getKey().getTypeLiteral() );
+        return analyzeImplementation( binding.getKey().getTypeLiteral(), true );
     }
 
     @Override
@@ -128,7 +128,7 @@ final class DependencyAnalyzer
         final Key<?> linkedKey = binding.getLinkedKey();
         if ( linkedKey.getAnnotationType() == null )
         {
-            return analyzeImplementation( linkedKey.getTypeLiteral() );
+            return analyzeImplementation( linkedKey.getTypeLiteral(), true );
         }
         return Boolean.TRUE; // indirect binding, don't scan
     }
@@ -139,7 +139,7 @@ final class DependencyAnalyzer
         final Key<?> providerKey = binding.getProviderKey();
         if ( providerKey.getAnnotationType() == null )
         {
-            return analyzeImplementation( providerKey.getTypeLiteral() );
+            return analyzeImplementation( providerKey.getTypeLiteral(), true );
         }
         return Boolean.TRUE; // indirect binding, don't scan
     }
@@ -152,11 +152,12 @@ final class DependencyAnalyzer
         {
             try
             {
-                analyzeImplementation( TypeLiteral.get( ( (DeferredProvider<?>) provider ).getImplementationClass().load() ) );
+                final Class<?> clazz = ( (DeferredProvider<?>) provider ).getImplementationClass().load();
+                analyzeImplementation( TypeLiteral.get( clazz ), false );
             }
             catch ( final Throwable e ) // NOPMD
             {
-                // deferred provider, so ignore errors for now
+                // deferred provider, so we also defer any errors until someone actually tries to use it
             }
             return Boolean.TRUE;
         }
@@ -206,7 +207,7 @@ final class DependencyAnalyzer
         }
     }
 
-    private Boolean analyzeImplementation( final TypeLiteral<?> type )
+    private Boolean analyzeImplementation( final TypeLiteral<?> type, final boolean reportErrors )
     {
         Boolean applyBinding = analyzedTypes.get( type );
         if ( null == applyBinding )
@@ -225,7 +226,10 @@ final class DependencyAnalyzer
                 }
                 catch ( final Throwable e )
                 {
-                    Logs.debug( "Potential problem: {}", type, e );
+                    if ( reportErrors )
+                    {
+                        Logs.debug( "Potential problem: {}", type, e );
+                    }
                     applyBinding = Boolean.FALSE;
                 }
             }
@@ -269,7 +273,7 @@ final class DependencyAnalyzer
             final Class<?> clazz = type.getRawType();
             if ( TypeParameters.isConcrete( clazz ) )
             {
-                analyzeImplementation( type );
+                analyzeImplementation( type, false );
             }
             else
             {

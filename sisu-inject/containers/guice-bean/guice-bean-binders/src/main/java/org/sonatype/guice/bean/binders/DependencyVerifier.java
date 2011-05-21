@@ -15,6 +15,7 @@ import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binding;
+import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.BindingTargetVisitor;
 import com.google.inject.spi.DefaultBindingTargetVisitor;
@@ -35,13 +36,18 @@ final class DependencyVerifier
     @Override
     public Boolean visit( final UntargettedBinding<?> binding )
     {
-        return verify( binding.getKey().getTypeLiteral() );
+        return verifyImplementation( binding.getKey().getTypeLiteral() );
     }
 
     @Override
     public Boolean visit( final LinkedKeyBinding<?> binding )
     {
-        return verify( binding.getLinkedKey().getTypeLiteral() );
+        final Key<?> linkedKey = binding.getLinkedKey();
+        if ( linkedKey.getAnnotationType() == null )
+        {
+            return verifyImplementation( linkedKey.getTypeLiteral() );
+        }
+        return Boolean.TRUE; // indirect binding, don't scan
     }
 
     @Override
@@ -54,22 +60,21 @@ final class DependencyVerifier
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private Boolean verify( final TypeLiteral<?> type )
+    private Boolean verifyImplementation( final TypeLiteral<?> type )
     {
-        if ( !TypeParameters.isConcrete( type ) )
+        if ( TypeParameters.isConcrete( type ) && !type.toString().startsWith( "java" ) )
         {
-            return Boolean.TRUE;
+            try
+            {
+                InjectionPoint.forInstanceMethodsAndFields( type );
+                InjectionPoint.forConstructorOf( type ).getDependencies();
+            }
+            catch ( final Throwable e )
+            {
+                Logs.debug( "Potential problem: {}", type, e );
+                return Boolean.FALSE;
+            }
         }
-        try
-        {
-            InjectionPoint.forInstanceMethodsAndFields( type );
-            InjectionPoint.forConstructorOf( type ).getDependencies();
-            return Boolean.TRUE;
-        }
-        catch ( final Throwable e )
-        {
-            Logs.debug( "Ignore: {}", type, e );
-            return Boolean.FALSE;
-        }
+        return Boolean.TRUE;
     }
 }

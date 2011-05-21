@@ -14,6 +14,8 @@ package org.sonatype.guice.bean.binders;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.sonatype.guice.bean.reflect.Logs;
+
 import com.google.inject.Binder;
 import com.google.inject.Binding;
 import com.google.inject.Key;
@@ -49,14 +51,18 @@ final class ElementMerger
     @Override
     public <T> Void visit( final Binding<T> binding )
     {
-        if ( localKeys.contains( binding.getKey() ) )
+        final Key<T> key = binding.getKey();
+        if ( !localKeys.contains( key ) )
         {
-            return null;
-        }
-        if ( binding.acceptTargetVisitor( verifier ).booleanValue() )
-        {
-            localKeys.add( binding.getKey() );
-            binding.applyTo( binder );
+            if ( binding.acceptTargetVisitor( verifier ).booleanValue() )
+            {
+                localKeys.add( key );
+                binding.applyTo( binder );
+            }
+            else
+            {
+                Logs.debug( "Remove binding: {}", binding, null );
+            }
         }
         return null;
     }
