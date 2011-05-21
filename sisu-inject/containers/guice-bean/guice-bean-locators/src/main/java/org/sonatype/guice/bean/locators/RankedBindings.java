@@ -147,7 +147,17 @@ final class RankedBindings<T>
     {
         synchronized ( locatedBeanRefs )
         {
-            locatedBeanRefs.add( new WeakReference<LocatedBeans<?, T>>( beans ) );
+            final Reference<LocatedBeans<?, T>> beanRef = new WeakReference<LocatedBeans<?, T>>( beans );
+            for ( int i = 0, size = locatedBeanRefs.size(); i < size; i++ )
+            {
+                if ( null == locatedBeanRefs.get( i ).get() )
+                {
+                    // replace evicted element
+                    locatedBeanRefs.set( i, beanRef );
+                    return; // bail-out early
+                }
+            }
+            locatedBeanRefs.add( beanRef );
         }
     }
 
