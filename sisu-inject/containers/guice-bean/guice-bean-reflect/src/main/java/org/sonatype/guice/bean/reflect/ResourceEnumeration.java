@@ -22,6 +22,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -274,7 +275,7 @@ final class ResourceEnumeration
                             return is;
                         }
                     }
-                    throw new IOException( url.toString() );
+                    throw new ZipException( "No such entry: " + entryName + " in: " + containingURL );
                 }
             };
         }

@@ -13,6 +13,12 @@ package org.sonatype.guice.bean.reflect;
 
 import java.util.logging.Level;
 
+import com.google.inject.Binding;
+import com.google.inject.Injector;
+import com.google.inject.Module;
+import com.google.inject.spi.Element;
+import com.google.inject.spi.Elements;
+
 /**
  * Utility methods for dealing with internal debug and warning messages.<br>
  * Set <b>-Dorg.sonatype.inject.debug=true</b> to send debug to the console.
@@ -102,6 +108,46 @@ public final class Logs
     public static void warn( final String format, final Object arg1, final Object arg2 )
     {
         SINK.warn( format( format( format, arg1 ), arg2 ), arg2 instanceof Throwable ? (Throwable) arg2 : null );
+    }
+
+    /**
+     * Returns a string representation of the given {@link Module}.
+     * 
+     * @param module The module
+     * @return String representation of the module.
+     */
+    public static String toString( final Module module )
+    {
+        final StringBuilder buf = new StringBuilder();
+        buf.append( "Module " ).append( module.getClass().getName() ).append( "@" ).append( Integer.toHexString( System.identityHashCode( module ) ) );
+        int i = 0;
+        buf.append( NEW_LINE ).append( "--------------------------------------------------------------------------------" );
+        for ( final Element e : Elements.getElements( module ) )
+        {
+            buf.append( NEW_LINE ).append( i++ ).append( ". " ).append( e );
+        }
+        buf.append( NEW_LINE ).append( "--------------------------------------------------------------------------------" );
+        return buf.append( NEW_LINE ).toString();
+    }
+
+    /**
+     * Returns a string representation of the given {@link Injector}.
+     * 
+     * @param injector The injector
+     * @return String representation of the injector.
+     */
+    public static String toString( final Injector injector )
+    {
+        final StringBuilder buf = new StringBuilder();
+        buf.append( "Injector " ).append( injector.getClass().getName() ).append( "@" ).append( Integer.toHexString( System.identityHashCode( injector ) ) );
+        int i = 0;
+        buf.append( NEW_LINE ).append( "--------------------------------------------------------------------------------" );
+        for ( final Binding<?> b : injector.getBindings().values() )
+        {
+            buf.append( NEW_LINE ).append( i++ ).append( ". " ).append( b );
+        }
+        buf.append( NEW_LINE ).append( "--------------------------------------------------------------------------------" );
+        return buf.append( NEW_LINE ).toString();
     }
 
     // ----------------------------------------------------------------------

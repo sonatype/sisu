@@ -13,6 +13,10 @@ package org.sonatype.guice.bean.reflect;
 
 import java.rmi.UnexpectedException;
 
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Module;
+
 public class LoggingExample
 {
     static class BadValue
@@ -67,5 +71,18 @@ public class LoggingExample
         Logs.warn( "{} {}", new BadValue(), new BadValue() );
 
         Logs.warn( "Error: {} cause: {}", "oops", new UnexpectedException( "doh!" ) );
+
+        final Module module = new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                bind( Object.class ).to( BadValue.class );
+            }
+        };
+
+        Logs.debug( Logs.toString( module ), null, null );
+
+        Logs.debug( Logs.toString( Guice.createInjector( module ) ), null, null );
     }
 }
