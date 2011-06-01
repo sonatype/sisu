@@ -104,14 +104,7 @@ final class InjectorPublisher
     @Override
     public String toString()
     {
-        final StringBuilder buf = new StringBuilder();
-        buf.append( "Injector@" ).append( Integer.toHexString( System.identityHashCode( injector ) ) ).append( " bindings:" );
-        int i = 0;
-        for ( final Binding<?> b : injector.getBindings().values() )
-        {
-            buf.append( Logs.NEW_LINE ).append( i++ ).append( "=" ).append( b );
-        }
-        return buf.append( Logs.NEW_LINE ).toString();
+        return Logs.toString( injector );
     }
 
     // ----------------------------------------------------------------------

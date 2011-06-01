@@ -12,13 +12,18 @@
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+import javax.inject.Qualifier;
 
 import com.google.inject.Key;
-import com.google.inject.name.Names;
 
 /**
  * Binding {@link Key} for implementations that act as "wild-cards", meaning they match against any assignable type.<br>
- * Wild-card keys use the fully-qualified name as the key's qualifier; the real qualifier is recorded separately.
+ * Since the wild-card type is {@link Object} and the given qualifier may not be unique, the original value is saved and
+ * replaced with a pseudo-qualifier wrapped round the implementation. The original qualifier is available from
+ * {@link #getQualifier()}.
  */
 public final class WildcardKey
     extends Key<Object> // all wild-card keys have Object as their type
@@ -35,9 +40,7 @@ public final class WildcardKey
 
     public WildcardKey( final Class<?> type, final Annotation qualifier )
     {
-        // make unique per-implementation name
-        super( Names.named( type.getName() ) );
-
+        super( new WrapperImpl( type ) );
         this.qualifier = qualifier;
     }
 
@@ -46,10 +49,83 @@ public final class WildcardKey
     // ----------------------------------------------------------------------
 
     /**
-     * @return Real qualifier associated with the implementation
+     * @return Original qualifier associated with the implementation
      */
     public Annotation getQualifier()
     {
         return qualifier;
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation types
+    // ----------------------------------------------------------------------
+
+    @Qualifier
+    @Retention( RetentionPolicy.RUNTIME )
+    private static @interface Wrapper
+    {
+        Class<?> value();
+    }
+
+    /**
+     * Pseudo-{@link Annotation} that can wrap any implementation type.
+     */
+    private static final class WrapperImpl
+        implements Wrapper
+    {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
+        private final Class<?> value;
+
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
+        WrapperImpl( final Class<?> value )
+        {
+            this.value = value;
+        }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
+
+        public Class<?> value()
+        {
+            return value;
+        }
+
+        public Class<? extends Annotation> annotationType()
+        {
+            return Wrapper.class;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return value.hashCode(); // no need to follow strict annotation spec
+        }
+
+        @Override
+        public boolean equals( Object rhs )
+        {
+            if ( this == rhs )
+            {
+                return true;
+            }
+            if ( rhs instanceof WrapperImpl )
+            {
+                return value == ( (WrapperImpl) rhs ).value;
+            }
+            return false;
+        }
+
+        @Override
+        public String toString()
+        {
+            return "*"; // let people know this is a "wild-card" qualifier
+        }
     }
 }

@@ -119,7 +119,7 @@ public final class Logs
     public static String toString( final Module module )
     {
         final StringBuilder buf = new StringBuilder();
-        buf.append( "Module " ).append( module.getClass().getName() ).append( "@" ).append( Integer.toHexString( System.identityHashCode( module ) ) );
+        buf.append( module.getClass().getName() ).append( "@" ).append( Integer.toHexString( System.identityHashCode( module ) ) );
         int i = 0;
         buf.append( NEW_LINE ).append( "--------------------------------------------------------------------------------" );
         for ( final Element e : Elements.getElements( module ) )
@@ -139,7 +139,7 @@ public final class Logs
     public static String toString( final Injector injector )
     {
         final StringBuilder buf = new StringBuilder();
-        buf.append( "Injector " ).append( injector.getClass().getName() ).append( "@" ).append( Integer.toHexString( System.identityHashCode( injector ) ) );
+        buf.append( injector.getClass().getName() ).append( "@" ).append( Integer.toHexString( System.identityHashCode( injector ) ) );
         int i = 0;
         buf.append( NEW_LINE ).append( "--------------------------------------------------------------------------------" );
         for ( final Binding<?> b : injector.getBindings().values() )
