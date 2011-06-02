@@ -12,17 +12,21 @@
 package org.sonatype.guice.bean.binders;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.sonatype.guice.bean.reflect.Logs;
+import org.sonatype.guice.bean.reflect.TypeParameters;
+import org.sonatype.inject.Parameters;
 
 import com.google.inject.Binder;
 import com.google.inject.Binding;
 import com.google.inject.Key;
 import com.google.inject.PrivateBinder;
+import com.google.inject.TypeLiteral;
 import com.google.inject.spi.DefaultElementVisitor;
 import com.google.inject.spi.Element;
 import com.google.inject.spi.ElementVisitor;
@@ -49,7 +53,9 @@ final class ElementAnalyzer
 
     private final List<ElementAnalyzer> privateAnalyzers = new ArrayList<ElementAnalyzer>();
 
-    private final List<Map<String, String>> params = new ArrayList<Map<String, String>>();
+    private final List<Map<?, ?>> properties = new ArrayList<Map<?, ?>>();
+
+    private final List<String> arguments = new ArrayList<String>();
 
     private final Binder binder;
 
@@ -70,12 +76,17 @@ final class ElementAnalyzer
     {
         // calculate which dependencies are missing from the module elements
         final Set<Key<?>> missingKeys = analyzer.findMissingKeys( localKeys );
-
-        bindParameters( missingKeys );
-
+        final Map<?, ?> mergedProperties = new MergedProperties( properties );
         for ( final Key<?> key : missingKeys )
         {
-            wiring.wire( key );
+            if ( Parameters.class == key.getAnnotationType() )
+            {
+                wireParameters( key, mergedProperties );
+            }
+            else
+            {
+                wiring.wire( key );
+            }
         }
 
         for ( final ElementAnalyzer privateAnalyzer : privateAnalyzers )
@@ -93,7 +104,7 @@ final class ElementAnalyzer
         final Key<T> key = binding.getKey();
         if ( !localKeys.contains( key ) )
         {
-            if ( ParameterKeys.PROPERTIES.equals( key ) )
+            if ( Parameters.class == key.getAnnotationType() )
             {
                 mergeParameters( binding );
             }
@@ -173,34 +184,51 @@ final class ElementAnalyzer
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
-    private <T> void mergeParameters( final Binding<T> binding )
+    private void mergeParameters( final Binding<?> binding )
     {
+        Object parameters = null;
         if ( binding instanceof InstanceBinding<?> )
         {
-            params.add( ( (InstanceBinding<Map<String, String>>) binding ).getInstance() );
+            parameters = ( (InstanceBinding<?>) binding ).getInstance();
         }
         else if ( binding instanceof ProviderInstanceBinding<?> )
         {
-            params.add( ( (ProviderInstanceBinding<Map<String, String>>) binding ).getProviderInstance().get() );
+            parameters = ( (ProviderInstanceBinding<?>) binding ).getProviderInstance().get();
+        }
+        if ( parameters instanceof Map )
+        {
+            properties.add( (Map<?, ?>) parameters );
+        }
+        else if ( parameters instanceof String[] )
+        {
+            Collections.addAll( arguments, (String[]) parameters );
         }
         else
         {
-            Logs.warn( "Ignoring non-instance @Parameters binding: {}", binding, null );
+            Logs.warn( "Ignoring incompatible @Parameters binding: {}", binding, null );
         }
     }
 
-    private void bindParameters( final Set<Key<?>> missingKeys )
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    private void wireParameters( final Key key, final Map mergedProperties )
     {
-        if ( missingKeys.remove( ParameterKeys.PROPERTIES ) )
+        final TypeLiteral<?> type = key.getTypeLiteral();
+        final Class<?> clazz = type.getRawType();
+        if ( Map.class == clazz )
         {
-            binder.bind( ParameterKeys.PROPERTIES ).toInstance( new MergedParameters( params ) );
-            localKeys.add( ParameterKeys.PROPERTIES );
+            final TypeLiteral<?>[] constraints = TypeParameters.get( type );
+            if ( constraints.length == 2 && String.class == constraints[1].getRawType() )
+            {
+                binder.bind( key ).toInstance( new StringProperties( mergedProperties ) );
+            }
+            else
+            {
+                binder.bind( key ).toInstance( mergedProperties );
+            }
         }
-        if ( missingKeys.remove( ParameterKeys.ARGUMENTS ) )
+        else if ( String[].class == clazz )
         {
-            binder.bind( ParameterKeys.ARGUMENTS ).toInstance( new String[0] );
-            localKeys.add( ParameterKeys.ARGUMENTS );
+            binder.bind( key ).toInstance( arguments.toArray( new String[arguments.size()] ) );
         }
     }
 }

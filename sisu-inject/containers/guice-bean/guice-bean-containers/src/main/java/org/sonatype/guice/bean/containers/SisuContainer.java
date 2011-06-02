@@ -28,6 +28,7 @@ public final class SisuContainer
 
     private static SisuContext context;
 
+    @SuppressWarnings( "unchecked" )
     public static void configure( final Class<?> type, final Map<String, String> properties )
     {
         injector( type ).getInstance( ParameterKeys.PROPERTIES ).putAll( properties );

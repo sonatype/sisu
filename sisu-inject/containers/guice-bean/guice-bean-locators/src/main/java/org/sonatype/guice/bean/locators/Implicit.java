@@ -13,14 +13,16 @@ package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import javax.inject.Qualifier;
 
 /**
- * {@link Qualifier} used to record and tag implicit bindings.
+ * {@link Qualifier} used to record and tag implicit bindings (not for direct use).
  */
 @Qualifier
 @Retention( RetentionPolicy.RUNTIME )
+@Target( value = {} )
 public @interface Implicit
 {
 }

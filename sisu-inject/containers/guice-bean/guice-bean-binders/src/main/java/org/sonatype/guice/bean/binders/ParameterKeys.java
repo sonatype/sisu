@@ -16,12 +16,11 @@ import java.util.Map;
 import org.sonatype.inject.Parameters;
 
 import com.google.inject.Key;
-import com.google.inject.util.Types;
 
+@SuppressWarnings( "rawtypes" )
 public interface ParameterKeys
 {
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
-    Key<Map<String, String>> PROPERTIES = (Key) Key.get( Types.mapOf( String.class, String.class ), Parameters.class );
+    Key<Map> PROPERTIES = Key.get( Map.class, Parameters.class );
 
     Key<String[]> ARGUMENTS = Key.get( String[].class, Parameters.class );
 }

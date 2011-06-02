@@ -13,27 +13,25 @@ package org.sonatype.guice.bean.binders;
 
 import java.util.AbstractMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-final class MergedParameters
+final class StringProperties
     extends AbstractMap<String, String>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<String, String>[] parameters;
+    private final Map<?, ?> delegate;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
-    MergedParameters( final List<Map<String, String>> parameters )
+    StringProperties( final Map<?, ?> delegate )
     {
-        this.parameters = parameters.toArray( new Map[parameters.size()] );
+        this.delegate = delegate;
     }
 
     // ----------------------------------------------------------------------
@@ -43,13 +41,10 @@ final class MergedParameters
     @Override
     public String get( final Object key )
     {
-        for ( final Map<String, String> p : parameters )
+        final Object value = delegate.get( key );
+        if ( value instanceof String )
         {
-            final Object value = p.get( key );
-            if ( null != value )
-            {
-                return String.valueOf( value );
-            }
+            return (String) value;
         }
         return null;
     }
@@ -57,14 +52,12 @@ final class MergedParameters
     @Override
     public boolean containsKey( final Object key )
     {
-        for ( final Map<String, String> p : parameters )
+        final Object value = delegate.get( key );
+        if ( null == value )
         {
-            if ( p.containsKey( key ) )
-            {
-                return true;
-            }
+            return delegate.containsKey( key );
         }
-        return false;
+        return value instanceof String;
     }
 
     @Override
@@ -72,9 +65,16 @@ final class MergedParameters
     public Set<Entry<String, String>> entrySet()
     {
         final Set entries = new HashSet();
-        for ( final Map<String, String> p : parameters )
+        for ( final Entry e : delegate.entrySet() )
         {
-            entries.addAll( p.entrySet() );
+            if ( e.getKey() instanceof String )
+            {
+                final Object value = e.getValue();
+                if ( null == value || value instanceof String )
+                {
+                    entries.add( e );
+                }
+            }
         }
         return entries;
     }

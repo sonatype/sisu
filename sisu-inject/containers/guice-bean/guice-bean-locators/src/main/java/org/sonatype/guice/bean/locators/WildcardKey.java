@@ -20,10 +20,11 @@ import javax.inject.Qualifier;
 import com.google.inject.Key;
 
 /**
- * Binding {@link Key} for implementations that act as "wild-cards", meaning they match against any assignable type.<br>
- * Since the wild-card type is {@link Object} and the given qualifier may not be unique, the original value is saved and
- * replaced with a pseudo-qualifier wrapped round the implementation. The original qualifier is available from
- * {@link #getQualifier()}.
+ * Binding {@link Key} for implementations that act as "wild-cards", meaning they match against any assignable type.
+ * <p>
+ * Since the wild-card type is {@link Object} and the associated qualifier may not be unique between implementations,
+ * the qualifier is saved and replaced with a unique (per-implementation) pseudo-qualifier. The original qualifier is
+ * available from {@link #getQualifier()}.
  */
 public final class WildcardKey
     extends Key<Object> // all wild-card keys have Object as their type
@@ -40,7 +41,7 @@ public final class WildcardKey
 
     public WildcardKey( final Class<?> type, final Annotation qualifier )
     {
-        super( new WrapperImpl( type ) );
+        super( new Wrapped( type ) );
         this.qualifier = qualifier;
     }
 
@@ -68,9 +69,9 @@ public final class WildcardKey
     }
 
     /**
-     * Pseudo-{@link Annotation} that can wrap any implementation type.
+     * Pseudo-{@link Annotation} that can wrap any implementation type as a {@link Qualifier}.
      */
-    private static final class WrapperImpl
+    private static final class Wrapped
         implements Wrapper
     {
         // ----------------------------------------------------------------------
@@ -83,7 +84,7 @@ public final class WildcardKey
         // Constructors
         // ----------------------------------------------------------------------
 
-        WrapperImpl( final Class<?> value )
+        Wrapped( final Class<?> value )
         {
             this.value = value;
         }
@@ -115,9 +116,9 @@ public final class WildcardKey
             {
                 return true;
             }
-            if ( rhs instanceof WrapperImpl )
+            if ( rhs instanceof Wrapped )
             {
-                return value == ( (WrapperImpl) rhs ).value;
+                return value == ( (Wrapped) rhs ).value;
             }
             return false;
         }

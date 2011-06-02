@@ -224,6 +224,6 @@ final class LocatorWiring
      */
     private static boolean isRestricted( final Class<?> clazz )
     {
-        return clazz.getName().equals( "org.slf4j.Logger" ) || BeanLocator.class.isAssignableFrom( clazz );
+        return "org.slf4j.Logger".equals( clazz.getName() ) || BeanLocator.class.isAssignableFrom( clazz );
     }
 }

@@ -291,7 +291,8 @@ final class PlaceholderBeanProvider<V>
 
     @Inject
     @Parameters
-    private Map<String, String> properties;
+    @SuppressWarnings( "rawtypes" )
+    private Map properties;
 
     @Inject
     private TypeConverterMap converterMap;
@@ -317,38 +318,64 @@ final class PlaceholderBeanProvider<V>
     @SuppressWarnings( "unchecked" )
     public V get()
     {
+        final TypeLiteral<V> expectedType = placeholderKey.getTypeLiteral();
         final String template = ( (Named) placeholderKey.getAnnotation() ).value();
-        String value = interpolate( template );
+
+        // ---------------- INTERPOLATION ----------------
+
+        String value = template;
+        if ( value.contains( "${" ) )
+        {
+            value = interpolate( value );
+        }
+        else if ( properties.containsKey( value ) )
+        {
+            // is the implementation in the property map?
+            final Object bean = properties.get( template );
+            final Class<?> clazz = expectedType.getRawType();
+            if ( String.class != clazz && clazz.isInstance( bean ) )
+            {
+                return (V) bean; // found (non-string) implementation
+            }
+            value = interpolate( String.valueOf( bean ) );
+        }
+
+        // ------------------- LOOKUP --------------------
+
         if ( "null".equals( value ) )
         {
             return null; // no point continuing
         }
 
-        final Named id = Names.named( value );
-        final TypeLiteral<V> beanType = placeholderKey.getTypeLiteral();
-        final V bean = BeanProvider.get( locator, Key.get( beanType, id ) );
-        if ( null != bean )
+        final Key<V> lookupKey = Key.get( expectedType, Names.named( value ) );
+        if ( String.class != expectedType.getRawType() )
         {
-            return bean;
+            final V bean = BeanProvider.get( locator, lookupKey );
+            if ( null != bean )
+            {
+                return bean; // explicit binding
+            }
         }
+
+        // ----------------- CONVERSION ------------------
 
         if ( null != converterMap )
         {
-            final TypeConverter converter = converterMap.getTypeConverter( beanType );
+            final TypeConverter converter = converterMap.getTypeConverter( expectedType );
             if ( null == converter )
             {
                 converterMap = null; // avoid checking again in the future
             }
             else
             {
-                if ( template == value ) // use == instead of equals to see if template changed at all
+                if ( template == value ) // use == instead of equals to spot any change/interpolation
                 {
-                    // no luck interpolating with property map; perhaps it's really a Guice constant?
-                    value = String.valueOf( BeanProvider.get( locator, Key.get( String.class, id ) ) );
+                    // no luck interpolating with property map; perhaps it's actually a String constant?
+                    value = String.valueOf( BeanProvider.get( locator, lookupKey.ofType( String.class ) ) );
                 }
                 if ( !"null".equals( value ) )
                 {
-                    return (V) converter.convert( value, beanType );
+                    return (V) converter.convert( value, expectedType );
                 }
             }
         }
@@ -361,16 +388,7 @@ final class PlaceholderBeanProvider<V>
 
     private String interpolate( final String template )
     {
-        String text = template;
-        if ( properties.containsKey( text ) )
-        {
-            text = String.valueOf( properties.get( text ) );
-        }
-        if ( !text.contains( "${" ) )
-        {
-            return text; // short-circuit; maintains reference
-        }
-        final StringBuilder buf = new StringBuilder( text );
+        final StringBuilder buf = new StringBuilder( template );
         int x = 0, y, expressionEnd = 0, expressionNum = 0;
         while ( ( x = buf.indexOf( "${", x ) ) >= 0 && ( y = buf.indexOf( "}", x ) + 1 ) > 0 )
         {
@@ -388,7 +406,7 @@ final class PlaceholderBeanProvider<V>
             }
             if ( expressionNum++ >= EXPRESSION_RECURSION_LIMIT )
             {
-                throw new ProvisionException( "Recursive configuration: " + text + " stopped at: " + buf );
+                throw new ProvisionException( "Recursive configuration: " + template + " stopped at: " + buf );
             }
             final int len = buf.length();
             buf.replace( x, y, String.valueOf( value ) );

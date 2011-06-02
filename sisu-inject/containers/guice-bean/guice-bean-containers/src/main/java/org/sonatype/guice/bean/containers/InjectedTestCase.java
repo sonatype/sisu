@@ -14,7 +14,6 @@ package org.sonatype.guice.bean.containers;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -75,7 +74,6 @@ public abstract class InjectedTestCase
         extends AbstractModule
     {
         @Override
-        @SuppressWarnings( { "unchecked", "rawtypes" } )
         protected void configure()
         {
             install( InjectedTestCase.this );
@@ -84,7 +82,7 @@ public abstract class InjectedTestCase
             properties.put( "basedir", getBasedir() );
             InjectedTestCase.this.configure( properties );
 
-            bind( ParameterKeys.PROPERTIES ).toInstance( (Map) properties );
+            bind( ParameterKeys.PROPERTIES ).toInstance( properties );
 
             requestInjection( InjectedTestCase.this );
         }

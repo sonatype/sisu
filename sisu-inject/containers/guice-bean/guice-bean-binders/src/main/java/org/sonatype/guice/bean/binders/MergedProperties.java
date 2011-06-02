@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2011 Sonatype, Inc.
+ * Copyright (c) 2011 Sonatype, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * and Apache License v2.0 which accompanies this distribution.
@@ -9,69 +9,72 @@
  *   http://www.apache.org/licenses/LICENSE-2.0.html
  * You may elect to redistribute this code under either of these licenses.
  *******************************************************************************/
-package org.sonatype.guice.bean.reflect;
+package org.sonatype.guice.bean.binders;
 
-/**
- * Pseudo {@link DeferredClass} backed by an already loaded {@link Class}.
- */
-public final class LoadedClass<T>
-    extends AbstractDeferredClass<T>
+import java.util.AbstractMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+final class MergedProperties
+    extends AbstractMap<Object, Object>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Class<T> clazz;
+    private final Map<?, ?>[] properties;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
-    public LoadedClass( final Class<? extends T> clazz )
+    MergedProperties( final List<Map<?, ?>> properties )
     {
-        this.clazz = (Class<T>) clazz;
+        this.properties = properties.toArray( new Map[properties.size()] );
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    public Class<T> load()
-    {
-        return clazz;
-    }
-
-    public String getName()
-    {
-        return clazz.getName();
-    }
-
     @Override
-    public int hashCode()
+    public Object get( final Object key )
     {
-        return clazz.hashCode();
-    }
-
-    @Override
-    public boolean equals( final Object rhs )
-    {
-        if ( this == rhs )
+        for ( final Map<?, ?> p : properties )
         {
-            return true;
+            final Object value = p.get( key );
+            if ( null != value )
+            {
+                return value;
+            }
         }
-        if ( rhs instanceof LoadedClass<?> )
+        return null;
+    }
+
+    @Override
+    public boolean containsKey( final Object key )
+    {
+        for ( final Map<?, ?> p : properties )
         {
-            return clazz == ( (LoadedClass<?>) rhs ).clazz;
+            if ( p.containsKey( key ) )
+            {
+                return true;
+            }
         }
         return false;
     }
 
     @Override
-    public String toString()
+    @SuppressWarnings( { "unchecked", "rawtypes" } )
+    public Set<Entry<Object, Object>> entrySet()
     {
-        final String id = "Loaded " + clazz;
-        final ClassLoader space = clazz.getClassLoader();
-        return null != space ? id + " from " + space : id;
+        final Set entries = new LinkedHashSet();
+        for ( final Map<?, ?> p : properties )
+        {
+            entries.addAll( p.entrySet() );
+        }
+        return entries;
     }
 }
