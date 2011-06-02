@@ -319,7 +319,7 @@ public class BeanImportTest
         Z<Random> random;
     }
 
-    static Map<String, String> PROPS = new HashMap<String, String>();
+    static Map<String, Object> PROPS = new HashMap<String, Object>();
 
     class TestModule
         extends AbstractModule
@@ -432,6 +432,12 @@ public class BeanImportTest
         PlaceholderInstance placeholderInstance;
         placeholderInstance = (PlaceholderInstance) injector.getInstance( Key.get( X.class, Names.named( "PI" ) ) );
         assertNull( placeholderInstance.single );
+
+        final Y why = new YImpl();
+        PROPS.put( "name", why );
+
+        placeholderInstance = (PlaceholderInstance) injector.getInstance( Key.get( X.class, Names.named( "PI" ) ) );
+        assertSame( why, placeholderInstance.single );
 
         PROPS.put( "name", "local" );
 

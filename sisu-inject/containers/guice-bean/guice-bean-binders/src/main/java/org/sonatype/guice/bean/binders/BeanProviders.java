@@ -234,39 +234,37 @@ final class BeanProvider<V>
 
 @Singleton
 final class TypeConverterMap
-    implements TypeConverter
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     @Inject
     private Injector injector;
 
     private final Map<TypeLiteral<?>, TypeConverter> converterMap =
         new ConcurrentHashMap<TypeLiteral<?>, TypeConverter>();
 
-    TypeConverterMap()
-    {
-        converterMap.put( TypeLiteral.get( String.class ), this );
-    }
-
-    public Object convert( final String config, final TypeLiteral<?> type )
-    {
-        return config;
-    }
+    // ----------------------------------------------------------------------
+    // Shared methods
+    // ----------------------------------------------------------------------
 
     TypeConverter getTypeConverter( final TypeLiteral<?> type )
     {
-        TypeConverter converter = converterMap.get( type );
-        if ( null == converter )
+        if ( converterMap.containsKey( type ) )
         {
-            for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
+            return converterMap.get( type );
+        }
+        TypeConverter converter = null;
+        for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
+        {
+            if ( b.getTypeMatcher().matches( type ) )
             {
-                if ( b.getTypeMatcher().matches( type ) )
-                {
-                    converter = b.getTypeConverter();
-                    converterMap.put( type, converter );
-                    break;
-                }
+                converter = b.getTypeConverter();
+                break;
             }
         }
+        converterMap.put( type, converter );
         return converter;
     }
 }
@@ -318,67 +316,47 @@ final class PlaceholderBeanProvider<V>
     @SuppressWarnings( "unchecked" )
     public V get()
     {
-        final TypeLiteral<V> expectedType = placeholderKey.getTypeLiteral();
         final String template = ( (Named) placeholderKey.getAnnotation() ).value();
+        final TypeLiteral<V> expectedType = placeholderKey.getTypeLiteral();
 
         // ---------------- INTERPOLATION ----------------
 
-        String value = template;
-        if ( value.contains( "${" ) )
+        final Class<?> clazz = expectedType.getRawType();
+        Object value = interpolate( template, clazz );
+        if ( false == value instanceof String )
         {
-            value = interpolate( value );
-        }
-        else if ( properties.containsKey( value ) )
-        {
-            // is the implementation in the property map?
-            final Object bean = properties.get( template );
-            if ( bean instanceof String || !expectedType.getRawType().isInstance( bean ) )
-            {
-                value = interpolate( String.valueOf( bean ) );
-            }
-            else
-            {
-                return (V) bean; // found (non-string) implementation
-            }
+            return (V) value; // found non-String mapping
         }
 
         // ------------------- LOOKUP --------------------
 
-        if ( "null".equals( value ) )
-        {
-            return null; // no point continuing
-        }
-
-        final Key<V> lookupKey = Key.get( expectedType, Names.named( value ) );
-        if ( String.class != expectedType.getRawType() )
+        final Key<V> lookupKey = Key.get( expectedType, Names.named( (String) value ) );
+        if ( String.class != clazz )
         {
             final V bean = BeanProvider.get( locator, lookupKey );
             if ( null != bean )
             {
-                return bean; // explicit binding
+                return bean; // found non-String binding
             }
         }
 
         // ----------------- CONVERSION ------------------
 
-        if ( null != converterMap )
+        if ( template == value )
         {
-            final TypeConverter converter = converterMap.getTypeConverter( expectedType );
-            if ( null == converter )
+            // same reference, so no interpolation occurred; is this perhaps a Guice constant?
+            value = normalize( BeanProvider.get( locator, lookupKey.ofType( String.class ) ) );
+        }
+        if ( value instanceof String )
+        {
+            if ( String.class == clazz )
             {
-                converterMap = null; // avoid checking again in the future
+                return (V) value; // no conversion required
             }
-            else
+            final TypeConverter converter = converterMap.getTypeConverter( expectedType );
+            if ( null != converter )
             {
-                if ( template == value ) // use == instead of equals to spot any change/interpolation
-                {
-                    // no luck interpolating with property map; perhaps it's actually a String constant?
-                    value = String.valueOf( BeanProvider.get( locator, lookupKey.ofType( String.class ) ) );
-                }
-                if ( !"null".equals( value ) )
-                {
-                    return (V) converter.convert( value, expectedType );
-                }
+                return (V) converter.convert( (String) value, expectedType );
             }
         }
         return null;
@@ -388,9 +366,27 @@ final class PlaceholderBeanProvider<V>
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private String interpolate( final String template )
+    private static <T> T normalize( final T value )
     {
-        final StringBuilder buf = new StringBuilder( template );
+        return "null".equals( value ) ? null : value;
+    }
+
+    private Object interpolate( final String template, final Class<?> clazz )
+    {
+        final StringBuilder buf;
+        if ( template.contains( "${" ) )
+        {
+            buf = new StringBuilder( template );
+        }
+        else if ( properties.containsKey( template ) )
+        {
+            // handle situations where someone missed out the main brackets
+            buf = new StringBuilder( "${" ).append( template ).append( '}' );
+        }
+        else
+        {
+            return template; // nothing to interpolate, maintain reference
+        }
         int x = 0, y, expressionEnd = 0, expressionNum = 0;
         while ( ( x = buf.indexOf( "${", x ) ) >= 0 && ( y = buf.indexOf( "}", x ) + 1 ) > 0 )
         {
@@ -411,10 +407,14 @@ final class PlaceholderBeanProvider<V>
                 throw new ProvisionException( "Recursive configuration: " + template + " stopped at: " + buf );
             }
             final int len = buf.length();
+            if ( 0 == x && len == y && String.class != clazz && clazz.isInstance( value ) )
+            {
+                return value; // found compatible (non-String) instance in the properties!
+            }
             buf.replace( x, y, String.valueOf( value ) );
             expressionEnd += buf.length() - len;
         }
-        return buf.toString();
+        return normalize( buf.toString() );
     }
 }
 
