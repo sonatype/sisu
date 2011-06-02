@@ -332,12 +332,14 @@ final class PlaceholderBeanProvider<V>
         {
             // is the implementation in the property map?
             final Object bean = properties.get( template );
-            final Class<?> clazz = expectedType.getRawType();
-            if ( String.class != clazz && clazz.isInstance( bean ) )
+            if ( bean instanceof String || !expectedType.getRawType().isInstance( bean ) )
+            {
+                value = interpolate( String.valueOf( bean ) );
+            }
+            else
             {
                 return (V) bean; // found (non-string) implementation
             }
-            value = interpolate( String.valueOf( bean ) );
         }
 
         // ------------------- LOOKUP --------------------
