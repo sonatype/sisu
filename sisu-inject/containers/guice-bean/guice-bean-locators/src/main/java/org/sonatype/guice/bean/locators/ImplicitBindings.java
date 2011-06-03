@@ -47,22 +47,31 @@ final class ImplicitBindings
     @SuppressWarnings( { "unchecked", "rawtypes" } )
     public <T> Binding<T> get( final TypeLiteral<T> type )
     {
-        final Class clazz = type.getRawType();
-        final Key implicitKey = Key.get( clazz, Implicit.class );
+        final Key implicitKey = Key.get( type.getRawType(), Implicit.class );
+        for ( final Injector i : injectors )
+        {
+            try
+            {
+                // first round: check for any re-written implicit bindings
+                final Binding binding = i.getBindings().get( implicitKey );
+                if ( null != binding )
+                {
+                    return binding;
+                }
+            }
+            catch ( final Throwable e )
+            {
+                continue; // no luck, move onto next injector
+            }
+        }
+
         final Key justInTimeKey = Key.get( type );
         for ( final Injector i : injectors )
         {
             try
             {
-                // first check for any re-written implicit bindings
-                Binding binding = i.getBindings().get( implicitKey );
-                if ( null != binding )
-                {
-                    return binding;
-                }
-                // fall back to standard Guice just-in-time lookup,
-                // but avoid recursion by ignoring hidden bindings!
-                binding = i.getBinding( justInTimeKey );
+                // second round: fall back to just-in-time lookup
+                final Binding binding = i.getBinding( justInTimeKey );
                 if ( InjectorPublisher.isVisible( binding ) )
                 {
                     return binding;
