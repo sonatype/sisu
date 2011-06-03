@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -190,6 +191,13 @@ public class BeanImportTest
         Iterable<Y> iterable;
     }
 
+    static class UnrestrictedSet
+        extends AbstractX
+    {
+        @Inject
+        Set<Y> set;
+    }
+
     static class NamedType
         extends AbstractX
     {
@@ -298,6 +306,14 @@ public class BeanImportTest
         List<Y> list;
     }
 
+    static class MissingSet
+        implements X
+    {
+        @Inject
+        @Named( "missing" )
+        Set<Y> set;
+    }
+
     static class MissingMap
         implements X
     {
@@ -334,6 +350,7 @@ public class BeanImportTest
 
             bind( X.class ).annotatedWith( Names.named( "UI" ) ).to( UnrestrictedInstance.class );
             bind( X.class ).annotatedWith( Names.named( "UL" ) ).to( UnrestrictedList.class );
+            bind( X.class ).annotatedWith( Names.named( "US" ) ).to( UnrestrictedSet.class );
 
             bind( X.class ).annotatedWith( Names.named( "NT" ) ).to( NamedType.class );
             bind( X.class ).annotatedWith( Names.named( "NI" ) ).to( NamedInstance.class );
@@ -390,6 +407,17 @@ public class BeanImportTest
         assertSame( unrestrictedList.list.get( 0 ), iterator.next() );
         assertSame( unrestrictedList.list.get( 1 ), iterator.next() );
         assertFalse( iterator.hasNext() );
+
+        final UnrestrictedSet unrestrictedSet =
+            (UnrestrictedSet) injector.getInstance( Key.get( X.class, Names.named( "US" ) ) );
+
+        assertEquals( 2, unrestrictedSet.set.size() );
+
+        assertTrue( unrestrictedSet.set.contains( unrestrictedInstance.local ) );
+        assertTrue( unrestrictedSet.set.contains( unrestrictedList.local ) );
+
+        assertTrue( unrestrictedSet.set.contains( unrestrictedInstance.fuzzy ) );
+        assertTrue( unrestrictedSet.set.contains( unrestrictedList.fuzzy ) );
     }
 
     public void testNamedImports()
@@ -597,6 +625,22 @@ public class BeanImportTest
                 protected void configure()
                 {
                     bind( X.class ).annotatedWith( Names.named( "ML" ) ).to( MissingList.class );
+                }
+            } ) );
+            fail( "Expected CreationException" );
+        }
+        catch ( final CreationException e )
+        {
+        }
+
+        try
+        {
+            Guice.createInjector( new WireModule( new AbstractModule()
+            {
+                @Override
+                protected void configure()
+                {
+                    bind( X.class ).annotatedWith( Names.named( "MS" ) ).to( MissingSet.class );
                 }
             } ) );
             fail( "Expected CreationException" );

@@ -16,6 +16,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Qualifier;
 
@@ -83,6 +84,10 @@ final class LocatorWiring
         {
             bindListImport( key );
         }
+        else if ( Set.class == clazz )
+        {
+            bindSetImport( key );
+        }
         else if ( !isRestricted( clazz ) )
         {
             bindBeanImport( key );
@@ -143,6 +148,20 @@ final class LocatorWiring
             {
                 binder.bind( key ).toProvider( new BeanListProvider( Key.get( elementType ) ) );
             }
+        }
+    }
+
+    /**
+     * Adds an imported {@link Set} binding; uses the generic type parameters to determine the search details.
+     * 
+     * @param key The dependency key
+     */
+    private void bindSetImport( final Key<?> key )
+    {
+        TypeLiteral<?>[] parameters = TypeParameters.get( key.getTypeLiteral() );
+        if ( 1 == parameters.length && null == key.getAnnotation() )
+        {
+            binder.bind( key ).toProvider( new BeanSetProvider( Key.get( parameters[0] ) ) );
         }
     }
 

@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
@@ -24,6 +25,7 @@ import javax.inject.Singleton;
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
+import org.sonatype.guice.bean.locators.EntrySetAdapter;
 import org.sonatype.guice.bean.locators.NamedIterableAdapter;
 import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Parameters;
@@ -76,6 +78,8 @@ final class BeanEntryProvider<K extends Annotation, V>
     }
 }
 
+//----------------------------------------------------------------------
+
 /**
  * Provides a {@link List} of qualified beans.
  */
@@ -107,6 +111,42 @@ final class BeanListProvider<K extends Annotation, V>
     public List<V> get()
     {
         return new EntryListAdapter<Annotation, V>( locator.locate( key ) );
+    }
+}
+
+//----------------------------------------------------------------------
+
+/**
+ * Provides a {@link Set} of qualified beans.
+ */
+final class BeanSetProvider<K extends Annotation, V>
+    implements Provider<Set<V>>
+{
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    @Inject
+    private BeanLocator locator;
+
+    private final Key<V> key;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    BeanSetProvider( final Key<V> key )
+    {
+        this.key = key;
+    }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
+    public Set<V> get()
+    {
+        return new EntrySetAdapter<Annotation, V>( locator.locate( key ) );
     }
 }
 
@@ -232,6 +272,9 @@ final class BeanProvider<V>
 
 // ----------------------------------------------------------------------
 
+/**
+ * Lazy cache of known {@link TypeConverter}s.
+ */
 @Singleton
 final class TypeConverterMap
 {
