@@ -86,7 +86,7 @@ public final class DefaultBeanLocator
     {
         if ( !publishers.contains( publisher ) )
         {
-            Logs.debug( "Add bindings: {}", publisher, null );
+            Logs.debug( "Add publisher: {}", publisher, null );
             publishers.insert( publisher, rank );
             distribute( BindingEvent.ADD, publisher, rank );
         }
@@ -96,7 +96,7 @@ public final class DefaultBeanLocator
     {
         if ( publishers.remove( publisher ) )
         {
-            Logs.debug( "Remove bindings: {}", publisher, null );
+            Logs.debug( "Remove publisher: <>", publisher, null );
             distribute( BindingEvent.REMOVE, publisher, 0 );
         }
     }

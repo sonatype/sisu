@@ -158,7 +158,7 @@ final class LocatorWiring
      */
     private void bindSetImport( final Key<?> key )
     {
-        TypeLiteral<?>[] parameters = TypeParameters.get( key.getTypeLiteral() );
+        final TypeLiteral<?>[] parameters = TypeParameters.get( key.getTypeLiteral() );
         if ( 1 == parameters.length && null == key.getAnnotation() )
         {
             binder.bind( key ).toProvider( new BeanSetProvider( Key.get( parameters[0] ) ) );

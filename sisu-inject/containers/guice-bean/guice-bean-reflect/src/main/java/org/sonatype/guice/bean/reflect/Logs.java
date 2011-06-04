@@ -32,22 +32,23 @@ public final class Logs
     static
     {
         String newLine;
-        boolean debug;
+        boolean isDebug;
         try
         {
             newLine = System.getProperty( "line.separator", "\n" );
-            debug = "true".equalsIgnoreCase( System.getProperty( "org.sonatype.inject.debug" ) );
+            final String debug = System.getProperty( "org.sonatype.inject.debug", "false" );
+            isDebug = "".equals( debug ) || "true".equalsIgnoreCase( debug );
         }
         catch ( final Throwable e )
         {
             newLine = "\n";
-            debug = false;
+            isDebug = false;
         }
         NEW_LINE = newLine;
         Sink sink;
         try
         {
-            sink = debug ? new ConsoleSink() : new SLF4JSink();
+            sink = isDebug ? new ConsoleSink() : new SLF4JSink();
         }
         catch ( final Throwable e )
         {
@@ -67,8 +68,6 @@ public final class Logs
     private static final Sink SINK;
 
     public static final boolean DEBUG_ENABLED = SINK.isDebugEnabled();
-
-    private static final String ANCHOR = "{}";
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -111,6 +110,19 @@ public final class Logs
     }
 
     /**
+     * Returns an identity string for the given object.
+     * 
+     * @see System#identityHashCode(Object)
+     * @param object The object
+     * @return Identity string of the object.
+     */
+    public static String identityToString( final Object object )
+    {
+        return null == object ? null : object.getClass().getName() + '@'
+            + Integer.toHexString( System.identityHashCode( object ) );
+    }
+
+    /**
      * Returns a string representation of the given {@link Module}.
      * 
      * @param module The module
@@ -118,9 +130,9 @@ public final class Logs
      */
     public static String toString( final Module module )
     {
-        final StringBuilder buf = new StringBuilder();
-        buf.append( module.getClass().getName() ).append( "@" ).append( Integer.toHexString( System.identityHashCode( module ) ) );
+        final StringBuilder buf = new StringBuilder( identityToString( module ) ).append( NEW_LINE );
         int i = 0;
+        buf.append( NEW_LINE ).append( "elements" );
         buf.append( NEW_LINE ).append( "--------------------------------------------------------------------------------" );
         for ( final Element e : Elements.getElements( module ) )
         {
@@ -138,9 +150,9 @@ public final class Logs
      */
     public static String toString( final Injector injector )
     {
-        final StringBuilder buf = new StringBuilder();
-        buf.append( injector.getClass().getName() ).append( "@" ).append( Integer.toHexString( System.identityHashCode( injector ) ) );
+        final StringBuilder buf = new StringBuilder( identityToString( injector ) ).append( NEW_LINE );
         int i = 0;
+        buf.append( NEW_LINE ).append( "bindings" );
         buf.append( NEW_LINE ).append( "--------------------------------------------------------------------------------" );
         for ( final Binding<?> b : injector.getBindings().values() )
         {
@@ -162,7 +174,13 @@ public final class Logs
      */
     private static String format( final String format, final Object arg )
     {
-        int cursor = format.indexOf( ANCHOR );
+        boolean detailed = true;
+        int cursor = format.indexOf( "{}" ); // replaced with String.valueOf
+        if ( cursor < 0 )
+        {
+            cursor = format.indexOf( "<>" ); // use identityToString instead
+            detailed = false;
+        }
         if ( cursor < 0 )
         {
             return format;
@@ -174,13 +192,13 @@ public final class Logs
         }
         try
         {
-            buf.append( arg );
+            buf.append( detailed ? arg : identityToString( arg ) );
         }
         catch ( final Throwable e )
         {
             buf.append( arg.getClass() );
         }
-        cursor += ANCHOR.length();
+        cursor += 2;
         if ( cursor < format.length() )
         {
             buf.append( format.substring( cursor, format.length() ) );

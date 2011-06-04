@@ -78,7 +78,7 @@ final class BeanEntryProvider<K extends Annotation, V>
     }
 }
 
-//----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 
 /**
  * Provides a {@link List} of qualified beans.
@@ -114,7 +114,7 @@ final class BeanListProvider<K extends Annotation, V>
     }
 }
 
-//----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 
 /**
  * Provides a {@link Set} of qualified beans.
@@ -285,8 +285,8 @@ final class TypeConverterMap
     @Inject
     private Injector injector;
 
-    private final Map<TypeLiteral<?>, TypeConverter> converterMap =
-        new ConcurrentHashMap<TypeLiteral<?>, TypeConverter>();
+    private final ConcurrentHashMap<TypeLiteral<?>, TypeConverter> converterMap =
+        new ConcurrentHashMap<TypeLiteral<?>, TypeConverter>( 16, 0.75f, 1 );
 
     // ----------------------------------------------------------------------
     // Shared methods
@@ -307,7 +307,7 @@ final class TypeConverterMap
                 break;
             }
         }
-        converterMap.put( type, converter );
+        converterMap.putIfAbsent( type, converter );
         return converter;
     }
 }

@@ -13,6 +13,9 @@ package org.sonatype.guice.bean.binders;
 
 import com.google.inject.Key;
 
+/**
+ * Supplies bindings for given dependency {@link Key}s.
+ */
 public interface Wiring
 {
     boolean wire( Key<?> key );

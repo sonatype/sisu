@@ -110,7 +110,7 @@ public final class WildcardKey
         }
 
         @Override
-        public boolean equals( Object rhs )
+        public boolean equals( final Object rhs )
         {
             if ( this == rhs )
             {
