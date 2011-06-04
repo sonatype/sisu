@@ -25,10 +25,10 @@ public interface QualifiedTypeListener
     /**
      * Invoked when the {@link QualifiedTypeVisitor} finds a qualified type.
      * 
-     * @param qualifier The qualifier
+     * @param qualifier The qualifier (unused)
      * @param qualifiedType The qualified type
      * @param source The source of this type
      * @see Binder#withSource(Object)
      */
-    void hear( Annotation qualifier, Class<?> qualifiedType, Object source );
+    void hear( @Deprecated Annotation qualifier, Class<?> qualifiedType, Object source );
 }

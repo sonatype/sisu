@@ -11,9 +11,7 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.scanners;
 
-import java.lang.annotation.Annotation;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Qualifier;
 
@@ -38,7 +36,8 @@ final class QualifierCache
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<String, Class<?>> cachedResults = new HashMap<String, Class<?>>();
+    private static final ConcurrentHashMap<String, Boolean> cachedResults =
+        new ConcurrentHashMap<String, Boolean>( 32, 0.75f, 1 );
 
     private boolean isQualified;
 
@@ -62,20 +61,21 @@ final class QualifierCache
      * 
      * @param space The class space
      * @param desc The annotation descriptor
-     * @return Qualified annotation class; {@code null} if the annotation is not a qualifier
+     * @return {@code true} if the annotation is a qualifier; otherwise {@code false}
      */
-    @SuppressWarnings( "unchecked" )
-    Class<Annotation> qualify( final ClassSpace space, final String desc )
+    boolean qualify( final ClassSpace space, final String desc )
     {
-        if ( !cachedResults.containsKey( desc ) )
+        final Boolean result = cachedResults.get( desc );
+        if ( null == result )
         {
             isQualified = false;
 
             final String name = desc.substring( 1, desc.length() - 1 );
             ClassSpaceScanner.accept( this, space.getResource( name + ".class" ) );
+            cachedResults.putIfAbsent( desc, Boolean.valueOf( isQualified ) );
 
-            cachedResults.put( desc, isQualified ? space.loadClass( name.replace( '/', '.' ) ) : null );
+            return isQualified;
         }
-        return (Class<Annotation>) cachedResults.get( desc );
+        return result.booleanValue();
     }
 }

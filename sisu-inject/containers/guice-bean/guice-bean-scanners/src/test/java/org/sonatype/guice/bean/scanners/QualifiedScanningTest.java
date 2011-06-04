@@ -93,13 +93,13 @@ public class QualifiedScanningTest
     static class TestListener
         implements QualifiedTypeListener
     {
-        final List<String> ids = new ArrayList<String>();
+        final List<Class<?>> clazzes = new ArrayList<Class<?>>();
 
         final Set<Object> sources = new HashSet<Object>();
 
         public void hear( final Annotation qualifier, final Class<?> clazz, final Object source )
         {
-            ids.add( qualifier + ":" + clazz );
+            clazzes.add( clazz );
             sources.add( source );
         }
     }
@@ -109,14 +109,11 @@ public class QualifiedScanningTest
         final TestListener listener = new TestListener();
         final ClassSpace space = new URLClassSpace( getClass().getClassLoader() );
         new ClassSpaceScanner( space ).accept( new QualifiedTypeVisitor( listener ) );
-        assertEquals( 5, listener.ids.size() );
+        assertEquals( 3, listener.clazzes.size() );
 
-        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + C.class ) );
-        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + D.class ) );
-        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + E.class ) );
-
-        assertTrue( listener.ids.contains( "@" + Legacy.class.getName() + "():" + D.class ) );
-        assertTrue( listener.ids.contains( "@" + Legacy.class.getName() + "():" + E.class ) );
+        assertTrue( listener.clazzes.contains( C.class ) );
+        assertTrue( listener.clazzes.contains( D.class ) );
+        assertTrue( listener.clazzes.contains( E.class ) );
     }
 
     public void testAdaptedScanning()
@@ -146,11 +143,10 @@ public class QualifiedScanningTest
             }
         } );
 
-        assertEquals( 3, listener.ids.size() );
+        assertEquals( 2, listener.clazzes.size() );
 
-        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + C.class ) );
-        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + E.class ) );
-        assertTrue( listener.ids.contains( "@" + Legacy.class.getName() + "():" + E.class ) );
+        assertTrue( listener.clazzes.contains( C.class ) );
+        assertTrue( listener.clazzes.contains( E.class ) );
     }
 
     public void testFilteredScanning()
@@ -166,10 +162,9 @@ public class QualifiedScanningTest
             }
         }, space ).accept( visitor );
 
-        assertEquals( 2, listener.ids.size() );
+        assertEquals( 1, listener.clazzes.size() );
 
-        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + D.class ) );
-        assertTrue( listener.ids.contains( "@" + Legacy.class.getName() + "():" + D.class ) );
+        assertTrue( listener.clazzes.contains( D.class ) );
     }
 
     public void testIndexedScanning()
@@ -181,11 +176,10 @@ public class QualifiedScanningTest
 
         // we deliberately use a partial index
 
-        assertEquals( 3, listener.ids.size() );
+        assertEquals( 2, listener.clazzes.size() );
 
-        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + C.class ) );
-        assertTrue( listener.ids.contains( "@" + Named.class.getName() + "(value=):" + D.class ) );
-        assertTrue( listener.ids.contains( "@" + Legacy.class.getName() + "():" + D.class ) );
+        assertTrue( listener.clazzes.contains( C.class ) );
+        assertTrue( listener.clazzes.contains( D.class ) );
     }
 
     public void testBrokenScanning()
@@ -374,6 +368,6 @@ public class QualifiedScanningTest
 
         final TestListener listener = new TestListener();
         new ClassSpaceScanner( space ).accept( new QualifiedTypeVisitor( listener ) );
-        assertEquals( 0, listener.ids.size() );
+        assertEquals( 0, listener.clazzes.size() );
     }
 }

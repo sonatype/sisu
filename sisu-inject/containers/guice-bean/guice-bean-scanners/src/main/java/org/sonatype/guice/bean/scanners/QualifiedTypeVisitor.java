@@ -11,10 +11,7 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.scanners;
 
-import java.lang.annotation.Annotation;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Qualifier;
 
@@ -39,8 +36,6 @@ public final class QualifiedTypeVisitor
 
     private final QualifierCache qualifierCache = new QualifierCache();
 
-    private final List<Class<Annotation>> qualifiers = new ArrayList<Class<Annotation>>();
-
     private final QualifiedTypeListener listener;
 
     private ClassSpace space;
@@ -50,6 +45,8 @@ public final class QualifiedTypeVisitor
     private String source;
 
     private String clazzName;
+
+    private boolean qualified;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -79,6 +76,7 @@ public final class QualifiedTypeVisitor
     {
         location = url;
         clazzName = null;
+        qualified = false;
 
         return this;
     }
@@ -98,11 +96,7 @@ public final class QualifiedTypeVisitor
     {
         if ( null != clazzName )
         {
-            final Class<Annotation> qualifier = qualifierCache.qualify( space, desc );
-            if ( null != qualifier )
-            {
-                qualifiers.add( qualifier );
-            }
+            qualified = qualified || qualifierCache.qualify( space, desc );
         }
         return null;
     }
@@ -110,29 +104,19 @@ public final class QualifiedTypeVisitor
     @Override
     public void visitEnd()
     {
-        final int numQualifiers = qualifiers.size();
-        if ( numQualifiers > 0 )
+        if ( qualified )
         {
-            try
-            {
-                // compressed record of class location
-                final String path = location.getPath();
-                if ( null == source || !path.startsWith( source ) )
-                {
-                    final int i = path.indexOf( clazzName );
-                    source = i <= 0 ? path : path.substring( 0, i );
-                }
+            qualified = false; // we might be called twice (once per-class, once per-space)
 
-                final Class<?> clazz = space.loadClass( clazzName.replace( '/', '.' ) );
-                for ( int i = 0; i < numQualifiers; i++ )
-                {
-                    listener.hear( clazz.getAnnotation( qualifiers.get( i ) ), clazz, source );
-                }
-            }
-            finally
+            // compressed record of class location
+            final String path = location.getPath();
+            if ( null == source || !path.startsWith( source ) )
             {
-                qualifiers.clear(); // reset cache for next class
+                final int i = path.indexOf( clazzName );
+                source = i <= 0 ? path : path.substring( 0, i );
             }
+
+            listener.hear( null, space.loadClass( clazzName.replace( '/', '.' ) ), source );
         }
     }
 }
