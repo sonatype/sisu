@@ -252,7 +252,7 @@ public final class DefaultPlexusContainer
         }
         catch ( final Throwable e )
         {
-            throw new ComponentLookupException( e, null != role ? role : type.getName(), hint );
+            throw new ComponentLookupException( e, null != type ? type.getName() : role, hint );
         }
     }
 
