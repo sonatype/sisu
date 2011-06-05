@@ -12,83 +12,31 @@
 package org.sonatype.inject;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
 
-import org.sonatype.guice.bean.containers.SisuContainer;
-import org.sonatype.guice.bean.locators.BeanLocator;
+import org.sonatype.guice.bean.containers.SisuGuice;
 
-import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
 
 public final class Sisu
 {
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
-    public void configure( final Class<?> type, final Properties properties )
-    {
-        configure( type, (Map) properties );
-    }
-
-    public void configure( final Class<?> type, final Map<String, String> properties )
-    {
-        SisuContainer.configure( type, properties );
-    }
-
     public static <T> T lookup( final Class<T> type )
     {
-        return SisuContainer.lookup( Key.get( type ) );
+        return SisuGuice.lookup( Key.get( type ) );
     }
 
     public static <T> T lookup( final Class<T> type, final String name )
     {
-        return SisuContainer.lookup( Key.get( type, Names.named( name ) ) );
+        return SisuGuice.lookup( Key.get( type, Names.named( name ) ) );
     }
 
     public static <T> T lookup( final Class<T> type, final Annotation qualifier )
     {
-        return SisuContainer.lookup( Key.get( type, qualifier ) );
+        return SisuGuice.lookup( Key.get( type, qualifier ) );
     }
 
     public static <T> T lookup( final Class<T> type, final Class<? extends Annotation> qualifier )
     {
-        return SisuContainer.lookup( Key.get( type, qualifier ) );
-    }
-
-    public static void inject( final Object that )
-    {
-        SisuContainer.inject( that );
-    }
-
-    public static com.google.inject.Injector adapt( final com.google.inject.Injector injector )
-    {
-        final Class<?>[] api = { com.google.inject.Injector.class };
-        return (Injector) Proxy.newProxyInstance( api[0].getClassLoader(), api, new InvocationHandler()
-        {
-            @SuppressWarnings( { "rawtypes", "unchecked" } )
-            public Object invoke( final Object proxy, final Method method, final Object[] args )
-                throws Throwable
-            {
-                if ( "getInstance".equals( method.getName() ) )
-                {
-                    try
-                    {
-                        final Key key = args[0] instanceof Key ? (Key) args[0] : Key.get( (Class) args[0] );
-                        final Iterator<Entry> i = injector.getInstance( BeanLocator.class ).locate( key ).iterator();
-                        return i.hasNext() ? i.next().getValue() : null;
-                    }
-                    catch ( final Throwable e )
-                    {
-                        // drop through...
-                    }
-                }
-                return method.invoke( injector, args );
-            }
-        } );
+        return SisuGuice.lookup( Key.get( type, qualifier ) );
     }
 }

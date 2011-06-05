@@ -80,8 +80,6 @@ public final class Main
         final Module app = wire( scanning, new Main( properties, args ) );
         final Injector injector = Guice.createInjector( app );
 
-        SisuContainer.context( new SisuStaticContext( injector ) );
-
         return injector;
     }
 
@@ -102,6 +100,7 @@ public final class Main
 
     public void configure( final Binder binder )
     {
+        binder.requestStaticInjection( SisuGuice.class );
         binder.bind( ParameterKeys.PROPERTIES ).toInstance( properties );
         binder.bind( ShutdownThread.class ).asEagerSingleton();
     }

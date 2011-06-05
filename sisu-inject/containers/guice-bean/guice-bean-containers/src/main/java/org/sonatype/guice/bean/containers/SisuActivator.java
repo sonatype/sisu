@@ -31,7 +31,6 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
-import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.locators.DefaultBeanLocator;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.BundleClassSpace;
@@ -43,7 +42,6 @@ import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
-import com.google.inject.util.Providers;
 
 /**
  * {@link BundleActivator} that maintains a dynamic {@link Injector} graph by scanning bundles as they come and go.
@@ -77,25 +75,11 @@ public final class SisuActivator
 
     public void start( final BundleContext context )
     {
-        SisuContainer.context( new SisuBundleContext() );
-
         bundleContext = context;
         serviceTracker = new ServiceTracker( context, BUNDLE_INJECTOR_CLASS_NAME, this );
         serviceTracker.open();
         bundleTracker = new BundleTracker( context, Bundle.STARTING | Bundle.ACTIVE, this );
         bundleTracker.open();
-    }
-
-    public static Injector getInjector( final Bundle bundle )
-    {
-        try
-        {
-            return ( (BundleInjector) bundle.getBundleContext().getService( getBundleInjectorService( bundle ) ) ).getInjector();
-        }
-        catch ( final Throwable e )
-        {
-            return Defaults.injector;
-        }
     }
 
     public void stop( final BundleContext context )
@@ -104,7 +88,7 @@ public final class SisuActivator
         serviceTracker.close();
         locator.clear();
 
-        SisuContainer.context( null );
+        SisuGuice.setBeanLocator( null );
     }
 
     // ----------------------------------------------------------------------
@@ -206,21 +190,6 @@ public final class SisuActivator
     // Implementation types
     // ----------------------------------------------------------------------
 
-    private static final class Defaults
-    {
-        // ----------------------------------------------------------------------
-        // Implementation fields
-        // ----------------------------------------------------------------------
-
-        static final Injector injector = Guice.createInjector( new Module()
-        {
-            public void configure( final Binder binder )
-            {
-                binder.bind( BeanLocator.class ).toProvider( Providers.of( locator ) );
-            }
-        } );
-    }
-
     private static final class BundleInjector
         implements /* TODO:ManagedService, */Module
     {
@@ -262,6 +231,7 @@ public final class SisuActivator
 
         public void configure( final Binder binder )
         {
+            binder.requestStaticInjection( SisuGuice.class );
             binder.bind( ParameterKeys.PROPERTIES ).toInstance( properties );
             binder.bind( MutableBeanLocator.class ).toInstance( locator );
         }
