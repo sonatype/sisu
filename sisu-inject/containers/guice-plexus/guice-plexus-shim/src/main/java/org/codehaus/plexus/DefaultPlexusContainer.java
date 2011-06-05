@@ -118,7 +118,7 @@ public final class DefaultPlexusContainer
 
     final Context context;
 
-    final Map<String, String> variables;
+    final Map<?, ?> variables;
 
     final ClassRealm containerRealm;
 
@@ -166,7 +166,7 @@ public final class DefaultPlexusContainer
 
         context = new DefaultContext( configuration.getContext() );
         context.put( PlexusConstants.PLEXUS_KEY, this );
-        variables = (Map) new ContextMapAdapter( context );
+        variables = new ContextMapAdapter( context );
 
         containerRealm = lookupContainerRealm( configuration );
 

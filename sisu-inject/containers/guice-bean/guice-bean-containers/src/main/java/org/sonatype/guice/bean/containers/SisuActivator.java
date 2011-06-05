@@ -11,10 +11,12 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.containers;
 
+import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
@@ -34,6 +36,7 @@ import org.sonatype.guice.bean.locators.DefaultBeanLocator;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.BundleClassSpace;
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.inject.BeanScanning;
 
 import com.google.inject.Binder;
@@ -116,7 +119,14 @@ public final class SisuActivator
         }
         if ( needsScanning( bundle ) && getBundleInjectorService( bundle ) == null )
         {
-            new BundleInjector( bundle );
+            try
+            {
+                new BundleInjector( bundle );
+            }
+            catch ( final Throwable e )
+            {
+                Logs.warn( "Error starting {}", bundle, e );
+            }
         }
         return null;
     }
@@ -224,7 +234,7 @@ public final class SisuActivator
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final Map<String, String> properties;
+        private final Map<?, ?> properties;
 
         private final Injector injector;
 
@@ -238,10 +248,11 @@ public final class SisuActivator
 
             final ClassSpace space = new BundleClassSpace( bundle );
             final BeanScanning scanning = Main.selectScanning( properties );
+
             injector = Guice.createInjector( new WireModule( this, new SpaceModule( space, scanning ) ) );
+
             final Dictionary<Object, Object> metadata = new Hashtable<Object, Object>();
             metadata.put( Constants.SERVICE_PID, CONTAINER_SYMBOLIC_NAME );
-
             bundle.getBundleContext().registerService( API, this, metadata );
         }
 
@@ -262,7 +273,7 @@ public final class SisuActivator
     }
 
     private static final class BundleProperties
-        extends HashMap<String, String>
+        extends AbstractMap<Object, Object>
     {
         // ----------------------------------------------------------------------
         // Constants
@@ -290,10 +301,27 @@ public final class SisuActivator
         // ----------------------------------------------------------------------
 
         @Override
-        public String get( final Object key )
+        public Object get( final Object key )
         {
-            final String value = super.get( key );
-            return null != value ? value : context.getProperty( String.valueOf( key ) );
+            return context.getProperty( String.valueOf( key ) );
+        }
+
+        @Override
+        public boolean containsKey( Object key )
+        {
+            return null != get( key );
+        }
+
+        @Override
+        public Set<Entry<Object, Object>> entrySet()
+        {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public int size()
+        {
+            return 0;
         }
     }
 }

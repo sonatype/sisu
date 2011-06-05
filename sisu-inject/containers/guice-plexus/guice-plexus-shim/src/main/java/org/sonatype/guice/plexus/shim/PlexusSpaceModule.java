@@ -67,7 +67,7 @@ public final class PlexusSpaceModule
         extends DefaultContext
     {
         @Inject
-        protected void setParameters( @Parameters final Map<String, String> parameters )
+        protected void setParameters( @Parameters final Map<?, ?> parameters )
         {
             contextData.putAll( parameters );
         }

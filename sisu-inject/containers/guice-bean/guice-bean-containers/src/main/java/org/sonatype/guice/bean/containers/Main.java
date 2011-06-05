@@ -21,7 +21,6 @@ import org.sonatype.guice.bean.binders.ParameterKeys;
 import org.sonatype.guice.bean.binders.SpaceModule;
 import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
-import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.inject.BeanScanning;
 import org.sonatype.inject.Parameters;
@@ -42,7 +41,7 @@ public final class Main
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<String, String> properties;
+    private final Map<?, ?> properties;
 
     private final String[] args;
 
@@ -50,7 +49,7 @@ public final class Main
     // Constructors
     // ----------------------------------------------------------------------
 
-    private Main( final Map<String, String> properties, final String... args )
+    private Main( final Map<?, ?> properties, final String... args )
     {
         this.properties = Collections.unmodifiableMap( properties );
         this.args = args;
@@ -70,18 +69,19 @@ public final class Main
         return boot( System.getProperties(), args ).getInstance( type );
     }
 
-    @SuppressWarnings( { "unchecked", "rawtypes" } )
     public static Injector boot( final Properties properties, final String... args )
     {
-        return boot( (Map) properties, args );
+        return boot( properties, args );
     }
 
-    public static Injector boot( final Map<String, String> properties, final String... args )
+    public static Injector boot( final Map<?, ?> properties, final String... args )
     {
         final BeanScanning scanning = selectScanning( properties );
         final Module app = wire( scanning, new Main( properties, args ) );
         final Injector injector = Guice.createInjector( app );
+
         SisuContainer.context( new SisuStaticContext( injector ) );
+
         return injector;
     }
 
@@ -89,8 +89,10 @@ public final class Main
     {
         final Module[] modules = new Module[bindings.length + 1];
         System.arraycopy( bindings, 0, modules, 0, bindings.length );
-        final ClassSpace space = new URLClassSpace( Thread.currentThread().getContextClassLoader() );
-        modules[bindings.length] = new SpaceModule( space, scanning );
+
+        final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        modules[bindings.length] = new SpaceModule( new URLClassSpace( tccl ), scanning );
+
         return new WireModule( modules );
     }
 
@@ -115,9 +117,9 @@ public final class Main
         return args.clone();
     }
 
-    static BeanScanning selectScanning( final Map<String, String> properties )
+    static BeanScanning selectScanning( final Map<?, ?> properties )
     {
-        final String option = properties.get( BeanScanning.class.getName() );
+        final String option = (String) properties.get( BeanScanning.class.getName() );
         if ( null == option || option.length() == 0 )
         {
             return BeanScanning.ON;
