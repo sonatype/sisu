@@ -20,6 +20,10 @@ import com.google.inject.name.Names;
 
 public final class Sisu
 {
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
     public static <T> T lookup( final Class<T> type )
     {
         return SisuGuice.lookup( Key.get( type ) );
@@ -38,5 +42,19 @@ public final class Sisu
     public static <T> T lookup( final Class<T> type, final Class<? extends Annotation> qualifier )
     {
         return SisuGuice.lookup( Key.get( type, qualifier ) );
+    }
+
+    public static void inject( final Object that )
+    {
+        SisuGuice.inject( that );
+    }
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    private Sisu()
+    {
+        // static utility class, not allowed to create instances
     }
 }

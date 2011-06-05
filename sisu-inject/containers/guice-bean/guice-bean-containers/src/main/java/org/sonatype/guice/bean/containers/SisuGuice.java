@@ -19,14 +19,36 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
+import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.BeanLocator;
+import org.sonatype.guice.bean.reflect.Logs;
 
+import com.google.inject.Binder;
+import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.util.Providers;
 
 public final class SisuGuice
 {
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
     private static final ThreadLocal<BeanLocator> LOCATOR = new InheritableThreadLocal<BeanLocator>();
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    private SisuGuice()
+    {
+        // static utility class, not allowed to create instances
+    }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
 
     @Inject
     public static void setBeanLocator( BeanLocator locator )
@@ -50,7 +72,32 @@ public final class SisuGuice
                 return i.next().getValue();
             }
         }
+        else
+        {
+            Logs.debug( "No BeanLocator found for thread {}", Thread.currentThread(), null );
+        }
         return null;
+    }
+
+    public static void inject( final Object that )
+    {
+        final BeanLocator locator = LOCATOR.get();
+        if ( null != locator )
+        {
+            Guice.createInjector( new WireModule()
+            {
+                @Override
+                public void configure( final Binder binder )
+                {
+                    binder.bind( BeanLocator.class ).toProvider( Providers.of( locator ) );
+                    binder.requestInjection( that );
+                }
+            } );
+        }
+        else
+        {
+            Logs.debug( "No BeanLocator found for thread {}", Thread.currentThread(), null );
+        }
     }
 
     public static Injector adapt( final Injector injector )
