@@ -132,7 +132,10 @@ public final class ClassSpaceScanner
             }
             catch ( final Throwable e )
             {
-                Logs.debug( "Potential problem: {} is not visible from: {}", expectedClazz, space );
+                if ( expectedClazz.isAnnotation() )
+                {
+                    Logs.debug( "Potential problem: {} is not visible from: {}", expectedClazz, space );
+                }
             }
         }
         return true;
