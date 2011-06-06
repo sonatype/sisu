@@ -100,7 +100,7 @@ public final class SisuGuice
         }
     }
 
-    public static Injector adapt( final Injector injector )
+    public static Injector enhance( final Injector injector )
     {
         final Class<?>[] api = { Injector.class };
         return (Injector) Proxy.newProxyInstance( api[0].getClassLoader(), api, new InvocationHandler()
