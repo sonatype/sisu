@@ -51,9 +51,16 @@ public final class SisuGuice
     // ----------------------------------------------------------------------
 
     @Inject
-    public static void setBeanLocator( BeanLocator locator )
+    public static void setBeanLocator( final BeanLocator locator )
     {
-        LOCATOR.set( locator );
+        if ( null != locator )
+        {
+            LOCATOR.set( locator );
+        }
+        else
+        {
+            LOCATOR.remove();
+        }
     }
 
     public static BeanLocator getBeanLocator()
@@ -63,7 +70,7 @@ public final class SisuGuice
 
     public static <T> T lookup( final Key<T> key )
     {
-        final BeanLocator locator = LOCATOR.get();
+        final BeanLocator locator = getBeanLocator();
         if ( null != locator )
         {
             final Iterator<? extends Entry<?, T>> i = locator.locate( key ).iterator();
@@ -81,7 +88,7 @@ public final class SisuGuice
 
     public static void inject( final Object that )
     {
-        final BeanLocator locator = LOCATOR.get();
+        final BeanLocator locator = getBeanLocator();
         if ( null != locator )
         {
             Guice.createInjector( new WireModule()

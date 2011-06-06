@@ -13,7 +13,6 @@ package org.sonatype.guice.bean.containers;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.inject.Inject;
 
@@ -67,11 +66,6 @@ public final class Main
     public static <T> T boot( final Class<T> type, final String... args )
     {
         return boot( System.getProperties(), args ).getInstance( type );
-    }
-
-    public static Injector boot( final Properties properties, final String... args )
-    {
-        return boot( properties, args );
     }
 
     public static Injector boot( final Map<?, ?> properties, final String... args )

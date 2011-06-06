@@ -87,8 +87,6 @@ public final class SisuActivator
         bundleTracker.close();
         serviceTracker.close();
         locator.clear();
-
-        SisuGuice.setBeanLocator( null );
     }
 
     // ----------------------------------------------------------------------
@@ -277,7 +275,7 @@ public final class SisuActivator
         }
 
         @Override
-        public boolean containsKey( Object key )
+        public boolean containsKey( final Object key )
         {
             return null != get( key );
         }
