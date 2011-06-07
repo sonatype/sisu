@@ -294,20 +294,19 @@ final class TypeConverterMap
 
     TypeConverter getTypeConverter( final TypeLiteral<?> type )
     {
-        if ( converterMap.containsKey( type ) )
+        TypeConverter converter = converterMap.get( type );
+        if ( null == converter )
         {
-            return converterMap.get( type );
-        }
-        TypeConverter converter = null;
-        for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
-        {
-            if ( b.getTypeMatcher().matches( type ) )
+            for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
             {
-                converter = b.getTypeConverter();
-                break;
+                if ( b.getTypeMatcher().matches( type ) )
+                {
+                    converter = b.getTypeConverter();
+                    converterMap.putIfAbsent( type, converter );
+                    break;
+                }
             }
         }
-        converterMap.putIfAbsent( type, converter );
         return converter;
     }
 }
