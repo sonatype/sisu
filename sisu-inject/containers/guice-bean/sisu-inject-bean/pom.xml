@@ -52,6 +52,11 @@
     </dependency>
     <!-- used by javadoc -->
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
       <optional>true</optional>
@@ -59,6 +64,11 @@
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.compendium</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -165,8 +175,8 @@
               <configuration>
                 <sourcepath>${project.build.directory}/aggregate-sources</sourcepath>
                 <links>
-                  <link>http://osgi.org/javadoc/r4v42/</link>
                   <link>http://slf4j.org/apidocs/</link>
+                  <link>http://osgi.org/javadoc/r4v42/</link>
                   <link>http://testng.org/javadocs/</link>
                   <link>http://junit.org/apidocs/</link>
                 </links>
