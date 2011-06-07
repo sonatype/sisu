@@ -28,6 +28,8 @@ import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.spi.Element;
 import com.google.inject.spi.Elements;
+import com.google.inject.spi.MembersInjectorLookup;
+import com.google.inject.spi.ProviderLookup;
 
 /**
  * Guice {@link Module} that automatically binds types annotated with {@link Qualifier} annotations.
@@ -82,7 +84,7 @@ public class SpaceModule
                 scanner = new ClassSpaceScanner( new SisuIndexFinder( true ), space );
                 break;
             case CACHE:
-                binder.install( Elements.getModule( cachedScan() ) );
+                replayCachedElements( binder );
                 return;
             case OFF:
                 return;
@@ -104,25 +106,46 @@ public class SpaceModule
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private final synchronized List<Element> cachedScan()
+    private final synchronized void replayCachedElements( final Binder binder )
     {
-        final String key = space.toString();
         if ( null == cachedElementsMap )
         {
             cachedElementsMap = new HashMap<String, List<Element>>();
         }
+        /*
+         * Scan and cache elements
+         */
+        final String key = space.toString();
         List<Element> elements = cachedElementsMap.get( key );
         if ( null == elements )
         {
             elements = Elements.getElements( new Module()
             {
-                public void configure( final Binder binder )
+                public void configure( final Binder recorder )
                 {
-                    new ClassSpaceScanner( space ).accept( visitor( binder ) );
+                    new ClassSpaceScanner( space ).accept( visitor( recorder ) );
                 }
             } );
             cachedElementsMap.put( key, elements );
         }
-        return elements;
+        /*
+         * Replay cached elements
+         */
+        for ( final Element e : elements )
+        {
+            // lookups have state so refresh them
+            if ( e instanceof ProviderLookup<?> )
+            {
+                binder.getProvider( ( (ProviderLookup<?>) e ).getKey() );
+            }
+            else if ( e instanceof MembersInjectorLookup<?> )
+            {
+                binder.getMembersInjector( ( (MembersInjectorLookup<?>) e ).getType() );
+            }
+            else
+            {
+                e.applyTo( binder );
+            }
+        }
     }
 }
