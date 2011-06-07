@@ -196,14 +196,17 @@ final class DependencyAnalyzer
 
     private void requireKey( final Key<?> key )
     {
-        final Class<?> clazz = key.getTypeLiteral().getRawType();
-        if ( javax.inject.Provider.class == clazz || com.google.inject.Provider.class == clazz )
+        if ( !requiredKeys.contains( key ) )
         {
-            requireKey( key.ofType( TypeParameters.get( key.getTypeLiteral(), 0 ) ) );
-        }
-        else if ( !RESTRICTED_CLASSES.contains( clazz ) )
-        {
-            requiredKeys.add( key );
+            final Class<?> clazz = key.getTypeLiteral().getRawType();
+            if ( javax.inject.Provider.class == clazz || com.google.inject.Provider.class == clazz )
+            {
+                requireKey( key.ofType( TypeParameters.get( key.getTypeLiteral(), 0 ) ) );
+            }
+            else if ( !RESTRICTED_CLASSES.contains( clazz ) )
+            {
+                requiredKeys.add( key );
+            }
         }
     }
 
