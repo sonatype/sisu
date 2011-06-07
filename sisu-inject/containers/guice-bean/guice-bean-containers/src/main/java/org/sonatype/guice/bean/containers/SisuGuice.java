@@ -23,6 +23,7 @@ import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.reflect.Logs;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -116,18 +117,25 @@ public final class SisuGuice
             public Object invoke( final Object proxy, final Method method, final Object[] args )
                 throws Throwable
             {
-                if ( "getInstance".equals( method.getName() ) )
+                final String methodName = method.getName();
+                if ( "getInstance".equals( methodName ) )
                 {
-                    try
+                    final Key key = args[0] instanceof Key ? (Key) args[0] : Key.get( (Class) args[0] );
+                    final Iterator<Entry> i = injector.getInstance( BeanLocator.class ).locate( key ).iterator();
+                    return i.hasNext() ? i.next().getValue() : null;
+                }
+                if ( "injectMembers".equals( methodName ) )
+                {
+                    Guice.createInjector( new WireModule( new AbstractModule()
                     {
-                        final Key key = args[0] instanceof Key ? (Key) args[0] : Key.get( (Class) args[0] );
-                        final Iterator<Entry> i = injector.getInstance( BeanLocator.class ).locate( key ).iterator();
-                        return i.hasNext() ? i.next().getValue() : null;
-                    }
-                    catch ( final Throwable e )
-                    {
-                        // drop through...
-                    }
+                        @Override
+                        protected void configure()
+                        {
+                            bind( BeanLocator.class ).toProvider( injector.getProvider( BeanLocator.class ) );
+                            requestInjection( args[0] );
+                        }
+                    } ) );
+                    return null;
                 }
                 return method.invoke( injector, args );
             }
