@@ -72,6 +72,11 @@ final class ElementAnalyzer
     // Public methods
     // ----------------------------------------------------------------------
 
+    public void ignoreKeys( final Set<Key<?>> keys )
+    {
+        localKeys.addAll( keys );
+    }
+
     public void apply( final Wiring wiring )
     {
         // calculate which dependencies are missing from the module elements
@@ -91,9 +96,9 @@ final class ElementAnalyzer
 
         for ( final ElementAnalyzer privateAnalyzer : privateAnalyzers )
         {
-            // can see parent's local/wired dependencies
-            privateAnalyzer.localKeys.addAll( localKeys );
-            privateAnalyzer.localKeys.addAll( missingKeys );
+            // ignore parent local/wired dependencies
+            privateAnalyzer.ignoreKeys( localKeys );
+            privateAnalyzer.ignoreKeys( missingKeys );
             privateAnalyzer.apply( wiring );
         }
     }
@@ -130,8 +135,8 @@ final class ElementAnalyzer
 
         privateAnalyzers.add( privateAnalyzer );
 
-        // let child know what bindings we have so far
-        privateAnalyzer.localKeys.addAll( localKeys );
+        // ignore bindings already in the parent
+        privateAnalyzer.ignoreKeys( localKeys );
         for ( final Element e : elements.getElements() )
         {
             e.acceptVisitor( privateAnalyzer );

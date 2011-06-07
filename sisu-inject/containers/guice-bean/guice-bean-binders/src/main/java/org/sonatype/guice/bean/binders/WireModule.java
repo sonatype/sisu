@@ -55,7 +55,7 @@ public class WireModule
 
     public void configure( final Binder binder )
     {
-        final ElementAnalyzer analyzer = new ElementAnalyzer( binder );
+        final ElementAnalyzer analyzer = getAnalyzer( binder );
         for ( final Module m : modules )
         {
             for ( final Element e : Elements.getElements( m ) )
@@ -76,5 +76,14 @@ public class WireModule
         binder.install( new URLTypeConverter() );
 
         return new LocatorWiring( binder );
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    ElementAnalyzer getAnalyzer( final Binder binder )
+    {
+        return new ElementAnalyzer( binder );
     }
 }

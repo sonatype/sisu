@@ -14,9 +14,10 @@ package org.sonatype.guice.bean.binders;
 import java.util.Arrays;
 import java.util.List;
 
+import org.sonatype.guice.bean.locators.BeanLocator;
+
 import com.google.inject.Binder;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.google.inject.Module;
 
 /**
@@ -47,44 +48,21 @@ public class ChildWireModule
     }
 
     // ----------------------------------------------------------------------
-    // Customizable methods
+    // Implementation methods
     // ----------------------------------------------------------------------
 
     @Override
-    protected Wiring wiring( final Binder binder )
+    ElementAnalyzer getAnalyzer( final Binder binder )
     {
-        return new ChildWiring( super.wiring( binder ) );
-    }
+        // automatically add ourselves to the same locator as our parent
+        binder.requestInjection( parent.getInstance( BeanLocator.class ) );
 
-    // ----------------------------------------------------------------------
-    // Implementation types
-    // ----------------------------------------------------------------------
-
-    private final class ChildWiring
-        implements Wiring
-    {
-        // ----------------------------------------------------------------------
-        // Implementation fields
-        // ----------------------------------------------------------------------
-
-        private final Wiring wiring;
-
-        // ----------------------------------------------------------------------
-        // Constructors
-        // ----------------------------------------------------------------------
-
-        ChildWiring( final Wiring wiring )
+        // ignore any inherited bindings/dependencies
+        final ElementAnalyzer analyzer = super.getAnalyzer( binder );
+        for ( Injector i = parent; i != null; i = i.getParent() )
         {
-            this.wiring = wiring;
+            analyzer.ignoreKeys( parent.getAllBindings().keySet() );
         }
-
-        // ----------------------------------------------------------------------
-        // Public methods
-        // ----------------------------------------------------------------------
-
-        public boolean wire( final Key<?> key )
-        {
-            return parent.getExistingBinding( key ) != null || wiring.wire( key );
-        }
+        return analyzer;
     }
 }

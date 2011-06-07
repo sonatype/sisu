@@ -683,4 +683,21 @@ public class BeanImportTest
 
         assertEquals( ZImpl.class, genericInstance.random.getClass() );
     }
+
+    public void testChildWiring()
+    {
+        final Y y = new YImpl();
+
+        final Injector injector = Guice.createInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                bind( Y.class ).annotatedWith( Names.named( "local" ) ).toInstance( y );
+            }
+        } );
+
+        final Injector child = injector.createChildInjector( new ChildWireModule( injector, new TestModule() ) );
+        assertSame( y, ( (PlaceholderString) child.getInstance( Key.get( X.class, Names.named( "PS" ) ) ) ).local );
+    }
 }
