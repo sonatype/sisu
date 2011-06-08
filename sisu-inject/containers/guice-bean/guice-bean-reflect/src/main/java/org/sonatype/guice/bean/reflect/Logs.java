@@ -11,10 +11,12 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.reflect;
 
+import java.util.Map;
 import java.util.logging.Level;
 
 import com.google.inject.Binding;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.spi.Element;
 import com.google.inject.spi.Elements;
@@ -130,16 +132,15 @@ public final class Logs
      */
     public static String toString( final Module module )
     {
-        final StringBuilder buf = new StringBuilder( identityToString( module ) ).append( NEW_LINE );
+        final StringBuilder buf = new StringBuilder( identityToString( module ) );
+        buf.append( NEW_LINE ).append( NEW_LINE );
+        buf.append( "-----[elements]----------------------------------------------------------------" ).append( NEW_LINE );
         int i = 0;
-        buf.append( NEW_LINE ).append( "elements" );
-        buf.append( NEW_LINE ).append( "--------------------------------------------------------------------------------" );
         for ( final Element e : Elements.getElements( module ) )
         {
-            buf.append( NEW_LINE ).append( i++ ).append( ". " ).append( e );
+            buf.append( i++ ).append( ". " ).append( e ).append( NEW_LINE );
         }
-        buf.append( NEW_LINE ).append( "--------------------------------------------------------------------------------" );
-        return buf.append( NEW_LINE ).toString();
+        return buf.append( "-------------------------------------------------------------------------------" ).append( NEW_LINE ).toString();
     }
 
     /**
@@ -150,16 +151,28 @@ public final class Logs
      */
     public static String toString( final Injector injector )
     {
-        final StringBuilder buf = new StringBuilder( identityToString( injector ) ).append( NEW_LINE );
-        int i = 0;
-        buf.append( NEW_LINE ).append( "bindings" );
-        buf.append( NEW_LINE ).append( "--------------------------------------------------------------------------------" );
-        for ( final Binding<?> b : injector.getBindings().values() )
+        final StringBuilder buf = new StringBuilder( identityToString( injector ) );
+        if ( null != injector.getParent() )
         {
-            buf.append( NEW_LINE ).append( i++ ).append( ". " ).append( b );
+            buf.append( " parent: " ).append( identityToString( injector.getParent() ) );
         }
-        buf.append( NEW_LINE ).append( "--------------------------------------------------------------------------------" );
-        return buf.append( NEW_LINE ).toString();
+        buf.append( NEW_LINE ).append( NEW_LINE );
+        buf.append( "-----[explicit bindings]-------------------------------------------------------" ).append( NEW_LINE );
+        int i = 0;
+        final Map<Key<?>, Binding<?>> explicitBindings = injector.getBindings();
+        for ( final Binding<?> b : explicitBindings.values() )
+        {
+            buf.append( i++ ).append( ". " ).append( b ).append( NEW_LINE );
+        }
+        buf.append( "-----[implicit bindings]-------------------------------------------------------" ).append( NEW_LINE );
+        for ( final Binding<?> b : injector.getAllBindings().values() )
+        {
+            if ( !explicitBindings.containsKey( b.getKey() ) )
+            {
+                buf.append( i++ ).append( ". " ).append( b ).append( NEW_LINE );
+            }
+        }
+        return buf.append( "-------------------------------------------------------------------------------" ).append( NEW_LINE ).toString();
     }
 
     // ----------------------------------------------------------------------
