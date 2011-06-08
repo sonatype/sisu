@@ -117,8 +117,10 @@ public class SpaceModule
          */
         final String key = space.toString();
         List<Element> elements = cachedElementsMap.get( key );
+        boolean replaying = true;
         if ( null == elements )
         {
+            replaying = false;
             elements = Elements.getElements( new Module()
             {
                 public void configure( final Binder recorder )
@@ -133,19 +135,21 @@ public class SpaceModule
          */
         for ( final Element e : elements )
         {
-            // lookups have state so refresh them
-            if ( e instanceof ProviderLookup<?> )
+            if ( replaying )
             {
-                binder.getProvider( ( (ProviderLookup<?>) e ).getKey() );
+                // lookups have state so we replace them with duplicates when replaying...
+                if ( e instanceof ProviderLookup<?> )
+                {
+                    binder.getProvider( ( (ProviderLookup<?>) e ).getKey() );
+                    continue;
+                }
+                if ( e instanceof MembersInjectorLookup<?> )
+                {
+                    binder.getMembersInjector( ( (MembersInjectorLookup<?>) e ).getType() );
+                    continue;
+                }
             }
-            else if ( e instanceof MembersInjectorLookup<?> )
-            {
-                binder.getMembersInjector( ( (MembersInjectorLookup<?>) e ).getType() );
-            }
-            else
-            {
-                e.applyTo( binder );
-            }
+            e.applyTo( binder );
         }
     }
 }
