@@ -688,7 +688,7 @@ public class BeanImportTest
     {
         final Y y = new YImpl();
 
-        final Injector injector = Guice.createInjector( new AbstractModule()
+        final Injector parent = Guice.createInjector( new AbstractModule()
         {
             @Override
             protected void configure()
@@ -697,7 +697,18 @@ public class BeanImportTest
             }
         } );
 
-        final Injector child = injector.createChildInjector( new ChildWireModule( injector, new TestModule() ) );
-        assertSame( y, ( (PlaceholderString) child.getInstance( Key.get( X.class, Names.named( "PS" ) ) ) ).local );
+        final Injector child = parent.createChildInjector( new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                bind( Y.class ).annotatedWith( new FuzzyImpl() ).toInstance( y );
+            }
+        } );
+
+        final Injector grandchild = child.createChildInjector( new ChildWireModule( child, new TestModule() ) );
+
+        assertSame( y, ( (PlaceholderString) grandchild.getInstance( Key.get( X.class, Names.named( "PS" ) ) ) ).local );
+        assertSame( y, ( (PlaceholderString) grandchild.getInstance( Key.get( X.class, Names.named( "PS" ) ) ) ).fuzzy );
     }
 }

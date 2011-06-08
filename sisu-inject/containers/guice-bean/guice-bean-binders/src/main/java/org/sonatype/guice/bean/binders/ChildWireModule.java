@@ -61,7 +61,7 @@ public class ChildWireModule
         final ElementAnalyzer analyzer = super.getAnalyzer( binder );
         for ( Injector i = parent; i != null; i = i.getParent() )
         {
-            analyzer.ignoreKeys( parent.getAllBindings().keySet() );
+            analyzer.ignoreKeys( i.getAllBindings().keySet() );
         }
         return analyzer;
     }
