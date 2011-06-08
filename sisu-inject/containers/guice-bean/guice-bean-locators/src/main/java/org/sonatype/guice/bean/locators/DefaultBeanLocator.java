@@ -119,8 +119,14 @@ public final class DefaultBeanLocator
     @Inject
     void autoPublish( final Injector injector )
     {
+        staticAutoPublish( this, injector );
+    }
+
+    @Inject
+    static void staticAutoPublish( final MutableBeanLocator locator, final Injector injector )
+    {
         final RankingFunction function = injector.getInstance( RankingFunction.class );
-        add( new InjectorPublisher( injector, function ), function.maxRank() );
+        locator.add( new InjectorPublisher( injector, function ), function.maxRank() );
     }
 
     /**

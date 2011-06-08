@@ -14,7 +14,7 @@ package org.sonatype.guice.bean.binders;
 import java.util.Arrays;
 import java.util.List;
 
-import org.sonatype.guice.bean.locators.BeanLocator;
+import org.sonatype.guice.bean.locators.DefaultBeanLocator;
 
 import com.google.inject.Binder;
 import com.google.inject.Injector;
@@ -54,8 +54,8 @@ public class ChildWireModule
     @Override
     ElementAnalyzer getAnalyzer( final Binder binder )
     {
-        // automatically add ourselves to the same locator as our parent
-        binder.requestInjection( parent.getInstance( BeanLocator.class ) );
+        // make sure we're added to locator as early as possible
+        binder.requestStaticInjection( DefaultBeanLocator.class );
 
         // ignore any inherited bindings/dependencies
         final ElementAnalyzer analyzer = super.getAnalyzer( binder );
