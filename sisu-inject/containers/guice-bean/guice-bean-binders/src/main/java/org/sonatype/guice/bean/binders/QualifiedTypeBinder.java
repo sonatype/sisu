@@ -14,6 +14,7 @@ package org.sonatype.guice.bean.binders;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.IncompleteAnnotationException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.enterprise.inject.Typed;
 import javax.inject.Provider;
@@ -255,6 +256,11 @@ public final class QualifiedTypeBinder
             final Constructor<T> ctor = type.getDeclaredConstructor();
             ctor.setAccessible( true );
             return ctor.newInstance();
+        }
+        catch ( final InvocationTargetException e )
+        {
+            binder.addError( "Error creating instance of: " + type + " reason: " + e.getTargetException() );
+            return null;
         }
         catch ( final Throwable e )
         {
