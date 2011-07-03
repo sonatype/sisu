@@ -73,13 +73,13 @@ final class BeanPropertyIterator<T>
                     nextProperty = new BeanPropertySetter<T>( method );
                 }
             }
-            else if ( member instanceof Field && !Modifier.isFinal( modifiers ) )
+            else if ( member instanceof Field )
             {
                 nextProperty = new BeanPropertyField<T>( (Field) member );
             }
 
-            // ignore Guice properties
-            if ( atInject( member ) )
+            // ignore properties annotated with JSR330/Guice
+            if ( null != nextProperty && atInject( member ) )
             {
                 nextProperty = null;
             }

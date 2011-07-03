@@ -80,9 +80,7 @@ public class BeanPropertiesTest
 
     static class C
     {
-        final String id = "name";
-
-        String name;
+        final String name = "";
     }
 
     static class D
