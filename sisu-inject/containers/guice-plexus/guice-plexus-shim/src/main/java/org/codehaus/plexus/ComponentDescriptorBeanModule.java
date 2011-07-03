@@ -29,7 +29,6 @@ import org.sonatype.guice.bean.reflect.DeferredProvider;
 import org.sonatype.guice.bean.reflect.LoadedClass;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
-import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 import org.sonatype.guice.plexus.binders.PlexusTypeBinder;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanModule;
@@ -37,6 +36,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.locators.ClassRealmUtils;
 
 import com.google.inject.Binder;
+import com.google.inject.Injector;
 import com.google.inject.ProvisionException;
 
 final class ComponentDescriptorBeanModule
@@ -98,7 +98,7 @@ final class ComponentDescriptorBeanModule
 
     static Requirement newRequirement( final ClassSpace space, final ComponentRequirement cr )
     {
-        return new RequirementImpl( space.deferLoadClass( cr.getRole() ), false,
+        return new RequirementImpl( space.deferLoadClass( cr.getRole() ), cr.isOptional(),
                                     Collections.singletonList( cr.getRoleHint() ) );
     }
 
@@ -107,9 +107,6 @@ final class ComponentDescriptorBeanModule
     {
         @Inject
         private PlexusContainer container;
-
-        @Inject
-        private PlexusBeanManager manager;
 
         private final ComponentDescriptor<?> cd;
 
@@ -153,9 +150,9 @@ final class ComponentDescriptorBeanModule
                 }
                 final ComponentFactory factory = container.lookup( ComponentFactory.class, hint );
                 final Object o = factory.newInstance( cd, contextRealm, container );
-                if ( null != o && manager.manage( o.getClass() ) )
+                if ( null != o )
                 {
-                    manager.manage( o );
+                    container.lookup( Injector.class ).injectMembers( o );
                 }
                 return o;
             }
