@@ -108,6 +108,9 @@ final class ComponentDescriptorBeanModule
         @Inject
         private PlexusContainer container;
 
+        @Inject
+        private Injector injector;
+
         private final ComponentDescriptor<?> cd;
 
         private final String hint;
@@ -152,7 +155,7 @@ final class ComponentDescriptorBeanModule
                 final Object o = factory.newInstance( cd, contextRealm, container );
                 if ( null != o )
                 {
-                    container.lookup( Injector.class ).injectMembers( o );
+                    injector.injectMembers( o );
                 }
                 return o;
             }
