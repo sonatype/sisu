@@ -145,8 +145,18 @@ public class ObjectWithFieldsConverter
 
             final String elementName = childConfiguration.getName();
 
+            Class implementation;
+            try
+            {
+                implementation = getClassForImplementationHint( null, childConfiguration, classLoader );
+            }
+            catch ( final Throwable e )
+            {
+                implementation = null; // fall back to original behavior
+            }
+
             final ComponentValueSetter valueSetter =
-                new ComponentValueSetter( fromXML( elementName ), object, converterLookup, listener );
+                new ComponentValueSetter( fromXML( elementName ), implementation, object, converterLookup, listener );
 
             valueSetter.configure( childConfiguration, classLoader, expressionEvaluator );
         }

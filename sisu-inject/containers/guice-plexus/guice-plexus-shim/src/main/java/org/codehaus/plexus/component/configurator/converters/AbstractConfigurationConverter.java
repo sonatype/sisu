@@ -24,6 +24,8 @@ package org.codehaus.plexus.component.configurator.converters;
  * SOFTWARE.
  */
 
+import java.lang.reflect.Array;
+
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.codehaus.plexus.component.configurator.converters.lookup.ConverterLookup;
 import org.codehaus.plexus.component.configurator.expression.ExpressionEvaluationException;
@@ -52,14 +54,22 @@ public abstract class AbstractConfigurationConverter
     {
         Class retValue = type;
 
-        final String implementation = configuration.getAttribute( IMPLEMENTATION, null );
+        String implementation = configuration.getAttribute( IMPLEMENTATION, null );
 
         if ( implementation != null )
         {
             try
             {
+                boolean isArray = implementation.endsWith( "[]" );
+                if ( isArray )
+                {
+                    implementation = implementation.substring( 0, implementation.length() - 2 );
+                }
                 retValue = classLoader.loadClass( implementation );
-
+                if ( isArray )
+                {
+                    retValue = Array.newInstance( retValue, 0 ).getClass();
+                }
             }
             catch ( final ClassNotFoundException e )
             {

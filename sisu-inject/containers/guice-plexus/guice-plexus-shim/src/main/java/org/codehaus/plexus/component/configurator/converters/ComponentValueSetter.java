@@ -69,6 +69,13 @@ public class ComponentValueSetter
                                  final ConfigurationListener listener )
         throws ComponentConfigurationException
     {
+        this( fieldName, null, object, lookup, listener );
+    }
+
+    public ComponentValueSetter( final String fieldName, final Class implementation, final Object object,
+                                 final ConverterLookup lookup, final ConfigurationListener listener )
+        throws ComponentConfigurationException
+    {
         this.fieldName = fieldName;
         this.object = object;
         this.lookup = lookup;
@@ -79,9 +86,9 @@ public class ComponentValueSetter
             throw new ComponentConfigurationException( "Component is null" );
         }
 
-        initSetter();
+        initSetter( implementation );
 
-        initField();
+        initField( implementation );
 
         if ( setter == null && field == null )
         {
@@ -96,7 +103,8 @@ public class ComponentValueSetter
         }
     }
 
-    private void initSetter()
+    @SuppressWarnings( "unchecked" )
+    private void initSetter( final Class implementation )
     {
         setter = ReflectionUtils.getSetter( fieldName, object.getClass() );
 
@@ -111,6 +119,10 @@ public class ComponentValueSetter
         }
 
         setterParamType = setter.getParameterTypes()[0];
+        if ( implementation != null && setterParamType.isAssignableFrom( implementation ) )
+        {
+            setterParamType = implementation; // more specific, compatible type
+        }
 
         try
         {
@@ -145,7 +157,8 @@ public class ComponentValueSetter
         return null;
     }
 
-    private void initField()
+    @SuppressWarnings( "unchecked" )
+    private void initField( final Class implementation )
     {
         field = ReflectionUtils.getFieldByNameIncludingSuperclasses( fieldName, object.getClass() );
 
@@ -155,6 +168,10 @@ public class ComponentValueSetter
         }
 
         fieldType = field.getType();
+        if ( implementation != null && fieldType.isAssignableFrom( implementation ) )
+        {
+            fieldType = implementation; // more specific, compatible type
+        }
 
         try
         {
