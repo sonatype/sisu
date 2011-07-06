@@ -108,13 +108,14 @@
               <!-- our implementation APIs -->
               org.sonatype.guice.bean.*;x-internal:=true;version=${project.version}
             </Export-Package>
+            <Require-Bundle>org.sonatype.sisu.guice</Require-Bundle>
             <Import-Package>
               <!-- these APIs are substitutable -->
               javax.inject,javax.enterprise.inject,
               org.aopalliance.aop,org.aopalliance.intercept,
-              <!-- Guice and OSGi APIs are required -->
-              com.google.*,org.osgi.*,
-              <!-- everything else is optional -->
+              <!-- available via Require-Bundle -->
+              !com.google.*,
+              <!-- optional generated imports -->
               *;resolution:=optional
             </Import-Package>
           </instructions>

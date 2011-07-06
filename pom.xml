@@ -187,14 +187,18 @@
           <version>2.3.4</version>
           <configuration>
             <instructions>
+              <Bundle-Name>${project.artifactId}</Bundle-Name>
+              <Bundle-Copyright>Copyright (C) 2010 Sonatype Inc.</Bundle-Copyright>
+              <Bundle-DocURL>https://github.com/sonatype/sisu/</Bundle-DocURL>
+              <Bundle-Vendor>Sonatype, Inc.</Bundle-Vendor>
               <Bundle-RequiredExecutionEnvironment>
                 J2SE-1.5,JavaSE-1.6
               </Bundle-RequiredExecutionEnvironment>
-              <_versionpolicy>[$(version;==;$(@)),$(version;+;$(@)))</_versionpolicy>
               <_nouses>true</_nouses>
               <_removeheaders>
                 Embed-Dependency,Embed-Transitive,
                 Built-By,Tool,Created-By,Build-Jdk,
+                Originally-Created-By,Archiver-Version,
                 Include-Resource,Private-Package,
                 Bnd-LastModified
               </_removeheaders>

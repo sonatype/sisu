@@ -84,10 +84,13 @@
               <!-- our implementation APIs -->
               org.sonatype.guice.plexus.*;x-internal:=true;version=${project.version}
             </Export-Package>
+            <Require-Bundle>org.sonatype.inject</Require-Bundle>
             <Import-Package>
-              <!-- Guice, Plexus, and Sisu APIs are required -->
-              com.google.*,org.codehaus.*,org.sonatype.*,
-              <!-- everything else is optional -->
+              <!-- Plexus APIs -->
+              org.codehaus.*,
+              <!-- available via Require-Bundle -->
+              !com.google.*|org.sonatype.*,
+              <!-- optional generated imports -->
               *;resolution:=optional
             </Import-Package>
             <Private-Package>

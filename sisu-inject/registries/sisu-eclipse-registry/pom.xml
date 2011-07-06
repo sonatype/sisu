@@ -52,11 +52,13 @@
               org.sonatype.inject
             </Fragment-Host>
             <Export-Package />
+            <Require-Bundle>org.eclipse.equinox.registry</Require-Bundle>
             <Private-Package>
               org.sonatype.guice.eclipse.*
             </Private-Package>
             <Import-Package>
-              !org.sonatype.guice.*,org.eclipse.*;common=!,*
+              <!-- available via Fragment-Host/Require-Bundle -->
+              !com.google.*|org.sonatype.*|org.eclipse.*,*
             </Import-Package>
           </instructions>
         </configuration>
