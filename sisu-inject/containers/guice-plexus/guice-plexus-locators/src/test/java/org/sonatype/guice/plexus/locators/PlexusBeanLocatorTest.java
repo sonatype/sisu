@@ -31,6 +31,7 @@ import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
+@SuppressWarnings( "deprecation" )
 public class PlexusBeanLocatorTest
     extends TestCase
 {

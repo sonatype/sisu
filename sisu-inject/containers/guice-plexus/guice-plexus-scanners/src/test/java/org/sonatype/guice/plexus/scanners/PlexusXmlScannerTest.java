@@ -136,11 +136,6 @@ public class PlexusXmlScannerTest
             // hide components.xml so we can just test plexus.xml parsing
             return Collections.enumeration( Collections.<URL> emptyList() );
         }
-
-        public boolean loadedClass( final Class<?> clazz )
-        {
-            return false;
-        }
     }
 
     public void testLoadOnStart()
@@ -301,11 +296,6 @@ public class PlexusXmlScannerTest
         public Enumeration<URL> findEntries( final String path, final String glob, final boolean recurse )
         {
             return Collections.enumeration( Collections.singleton( getClass().getResource( fixedResourceName ) ) );
-        }
-
-        public boolean loadedClass( final Class<?> clazz )
-        {
-            return false;
         }
     }
 

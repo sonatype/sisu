@@ -134,7 +134,7 @@ public final class PlexusXmlBeanConverter
      * @param parser The XML parser
      * @return Converted Properties instance
      */
-    private Properties parseProperties( final XmlPullParser parser )
+    private static Properties parseProperties( final XmlPullParser parser )
         throws Exception
     {
         final Properties properties = newImplementation( parser, Properties.class );

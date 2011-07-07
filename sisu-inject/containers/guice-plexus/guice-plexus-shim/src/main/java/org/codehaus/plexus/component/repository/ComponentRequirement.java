@@ -46,6 +46,7 @@ public class ComponentRequirement
         this.optional = optional;
     }
 
+    @SuppressWarnings( "unused" )
     public final void setFieldMappingType( final String mappingType )
     {
         // ignore

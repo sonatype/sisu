@@ -60,7 +60,7 @@ final class DependencyVerifier
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private Boolean verifyImplementation( final TypeLiteral<?> type )
+    private static Boolean verifyImplementation( final TypeLiteral<?> type )
     {
         if ( TypeParameters.isConcrete( type ) && !type.toString().startsWith( "java" ) )
         {

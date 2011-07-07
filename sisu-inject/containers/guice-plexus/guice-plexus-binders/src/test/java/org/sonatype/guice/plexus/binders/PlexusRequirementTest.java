@@ -152,7 +152,7 @@ public class PlexusRequirementTest
     static class BrokenAImpl
         extends AImpl
     {
-        public BrokenAImpl( final MissingClass missing )
+        public BrokenAImpl( @SuppressWarnings( "unused" ) final MissingClass missing )
         {
         }
     }
@@ -223,6 +223,7 @@ public class PlexusRequirementTest
     static class Component3
     {
         @Requirement
+        @SuppressWarnings( "unused" )
         void testMultiArgSetter( final A a1, final A a2 )
         {
             throw new RuntimeException();

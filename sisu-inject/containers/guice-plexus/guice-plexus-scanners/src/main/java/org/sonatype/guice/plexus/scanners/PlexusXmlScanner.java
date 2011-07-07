@@ -215,7 +215,7 @@ public final class PlexusXmlScanner
      * @param parser The XML parser
      * @param registry The parsed components
      */
-    private void parseLoadOnStart( final MXParser parser, final PlexusTypeRegistry registry )
+    private static void parseLoadOnStart( final MXParser parser, final PlexusTypeRegistry registry )
         throws XmlPullParserException, IOException
     {
         if ( "component".equals( parser.getName() ) )
@@ -365,8 +365,8 @@ public final class PlexusXmlScanner
      * @param space The class space
      * @param requirementMap The field -> @{@link Requirement} map
      */
-    private void parseRequirement( final MXParser parser, final ClassSpace space,
-                                   final Map<String, Requirement> requirementMap )
+    private static void parseRequirement( final MXParser parser, final ClassSpace space,
+                                          final Map<String, Requirement> requirementMap )
         throws XmlPullParserException, IOException
     {
         String role = null;

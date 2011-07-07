@@ -15,8 +15,6 @@ import java.util.Set;
 public final class ContextMapAdapter
     extends AbstractMap<Object, Object>
 {
-    private static final long serialVersionUID = 1L;
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
