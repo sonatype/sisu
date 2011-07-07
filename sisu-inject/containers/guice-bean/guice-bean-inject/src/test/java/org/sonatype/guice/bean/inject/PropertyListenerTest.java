@@ -104,9 +104,7 @@ public class PropertyListenerTest
                 {
                     public void injectProperty( final Object bean )
                     {
-                        assertTrue( BeanListener.isInjecting() );
                         property.set( bean, injector.getInstance( Key.get( property.getType() ) ) );
-                        assertTrue( BeanListener.isInjecting() );
                     }
                 };
             }
@@ -115,9 +113,7 @@ public class PropertyListenerTest
                 @SuppressWarnings( "unchecked" )
                 public void injectProperty( final Object bean )
                 {
-                    assertTrue( BeanListener.isInjecting() );
                     property.set( bean, (T) ( property.getName() + "Value" ) );
-                    assertTrue( BeanListener.isInjecting() );
                 }
             };
         }
@@ -166,9 +162,7 @@ public class PropertyListenerTest
 
     public void testPropertyBindings()
     {
-        assertFalse( BeanListener.isInjecting() );
         final Bean1 bean1 = injector.getInstance( Bean1.class );
-        assertFalse( BeanListener.isInjecting() );
         assertEquals( "bValue", bean1.b );
         assertEquals( "aValue", bean1.a );
     }

@@ -25,15 +25,6 @@ final class BeanInjector<B>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private static final ThreadLocal<boolean[]> isInjectingHolder = new ThreadLocal<boolean[]>()
-    {
-        @Override
-        protected boolean[] initialValue()
-        {
-            return new boolean[] { false };
-        }
-    };
-
     private final PropertyBinding[] bindings;
 
     // ----------------------------------------------------------------------
@@ -56,49 +47,6 @@ final class BeanInjector<B>
     // ----------------------------------------------------------------------
 
     public void injectMembers( final B bean )
-    {
-        final boolean[] isInjecting = isInjectingHolder.get();
-        if ( !isInjecting[0] )
-        {
-            isInjecting[0] = true;
-            try
-            {
-                doInjection( bean );
-            }
-            finally
-            {
-                isInjecting[0] = false;
-            }
-        }
-        else
-        {
-            // nested injection
-            doInjection( bean );
-        }
-    }
-
-    // ----------------------------------------------------------------------
-    // Local methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * @return {@code true} if this thread is performing bean injection; otherwise {@code false}
-     */
-    static boolean isInjecting()
-    {
-        return isInjectingHolder.get()[0];
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * Injects properties into the given bean.
-     * 
-     * @param bean The bean to inject
-     */
-    private void doInjection( final Object bean )
     {
         for ( final PropertyBinding b : bindings )
         {

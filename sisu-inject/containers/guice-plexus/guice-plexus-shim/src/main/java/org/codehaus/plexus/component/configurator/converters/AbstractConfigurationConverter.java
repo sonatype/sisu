@@ -60,7 +60,7 @@ public abstract class AbstractConfigurationConverter
         {
             try
             {
-                boolean isArray = implementation.endsWith( "[]" );
+                final boolean isArray = implementation.endsWith( "[]" );
                 if ( isArray )
                 {
                     implementation = implementation.substring( 0, implementation.length() - 2 );

@@ -18,6 +18,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.matcher.Matchers;
+import com.google.inject.spi.ProvisionListener;
 
 /**
  * Guice {@link Module} that supports registration, injection, and management of Plexus beans.
@@ -66,7 +67,12 @@ public final class PlexusBindingModule
             }
         }
 
-        // attach custom bean listener to perform injection of Plexus requirements/configuration
-        bindListener( Matchers.any(), new BeanListener( new PlexusBeanBinder( manager, sources ) ) );
+        // attach custom logic to support Plexus requirements/configuration/lifecycle
+        final PlexusBeanBinder plexusBinder = new PlexusBeanBinder( manager, sources );
+        bindListener( Matchers.any(), new BeanListener( plexusBinder ) );
+        if ( null != manager )
+        {
+            bindListener( Matchers.any(), (ProvisionListener) plexusBinder );
+        }
     }
 }

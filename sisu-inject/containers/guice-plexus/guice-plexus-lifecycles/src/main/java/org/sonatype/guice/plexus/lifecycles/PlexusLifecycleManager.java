@@ -9,9 +9,7 @@ package org.sonatype.guice.plexus.lifecycles;
 
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Provider;
 
@@ -24,7 +22,6 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
-import org.sonatype.guice.bean.inject.BeanListener;
 import org.sonatype.guice.bean.inject.PropertyBinding;
 import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.Logs;
@@ -42,20 +39,9 @@ public final class PlexusLifecycleManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private static final ThreadLocal<List<Object>> lifecycleBeans = new ThreadLocal<List<Object>>()
-    {
-        @Override
-        protected List<Object> initialValue()
-        {
-            return new ArrayList<Object>( 4 );
-        }
-    };
+    private final List<Startable> startableBeans = new ArrayList<Startable>();
 
-    private final List<Startable> startableBeans = Collections.synchronizedList( new ArrayList<Startable>() );
-
-    private final List<Disposable> disposableBeans = Collections.synchronizedList( new ArrayList<Disposable>() );
-
-    private final AtomicInteger numDeferredBeans = new AtomicInteger();
+    private final List<Disposable> disposableBeans = new ArrayList<Disposable>();
 
     private final Logger consoleLogger = new ConsoleLogger();
 
@@ -81,11 +67,6 @@ public final class PlexusLifecycleManager
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
-
-    public boolean manage( final Class<?> clazz )
-    {
-        return true;
-    }
 
     @SuppressWarnings( "rawtypes" )
     public PropertyBinding manage( final BeanProperty property )
@@ -120,53 +101,51 @@ public final class PlexusLifecycleManager
     {
         if ( bean instanceof Disposable )
         {
-            disposableBeans.add( (Disposable) bean );
+            synchronized ( this )
+            {
+                disposableBeans.add( (Disposable) bean );
+            }
         }
         if ( bean instanceof LogEnabled )
         {
             ( (LogEnabled) bean ).enableLogging( getPlexusLogger( bean ) );
         }
-        if ( numDeferredBeans.get() > 0 && !BeanListener.isInjecting() )
-        {
-            manageDeferredLifecycles();
-        }
         if ( bean instanceof Contextualizable || bean instanceof Initializable || bean instanceof Startable )
         {
-            if ( BeanListener.isInjecting() )
+            manageLifecycle( bean );
+        }
+        return true;
+    }
+
+    public boolean unmanage( final Object bean )
+    {
+        synchronized ( this )
+        {
+            if ( startableBeans.remove( bean ) )
             {
-                deferLifecycle( bean );
+                stop( (Startable) bean );
             }
-            else
+            if ( disposableBeans.remove( bean ) )
             {
-                manageLifecycle( bean );
+                dispose( (Disposable) bean );
             }
         }
         return true;
     }
 
-    public synchronized boolean unmanage( final Object bean )
+    public boolean unmanage()
     {
-        if ( startableBeans.remove( bean ) )
+        synchronized ( this )
         {
-            stop( (Startable) bean );
-        }
-        if ( disposableBeans.remove( bean ) )
-        {
-            dispose( (Disposable) bean );
-        }
-        return true;
-    }
-
-    public synchronized boolean unmanage()
-    {
-        // unmanage beans in reverse order
-        while ( !startableBeans.isEmpty() )
-        {
-            stop( startableBeans.remove( startableBeans.size() - 1 ) );
-        }
-        while ( !disposableBeans.isEmpty() )
-        {
-            dispose( disposableBeans.remove( disposableBeans.size() - 1 ) );
+            // unmanage beans in reverse order
+            while ( !startableBeans.isEmpty() )
+            {
+                stop( startableBeans.remove( startableBeans.size() - 1 ) );
+            }
+            while ( !disposableBeans.isEmpty() )
+            {
+                dispose( disposableBeans.remove( disposableBeans.size() - 1 ) );
+            }
         }
         return true;
     }
@@ -182,9 +161,10 @@ public final class PlexusLifecycleManager
 
     Logger getPlexusLogger( final Object bean )
     {
+        final String name = bean.getClass().getName();
         try
         {
-            return plexusLoggerManagerProvider.get().getLoggerForComponent( bean.getClass().getName(), null );
+            return plexusLoggerManagerProvider.get().getLoggerForComponent( name, null );
         }
         catch ( final Throwable e )
         {
@@ -208,24 +188,6 @@ public final class PlexusLifecycleManager
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
-
-    private void deferLifecycle( final Object bean )
-    {
-        lifecycleBeans.get().add( bean );
-        numDeferredBeans.incrementAndGet();
-    }
-
-    private void manageDeferredLifecycles()
-    {
-        final List<Object> beans = new ArrayList<Object>( lifecycleBeans.get() );
-        numDeferredBeans.addAndGet( -beans.size() );
-        lifecycleBeans.remove();
-
-        for ( final Object bean : beans )
-        {
-            manageLifecycle( bean );
-        }
-    }
 
     private void manageLifecycle( final Object bean )
     {
@@ -255,10 +217,13 @@ public final class PlexusLifecycleManager
             }
             if ( bean instanceof Startable )
             {
-                // register before calling start in case it fails
-                final Startable startableBean = (Startable) bean;
-                startableBeans.add( startableBean );
-                start( startableBean );
+                synchronized ( this )
+                {
+                    // register before calling start in case it fails
+                    final Startable startableBean = (Startable) bean;
+                    startableBeans.add( startableBean );
+                    start( startableBean );
+                }
             }
         }
         finally
@@ -269,14 +234,14 @@ public final class PlexusLifecycleManager
 
     private void contextualize( final Contextualizable bean )
     {
-        Logs.debug( "Contextualize: {}", bean.getClass(), null );
+        Logs.debug( "Contextualize: <>", bean, null );
         try
         {
             bean.contextualize( plexusContextProvider.get() );
         }
         catch ( final Throwable e )
         {
-            final String message = "Error contextualizing: " + bean.getClass();
+            final String message = "Error contextualizing: " + Logs.identityToString( bean );
             warn( message, e );
             if ( e instanceof RuntimeException )
             {
@@ -288,14 +253,14 @@ public final class PlexusLifecycleManager
 
     private void initialize( final Initializable bean )
     {
-        Logs.debug( "Initialize: {}", bean.getClass(), null );
+        Logs.debug( "Initialize: <>", bean, null );
         try
         {
             bean.initialize();
         }
         catch ( final Throwable e )
         {
-            final String message = "Error initializing: " + bean.getClass();
+            final String message = "Error initializing: " + Logs.identityToString( bean );
             warn( message, e );
             if ( e instanceof RuntimeException )
             {
@@ -307,14 +272,14 @@ public final class PlexusLifecycleManager
 
     private void start( final Startable bean )
     {
-        Logs.debug( "Start: {}", bean.getClass(), null );
+        Logs.debug( "Start: <>", bean, null );
         try
         {
             bean.start();
         }
         catch ( final Throwable e )
         {
-            final String message = "Error starting: " + bean.getClass();
+            final String message = "Error starting: " + Logs.identityToString( bean );
             warn( message, e );
             if ( e instanceof RuntimeException )
             {
@@ -326,27 +291,27 @@ public final class PlexusLifecycleManager
 
     private void stop( final Startable bean )
     {
-        Logs.debug( "Stop: {}", bean.getClass(), null );
+        Logs.debug( "Stop: <>", bean, null );
         try
         {
             bean.stop();
         }
         catch ( final Throwable e )
         {
-            warn( "Problem stopping: " + bean.getClass(), e );
+            warn( "Problem stopping: " + Logs.identityToString( bean ), e );
         }
     }
 
     private void dispose( final Disposable bean )
     {
-        Logs.debug( "Dispose: {}", bean.getClass(), null );
+        Logs.debug( "Dispose: <>", bean, null );
         try
         {
             bean.dispose();
         }
         catch ( final Throwable e )
         {
-            warn( "Problem disposing: " + bean.getClass(), e );
+            warn( "Problem disposing: " + Logs.identityToString( bean ), e );
         }
     }
 

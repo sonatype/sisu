@@ -40,11 +40,6 @@ public class PlexusConfigurationTest
     {
         static int SEEN;
 
-        public boolean manage( final Class<?> clazz )
-        {
-            return ConfiguredComponent.class.isAssignableFrom( clazz );
-        }
-
         public PropertyBinding manage( final BeanProperty<?> property )
         {
             return null;
@@ -52,8 +47,12 @@ public class PlexusConfigurationTest
 
         public boolean manage( final Object bean )
         {
-            SEEN++;
-            return true;
+            if ( ConfiguredComponent.class.isAssignableFrom( bean.getClass() ) )
+            {
+                SEEN++;
+                return true;
+            }
+            return false;
         }
 
         public boolean unmanage( final Object bean )

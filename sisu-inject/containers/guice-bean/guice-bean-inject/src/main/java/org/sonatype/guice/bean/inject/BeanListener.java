@@ -93,12 +93,4 @@ public final class BeanListener
             encounter.register( new BeanInjector<B>( bindings ) );
         }
     }
-
-    /**
-     * @return {@code true} if this thread is performing bean injection; otherwise {@code false}
-     */
-    public static boolean isInjecting()
-    {
-        return BeanInjector.isInjecting();
-    }
 }

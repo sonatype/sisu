@@ -32,11 +32,6 @@ public class PlexusLoggingTest
     static class LoggerManager
         implements PlexusBeanManager
     {
-        public boolean manage( final Class<?> clazz )
-        {
-            return false;
-        }
-
         @SuppressWarnings( "rawtypes" )
         public PropertyBinding manage( final BeanProperty property )
         {

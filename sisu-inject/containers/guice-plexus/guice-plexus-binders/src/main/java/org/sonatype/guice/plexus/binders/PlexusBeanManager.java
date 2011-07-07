@@ -16,14 +16,6 @@ import org.sonatype.guice.bean.reflect.BeanProperty;
 public interface PlexusBeanManager
 {
     /**
-     * Decides whether instances of the given Plexus bean type should be reported to this manager.
-     * 
-     * @param clazz The Plexus bean type
-     * @return {@code true} if instances of the bean should be reported; otherwise {@code false}
-     */
-    boolean manage( Class<?> clazz );
-
-    /**
      * Decides whether the given bean property will be managed by this manager.
      * 
      * @param property The bean property
