@@ -103,7 +103,7 @@ final class PlexusBeanBinder
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    private static void scheduleBean( final List<Object> pending, final Object bean )
+    private static final void scheduleBean( final List<Object> pending, final Object bean )
     {
         // make sure we don't manage the same instance twice
         for ( int i = 0, size = pending.size(); i < size; i++ )
