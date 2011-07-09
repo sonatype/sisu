@@ -161,6 +161,24 @@
         </pluginManagement>
       </build>
     </profile>
+    <profile>
+      <!--
+       | m2e profile - expose embedded dependencies
+      -->
+      <id>m2e</id>
+      <activation>
+        <property>
+          <name>m2e.version</name>
+        </property>
+      </activation>
+      <dependencies>
+        <dependency>
+          <groupId>org.sonatype.sisu.inject</groupId>
+          <artifactId>guice-plexus-shim</artifactId>
+          <optional>false</optional>
+        </dependency>
+      </dependencies>
+    </profile>
   </profiles>
 
 </project>
