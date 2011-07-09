@@ -77,19 +77,19 @@ final class PlexusBeanBinder
         final boolean isRoot = pending.isEmpty();
         if ( isRoot )
         {
-            pending.add( null ); // must put place-holder in before scheduling starts
+            pending.add( null ); // must add NULL place-holder before scheduling starts
         }
 
-        scheduleBean( pending, pi.provision() ); // may involve more onProvision calls
+        scheduleBean( pending, pi.provision() ); // this may involve more onProvision calls
 
         if ( isRoot )
         {
             try
             {
-                // skip first element, this is the original place-holder
-                for ( int i = 1, size = pending.size(); i < size; i++ )
+                // process in order of creation; but skip the NULL place-holder at the start
+                for ( int i = 1; i < pending.size(); i++ )
                 {
-                    manager.manage( pending.get( i ) );
+                    manager.manage( pending.get( i ) ); // possibly more onProvision calls
                 }
             }
             finally
