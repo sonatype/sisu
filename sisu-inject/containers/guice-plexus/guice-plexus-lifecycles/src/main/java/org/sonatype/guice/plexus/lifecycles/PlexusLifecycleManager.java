@@ -36,6 +36,13 @@ public final class PlexusLifecycleManager
     implements PlexusBeanManager
 {
     // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final Class<?>[] LIFECYCLE_TYPES = { LogEnabled.class, Contextualizable.class, Initializable.class,
+        Startable.class, Disposable.class };
+
+    // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
@@ -67,6 +74,18 @@ public final class PlexusLifecycleManager
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
+
+    public boolean manage( final Class<?> clazz )
+    {
+        for ( final Class<?> lifecycleType : LIFECYCLE_TYPES )
+        {
+            if ( lifecycleType.isAssignableFrom( clazz ) )
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @SuppressWarnings( "rawtypes" )
     public PropertyBinding manage( final BeanProperty property )

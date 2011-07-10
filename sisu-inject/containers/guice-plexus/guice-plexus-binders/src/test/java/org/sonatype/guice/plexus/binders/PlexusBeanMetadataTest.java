@@ -76,6 +76,11 @@ public class PlexusBeanMetadataTest
     static class TestBeanManager
         implements PlexusBeanManager
     {
+        public boolean manage( final Class<?> clazz )
+        {
+            return false;
+        }
+
         public PropertyBinding manage( final BeanProperty<?> property )
         {
             return null;

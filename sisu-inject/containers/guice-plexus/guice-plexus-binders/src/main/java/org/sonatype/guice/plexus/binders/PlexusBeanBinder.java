@@ -82,18 +82,21 @@ final class PlexusBeanBinder
 
         final Object bean = pi.provision(); // this may involve more onProvision calls
 
-        boolean scheduleBean = true;
-        for ( int i = pending.size() - 1; i >= 0; i-- )
+        if ( null != bean && manager.manage( bean.getClass() ) )
         {
-            if ( pending.get( i ) == bean )
+            boolean scheduleBean = true;
+            for ( int i = pending.size() - 1; i >= 0; i-- )
             {
-                scheduleBean = false; // make sure we never schedule the same bean twice
-                break;
+                if ( pending.get( i ) == bean )
+                {
+                    scheduleBean = false; // make sure we never schedule the same bean twice
+                    break;
+                }
             }
-        }
-        if ( scheduleBean )
-        {
-            pending.add( bean );
+            if ( scheduleBean )
+            {
+                pending.add( bean );
+            }
         }
 
         if ( isRoot )

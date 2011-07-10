@@ -16,23 +16,31 @@ import org.sonatype.guice.bean.reflect.BeanProperty;
 public interface PlexusBeanManager
 {
     /**
-     * Decides whether the given bean property will be managed by this manager.
+     * Decides whether instances of the given Plexus bean type should be reported to this manager.
+     * 
+     * @param clazz The Plexus bean type
+     * @return {@code true} if instances of the bean should be reported; otherwise {@code false}
+     */
+    boolean manage( Class<?> clazz );
+
+    /**
+     * Asks this manager to manage the given bean property.
      * 
      * @param property The bean property
-     * @return Non-null binding if the bean property will be managed; otherwise {@code null}
+     * @return Non-null binding if the bean property was managed; otherwise {@code null}
      */
     PropertyBinding manage( BeanProperty<?> property );
 
     /**
-     * Decides whether the given Plexus bean instance will be managed by this manager.
+     * Asks this manager to manage the given Plexus bean instance.
      * 
      * @param bean The Plexus bean instance
-     * @return {@code true} if the bean instance will be managed; otherwise {@code false}
+     * @return {@code true} if the bean instance was managed; otherwise {@code false}
      */
     boolean manage( Object bean );
 
     /**
-     * Tells this manager to unmanage the given Plexus bean instance.
+     * Asks this manager to unmanage the given Plexus bean instance.
      * 
      * @param bean The Plexus bean instance
      * @return {@code true} if the bean instance was unmanaged; otherwise {@code false}
@@ -40,7 +48,7 @@ public interface PlexusBeanManager
     boolean unmanage( Object bean );
 
     /**
-     * Tells this manager to unmanage all the Plexus bean instances it knows about.
+     * Asks this manager to unmanage all the Plexus bean instances it knows about.
      * 
      * @return {@code true} if any bean instances were unmanaged; otherwise {@code false}
      */
