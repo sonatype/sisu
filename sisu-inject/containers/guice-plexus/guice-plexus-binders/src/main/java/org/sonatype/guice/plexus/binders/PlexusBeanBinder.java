@@ -16,6 +16,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 
 import com.google.inject.TypeLiteral;
+import com.google.inject.spi.InjectionListener;
 import com.google.inject.spi.ProvisionListener;
 import com.google.inject.spi.TypeEncounter;
 
@@ -23,7 +24,7 @@ import com.google.inject.spi.TypeEncounter;
  * {@link BeanBinder} that binds bean properties according to Plexus metadata.
  */
 final class PlexusBeanBinder
-    implements BeanBinder, ProvisionListener
+    implements BeanBinder, InjectionListener<Object>, ProvisionListener
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -32,7 +33,7 @@ final class PlexusBeanBinder
     private static final ThreadLocal<List<Object>> PENDING = new ThreadLocal<List<Object>>()
     {
         @Override
-        protected java.util.List<Object> initialValue()
+        protected List<Object> initialValue()
         {
             return new ArrayList<Object>();
         }
@@ -59,6 +60,10 @@ final class PlexusBeanBinder
     public <B> PropertyBinder bindBean( final TypeLiteral<B> type, final TypeEncounter<B> encounter )
     {
         final Class<?> clazz = type.getRawType();
+        if ( null != manager && manager.manage( clazz ) )
+        {
+            encounter.register( this );
+        }
         for ( final PlexusBeanSource source : sources )
         {
             // use first source that has metadata for the given implementation
@@ -74,26 +79,11 @@ final class PlexusBeanBinder
     public <T> void onProvision( final ProvisionInvocation<T> pi )
     {
         final List<Object> pending = PENDING.get();
-        final boolean isRoot = pending.isEmpty();
-        if ( isRoot )
+        if ( pending.isEmpty() )
         {
-            pending.add( null ); // must add NULL place-holder before scheduling starts
-        }
+            pending.add( null ); // must add NULL place-holder before provisioning starts
+            pi.provision(); // because this step may involve further calls to onProvision
 
-        final Object bean = pi.provision(); // this may involve more onProvision calls
-
-        if ( null != bean )
-        {
-            // only activate on unique implementation binding (avoids duplicates)
-            final Class<?> boundType = pi.getKey().getTypeLiteral().getRawType();
-            if ( boundType == bean.getClass() && manager.manage( bean.getClass() ) )
-            {
-                pending.add( bean );
-            }
-        }
-
-        if ( isRoot )
-        {
             // cache+clear to avoid blocking later on
             final Object[] beans = pending.toArray();
             pending.clear();
@@ -101,8 +91,13 @@ final class PlexusBeanBinder
             // process in order of creation; but skip the NULL place-holder at the start
             for ( int i = 1; i < beans.length; i++ )
             {
-                manager.manage( beans[i] ); // this may involve more onProvision calls
+                manager.manage( beans[i] ); // may also involve more onProvision calls
             }
         }
+    }
+
+    public void afterInjection( final Object bean )
+    {
+        PENDING.get().add( bean );
     }
 }
