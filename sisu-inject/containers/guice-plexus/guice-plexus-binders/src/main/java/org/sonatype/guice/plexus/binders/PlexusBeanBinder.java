@@ -80,7 +80,21 @@ final class PlexusBeanBinder
             pending.add( null ); // must add NULL place-holder before scheduling starts
         }
 
-        scheduleBean( pending, pi.provision() ); // this may involve more onProvision calls
+        final Object bean = pi.provision(); // this may involve more onProvision calls
+
+        boolean scheduleBean = true;
+        for ( int i = pending.size() - 1; i >= 0; i-- )
+        {
+            if ( pending.get( i ) == bean )
+            {
+                scheduleBean = false; // make sure we never schedule the same bean twice
+                break;
+            }
+        }
+        if ( scheduleBean )
+        {
+            pending.add( bean );
+        }
 
         if ( isRoot )
         {
@@ -97,22 +111,5 @@ final class PlexusBeanBinder
                 pending.clear();
             }
         }
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    private static void scheduleBean( final List<Object> pending, final Object bean )
-    {
-        // make sure we don't manage same instance twice
-        for ( int i = pending.size() - 1; i >= 0; i-- )
-        {
-            if ( pending.get( i ) == bean )
-            {
-                return; // instance is already scheduled
-            }
-        }
-        pending.add( bean );
     }
 }
