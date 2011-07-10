@@ -105,8 +105,8 @@ final class PlexusBeanBinder
 
     private static void scheduleBean( final List<Object> pending, final Object bean )
     {
-        // make sure we don't manage the same instance twice
-        for ( int i = 0, size = pending.size(); i < size; i++ )
+        // make sure we don't manage same instance twice
+        for ( int i = pending.size() - 1; i >= 0; i-- )
         {
             if ( pending.get( i ) == bean )
             {
