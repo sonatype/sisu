@@ -82,18 +82,11 @@ final class PlexusBeanBinder
 
         final Object bean = pi.provision(); // this may involve more onProvision calls
 
-        if ( null != bean && manager.manage( bean.getClass() ) )
+        if ( null != bean )
         {
-            boolean scheduleBean = true;
-            for ( int i = pending.size() - 1; i >= 0; i-- )
-            {
-                if ( pending.get( i ) == bean )
-                {
-                    scheduleBean = false; // make sure we never schedule the same bean twice
-                    break;
-                }
-            }
-            if ( scheduleBean )
+            // only activate on unique implementation binding (avoids duplicates)
+            final Class<?> boundType = pi.getKey().getTypeLiteral().getRawType();
+            if ( boundType == bean.getClass() && manager.manage( bean.getClass() ) )
             {
                 pending.add( bean );
             }
@@ -101,17 +94,14 @@ final class PlexusBeanBinder
 
         if ( isRoot )
         {
-            try
+            // cache+clear to avoid blocking later on
+            final Object[] beans = pending.toArray();
+            pending.clear();
+
+            // process in order of creation; but skip the NULL place-holder at the start
+            for ( int i = 1; i < beans.length; i++ )
             {
-                // process in order of creation; but skip the NULL place-holder at the start
-                for ( int i = 1; i < pending.size(); i++ )
-                {
-                    manager.manage( pending.get( i ) ); // possibly more onProvision calls
-                }
-            }
-            finally
-            {
-                pending.clear();
+                manager.manage( beans[i] ); // this may involve more onProvision calls
             }
         }
     }
