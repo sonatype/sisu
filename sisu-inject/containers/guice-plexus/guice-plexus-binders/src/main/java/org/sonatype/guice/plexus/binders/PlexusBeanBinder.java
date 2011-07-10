@@ -84,6 +84,12 @@ final class PlexusBeanBinder
             pending.add( null ); // must add NULL place-holder before provisioning starts
             pi.provision(); // because this step may involve further calls to onProvision
 
+            if ( pending.size() == 1 )
+            {
+                pending.clear(); // nothing to manage here, so we can bail out early
+                return;
+            }
+
             // cache+clear to avoid blocking later on
             final Object[] beans = pending.toArray();
             pending.clear();
