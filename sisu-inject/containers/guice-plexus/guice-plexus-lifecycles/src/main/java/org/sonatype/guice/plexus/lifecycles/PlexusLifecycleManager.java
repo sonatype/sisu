@@ -120,10 +120,7 @@ public final class PlexusLifecycleManager
     {
         if ( bean instanceof Disposable )
         {
-            synchronized ( this )
-            {
-                disposableBeans.add( (Disposable) bean );
-            }
+            synchronizedAdd( disposableBeans, (Disposable) bean );
         }
         if ( bean instanceof LogEnabled )
         {
@@ -138,33 +135,26 @@ public final class PlexusLifecycleManager
 
     public boolean unmanage( final Object bean )
     {
-        synchronized ( this )
+        if ( synchronizedRemove( startableBeans, bean ) )
         {
-            if ( startableBeans.remove( bean ) )
-            {
-                stop( (Startable) bean );
-            }
-            if ( disposableBeans.remove( bean ) )
-            {
-                dispose( (Disposable) bean );
-            }
+            stop( (Startable) bean );
+        }
+        if ( synchronizedRemove( disposableBeans, bean ) )
+        {
+            dispose( (Disposable) bean );
         }
         return true;
     }
 
     public boolean unmanage()
     {
-        synchronized ( this )
+        for ( Startable bean; ( bean = synchronizedRemoveLast( startableBeans ) ) != null; )
         {
-            // unmanage beans in reverse order
-            while ( !startableBeans.isEmpty() )
-            {
-                stop( startableBeans.remove( startableBeans.size() - 1 ) );
-            }
-            while ( !disposableBeans.isEmpty() )
-            {
-                dispose( disposableBeans.remove( disposableBeans.size() - 1 ) );
-            }
+            stop( bean );
+        }
+        for ( Disposable bean; ( bean = synchronizedRemoveLast( disposableBeans ) ) != null; )
+        {
+            dispose( bean );
         }
         return true;
     }
@@ -208,6 +198,35 @@ public final class PlexusLifecycleManager
     // Implementation methods
     // ----------------------------------------------------------------------
 
+    private static <T> boolean synchronizedAdd( final List<T> list, final T element )
+    {
+        synchronized ( list )
+        {
+            return list.add( element );
+        }
+    }
+
+    private static boolean synchronizedRemove( final List<?> list, final Object element )
+    {
+        synchronized ( list )
+        {
+            return list.remove( element );
+        }
+    }
+
+    private static <T> T synchronizedRemoveLast( final List<T> list )
+    {
+        synchronized ( list )
+        {
+            final int size = list.size();
+            if ( size > 0 )
+            {
+                return list.remove( size - 1 );
+            }
+            return null;
+        }
+    }
+
     private void manageLifecycle( final Object bean )
     {
         final ClassLoader tccl = Thread.currentThread().getContextClassLoader();
@@ -236,13 +255,10 @@ public final class PlexusLifecycleManager
             }
             if ( bean instanceof Startable )
             {
-                synchronized ( this )
-                {
-                    // register before calling start in case it fails
-                    final Startable startableBean = (Startable) bean;
-                    startableBeans.add( startableBean );
-                    start( startableBean );
-                }
+                // register before calling start in case it fails
+                final Startable startableBean = (Startable) bean;
+                synchronizedAdd( startableBeans, startableBean );
+                start( startableBean );
             }
         }
         finally
