@@ -13,9 +13,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
+
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 
 public final class ClassRealmUtils
 {
@@ -57,7 +59,8 @@ public final class ClassRealmUtils
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private static Map<ClassRealm, RealmInfo> realmCache = new WeakHashMap<ClassRealm, RealmInfo>();
+    private static Map<ClassRealm, Set<String>> visibleRealmNameCache =
+        new MapMaker().weakKeys().makeComputingMap( new VisibleNameFunction() );
 
     // ----------------------------------------------------------------------
     // Utility methods
@@ -81,30 +84,20 @@ public final class ClassRealmUtils
         {
             return Collections.emptySet();
         }
-
-        synchronized ( realmCache )
-        {
-            RealmInfo realmInfo = realmCache.get( contextRealm );
-            if ( null == realmInfo )
-            {
-                realmInfo = new RealmInfo( contextRealm );
-                realmCache.put( contextRealm, realmInfo );
-            }
-            return realmInfo.getVisibleRealmNames();
-        }
+        return visibleRealmNameCache.get( contextRealm );
     }
 
     // ----------------------------------------------------------------------
     // Implementation types
     // ----------------------------------------------------------------------
 
-    private static final class RealmInfo
+    static final class VisibleNameFunction
+        implements Function<ClassRealm, Set<String>>
     {
-        private final Set<String> visibleRealmNames = new HashSet<String>();
-
         @SuppressWarnings( "unchecked" )
-        RealmInfo( final ClassRealm forRealm )
+        public Set<String> apply( final ClassRealm forRealm )
         {
+            final Set<String> visibleRealmNames = new HashSet<String>();
             final List<ClassRealm> searchRealms = new ArrayList<ClassRealm>();
 
             searchRealms.add( forRealm );
@@ -121,10 +114,6 @@ public final class ClassRealmUtils
                     }
                 }
             }
-        }
-
-        public Set<String> getVisibleRealmNames()
-        {
             return visibleRealmNames;
         }
     }
