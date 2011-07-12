@@ -83,6 +83,16 @@
              | Apple's JVM sometimes requires more memory
             -->
             <additionalJOption>-J-Xmx1024m</additionalJOption>
+            <!--
+             | External javadoc links
+            -->
+            <links>
+              <link>http://google-guice.googlecode.com/svn/trunk/javadoc/</link>
+              <link>http://slf4j.org/apidocs/</link>
+              <link>http://osgi.org/javadoc/r4v42/</link>
+              <link>http://testng.org/javadocs/</link>
+              <link>http://junit.org/apidocs/</link>
+            </links>
           </configuration>
         </plugin>
       </plugins>

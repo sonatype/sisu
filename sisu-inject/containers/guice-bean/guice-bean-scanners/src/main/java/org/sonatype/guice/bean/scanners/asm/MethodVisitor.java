@@ -147,7 +147,7 @@ public interface MethodVisitor {
      * @param nStack the number of operand stack elements in the visited frame.
      * @param stack the operand stack types in this frame. This array must not
      *        be modified. Its content has the same format as the "local" array.
-     * @throw IllegalStateException if a frame is visited just after another
+     * @throws IllegalStateException if a frame is visited just after another
      *        one, without any instruction between the two (unless this frame
      *        is a Opcodes#F_SAME frame, in which case it is silently ignored).
      */

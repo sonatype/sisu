@@ -26,6 +26,7 @@
   <name>Sisu-Inject-Plexus : Aggregate OSGi bundle</name>
 
   <dependencies>
+    <!-- external dependencies -->
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-component-annotations</artifactId>
@@ -42,12 +43,13 @@
       <groupId>org.sonatype.sisu</groupId>
       <artifactId>sisu-inject-bean</artifactId>
     </dependency>
+    <!-- embedded dependencies -->
     <dependency>
       <groupId>org.sonatype.sisu.inject</groupId>
       <artifactId>guice-plexus-shim</artifactId>
       <optional>true</optional>
     </dependency>
-    <!-- used by javadoc -->
+    <!-- optional dependencies -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -151,10 +153,6 @@
               <artifactId>maven-javadoc-plugin</artifactId>
               <configuration>
                 <sourcepath>${project.build.directory}/aggregate-sources</sourcepath>
-                <links>
-                  <link>http://slf4j.org/apidocs/</link>
-                  <link>http://junit.org/apidocs/</link>
-                </links>
               </configuration>
             </plugin>
           </plugins>

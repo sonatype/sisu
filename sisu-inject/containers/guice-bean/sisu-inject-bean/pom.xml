@@ -30,6 +30,7 @@
   <name>Sisu-Inject-Bean : Aggregate OSGi bundle</name>
 
   <dependencies>
+    <!-- external dependencies -->
     <dependency>
       <groupId>org.sonatype.sisu</groupId>
       <artifactId>sisu-guice</artifactId>
@@ -45,12 +46,13 @@
         </exclusion>
       </exclusions>
     </dependency>
+    <!-- embedded dependencies -->
     <dependency>
       <groupId>org.sonatype.sisu.inject</groupId>
       <artifactId>guice-bean-containers</artifactId>
       <optional>true</optional>
     </dependency>
-    <!-- used by javadoc -->
+    <!-- optional dependencies -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
@@ -143,7 +145,7 @@
                   <failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
                   <outputDirectory>${project.build.directory}/aggregate-sources</outputDirectory>
                   <includes>
-                    javax/inject/*,javax/annotation/*,java/enterprise/inject/*,
+                    javax/inject/*,javax/annotation/*,javax/enterprise/inject/*,
                     org/aopalliance/aop/*,org/aopalliance/intercept/*,
                     org/sonatype/inject/**,org/sonatype/guice/bean/**
                   </includes>
@@ -174,12 +176,6 @@
               <artifactId>maven-javadoc-plugin</artifactId>
               <configuration>
                 <sourcepath>${project.build.directory}/aggregate-sources</sourcepath>
-                <links>
-                  <link>http://slf4j.org/apidocs/</link>
-                  <link>http://osgi.org/javadoc/r4v42/</link>
-                  <link>http://testng.org/javadocs/</link>
-                  <link>http://junit.org/apidocs/</link>
-                </links>
               </configuration>
             </plugin>
           </plugins>

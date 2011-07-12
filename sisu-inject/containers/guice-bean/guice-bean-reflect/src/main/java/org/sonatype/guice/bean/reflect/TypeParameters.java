@@ -167,7 +167,7 @@ public final class TypeParameters
     /**
      * Determines if the given generic type represents an implicit binding.
      * 
-     * @param clazz The generic type
+     * @param literal The generic type
      * @return {@code true} if the generic type is implicit; otherwise {@code false}
      */
     public static boolean isImplicit( final TypeLiteral<?> literal )
