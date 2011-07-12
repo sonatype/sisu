@@ -75,6 +75,9 @@
               -quiet
               -federate JDK http://download.oracle.com/javase/6/docs/api/index.html?
               -federationxml JDK http://doclava.googlecode.com/svn/static/api/openjdk-6.xml
+              -federate Guice http://google-guice.googlecode.com/svn/trunk/javadoc/
+              -federate OSGi http://osgi.org/javadoc/r4v42/index.html?
+              -federationxml OSGi https://raw.github.com/sonatype/sisu/master/sisu-inject/lib/osgi.xml
               -hdf project.name "${project.name}"
               -d ${project.build.directory}/apidocs
             </additionalparam>
@@ -83,16 +86,6 @@
              | Apple's JVM sometimes requires more memory
             -->
             <additionalJOption>-J-Xmx1024m</additionalJOption>
-            <!--
-             | External javadoc links
-            -->
-            <links>
-              <link>http://google-guice.googlecode.com/svn/trunk/javadoc/</link>
-              <link>http://slf4j.org/apidocs/</link>
-              <link>http://osgi.org/javadoc/r4v42/</link>
-              <link>http://testng.org/javadocs/</link>
-              <link>http://junit.org/apidocs/</link>
-            </links>
           </configuration>
         </plugin>
       </plugins>
