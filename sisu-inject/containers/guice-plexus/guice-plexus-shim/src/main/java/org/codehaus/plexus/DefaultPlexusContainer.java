@@ -592,7 +592,7 @@ public final class DefaultPlexusContainer
      * @param configuration The container configuration
      * @return Container class realm
      */
-    private ClassRealm lookupContainerRealm( final ContainerConfiguration configuration )
+    private static ClassRealm lookupContainerRealm( final ContainerConfiguration configuration )
         throws PlexusContainerException
     {
         ClassRealm realm = configuration.getRealm();
@@ -739,13 +739,13 @@ public final class DefaultPlexusContainer
         return visibleRealms;
     }
 
-    private <T> boolean hasPlexusBeans( final Iterable<PlexusBean<T>> beans )
+    private static <T> boolean hasPlexusBeans( final Iterable<PlexusBean<T>> beans )
     {
         final Iterator<PlexusBean<T>> i = beans.iterator();
         return i.hasNext() && i.next().getImplementationClass() != null;
     }
 
-    private <T> ComponentDescriptor<T> newComponentDescriptor( final String role, final PlexusBean<T> bean )
+    private static <T> ComponentDescriptor<T> newComponentDescriptor( final String role, final PlexusBean<T> bean )
     {
         final ComponentDescriptor<T> cd = new ComponentDescriptor<T>();
         cd.setRole( role );
