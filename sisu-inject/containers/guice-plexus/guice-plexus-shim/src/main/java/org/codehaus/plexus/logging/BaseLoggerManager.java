@@ -8,10 +8,12 @@
 package org.codehaus.plexus.logging;
 
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.sonatype.guice.plexus.config.Roles;
+
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 
 public abstract class BaseLoggerManager
     extends AbstractLoggerManager
@@ -21,11 +23,20 @@ public abstract class BaseLoggerManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<String, Logger> activeLoggers = new WeakHashMap<String, Logger>();
+    private final Map<String, Logger> activeLoggers =
+        new MapMaker().weakValues().makeComputingMap( new Function<String, Logger>()
+        {
+            public Logger apply( final String name )
+            {
+                final Logger logger = createLogger( name );
+                logger.setThreshold( currentThreshold );
+                return logger;
+            }
+        } );
 
     String threshold = "INFO";
 
-    private int currentThreshold;
+    int currentThreshold;
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -36,20 +47,12 @@ public abstract class BaseLoggerManager
         currentThreshold = parseThreshold( threshold );
     }
 
-    public final synchronized Logger getLoggerForComponent( final String role, final String hint )
+    public final Logger getLoggerForComponent( final String role, final String hint )
     {
-        final String name = Roles.canonicalRoleHint( role, hint );
-        Logger logger = activeLoggers.get( name );
-        if ( null == logger )
-        {
-            logger = createLogger( name );
-            logger.setThreshold( currentThreshold );
-            activeLoggers.put( name, logger );
-        }
-        return logger;
+        return activeLoggers.get( Roles.canonicalRoleHint( role, hint ) );
     }
 
-    public final synchronized void returnComponentLogger( final String role, final String hint )
+    public final void returnComponentLogger( final String role, final String hint )
     {
         activeLoggers.remove( Roles.canonicalRoleHint( role, hint ) );
     }
@@ -64,7 +67,7 @@ public abstract class BaseLoggerManager
         this.currentThreshold = currentThreshold;
     }
 
-    public final synchronized void setThresholds( final int currentThreshold )
+    public final void setThresholds( final int currentThreshold )
     {
         this.currentThreshold = currentThreshold;
         for ( final Logger logger : activeLoggers.values() )
@@ -102,7 +105,7 @@ public abstract class BaseLoggerManager
         return Logger.LEVEL_DEBUG;
     }
 
-    public final synchronized int getActiveLoggerCount()
+    public final int getActiveLoggerCount()
     {
         return activeLoggers.size();
     }
