@@ -103,8 +103,8 @@
             </DynamicImport-Package>
             <Export-Package>
               <!-- provide these APIs as a convenience -->
-              javax.inject|javax.annotation|javax.enterprise.inject;version=1,
-              org.aopalliance.aop|org.aopalliance.intercept;version=1,
+              javax.inject;javax.enterprise.inject;version=1,
+              org.aopalliance.aop;org.aopalliance.intercept;version=1,
               <!-- our JRS330 extension API -->
               org.sonatype.inject;-split-package:=merge-first;version=${project.version},
               <!-- our implementation APIs -->
@@ -113,8 +113,8 @@
             <Require-Bundle>org.sonatype.sisu.guice</Require-Bundle>
             <Import-Package>
               <!-- these APIs are substitutable -->
-              javax.inject,javax.annotation,javax.enterprise.inject,
-              org.aopalliance.aop,org.aopalliance.intercept,
+              javax.inject;javax.enterprise.inject,
+              org.aopalliance.aop;org.aopalliance.intercept,
               <!-- available via Require-Bundle -->
               !com.google.*,
               <!-- optional generated imports -->
@@ -145,7 +145,7 @@
                   <failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
                   <outputDirectory>${project.build.directory}/aggregate-sources</outputDirectory>
                   <includes>
-                    javax/inject/*,javax/annotation/*,javax/enterprise/inject/*,
+                    javax/inject/*,javax/enterprise/inject/*,
                     org/aopalliance/aop/*,org/aopalliance/intercept/*,
                     org/sonatype/inject/**,org/sonatype/guice/bean/**
                   </includes>

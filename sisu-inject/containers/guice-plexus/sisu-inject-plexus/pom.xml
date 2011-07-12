@@ -91,7 +91,7 @@
               <!-- Plexus APIs -->
               org.codehaus.*,
               <!-- available via Require-Bundle -->
-              !com.google.*|org.sonatype.*,
+              !com.google.*,!org.sonatype.*,
               <!-- optional generated imports -->
               *;resolution:=optional
             </Import-Package>
