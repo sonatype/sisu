@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.scanners;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 import javax.inject.Qualifier;
 
@@ -19,6 +19,8 @@ import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.scanners.asm.AnnotationVisitor;
 import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
 import org.sonatype.guice.bean.scanners.asm.Type;
+
+import com.google.common.collect.MapMaker;
 
 /**
  * Caching {@link ClassVisitor} that maintains a map of known {@link Qualifier} annotations.
@@ -36,8 +38,8 @@ final class QualifierCache
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private static final ConcurrentHashMap<String, Boolean> cachedResults =
-        new ConcurrentHashMap<String, Boolean>( 32, 0.75f, 1 );
+    private static final Map<String, Boolean> cachedResults =
+        new MapMaker().initialCapacity( 32 ).concurrencyLevel( 1 ).makeMap();
 
     private boolean isQualified;
 
@@ -72,7 +74,7 @@ final class QualifierCache
 
             final String name = desc.substring( 1, desc.length() - 1 );
             ClassSpaceScanner.accept( this, space.getResource( name + ".class" ) );
-            cachedResults.putIfAbsent( desc, Boolean.valueOf( isQualified ) );
+            cachedResults.put( desc, Boolean.valueOf( isQualified ) );
 
             return isQualified;
         }

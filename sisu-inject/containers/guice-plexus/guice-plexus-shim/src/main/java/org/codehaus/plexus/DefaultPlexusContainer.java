@@ -14,13 +14,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Provider;
@@ -108,7 +108,7 @@ public final class DefaultPlexusContainer
     final AtomicInteger plexusRank = new AtomicInteger();
 
     final Map<ClassRealm, List<ComponentDescriptor<?>>> descriptorMap =
-        new ConcurrentHashMap<ClassRealm, List<ComponentDescriptor<?>>>();
+        new IdentityHashMap<ClassRealm, List<ComponentDescriptor<?>>>();
 
     final ThreadLocal<ClassRealm> lookupRealm = new ThreadLocal<ClassRealm>();
 
@@ -354,13 +354,16 @@ public final class DefaultPlexusContainer
             realm = containerRealm;
             descriptor.setRealm( realm );
         }
-        List<ComponentDescriptor<?>> descriptors = descriptorMap.get( realm );
-        if ( null == descriptors )
+        synchronized ( descriptorMap )
         {
-            descriptors = new ArrayList<ComponentDescriptor<?>>();
-            descriptorMap.put( realm, descriptors );
+            List<ComponentDescriptor<?>> descriptors = descriptorMap.get( realm );
+            if ( null == descriptors )
+            {
+                descriptors = new ArrayList<ComponentDescriptor<?>>();
+                descriptorMap.put( realm, descriptors );
+            }
+            descriptors.add( descriptor );
         }
-        descriptors.add( descriptor );
         if ( containerRealm == realm )
         {
             discoverComponents( containerRealm ); // for Maven3 testing
@@ -421,18 +424,20 @@ public final class DefaultPlexusContainer
         try
         {
             final List<PlexusBeanModule> beanModules = new ArrayList<PlexusBeanModule>();
-
-            final ClassSpace space = new URLClassSpace( realm );
-            final List<ComponentDescriptor<?>> descriptors = descriptorMap.remove( realm );
-            if ( null != descriptors )
+            synchronized ( descriptorMap )
             {
-                beanModules.add( new ComponentDescriptorBeanModule( space, descriptors ) );
-            }
-            if ( realmIds.add( realm.getId() ) )
-            {
-                beanModules.add( new PlexusXmlBeanModule( space, variables ) );
-                final BeanScanning local = BeanScanning.GLOBAL_INDEX == scanning ? BeanScanning.INDEX : scanning;
-                beanModules.add( new PlexusAnnotatedBeanModule( space, variables, local ) );
+                final ClassSpace space = new URLClassSpace( realm );
+                final List<ComponentDescriptor<?>> descriptors = descriptorMap.remove( realm );
+                if ( null != descriptors )
+                {
+                    beanModules.add( new ComponentDescriptorBeanModule( space, descriptors ) );
+                }
+                if ( realmIds.add( realm.getId() ) )
+                {
+                    beanModules.add( new PlexusXmlBeanModule( space, variables ) );
+                    final BeanScanning local = BeanScanning.GLOBAL_INDEX == scanning ? BeanScanning.INDEX : scanning;
+                    beanModules.add( new PlexusAnnotatedBeanModule( space, variables, local ) );
+                }
             }
             if ( !beanModules.isEmpty() )
             {
@@ -718,13 +723,13 @@ public final class DefaultPlexusContainer
         }
         if ( PlexusConstants.REALM_VISIBILITY.equalsIgnoreCase( componentVisibility ) )
         {
-            final Collection<String> visibleNames = ClassRealmUtils.visibleRealmNames( threadContextRealm );
-            if ( !visibleNames.isEmpty() )
+            final Collection<String> realmNames = ClassRealmUtils.visibleRealmNames( threadContextRealm );
+            if ( null != realmNames && realmNames.size() > 0 )
             {
                 for ( int i = realms.length - 1; i >= 0; i-- )
                 {
                     final ClassRealm r = (ClassRealm) realms[i];
-                    if ( visibleNames.contains( r.toString() ) )
+                    if ( realmNames.contains( r.toString() ) )
                     {
                         visibleRealms.add( r );
                     }

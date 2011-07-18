@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,6 +29,8 @@ import org.sonatype.guice.bean.locators.NamedIterableAdapter;
 import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Parameters;
 
+import com.google.common.base.Function;
+import com.google.common.collect.MapMaker;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Provider;
@@ -277,6 +278,7 @@ final class BeanProvider<V>
  */
 @Singleton
 final class TypeConverterMap
+    implements Function<TypeLiteral<?>, TypeConverter>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -285,8 +287,24 @@ final class TypeConverterMap
     @Inject
     private Injector injector;
 
-    private final ConcurrentHashMap<TypeLiteral<?>, TypeConverter> converterMap =
-        new ConcurrentHashMap<TypeLiteral<?>, TypeConverter>( 16, 0.75f, 1 );
+    private final Map<TypeLiteral<?>, TypeConverter> converterMap =
+        new MapMaker().concurrencyLevel( 1 ).makeComputingMap( this );
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
+    public TypeConverter apply( final TypeLiteral<?> type )
+    {
+        for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
+        {
+            if ( b.getTypeMatcher().matches( type ) )
+            {
+                return b.getTypeConverter();
+            }
+        }
+        return null;
+    }
 
     // ----------------------------------------------------------------------
     // Shared methods
@@ -294,20 +312,7 @@ final class TypeConverterMap
 
     TypeConverter getTypeConverter( final TypeLiteral<?> type )
     {
-        TypeConverter converter = converterMap.get( type );
-        if ( null == converter )
-        {
-            for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
-            {
-                if ( b.getTypeMatcher().matches( type ) )
-                {
-                    converter = b.getTypeConverter();
-                    converterMap.putIfAbsent( type, converter );
-                    break;
-                }
-            }
-        }
-        return converter;
+        return converterMap.get( type );
     }
 }
 

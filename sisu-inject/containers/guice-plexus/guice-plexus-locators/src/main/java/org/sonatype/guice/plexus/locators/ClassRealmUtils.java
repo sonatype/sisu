@@ -8,7 +8,6 @@
 package org.sonatype.guice.plexus.locators;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -80,11 +79,7 @@ public final class ClassRealmUtils
 
     public static Set<String> visibleRealmNames( final ClassRealm contextRealm )
     {
-        if ( false == GET_IMPORT_REALMS_SUPPORTED || null == contextRealm )
-        {
-            return Collections.emptySet();
-        }
-        return visibleRealmNameCache.get( contextRealm );
+        return GET_IMPORT_REALMS_SUPPORTED && null != contextRealm ? visibleRealmNameCache.get( contextRealm ) : null;
     }
 
     // ----------------------------------------------------------------------
