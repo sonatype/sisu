@@ -29,7 +29,6 @@ import org.sonatype.guice.bean.locators.NamedIterableAdapter;
 import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Parameters;
 
-import com.google.common.base.Function;
 import com.google.common.collect.MapMaker;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -278,7 +277,6 @@ final class BeanProvider<V>
  */
 @Singleton
 final class TypeConverterMap
-    implements Function<TypeLiteral<?>, TypeConverter>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -287,24 +285,7 @@ final class TypeConverterMap
     @Inject
     private Injector injector;
 
-    private final Map<TypeLiteral<?>, TypeConverter> converterMap =
-        new MapMaker().concurrencyLevel( 1 ).makeComputingMap( this );
-
-    // ----------------------------------------------------------------------
-    // Public methods
-    // ----------------------------------------------------------------------
-
-    public TypeConverter apply( final TypeLiteral<?> type )
-    {
-        for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
-        {
-            if ( b.getTypeMatcher().matches( type ) )
-            {
-                return b.getTypeConverter();
-            }
-        }
-        return null;
-    }
+    private final Map<TypeLiteral<?>, TypeConverter> converterMap = new MapMaker().concurrencyLevel( 1 ).makeMap();
 
     // ----------------------------------------------------------------------
     // Shared methods
@@ -312,7 +293,20 @@ final class TypeConverterMap
 
     TypeConverter getTypeConverter( final TypeLiteral<?> type )
     {
-        return converterMap.get( type );
+        TypeConverter converter = converterMap.get( type );
+        if ( null == converter )
+        {
+            for ( final TypeConverterBinding b : injector.getTypeConverterBindings() )
+            {
+                if ( b.getTypeMatcher().matches( type ) )
+                {
+                    converter = b.getTypeConverter();
+                    converterMap.put( type, converter );
+                    break;
+                }
+            }
+        }
+        return converter;
     }
 }
 
