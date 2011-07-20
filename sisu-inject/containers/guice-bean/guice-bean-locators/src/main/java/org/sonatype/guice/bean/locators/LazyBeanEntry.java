@@ -33,7 +33,7 @@ final class LazyBeanEntry<Q extends Annotation, T>
 
     private final Q qualifier;
 
-    private final Binding<T> binding;
+    final Binding<T> binding;
 
     private final Provider<T> provider;
 
