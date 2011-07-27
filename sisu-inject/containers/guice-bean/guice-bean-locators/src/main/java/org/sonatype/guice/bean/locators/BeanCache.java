@@ -2,7 +2,6 @@ package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
 import java.util.IdentityHashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -10,8 +9,12 @@ import org.sonatype.inject.BeanEntry;
 
 import com.google.inject.Binding;
 
+/**
+ * Copy-on-write cache mapping {@link Binding}s to {@link BeanEntry}s; optimized for the common case of a single entry.
+ * Note: uses {@code ==} instead of {@code equals} to compare {@link Binding}s because we want referential equality.
+ */
 @SuppressWarnings( { "rawtypes", "unchecked" } )
-class BeanCache<Q extends Annotation, T>
+final class BeanCache<Q extends Annotation, T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -23,7 +26,63 @@ class BeanCache<Q extends Annotation, T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    public final BeanEntry<Q, T> get( final Binding<T> binding )
+    /**
+     * Atomically creates a new {@link BeanEntry} for this exact {@link Binding}.
+     * 
+     * @param qualifier The qualifier
+     * @param binding The binding
+     * @param rank The assigned rank
+     * @return Associated bean entry
+     */
+    public BeanEntry<Q, T> create( final Q qualifier, final Binding<T> binding, final int rank )
+    {
+        final BeanEntry newBean = new LazyBeanEntry( qualifier, binding, rank );
+
+        Object o, n;
+
+        /*
+         * Compare-and-swap approach; avoids locking without missing any updates
+         */
+        do
+        {
+            o = cache.get();
+            if ( null == o )
+            {
+                n = newBean; // most common case: adding the one (and-only) entry
+            }
+            else
+            {
+                final Map<Binding, BeanEntry> map;
+                if ( o instanceof LazyBeanEntry ) // promote single entry into map
+                {
+                    map = new IdentityHashMap(); // must use identity!
+                    final LazyBeanEntry entry = (LazyBeanEntry) o;
+                    map.put( entry.binding, entry );
+                }
+                else
+                {
+                    map = (Map) ( (IdentityHashMap) o ).clone(); // copy-on-write
+                }
+                final BeanEntry oldBean = map.put( binding, newBean );
+                if ( null != oldBean )
+                {
+                    return oldBean; // map already has an entry; use that instead
+                }
+                n = map;
+            }
+        }
+        while ( !cache.compareAndSet( o, n ) );
+
+        return newBean;
+    }
+
+    /**
+     * Retrieves the {@link BeanEntry} associated with this exact {@link Binding}.
+     * 
+     * @param binding The binding
+     * @return Associated bean entry
+     */
+    public BeanEntry<Q, T> get( final Binding<T> binding )
     {
         final Object o = cache.get();
         if ( null == o )
@@ -38,136 +97,43 @@ class BeanCache<Q extends Annotation, T>
         return ( (Map<Binding, BeanEntry>) o ).get( binding );
     }
 
-    public final BeanEntry<Q, T> create( final Q qualifier, final Binding<T> binding, final int rank )
+    /**
+     * Removes the {@link BeanEntry} associated with this exact {@link Binding}.
+     * 
+     * @param binding The binding
+     */
+    public void removeThis( final Binding<T> binding )
     {
-        final BeanEntry newBean = new LazyBeanEntry( qualifier, binding, rank );
+        Object o, n;
 
-        Object oldCache;
-        Object newCache;
-
-        BeanEntry oldBean;
-
+        /*
+         * Compare-and-swap approach; avoids locking without missing any updates
+         */
         do
         {
-            oldCache = cache.get();
-            if ( null == oldCache )
+            o = cache.get();
+            if ( null == o )
             {
-                newCache = newBean;
+                return;
+            }
+            else if ( o instanceof LazyBeanEntry )
+            {
+                if ( binding != ( (LazyBeanEntry) o ).binding )
+                {
+                    return;
+                }
+                n = null; // clear single entry
             }
             else
             {
-                if ( oldCache instanceof LazyBeanEntry )
+                final Map map = (Map) ( (IdentityHashMap) o ).clone(); // copy-on-write
+                if ( null == map.remove( binding ) )
                 {
-                    newCache = new IdentityHashMap();
-                    final LazyBeanEntry entry = (LazyBeanEntry) oldCache;
-                    ( (Map) newCache ).put( entry.binding, entry );
+                    return;
                 }
-                else
-                {
-                    newCache = ( (IdentityHashMap) oldCache ).clone();
-                }
-                oldBean = ( (Map<Binding, BeanEntry>) newCache ).put( binding, newBean );
-                if ( null != oldBean )
-                {
-                    return oldBean;
-                }
+                n = map.isEmpty() ? null : map; // avoid leaving empty maps around
             }
         }
-        while ( !flush( oldCache, newCache ) );
-
-        return newBean;
-    }
-
-    public final void remove( final Binding<T> binding )
-    {
-        Object oldCache;
-        Map newCache;
-
-        do
-        {
-            oldCache = cache.get();
-            if ( null == oldCache )
-            {
-                // ignore
-            }
-            else if ( oldCache instanceof LazyBeanEntry )
-            {
-                if ( binding == ( (LazyBeanEntry) oldCache ).binding )
-                {
-                    newCache = null;
-                    continue;
-                }
-            }
-            else if ( null != ( newCache = (Map) ( (IdentityHashMap) oldCache ).clone() ).remove( binding ) )
-            {
-                if ( newCache.isEmpty() )
-                {
-                    newCache = null;
-                }
-                continue;
-            }
-            return;
-        }
-        while ( !flush( oldCache, newCache ) );
-    }
-
-    public final void retainAll( final RankedList<Binding<T>> bindings )
-    {
-        Object oldCache;
-        Map newCache;
-
-        do
-        {
-            oldCache = cache.get();
-            if ( null == oldCache )
-            {
-                // ignore
-            }
-            else if ( bindings.isEmpty() )
-            {
-                newCache = null;
-                continue;
-            }
-            else if ( oldCache instanceof LazyBeanEntry )
-            {
-                if ( bindings.indexOfThis( ( (LazyBeanEntry) oldCache ).binding ) < 0 )
-                {
-                    newCache = null;
-                    continue;
-                }
-            }
-            else
-            {
-                boolean modified = false;
-                newCache = (Map) ( (IdentityHashMap) oldCache ).clone();
-                for ( final Iterator<Binding> itr = newCache.keySet().iterator(); itr.hasNext(); )
-                {
-                    if ( bindings.indexOfThis( itr.next() ) < 0 )
-                    {
-                        modified = true;
-                        itr.remove();
-                    }
-                }
-                if ( modified )
-                {
-                    if ( newCache.isEmpty() )
-                    {
-                        newCache = null;
-                    }
-                    continue;
-                }
-            }
-            return;
-        }
-        while ( !flush( oldCache, newCache ) );
-    }
-
-    // ----------------------------------------------------------------------
-    // Local methods
-    // ----------------------------------------------------------------------
-
-    boolean flush( final Object oldCache, final Object newCache )
-    {
-        return cache.compareAndSet( oldCache, newCache );
+        while ( !cache.compareAndSet( o, n ) );
     }
 }
