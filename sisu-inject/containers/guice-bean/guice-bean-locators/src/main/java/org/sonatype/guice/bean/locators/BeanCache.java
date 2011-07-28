@@ -1,6 +1,18 @@
+/*******************************************************************************
+ * Copyright (c) 2010-2011 Sonatype, Inc.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Apache License v2.0 which accompanies this distribution.
+ * The Eclipse Public License is available at
+ *   http://www.eclipse.org/legal/epl-v10.html
+ * The Apache License v2.0 is available at
+ *   http://www.apache.org/licenses/LICENSE-2.0.html
+ * You may elect to redistribute this code under either of these licenses.
+ *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
+import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -10,7 +22,7 @@ import org.sonatype.inject.BeanEntry;
 import com.google.inject.Binding;
 
 /**
- * Copy-on-write cache mapping {@link Binding}s to {@link BeanEntry}s; optimized for the common case of a single entry.
+ * Copy-on-write cache mapping {@link Binding}s to {@link BeanEntry}s; optimized for common case of single entries.
  * Note: uses {@code ==} instead of {@code equals} to compare {@link Binding}s because we want referential equality.
  */
 @SuppressWarnings( { "rawtypes", "unchecked" } )
@@ -27,7 +39,7 @@ final class BeanCache<Q extends Annotation, T>
     // ----------------------------------------------------------------------
 
     /**
-     * Atomically creates a new {@link BeanEntry} for this exact {@link Binding}.
+     * Atomically creates a new {@link BeanEntry} for the given {@link Binding} reference.
      * 
      * @param qualifier The qualifier
      * @param binding The binding
@@ -55,7 +67,7 @@ final class BeanCache<Q extends Annotation, T>
                 final Map<Binding, BeanEntry> map;
                 if ( o instanceof LazyBeanEntry ) // promote single entry into map
                 {
-                    map = new IdentityHashMap(); // must use identity!
+                    map = new IdentityHashMap();
                     final LazyBeanEntry entry = (LazyBeanEntry) o;
                     map.put( entry.binding, entry );
                 }
@@ -77,7 +89,7 @@ final class BeanCache<Q extends Annotation, T>
     }
 
     /**
-     * Retrieves the {@link BeanEntry} associated with this exact {@link Binding}.
+     * Retrieves the {@link BeanEntry} associated with the given {@link Binding} reference.
      * 
      * @param binding The binding
      * @return Associated bean entry
@@ -98,12 +110,15 @@ final class BeanCache<Q extends Annotation, T>
     }
 
     /**
-     * Removes the {@link BeanEntry} associated with this exact {@link Binding}.
+     * Removes the {@link BeanEntry} associated with the given {@link Binding} reference.
      * 
      * @param binding The binding
+     * @return Associated bean entry
      */
-    public void removeThis( final Binding<T> binding )
+    public BeanEntry<Q, T> remove( final Binding<T> binding )
     {
+        LazyBeanEntry oldBean;
+
         Object o, n;
 
         /*
@@ -114,26 +129,48 @@ final class BeanCache<Q extends Annotation, T>
             o = cache.get();
             if ( null == o )
             {
-                return;
+                return null;
             }
             else if ( o instanceof LazyBeanEntry )
             {
-                if ( binding != ( (LazyBeanEntry) o ).binding )
+                oldBean = (LazyBeanEntry) o;
+                if ( binding != oldBean.binding )
                 {
-                    return;
+                    return null;
                 }
                 n = null; // clear single entry
             }
             else
             {
                 final Map map = (Map) ( (IdentityHashMap) o ).clone(); // copy-on-write
-                if ( null == map.remove( binding ) )
+                if ( null == ( oldBean = (LazyBeanEntry) map.remove( binding ) ) )
                 {
-                    return;
+                    return null;
                 }
-                n = map.isEmpty() ? null : map; // avoid leaving empty maps around
+                n = map.isEmpty() ? null : map;
             }
         }
         while ( !cache.compareAndSet( o, n ) );
+
+        return oldBean;
+    }
+
+    /**
+     * Empties the cache and returns all previously associated {@link BeanEntry}s.
+     * 
+     * @return Cleared bean entries
+     */
+    public Iterable<BeanEntry<Q, T>> clear()
+    {
+        final Object o = cache.getAndSet( null );
+        if ( null == o )
+        {
+            return Collections.EMPTY_LIST;
+        }
+        else if ( o instanceof LazyBeanEntry )
+        {
+            return Collections.singletonList( (BeanEntry<Q, T>) o );
+        }
+        return ( (Map<?, BeanEntry<Q, T>>) o ).values();
     }
 }
