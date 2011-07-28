@@ -24,16 +24,17 @@ public interface BindingPublisher
      * 
      * @param type The binding type
      * @param subscriber The subscriber
+     * @return {@code true} if the publisher may send bindings of this type; otherwise {@code false}
      */
-    <T> void subscribe( TypeLiteral<T> type, BindingSubscriber subscriber );
+    <T> boolean subscribe( TypeLiteral<T> type, BindingSubscriber subscriber );
 
     /**
-     * Determines whether or not the given {@link Binding} belongs to this publisher.
+     * Determines whether or not the given {@link Binding} reference belongs to this publisher.
      * 
      * @param binding The binding
      * @return {@code true} if the binding belongs to this publisher; otherwise {@code false}
      */
-    <T> boolean contains( Binding<T> binding );
+    <T> boolean containsThis( Binding<T> binding );
 
     /**
      * Stops the given {@link BindingSubscriber} from receiving {@link Binding}s of the given type.

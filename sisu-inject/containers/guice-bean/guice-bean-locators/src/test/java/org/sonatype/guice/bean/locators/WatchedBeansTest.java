@@ -131,12 +131,13 @@ public class WatchedBeansTest
         final BindingSubscriber[] subscriberHolder = new BindingSubscriber[1];
         final BindingPublisher subscriberHook = new BindingPublisher()
         {
-            public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            public <T> boolean subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
             {
                 subscriberHolder[0] = subscriber;
+                return true;
             }
 
-            public <T> boolean contains( final Binding<T> binding )
+            public <T> boolean containsThis( final Binding<T> binding )
             {
                 return false;
             }
@@ -222,12 +223,13 @@ public class WatchedBeansTest
         final BindingSubscriber[] subscriberHolder = new BindingSubscriber[1];
         final BindingPublisher subscriberHook = new BindingPublisher()
         {
-            public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            public <T> boolean subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
             {
                 subscriberHolder[0] = subscriber;
+                return true;
             }
 
-            public <T> boolean contains( final Binding<T> binding )
+            public <T> boolean containsThis( final Binding<T> binding )
             {
                 return false;
             }

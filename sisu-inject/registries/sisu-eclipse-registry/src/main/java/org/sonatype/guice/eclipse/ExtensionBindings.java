@@ -58,8 +58,9 @@ final class ExtensionBindings
         locator.add( this, -1 );
     }
 
-    public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+    public <T> boolean subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
     {
+        boolean subscribed = false;
         final Class<?> clazz = type.getRawType();
         final String pointId = clazz.getPackage().getName(); // FIXME
         for ( final IConfigurationElement config : registry.getConfigurationElementsFor( pointId ) )
@@ -72,6 +73,7 @@ final class ExtensionBindings
                     if ( type.getRawType().isAssignableFrom( loadExtensionClass( config, name ) ) )
                     {
                         subscriber.add( new ExtensionBinding<T>( type, config ), 0 );
+                        subscribed = true;
                     }
                 }
             }
@@ -80,9 +82,10 @@ final class ExtensionBindings
                 // ignore
             }
         }
+        return subscribed;
     }
 
-    public <T> boolean contains( final Binding<T> binding )
+    public <T> boolean containsThis( final Binding<T> binding )
     {
         return binding instanceof ExtensionBinding<?>;
     }

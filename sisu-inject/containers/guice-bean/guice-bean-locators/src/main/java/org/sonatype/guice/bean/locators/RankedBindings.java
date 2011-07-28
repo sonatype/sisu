@@ -78,7 +78,7 @@ final class RankedBindings<T>
                     boolean updated = false;
                     for ( int i = 0; i < bindings.size(); i++ )
                     {
-                        if ( publisher.contains( bindings.get( i ) ) )
+                        if ( publisher.containsThis( bindings.get( i ) ) )
                         {
                             bindings.remove( i-- );
                             updated = true;

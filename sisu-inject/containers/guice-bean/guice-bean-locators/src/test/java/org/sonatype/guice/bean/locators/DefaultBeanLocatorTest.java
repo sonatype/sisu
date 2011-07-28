@@ -160,11 +160,12 @@ public class DefaultBeanLocatorTest
 
         assertFalse( new BindingPublisher()
         {
-            public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            public <T> boolean subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
             {
+                return false;
             }
 
-            public <T> boolean contains( final Binding<T> binding )
+            public <T> boolean containsThis( final Binding<T> binding )
             {
                 return false;
             }
@@ -176,11 +177,12 @@ public class DefaultBeanLocatorTest
 
         assertFalse( new InjectorPublisher( child2, function2 ).equals( new BindingPublisher()
         {
-            public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            public <T> boolean subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
             {
+                return false;
             }
 
-            public <T> boolean contains( final Binding<T> binding )
+            public <T> boolean containsThis( final Binding<T> binding )
             {
                 return false;
             }

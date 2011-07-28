@@ -56,21 +56,22 @@ final class InjectorPublisher
     // Public methods
     // ----------------------------------------------------------------------
 
-    public <T> void subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+    public <T> boolean subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
     {
-        publishBindings( type, subscriber, null );
+        boolean subscribed = publishBindings( type, subscriber, null );
         final Class<?> clazz = type.getRawType();
         if ( clazz != type.getType() )
         {
-            publishBindings( TypeLiteral.get( clazz ), subscriber, type );
+            subscribed |= publishBindings( TypeLiteral.get( clazz ), subscriber, type );
         }
         if ( clazz != Object.class )
         {
-            publishBindings( OBJECT_TYPE_LITERAL, subscriber, type );
+            subscribed |= publishBindings( OBJECT_TYPE_LITERAL, subscriber, type );
         }
+        return subscribed;
     }
 
-    public <T> boolean contains( final Binding<T> binding )
+    public <T> boolean containsThis( final Binding<T> binding )
     {
         // make sure we really own the binding: use identity not equality
         return binding == injector.getBindings().get( binding.getKey() );
@@ -131,9 +132,10 @@ final class InjectorPublisher
         return false;
     }
 
-    private void publishBindings( final TypeLiteral<?> searchType, final BindingSubscriber subscriber,
-                                  final TypeLiteral<?> superType )
+    private boolean publishBindings( final TypeLiteral<?> searchType, final BindingSubscriber subscriber,
+                                     final TypeLiteral<?> superType )
     {
+        boolean subscribed = false;
         final List<? extends Binding<?>> bindings = injector.findBindingsByType( searchType );
         for ( int i = 0, size = bindings.size(); i < size; i++ )
         {
@@ -141,7 +143,9 @@ final class InjectorPublisher
             if ( isVisible( binding ) && ( null == superType || isAssignableFrom( superType, binding ) ) )
             {
                 subscriber.add( binding, function.rank( binding ) );
+                subscribed = true;
             }
         }
+        return subscribed;
     }
 }

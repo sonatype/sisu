@@ -78,7 +78,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
 
         for ( final Binding<T> b : new ArrayList<Binding<T>>( beanCache.keySet() ) )
         {
-            if ( publisher.contains( b ) )
+            if ( publisher.containsThis( b ) )
             {
                 notify( WatcherEvent.REMOVE, beanCache.remove( b ) );
             }
