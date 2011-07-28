@@ -110,7 +110,10 @@
               <!-- our implementation APIs -->
               org.sonatype.guice.bean.*;x-internal:=true;version=${project.version}
             </Export-Package>
-            <Require-Bundle>org.sonatype.sisu.guice</Require-Bundle>
+            <Require-Bundle>
+              org.sonatype.sisu.guava,
+              org.sonatype.sisu.guice
+            </Require-Bundle>
             <Import-Package>
               <!-- these APIs are substitutable -->
               javax.inject;javax.enterprise.inject,
