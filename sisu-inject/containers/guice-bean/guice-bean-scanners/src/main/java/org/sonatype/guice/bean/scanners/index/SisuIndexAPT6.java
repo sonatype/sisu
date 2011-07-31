@@ -84,7 +84,7 @@ public final class SisuIndexAPT6
     public Iterable<? extends Completion> getCompletions( final Element element, final AnnotationMirror annotation,
                                                           final ExecutableElement member, final String userText )
     {
-        return Collections.emptyList();
+        return Collections.emptySet();
     }
 
     public Set<String> getSupportedAnnotationTypes()

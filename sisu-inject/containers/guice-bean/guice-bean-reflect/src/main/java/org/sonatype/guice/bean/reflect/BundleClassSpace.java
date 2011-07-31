@@ -14,7 +14,6 @@ package org.sonatype.guice.bean.reflect;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -37,7 +36,7 @@ public final class BundleClassSpace
 
     private static final URL[] NO_URLS = {};
 
-    private static final Enumeration<URL> NO_ENTRIES = Collections.enumeration( Arrays.asList( NO_URLS ) );
+    private static final Enumeration<URL> NO_ENTRIES = Collections.enumeration( Collections.<URL> emptySet() );
 
     // ----------------------------------------------------------------------
     // Implementation fields

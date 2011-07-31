@@ -291,7 +291,7 @@ final class PseudoPlexusContainer
         {
             // continue...
         }
-        return Collections.EMPTY_LIST;
+        return Collections.EMPTY_SET;
     }
 
     private static <T> boolean hasPlexusBeans( final Iterable<PlexusBean<T>> beans )

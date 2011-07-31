@@ -35,7 +35,7 @@ final class ResourceEnumeration
     // Constants
     // ----------------------------------------------------------------------
 
-    private static final Iterator<String> NO_ENTRIES = Collections.<String> emptyList().iterator();
+    private static final Iterator<String> NO_ENTRIES = Collections.<String> emptySet().iterator();
 
     // ----------------------------------------------------------------------
     // Implementation fields

@@ -110,6 +110,25 @@ final class BeanCache<Q extends Annotation, T>
     }
 
     /**
+     * Retrieves the {@link Binding} references currently associated with {@link BeanEntry}s.
+     * 
+     * @return Associated bindings
+     */
+    public Iterable<Binding<T>> bindings()
+    {
+        final Object o = cache.get();
+        if ( null == o )
+        {
+            return Collections.EMPTY_SET;
+        }
+        else if ( o instanceof LazyBeanEntry )
+        {
+            return Collections.singleton( ( (LazyBeanEntry<?, T>) o ).binding );
+        }
+        return ( (Map<Binding<T>, ?>) o ).keySet();
+    }
+
+    /**
      * Removes the {@link BeanEntry} associated with the given {@link Binding} reference.
      * 
      * @param binding The binding
@@ -153,24 +172,5 @@ final class BeanCache<Q extends Annotation, T>
         while ( !cache.compareAndSet( o, n ) );
 
         return oldBean;
-    }
-
-    /**
-     * Empties the cache and returns all previously associated {@link BeanEntry}s.
-     * 
-     * @return Cleared bean entries
-     */
-    public Iterable<BeanEntry<Q, T>> clear()
-    {
-        final Object o = cache.getAndSet( null );
-        if ( null == o )
-        {
-            return Collections.EMPTY_LIST;
-        }
-        else if ( o instanceof LazyBeanEntry )
-        {
-            return Collections.singletonList( (BeanEntry<Q, T>) o );
-        }
-        return ( (Map<?, BeanEntry<Q, T>>) o ).values();
     }
 }

@@ -677,7 +677,7 @@ public final class DefaultPlexusContainer
     {
         if ( disposing )
         {
-            return Collections.EMPTY_LIST;
+            return Collections.EMPTY_SET;
         }
         final String[] canonicalHints = Hints.canonicalHints( hints );
         if ( null == role || null != type && type.getName().equals( role ) )
@@ -704,7 +704,7 @@ public final class DefaultPlexusContainer
                 // continue...
             }
         }
-        return Collections.EMPTY_LIST;
+        return Collections.EMPTY_SET;
     }
 
     private Collection<ClassRealm> getVisibleRealms()

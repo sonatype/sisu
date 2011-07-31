@@ -32,9 +32,4 @@ public interface BindingSubscriber
      * @param binding The old binding
      */
     <T> void remove( Binding<T> binding );
-
-    /**
-     * Removes all known {@link Binding}s from this subscriber.
-     */
-    void clear();
 }
