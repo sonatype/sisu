@@ -84,7 +84,7 @@ public class RankedBindingsTest
 
     public void testExistingExporters()
     {
-        final RankedList<BindingPublisher> exporters = new RankedList<BindingPublisher>();
+        final RankedSequence<BindingPublisher> exporters = new RankedSequence<BindingPublisher>();
 
         RankingFunction function;
 

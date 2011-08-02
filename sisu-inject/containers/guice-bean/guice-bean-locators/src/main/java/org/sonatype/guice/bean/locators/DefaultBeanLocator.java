@@ -43,7 +43,7 @@ public final class DefaultBeanLocator
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final RankedList<BindingPublisher> publishers = new RankedList<BindingPublisher>();
+    private final RankedSequence<BindingPublisher> publishers = new RankedSequence<BindingPublisher>();
 
     private final Map<TypeLiteral, RankedBindings> bindingsCache = new HashMap<TypeLiteral, RankedBindings>();
 

@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Simple collection of elements held by {@link WeakReference}s; automatically compacts on read/write.
  */
-final class WeakReferences<T>
+final class WeakSequence<T>
     implements Iterable<T>
 {
     // ----------------------------------------------------------------------

@@ -11,21 +11,18 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
-import java.util.AbstractCollection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
-import java.util.RandomAccess;
 
 /**
  * Sorted {@link List} that arranges elements by descending rank; supports concurrent iteration and modification.
  */
-final class RankedList<T>
-    extends AbstractCollection<T>
-    implements List<T>, RandomAccess, Cloneable
+final class RankedSequence<T>
+    implements Iterable<T>, Cloneable
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -154,13 +151,11 @@ final class RankedList<T>
         return -1;
     }
 
-    @Override
     public boolean contains( final Object o )
     {
         return indexOf( o ) >= 0;
     }
 
-    @Override
     public boolean remove( final Object o )
     {
         final int index = indexOf( o );
@@ -198,15 +193,15 @@ final class RankedList<T>
     }
 
     /**
-     * @return Shallow copy of this {@link RankedList} instance.
+     * @return Shallow copy of this {@link RankedSequence} instance.
      */
     @Override
-    public RankedList<T> clone()
+    public RankedSequence<T> clone()
     {
         try
         {
             @SuppressWarnings( "unchecked" )
-            final RankedList<T> clone = (RankedList<T>) super.clone();
+            final RankedSequence<T> clone = (RankedSequence<T>) super.clone();
             if ( null != objs )
             {
                 clone.objs = objs.clone();
@@ -220,7 +215,6 @@ final class RankedList<T>
         }
     }
 
-    @Override
     public void clear()
     {
         objs = null;
@@ -232,19 +226,16 @@ final class RankedList<T>
         isCached = false;
     }
 
-    @Override
     public int size()
     {
         return size;
     }
 
-    @Override
     public boolean isEmpty()
     {
         return 0 == size;
     }
 
-    @Override
     public Itr iterator()
     {
         return new Itr();
@@ -409,7 +400,7 @@ final class RankedList<T>
         {
             if ( expectedSize != size || expectedUniq != uniq )
             {
-                synchronized ( RankedList.this )
+                synchronized ( RankedSequence.this )
                 {
                     // reposition ourselves in the list
                     index = safeBinarySearch( nextUID );

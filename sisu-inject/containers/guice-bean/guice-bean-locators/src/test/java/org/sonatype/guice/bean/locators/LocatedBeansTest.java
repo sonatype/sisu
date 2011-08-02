@@ -89,7 +89,7 @@ public class LocatedBeansTest
         final Iterator<BeanEntry<Annotation, Bean>> itr1 = beans.iterator();
         final Iterator<BeanEntry<Annotation, Bean>> itr2 = beans.iterator();
 
-        beans.retainAll( new RankedList<Binding<Bean>>() );
+        beans.retainAll( new RankedSequence<Binding<Bean>>() );
 
         Bean a, b;
 
@@ -101,7 +101,7 @@ public class LocatedBeansTest
         assertSame( a, itr2.next().getValue() );
 
         a = itr1.next().getValue();
-        beans.retainAll( new RankedList<Binding<Bean>>() );
+        beans.retainAll( new RankedSequence<Binding<Bean>>() );
         b = itr2.next().getValue();
 
         assertFalse( a == b );

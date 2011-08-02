@@ -81,7 +81,7 @@ final class LocatedBeans<Q extends Annotation, T>
      * 
      * @param activeBindings The active bindings
      */
-    synchronized void retainAll( final RankedList<Binding<T>> activeBindings )
+    synchronized void retainAll( final RankedSequence<Binding<T>> activeBindings )
     {
         if ( readCache.size() > 0 )
         {

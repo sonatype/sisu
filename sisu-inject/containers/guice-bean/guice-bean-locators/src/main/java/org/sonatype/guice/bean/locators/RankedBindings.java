@@ -35,11 +35,11 @@ final class RankedBindings<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    final RankedList<Binding<T>> bindings = new RankedList<Binding<T>>();
+    final RankedSequence<Binding<T>> bindings = new RankedSequence<Binding<T>>();
 
     final List<Reference<LocatedBeans<?, T>>> locatedBeanRefs = new ArrayList<Reference<LocatedBeans<?, T>>>();
 
-    final RankedList<BindingPublisher> pendingPublishers;
+    final RankedSequence<BindingPublisher> pendingPublishers;
 
     final TypeLiteral<T> type;
 
@@ -47,9 +47,9 @@ final class RankedBindings<T>
     // Constructors
     // ----------------------------------------------------------------------
 
-    RankedBindings( final TypeLiteral<T> type, final RankedList<BindingPublisher> publishers )
+    RankedBindings( final TypeLiteral<T> type, final RankedSequence<BindingPublisher> publishers )
     {
-        pendingPublishers = null != publishers ? publishers.clone() : new RankedList<BindingPublisher>();
+        pendingPublishers = null != publishers ? publishers.clone() : new RankedSequence<BindingPublisher>();
         this.type = type;
     }
 
@@ -220,7 +220,7 @@ final class RankedBindings<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final RankedList<Binding<T>>.Itr itr = bindings.iterator();
+        private final RankedSequence<Binding<T>>.Itr itr = bindings.iterator();
 
         // ----------------------------------------------------------------------
         // Public methods

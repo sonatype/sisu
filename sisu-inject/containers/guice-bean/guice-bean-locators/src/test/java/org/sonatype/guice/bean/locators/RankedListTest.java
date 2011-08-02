@@ -32,11 +32,11 @@ public class RankedListTest
 
     static final int CONCURRENCY = 3;
 
-    static final RankedList<Integer> rankedList = new RankedList<Integer>();
+    static final RankedSequence<Integer> rankedList = new RankedSequence<Integer>();
 
     public void testOrdering()
     {
-        final RankedList<String> list = new RankedList<String>();
+        final RankedSequence<String> list = new RankedSequence<String>();
 
         list.insert( "A1", Integer.MAX_VALUE );
         list.insert( "F", Integer.MIN_VALUE + 1 );
@@ -118,7 +118,7 @@ public class RankedListTest
 
     public void testRankQuery()
     {
-        final RankedList<String> list = new RankedList<String>();
+        final RankedSequence<String> list = new RankedSequence<String>();
 
         assertEquals( 0, list.size() );
 
@@ -188,7 +188,7 @@ public class RankedListTest
 
     public void testIndexing()
     {
-        final RankedList<String> list = new RankedList<String>();
+        final RankedSequence<String> list = new RankedSequence<String>();
 
         final String markerString = new String( "A" );
 
@@ -205,7 +205,7 @@ public class RankedListTest
 
     public void testEmptyList()
     {
-        final Iterator<Object> itr = new RankedList<Object>().iterator();
+        final Iterator<Object> itr = new RankedSequence<Object>().iterator();
 
         assertFalse( itr.hasNext() );
 
@@ -232,7 +232,7 @@ public class RankedListTest
 
     public void testBounds()
     {
-        final RankedList<Object> list = new RankedList<Object>();
+        final RankedSequence<Object> list = new RankedSequence<Object>();
 
         list.insert( "Test", 42 );
 
@@ -334,13 +334,13 @@ public class RankedListTest
 
     public void testCloneable()
     {
-        final RankedList<String> list = new RankedList<String>();
+        final RankedSequence<String> list = new RankedSequence<String>();
 
         list.insert( "X", -1 );
         list.insert( "Y", 0 );
         list.insert( "Z", 1 );
 
-        final RankedList<String> clone = list.clone();
+        final RankedSequence<String> clone = list.clone();
 
         clone.insert( clone.remove( 0 ), -1 );
         clone.insert( clone.remove( 1 ), 1 );
@@ -359,7 +359,7 @@ public class RankedListTest
     @SuppressWarnings( "deprecation" )
     public void testUnsupportedMethods()
     {
-        final RankedList<Object> list = new RankedList<Object>();
+        final RankedSequence<Object> list = new RankedSequence<Object>();
 
         try
         {

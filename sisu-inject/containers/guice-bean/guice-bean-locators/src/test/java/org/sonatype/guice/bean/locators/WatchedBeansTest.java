@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
-import java.util.Arrays;
+import java.util.Iterator;
 
 import javax.inject.Named;
 
@@ -89,14 +89,14 @@ public class WatchedBeansTest
     }
 
     static class RankingMediator
-        implements Mediator<Named, Bean, RankedList<String>>
+        implements Mediator<Named, Bean, RankedSequence<String>>
     {
-        public void add( final BeanEntry<Named, Bean> entry, final RankedList<String> names )
+        public void add( final BeanEntry<Named, Bean> entry, final RankedSequence<String> names )
         {
             names.insert( entry.getKey().value(), entry.getRank() );
         }
 
-        public void remove( final BeanEntry<Named, Bean> entry, final RankedList<String> names )
+        public void remove( final BeanEntry<Named, Bean> entry, final RankedSequence<String> names )
         {
             final int index = names.indexOfThis( entry.getKey().value() );
 
@@ -114,7 +114,7 @@ public class WatchedBeansTest
     public void testWatchedBeans()
     {
         final MutableBeanLocator locator = new DefaultBeanLocator();
-        RankedList<String> names = new RankedList<String>();
+        RankedSequence<String> names = new RankedSequence<String>();
 
         locator.watch( Key.get( Bean.class, Named.class ), new RankingMediator(), names );
 
@@ -122,11 +122,11 @@ public class WatchedBeansTest
 
         locator.add( parent, 0 );
 
-        assertTrue( Arrays.equals( new Object[] { "A", "B", "C" }, names.toArray() ) );
+        checkNames( names, "A", "B", "C" );
 
         locator.add( child1, 1 );
 
-        assertTrue( Arrays.equals( new Object[] { "X", "A", "B", "C" }, names.toArray() ) );
+        checkNames( names, "X", "A", "B", "C" );
 
         final BindingSubscriber[] subscriberHolder = new BindingSubscriber[1];
         final BindingPublisher subscriberHook = new BindingPublisher()
@@ -154,11 +154,11 @@ public class WatchedBeansTest
         subscriberHolder[0].add( child2.getBinding( Key.get( Bean.class, Names.named( "Y" ) ) ), Integer.MIN_VALUE );
         subscriberHolder[0].add( child2.getBinding( Key.get( Bean.class, Marked.class ) ), Integer.MIN_VALUE );
 
-        assertTrue( Arrays.equals( new Object[] { "X", "A", "B", "C", "Y" }, names.toArray() ) );
+        checkNames( names, "X", "A", "B", "C", "Y" );
 
         locator.remove( parent );
 
-        assertTrue( Arrays.equals( new Object[] { "X", "Y" }, names.toArray() ) );
+        checkNames( names, "X", "Y" );
 
         subscriberHolder[0].remove( child2.getBinding( Key.get( Bean.class, Names.named( "Y" ) ) ) );
         subscriberHolder[0].remove( child2.getBinding( Key.get( Bean.class, Marked.class ) ) );
@@ -166,27 +166,27 @@ public class WatchedBeansTest
         locator.remove( subscriberHook );
         assertNull( subscriberHolder[0] );
 
-        assertTrue( Arrays.equals( new Object[] { "X" }, names.toArray() ) );
+        checkNames( names, "X" );
 
         locator.add( child1, 42 );
 
-        assertTrue( Arrays.equals( new Object[] { "X" }, names.toArray() ) );
+        checkNames( names, "X" );
 
         locator.remove( subscriberHook );
 
-        assertTrue( Arrays.equals( new Object[] { "X" }, names.toArray() ) );
+        checkNames( names, "X" );
 
         locator.add( child3, 3 );
 
-        assertTrue( Arrays.equals( new Object[] { "Z", "X" }, names.toArray() ) );
+        checkNames( names, "Z", "X" );
 
         locator.add( parent, 2 );
 
-        assertTrue( Arrays.equals( new Object[] { "Z", "A", "B", "C", "X" }, names.toArray() ) );
+        checkNames( names, "Z", "A", "B", "C", "X" );
 
         locator.clear();
 
-        assertTrue( Arrays.equals( new Object[0], names.toArray() ) );
+        checkNames( names );
 
         names = null;
         System.gc();
@@ -250,5 +250,15 @@ public class WatchedBeansTest
 
         subscriberHolder[0].remove( child2.getBinding( Key.get( Bean.class, Names.named( "Y" ) ) ) );
         subscriberHolder[0].remove( child2.getBinding( Key.get( Bean.class, Marked.class ) ) );
+    }
+
+    private static void checkNames( final Iterable<String> actual, final String... expected )
+    {
+    	final Iterator<String> itr = actual.iterator();
+    	for (final String n : expected)
+    	{
+    		assertEquals( n, itr.next() );
+		}
+    	assertFalse( itr.hasNext() );
     }
 }
