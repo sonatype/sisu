@@ -28,7 +28,6 @@ import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 
@@ -160,7 +159,7 @@ public class DefaultBeanLocatorTest
 
         assertFalse( new BindingPublisher()
         {
-            public <T> boolean subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            public <T> boolean subscribe( final BindingSubscriber<T> subscriber )
             {
                 return false;
             }
@@ -170,14 +169,14 @@ public class DefaultBeanLocatorTest
                 return false;
             }
 
-            public <T> void unsubscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            public <T> void unsubscribe( final BindingSubscriber<T> subscriber )
             {
             }
         }.equals( new InjectorPublisher( child1, function1 ) ) );
 
         assertFalse( new InjectorPublisher( child2, function2 ).equals( new BindingPublisher()
         {
-            public <T> boolean subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            public <T> boolean subscribe( final BindingSubscriber<T> subscriber )
             {
                 return false;
             }
@@ -187,7 +186,7 @@ public class DefaultBeanLocatorTest
                 return false;
             }
 
-            public <T> void unsubscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            public <T> void unsubscribe( final BindingSubscriber<T> subscriber )
             {
             }
         } ) );

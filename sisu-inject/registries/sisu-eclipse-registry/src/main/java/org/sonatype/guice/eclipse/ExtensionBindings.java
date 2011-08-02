@@ -58,9 +58,10 @@ final class ExtensionBindings
         locator.add( this, -1 );
     }
 
-    public <T> boolean subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+    public <T> boolean subscribe( final BindingSubscriber<T> subscriber )
     {
         boolean subscribed = false;
+        final TypeLiteral<T> type = subscriber.type();
         final Class<?> clazz = type.getRawType();
         final String pointId = clazz.getPackage().getName(); // FIXME
         for ( final IConfigurationElement config : registry.getConfigurationElementsFor( pointId ) )
@@ -90,7 +91,7 @@ final class ExtensionBindings
         return binding instanceof ExtensionBinding<?>;
     }
 
-    public <T> void unsubscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+    public <T> void unsubscribe( final BindingSubscriber<T> subscriber )
     {
         // nothing to do, we don't publish injector bindings asynchronously
     }

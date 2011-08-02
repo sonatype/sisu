@@ -12,24 +12,32 @@
 package org.sonatype.guice.bean.locators.spi;
 
 import com.google.inject.Binding;
+import com.google.inject.TypeLiteral;
 
 /**
  * Subscriber of {@link Binding}s from one or more {@link BindingPublisher}s.
  */
-public interface BindingSubscriber
+public interface BindingSubscriber<T>
 {
+    /**
+     * Returns the type of {@link Binding}s that are of interest.
+     * 
+     * @return The literal type
+     */
+    TypeLiteral<T> type();
+
     /**
      * Adds the given ranked {@link Binding} to this subscriber.
      * 
      * @param binding The new binding
      * @param rank The assigned rank
      */
-    <T> void add( Binding<T> binding, int rank );
+    void add( Binding<T> binding, int rank );
 
     /**
      * Removes the given {@link Binding} from this subscriber.
      * 
      * @param binding The old binding
      */
-    <T> void remove( Binding<T> binding );
+    void remove( Binding<T> binding );
 }

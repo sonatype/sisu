@@ -30,7 +30,6 @@ import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
 public class WatchedBeansTest
@@ -110,7 +109,7 @@ public class WatchedBeansTest
         }
     }
 
-    @SuppressWarnings( "deprecation" )
+    @SuppressWarnings( { "deprecation", "rawtypes", "unchecked" } )
     public void testWatchedBeans()
     {
         final MutableBeanLocator locator = new DefaultBeanLocator();
@@ -131,7 +130,7 @@ public class WatchedBeansTest
         final BindingSubscriber[] subscriberHolder = new BindingSubscriber[1];
         final BindingPublisher subscriberHook = new BindingPublisher()
         {
-            public <T> boolean subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            public <T> boolean subscribe( final BindingSubscriber<T> subscriber )
             {
                 subscriberHolder[0] = subscriber;
                 return true;
@@ -142,7 +141,7 @@ public class WatchedBeansTest
                 return false;
             }
 
-            public <T> void unsubscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            public <T> void unsubscribe( final BindingSubscriber<T> subscriber )
             {
                 subscriberHolder[0] = null;
             }
@@ -209,7 +208,7 @@ public class WatchedBeansTest
         }
     }
 
-    @SuppressWarnings( "deprecation" )
+    @SuppressWarnings( { "deprecation", "rawtypes", "unchecked" } )
     public void testBrokenWatcher()
     {
         final MutableBeanLocator locator = new DefaultBeanLocator();
@@ -223,7 +222,7 @@ public class WatchedBeansTest
         final BindingSubscriber[] subscriberHolder = new BindingSubscriber[1];
         final BindingPublisher subscriberHook = new BindingPublisher()
         {
-            public <T> boolean subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            public <T> boolean subscribe( final BindingSubscriber<T> subscriber )
             {
                 subscriberHolder[0] = subscriber;
                 return true;
@@ -234,7 +233,7 @@ public class WatchedBeansTest
                 return false;
             }
 
-            public <T> void unsubscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+            public <T> void unsubscribe( final BindingSubscriber<T> subscriber )
             {
                 subscriberHolder[0] = null;
             }
@@ -254,11 +253,11 @@ public class WatchedBeansTest
 
     private static void checkNames( final Iterable<String> actual, final String... expected )
     {
-    	final Iterator<String> itr = actual.iterator();
-    	for (final String n : expected)
-    	{
-    		assertEquals( n, itr.next() );
-		}
-    	assertFalse( itr.hasNext() );
+        final Iterator<String> itr = actual.iterator();
+        for ( final String n : expected )
+        {
+            assertEquals( n, itr.next() );
+        }
+        assertFalse( itr.hasNext() );
     }
 }

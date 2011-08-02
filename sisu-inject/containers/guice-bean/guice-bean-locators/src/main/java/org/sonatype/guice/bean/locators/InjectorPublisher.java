@@ -56,8 +56,9 @@ final class InjectorPublisher
     // Public methods
     // ----------------------------------------------------------------------
 
-    public <T> boolean subscribe( final TypeLiteral<T> type, final BindingSubscriber subscriber )
+    public <T> boolean subscribe( final BindingSubscriber<T> subscriber )
     {
+        final TypeLiteral<T> type = subscriber.type();
         boolean subscribed = publishBindings( type, subscriber, null );
         final Class<?> clazz = type.getRawType();
         if ( clazz != type.getType() )
@@ -77,7 +78,7 @@ final class InjectorPublisher
         return binding == injector.getBindings().get( binding.getKey() );
     }
 
-    public <T> void unsubscribe( final TypeLiteral<T> type, final BindingSubscriber importer )
+    public <T> void unsubscribe( final BindingSubscriber<T> importer )
     {
         // nothing to do, we don't publish injector bindings asynchronously
     }
@@ -132,14 +133,15 @@ final class InjectorPublisher
         return false;
     }
 
-    private boolean publishBindings( final TypeLiteral<?> searchType, final BindingSubscriber subscriber,
-                                     final TypeLiteral<?> superType )
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    private boolean publishBindings( final TypeLiteral searchType, final BindingSubscriber subscriber,
+                                     final TypeLiteral superType )
     {
         boolean subscribed = false;
-        final List<? extends Binding<?>> bindings = injector.findBindingsByType( searchType );
+        final List<Binding<?>> bindings = injector.findBindingsByType( searchType );
         for ( int i = 0, size = bindings.size(); i < size; i++ )
         {
-            final Binding<?> binding = bindings.get( i );
+            final Binding binding = bindings.get( i );
             if ( isVisible( binding ) && ( null == superType || isAssignableFrom( superType, binding ) ) )
             {
                 subscriber.add( binding, function.rank( binding ) );

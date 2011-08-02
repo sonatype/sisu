@@ -12,7 +12,6 @@
 package org.sonatype.guice.bean.locators.spi;
 
 import com.google.inject.Binding;
-import com.google.inject.TypeLiteral;
 
 /**
  * Publisher of {@link Binding}s to interested {@link BindingSubscriber}s.
@@ -20,13 +19,12 @@ import com.google.inject.TypeLiteral;
 public interface BindingPublisher
 {
     /**
-     * Subscribes the given {@link BindingSubscriber} to receive {@link Binding}s of the given type.
+     * Subscribes the given {@link BindingSubscriber} to receive {@link Binding}s.
      * 
-     * @param type The binding type
      * @param subscriber The subscriber
      * @return {@code true} if the publisher may send bindings of this type; otherwise {@code false}
      */
-    <T> boolean subscribe( TypeLiteral<T> type, BindingSubscriber subscriber );
+    <T> boolean subscribe( BindingSubscriber<T> subscriber );
 
     /**
      * Determines whether or not the given {@link Binding} reference belongs to this publisher.
@@ -37,10 +35,9 @@ public interface BindingPublisher
     <T> boolean containsThis( Binding<T> binding );
 
     /**
-     * Stops the given {@link BindingSubscriber} from receiving {@link Binding}s of the given type.
+     * Stops the given {@link BindingSubscriber} from receiving {@link Binding}s.
      * 
-     * @param type The binding type
      * @param subscriber The subscriber
      */
-    <T> void unsubscribe( TypeLiteral<T> type, BindingSubscriber subscriber );
+    <T> void unsubscribe( BindingSubscriber<T> subscriber );
 }

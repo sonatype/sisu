@@ -29,7 +29,7 @@ import com.google.inject.TypeLiteral;
  * Ordered sequence of {@link Binding}s of a given type; subscribes to {@link BindingPublisher}s on demand.
  */
 final class RankedBindings<T>
-    implements Iterable<Binding<T>>, BindingDistributor, BindingSubscriber
+    implements Iterable<Binding<T>>, BindingDistributor, BindingSubscriber<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -72,7 +72,7 @@ final class RankedBindings<T>
             // extra cleanup if we're already subscribed
             if ( !pendingPublishers.remove( publisher ) )
             {
-                publisher.unsubscribe( type, this );
+                publisher.unsubscribe( this );
                 synchronized ( bindings )
                 {
                     boolean updated = false;
@@ -91,6 +91,11 @@ final class RankedBindings<T>
                 }
             }
         }
+    }
+
+    public TypeLiteral<T> type()
+    {
+        return type;
     }
 
     @SuppressWarnings( { "rawtypes", "unchecked" } )
@@ -237,7 +242,7 @@ final class RankedBindings<T>
                     {
                         // be careful not to remove the pending publisher until after it's used
                         // otherwise another iterator could skip past the initial size() check!
-                        pendingPublishers.get( 0 ).subscribe( type, RankedBindings.this );
+                        pendingPublishers.get( 0 ).subscribe( RankedBindings.this );
                         pendingPublishers.remove( 0 );
                     }
                 }

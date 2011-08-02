@@ -27,6 +27,7 @@ import org.sonatype.inject.Mediator;
 
 import com.google.inject.Binding;
 import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
 
 /**
  * Provides dynamic {@link BeanEntry} notifications by tracking qualified {@link Binding}s.
@@ -34,7 +35,7 @@ import com.google.inject.Key;
  * @see BeanLocator#watch(Key, Mediator, Object)
  */
 final class WatchedBeans<Q extends Annotation, T, W>
-    implements BindingDistributor, BindingSubscriber
+    implements BindingDistributor, BindingSubscriber<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -69,12 +70,12 @@ final class WatchedBeans<Q extends Annotation, T, W>
 
     public synchronized void add( final BindingPublisher publisher, final int rank )
     {
-        publisher.subscribe( key.getTypeLiteral(), this );
+        publisher.subscribe( this );
     }
 
     public synchronized void remove( final BindingPublisher publisher )
     {
-        publisher.unsubscribe( key.getTypeLiteral(), this );
+        publisher.unsubscribe( this );
 
         for ( final Binding<T> b : new ArrayList<Binding<T>>( beanCache.keySet() ) )
         {
@@ -83,6 +84,11 @@ final class WatchedBeans<Q extends Annotation, T, W>
                 notify( WatcherEvent.REMOVE, beanCache.remove( b ) );
             }
         }
+    }
+
+    public TypeLiteral<T> type()
+    {
+        return key.getTypeLiteral();
     }
 
     @SuppressWarnings( { "rawtypes", "unchecked" } )
