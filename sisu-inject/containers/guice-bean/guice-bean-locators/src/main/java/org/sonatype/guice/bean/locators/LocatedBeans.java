@@ -12,11 +12,7 @@
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
-import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import org.sonatype.inject.BeanEntry;
@@ -44,8 +40,7 @@ final class LocatedBeans<Q extends Annotation, T>
 
     final QualifyingStrategy strategy;
 
-    @SuppressWarnings( "unchecked" )
-    volatile Map<Binding<T>, BeanEntry<Q, T>> readCache = Collections.EMPTY_MAP;
+    final BeanCache<Q, T> beans = new BeanCache<Q, T>();
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -81,47 +76,15 @@ final class LocatedBeans<Q extends Annotation, T>
      * 
      * @param activeBindings The active bindings
      */
-    synchronized void retainAll( final RankedSequence<Binding<T>> activeBindings )
+    void retainAll( final RankedSequence<Binding<T>> activeBindings )
     {
-        if ( readCache.size() > 0 )
+        for ( final Binding<T> binding : beans.bindings() )
         {
-            @SuppressWarnings( { "rawtypes", "unchecked" } )
-            final Map<Binding<T>, BeanEntry<Q, T>> tempCache = (Map) ( (IdentityHashMap) readCache ).clone();
-            for ( final Iterator<Entry<Binding<T>, BeanEntry<Q, T>>> i = tempCache.entrySet().iterator(); i.hasNext(); )
+            if ( activeBindings.indexOfThis( binding ) < 0 )
             {
-                if ( activeBindings.indexOfThis( i.next().getKey() ) < 0 )
-                {
-                    i.remove();
-                }
+                beans.remove( binding );
             }
-            readCache = tempCache;
         }
-    }
-
-    /**
-     * Caches a {@link BeanEntry} for the given qualified binding; returns existing entry if already cached.
-     * 
-     * @param qualifier The qualifier
-     * @param binding The binding
-     * @param rank The assigned rank
-     * @return Cached bean entry
-     */
-    synchronized BeanEntry<Q, T> cacheBean( final Q qualifier, final Binding<T> binding, final int rank )
-    {
-        BeanEntry<Q, T> bean = readCache.get( binding );
-        if ( null == bean )
-        {
-            bean = new LazyBeanEntry<Q, T>( qualifier, binding, rank );
-
-            @SuppressWarnings( { "rawtypes", "unchecked" } )
-            final Map<Binding<T>, BeanEntry<Q, T>> tempCache =
-                readCache.size() > 0 ? (Map) ( (IdentityHashMap) readCache ).clone()
-                                : new IdentityHashMap<Binding<T>, BeanEntry<Q, T>>();
-
-            tempCache.put( binding, bean );
-            readCache = tempCache;
-        }
-        return bean;
     }
 
     // ----------------------------------------------------------------------
@@ -158,7 +121,7 @@ final class LocatedBeans<Q extends Annotation, T>
             while ( itr.hasNext() )
             {
                 final Binding<T> binding = itr.next();
-                nextBean = readCache.get( binding );
+                nextBean = beans.get( binding );
                 if ( null != nextBean )
                 {
                     return true;
@@ -166,7 +129,7 @@ final class LocatedBeans<Q extends Annotation, T>
                 final Q qualifier = (Q) strategy.qualifies( key, binding );
                 if ( null != qualifier )
                 {
-                    nextBean = cacheBean( qualifier, binding, itr.rank() );
+                    nextBean = beans.create( qualifier, binding, itr.rank() );
                     return true;
                 }
             }
@@ -176,7 +139,7 @@ final class LocatedBeans<Q extends Annotation, T>
                 final Binding<T> binding = implicitBindings.get( key.getTypeLiteral() );
                 if ( null != binding )
                 {
-                    nextBean = cacheBean( (Q) QualifyingStrategy.DEFAULT_QUALIFIER, binding, Integer.MIN_VALUE );
+                    nextBean = beans.create( (Q) QualifyingStrategy.DEFAULT_QUALIFIER, binding, Integer.MIN_VALUE );
                     return true;
                 }
             }

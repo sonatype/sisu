@@ -14,9 +14,6 @@ package org.sonatype.guice.bean.locators;
 import java.lang.annotation.Annotation;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.Map;
 
 import org.sonatype.guice.bean.locators.spi.BindingDistributor;
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
@@ -41,7 +38,7 @@ final class WatchedBeans<Q extends Annotation, T, W>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<Binding<T>, BeanEntry<Q, T>> beanCache = new IdentityHashMap<Binding<T>, BeanEntry<Q, T>>();
+    private final BeanCache<Q, T> beans = new BeanCache<Q, T>();
 
     private final Key<T> key;
 
@@ -77,11 +74,11 @@ final class WatchedBeans<Q extends Annotation, T, W>
     {
         publisher.unsubscribe( this );
 
-        for ( final Binding<T> b : new ArrayList<Binding<T>>( beanCache.keySet() ) )
+        for ( final Binding<T> b : beans.bindings() )
         {
             if ( publisher.containsThis( b ) )
             {
-                notify( WatcherEvent.REMOVE, beanCache.remove( b ) );
+                notify( WatcherEvent.REMOVE, beans.remove( b ) );
             }
         }
     }
@@ -97,16 +94,14 @@ final class WatchedBeans<Q extends Annotation, T, W>
         final Q qualifier = (Q) strategy.qualifies( key, binding );
         if ( null != qualifier )
         {
-            final BeanEntry<Q, T> bean = new LazyBeanEntry<Q, T>( qualifier, binding, rank );
-            beanCache.put( binding, bean );
-            notify( WatcherEvent.ADD, bean );
+            notify( WatcherEvent.ADD, beans.create( qualifier, binding, rank ) );
         }
     }
 
-    @SuppressWarnings( "rawtypes" )
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
     public synchronized void remove( final Binding binding )
     {
-        final BeanEntry<Q, T> bean = beanCache.remove( binding );
+        final BeanEntry<Q, T> bean = beans.remove( binding );
         if ( null != bean )
         {
             notify( WatcherEvent.REMOVE, bean );
@@ -115,11 +110,10 @@ final class WatchedBeans<Q extends Annotation, T, W>
 
     public synchronized void clear()
     {
-        for ( final BeanEntry<Q, T> bean : beanCache.values() )
+        for ( final Binding<T> b : beans.bindings() )
         {
-            notify( WatcherEvent.REMOVE, bean );
+            remove( b );
         }
-        beanCache.clear();
     }
 
     // ----------------------------------------------------------------------
