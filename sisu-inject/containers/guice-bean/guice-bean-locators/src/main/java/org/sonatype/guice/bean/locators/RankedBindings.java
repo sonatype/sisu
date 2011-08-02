@@ -12,11 +12,7 @@
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import org.sonatype.guice.bean.locators.spi.BindingDistributor;
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
@@ -37,7 +33,7 @@ final class RankedBindings<T>
 
     final RankedSequence<Binding<T>> bindings = new RankedSequence<Binding<T>>();
 
-    final List<Reference<LocatedBeans<?, T>>> locatedBeanRefs = new ArrayList<Reference<LocatedBeans<?, T>>>();
+    final WeakSequence<LocatedBeans<?, T>> locatedBeanRefs = new WeakSequence<LocatedBeans<?, T>>();
 
     final RankedSequence<BindingPublisher> pendingPublishers;
 
@@ -150,20 +146,7 @@ final class RankedBindings<T>
      */
     <Q extends Annotation> void linkToBeans( final LocatedBeans<Q, T> beans )
     {
-        synchronized ( locatedBeanRefs )
-        {
-            final Reference<LocatedBeans<?, T>> beanRef = new WeakReference<LocatedBeans<?, T>>( beans );
-            for ( int i = 0, size = locatedBeanRefs.size(); i < size; i++ )
-            {
-                if ( null == locatedBeanRefs.get( i ).get() )
-                {
-                    // replace evicted element
-                    locatedBeanRefs.set( i, beanRef );
-                    return; // bail-out early
-                }
-            }
-            locatedBeanRefs.add( beanRef );
-        }
+        locatedBeanRefs.add( beans );
     }
 
     /**
@@ -171,22 +154,7 @@ final class RankedBindings<T>
      */
     boolean isActive()
     {
-        boolean isActive = false;
-        synchronized ( locatedBeanRefs )
-        {
-            for ( int i = 0; i < locatedBeanRefs.size(); i++ )
-            {
-                if ( null != locatedBeanRefs.get( i ).get() )
-                {
-                    isActive = true;
-                }
-                else
-                {
-                    locatedBeanRefs.remove( i-- );
-                }
-            }
-        }
-        return isActive;
+        return locatedBeanRefs.iterator().hasNext();
     }
 
     // ----------------------------------------------------------------------
@@ -198,16 +166,9 @@ final class RankedBindings<T>
      */
     private void evictStaleBeanEntries()
     {
-        synchronized ( locatedBeanRefs )
+        for ( final LocatedBeans<?, T> beans : locatedBeanRefs )
         {
-            for ( int i = 0, size = locatedBeanRefs.size(); i < size; i++ )
-            {
-                final LocatedBeans<?, T> beans = locatedBeanRefs.get( i ).get();
-                if ( null != beans )
-                {
-                    beans.retainAll( bindings );
-                }
-            }
+            beans.retainAll( bindings );
         }
     }
 
