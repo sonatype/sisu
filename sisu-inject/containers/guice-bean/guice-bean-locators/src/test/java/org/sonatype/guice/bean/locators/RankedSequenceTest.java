@@ -340,7 +340,7 @@ public class RankedSequenceTest
         list.insert( "Y", 0 );
         list.insert( "Z", 1 );
 
-        final RankedSequence<String> clone = list.clone();
+        final RankedSequence<String> clone = new RankedSequence<String>( list );
 
         clone.insert( clone.remove( 0 ), -1 );
         clone.insert( clone.remove( 1 ), 1 );

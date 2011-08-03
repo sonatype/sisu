@@ -45,7 +45,9 @@ final class RankedBindings<T>
 
     RankedBindings( final TypeLiteral<T> type, final RankedSequence<BindingPublisher> publishers )
     {
-        pendingPublishers = null != publishers ? publishers.clone() : new RankedSequence<BindingPublisher>();
+        pendingPublishers =
+            null != publishers ? new RankedSequence<BindingPublisher>( publishers )
+                            : new RankedSequence<BindingPublisher>();
         this.type = type;
     }
 

@@ -17,12 +17,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Sorted {@link List} that arranges elements by descending rank; supports concurrent iteration and modification.
  */
 final class RankedSequence<T>
-    implements Iterable<T>, Cloneable
+    implements Iterable<T>
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -34,15 +35,24 @@ final class RankedSequence<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    Object[] objs;
+    final AtomicReference<Contents> cache = new AtomicReference<Contents>();
 
-    long[] uids;
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
 
-    volatile int size;
+    RankedSequence()
+    {
+    }
 
-    volatile int uniq;
-
-    boolean isCached;
+    RankedSequence( final RankedSequence<T> sequence )
+    {
+        final Contents contents = sequence.cache.get();
+        if ( null != contents )
+        {
+            cache.set( new Contents( contents ) );
+        }
+    }
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -57,76 +67,77 @@ final class RankedSequence<T>
      */
     public void insert( final T element, final int rank )
     {
-        if ( null == objs )
+        Contents contents = cache.get();
+
+        if ( null == contents )
         {
-            objs = new Object[INITIAL_CAPACITY];
-            uids = new long[INITIAL_CAPACITY];
+            contents = new Contents();
         }
-        else if ( size >= objs.length )
+        else if ( contents.isImmutable )
         {
-            final int capacity = size * 3 / 2 + 1;
+            contents = new Contents( contents ); // copy-on-write
+        }
+
+        if ( contents.size >= contents.objs.length )
+        {
+            final int capacity = contents.size * 3 / 2 + 1;
 
             final Object[] newObjs = new Object[capacity];
-            System.arraycopy( objs, 0, newObjs, 0, size );
+            System.arraycopy( contents.objs, 0, newObjs, 0, contents.size );
 
             final long[] newUIDs = new long[capacity];
-            System.arraycopy( uids, 0, newUIDs, 0, size );
+            System.arraycopy( contents.uids, 0, newUIDs, 0, contents.size );
 
-            objs = newObjs;
-            uids = newUIDs;
-            isCached = false;
-        }
-        else if ( isCached )
-        {
-            // copy-on-write
-            objs = objs.clone();
-            uids = uids.clone();
-            isCached = false;
+            contents.objs = newObjs;
+            contents.uids = newUIDs;
         }
 
-        final long uid = rank2uid( rank, uniq++ );
-        final int index = safeBinarySearch( uid );
+        final long uid = rank2uid( rank, contents.uniq++ );
+        final int index = safeBinarySearch( contents, uid );
 
-        final int to = index + 1, len = size - index;
+        final int to = index + 1, len = contents.size - index;
         if ( len > 0 )
         {
-            System.arraycopy( objs, index, objs, to, len );
-            System.arraycopy( uids, index, uids, to, len );
+            System.arraycopy( contents.objs, index, contents.objs, to, len );
+            System.arraycopy( contents.uids, index, contents.uids, to, len );
         }
-        size++;
+        contents.size++;
 
-        objs[index] = element;
-        uids[index] = uid;
+        contents.objs[index] = element;
+        contents.uids[index] = uid;
+
+        cache.set( contents );
     }
 
     public T remove( final int index )
     {
         final T element = get( index );
 
-        if ( isCached )
+        Contents contents = cache.get();
+        if ( contents.isImmutable )
         {
-            // copy-on-write
-            objs = objs.clone();
-            uids = uids.clone();
-            isCached = false;
+            contents = new Contents( contents ); // copy-on-write
         }
 
-        final int from = index + 1, len = size - from;
+        final int from = index + 1, len = contents.size - from;
         if ( len > 0 )
         {
-            System.arraycopy( objs, from, objs, index, len );
-            System.arraycopy( uids, from, uids, index, len );
+            System.arraycopy( contents.objs, from, contents.objs, index, len );
+            System.arraycopy( contents.uids, from, contents.uids, index, len );
         }
-        objs[--size] = null; // remove dangling reference
+        contents.objs[--contents.size] = null; // remove dangling reference
+
+        cache.set( contents );
 
         return element;
     }
 
     public int indexOf( final Object o )
     {
-        for ( int i = 0; i < size; i++ )
+        final Contents contents = cache.get();
+        for ( int i = 0, size = null != contents ? contents.size : 0; i < size; i++ )
         {
-            if ( o.equals( objs[i] ) )
+            if ( o.equals( contents.objs[i] ) )
             {
                 return i;
             }
@@ -141,9 +152,10 @@ final class RankedSequence<T>
      */
     public int indexOfThis( final T element )
     {
-        for ( int i = 0; i < size; i++ )
+        final Contents contents = cache.get();
+        for ( int i = 0, size = null != contents ? contents.size : 0; i < size; i++ )
         {
-            if ( element == objs[i] )
+            if ( element == contents.objs[i] )
             {
                 return i;
             }
@@ -170,11 +182,16 @@ final class RankedSequence<T>
     @SuppressWarnings( "unchecked" )
     public T get( final int index )
     {
-        if ( index < size )
+        final Contents contents = cache.get();
+        if ( null == contents )
         {
-            return (T) objs[index];
+            throw new IndexOutOfBoundsException( "Index: " + index + ", Size: 0" );
         }
-        throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
+        if ( index < contents.size )
+        {
+            return (T) contents.objs[index];
+        }
+        throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + contents.size );
     }
 
     /**
@@ -185,55 +202,32 @@ final class RankedSequence<T>
      */
     public int getRank( final int index )
     {
-        if ( index < size )
+        final Contents contents = cache.get();
+        if ( null == contents )
         {
-            return uid2rank( uids[index] );
+            throw new IndexOutOfBoundsException( "Index: " + index + ", Size: 0" );
         }
-        throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + size );
-    }
-
-    /**
-     * @return Shallow copy of this {@link RankedSequence} instance.
-     */
-    @Override
-    public RankedSequence<T> clone()
-    {
-        try
+        if ( index < contents.size )
         {
-            @SuppressWarnings( "unchecked" )
-            final RankedSequence<T> clone = (RankedSequence<T>) super.clone();
-            if ( null != objs )
-            {
-                clone.objs = objs.clone();
-                clone.uids = uids.clone();
-            }
-            return clone;
+            return uid2rank( contents.uids[index] );
         }
-        catch ( final CloneNotSupportedException e )
-        {
-            throw new InternalError();
-        }
+        throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + contents.size );
     }
 
     public void clear()
     {
-        objs = null;
-        uids = null;
-
-        size = 0;
-        uniq = 0;
-
-        isCached = false;
+        cache.set( null );
     }
 
     public int size()
     {
-        return size;
+        final Contents contents = cache.get();
+        return null == contents ? 0 : contents.size;
     }
 
     public boolean isEmpty()
     {
-        return 0 == size;
+        return 0 == size();
     }
 
     public Itr iterator()
@@ -252,7 +246,7 @@ final class RankedSequence<T>
      * @param uniq The unique counter
      * @return The unique id
      */
-    private static long rank2uid( final int rank, final int uniq )
+    static long rank2uid( final int rank, final int uniq )
     {
         return (long) ~rank << 32 | 0x00000000FFFFFFFFL & uniq;
     }
@@ -272,17 +266,18 @@ final class RankedSequence<T>
      * Finds the insertion point with the nearest UID, regardless of whether the UID is in the list or not.<br>
      * Unlike {@link Arrays#binarySearch} this will always return a number from zero to {@link #size()} inclusive.
      * 
+     * @param contents The contents
      * @param uid The UID to find
      * @return Index with nearest UID
      */
-    int safeBinarySearch( final long uid )
+    static int safeBinarySearch( final Contents contents, final long uid )
     {
         int min = 0;
-        int max = size - 1;
+        int max = contents.size - 1;
         while ( min < max )
         {
             final int m = min + max >>> 1;
-            if ( uid <= uids[m] )
+            if ( uid <= contents.uids[m] )
             {
                 max = m;
             }
@@ -291,9 +286,9 @@ final class RankedSequence<T>
                 min = m + 1;
             }
         }
-        if ( min == size - 1 && uids[min] < uid )
+        if ( min == contents.size - 1 && contents.uids[min] < uid )
         {
-            return size; // append
+            return contents.size; // append
         }
         return min;
     }
@@ -301,6 +296,34 @@ final class RankedSequence<T>
     // ----------------------------------------------------------------------
     // Implementation types
     // ----------------------------------------------------------------------
+
+    private static final class Contents
+    {
+        volatile boolean isImmutable;
+
+        Object[] objs;
+
+        long[] uids;
+
+        int size;
+
+        int uniq;
+
+        Contents()
+        {
+            objs = new Object[INITIAL_CAPACITY];
+            uids = new long[INITIAL_CAPACITY];
+        }
+
+        Contents( final Contents contents )
+        {
+            objs = contents.objs.clone();
+            uids = contents.uids.clone();
+
+            size = contents.size;
+            uniq = contents.uniq;
+        }
+    }
 
     /**
      * Custom {@link Iterator} that copes with modification by repositioning itself in the updated list.
@@ -312,13 +335,7 @@ final class RankedSequence<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private Object[] cachedObjs;
-
-        private long[] cachedUIDs;
-
-        private int expectedSize;
-
-        private int expectedUniq;
+        private Contents contents;
 
         private long nextUID = Long.MIN_VALUE;
 
@@ -339,8 +356,8 @@ final class RankedSequence<T>
             }
             if ( safeHasNext() )
             {
-                nextObj = (T) cachedObjs[index];
-                nextUID = cachedUIDs[index];
+                nextObj = (T) contents.objs[index];
+                nextUID = contents.uids[index];
                 return true;
             }
             return false;
@@ -357,7 +374,7 @@ final class RankedSequence<T>
             }
             if ( safeHasNext() )
             {
-                return uid2rank( cachedUIDs[index] );
+                return uid2rank( contents.uids[index] );
             }
             return Integer.MIN_VALUE;
         }
@@ -398,25 +415,24 @@ final class RankedSequence<T>
          */
         private boolean safeHasNext()
         {
-            if ( expectedSize != size || expectedUniq != uniq )
+            final Contents newContents = cache.get();
+            if ( contents != newContents )
             {
-                synchronized ( RankedSequence.this )
+                if ( newContents.isImmutable )
                 {
-                    // reposition ourselves in the list
-                    index = safeBinarySearch( nextUID );
-
-                    if ( index < size )
-                    {
-                        cachedObjs = objs;
-                        cachedUIDs = uids;
-                        isCached = true;
-                    }
-
-                    expectedSize = size;
-                    expectedUniq = uniq;
+                    index = safeBinarySearch( newContents, nextUID );
                 }
+                else
+                {
+                    synchronized ( RankedSequence.this )
+                    {
+                        newContents.isImmutable = true;
+                        index = safeBinarySearch( newContents, nextUID );
+                    }
+                }
+                contents = index < newContents.size ? newContents : null;
             }
-            return index < expectedSize;
+            return null != contents && index < contents.size;
         }
     }
 
