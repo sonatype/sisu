@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.TestCase;
 
-public class RankedListTest
+public class RankedSequenceTest
     extends TestCase
 {
     static final AtomicBoolean active = new AtomicBoolean( true );

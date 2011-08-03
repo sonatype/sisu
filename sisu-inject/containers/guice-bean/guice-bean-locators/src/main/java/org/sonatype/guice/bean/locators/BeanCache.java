@@ -213,14 +213,22 @@ final class BeanCache<Q extends Annotation, T>
     }
 
     // ----------------------------------------------------------------------
-    // Implementation fields
+    // Implementation types
     // ----------------------------------------------------------------------
 
     private static final class BoundBeans<T>
     {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
         final IdentityHashMap<Binding<T>, LazyBeanEntry> map;
 
         volatile boolean isImmutable;
+
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
 
         BoundBeans( final LazyBeanEntry one, final LazyBeanEntry two )
         {
