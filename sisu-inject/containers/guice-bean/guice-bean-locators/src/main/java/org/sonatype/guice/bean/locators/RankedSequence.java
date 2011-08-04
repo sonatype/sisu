@@ -67,67 +67,70 @@ final class RankedSequence<T>
      */
     public void insert( final T element, final int rank )
     {
-        Contents contents = cache.get();
+        Contents oldContents, newContents;
 
-        if ( null == contents )
+        do
         {
-            contents = new Contents();
+            if ( null == ( oldContents = cache.get() ) )
+            {
+                newContents = new Contents( element, rank );
+                continue;
+            }
+            synchronized ( oldContents )
+            {
+                newContents = oldContents.isImmutable ? new Contents( oldContents ) : oldContents;
+
+                final long uid = rank2uid( rank, newContents.uniq++ );
+                final int index = safeBinarySearch( newContents, uid );
+
+                final int to = index + 1, len = newContents.size - index;
+                if ( len > 0 )
+                {
+                    System.arraycopy( newContents.objs, index, newContents.objs, to, len );
+                    System.arraycopy( newContents.uids, index, newContents.uids, to, len );
+                }
+                newContents.size++;
+
+                newContents.objs[index] = element;
+                newContents.uids[index] = uid;
+            }
         }
-        else if ( contents.isImmutable )
-        {
-            contents = new Contents( contents ); // copy-on-write
-        }
-
-        if ( contents.size >= contents.objs.length )
-        {
-            final int capacity = contents.size * 3 / 2 + 1;
-
-            final Object[] newObjs = new Object[capacity];
-            System.arraycopy( contents.objs, 0, newObjs, 0, contents.size );
-
-            final long[] newUIDs = new long[capacity];
-            System.arraycopy( contents.uids, 0, newUIDs, 0, contents.size );
-
-            contents.objs = newObjs;
-            contents.uids = newUIDs;
-        }
-
-        final long uid = rank2uid( rank, contents.uniq++ );
-        final int index = safeBinarySearch( contents, uid );
-
-        final int to = index + 1, len = contents.size - index;
-        if ( len > 0 )
-        {
-            System.arraycopy( contents.objs, index, contents.objs, to, len );
-            System.arraycopy( contents.uids, index, contents.uids, to, len );
-        }
-        contents.size++;
-
-        contents.objs[index] = element;
-        contents.uids[index] = uid;
-
-        cache.set( contents );
+        while ( oldContents != newContents && !cache.compareAndSet( oldContents, newContents ) );
     }
 
+    @SuppressWarnings( "unchecked" )
     public T remove( final int index )
     {
-        final T element = get( index );
+        T element;
 
-        Contents contents = cache.get();
-        if ( contents.isImmutable )
+        Contents oldContents, newContents;
+
+        do
         {
-            contents = new Contents( contents ); // copy-on-write
-        }
+            if ( null == ( oldContents = cache.get() ) )
+            {
+                throw new IndexOutOfBoundsException( "Index: " + index + ", Size: 0" );
+            }
+            synchronized ( oldContents )
+            {
+                if ( index >= oldContents.size )
+                {
+                    throw new IndexOutOfBoundsException( "Index: " + index + ", Size: " + oldContents.size );
+                }
+                newContents = oldContents.isImmutable ? new Contents( oldContents ) : oldContents;
 
-        final int from = index + 1, len = contents.size - from;
-        if ( len > 0 )
-        {
-            System.arraycopy( contents.objs, from, contents.objs, index, len );
-            System.arraycopy( contents.uids, from, contents.uids, index, len );
-        }
-        contents.objs[--contents.size] = null; // remove dangling reference
+                element = (T) newContents.objs[index];
 
-        cache.set( contents );
+                final int from = index + 1, len = newContents.size - from;
+                if ( len > 0 )
+                {
+                    System.arraycopy( newContents.objs, from, newContents.objs, index, len );
+                    System.arraycopy( newContents.uids, from, newContents.uids, index, len );
+                }
+                newContents.objs[--newContents.size] = null; // remove dangling reference
+            }
+        }
+        while ( oldContents != newContents && !cache.compareAndSet( oldContents, newContents ) );
 
         return element;
     }
@@ -309,19 +312,40 @@ final class RankedSequence<T>
 
         int uniq;
 
-        Contents()
+        Contents( final Object element, final int rank )
         {
             objs = new Object[INITIAL_CAPACITY];
             uids = new long[INITIAL_CAPACITY];
+
+            objs[0] = element;
+            uids[0] = rank2uid( rank, uniq++ );
+
+            size++;
         }
 
         Contents( final Contents contents )
         {
-            objs = contents.objs.clone();
-            uids = contents.uids.clone();
-
             size = contents.size;
             uniq = contents.uniq;
+
+            if ( size >= contents.objs.length )
+            {
+                final int capacity = size * 3 / 2 + 1;
+
+                final Object[] newObjs = new Object[capacity];
+                System.arraycopy( contents.objs, 0, newObjs, 0, contents.size );
+
+                final long[] newUIDs = new long[capacity];
+                System.arraycopy( contents.uids, 0, newUIDs, 0, contents.size );
+
+                objs = newObjs;
+                uids = newUIDs;
+            }
+            else
+            {
+                objs = contents.objs.clone();
+                uids = contents.uids.clone();
+            }
         }
     }
 
@@ -418,19 +442,22 @@ final class RankedSequence<T>
             final Contents newContents = cache.get();
             if ( contents != newContents )
             {
-                if ( newContents.isImmutable )
+                if ( null == ( contents = newContents ) )
                 {
-                    index = safeBinarySearch( newContents, nextUID );
+                    return false;
+                }
+                if ( contents.isImmutable )
+                {
+                    index = safeBinarySearch( contents, nextUID );
                 }
                 else
                 {
-                    synchronized ( RankedSequence.this )
+                    synchronized ( contents )
                     {
-                        newContents.isImmutable = true;
-                        index = safeBinarySearch( newContents, nextUID );
+                        contents.isImmutable = true;
+                        index = safeBinarySearch( contents, nextUID );
                     }
                 }
-                contents = index < newContents.size ? newContents : null;
             }
             return null != contents && index < contents.size;
         }
