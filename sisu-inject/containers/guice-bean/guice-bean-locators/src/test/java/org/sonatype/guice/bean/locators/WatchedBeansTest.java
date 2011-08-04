@@ -97,15 +97,7 @@ public class WatchedBeansTest
 
         public void remove( final BeanEntry<Named, Bean> entry, final RankedSequence<String> names )
         {
-            final int index = names.indexOfThis( entry.getKey().value() );
-
-            final String name = names.get( index );
-            final int rank = names.getRank( index );
-
-            assertSame( name, entry.getKey().value() );
-            assertEquals( rank, entry.getRank() );
-
-            names.remove( index );
+            assertTrue( names.remove( entry.getKey().value() ) );
         }
     }
 

@@ -74,11 +74,11 @@ final class RankedBindings<T>
                 synchronized ( bindings )
                 {
                     boolean updated = false;
-                    for ( int i = 0; i < bindings.size(); i++ )
+                    for ( final Binding<T> b : bindings )
                     {
-                        if ( publisher.containsThis( bindings.get( i ) ) )
+                        if ( publisher.containsThis( b ) )
                         {
-                            bindings.remove( i-- );
+                            bindings.removeThis( b );
                             updated = true;
                         }
                     }
@@ -110,12 +110,7 @@ final class RankedBindings<T>
     {
         synchronized ( bindings )
         {
-            // we only want to remove this _exact_ instance
-            final int index = bindings.indexOfThis( binding );
-            if ( index >= 0 )
-            {
-                bindings.remove( index );
-            }
+            bindings.removeThis( binding );
         }
     }
 
@@ -201,12 +196,14 @@ final class RankedBindings<T>
                 synchronized ( pendingPublishers )
                 {
                     // check whether the next publisher _might_ contain a higher ranked binding, and if so use it
-                    while ( pendingPublishers.size() > 0 && pendingPublishers.getRank( 0 ) > itr.peekNextRank() )
+                    final RankedSequence<BindingPublisher>.Itr pubItr = pendingPublishers.iterator();
+                    while ( pubItr.peekNextRank() > itr.peekNextRank() )
                     {
                         // be careful not to remove the pending publisher until after it's used
                         // otherwise another iterator could skip past the initial size() check!
-                        pendingPublishers.get( 0 ).subscribe( RankedBindings.this );
-                        pendingPublishers.remove( 0 );
+                        final BindingPublisher publisher = pubItr.next();
+                        publisher.subscribe( RankedBindings.this );
+                        pendingPublishers.remove( publisher );
                     }
                 }
             }

@@ -80,7 +80,7 @@ final class LocatedBeans<Q extends Annotation, T>
     {
         for ( final Binding<T> binding : beans.bindings() )
         {
-            if ( activeBindings.indexOfThis( binding ) < 0 )
+            if ( !activeBindings.containsThis( binding ) )
             {
                 beans.remove( binding );
             }

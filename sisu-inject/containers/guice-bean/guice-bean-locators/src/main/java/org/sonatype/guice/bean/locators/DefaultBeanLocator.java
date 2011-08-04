@@ -65,9 +65,9 @@ public final class DefaultBeanLocator
     public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )
     {
         final WatchedBeans beans = new WatchedBeans( key, mediator, watcher );
-        for ( int i = 0, size = publishers.size(); i < size; i++ )
+        for ( final BindingPublisher publisher : publishers )
         {
-            beans.add( publishers.get( i ), 0 /* unused */);
+            beans.add( publisher, 0 /* unused */);
         }
         watchedBeans.add( beans );
     }

@@ -30,7 +30,7 @@ public class RankedSequenceTest
 
     static final Random random = new Random( System.currentTimeMillis() );
 
-    static final int CONCURRENCY = 3;
+    static final int CONCURRENCY = 8;
 
     static final RankedSequence<Integer> rankedList = new RankedSequence<Integer>();
 
@@ -96,13 +96,13 @@ public class RankedSequenceTest
 
         itr = list.iterator();
 
-        list.remove( 4 );
+        list.remove( "D" );
         list.insert( "D-", 0 );
-        list.remove( 4 );
+        list.remove( "D" );
         assertEquals( "A1", itr.next() );
         assertEquals( "A2", itr.next() );
         assertTrue( itr.hasNext() );
-        list.remove( 2 );
+        list.remove( "B" );
         list.insert( "512", 512 );
         assertEquals( "B", itr.next() );
         assertTrue( itr.hasNext() );
@@ -114,93 +114,6 @@ public class RankedSequenceTest
         assertEquals( "F", itr.next() );
         assertEquals( "G1", itr.next() );
         assertEquals( "G2", itr.next() );
-    }
-
-    public void testRankQuery()
-    {
-        final RankedSequence<String> list = new RankedSequence<String>();
-
-        assertEquals( 0, list.size() );
-
-        list.insert( "G", Integer.MIN_VALUE );
-        list.insert( "D", 0 );
-        list.insert( "B", Integer.MAX_VALUE - 1 );
-        list.insert( "C", 1 );
-        list.insert( "F", Integer.MIN_VALUE + 1 );
-        list.insert( "E", -1 );
-        list.insert( "A", Integer.MAX_VALUE );
-
-        assertEquals( 7, list.size() );
-
-        assertEquals( Integer.MAX_VALUE, list.getRank( 0 ) );
-        assertEquals( Integer.MIN_VALUE, list.getRank( 6 ) );
-
-        assertFalse( list.isEmpty() );
-        list.clear();
-        assertTrue( list.isEmpty() );
-
-        assertEquals( 0, list.size() );
-
-        list.insert( "G", Integer.MIN_VALUE );
-        list.insert( "D", 0 );
-        list.insert( "B", Integer.MAX_VALUE - 1 );
-        list.insert( "C", 1 );
-        list.insert( "F", Integer.MIN_VALUE + 1 );
-        list.insert( "E", -1 );
-        list.insert( "A", Integer.MAX_VALUE );
-
-        assertEquals( 7, list.size() );
-        assertEquals( Integer.MAX_VALUE, list.getRank( 0 ) );
-        assertEquals( Integer.MIN_VALUE, list.getRank( 6 ) );
-        list.remove( 0 );
-
-        assertEquals( 6, list.size() );
-        assertEquals( Integer.MAX_VALUE - 1, list.getRank( 0 ) );
-        assertEquals( Integer.MIN_VALUE, list.getRank( 5 ) );
-        list.remove( 5 );
-
-        assertEquals( 5, list.size() );
-        assertEquals( Integer.MAX_VALUE - 1, list.getRank( 0 ) );
-        assertEquals( Integer.MIN_VALUE + 1, list.getRank( 4 ) );
-        list.remove( 0 );
-
-        assertEquals( 4, list.size() );
-        assertEquals( 1, list.getRank( 0 ) );
-        assertEquals( Integer.MIN_VALUE + 1, list.getRank( 3 ) );
-        list.remove( 3 );
-
-        assertEquals( 3, list.size() );
-        assertEquals( 1, list.getRank( 0 ) );
-        assertEquals( -1, list.getRank( 2 ) );
-        list.remove( 0 );
-
-        assertEquals( 2, list.size() );
-        assertEquals( 0, list.getRank( 0 ) );
-        assertEquals( -1, list.getRank( 1 ) );
-        list.remove( 1 );
-
-        assertEquals( 1, list.size() );
-        assertEquals( 0, list.getRank( 0 ) );
-        list.remove( 0 );
-
-        assertEquals( 0, list.size() );
-    }
-
-    public void testIndexing()
-    {
-        final RankedSequence<String> list = new RankedSequence<String>();
-
-        final String markerString = new String( "A" );
-
-        list.insert( new String( "A" ), 1 );
-        list.insert( new String( "A" ), 3 );
-        list.insert( markerString, 2 );
-
-        assertEquals( 0, list.indexOf( new String( "A" ) ) );
-        assertEquals( 0, list.indexOf( markerString ) );
-
-        assertEquals( -1, list.indexOfThis( new String( "A" ) ) );
-        assertEquals( 1, list.indexOfThis( markerString ) );
     }
 
     public void testEmptyList()
@@ -222,208 +135,6 @@ public class RankedSequenceTest
         try
         {
             itr.remove();
-            fail( "Expected UnsupportedOperationException" );
-        }
-        catch ( final UnsupportedOperationException e )
-        {
-            // expected
-        }
-    }
-
-    public void testBounds()
-    {
-        final RankedSequence<Object> list = new RankedSequence<Object>();
-
-        list.insert( "Test", 42 );
-
-        try
-        {
-            list.remove( -1 );
-            fail( "Expected IndexOutOfBoundsException" );
-        }
-        catch ( final IndexOutOfBoundsException e )
-        {
-            // expected
-        }
-
-        try
-        {
-            list.get( -1 );
-            fail( "Expected IndexOutOfBoundsException" );
-        }
-        catch ( final IndexOutOfBoundsException e )
-        {
-            // expected
-        }
-
-        try
-        {
-            list.getRank( -1 );
-            fail( "Expected IndexOutOfBoundsException" );
-        }
-        catch ( final IndexOutOfBoundsException e )
-        {
-            // expected
-        }
-
-        assertEquals( "Test", list.get( 0 ) );
-        assertEquals( 42, list.getRank( 0 ) );
-
-        try
-        {
-            list.remove( 1 );
-            fail( "Expected IndexOutOfBoundsException" );
-        }
-        catch ( final IndexOutOfBoundsException e )
-        {
-            // expected
-        }
-
-        try
-        {
-            list.get( 1 );
-            fail( "Expected IndexOutOfBoundsException" );
-        }
-        catch ( final IndexOutOfBoundsException e )
-        {
-            // expected
-        }
-
-        try
-        {
-            list.getRank( 1 );
-            fail( "Expected IndexOutOfBoundsException" );
-        }
-        catch ( final IndexOutOfBoundsException e )
-        {
-            // expected
-        }
-
-        assertEquals( "Test", list.remove( 0 ) );
-
-        try
-        {
-            list.remove( 0 );
-            fail( "Expected IndexOutOfBoundsException" );
-        }
-        catch ( final IndexOutOfBoundsException e )
-        {
-            // expected
-        }
-
-        try
-        {
-            list.get( 0 );
-            fail( "Expected IndexOutOfBoundsException" );
-        }
-        catch ( final IndexOutOfBoundsException e )
-        {
-            // expected
-        }
-
-        try
-        {
-            list.getRank( 0 );
-            fail( "Expected IndexOutOfBoundsException" );
-        }
-        catch ( final IndexOutOfBoundsException e )
-        {
-            // expected
-        }
-    }
-
-    public void testCloneable()
-    {
-        final RankedSequence<String> list = new RankedSequence<String>();
-
-        list.insert( "X", -1 );
-        list.insert( "Y", 0 );
-        list.insert( "Z", 1 );
-
-        final RankedSequence<String> clone = new RankedSequence<String>( list );
-
-        clone.insert( clone.remove( 0 ), -1 );
-        clone.insert( clone.remove( 1 ), 1 );
-
-        assertEquals( "Z", list.remove( 0 ) );
-        assertEquals( "Y", list.remove( 0 ) );
-        assertEquals( "X", list.remove( 0 ) );
-        assertTrue( list.isEmpty() );
-
-        assertEquals( "X", clone.remove( 0 ) );
-        assertEquals( "Y", clone.remove( 0 ) );
-        assertEquals( "Z", clone.remove( 0 ) );
-        assertTrue( clone.isEmpty() );
-    }
-
-    @SuppressWarnings( "deprecation" )
-    public void testUnsupportedMethods()
-    {
-        final RankedSequence<Object> list = new RankedSequence<Object>();
-
-        try
-        {
-            list.add( 0, null );
-            fail( "Expected UnsupportedOperationException" );
-        }
-        catch ( final UnsupportedOperationException e )
-        {
-            // expected
-        }
-
-        try
-        {
-            list.addAll( 0, null );
-            fail( "Expected UnsupportedOperationException" );
-        }
-        catch ( final UnsupportedOperationException e )
-        {
-            // expected
-        }
-
-        try
-        {
-            list.set( 0, null );
-            fail( "Expected UnsupportedOperationException" );
-        }
-        catch ( final UnsupportedOperationException e )
-        {
-            // expected
-        }
-
-        try
-        {
-            list.lastIndexOf( null );
-            fail( "Expected UnsupportedOperationException" );
-        }
-        catch ( final UnsupportedOperationException e )
-        {
-            // expected
-        }
-
-        try
-        {
-            list.listIterator();
-            fail( "Expected UnsupportedOperationException" );
-        }
-        catch ( final UnsupportedOperationException e )
-        {
-            // expected
-        }
-
-        try
-        {
-            list.listIterator( 0 );
-            fail( "Expected UnsupportedOperationException" );
-        }
-        catch ( final UnsupportedOperationException e )
-        {
-            // expected
-        }
-
-        try
-        {
-            list.subList( 0, 0 );
             fail( "Expected UnsupportedOperationException" );
         }
         catch ( final UnsupportedOperationException e )
@@ -491,10 +202,7 @@ public class RankedSequenceTest
             {
                 Thread.yield();
                 final int rank = random.nextInt();
-                synchronized ( rankedList )
-                {
-                    rankedList.insert( Integer.valueOf( rank ), rank );
-                }
+                rankedList.insert( Integer.valueOf( rank ), rank );
                 Thread.yield();
             }
         }
@@ -510,13 +218,13 @@ public class RankedSequenceTest
                 while ( active.get() || !rankedList.isEmpty() )
                 {
                     Thread.yield();
-                    synchronized ( rankedList )
+                    Integer element = Integer.valueOf( 0 );
+                    final Iterator<Integer> itr = rankedList.iterator();
+                    for ( int i = 0; i < random.nextInt( rankedList.size() + 1 ) && itr.hasNext(); i++ )
                     {
-                        if ( !rankedList.isEmpty() )
-                        {
-                            rankedList.remove( random.nextInt( rankedList.size() ) );
-                        }
+                        element = itr.next();
                     }
+                    rankedList.remove( element );
                     Thread.yield();
                 }
             }
