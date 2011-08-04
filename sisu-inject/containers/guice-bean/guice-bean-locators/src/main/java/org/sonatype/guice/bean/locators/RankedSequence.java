@@ -80,6 +80,20 @@ final class RankedSequence<T>
             {
                 newContents = oldContents.isImmutable ? new Contents( oldContents ) : oldContents;
 
+                if ( newContents.size >= newContents.objs.length )
+                {
+                    final int capacity = newContents.size * 3 / 2 + 1;
+
+                    final Object[] newObjs = new Object[capacity];
+                    System.arraycopy( newContents.objs, 0, newObjs, 0, newContents.size );
+
+                    final long[] newUIDs = new long[capacity];
+                    System.arraycopy( newContents.uids, 0, newUIDs, 0, newContents.size );
+
+                    newContents.objs = newObjs;
+                    newContents.uids = newUIDs;
+                }
+
                 final long uid = rank2uid( rank, newContents.uniq++ );
                 final int index = safeBinarySearch( newContents, uid );
 
@@ -333,10 +347,10 @@ final class RankedSequence<T>
                 final int capacity = size * 3 / 2 + 1;
 
                 final Object[] newObjs = new Object[capacity];
-                System.arraycopy( contents.objs, 0, newObjs, 0, contents.size );
+                System.arraycopy( contents.objs, 0, newObjs, 0, size );
 
                 final long[] newUIDs = new long[capacity];
-                System.arraycopy( contents.uids, 0, newUIDs, 0, contents.size );
+                System.arraycopy( contents.uids, 0, newUIDs, 0, size );
 
                 objs = newObjs;
                 uids = newUIDs;
