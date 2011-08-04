@@ -12,6 +12,7 @@
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.sonatype.guice.bean.locators.spi.BindingDistributor;
@@ -71,22 +72,7 @@ final class RankedBindings<T>
             if ( !pendingPublishers.remove( publisher ) )
             {
                 publisher.unsubscribe( this );
-                synchronized ( bindings )
-                {
-                    boolean updated = false;
-                    for ( final Binding<T> b : bindings )
-                    {
-                        if ( publisher.containsThis( b ) )
-                        {
-                            bindings.removeThis( b );
-                            updated = true;
-                        }
-                    }
-                    if ( updated )
-                    {
-                        evictStaleBeanEntries();
-                    }
-                }
+                evictStaleBeanEntries();
             }
         }
     }
@@ -112,6 +98,12 @@ final class RankedBindings<T>
         {
             bindings.removeThis( binding );
         }
+    }
+
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    public Iterable<Binding<T>> bindings()
+    {
+        return (Iterable) Arrays.asList( bindings.toArray() );
     }
 
     public void clear()

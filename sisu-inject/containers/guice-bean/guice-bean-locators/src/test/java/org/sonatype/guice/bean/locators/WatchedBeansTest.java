@@ -26,7 +26,6 @@ import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Mediator;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -122,15 +121,9 @@ public class WatchedBeansTest
         final BindingSubscriber[] subscriberHolder = new BindingSubscriber[1];
         final BindingPublisher subscriberHook = new BindingPublisher()
         {
-            public <T> boolean subscribe( final BindingSubscriber<T> subscriber )
+            public <T> void subscribe( final BindingSubscriber<T> subscriber )
             {
                 subscriberHolder[0] = subscriber;
-                return true;
-            }
-
-            public <T> boolean containsThis( final Binding<T> binding )
-            {
-                return false;
             }
 
             public <T> void unsubscribe( final BindingSubscriber<T> subscriber )
@@ -214,15 +207,9 @@ public class WatchedBeansTest
         final BindingSubscriber[] subscriberHolder = new BindingSubscriber[1];
         final BindingPublisher subscriberHook = new BindingPublisher()
         {
-            public <T> boolean subscribe( final BindingSubscriber<T> subscriber )
+            public <T> void subscribe( final BindingSubscriber<T> subscriber )
             {
                 subscriberHolder[0] = subscriber;
-                return true;
-            }
-
-            public <T> boolean containsThis( final Binding<T> binding )
-            {
-                return false;
             }
 
             public <T> void unsubscribe( final BindingSubscriber<T> subscriber )

@@ -12,6 +12,7 @@
 package org.sonatype.guice.bean.locators;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
@@ -20,6 +21,7 @@ import org.sonatype.guice.bean.reflect.TypeParameters;
 
 import com.google.inject.Binding;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 
 /**
@@ -56,31 +58,31 @@ final class InjectorPublisher
     // Public methods
     // ----------------------------------------------------------------------
 
-    public <T> boolean subscribe( final BindingSubscriber<T> subscriber )
+    public <T> void subscribe( final BindingSubscriber<T> subscriber )
     {
         final TypeLiteral<T> type = subscriber.type();
-        boolean subscribed = publishBindings( type, subscriber, null );
+        publishBindings( type, subscriber, null );
         final Class<?> clazz = type.getRawType();
         if ( clazz != type.getType() )
         {
-            subscribed |= publishBindings( TypeLiteral.get( clazz ), subscriber, type );
+            publishBindings( TypeLiteral.get( clazz ), subscriber, type );
         }
         if ( clazz != Object.class )
         {
-            subscribed |= publishBindings( OBJECT_TYPE_LITERAL, subscriber, type );
+            publishBindings( OBJECT_TYPE_LITERAL, subscriber, type );
         }
-        return subscribed;
     }
 
-    public <T> boolean containsThis( final Binding<T> binding )
+    public <T> void unsubscribe( final BindingSubscriber<T> subscriber )
     {
-        // make sure we really own the binding: use identity not equality
-        return binding == injector.getBindings().get( binding.getKey() );
-    }
-
-    public <T> void unsubscribe( final BindingSubscriber<T> importer )
-    {
-        // nothing to do, we don't publish injector bindings asynchronously
+        final Map<Key<?>, ?> ourBindings = injector.getBindings();
+        for ( final Binding<T> binding : subscriber.bindings() )
+        {
+            if ( binding == ourBindings.get( binding.getKey() ) )
+            {
+                subscriber.remove( binding );
+            }
+        }
     }
 
     @Override
@@ -134,10 +136,9 @@ final class InjectorPublisher
     }
 
     @SuppressWarnings( { "rawtypes", "unchecked" } )
-    private boolean publishBindings( final TypeLiteral searchType, final BindingSubscriber subscriber,
-                                     final TypeLiteral superType )
+    private void publishBindings( final TypeLiteral searchType, final BindingSubscriber subscriber,
+                                  final TypeLiteral superType )
     {
-        boolean subscribed = false;
         final List<Binding<?>> bindings = injector.findBindingsByType( searchType );
         for ( int i = 0, size = bindings.size(); i < size; i++ )
         {
@@ -145,9 +146,7 @@ final class InjectorPublisher
             if ( isVisible( binding ) && ( null == superType || isAssignableFrom( superType, binding ) ) )
             {
                 subscriber.add( binding, function.rank( binding ) );
-                subscribed = true;
             }
         }
-        return subscribed;
     }
 }

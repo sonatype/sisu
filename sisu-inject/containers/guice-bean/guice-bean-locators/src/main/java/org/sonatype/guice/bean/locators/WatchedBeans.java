@@ -73,14 +73,6 @@ final class WatchedBeans<Q extends Annotation, T, W>
     public synchronized void remove( final BindingPublisher publisher )
     {
         publisher.unsubscribe( this );
-
-        for ( final Binding<T> b : beans.bindings() )
-        {
-            if ( publisher.containsThis( b ) )
-            {
-                notify( WatcherEvent.REMOVE, beans.remove( b ) );
-            }
-        }
     }
 
     public TypeLiteral<T> type()
@@ -106,6 +98,11 @@ final class WatchedBeans<Q extends Annotation, T, W>
         {
             notify( WatcherEvent.REMOVE, bean );
         }
+    }
+
+    public Iterable<Binding<T>> bindings()
+    {
+        return beans.bindings();
     }
 
     public synchronized void clear()

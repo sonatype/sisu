@@ -40,4 +40,11 @@ public interface BindingSubscriber<T>
      * @param binding The old binding
      */
     void remove( Binding<T> binding );
+
+    /**
+     * Reports any {@link Binding}s that are currently in use.
+     * 
+     * @return The used {@link Binding}s
+     */
+    Iterable<Binding<T>> bindings();
 }

@@ -14,7 +14,9 @@ package org.sonatype.guice.bean.locators;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
+import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,7 +24,8 @@ import java.util.List;
  * Simple collection of elements held by {@link WeakReference}s; automatically compacts on read/write.
  */
 final class WeakSequence<T>
-    implements Iterable<T>
+    extends AbstractCollection<T>
+    implements Collection<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -36,18 +39,15 @@ final class WeakSequence<T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    /**
-     * Adds a {@link WeakReference} for the given element.
-     * 
-     * @param e The element
-     */
-    public synchronized void add( final T e )
+    @Override
+    public synchronized boolean add( final T e )
     {
         compact();
 
-        refs.add( new IndexedWeakReference<T>( e, queue, refs.size() ) );
+        return refs.add( new IndexedWeakReference<T>( e, queue, refs.size() ) );
     }
 
+    @Override
     public synchronized Iterator<T> iterator()
     {
         compact();
@@ -63,6 +63,14 @@ final class WeakSequence<T>
         }
 
         return elements.iterator();
+    }
+
+    @Override
+    public synchronized int size()
+    {
+        compact();
+
+        return refs.size();
     }
 
     // ----------------------------------------------------------------------

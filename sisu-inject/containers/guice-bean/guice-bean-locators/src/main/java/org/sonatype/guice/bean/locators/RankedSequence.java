@@ -11,7 +11,9 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
+import java.util.AbstractCollection;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -21,13 +23,16 @@ import java.util.concurrent.atomic.AtomicReference;
  * Ordered {@link List} that arranges elements by descending rank; supports concurrent iteration and modification.
  */
 final class RankedSequence<T>
-    implements Iterable<T>
+    extends AbstractCollection<T>
+    implements Collection<T>
 {
     // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
 
     private static final int INITIAL_CAPACITY = 10;
+
+    private static final Object[] NO_ELEMENTS = {};
 
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -83,7 +88,13 @@ final class RankedSequence<T>
         while ( oldContents != newContents && !cache.compareAndSet( oldContents, newContents ) );
     }
 
-    public boolean contains( final T element )
+    public boolean add( final T element )
+    {
+        insert( element, 0 );
+        return true;
+    }
+
+    public boolean contains( final Object element )
     {
         final Contents contents = cache.get();
         if ( null != contents )
@@ -115,7 +126,7 @@ final class RankedSequence<T>
         return false;
     }
 
-    public boolean remove( final T element )
+    public boolean remove( final Object element )
     {
         Contents oldContents, newContents;
         do
@@ -177,6 +188,19 @@ final class RankedSequence<T>
         return true;
     }
 
+    @Override
+    public Object[] toArray()
+    {
+        final Contents contents = cache.get();
+        if ( null != contents )
+        {
+            final Object[] elements = new Object[contents.size];
+            System.arraycopy( contents.objs, 0, elements, 0, elements.length );
+            return elements;
+        }
+        return NO_ELEMENTS;
+    }
+
     public void clear()
     {
         cache.set( null );
@@ -186,11 +210,6 @@ final class RankedSequence<T>
     {
         final Contents contents = cache.get();
         return null == contents ? 0 : contents.size;
-    }
-
-    public boolean isEmpty()
-    {
-        return 0 == size();
     }
 
     public Itr iterator()
@@ -389,7 +408,7 @@ final class RankedSequence<T>
 
         private long nextUID = Long.MIN_VALUE;
 
-        private T nextObj;
+        private T nextObj, element;
 
         private int index;
 
@@ -437,7 +456,7 @@ final class RankedSequence<T>
                 index++;
 
                 // populated by hasNext()
-                final T element = nextObj;
+                element = nextObj;
                 nextObj = null;
                 return element;
             }
@@ -451,7 +470,12 @@ final class RankedSequence<T>
 
         public void remove()
         {
-            throw new UnsupportedOperationException();
+            if ( null == element )
+            {
+                throw new IllegalStateException();
+            }
+            RankedSequence.this.remove( element );
+            element = null;
         }
 
         // ----------------------------------------------------------------------

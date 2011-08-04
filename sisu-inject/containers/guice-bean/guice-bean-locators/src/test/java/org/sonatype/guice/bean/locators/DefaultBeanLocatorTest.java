@@ -24,7 +24,6 @@ import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -159,14 +158,8 @@ public class DefaultBeanLocatorTest
 
         assertFalse( new BindingPublisher()
         {
-            public <T> boolean subscribe( final BindingSubscriber<T> subscriber )
+            public <T> void subscribe( final BindingSubscriber<T> subscriber )
             {
-                return false;
-            }
-
-            public <T> boolean containsThis( final Binding<T> binding )
-            {
-                return false;
             }
 
             public <T> void unsubscribe( final BindingSubscriber<T> subscriber )
@@ -176,14 +169,8 @@ public class DefaultBeanLocatorTest
 
         assertFalse( new InjectorPublisher( child2, function2 ).equals( new BindingPublisher()
         {
-            public <T> boolean subscribe( final BindingSubscriber<T> subscriber )
+            public <T> void subscribe( final BindingSubscriber<T> subscriber )
             {
-                return false;
-            }
-
-            public <T> boolean containsThis( final Binding<T> binding )
-            {
-                return false;
             }
 
             public <T> void unsubscribe( final BindingSubscriber<T> subscriber )

@@ -135,9 +135,9 @@ public class RankedSequenceTest
         try
         {
             itr.remove();
-            fail( "Expected UnsupportedOperationException" );
+            fail( "Expected IllegalStateException" );
         }
-        catch ( final UnsupportedOperationException e )
+        catch ( final IllegalStateException e )
         {
             // expected
         }
