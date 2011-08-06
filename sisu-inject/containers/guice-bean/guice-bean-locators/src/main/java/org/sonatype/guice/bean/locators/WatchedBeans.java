@@ -15,8 +15,6 @@ import java.lang.annotation.Annotation;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
-import org.sonatype.guice.bean.locators.spi.BindingDistributor;
-import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
 import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.inject.BeanEntry;
@@ -32,7 +30,7 @@ import com.google.inject.TypeLiteral;
  * @see BeanLocator#watch(Key, Mediator, Object)
  */
 final class WatchedBeans<Q extends Annotation, T, W>
-    implements BindingDistributor, BindingSubscriber<T>
+    implements BindingSubscriber<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -65,38 +63,50 @@ final class WatchedBeans<Q extends Annotation, T, W>
     // Public methods
     // ----------------------------------------------------------------------
 
-    public synchronized void add( final BindingPublisher publisher, final int rank )
-    {
-        publisher.subscribe( this );
-    }
-
-    public synchronized void remove( final BindingPublisher publisher )
-    {
-        publisher.unsubscribe( this );
-    }
-
     public TypeLiteral<T> type()
     {
         return key.getTypeLiteral();
     }
 
-    @SuppressWarnings( { "rawtypes", "unchecked" } )
-    public synchronized void add( final Binding binding, final int rank )
+    public void add( final Binding<T> binding, final int rank )
     {
+        @SuppressWarnings( "unchecked" )
         final Q qualifier = (Q) strategy.qualifies( key, binding );
         if ( null != qualifier )
         {
-            notify( WatcherEvent.ADD, beans.create( qualifier, binding, rank ) );
+            final W watcher = watcherRef.get();
+            if ( null != watcher )
+            {
+                final BeanEntry<Q, T> bean = beans.create( qualifier, binding, rank );
+                try
+                {
+                    mediator.add( bean, watcher );
+                }
+                catch ( final Throwable e )
+                {
+                    Logs.warn( "Problem adding: <> to: " + detail( watcher ), bean, e );
+                }
+            }
         }
     }
 
-    @SuppressWarnings( { "rawtypes", "unchecked" } )
-    public synchronized void remove( final Binding binding )
+    public void remove( final Binding<T> binding )
     {
         final BeanEntry<Q, T> bean = beans.remove( binding );
         if ( null != bean )
         {
-            notify( WatcherEvent.REMOVE, bean );
+            final W watcher = watcherRef.get();
+            if ( null != watcher )
+            {
+                try
+                {
+                    mediator.remove( bean, watcher );
+                }
+                catch ( final Throwable e )
+                {
+                    Logs.warn( "Problem removing: <> from: " + detail( watcher ), bean, e );
+                }
+            }
         }
     }
 
@@ -105,66 +115,12 @@ final class WatchedBeans<Q extends Annotation, T, W>
         return beans.bindings();
     }
 
-    public synchronized void clear()
-    {
-        for ( final Binding<T> b : beans.bindings() )
-        {
-            remove( b );
-        }
-    }
-
-    // ----------------------------------------------------------------------
-    // Local methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * @return {@code true} if these watched beans are still in use; otherwise {@code false}
-     */
-    boolean isActive()
-    {
-        return null != watcherRef.get();
-    }
-
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    /**
-     * Notifies the watching object of the given watcher event; uses the {@link Mediator} pattern.
-     * 
-     * @param event The watcher event
-     * @param bean The bean entry
-     */
-    private void notify( final WatcherEvent event, final BeanEntry<Q, T> bean )
+    private String detail( final Object watcher )
     {
-        final W watcher = watcherRef.get();
-        if ( null != watcher )
-        {
-            try
-            {
-                switch ( event )
-                {
-                    case ADD:
-                        mediator.add( bean, watcher );
-                        break;
-                    case REMOVE:
-                        mediator.remove( bean, watcher );
-                        break;
-                }
-            }
-            catch ( final Throwable e )
-            {
-                Logs.warn( "Problem mediating: {}", bean, e );
-            }
-        }
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation types
-    // ----------------------------------------------------------------------
-
-    private static enum WatcherEvent
-    {
-        ADD, REMOVE
+        return Logs.identityToString( watcher ) + " via: " + Logs.identityToString( mediator );
     }
 }

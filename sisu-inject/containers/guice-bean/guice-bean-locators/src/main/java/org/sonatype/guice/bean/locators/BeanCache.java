@@ -14,6 +14,7 @@ package org.sonatype.guice.bean.locators;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.sonatype.inject.BeanEntry;
@@ -70,28 +71,18 @@ final class BeanCache<Q extends Annotation, T>
                     {
                         return entry; // already added
                     }
-                    n = new BoundBeans( entry, newBean );
+                    n = createMap( entry, newBean );
                 }
                 else
                 {
-                    synchronized ( o )
+                    Map<Binding, BeanEntry> beans = (Map) o;
+                    final BeanEntry oldBean = beans.get( binding );
+                    if ( null != oldBean )
                     {
-                        BoundBeans<T> beans = (BoundBeans) o;
-                        final BeanEntry oldBean = beans.map.get( binding );
-                        if ( null != oldBean )
-                        {
-                            return oldBean; // already added
-                        }
-                        if ( beans.isImmutable )
-                        {
-                            beans = new BoundBeans( beans ); // copy-on-write
-                        }
-                        beans.map.put( binding, newBean );
-                        if ( o == ( n = beans ) )
-                        {
-                            break; // no need to swap
-                        }
+                        return oldBean; // already added
                     }
+                    n = beans = cloneMap( beans ); // copy-on-write
+                    beans.put( binding, newBean );
                 }
             }
         }
@@ -118,16 +109,7 @@ final class BeanCache<Q extends Annotation, T>
             final LazyBeanEntry entry = (LazyBeanEntry) o;
             return binding == entry.binding ? entry : null;
         }
-        final BoundBeans<T> beans = (BoundBeans) o;
-        if ( beans.isImmutable )
-        {
-            return beans.map.get( binding );
-        }
-        synchronized ( o )
-        {
-            beans.isImmutable = true;
-            return beans.map.get( binding );
-        }
+        return ( (Map<Binding, BeanEntry>) o ).get( binding );
     }
 
     /**
@@ -146,16 +128,7 @@ final class BeanCache<Q extends Annotation, T>
         {
             return Collections.singleton( ( (LazyBeanEntry<?, T>) o ).binding );
         }
-        final BoundBeans<T> beans = (BoundBeans) o;
-        if ( beans.isImmutable )
-        {
-            return beans.map.keySet();
-        }
-        synchronized ( o )
-        {
-            beans.isImmutable = true;
-            return beans.map.keySet();
-        }
+        return ( (Map<Binding<T>, ?>) o ).keySet();
     }
 
     /**
@@ -191,20 +164,14 @@ final class BeanCache<Q extends Annotation, T>
             }
             else
             {
-                synchronized ( o )
+                Map<?, LazyBeanEntry> beans = (Map) o;
+                if ( !beans.containsKey( binding ) )
                 {
-                    BoundBeans<T> beans = (BoundBeans) o;
-                    if ( beans.isImmutable )
-                    {
-                        beans = new BoundBeans( beans ); // copy-on-write
-                    }
-                    oldBean = beans.map.remove( binding );
-                    n = beans.map.isEmpty() ? null : beans;
-                    if ( o == n )
-                    {
-                        return oldBean; // no need to swap
-                    }
+                    return null; // already removed
                 }
+                beans = cloneMap( beans ); // copy-on-write
+                oldBean = beans.remove( binding );
+                n = beans.isEmpty() ? null : beans;
             }
         }
         while ( !cache.compareAndSet( o, n ) );
@@ -213,33 +180,19 @@ final class BeanCache<Q extends Annotation, T>
     }
 
     // ----------------------------------------------------------------------
-    // Implementation types
+    // Implementation methods
     // ----------------------------------------------------------------------
 
-    private static final class BoundBeans<T>
+    Object createMap( final LazyBeanEntry one, final LazyBeanEntry two )
     {
-        // ----------------------------------------------------------------------
-        // Implementation fields
-        // ----------------------------------------------------------------------
+        Map map = new IdentityHashMap();
+        map.put( one.binding, one );
+        map.put( two.binding, two );
+        return map;
+    }
 
-        final IdentityHashMap<Binding<T>, LazyBeanEntry> map;
-
-        volatile boolean isImmutable;
-
-        // ----------------------------------------------------------------------
-        // Constructors
-        // ----------------------------------------------------------------------
-
-        BoundBeans( final LazyBeanEntry one, final LazyBeanEntry two )
-        {
-            map = new IdentityHashMap();
-            map.put( one.binding, one );
-            map.put( two.binding, two );
-        }
-
-        BoundBeans( final BoundBeans beans )
-        {
-            map = (IdentityHashMap) beans.map.clone();
-        }
+    Map cloneMap( final Map beans )
+    {
+        return (Map) ( (IdentityHashMap) beans ).clone();
     }
 }

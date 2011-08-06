@@ -180,6 +180,7 @@ public class RankedBindingsTest
         assertEquals( 2, bindings.bindings.size() );
         function = new DefaultRankingFunction( 0 );
         bindings.add( new InjectorPublisher( injector0, function ), function.maxRank() );
+        assertEquals( 2, bindings.bindings.size() );
         function = new DefaultRankingFunction( 3 );
         bindings.add( new InjectorPublisher( injector3, function ), function.maxRank() );
         assertEquals( 2, bindings.bindings.size() );
@@ -218,16 +219,18 @@ public class RankedBindingsTest
 
     public void testIsActive()
     {
+        char[] buf = new char[1024 * 1024];
+
         final Key<Bean> key = Key.get( TypeLiteral.get( Bean.class ) );
         final RankedBindings<Bean> bindings = new RankedBindings<Bean>( key.getTypeLiteral(), null );
 
-        assertFalse( bindings.isActive() );
+        assertTrue( bindings.cachedBeans.isEmpty() );
         LocatedBeans<Named, Bean> namedBeans1 = new LocatedBeans<Named, Bean>( key, bindings, null );
-        assertTrue( bindings.isActive() );
+        assertFalse( bindings.cachedBeans.isEmpty() );
         LocatedBeans<Named, Bean> namedBeans2 = new LocatedBeans<Named, Bean>( key, bindings, null );
-        assertTrue( bindings.isActive() );
+        assertFalse( bindings.cachedBeans.isEmpty() );
         LocatedBeans<Named, Bean> namedBeans3 = new LocatedBeans<Named, Bean>( key, bindings, null );
-        assertTrue( bindings.isActive() );
+        assertFalse( bindings.cachedBeans.isEmpty() );
 
         assertFalse( namedBeans1.iterator().hasNext() );
         assertFalse( namedBeans2.iterator().hasNext() );
@@ -240,6 +243,9 @@ public class RankedBindingsTest
         assertTrue( namedBeans3.iterator().hasNext() );
 
         namedBeans2 = null;
+
+        System.gc();
+        buf = buf.clone();
         System.gc();
 
         assertTrue( namedBeans1.iterator().hasNext() );
@@ -250,13 +256,16 @@ public class RankedBindingsTest
         assertFalse( namedBeans1.iterator().hasNext() );
         assertFalse( namedBeans3.iterator().hasNext() );
 
-        assertTrue( bindings.isActive() );
+        assertFalse( bindings.cachedBeans.isEmpty() );
 
         namedBeans1 = null;
         namedBeans3 = null;
+
+        System.gc();
+        buf = buf.clone();
         System.gc();
 
-        assertFalse( bindings.isActive() );
+        assertTrue( bindings.cachedBeans.isEmpty() );
     }
 
     public void testExporterRemoval()
@@ -290,7 +299,7 @@ public class RankedBindingsTest
 
         itr = bindings.iterator();
 
-        bindings.clear();
+        bindings.bindings.clear();
 
         bindings.add( exporter3, 0 );
         bindings.add( exporter1, 0 );
