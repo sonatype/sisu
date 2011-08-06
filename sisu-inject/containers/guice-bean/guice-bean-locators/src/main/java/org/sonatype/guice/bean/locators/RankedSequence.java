@@ -13,7 +13,6 @@ package org.sonatype.guice.bean.locators;
 
 import java.util.AbstractCollection;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -24,7 +23,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 final class RankedSequence<T>
     extends AbstractCollection<T>
-    implements Collection<T>
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -88,12 +86,14 @@ final class RankedSequence<T>
         while ( oldContents != newContents && !cache.compareAndSet( oldContents, newContents ) );
     }
 
+    @Override
     public boolean add( final T element )
     {
         insert( element, 0 );
         return true;
     }
 
+    @Override
     public boolean contains( final Object element )
     {
         final Contents contents = cache.get();
@@ -126,6 +126,7 @@ final class RankedSequence<T>
         return false;
     }
 
+    @Override
     public boolean remove( final Object element )
     {
         Contents oldContents, newContents;
@@ -201,6 +202,7 @@ final class RankedSequence<T>
         return NO_ELEMENTS;
     }
 
+    @Override
     public void clear()
     {
         cache.set( null );
@@ -212,12 +214,14 @@ final class RankedSequence<T>
         return null == cache.get();
     }
 
+    @Override
     public int size()
     {
         final Contents contents = cache.get();
         return null == contents ? 0 : contents.size;
     }
 
+    @Override
     public Itr iterator()
     {
         return new Itr();
@@ -286,7 +290,7 @@ final class RankedSequence<T>
         return min;
     }
 
-    static <T> Contents insert( final Contents oldContents, final T element, final int rank )
+    private static <T> Contents insert( final Contents oldContents, final T element, final int rank )
     {
         final Contents newContents;
         if ( oldContents.isImmutable )
@@ -315,7 +319,7 @@ final class RankedSequence<T>
         return newContents;
     }
 
-    static Contents remove( final Contents oldContents, final int index )
+    private static Contents remove( final Contents oldContents, final int index )
     {
         if ( index == 0 && oldContents.size == 1 )
         {

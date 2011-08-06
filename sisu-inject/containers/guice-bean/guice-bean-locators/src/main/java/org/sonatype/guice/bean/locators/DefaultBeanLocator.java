@@ -59,7 +59,7 @@ public final class DefaultBeanLocator
             {
                 if ( null == ( bindings = cachedBindings.get( type ) ) )
                 {
-                    cachedBindings.put( type, ( bindings = new RankedBindings( type, publishers ) ) );
+                    cachedBindings.put( type, bindings = new RankedBindings( type, publishers ) );
                 }
             }
         }
@@ -93,7 +93,7 @@ public final class DefaultBeanLocator
         {
             Logs.debug( "Add publisher: {}", publisher, null );
             publishers.insert( publisher, rank );
-            for ( RankedBindings bindings : cachedBindings.values() )
+            for ( final RankedBindings bindings : cachedBindings.values() )
             {
                 bindings.add( publisher, rank );
             }
@@ -109,7 +109,7 @@ public final class DefaultBeanLocator
         if ( publishers.remove( publisher ) )
         {
             Logs.debug( "Remove publisher: <>", publisher, null );
-            for ( RankedBindings bindings : cachedBindings.values() )
+            for ( final RankedBindings bindings : cachedBindings.values() )
             {
                 bindings.remove( publisher );
             }

@@ -16,7 +16,6 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -25,7 +24,6 @@ import java.util.List;
  */
 final class WeakSequence<T>
     extends AbstractCollection<T>
-    implements Collection<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields

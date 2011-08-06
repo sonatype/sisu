@@ -183,15 +183,15 @@ final class BeanCache<Q extends Annotation, T>
     // Implementation methods
     // ----------------------------------------------------------------------
 
-    Object createMap( final LazyBeanEntry one, final LazyBeanEntry two )
+    private static Object createMap( final LazyBeanEntry one, final LazyBeanEntry two )
     {
-        Map map = new IdentityHashMap();
+        final Map map = new IdentityHashMap();
         map.put( one.binding, one );
         map.put( two.binding, two );
         return map;
     }
 
-    Map cloneMap( final Map beans )
+    private static Map cloneMap( final Map beans )
     {
         return (Map) ( (IdentityHashMap) beans ).clone();
     }

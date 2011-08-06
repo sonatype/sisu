@@ -47,6 +47,7 @@ final class WeakMapping<K, V>
         return null != ref ? ref.get() : null;
     }
 
+    @Override
     public V put( final K key, final V value )
     {
         compact();
@@ -58,8 +59,6 @@ final class WeakMapping<K, V>
     @Override
     public Set<Entry<K, V>> entrySet()
     {
-        compact();
-
         final Map<K, V> map = new HashMap<K, V>( refs.size() );
         for ( final Entry<K, EntryReference<K, V>> e : refs.entrySet() )
         {
