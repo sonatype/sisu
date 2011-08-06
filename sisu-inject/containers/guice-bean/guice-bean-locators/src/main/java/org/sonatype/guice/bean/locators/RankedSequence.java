@@ -50,7 +50,7 @@ final class RankedSequence<T>
 
     RankedSequence( final RankedSequence<T> sequence )
     {
-        final Contents contents = sequence.cache.get();
+        final Contents contents = null != sequence ? sequence.cache.get() : null;
         if ( null != contents )
         {
             cache.set( new Contents( contents ) );
@@ -206,6 +206,12 @@ final class RankedSequence<T>
         cache.set( null );
     }
 
+    @Override
+    public boolean isEmpty()
+    {
+        return null == cache.get();
+    }
+
     public int size()
     {
         final Contents contents = cache.get();
@@ -255,6 +261,10 @@ final class RankedSequence<T>
      */
     static int safeBinarySearch( final long[] uids, final int size, final long uid )
     {
+        if ( uid < uids[0] )
+        {
+            return 0;
+        }
         int min = 0;
         int max = size - 1;
         while ( min < max )
@@ -307,6 +317,11 @@ final class RankedSequence<T>
 
     static Contents remove( final Contents oldContents, final int index )
     {
+        if ( index == 0 && oldContents.size == 1 )
+        {
+            return null;
+        }
+
         final Contents newContents;
         if ( oldContents.isImmutable )
         {
@@ -474,7 +489,7 @@ final class RankedSequence<T>
             {
                 throw new IllegalStateException();
             }
-            RankedSequence.this.remove( element );
+            RankedSequence.this.removeThis( element );
             element = null;
         }
 

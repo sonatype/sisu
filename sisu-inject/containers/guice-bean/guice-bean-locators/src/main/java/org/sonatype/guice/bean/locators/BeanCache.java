@@ -212,6 +212,11 @@ final class BeanCache<Q extends Annotation, T>
         return oldBean;
     }
 
+    public void clear()
+    {
+        cache.set( null );
+    }
+
     // ----------------------------------------------------------------------
     // Implementation types
     // ----------------------------------------------------------------------

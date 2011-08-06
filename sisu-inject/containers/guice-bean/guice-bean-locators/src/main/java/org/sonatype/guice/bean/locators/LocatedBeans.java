@@ -40,7 +40,7 @@ final class LocatedBeans<Q extends Annotation, T>
 
     final QualifyingStrategy strategy;
 
-    final BeanCache<Q, T> beans = new BeanCache<Q, T>();
+    final BeanCache<Q, T> beans;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -54,8 +54,7 @@ final class LocatedBeans<Q extends Annotation, T>
         this.implicitBindings = implicitBindings;
 
         strategy = QualifyingStrategy.selectFor( key );
-
-        explicitBindings.linkToBeans( this );
+        beans = explicitBindings.newBeanCache();
     }
 
     // ----------------------------------------------------------------------
@@ -65,26 +64,6 @@ final class LocatedBeans<Q extends Annotation, T>
     public Iterator<BeanEntry<Q, T>> iterator()
     {
         return new Itr();
-    }
-
-    // ----------------------------------------------------------------------
-    // Implementation methods
-    // ----------------------------------------------------------------------
-
-    /**
-     * Evict any stale {@link BeanEntry}s from this collection; an entry is stale if its binding is gone.
-     * 
-     * @param activeBindings The active bindings
-     */
-    void retainAll( final RankedSequence<Binding<T>> activeBindings )
-    {
-        for ( final Binding<T> binding : beans.bindings() )
-        {
-            if ( !activeBindings.containsThis( binding ) )
-            {
-                beans.remove( binding );
-            }
-        }
     }
 
     // ----------------------------------------------------------------------

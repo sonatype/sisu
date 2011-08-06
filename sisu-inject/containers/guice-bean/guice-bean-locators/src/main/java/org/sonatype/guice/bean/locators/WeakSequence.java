@@ -31,7 +31,7 @@ final class WeakSequence<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final List<IndexedWeakReference<T>> refs = new ArrayList<IndexedWeakReference<T>>();
+    private final List<IndexedReference<T>> refs = new ArrayList<IndexedReference<T>>();
 
     private final ReferenceQueue<T> queue = new ReferenceQueue<T>();
 
@@ -40,11 +40,18 @@ final class WeakSequence<T>
     // ----------------------------------------------------------------------
 
     @Override
-    public synchronized boolean add( final T e )
+    public synchronized boolean add( final T value )
     {
         compact();
 
-        return refs.add( new IndexedWeakReference<T>( e, queue, refs.size() ) );
+        return refs.add( new IndexedReference<T>( value, queue, refs.size() ) );
+    }
+
+    public synchronized <L> boolean link( final T value, final L link )
+    {
+        compact();
+
+        return refs.add( new LinkedReference<T, L>( value, queue, refs.size(), link ) );
     }
 
     @Override
@@ -52,8 +59,9 @@ final class WeakSequence<T>
     {
         compact();
 
-        final List<T> elements = new ArrayList<T>();
-        for ( int i = 0, size = refs.size(); i < size; i++ )
+        final int size = refs.size();
+        final List<T> elements = new ArrayList<T>( size );
+        for ( int i = 0; i < size; i++ )
         {
             final T e = refs.get( i ).get();
             if ( null != e )
@@ -83,11 +91,11 @@ final class WeakSequence<T>
     private void compact()
     {
         Reference<? extends T> ref;
-        while ( ( ref = queue.poll() ) instanceof IndexedWeakReference<?> )
+        while ( ( ref = queue.poll() ) instanceof IndexedReference<?> )
         {
             @SuppressWarnings( "unchecked" )
-            final int index = ( (IndexedWeakReference<T>) ref ).index;
-            final IndexedWeakReference<T> lastRef = refs.remove( refs.size() - 1 );
+            final int index = ( (IndexedReference<T>) ref ).index;
+            final IndexedReference<T> lastRef = refs.remove( refs.size() - 1 );
             if ( index != lastRef.index )
             {
                 lastRef.index = index;
@@ -103,7 +111,7 @@ final class WeakSequence<T>
     /**
      * {@link WeakReference} that remembers its position so it can be quickly evicted.
      */
-    private static final class IndexedWeakReference<T>
+    private static class IndexedReference<T>
         extends WeakReference<T>
     {
         // ----------------------------------------------------------------------
@@ -116,10 +124,41 @@ final class WeakSequence<T>
         // Constructors
         // ----------------------------------------------------------------------
 
-        IndexedWeakReference( final T o, final ReferenceQueue<T> queue, final int index )
+        IndexedReference( final T value, final ReferenceQueue<T> queue, final int index )
         {
-            super( o, queue );
+            super( value, queue );
             this.index = index;
+        }
+    }
+
+    private static final class LinkedReference<T, L>
+        extends IndexedReference<T>
+    {
+        // ----------------------------------------------------------------------
+        // Implementation fields
+        // ----------------------------------------------------------------------
+
+        T value;
+
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
+        @SuppressWarnings( "unchecked" )
+        LinkedReference( final T value, final ReferenceQueue<T> queue, final int index, final L link )
+        {
+            super( (T) link, queue, index );
+            this.value = value;
+        }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
+
+        @Override
+        public T get()
+        {
+            return value;
         }
     }
 }
