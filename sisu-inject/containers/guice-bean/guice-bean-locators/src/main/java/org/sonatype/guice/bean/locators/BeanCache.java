@@ -165,13 +165,19 @@ final class BeanCache<Q extends Annotation, T>
             else
             {
                 Map<?, LazyBeanEntry> beans = (Map) o;
-                if ( !beans.containsKey( binding ) )
+                if ( null == ( oldBean = beans.get( binding ) ) )
                 {
                     return null; // already removed
                 }
-                beans = cloneMap( beans ); // copy-on-write
-                oldBean = beans.remove( binding );
-                n = beans.isEmpty() ? null : beans;
+                if ( beans.size() > 1 )
+                {
+                    n = beans = cloneMap( beans ); // copy-on-write
+                    beans.remove( binding );
+                }
+                else
+                {
+                    n = null; // we're removing the last element
+                }
             }
         }
         while ( !cache.compareAndSet( o, n ) );
