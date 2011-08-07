@@ -13,7 +13,7 @@ package org.sonatype.guice.bean.locators;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.collect.MapMaker;
 
-final class WeakMapping<K, V>
+final class SoftMapping<K, V>
     extends AbstractMap<K, V>
 {
     // ----------------------------------------------------------------------
@@ -107,7 +107,7 @@ final class WeakMapping<K, V>
     // ----------------------------------------------------------------------
 
     private static final class EntryReference<K, V>
-        extends WeakReference<V>
+        extends SoftReference<V>
     {
         // ----------------------------------------------------------------------
         // Implementation fields

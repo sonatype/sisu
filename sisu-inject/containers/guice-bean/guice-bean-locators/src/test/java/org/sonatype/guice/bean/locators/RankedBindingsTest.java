@@ -265,6 +265,8 @@ public class RankedBindingsTest
         buf = buf.clone();
         System.gc();
 
+        assertFalse( bindings.cachedBeans.isEmpty() );
+        bindings.cachedBeans.iterator();
         assertTrue( bindings.cachedBeans.isEmpty() );
     }
 

@@ -74,8 +74,6 @@ final class WeakSequence<T>
     @Override
     public synchronized int size()
     {
-        compact();
-
         return refs.size();
     }
 
