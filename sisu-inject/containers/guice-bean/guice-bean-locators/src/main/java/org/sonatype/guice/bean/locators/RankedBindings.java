@@ -12,7 +12,6 @@
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
-import java.util.Arrays;
 import java.util.Iterator;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
@@ -74,10 +73,9 @@ final class RankedBindings<T>
         }
     }
 
-    @SuppressWarnings( { "rawtypes", "unchecked" } )
     public Iterable<Binding<T>> bindings()
     {
-        return (Iterable) Arrays.asList( bindings.toArray() );
+        return bindings.snapshot();
     }
 
     public Itr iterator()

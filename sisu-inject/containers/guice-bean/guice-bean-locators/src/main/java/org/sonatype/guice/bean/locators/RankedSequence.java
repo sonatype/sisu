@@ -13,6 +13,7 @@ package org.sonatype.guice.bean.locators;
 
 import java.util.AbstractCollection;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -30,8 +31,6 @@ final class RankedSequence<T>
 
     private static final int INITIAL_CAPACITY = 10;
 
-    private static final Object[] NO_ELEMENTS = {};
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -44,6 +43,7 @@ final class RankedSequence<T>
 
     RankedSequence()
     {
+        // nothing to do
     }
 
     RankedSequence( final RankedSequence<T> sequence )
@@ -97,33 +97,35 @@ final class RankedSequence<T>
     public boolean contains( final Object element )
     {
         final Contents contents = cache.get();
-        if ( null != contents )
+        if ( null == contents )
         {
-            for ( final Object o : contents.objs )
-            {
-                if ( element.equals( o ) )
-                {
-                    return true;
-                }
-            }
+            return false;
         }
-        return false;
+        if ( contents.isImmutable )
+        {
+            return indexOf( contents.objs, contents.size, element ) >= 0;
+        }
+        synchronized ( contents )
+        {
+            return indexOf( contents.objs, contents.size, element ) >= 0;
+        }
     }
 
-    public boolean containsThis( final T element )
+    public boolean containsThis( final Object element )
     {
         final Contents contents = cache.get();
-        if ( null != contents )
+        if ( null == contents )
         {
-            for ( final Object o : contents.objs )
-            {
-                if ( element == o )
-                {
-                    return true;
-                }
-            }
+            return false;
         }
-        return false;
+        if ( contents.isImmutable )
+        {
+            return indexOfThis( contents.objs, contents.size, element ) >= 0;
+        }
+        synchronized ( contents )
+        {
+            return indexOfThis( contents.objs, contents.size, element ) >= 0;
+        }
     }
 
     @Override
@@ -138,15 +140,8 @@ final class RankedSequence<T>
             }
             synchronized ( oldContents )
             {
-                int index;
-                for ( index = 0; index < oldContents.size; index++ )
-                {
-                    if ( element.equals( oldContents.objs[index] ) )
-                    {
-                        break;
-                    }
-                }
-                if ( index >= oldContents.size )
+                final int index = indexOf( oldContents.objs, oldContents.size, element );
+                if ( index < 0 )
                 {
                     return false;
                 }
@@ -169,15 +164,8 @@ final class RankedSequence<T>
             }
             synchronized ( oldContents )
             {
-                int index;
-                for ( index = 0; index < oldContents.size; index++ )
-                {
-                    if ( element == oldContents.objs[index] )
-                    {
-                        break;
-                    }
-                }
-                if ( index >= oldContents.size )
+                final int index = indexOfThis( oldContents.objs, oldContents.size, element );
+                if ( index < 0 )
                 {
                     return false;
                 }
@@ -189,17 +177,26 @@ final class RankedSequence<T>
         return true;
     }
 
-    @Override
-    public Object[] toArray()
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    public Iterable<T> snapshot()
     {
         final Contents contents = cache.get();
-        if ( null != contents )
+        if ( null == contents )
+        {
+            return Collections.EMPTY_SET;
+        }
+        if ( contents.isImmutable )
         {
             final Object[] elements = new Object[contents.size];
             System.arraycopy( contents.objs, 0, elements, 0, elements.length );
-            return elements;
+            return (List) Arrays.asList( elements );
         }
-        return NO_ELEMENTS;
+        synchronized ( contents )
+        {
+            final Object[] elements = new Object[contents.size];
+            System.arraycopy( contents.objs, 0, elements, 0, elements.length );
+            return (List) Arrays.asList( elements );
+        }
     }
 
     @Override
@@ -288,6 +285,30 @@ final class RankedSequence<T>
             return size; // append
         }
         return min;
+    }
+
+    private static int indexOf( final Object[] objs, final int size, final Object element )
+    {
+        for ( int index = 0; index < size; index++ )
+        {
+            if ( element.equals( objs[index] ) )
+            {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    private static int indexOfThis( final Object[] objs, final int size, final Object element )
+    {
+        for ( int index = 0; index < size; index++ )
+        {
+            if ( element == objs[index] )
+            {
+                return index;
+            }
+        }
+        return -1;
     }
 
     private static <T> Contents insert( final Contents oldContents, final T element, final int rank )

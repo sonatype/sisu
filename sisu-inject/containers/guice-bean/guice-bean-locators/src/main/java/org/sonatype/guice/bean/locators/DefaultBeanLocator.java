@@ -70,7 +70,7 @@ public final class DefaultBeanLocator
     public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )
     {
         final WatchedBeans beans = new WatchedBeans( key, mediator, watcher );
-        for ( final BindingPublisher p : publishers )
+        for ( final BindingPublisher p : publishers.snapshot() )
         {
             p.subscribe( beans );
         }
@@ -120,9 +120,9 @@ public final class DefaultBeanLocator
         }
     }
 
-    public void clear()
+    public synchronized void clear()
     {
-        for ( final BindingPublisher p : publishers )
+        for ( final BindingPublisher p : publishers.snapshot() )
         {
             remove( p );
         }
