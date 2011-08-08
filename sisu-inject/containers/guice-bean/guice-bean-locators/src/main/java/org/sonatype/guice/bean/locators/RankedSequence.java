@@ -45,7 +45,7 @@ final class RankedSequence<T>
         final Contents contents;
         if ( null != sequence && null != ( contents = sequence.cache.get() ) )
         {
-            cache.set( new Contents( contents, false ) );
+            cache.set( new Contents( contents ) );
         }
     }
 
@@ -325,8 +325,6 @@ final class RankedSequence<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        final boolean isImmutable;
-
         Object[] objs;
 
         long[] uids;
@@ -335,14 +333,19 @@ final class RankedSequence<T>
 
         int uniq;
 
+        volatile boolean isImmutable;
+
         // ----------------------------------------------------------------------
         // Constructors
         // ----------------------------------------------------------------------
 
+        Contents()
+        {
+            // blank template
+        }
+
         Contents( final Object element, final int rank )
         {
-            isImmutable = true;
-
             objs = new Object[INITIAL_CAPACITY];
             uids = new long[INITIAL_CAPACITY];
 
@@ -353,23 +356,24 @@ final class RankedSequence<T>
             uniq++;
         }
 
-        Contents( final Contents contents, final boolean skipClone )
+        Contents( final Contents contents )
         {
-            isImmutable = contents.size < INITIAL_CAPACITY;
+            size = contents.size;
+            uniq = contents.uniq;
 
-            if ( isImmutable || skipClone )
+            if ( contents.isImmutable )
             {
+                // can share the data
                 objs = contents.objs;
                 uids = contents.uids;
+
+                isImmutable = true;
             }
             else
             {
                 objs = contents.objs.clone();
                 uids = contents.uids.clone();
             }
-
-            size = contents.size;
-            uniq = contents.uniq;
         }
 
         // ----------------------------------------------------------------------
@@ -442,13 +446,13 @@ final class RankedSequence<T>
             newObjs[index] = element;
             newUIDs[index] = uid;
 
-            final Contents newContents = isImmutable ? new Contents( this, true ) : this;
+            final Contents newContents = isImmutable ? new Contents() : this;
 
             newContents.objs = newObjs;
             newContents.uids = newUIDs;
 
-            newContents.size++;
-            newContents.uniq++;
+            newContents.size = size + 1;
+            newContents.uniq = uniq + 1;
 
             return newContents;
         }
@@ -481,12 +485,15 @@ final class RankedSequence<T>
                 System.arraycopy( uids, srcPos, newUIDs, index, len );
             }
 
-            final Contents newContents = isImmutable ? new Contents( this, true ) : this;
+            final Contents newContents = isImmutable ? new Contents() : this;
 
             newContents.objs = newObjs;
             newContents.uids = newUIDs;
 
-            newContents.objs[--newContents.size] = null; // remove dangling reference
+            newContents.size = size - 1;
+            newContents.uniq = uniq;
+
+            newContents.objs[newContents.size] = null; // remove dangling reference
 
             return newContents;
         }
@@ -544,6 +551,9 @@ final class RankedSequence<T>
                     sync( newContents );
                     if ( index < newContents.size )
                     {
+                        // mark this as used (immutable)
+                        newContents.isImmutable = true;
+
                         nextObj = (T) newContents.objs[index];
                         nextUID = newContents.uids[index];
                         return true;
@@ -631,6 +641,7 @@ final class RankedSequence<T>
         {
             if ( expectedSize != contents.size || expectedUniq != contents.uniq )
             {
+                // sequence has been modified, so we may need to reposition index
                 index = safeBinarySearch( contents.uids, contents.size, nextUID );
                 expectedSize = contents.size;
                 expectedUniq = contents.uniq;

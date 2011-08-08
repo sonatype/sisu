@@ -249,7 +249,7 @@ final class BeanCache<Q extends Annotation, T>
         private static final long serialVersionUID = 1L;
 
         /*
-         * Size limit where we switch from copy-on-write to locking (based on original map's resize threshold)
+         * Size where we switch from copy-on-write to locking (based on original map's resize threshold)
          */
         private static final int COPY_ON_WRITE_LIMIT = 20;
 
