@@ -32,7 +32,7 @@ final class SoftMapping<K, V>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final ConcurrentMap<K, EntryReference<K, V>> refs = new MapMaker().makeMap();
+    private final ConcurrentMap<K, EntryReference<K, V>> refs = new MapMaker().initialCapacity( 256 ).makeMap();
 
     private final ReferenceQueue<V> queue = new ReferenceQueue<V>();
 
