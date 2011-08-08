@@ -201,8 +201,11 @@ public class RankedSequenceTest
             while ( active.get() )
             {
                 Thread.yield();
-                final int rank = random.nextInt();
-                rankedList.insert( Integer.valueOf( rank ), rank );
+                if ( rankedList.size() < 8192 )
+                {
+                    final int rank = random.nextInt();
+                    rankedList.insert( Integer.valueOf( rank ), rank );
+                }
                 Thread.yield();
             }
         }
