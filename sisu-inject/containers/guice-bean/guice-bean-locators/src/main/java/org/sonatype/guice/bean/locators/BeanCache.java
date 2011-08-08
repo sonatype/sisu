@@ -12,9 +12,9 @@
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.sonatype.inject.BeanEntry;
@@ -22,8 +22,8 @@ import org.sonatype.inject.BeanEntry;
 import com.google.inject.Binding;
 
 /**
- * Copy-on-write cache mapping {@link Binding}s to {@link BeanEntry}s; optimized for common case of single entries.
- * Note: uses {@code ==} instead of {@code equals} to compare {@link Binding}s because we want referential equality.
+ * Atomic cache mapping {@link Binding}s to {@link BeanEntry}s; optimized for common case of single entries.<br>
+ * Uses {@code ==} instead of {@code equals} to compare {@link Binding}s because we want referential equality.
  */
 @SuppressWarnings( { "rawtypes", "unchecked" } )
 final class BeanCache<Q extends Annotation, T>
@@ -62,27 +62,43 @@ final class BeanCache<Q extends Annotation, T>
             {
                 n = newBean; // most common case: adding the one (and-only) entry
             }
+            else if ( o instanceof LazyBeanEntry )
+            {
+                final LazyBeanEntry entry = (LazyBeanEntry) o;
+                if ( binding == entry.binding )
+                {
+                    return entry; // already added
+                }
+                n = new BeanMap( entry, newBean );
+            }
             else
             {
-                if ( o instanceof LazyBeanEntry )
+                /*
+                 * For immutable maps use copy-on-write; otherwise must lock
+                 */
+                BeanMap<Q, T> map = (BeanMap) o;
+                if ( map.isImmutable() )
                 {
-                    final LazyBeanEntry entry = (LazyBeanEntry) o;
-                    if ( binding == entry.binding )
+                    final BeanEntry oldBean = map.get( binding );
+                    if ( null != oldBean )
                     {
-                        return entry; // already added
+                        return oldBean;
                     }
-                    n = createMap( entry, newBean );
+                    n = map = map.clone(); // must copy-on-write
+                    map.put( binding, newBean );
                 }
                 else
                 {
-                    Map<Binding, BeanEntry> beans = (Map) o;
-                    final BeanEntry oldBean = beans.get( binding );
-                    if ( null != oldBean )
+                    synchronized ( map )
                     {
-                        return oldBean; // already added
+                        final BeanEntry oldBean = map.get( binding );
+                        if ( null != oldBean )
+                        {
+                            return oldBean;
+                        }
+                        map.put( binding, newBean );
+                        return newBean; // no need to compare-and-set
                     }
-                    n = beans = cloneMap( beans ); // copy-on-write
-                    beans.put( binding, newBean );
                 }
             }
         }
@@ -109,7 +125,15 @@ final class BeanCache<Q extends Annotation, T>
             final LazyBeanEntry entry = (LazyBeanEntry) o;
             return binding == entry.binding ? entry : null;
         }
-        return ( (Map<Binding, BeanEntry>) o ).get( binding );
+        final BeanMap<Q, T> map = (BeanMap) o;
+        if ( map.isImmutable() )
+        {
+            return map.get( binding );
+        }
+        synchronized ( map )
+        {
+            return map.get( binding );
+        }
     }
 
     /**
@@ -128,7 +152,15 @@ final class BeanCache<Q extends Annotation, T>
         {
             return Collections.singleton( ( (LazyBeanEntry<?, T>) o ).binding );
         }
-        return ( (Map<Binding<T>, ?>) o ).keySet();
+        final BeanMap<Q, T> map = (BeanMap) o;
+        if ( map.isImmutable() )
+        {
+            return map.keySet();
+        }
+        synchronized ( map )
+        {
+            return new ArrayList( map.keySet() ); // must take snapshot
+        }
     }
 
     /**
@@ -164,19 +196,37 @@ final class BeanCache<Q extends Annotation, T>
             }
             else
             {
-                Map<?, LazyBeanEntry> beans = (Map) o;
-                if ( null == ( oldBean = beans.get( binding ) ) )
+                /*
+                 * For immutable maps use copy-on-write; otherwise must lock
+                 */
+                BeanMap<Q, T> map = (BeanMap) o;
+                if ( map.isImmutable() )
                 {
-                    return null; // already removed
-                }
-                if ( beans.size() > 1 )
-                {
-                    n = beans = cloneMap( beans ); // copy-on-write
-                    beans.remove( binding );
+                    if ( null == ( oldBean = map.get( binding ) ) )
+                    {
+                        return null;
+                    }
+                    else if ( map.size() > 1 )
+                    {
+                        n = map = map.clone(); // must copy-on-write
+                        map.remove( binding );
+                    }
+                    else
+                    {
+                        n = null; // we're removing the last element
+                    }
                 }
                 else
                 {
-                    n = null; // we're removing the last element
+                    synchronized ( map )
+                    {
+                        if ( map.size() > 1 )
+                        {
+                            return map.remove( binding ); // no need to compare-and-set
+                        }
+                        oldBean = map.get( binding );
+                        n = null; // we're removing the last element
+                    }
                 }
             }
         }
@@ -186,19 +236,58 @@ final class BeanCache<Q extends Annotation, T>
     }
 
     // ----------------------------------------------------------------------
-    // Implementation methods
+    // Implementation types
     // ----------------------------------------------------------------------
 
-    private static Object createMap( final LazyBeanEntry one, final LazyBeanEntry two )
+    private static final class BeanMap<Q extends Annotation, T>
+        extends IdentityHashMap<Binding<T>, LazyBeanEntry<Q, T>>
     {
-        final Map map = new IdentityHashMap();
-        map.put( one.binding, one );
-        map.put( two.binding, two );
-        return map;
-    }
+        // ----------------------------------------------------------------------
+        // Constants
+        // ----------------------------------------------------------------------
 
-    private static Map cloneMap( final Map beans )
-    {
-        return (Map) ( (IdentityHashMap) beans ).clone();
+        private static final long serialVersionUID = 1L;
+
+        /*
+         * Size limit where we switch from copy-on-write to locking (based on original map's resize threshold)
+         */
+        private static final int COPY_ON_WRITE_LIMIT = 20;
+
+        // ----------------------------------------------------------------------
+        // Implementation types
+        // ----------------------------------------------------------------------
+
+        private boolean isImmutable;
+
+        // ----------------------------------------------------------------------
+        // Constructors
+        // ----------------------------------------------------------------------
+
+        BeanMap( final LazyBeanEntry one, final LazyBeanEntry two )
+        {
+            put( one.binding, one );
+            put( two.binding, two );
+            isImmutable = true;
+        }
+
+        // ----------------------------------------------------------------------
+        // Public methods
+        // ----------------------------------------------------------------------
+
+        /**
+         * Creates a duplicate of this map; small maps are marked as immutable (should use copy-on-write).
+         */
+        @Override
+        public BeanMap clone()
+        {
+            final BeanMap clone = (BeanMap) super.clone();
+            clone.isImmutable = clone.size() < COPY_ON_WRITE_LIMIT;
+            return clone;
+        }
+
+        public boolean isImmutable()
+        {
+            return isImmutable;
+        }
     }
 }
