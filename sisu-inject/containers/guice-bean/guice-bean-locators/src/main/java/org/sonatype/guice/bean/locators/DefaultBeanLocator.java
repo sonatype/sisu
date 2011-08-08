@@ -108,7 +108,7 @@ public final class DefaultBeanLocator
     {
         if ( publishers.remove( publisher ) )
         {
-            Logs.debug( "Remove publisher: <>", publisher, null );
+            Logs.debug( "Remove publisher: {}", publisher, null );
             for ( final RankedBindings bindings : cachedBindings.values() )
             {
                 bindings.remove( publisher );

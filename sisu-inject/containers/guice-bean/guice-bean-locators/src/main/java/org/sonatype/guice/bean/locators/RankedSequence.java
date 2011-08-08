@@ -91,6 +91,18 @@ final class RankedSequence<T>
         return true;
     }
 
+    public void optimizeForReading()
+    {
+        final Contents contents = cache.get();
+        if ( null != contents && !contents.isImmutable )
+        {
+            synchronized ( contents )
+            {
+                contents.isImmutable = true; // optimize for reading
+            }
+        }
+    }
+
     @Override
     public boolean contains( final Object element )
     {
@@ -551,9 +563,6 @@ final class RankedSequence<T>
                     sync( newContents );
                     if ( index < newContents.size )
                     {
-                        // mark this as used (immutable)
-                        newContents.isImmutable = true;
-
                         nextObj = (T) newContents.objs[index];
                         nextUID = newContents.uids[index];
                         return true;

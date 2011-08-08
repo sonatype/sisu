@@ -63,6 +63,8 @@ final class LocatedBeans<Q extends Annotation, T>
 
     public Iterator<BeanEntry<Q, T>> iterator()
     {
+        beans.optimizeForReading();
+
         return new Itr();
     }
 
