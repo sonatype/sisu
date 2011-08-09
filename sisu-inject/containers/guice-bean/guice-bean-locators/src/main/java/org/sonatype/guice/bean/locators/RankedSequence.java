@@ -549,8 +549,7 @@ final class RankedSequence<T>
             }
             else if ( contents.isImmutable )
             {
-                sync( contents );
-                if ( index < contents.size )
+                if ( reposition( contents ) )
                 {
                     nextObj = (T) contents.objs[index];
                     nextUID = contents.uids[index];
@@ -561,8 +560,7 @@ final class RankedSequence<T>
             {
                 synchronized ( contents )
                 {
-                    sync( contents );
-                    if ( index < contents.size )
+                    if ( reposition( contents ) )
                     {
                         nextObj = (T) contents.objs[index];
                         nextUID = contents.uids[index];
@@ -590,8 +588,7 @@ final class RankedSequence<T>
             }
             else if ( contents.isImmutable )
             {
-                sync( contents );
-                if ( index < contents.size )
+                if ( reposition( contents ) )
                 {
                     return uid2rank( contents.uids[index] );
                 }
@@ -600,8 +597,7 @@ final class RankedSequence<T>
             {
                 synchronized ( contents )
                 {
-                    sync( contents );
-                    if ( index < contents.size )
+                    if ( reposition( contents ) )
                     {
                         return uid2rank( contents.uids[index] );
                     }
@@ -647,7 +643,7 @@ final class RankedSequence<T>
         // Implementation methods
         // ----------------------------------------------------------------------
 
-        private void sync( final Contents contents )
+        private boolean reposition( final Contents contents )
         {
             if ( expectedSize != contents.size || expectedUniq != contents.uniq )
             {
@@ -656,6 +652,7 @@ final class RankedSequence<T>
                 expectedSize = contents.size;
                 expectedUniq = contents.uniq;
             }
+            return index < expectedSize;
         }
     }
 }
