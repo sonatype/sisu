@@ -80,8 +80,6 @@ final class RankedBindings<T>
 
     public Itr iterator()
     {
-        bindings.optimizeForReading();
-
         return new Itr();
     }
 
