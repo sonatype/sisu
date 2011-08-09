@@ -418,6 +418,8 @@ final class RankedSequence<T>
 
         public Contents insert( final Object element, final int rank )
         {
+            final boolean wasImmutable = isImmutable;
+
             final long uid = rank2uid( rank, uniq );
             final int index = safeBinarySearch( uids, size, uid );
 
@@ -437,7 +439,7 @@ final class RankedSequence<T>
                     System.arraycopy( uids, 0, newUIDs, 0, index );
                 }
             }
-            else if ( isImmutable )
+            else if ( wasImmutable )
             {
                 newObjs = objs.clone();
                 newUIDs = uids.clone();
@@ -458,7 +460,7 @@ final class RankedSequence<T>
             newObjs[index] = element;
             newUIDs[index] = uid;
 
-            final Contents newContents = isImmutable ? new Contents() : this;
+            final Contents newContents = wasImmutable ? new Contents() : this;
 
             newContents.objs = newObjs;
             newContents.uids = newUIDs;
@@ -476,10 +478,12 @@ final class RankedSequence<T>
                 return null;
             }
 
+            final boolean wasImmutable = isImmutable;
+
             final Object[] newObjs;
             final long[] newUIDs;
 
-            if ( isImmutable )
+            if ( wasImmutable )
             {
                 newObjs = objs.clone();
                 newUIDs = uids.clone();
@@ -497,7 +501,7 @@ final class RankedSequence<T>
                 System.arraycopy( uids, srcPos, newUIDs, index, len );
             }
 
-            final Contents newContents = isImmutable ? new Contents() : this;
+            final Contents newContents = wasImmutable ? new Contents() : this;
 
             newContents.objs = newObjs;
             newContents.uids = newUIDs;
@@ -540,31 +544,31 @@ final class RankedSequence<T>
             {
                 return true;
             }
-            final Contents newContents = cache.get();
-            if ( null == newContents )
+            final Contents contents = cache.get();
+            if ( null == contents )
             {
                 expectedSize = 0;
                 expectedUniq = 0;
             }
-            else if ( newContents.isImmutable )
+            else if ( contents.isImmutable )
             {
-                sync( newContents );
-                if ( index < newContents.size )
+                sync( contents );
+                if ( index < contents.size )
                 {
-                    nextObj = (T) newContents.objs[index];
-                    nextUID = newContents.uids[index];
+                    nextObj = (T) contents.objs[index];
+                    nextUID = contents.uids[index];
                     return true;
                 }
             }
             else
             {
-                synchronized ( newContents )
+                synchronized ( contents )
                 {
-                    sync( newContents );
-                    if ( index < newContents.size )
+                    sync( contents );
+                    if ( index < contents.size )
                     {
-                        nextObj = (T) newContents.objs[index];
-                        nextUID = newContents.uids[index];
+                        nextObj = (T) contents.objs[index];
+                        nextUID = contents.uids[index];
                         return true;
                     }
                 }

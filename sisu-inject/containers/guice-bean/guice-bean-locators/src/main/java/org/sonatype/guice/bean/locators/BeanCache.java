@@ -15,6 +15,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.sonatype.inject.BeanEntry;
@@ -48,7 +49,7 @@ final class BeanCache<Q extends Annotation, T>
      */
     public BeanEntry<Q, T> create( final Q qualifier, final Binding<T> binding, final int rank )
     {
-        final LazyBeanEntry newBean = new LazyBeanEntry( qualifier, binding, rank );
+        LazyBeanEntry newBean = null;
 
         Object o, n;
 
@@ -60,7 +61,8 @@ final class BeanCache<Q extends Annotation, T>
             o = cache.get();
             if ( null == o )
             {
-                n = newBean; // most common case: adding the one (and-only) entry
+                // most common case: adding the one (and-only) entry
+                n = newBean = new LazyBeanEntry( qualifier, binding, rank );
             }
             else if ( o instanceof LazyBeanEntry )
             {
@@ -69,89 +71,26 @@ final class BeanCache<Q extends Annotation, T>
                 {
                     return entry; // already added
                 }
-                n = new BeanMap( entry, newBean );
+                n = createMap( entry, newBean = new LazyBeanEntry( qualifier, binding, rank ) );
             }
             else
             {
-                /*
-                 * For immutable maps use copy-on-write; otherwise must lock
-                 */
-                BeanMap<Q, T> map = (BeanMap) o;
-                if ( map.isImmutable )
+                synchronized ( o )
                 {
+                    final Map<Binding, BeanEntry> map = (Map) o;
                     final BeanEntry oldBean = map.get( binding );
                     if ( null != oldBean )
                     {
                         return oldBean;
                     }
-                    // must copy-on-write
-                    n = map = map.clone();
-                    map.put( binding, newBean );
-                }
-                else
-                {
-                    synchronized ( map )
-                    {
-                        final BeanEntry oldBean = map.get( binding );
-                        if ( null != oldBean )
-                        {
-                            return oldBean;
-                        }
-                        // modify the map directly
-                        map.put( binding, newBean );
-                        return newBean;
-                    }
+                    map.put( binding, newBean = new LazyBeanEntry( qualifier, binding, rank ) );
+                    return newBean;
                 }
             }
         }
         while ( !cache.compareAndSet( o, n ) );
 
         return newBean;
-    }
-
-    public void optimizeForReading()
-    {
-        final Object o = cache.get();
-        if ( o instanceof BeanMap<?, ?> )
-        {
-            final BeanMap<Q, T> map = (BeanMap) o;
-            if ( !map.isImmutable )
-            {
-                synchronized ( map )
-                {
-                    map.isImmutable = true; // optimize for reading
-                }
-            }
-        }
-    }
-
-    /**
-     * Retrieves the {@link BeanEntry} associated with the given {@link Binding} reference.
-     * 
-     * @param binding The binding
-     * @return Associated bean entry
-     */
-    public BeanEntry<Q, T> get( final Binding<T> binding )
-    {
-        final Object o = cache.get();
-        if ( null == o )
-        {
-            return null;
-        }
-        else if ( o instanceof LazyBeanEntry )
-        {
-            final LazyBeanEntry entry = (LazyBeanEntry) o;
-            return binding == entry.binding ? entry : null;
-        }
-        final BeanMap<Q, T> map = (BeanMap) o;
-        if ( map.isImmutable )
-        {
-            return map.get( binding );
-        }
-        synchronized ( map )
-        {
-            return map.get( binding );
-        }
     }
 
     /**
@@ -170,14 +109,9 @@ final class BeanCache<Q extends Annotation, T>
         {
             return Collections.singleton( ( (LazyBeanEntry<?, T>) o ).binding );
         }
-        final BeanMap<Q, T> map = (BeanMap) o;
-        if ( map.isImmutable )
+        synchronized ( o )
         {
-            return map.keySet();
-        }
-        synchronized ( map )
-        {
-            return new ArrayList( map.keySet() ); // must take snapshot
+            return new ArrayList( ( (Map<Binding, BeanEntry>) o ).keySet() );
         }
     }
 
@@ -214,40 +148,15 @@ final class BeanCache<Q extends Annotation, T>
             }
             else
             {
-                /*
-                 * For immutable maps use copy-on-write; otherwise must lock
-                 */
-                BeanMap<Q, T> map = (BeanMap) o;
-                if ( map.isImmutable )
+                synchronized ( o )
                 {
-                    // try to avoid cloning if at all possible...
-                    if ( null == ( oldBean = map.get( binding ) ) )
+                    final Map<?, LazyBeanEntry> map = (Map) o;
+                    oldBean = map.remove( binding );
+                    if ( map.size() > 0 )
                     {
-                        return null; // no such binding
+                        return oldBean;
                     }
-                    else if ( map.size() > 1 )
-                    {
-                        // must copy-on-write
-                        n = map = map.clone();
-                        map.remove( binding );
-                    }
-                    else
-                    {
-                        n = null; // avoid clone when removing last entry
-                    }
-                }
-                else
-                {
-                    synchronized ( map )
-                    {
-                        // modify the map directly
-                        oldBean = map.remove( binding );
-                        if ( map.size() > 0 )
-                        {
-                            return oldBean;
-                        }
-                        n = null; // avoid leaving empty maps around
-                    }
+                    n = null; // avoid leaving empty maps around
                 }
             }
         }
@@ -257,40 +166,14 @@ final class BeanCache<Q extends Annotation, T>
     }
 
     // ----------------------------------------------------------------------
-    // Implementation types
+    // Implementation methods
     // ----------------------------------------------------------------------
 
-    private static final class BeanMap<Q extends Annotation, T>
-        extends IdentityHashMap<Binding<T>, LazyBeanEntry<Q, T>>
+    private static Map createMap( final LazyBeanEntry one, final LazyBeanEntry two )
     {
-        // ----------------------------------------------------------------------
-        // Constants
-        // ----------------------------------------------------------------------
-
-        private static final long serialVersionUID = 1L;
-
-        // ----------------------------------------------------------------------
-        // Implementation types
-        // ----------------------------------------------------------------------
-
-        volatile boolean isImmutable;
-
-        // ----------------------------------------------------------------------
-        // Constructors
-        // ----------------------------------------------------------------------
-
-        BeanMap( final LazyBeanEntry one, final LazyBeanEntry two )
-        {
-            put( one.binding, one );
-            put( two.binding, two );
-        }
-
-        @Override
-        public BeanMap clone()
-        {
-            final BeanMap clone = (BeanMap) super.clone();
-            clone.isImmutable = false; // reset to default
-            return clone;
-        }
+        final Map map = new IdentityHashMap();
+        map.put( one.binding, one );
+        map.put( two.binding, two );
+        return map;
     }
 }

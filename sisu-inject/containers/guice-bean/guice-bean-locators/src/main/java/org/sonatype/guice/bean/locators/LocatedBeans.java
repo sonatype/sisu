@@ -63,8 +63,6 @@ final class LocatedBeans<Q extends Annotation, T>
 
     public Iterator<BeanEntry<Q, T>> iterator()
     {
-        beans.optimizeForReading();
-
         return new Itr();
     }
 
@@ -102,11 +100,6 @@ final class LocatedBeans<Q extends Annotation, T>
             while ( itr.hasNext() )
             {
                 final Binding<T> binding = itr.next();
-                nextBean = beans.get( binding );
-                if ( null != nextBean )
-                {
-                    return true;
-                }
                 final Q qualifier = (Q) strategy.qualifies( key, binding );
                 if ( null != qualifier )
                 {
