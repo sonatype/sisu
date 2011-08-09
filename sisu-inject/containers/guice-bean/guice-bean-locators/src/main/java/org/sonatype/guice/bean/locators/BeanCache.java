@@ -77,13 +77,11 @@ final class BeanCache<Q extends Annotation, T>
             {
                 synchronized ( o )
                 {
-                    final Map<Binding, BeanEntry> map = (Map) o;
-                    final BeanEntry oldBean = map.get( binding );
-                    if ( null != oldBean )
+                    final Map<Binding, LazyBeanEntry> map = (Map) o;
+                    if ( null == ( newBean = map.get( binding ) ) )
                     {
-                        return oldBean;
+                        map.put( binding, newBean = new LazyBeanEntry( qualifier, binding, rank ) );
                     }
-                    map.put( binding, newBean = new LazyBeanEntry( qualifier, binding, rank ) );
                     return newBean;
                 }
             }
@@ -150,13 +148,7 @@ final class BeanCache<Q extends Annotation, T>
             {
                 synchronized ( o )
                 {
-                    final Map<?, LazyBeanEntry> map = (Map) o;
-                    oldBean = map.remove( binding );
-                    if ( map.size() > 0 )
-                    {
-                        return oldBean;
-                    }
-                    n = null; // avoid leaving empty maps around
+                    return ( (Map<?, LazyBeanEntry>) o ).remove( binding );
                 }
             }
         }

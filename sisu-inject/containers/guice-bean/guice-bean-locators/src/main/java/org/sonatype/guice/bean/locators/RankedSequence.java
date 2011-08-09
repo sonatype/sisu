@@ -240,12 +240,6 @@ final class RankedSequence<T>
     }
 
     @Override
-    public boolean isEmpty()
-    {
-        return null == cache.get();
-    }
-
-    @Override
     public int size()
     {
         final Contents contents = cache.get();
@@ -473,11 +467,6 @@ final class RankedSequence<T>
 
         public Contents remove( final int index )
         {
-            if ( index == 0 && size == 1 )
-            {
-                return null;
-            }
-
             final boolean wasImmutable = isImmutable;
 
             final Object[] newObjs;
@@ -485,6 +474,13 @@ final class RankedSequence<T>
 
             if ( wasImmutable )
             {
+                // Avoid unnecessary cloning. Note: with mutable sequences we must
+                // clear the vacant element slot and can't take this short-circuit.
+                if ( index == 0 && size == 1 )
+                {
+                    return null;
+                }
+
                 newObjs = objs.clone();
                 newUIDs = uids.clone();
             }
@@ -509,7 +505,8 @@ final class RankedSequence<T>
             newContents.size = size - 1;
             newContents.uniq = uniq;
 
-            newContents.objs[newContents.size] = null; // remove dangling reference
+            // must clear dangling reference to allow GC
+            newContents.objs[newContents.size] = null;
 
             return newContents;
         }
