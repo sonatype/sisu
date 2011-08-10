@@ -49,7 +49,7 @@ final class BeanCache<Q extends Annotation, T>
      */
     public BeanEntry<Q, T> create( final Q qualifier, final Binding<T> binding, final int rank )
     {
-        LazyBeanEntry newBean = null;
+        LazyBeanEntry newBean;
 
         Object o, n;
 
@@ -66,12 +66,12 @@ final class BeanCache<Q extends Annotation, T>
             }
             else if ( o instanceof LazyBeanEntry )
             {
-                final LazyBeanEntry entry = (LazyBeanEntry) o;
-                if ( binding == entry.binding )
+                final LazyBeanEntry oldBean = (LazyBeanEntry) o;
+                if ( binding == oldBean.binding )
                 {
-                    return entry; // already added
+                    return oldBean;
                 }
-                n = createMap( entry, newBean = new LazyBeanEntry( qualifier, binding, rank ) );
+                n = createMap( oldBean, newBean = new LazyBeanEntry( qualifier, binding, rank ) );
             }
             else
             {
