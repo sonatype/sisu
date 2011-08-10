@@ -11,19 +11,21 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
-import java.util.AbstractCollection;
+import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.RandomAccess;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Ordered {@link List} that arranges elements by descending rank; supports concurrent iteration and modification.
  */
 final class RankedSequence<T>
-    extends AbstractCollection<T>
+    extends AbstractList<T>
+    implements RandomAccess
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -81,6 +83,19 @@ final class RankedSequence<T>
     {
         insert( element, 0 );
         return true;
+    }
+
+    @Override
+    @SuppressWarnings( "unchecked" )
+    public T get( final int index )
+    {
+        return (T) cache.get().objs[index];
+    }
+
+    public int topRank()
+    {
+        final Contents contents = cache.get();
+        return null != contents ? uid2rank( contents.uids[0] ) : Integer.MIN_VALUE;
     }
 
     @Override
@@ -150,6 +165,12 @@ final class RankedSequence<T>
     public void clear()
     {
         cache.set( null );
+    }
+
+    @Override
+    public boolean isEmpty()
+    {
+        return null == cache.get();
     }
 
     @Override

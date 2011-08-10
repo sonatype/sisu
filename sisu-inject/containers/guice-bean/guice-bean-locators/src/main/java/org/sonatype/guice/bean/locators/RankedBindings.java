@@ -99,7 +99,7 @@ final class RankedBindings<T>
         pendingPublishers.insert( publisher, rank );
     }
 
-    void remove( final BindingPublisher publisher )
+    synchronized void remove( final BindingPublisher publisher )
     {
         if ( !pendingPublishers.remove( publisher ) )
         {
@@ -129,15 +129,16 @@ final class RankedBindings<T>
 
         public boolean hasNext()
         {
-            if ( !pendingPublishers.isEmpty() )
+            int rank;
+            while ( ( rank = pendingPublishers.topRank() ) > Integer.MIN_VALUE && rank > itr.peekNextRank() )
             {
                 synchronized ( RankedBindings.this )
                 {
-                    final RankedSequence<BindingPublisher>.Itr pubItr = pendingPublishers.iterator();
-                    while ( !pendingPublishers.isEmpty() && pubItr.peekNextRank() > itr.peekNextRank() )
+                    while ( ( rank = pendingPublishers.topRank() ) > Integer.MIN_VALUE && rank > itr.peekNextRank() )
                     {
-                        pubItr.next().subscribe( RankedBindings.this );
-                        pubItr.remove();
+                        final BindingPublisher publisher = pendingPublishers.get( 0 );
+                        publisher.subscribe( RankedBindings.this );
+                        pendingPublishers.removeThis( publisher );
                     }
                 }
             }
