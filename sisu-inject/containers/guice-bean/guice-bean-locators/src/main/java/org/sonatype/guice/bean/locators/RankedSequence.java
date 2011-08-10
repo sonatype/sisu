@@ -63,19 +63,12 @@ final class RankedSequence<T>
      */
     public void insert( final T element, final int rank )
     {
-        Contents oldContents, newContents;
+        Contents o, n;
         do
         {
-            if ( null != ( oldContents = cache.get() ) )
-            {
-                newContents = oldContents.insert( element, rank );
-            }
-            else
-            {
-                newContents = new Contents( element, rank );
-            }
+            n = null != ( o = cache.get() ) ? o.insert( element, rank ) : new Contents( element, rank );
         }
-        while ( !cache.compareAndSet( oldContents, newContents ) );
+        while ( !cache.compareAndSet( o, n ) );
     }
 
     @Override
@@ -114,42 +107,34 @@ final class RankedSequence<T>
     @Override
     public boolean remove( final Object element )
     {
-        Contents oldContents, newContents;
+        Contents o, n;
         do
         {
-            if ( null != ( oldContents = cache.get() ) )
+            final int index;
+            if ( null == ( o = cache.get() ) || ( index = o.indexOf( element ) ) < 0 )
             {
-                final int index = oldContents.indexOf( element );
-                if ( index >= 0 )
-                {
-                    newContents = oldContents.remove( index );
-                    continue;
-                }
+                return false;
             }
-            return false;
+            n = o.remove( index );
         }
-        while ( !cache.compareAndSet( oldContents, newContents ) );
+        while ( !cache.compareAndSet( o, n ) );
 
         return true;
     }
 
     public boolean removeThis( final T element )
     {
-        Contents oldContents, newContents;
+        Contents o, n;
         do
         {
-            if ( null != ( oldContents = cache.get() ) )
+            final int index;
+            if ( null == ( o = cache.get() ) || ( index = o.indexOfThis( element ) ) < 0 )
             {
-                final int index = oldContents.indexOfThis( element );
-                if ( index >= 0 )
-                {
-                    newContents = oldContents.remove( index );
-                    continue;
-                }
+                return false;
             }
-            return false;
+            n = o.remove( index );
         }
-        while ( !cache.compareAndSet( oldContents, newContents ) );
+        while ( !cache.compareAndSet( o, n ) );
 
         return true;
     }

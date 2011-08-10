@@ -13,6 +13,7 @@ package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.sonatype.inject.BeanEntry;
@@ -82,6 +83,8 @@ final class LocatedBeans<Q extends Annotation, T>
 
         private final RankedBindings<T>.Itr itr = explicitBindings.iterator();
 
+        private final Map<Binding<T>, BeanEntry<Q, T>> preCache = beans.preCache();
+
         private boolean checkImplicitBindings = implicitBindings != null;
 
         private BeanEntry<Q, T> nextBean;
@@ -100,6 +103,10 @@ final class LocatedBeans<Q extends Annotation, T>
             while ( itr.hasNext() )
             {
                 final Binding<T> binding = itr.next();
+                if ( null != preCache && null != ( nextBean = preCache.get( binding ) ) )
+                {
+                    return true;
+                }
                 final Q qualifier = (Q) strategy.qualifies( key, binding );
                 if ( null != qualifier )
                 {

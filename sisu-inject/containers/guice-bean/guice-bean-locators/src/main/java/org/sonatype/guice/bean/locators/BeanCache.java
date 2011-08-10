@@ -35,6 +35,10 @@ final class BeanCache<Q extends Annotation, T>
 
     private final AtomicReference<Object> cache = new AtomicReference();
 
+    private Map<Binding<T>, BeanEntry<Q, T>> preCache;
+
+    private volatile boolean mutated;
+
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
@@ -75,12 +79,13 @@ final class BeanCache<Q extends Annotation, T>
             }
             else
             {
-                synchronized ( o )
+                synchronized ( this )
                 {
                     final Map<Binding, LazyBeanEntry> map = (Map) o;
                     if ( null == ( newBean = map.get( binding ) ) )
                     {
                         map.put( binding, newBean = new LazyBeanEntry( qualifier, binding, rank ) );
+                        mutated = true;
                     }
                     return newBean;
                 }
@@ -89,6 +94,22 @@ final class BeanCache<Q extends Annotation, T>
         while ( !cache.compareAndSet( o, n ) );
 
         return newBean;
+    }
+
+    public Map<Binding<T>, BeanEntry<Q, T>> preCache()
+    {
+        if ( mutated )
+        {
+            synchronized ( this )
+            {
+                if ( mutated )
+                {
+                    preCache = (Map) ( (IdentityHashMap) cache.get() ).clone();
+                    mutated = false;
+                }
+            }
+        }
+        return preCache;
     }
 
     /**
@@ -107,7 +128,7 @@ final class BeanCache<Q extends Annotation, T>
         {
             return Collections.singleton( ( (LazyBeanEntry<?, T>) o ).binding );
         }
-        synchronized ( o )
+        synchronized ( this )
         {
             return new ArrayList( ( (Map<Binding, BeanEntry>) o ).keySet() );
         }
@@ -146,9 +167,15 @@ final class BeanCache<Q extends Annotation, T>
             }
             else
             {
-                synchronized ( o )
+                synchronized ( this )
                 {
-                    return ( (Map<?, LazyBeanEntry>) o ).remove( binding );
+                    oldBean = ( (Map<?, LazyBeanEntry>) o ).remove( binding );
+                    if ( null != oldBean )
+                    {
+                        preCache = null;
+                        mutated = true;
+                    }
+                    return oldBean;
                 }
             }
         }
