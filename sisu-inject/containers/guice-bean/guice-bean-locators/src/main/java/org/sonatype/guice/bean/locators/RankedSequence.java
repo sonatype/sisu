@@ -42,10 +42,9 @@ final class RankedSequence<T>
 
     RankedSequence( final RankedSequence<T> sequence )
     {
-        final Contents contents;
-        if ( null != sequence && null != ( contents = sequence.cache.get() ) )
+        if ( null != sequence )
         {
-            cache.set( new Contents( contents ) );
+            cache.set( sequence.cache.get() );
         }
     }
 
@@ -238,11 +237,11 @@ final class RankedSequence<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        Object[] objs;
+        final Object[] objs;
 
-        long[] uids;
+        final long[] uids;
 
-        int uniq;
+        final int uniq;
 
         // ----------------------------------------------------------------------
         // Constructors
@@ -251,14 +250,15 @@ final class RankedSequence<T>
         Contents( final Object element, final int rank )
         {
             objs = new Object[] { element };
-            uids = new long[] { rank2uid( rank, uniq++ ) };
+            uids = new long[] { rank2uid( rank, 0 ) };
+            uniq = 1;
         }
 
-        Contents( final Contents contents )
+        Contents( final Object[] objs, final long[] uids, final int uniq )
         {
-            objs = contents.objs;
-            uids = contents.uids;
-            uniq = contents.uniq;
+            this.objs = objs;
+            this.uids = uids;
+            this.uniq = uniq;
         }
 
         // ----------------------------------------------------------------------
@@ -314,13 +314,7 @@ final class RankedSequence<T>
                 System.arraycopy( uids, index, newUIDs, destPos, len );
             }
 
-            final Contents newContents = new Contents( this );
-
-            newContents.objs = newObjs;
-            newContents.uids = newUIDs;
-            newContents.uniq = uniq + 1;
-
-            return newContents;
+            return new Contents( newObjs, newUIDs, uniq + 1 );
         }
 
         public Contents remove( final int index )
@@ -347,13 +341,7 @@ final class RankedSequence<T>
                 System.arraycopy( uids, srcPos, newUIDs, index, len );
             }
 
-            final Contents newContents = new Contents( this );
-
-            newContents.objs = newObjs;
-            newContents.uids = newUIDs;
-            newContents.uniq = uniq + 1;
-
-            return newContents;
+            return new Contents( newObjs, newUIDs, uniq );
         }
     }
 
