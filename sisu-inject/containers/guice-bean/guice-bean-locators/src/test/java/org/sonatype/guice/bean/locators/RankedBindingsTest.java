@@ -217,9 +217,9 @@ public class RankedBindingsTest
         assertFalse( itr.hasNext() );
     }
 
-    public void testIsActive()
+    public void gcTest()
     {
-        char[] buf = new char[1024 * 1024];
+        char[] buf = new char[8 * 1024 * 1024];
 
         final Key<Bean> key = Key.get( TypeLiteral.get( Bean.class ) );
         final RankedBindings<Bean> bindings = new RankedBindings<Bean>( key.getTypeLiteral(), null );
@@ -266,7 +266,9 @@ public class RankedBindingsTest
         System.gc();
 
         assertFalse( bindings.cachedBeans.isEmpty() );
+
         bindings.cachedBeans.iterator();
+
         assertTrue( bindings.cachedBeans.isEmpty() );
     }
 
