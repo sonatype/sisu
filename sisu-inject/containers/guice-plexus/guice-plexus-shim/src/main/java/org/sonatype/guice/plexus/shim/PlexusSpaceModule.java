@@ -23,15 +23,17 @@ import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.binders.PlexusXmlBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 import org.sonatype.guice.plexus.lifecycles.PlexusLifecycleManager;
 import org.sonatype.guice.plexus.locators.DefaultPlexusBeanLocator;
 import org.sonatype.inject.Parameters;
 
-import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
+import com.google.inject.Module;
 
 public final class PlexusSpaceModule
-    extends AbstractModule
+    implements Module
 {
     private final ClassSpace space;
 
@@ -40,27 +42,26 @@ public final class PlexusSpaceModule
         this.space = space;
     }
 
-    @Override
-    protected void configure()
+    public void configure( final Binder binder )
     {
         final Context context = new ParameterizedContext();
-        bind( Context.class ).toInstance( context );
+        binder.bind( Context.class ).toInstance( context );
 
         final Provider<?> slf4jLoggerFactoryProvider = space.deferLoadClass( "org.slf4j.ILoggerFactory" ).asProvider();
-        requestInjection( slf4jLoggerFactoryProvider );
+        binder.requestInjection( slf4jLoggerFactoryProvider );
 
-        bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
-        bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
-        bind( PlexusContainer.class ).to( PseudoPlexusContainer.class );
+        binder.bind( PlexusBeanConverter.class ).to( PlexusXmlBeanConverter.class );
+        binder.bind( PlexusBeanLocator.class ).to( DefaultPlexusBeanLocator.class );
+        binder.bind( PlexusContainer.class ).to( PseudoPlexusContainer.class );
 
-        final PlexusBeanManager manager =
-            new PlexusLifecycleManager( binder().getProvider( Context.class ),
-                                        binder().getProvider( LoggerManager.class ), //
-                                        slf4jLoggerFactoryProvider ); // SLF4J (optional)
+        final PlexusBeanManager manager = new PlexusLifecycleManager( binder.getProvider( Context.class ), //
+                                                                      binder.getProvider( LoggerManager.class ), //
+                                                                      slf4jLoggerFactoryProvider ); // SLF4J (optional)
 
-        bind( PlexusBeanManager.class ).toInstance( manager );
+        binder.bind( PlexusBeanManager.class ).toInstance( manager );
 
-        install( new PlexusBindingModule( manager, new PlexusXmlBeanModule( space, new ContextMapAdapter( context ) ) ) );
+        final PlexusBeanModule xmlModule = new PlexusXmlBeanModule( space, new ContextMapAdapter( context ) );
+        binder.install( new PlexusBindingModule( manager, xmlModule ) );
     }
 
     static final class ParameterizedContext

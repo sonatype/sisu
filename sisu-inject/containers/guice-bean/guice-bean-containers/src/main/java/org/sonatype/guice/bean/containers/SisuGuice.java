@@ -23,11 +23,11 @@ import org.sonatype.guice.bean.binders.WireModule;
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.reflect.Logs;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.Module;
 import com.google.inject.util.Providers;
 
 public final class SisuGuice
@@ -126,13 +126,12 @@ public final class SisuGuice
                 }
                 if ( "injectMembers".equals( methodName ) )
                 {
-                    Guice.createInjector( new WireModule( new AbstractModule()
+                    Guice.createInjector( new WireModule( new Module()
                     {
-                        @Override
-                        protected void configure()
+                        public void configure( final Binder binder )
                         {
-                            bind( BeanLocator.class ).toProvider( injector.getProvider( BeanLocator.class ) );
-                            requestInjection( args[0] );
+                            binder.bind( BeanLocator.class ).toProvider( injector.getProvider( BeanLocator.class ) );
+                            binder.requestInjection( args[0] );
                         }
                     } ) );
                     return null;

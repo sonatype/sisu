@@ -29,7 +29,6 @@ import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.inject.BeanScanning;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Key;
@@ -71,20 +70,19 @@ public abstract class InjectedTestCase
     }
 
     final class SetUpModule
-        extends AbstractModule
+        implements Module
     {
-        @Override
-        protected void configure()
+        public void configure( final Binder binder )
         {
-            install( InjectedTestCase.this );
+            binder.install( InjectedTestCase.this );
 
             final Properties properties = new Properties();
             properties.put( "basedir", getBasedir() );
             InjectedTestCase.this.configure( properties );
 
-            bind( ParameterKeys.PROPERTIES ).toInstance( properties );
+            binder.bind( ParameterKeys.PROPERTIES ).toInstance( properties );
 
-            requestInjection( InjectedTestCase.this );
+            binder.requestInjection( InjectedTestCase.this );
         }
     }
 

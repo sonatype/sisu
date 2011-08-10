@@ -31,7 +31,6 @@ import org.sonatype.inject.BeanScanning;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Key;
@@ -72,20 +71,19 @@ public abstract class InjectedTest
     }
 
     final class SetUpModule
-        extends AbstractModule
+        implements Module
     {
-        @Override
-        protected void configure()
+        public void configure( final Binder binder )
         {
-            install( InjectedTest.this );
+            binder.install( InjectedTest.this );
 
             final Properties properties = new Properties();
             properties.put( "basedir", getBasedir() );
             InjectedTest.this.configure( properties );
 
-            bind( ParameterKeys.PROPERTIES ).toInstance( properties );
+            binder.bind( ParameterKeys.PROPERTIES ).toInstance( properties );
 
-            requestInjection( InjectedTest.this );
+            binder.requestInjection( InjectedTest.this );
         }
     }
 

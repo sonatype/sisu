@@ -15,7 +15,7 @@ import org.sonatype.guice.bean.inject.BeanListener;
 import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 
-import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.spi.ProvisionListener;
@@ -24,7 +24,7 @@ import com.google.inject.spi.ProvisionListener;
  * Guice {@link Module} that supports registration, injection, and management of Plexus beans.
  */
 public final class PlexusBindingModule
-    extends AbstractModule
+    implements Module
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -54,13 +54,12 @@ public final class PlexusBindingModule
     // Public methods
     // ----------------------------------------------------------------------
 
-    @Override
-    protected void configure()
+    public void configure( final Binder binder )
     {
         final List<PlexusBeanSource> sources = new ArrayList<PlexusBeanSource>( modules.length );
         for ( final PlexusBeanModule module : modules )
         {
-            final PlexusBeanSource source = module.configure( binder() );
+            final PlexusBeanSource source = module.configure( binder );
             if ( null != source )
             {
                 sources.add( source );
@@ -69,10 +68,10 @@ public final class PlexusBindingModule
 
         // attach custom logic to support Plexus requirements/configuration/lifecycle
         final PlexusBeanBinder plexusBinder = new PlexusBeanBinder( manager, sources );
-        bindListener( Matchers.any(), new BeanListener( plexusBinder ) );
+        binder.bindListener( Matchers.any(), new BeanListener( plexusBinder ) );
         if ( null != manager )
         {
-            bindListener( Matchers.any(), (ProvisionListener) plexusBinder );
+            binder.bindListener( Matchers.any(), (ProvisionListener) plexusBinder );
         }
     }
 }

@@ -67,7 +67,7 @@ import org.sonatype.guice.plexus.locators.ClassRealmUtils;
 import org.sonatype.guice.plexus.locators.DefaultPlexusBeanLocator;
 import org.sonatype.inject.BeanScanning;
 
-import com.google.inject.AbstractModule;
+import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -329,18 +329,17 @@ public final class DefaultPlexusContainer
     public <T> void addComponent( final T component, final Class<?> role, final String hint )
     {
         // this is only used in Maven3 tests, so keep it simple...
-        qualifiedBeanLocator.add( Guice.createInjector( new AbstractModule()
+        qualifiedBeanLocator.add( Guice.createInjector( new Module()
         {
-            @Override
-            protected void configure()
+            public void configure( final Binder binder )
             {
                 if ( Hints.isDefaultHint( hint ) )
                 {
-                    bind( (Class) role ).toInstance( component );
+                    binder.bind( (Class) role ).toInstance( component );
                 }
                 else
                 {
-                    bind( (Class) role ).annotatedWith( Names.named( hint ) ).toInstance( component );
+                    binder.bind( (Class) role ).annotatedWith( Names.named( hint ) ).toInstance( component );
                 }
             }
         } ), plexusRank.incrementAndGet() );
@@ -761,7 +760,7 @@ public final class DefaultPlexusContainer
     }
 
     final class BootModule
-        extends AbstractModule
+        implements Module
     {
         private final Module[] customBootModules;
 
@@ -770,61 +769,58 @@ public final class DefaultPlexusContainer
             this.customBootModules = customBootModules;
         }
 
-        @Override
-        protected void configure()
+        public void configure( final Binder binder )
         {
-            requestInjection( DefaultPlexusContainer.this );
+            binder.requestInjection( DefaultPlexusContainer.this );
             for ( final Module m : customBootModules )
             {
-                install( m );
+                binder.install( m );
             }
         }
     }
 
     final class ContainerModule
-        extends AbstractModule
+        implements Module
     {
         final PlexusDateTypeConverter dateConverter = new PlexusDateTypeConverter();
 
         final PlexusXmlBeanConverter beanConverter = new PlexusXmlBeanConverter();
 
-        @Override
-        protected void configure()
+        public void configure( final Binder binder )
         {
-            bind( Context.class ).toInstance( context );
-            bind( ParameterKeys.PROPERTIES ).toInstance( variables );
+            binder.bind( Context.class ).toInstance( context );
+            binder.bind( ParameterKeys.PROPERTIES ).toInstance( variables );
 
-            install( dateConverter );
+            binder.install( dateConverter );
 
-            bind( MutableBeanLocator.class ).toInstance( qualifiedBeanLocator );
+            binder.bind( MutableBeanLocator.class ).toInstance( qualifiedBeanLocator );
 
-            bind( PlexusBeanConverter.class ).toInstance( beanConverter );
-            bind( PlexusBeanLocator.class ).toInstance( plexusBeanLocator );
-            bind( PlexusBeanManager.class ).toInstance( plexusBeanManager );
+            binder.bind( PlexusBeanConverter.class ).toInstance( beanConverter );
+            binder.bind( PlexusBeanLocator.class ).toInstance( plexusBeanLocator );
+            binder.bind( PlexusBeanManager.class ).toInstance( plexusBeanManager );
 
-            bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
-            bind( MutablePlexusContainer.class ).to( DefaultPlexusContainer.class );
+            binder.bind( PlexusContainer.class ).to( MutablePlexusContainer.class );
+            binder.bind( MutablePlexusContainer.class ).to( DefaultPlexusContainer.class );
 
             // use provider wrapper to avoid repeated injections later on when configuring plugin injectors
-            bind( DefaultPlexusContainer.class ).toProvider( Providers.of( DefaultPlexusContainer.this ) );
+            binder.bind( DefaultPlexusContainer.class ).toProvider( Providers.of( DefaultPlexusContainer.this ) );
         }
     }
 
     final class DefaultsModule
-        extends AbstractModule
+        implements Module
     {
         final LoggerProvider loggerProvider = new LoggerProvider();
 
-        @Override
-        protected void configure()
+        public void configure( final Binder binder )
         {
-            bind( LoggerManager.class ).toProvider( loggerManagerProvider );
-            bind( Logger.class ).toProvider( loggerProvider );
+            binder.bind( LoggerManager.class ).toProvider( loggerManagerProvider );
+            binder.bind( Logger.class ).toProvider( loggerProvider );
 
             // allow plugins to override the default ranking function so we can support component profiles
             final Key<RankingFunction> plexusRankingKey = Key.get( RankingFunction.class, Names.named( "plexus" ) );
-            bind( plexusRankingKey ).toInstance( new DefaultRankingFunction( plexusRank.incrementAndGet() ) );
-            bind( RankingFunction.class ).to( plexusRankingKey );
+            binder.bind( plexusRankingKey ).toInstance( new DefaultRankingFunction( plexusRank.incrementAndGet() ) );
+            binder.bind( RankingFunction.class ).to( plexusRankingKey );
         }
     }
 
