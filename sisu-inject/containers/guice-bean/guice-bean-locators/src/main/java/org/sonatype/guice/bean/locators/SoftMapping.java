@@ -21,9 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import com.google.common.collect.MapMaker;
 
 final class SoftMapping<K, V>
     extends AbstractMap<K, V>
@@ -32,7 +31,8 @@ final class SoftMapping<K, V>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final ConcurrentMap<K, EntryReference<K, V>> refs = new MapMaker().initialCapacity( 256 ).makeMap();
+    private final ConcurrentMap<K, EntryReference<K, V>> referenceMap =
+        new ConcurrentHashMap<K, EntryReference<K, V>>( 256, 0.75f, 8 );
 
     private final ReferenceQueue<V> queue = new ReferenceQueue<V>();
 
@@ -43,7 +43,7 @@ final class SoftMapping<K, V>
     @Override
     public V get( final Object key )
     {
-        final EntryReference<K, V> ref = refs.get( key );
+        final EntryReference<K, V> ref = referenceMap.get( key );
         return null != ref ? ref.get() : null;
     }
 
@@ -52,15 +52,15 @@ final class SoftMapping<K, V>
     {
         compact();
 
-        final EntryReference<K, V> ref = refs.put( key, new EntryReference<K, V>( key, value, queue ) );
+        final EntryReference<K, V> ref = referenceMap.put( key, new EntryReference<K, V>( key, value, queue ) );
         return null != ref ? ref.get() : null;
     }
 
     @Override
     public Set<Entry<K, V>> entrySet()
     {
-        final Map<K, V> map = new HashMap<K, V>( refs.size() );
-        for ( final Entry<K, EntryReference<K, V>> e : refs.entrySet() )
+        final Map<K, V> map = new HashMap<K, V>();
+        for ( final Entry<K, EntryReference<K, V>> e : referenceMap.entrySet() )
         {
             final V value = e.getValue().get();
             if ( null != value )
@@ -76,8 +76,8 @@ final class SoftMapping<K, V>
     {
         compact();
 
-        final List<V> list = new ArrayList<V>( refs.size() );
-        for ( final EntryReference<K, V> ref : refs.values() )
+        final List<V> list = new ArrayList<V>();
+        for ( final EntryReference<K, V> ref : referenceMap.values() )
         {
             final V value = ref.get();
             if ( null != value )
@@ -98,7 +98,7 @@ final class SoftMapping<K, V>
         Reference<? extends V> ref;
         while ( ( ref = queue.poll() ) instanceof EntryReference<?, ?> )
         {
-            refs.remove( ( (EntryReference<K, V>) ref ).key, ref );
+            referenceMap.remove( ( (EntryReference<K, V>) ref ).key, ref );
         }
     }
 

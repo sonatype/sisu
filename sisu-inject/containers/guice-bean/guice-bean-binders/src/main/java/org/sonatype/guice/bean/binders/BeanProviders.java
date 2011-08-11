@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -29,7 +30,6 @@ import org.sonatype.guice.bean.locators.NamedIterableAdapter;
 import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Parameters;
 
-import com.google.common.collect.MapMaker;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Provider;
@@ -285,7 +285,8 @@ final class TypeConverterMap
     @Inject
     private Injector injector;
 
-    private final Map<TypeLiteral<?>, TypeConverter> converterMap = new MapMaker().concurrencyLevel( 1 ).makeMap();
+    private final Map<TypeLiteral<?>, TypeConverter> converterMap =
+        new ConcurrentHashMap<TypeLiteral<?>, TypeConverter>( 16, 0.75f, 1 );
 
     // ----------------------------------------------------------------------
     // Shared methods

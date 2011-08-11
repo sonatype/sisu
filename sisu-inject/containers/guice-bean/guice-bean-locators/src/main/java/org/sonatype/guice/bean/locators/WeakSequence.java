@@ -29,7 +29,7 @@ final class WeakSequence<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final List<IndexedReference<T>> refs = new ArrayList<IndexedReference<T>>();
+    private final List<IndexedReference<T>> references = new ArrayList<IndexedReference<T>>();
 
     private final ReferenceQueue<T> queue = new ReferenceQueue<T>();
 
@@ -42,14 +42,14 @@ final class WeakSequence<T>
     {
         compact();
 
-        return refs.add( new IndexedReference<T>( value, queue, refs.size() ) );
+        return references.add( new IndexedReference<T>( value, queue, references.size() ) );
     }
 
     public synchronized <L> boolean link( final T value, final L link )
     {
         compact();
 
-        return refs.add( new LinkedReference<T, L>( value, queue, refs.size(), link ) );
+        return references.add( new LinkedReference<T, L>( value, queue, references.size(), link ) );
     }
 
     @Override
@@ -57,11 +57,11 @@ final class WeakSequence<T>
     {
         compact();
 
-        final int size = refs.size();
+        final int size = references.size();
         final List<T> elements = new ArrayList<T>( size );
         for ( int i = 0; i < size; i++ )
         {
-            final T e = refs.get( i ).get();
+            final T e = references.get( i ).get();
             if ( null != e )
             {
                 elements.add( e );
@@ -74,7 +74,7 @@ final class WeakSequence<T>
     @Override
     public synchronized int size()
     {
-        return refs.size();
+        return references.size();
     }
 
     // ----------------------------------------------------------------------
@@ -91,11 +91,11 @@ final class WeakSequence<T>
         {
             @SuppressWarnings( "unchecked" )
             final int index = ( (IndexedReference<T>) ref ).index;
-            final IndexedReference<T> lastRef = refs.remove( refs.size() - 1 );
+            final IndexedReference<T> lastRef = references.remove( references.size() - 1 );
             if ( index != lastRef.index )
             {
                 lastRef.index = index;
-                refs.set( index, lastRef );
+                references.set( index, lastRef );
             }
         }
     }
