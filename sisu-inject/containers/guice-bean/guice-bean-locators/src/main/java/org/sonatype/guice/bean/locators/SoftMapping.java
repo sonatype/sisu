@@ -31,10 +31,18 @@ final class SoftMapping<K, V>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final ConcurrentMap<K, EntryReference<K, V>> referenceMap =
-        new ConcurrentHashMap<K, EntryReference<K, V>>( 256, 0.75f, 8 );
+    private final ConcurrentMap<K, EntryReference<K, V>> referenceMap;
 
     private final ReferenceQueue<V> queue = new ReferenceQueue<V>();
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    SoftMapping( final int initialCapacity, final float loadFactor, final int concurrencyLevel )
+    {
+        referenceMap = new ConcurrentHashMap<K, EntryReference<K, V>>( initialCapacity, loadFactor, concurrencyLevel );
+    }
 
     // ----------------------------------------------------------------------
     // Public methods

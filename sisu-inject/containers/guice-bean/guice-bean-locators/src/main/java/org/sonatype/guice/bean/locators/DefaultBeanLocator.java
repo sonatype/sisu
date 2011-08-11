@@ -39,7 +39,7 @@ public final class DefaultBeanLocator
     private final RankedSequence<BindingPublisher> publishers = new RankedSequence<BindingPublisher>();
 
     private final SoftMapping<TypeLiteral, RankedBindings> cachedBindings =
-        new SoftMapping<TypeLiteral, RankedBindings>();
+        new SoftMapping<TypeLiteral, RankedBindings>( 256, 0.75f, 8 );
 
     private final WeakSequence<WatchedBeans> watchedBeans = new WeakSequence<WatchedBeans>();
 
