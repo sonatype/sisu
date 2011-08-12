@@ -130,7 +130,7 @@ final class RankedBindings<T>
         public boolean hasNext()
         {
             int rank;
-            while ( ( rank = pendingPublishers.topRank() ) > Integer.MIN_VALUE && rank > itr.peekNextRank() )
+            if ( ( rank = pendingPublishers.topRank() ) > Integer.MIN_VALUE && rank > itr.peekNextRank() )
             {
                 synchronized ( RankedBindings.this )
                 {

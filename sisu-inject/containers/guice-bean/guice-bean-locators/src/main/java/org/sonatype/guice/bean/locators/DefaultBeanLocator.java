@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -36,6 +39,8 @@ public final class DefaultBeanLocator
     // Implementation fields
     // ----------------------------------------------------------------------
 
+    private final Lock lock = new ReentrantLock( true );
+
     private final RankedSequence<BindingPublisher> publishers = new RankedSequence<BindingPublisher>();
 
     private final SoftMapping<TypeLiteral, RankedBindings> cachedBindings =
@@ -55,26 +60,39 @@ public final class DefaultBeanLocator
         RankedBindings bindings = cachedBindings.get( type );
         if ( null == bindings )
         {
-            synchronized ( this )
+            lock.lock();
+            try
             {
                 if ( null == ( bindings = cachedBindings.get( type ) ) )
                 {
                     cachedBindings.put( type, bindings = new RankedBindings( type, publishers ) );
                 }
             }
+            finally
+            {
+                lock.unlock();
+            }
         }
         final boolean isImplicit = key.getAnnotationType() == null && TypeParameters.isImplicit( type );
         return new LocatedBeans( key, bindings, isImplicit ? implicitBindings : null );
     }
 
-    public synchronized void watch( final Key key, final Mediator mediator, final Object watcher )
+    public void watch( final Key key, final Mediator mediator, final Object watcher )
     {
-        final WatchedBeans beans = new WatchedBeans( key, mediator, watcher );
-        for ( final BindingPublisher p : publishers.snapshot() )
+        lock.lock();
+        try
         {
-            p.subscribe( beans );
+            final WatchedBeans beans = new WatchedBeans( key, mediator, watcher );
+            for ( final BindingPublisher p : publishers.snapshot() )
+            {
+                p.subscribe( beans );
+            }
+            watchedBeans.link( beans, watcher );
         }
-        watchedBeans.link( beans, watcher );
+        finally
+        {
+            lock.unlock();
+        }
     }
 
     public void add( final Injector injector, final int rank )
@@ -87,44 +105,68 @@ public final class DefaultBeanLocator
         remove( new InjectorPublisher( injector, null ) );
     }
 
-    public synchronized void add( final BindingPublisher publisher, final int rank )
+    public void add( final BindingPublisher publisher, final int rank )
     {
-        if ( !publishers.contains( publisher ) )
+        lock.lock();
+        try
         {
-            Logs.debug( "Add publisher: {}", publisher, null );
-            publishers.insert( publisher, rank );
-            for ( final RankedBindings bindings : cachedBindings.values() )
+            if ( !publishers.contains( publisher ) )
             {
-                bindings.add( publisher, rank );
+                Logs.debug( "Add publisher: {}", publisher, null );
+                publishers.insert( publisher, rank );
+                for ( final RankedBindings bindings : cachedBindings.values() )
+                {
+                    bindings.add( publisher, rank );
+                }
+                for ( final WatchedBeans beans : watchedBeans )
+                {
+                    publisher.subscribe( beans );
+                }
             }
-            for ( final WatchedBeans beans : watchedBeans )
-            {
-                publisher.subscribe( beans );
-            }
+        }
+        finally
+        {
+            lock.unlock();
         }
     }
 
-    public synchronized void remove( final BindingPublisher publisher )
+    public void remove( final BindingPublisher publisher )
     {
-        if ( publishers.remove( publisher ) )
+        lock.lock();
+        try
         {
-            Logs.debug( "Remove publisher: {}", publisher, null );
-            for ( final RankedBindings bindings : cachedBindings.values() )
+            if ( publishers.remove( publisher ) )
             {
-                bindings.remove( publisher );
+                Logs.debug( "Remove publisher: {}", publisher, null );
+                for ( final RankedBindings bindings : cachedBindings.values() )
+                {
+                    bindings.remove( publisher );
+                }
+                for ( final WatchedBeans beans : watchedBeans )
+                {
+                    publisher.unsubscribe( beans );
+                }
             }
-            for ( final WatchedBeans beans : watchedBeans )
-            {
-                publisher.unsubscribe( beans );
-            }
+        }
+        finally
+        {
+            lock.unlock();
         }
     }
 
-    public synchronized void clear()
+    public void clear()
     {
-        for ( final BindingPublisher p : publishers.snapshot() )
+        lock.lock();
+        try
         {
-            remove( p );
+            for ( final BindingPublisher p : publishers.snapshot() )
+            {
+                remove( p );
+            }
+        }
+        finally
+        {
+            lock.unlock();
         }
     }
 
