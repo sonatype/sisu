@@ -83,7 +83,7 @@ final class LocatedBeans<Q extends Annotation, T>
 
         private final RankedBindings<T>.Itr itr = explicitBindings.iterator();
 
-        private final Map<Binding<T>, BeanEntry<Q, T>> preCache = beans.preCache();
+        private final Map<Binding<T>, BeanEntry<Q, T>> readCache = beans.flush();
 
         private boolean checkImplicitBindings = implicitBindings != null;
 
@@ -103,7 +103,7 @@ final class LocatedBeans<Q extends Annotation, T>
             while ( itr.hasNext() )
             {
                 final Binding<T> binding = itr.next();
-                if ( null != preCache && null != ( nextBean = preCache.get( binding ) ) )
+                if ( null != readCache && null != ( nextBean = readCache.get( binding ) ) )
                 {
                     return true;
                 }

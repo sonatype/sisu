@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.sonatype.inject.BeanEntry;
 
@@ -28,16 +29,36 @@ import com.google.inject.Binding;
  */
 @SuppressWarnings( { "rawtypes", "unchecked" } )
 final class BeanCache<Q extends Annotation, T>
+    extends ReentrantLock
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final long serialVersionUID = 1L;
+
+    private static final long REFRESH_MILLIS = 888L;
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
     private final AtomicReference<Object> cache = new AtomicReference();
 
-    private Map<Binding<T>, BeanEntry<Q, T>> preCache;
+    private Map<Binding<T>, BeanEntry<Q, T>> readCache;
+
+    private long lastTimeMillis;
 
     private volatile boolean mutated;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    BeanCache()
+    {
+        super( true );
+    }
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -79,7 +100,8 @@ final class BeanCache<Q extends Annotation, T>
             }
             else
             {
-                synchronized ( this )
+                lock();
+                try
                 {
                     final Map<Binding, LazyBeanEntry> map = (Map) o;
                     if ( null == ( newBean = map.get( binding ) ) )
@@ -89,6 +111,10 @@ final class BeanCache<Q extends Annotation, T>
                     }
                     return newBean;
                 }
+                finally
+                {
+                    unlock();
+                }
             }
         }
         while ( !cache.compareAndSet( o, n ) );
@@ -96,20 +122,27 @@ final class BeanCache<Q extends Annotation, T>
         return newBean;
     }
 
-    public Map<Binding<T>, BeanEntry<Q, T>> preCache()
+    public Map<Binding<T>, BeanEntry<Q, T>> flush()
     {
-        if ( mutated )
+        long now = 0;
+        if ( mutated && ( null == readCache || ( now = System.currentTimeMillis() ) - lastTimeMillis > REFRESH_MILLIS ) )
         {
-            synchronized ( this )
+            lock();
+            try
             {
                 if ( mutated )
                 {
-                    preCache = (Map) ( (IdentityHashMap) cache.get() ).clone();
+                    readCache = (Map) ( (IdentityHashMap) cache.get() ).clone();
+                    lastTimeMillis = now > 0 ? now : System.currentTimeMillis();
                     mutated = false;
                 }
             }
+            finally
+            {
+                unlock();
+            }
         }
-        return preCache;
+        return readCache;
     }
 
     /**
@@ -128,9 +161,14 @@ final class BeanCache<Q extends Annotation, T>
         {
             return Collections.singleton( ( (LazyBeanEntry<?, T>) o ).binding );
         }
-        synchronized ( this )
+        lock();
+        try
         {
             return new ArrayList( ( (Map<Binding, BeanEntry>) o ).keySet() );
+        }
+        finally
+        {
+            unlock();
         }
     }
 
@@ -167,15 +205,20 @@ final class BeanCache<Q extends Annotation, T>
             }
             else
             {
-                synchronized ( this )
+                lock();
+                try
                 {
                     oldBean = ( (Map<?, LazyBeanEntry>) o ).remove( binding );
                     if ( null != oldBean )
                     {
-                        preCache = null;
+                        readCache = null;
                         mutated = true;
                     }
                     return oldBean;
+                }
+                finally
+                {
+                    unlock();
                 }
             }
         }
