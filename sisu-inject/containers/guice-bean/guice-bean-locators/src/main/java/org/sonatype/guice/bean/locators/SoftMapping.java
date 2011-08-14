@@ -14,18 +14,13 @@ package org.sonatype.guice.bean.locators;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 final class SoftMapping<K, V>
-    extends AbstractMap<K, V>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -48,14 +43,12 @@ final class SoftMapping<K, V>
     // Public methods
     // ----------------------------------------------------------------------
 
-    @Override
     public V get( final Object key )
     {
         final EntryReference<K, V> ref = referenceMap.get( key );
         return null != ref ? ref.get() : null;
     }
 
-    @Override
     public V put( final K key, final V value )
     {
         compact();
@@ -64,22 +57,6 @@ final class SoftMapping<K, V>
         return null != ref ? ref.get() : null;
     }
 
-    @Override
-    public Set<Entry<K, V>> entrySet()
-    {
-        final Map<K, V> map = new HashMap<K, V>();
-        for ( final Entry<K, EntryReference<K, V>> e : referenceMap.entrySet() )
-        {
-            final V value = e.getValue().get();
-            if ( null != value )
-            {
-                map.put( e.getKey(), value );
-            }
-        }
-        return map.entrySet();
-    }
-
-    @Override
     public Collection<V> values()
     {
         compact();

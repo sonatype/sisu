@@ -38,6 +38,8 @@ final class RankedBindings<T>
 
     final RankedSequence<BindingPublisher> pendingPublishers;
 
+    volatile int topRank;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -46,6 +48,7 @@ final class RankedBindings<T>
     {
         this.type = type;
         this.pendingPublishers = new RankedSequence<BindingPublisher>( publishers );
+        topRank = pendingPublishers.topRank();
     }
 
     // ----------------------------------------------------------------------
@@ -94,9 +97,13 @@ final class RankedBindings<T>
         return beans;
     }
 
-    void add( final BindingPublisher publisher, final int rank )
+    synchronized void add( final BindingPublisher publisher, final int rank )
     {
         pendingPublishers.insert( publisher, rank );
+        if ( rank > topRank )
+        {
+            topRank = rank;
+        }
     }
 
     synchronized void remove( final BindingPublisher publisher )
@@ -129,16 +136,16 @@ final class RankedBindings<T>
 
         public boolean hasNext()
         {
-            int rank;
-            if ( ( rank = pendingPublishers.topRank() ) > Integer.MIN_VALUE && rank > itr.peekNextRank() )
+            int rank = topRank;
+            if ( rank > Integer.MIN_VALUE && rank > itr.peekNextRank() )
             {
                 synchronized ( RankedBindings.this )
                 {
-                    while ( ( rank = pendingPublishers.topRank() ) > Integer.MIN_VALUE && rank > itr.peekNextRank() )
+                    rank = topRank;
+                    while ( rank > Integer.MIN_VALUE && rank > itr.peekNextRank() )
                     {
-                        final BindingPublisher publisher = pendingPublishers.get( 0 );
-                        publisher.subscribe( RankedBindings.this );
-                        pendingPublishers.removeThis( publisher );
+                        pendingPublishers.removeFirst().subscribe( RankedBindings.this );
+                        rank = topRank = pendingPublishers.topRank();
                     }
                 }
             }

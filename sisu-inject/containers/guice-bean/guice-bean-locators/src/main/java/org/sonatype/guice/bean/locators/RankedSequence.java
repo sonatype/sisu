@@ -11,21 +11,18 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
-import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.RandomAccess;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Ordered {@link List} that arranges elements by descending rank; supports concurrent iteration and modification.
  */
 final class RankedSequence<T>
-    extends AbstractList<T>
-    implements RandomAccess
+    implements Iterable<T>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -71,18 +68,12 @@ final class RankedSequence<T>
         while ( !cache.compareAndSet( o, n ) );
     }
 
-    @Override
-    public boolean add( final T element )
-    {
-        insert( element, 0 );
-        return true;
-    }
-
-    @Override
     @SuppressWarnings( "unchecked" )
-    public T get( final int index )
+    public T removeFirst()
     {
-        return (T) cache.get().objs[index];
+        final Contents contents = cache.get();
+        cache.set( contents.remove( 0 ) );
+        return (T) contents.objs[0];
     }
 
     public int topRank()
@@ -91,7 +82,6 @@ final class RankedSequence<T>
         return null != contents ? uid2rank( contents.uids[0] ) : Integer.MIN_VALUE;
     }
 
-    @Override
     public boolean contains( final Object element )
     {
         final Contents contents = cache.get();
@@ -104,7 +94,6 @@ final class RankedSequence<T>
         return null != contents && contents.indexOfThis( element ) >= 0;
     }
 
-    @Override
     public boolean remove( final Object element )
     {
         Contents o, n;
@@ -146,26 +135,22 @@ final class RankedSequence<T>
         return null != contents ? (List) Arrays.asList( contents.objs ) : Collections.EMPTY_SET;
     }
 
-    @Override
     public void clear()
     {
         cache.set( null );
     }
 
-    @Override
     public boolean isEmpty()
     {
         return null == cache.get();
     }
 
-    @Override
     public int size()
     {
         final Contents contents = cache.get();
         return null != contents ? contents.objs.length : 0;
     }
 
-    @Override
     public Itr iterator()
     {
         return new Itr();
@@ -363,7 +348,7 @@ final class RankedSequence<T>
 
         private Contents contents;
 
-        private T nextObj, element;
+        private T nextObj;
 
         private long nextUID = Long.MIN_VALUE;
 
@@ -425,7 +410,7 @@ final class RankedSequence<T>
                 index++;
 
                 // populated by hasNext()
-                element = nextObj;
+                final T element = nextObj;
                 nextObj = null;
                 return element;
             }
@@ -439,15 +424,7 @@ final class RankedSequence<T>
 
         public void remove()
         {
-            if ( null != element )
-            {
-                RankedSequence.this.removeThis( element );
-                element = null;
-            }
-            else
-            {
-                throw new IllegalStateException();
-            }
+            throw new UnsupportedOperationException();
         }
     }
 }
