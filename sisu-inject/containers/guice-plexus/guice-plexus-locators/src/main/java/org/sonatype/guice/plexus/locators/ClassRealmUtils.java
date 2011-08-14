@@ -10,13 +10,13 @@ package org.sonatype.guice.plexus.locators;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 
 public final class ClassRealmUtils
 {
@@ -58,8 +58,8 @@ public final class ClassRealmUtils
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private static Map<ClassRealm, Set<String>> visibleRealmNameCache =
-        new MapMaker().weakKeys().makeComputingMap( new VisibleNameFunction() );
+    private static Cache<ClassRealm, Set<String>> visibleRealmNameCache =
+        CacheBuilder.newBuilder().weakKeys().build( new VisibleRealmNames() );
 
     // ----------------------------------------------------------------------
     // Utility methods
@@ -79,18 +79,23 @@ public final class ClassRealmUtils
 
     public static Set<String> visibleRealmNames( final ClassRealm contextRealm )
     {
-        return GET_IMPORT_REALMS_SUPPORTED && null != contextRealm ? visibleRealmNameCache.get( contextRealm ) : null;
+        if ( GET_IMPORT_REALMS_SUPPORTED && null != contextRealm )
+        {
+            return visibleRealmNameCache.getUnchecked( contextRealm );
+        }
+        return null;
     }
 
     // ----------------------------------------------------------------------
     // Implementation types
     // ----------------------------------------------------------------------
 
-    static final class VisibleNameFunction
-        implements Function<ClassRealm, Set<String>>
+    static final class VisibleRealmNames
+        extends CacheLoader<ClassRealm, Set<String>>
     {
+        @Override
         @SuppressWarnings( "unchecked" )
-        public Set<String> apply( final ClassRealm forRealm )
+        public Set<String> load( final ClassRealm forRealm )
         {
             final Set<String> visibleRealmNames = new HashSet<String>();
             final List<ClassRealm> searchRealms = new ArrayList<ClassRealm>();

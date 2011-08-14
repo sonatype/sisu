@@ -68,11 +68,6 @@ final class WeakSequence<T>
         return elements.iterator();
     }
 
-    public synchronized boolean isEmpty()
-    {
-        return references.isEmpty();
-    }
-
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------

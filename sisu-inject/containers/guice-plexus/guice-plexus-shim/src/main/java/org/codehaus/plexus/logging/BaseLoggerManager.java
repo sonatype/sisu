@@ -7,13 +7,12 @@
  *******************************************************************************/
 package org.codehaus.plexus.logging;
 
-import java.util.Map;
-
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.sonatype.guice.plexus.config.Roles;
 
-import com.google.common.base.Function;
-import com.google.common.collect.MapMaker;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 
 public abstract class BaseLoggerManager
     extends AbstractLoggerManager
@@ -23,10 +22,11 @@ public abstract class BaseLoggerManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Map<String, Logger> activeLoggers =
-        new MapMaker().weakValues().makeComputingMap( new Function<String, Logger>()
+    private final Cache<String, Logger> activeLoggers =
+        CacheBuilder.newBuilder().weakValues().build( new CacheLoader<String, Logger>()
         {
-            public Logger apply( final String name )
+            @Override
+            public Logger load( final String name )
             {
                 final Logger logger = createLogger( name );
                 logger.setThreshold( currentThreshold );
@@ -49,12 +49,12 @@ public abstract class BaseLoggerManager
 
     public final Logger getLoggerForComponent( final String role, final String hint )
     {
-        return activeLoggers.get( Roles.canonicalRoleHint( role, hint ) );
+        return activeLoggers.getUnchecked( Roles.canonicalRoleHint( role, hint ) );
     }
 
     public final void returnComponentLogger( final String role, final String hint )
     {
-        activeLoggers.remove( Roles.canonicalRoleHint( role, hint ) );
+        activeLoggers.invalidate( Roles.canonicalRoleHint( role, hint ) );
     }
 
     public final int getThreshold()
@@ -70,7 +70,7 @@ public abstract class BaseLoggerManager
     public final void setThresholds( final int currentThreshold )
     {
         this.currentThreshold = currentThreshold;
-        for ( final Logger logger : activeLoggers.values() )
+        for ( final Logger logger : activeLoggers.asMap().values() )
         {
             logger.setThreshold( currentThreshold );
         }

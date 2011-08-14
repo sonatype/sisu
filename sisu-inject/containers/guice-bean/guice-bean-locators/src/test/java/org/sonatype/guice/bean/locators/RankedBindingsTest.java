@@ -14,8 +14,6 @@ package org.sonatype.guice.bean.locators;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import javax.inject.Named;
-
 import junit.framework.TestCase;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
@@ -25,7 +23,6 @@ import com.google.inject.Binding;
 import com.google.inject.Guice;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
-import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 
@@ -215,61 +212,6 @@ public class RankedBindingsTest
         assertEquals( Names.named( "1" ), itr.next().getKey().getAnnotation() );
 
         assertFalse( itr.hasNext() );
-    }
-
-    public void gcTest()
-    {
-        char[] buf = new char[8 * 1024 * 1024];
-
-        final Key<Bean> key = Key.get( TypeLiteral.get( Bean.class ) );
-        final RankedBindings<Bean> bindings = new RankedBindings<Bean>( key.getTypeLiteral(), null );
-
-        assertTrue( bindings.cachedBeans.isEmpty() );
-        LocatedBeans<Named, Bean> namedBeans1 = new LocatedBeans<Named, Bean>( key, bindings, null );
-        assertFalse( bindings.cachedBeans.isEmpty() );
-        LocatedBeans<Named, Bean> namedBeans2 = new LocatedBeans<Named, Bean>( key, bindings, null );
-        assertFalse( bindings.cachedBeans.isEmpty() );
-        LocatedBeans<Named, Bean> namedBeans3 = new LocatedBeans<Named, Bean>( key, bindings, null );
-        assertFalse( bindings.cachedBeans.isEmpty() );
-
-        assertFalse( namedBeans1.iterator().hasNext() );
-        assertFalse( namedBeans2.iterator().hasNext() );
-        assertFalse( namedBeans3.iterator().hasNext() );
-
-        bindings.add( new InjectorPublisher( injector1, new DefaultRankingFunction( 1 ) ), 1 );
-
-        assertTrue( namedBeans1.iterator().hasNext() );
-        assertTrue( namedBeans2.iterator().hasNext() );
-        assertTrue( namedBeans3.iterator().hasNext() );
-
-        namedBeans2 = null;
-
-        System.gc();
-        buf = buf.clone();
-        System.gc();
-
-        assertTrue( namedBeans1.iterator().hasNext() );
-        assertTrue( namedBeans3.iterator().hasNext() );
-
-        bindings.remove( new InjectorPublisher( injector1, null ) );
-
-        assertFalse( namedBeans1.iterator().hasNext() );
-        assertFalse( namedBeans3.iterator().hasNext() );
-
-        assertFalse( bindings.cachedBeans.isEmpty() );
-
-        namedBeans1 = null;
-        namedBeans3 = null;
-
-        System.gc();
-        buf = buf.clone();
-        System.gc();
-
-        assertFalse( bindings.cachedBeans.isEmpty() );
-
-        bindings.cachedBeans.iterator();
-
-        assertTrue( bindings.cachedBeans.isEmpty() );
     }
 
     public void testExporterRemoval()
