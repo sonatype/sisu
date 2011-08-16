@@ -22,6 +22,8 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
 /**
@@ -278,25 +280,38 @@ public final class URLClassSpace
     private static String[] getClassPathEntries( final URL url )
         throws IOException
     {
-        final URL manifestURL;
-        if ( url.getPath().endsWith( "/" ) )
-        {
-            manifestURL = new URL( url, MANIFEST_ENTRY );
-        }
-        else
-        {
-            manifestURL = new URL( "jar:" + url + "!/" + MANIFEST_ENTRY );
-        }
-
-        final InputStream in = Streams.open( manifestURL );
+        final Manifest manifest;
+        InputStream in = null;
         try
         {
-            final String classPath = new Manifest( in ).getMainAttributes().getValue( "Class-Path" );
-            return null != classPath ? classPath.split( " " ) : EMPTY_CLASSPATH;
+            if ( url.getPath().endsWith( "/" ) )
+            {
+                manifest = new Manifest( in = Streams.open( new URL( url, MANIFEST_ENTRY ) ) );
+            }
+            else if ( "file".equals( url.getProtocol() ) )
+            {
+                manifest = new JarFile( FileEntryIterator.toFile( url ) ).getManifest();
+            }
+            else
+            {
+                manifest = new JarInputStream( in = Streams.open( url ) ).getManifest();
+            }
         }
         finally
         {
-            in.close();
+            if ( null != in )
+            {
+                in.close();
+            }
         }
+        if ( null != manifest )
+        {
+            final String classPath = manifest.getMainAttributes().getValue( "Class-Path" );
+            if ( null != classPath )
+            {
+                return classPath.split( " " );
+            }
+        }
+        return EMPTY_CLASSPATH;
     }
 }
