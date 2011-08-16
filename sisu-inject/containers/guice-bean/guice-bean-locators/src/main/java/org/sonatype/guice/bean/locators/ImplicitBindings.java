@@ -11,8 +11,7 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
-import java.lang.annotation.Annotation;
-
+import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.reflect.Logs;
 
 import com.google.inject.Binding;
@@ -31,15 +30,15 @@ final class ImplicitBindings
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Iterable<Injector> injectors;
+    private final Iterable<BindingPublisher> publishers;
 
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    ImplicitBindings( final BeanLocator locator )
+    ImplicitBindings( final Iterable<BindingPublisher> publishers )
     {
-        injectors = new EntryListAdapter<Annotation, Injector>( locator.locate( Key.get( Injector.class ) ) );
+        this.publishers = publishers;
     }
 
     // ----------------------------------------------------------------------
@@ -50,40 +49,48 @@ final class ImplicitBindings
     public <T> Binding<T> get( final TypeLiteral<T> type )
     {
         final Key implicitKey = Key.get( type.getRawType(), Implicit.class );
-        for ( final Injector i : injectors )
+        for ( final BindingPublisher p : publishers )
         {
-            try
+            if ( p instanceof InjectorPublisher )
             {
-                // first round: check for any re-written implicit bindings
-                final Binding binding = i.getBindings().get( implicitKey );
-                if ( null != binding )
+                final Injector i = ( (InjectorPublisher) p ).getInjector();
+                try
                 {
-                    Logs.debug( "Using implicit binding: {} from: <>", binding, i );
-                    return binding;
+                    // first round: check for any re-written implicit bindings
+                    final Binding binding = i.getBindings().get( implicitKey );
+                    if ( null != binding )
+                    {
+                        Logs.debug( "Using implicit binding: {} from: <>", binding, i );
+                        return binding;
+                    }
                 }
-            }
-            catch ( final Throwable e )
-            {
-                continue; // no luck, move onto next injector
+                catch ( final Throwable e )
+                {
+                    continue; // no luck, move onto next injector
+                }
             }
         }
 
         final Key justInTimeKey = Key.get( type );
-        for ( final Injector i : injectors )
+        for ( final BindingPublisher p : publishers )
         {
-            try
+            if ( p instanceof InjectorPublisher )
             {
-                // second round: fall back to just-in-time lookup
-                final Binding binding = i.getBinding( justInTimeKey );
-                if ( InjectorPublisher.isVisible( binding ) )
+                final Injector i = ( (InjectorPublisher) p ).getInjector();
+                try
                 {
-                    Logs.debug( "Using just-in-time binding: {} from: <>", binding, i );
-                    return binding;
+                    // second round: fall back to just-in-time lookup
+                    final Binding binding = i.getBinding( justInTimeKey );
+                    if ( InjectorPublisher.isVisible( binding ) )
+                    {
+                        Logs.debug( "Using just-in-time binding: {} from: <>", binding, i );
+                        return binding;
+                    }
                 }
-            }
-            catch ( final Throwable e )
-            {
-                continue; // no luck, move onto next injector
+                catch ( final Throwable e )
+                {
+                    continue; // no luck, move onto next injector
+                }
             }
         }
         return null;

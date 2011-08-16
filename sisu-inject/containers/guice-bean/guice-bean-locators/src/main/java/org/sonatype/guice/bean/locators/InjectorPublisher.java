@@ -58,6 +58,11 @@ final class InjectorPublisher
     // Public methods
     // ----------------------------------------------------------------------
 
+    public Injector getInjector()
+    {
+        return injector;
+    }
+
     public <T> void subscribe( final BindingSubscriber<T> subscriber )
     {
         final TypeLiteral<T> type = subscriber.type();

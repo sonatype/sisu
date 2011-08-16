@@ -48,7 +48,7 @@ public final class DefaultBeanLocator
 
     private final WeakSequence<WatchedBeans> watchedBeans = new WeakSequence<WatchedBeans>();
 
-    private final ImplicitBindings implicitBindings = new ImplicitBindings( this );
+    private final ImplicitBindings implicitBindings = new ImplicitBindings( publishers );
 
     // ----------------------------------------------------------------------
     // Public methods
