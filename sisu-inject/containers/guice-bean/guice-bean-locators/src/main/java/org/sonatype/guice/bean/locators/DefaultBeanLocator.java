@@ -39,7 +39,7 @@ public final class DefaultBeanLocator
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Lock lock = new ReentrantLock( true );
+    private final Lock lock = new ReentrantLock( true ); // popular lock, so make sure it's fair
 
     private final RankedSequence<BindingPublisher> publishers = new RankedSequence<BindingPublisher>();
 

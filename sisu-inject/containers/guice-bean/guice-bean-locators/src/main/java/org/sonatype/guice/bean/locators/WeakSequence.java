@@ -36,21 +36,21 @@ final class WeakSequence<T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    public synchronized boolean add( final T value )
+    public boolean add( final T value )
     {
         compact();
 
         return references.add( new IndexedReference<T>( value, queue, references.size() ) );
     }
 
-    public synchronized <L> boolean link( final T value, final L link )
+    public <L> boolean link( final T value, final L link )
     {
         compact();
 
         return references.add( new LinkedReference<T, L>( value, queue, references.size(), link ) );
     }
 
-    public synchronized Iterator<T> iterator()
+    public Iterator<T> iterator()
     {
         compact();
 

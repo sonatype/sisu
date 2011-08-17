@@ -69,7 +69,7 @@ final class RankedSequence<T>
     }
 
     @SuppressWarnings( "unchecked" )
-    public T removeFirst()
+    public T poll()
     {
         final Contents contents = cache.get();
         cache.set( contents.remove( 0 ) );

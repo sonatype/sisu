@@ -52,15 +52,6 @@ final class BeanCache<Q extends Annotation, T>
     private volatile boolean mutated;
 
     // ----------------------------------------------------------------------
-    // Constructors
-    // ----------------------------------------------------------------------
-
-    BeanCache()
-    {
-        super( true );
-    }
-
-    // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
@@ -133,7 +124,7 @@ final class BeanCache<Q extends Annotation, T>
                 if ( mutated )
                 {
                     readCache = (Map) ( (IdentityHashMap) cache.get() ).clone();
-                    lastTimeMillis = now > 0 ? now : System.currentTimeMillis();
+                    lastTimeMillis = now == 0 ? System.currentTimeMillis() : now;
                     mutated = false;
                 }
             }

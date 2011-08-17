@@ -13,6 +13,7 @@ package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
 import java.util.Iterator;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
@@ -24,8 +25,15 @@ import com.google.inject.TypeLiteral;
  * Ordered sequence of {@link Binding}s of a given type; subscribes to {@link BindingPublisher}s on demand.
  */
 final class RankedBindings<T>
+    extends ReentrantLock
     implements Iterable<Binding<T>>, BindingSubscriber<T>
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final long serialVersionUID = 1L;
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -69,9 +77,17 @@ final class RankedBindings<T>
     {
         if ( bindings.removeThis( binding ) )
         {
-            for ( final BeanCache<?, T> beans : cachedBeans )
+            lock();
+            try
             {
-                beans.remove( binding );
+                for ( final BeanCache<?, T> beans : cachedBeans )
+                {
+                    beans.remove( binding );
+                }
+            }
+            finally
+            {
+                unlock();
             }
         }
     }
@@ -92,13 +108,24 @@ final class RankedBindings<T>
 
     <Q extends Annotation> BeanCache<Q, T> newBeanCache()
     {
-        final BeanCache<Q, T> beans = new BeanCache<Q, T>();
-        cachedBeans.add( beans );
-        return beans;
+        lock();
+        try
+        {
+            final BeanCache<Q, T> beans = new BeanCache<Q, T>();
+            cachedBeans.add( beans );
+            return beans;
+        }
+        finally
+        {
+            unlock();
+        }
     }
 
-    synchronized void add( final BindingPublisher publisher, final int rank )
+    void add( final BindingPublisher publisher, final int rank )
     {
+        /*
+         * No need to lock; ranked sequence is thread-safe.
+         */
         pendingPublishers.insert( publisher, rank );
         if ( rank > topRank )
         {
@@ -106,11 +133,22 @@ final class RankedBindings<T>
         }
     }
 
-    synchronized void remove( final BindingPublisher publisher )
+    void remove( final BindingPublisher publisher )
     {
-        if ( !pendingPublishers.remove( publisher ) )
+        /*
+         * Lock to prevent race condition with subscriptions.
+         */
+        lock();
+        try
         {
-            publisher.unsubscribe( this );
+            if ( !pendingPublishers.remove( publisher ) )
+            {
+                publisher.unsubscribe( this );
+            }
+        }
+        finally
+        {
+            unlock();
         }
     }
 
@@ -139,14 +177,19 @@ final class RankedBindings<T>
             int rank = topRank;
             if ( rank > Integer.MIN_VALUE && rank > itr.peekNextRank() )
             {
-                synchronized ( RankedBindings.this )
+                lock();
+                try
                 {
                     rank = topRank;
                     while ( rank > Integer.MIN_VALUE && rank > itr.peekNextRank() )
                     {
-                        pendingPublishers.removeFirst().subscribe( RankedBindings.this );
+                        pendingPublishers.poll().subscribe( RankedBindings.this );
                         rank = topRank = pendingPublishers.topRank();
                     }
+                }
+                finally
+                {
+                    unlock();
                 }
             }
             return itr.hasNext();
