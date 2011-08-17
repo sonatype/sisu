@@ -84,6 +84,11 @@ final class LazyBeanEntry<Q extends Annotation, T>
         throw new UnsupportedOperationException();
     }
 
+    public Provider<T> getProvider()
+    {
+        return binding.getProvider();
+    }
+
     public String getDescription()
     {
         final Object source = binding.getSource();

@@ -14,6 +14,7 @@ package org.sonatype.inject;
 import java.lang.annotation.Annotation;
 import java.util.Map.Entry;
 
+import javax.inject.Provider;
 import javax.inject.Qualifier;
 
 /**
@@ -30,11 +31,18 @@ public interface BeanEntry<Q extends Annotation, T>
     Q getKey();
 
     /**
-     * Creates an instance of the bean; returns same instance for each subsequent call.
+     * Returns the associated instance of the bean; returns same instance for each call.
      * 
      * @return Bean instance (lazily-created)
      */
     T getValue();
+
+    /**
+     * Returns the underlying {@link Provider}; may support creation of multiple instances.
+     * 
+     * @return Bean provider
+     */
+    Provider<T> getProvider();
 
     /**
      * Returns a human-readable description of the bean; see @{@link Description}.
