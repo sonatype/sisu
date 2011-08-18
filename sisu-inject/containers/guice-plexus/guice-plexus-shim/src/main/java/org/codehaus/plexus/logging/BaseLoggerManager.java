@@ -8,11 +8,8 @@
 package org.codehaus.plexus.logging;
 
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
+import org.sonatype.guice.bean.locators.SoftMapping;
 import org.sonatype.guice.plexus.config.Roles;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
 
 public abstract class BaseLoggerManager
     extends AbstractLoggerManager
@@ -22,21 +19,11 @@ public abstract class BaseLoggerManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final Cache<String, Logger> activeLoggers =
-        CacheBuilder.newBuilder().weakValues().build( new CacheLoader<String, Logger>()
-        {
-            @Override
-            public Logger load( final String name )
-            {
-                final Logger logger = createLogger( name );
-                logger.setThreshold( currentThreshold );
-                return logger;
-            }
-        } );
+    private final SoftMapping<String, Logger> activeLoggers = new SoftMapping<String, Logger>( 16, 0.75f, 4 );
 
     String threshold = "INFO";
 
-    int currentThreshold;
+    private int currentThreshold;
 
     // ----------------------------------------------------------------------
     // Public methods
@@ -47,14 +34,22 @@ public abstract class BaseLoggerManager
         currentThreshold = parseThreshold( threshold );
     }
 
-    public final Logger getLoggerForComponent( final String role, final String hint )
+    public final synchronized Logger getLoggerForComponent( final String role, final String hint )
     {
-        return activeLoggers.getUnchecked( Roles.canonicalRoleHint( role, hint ) );
+        final String name = Roles.canonicalRoleHint( role, hint );
+        Logger logger = activeLoggers.get( name );
+        if ( null == logger )
+        {
+            logger = createLogger( name );
+            logger.setThreshold( currentThreshold );
+            activeLoggers.put( name, logger );
+        }
+        return logger;
     }
 
     public final void returnComponentLogger( final String role, final String hint )
     {
-        activeLoggers.invalidate( Roles.canonicalRoleHint( role, hint ) );
+        activeLoggers.remove( Roles.canonicalRoleHint( role, hint ) );
     }
 
     public final int getThreshold()
@@ -70,7 +65,7 @@ public abstract class BaseLoggerManager
     public final void setThresholds( final int currentThreshold )
     {
         this.currentThreshold = currentThreshold;
-        for ( final Logger logger : activeLoggers.asMap().values() )
+        for ( final Logger logger : activeLoggers.values() )
         {
             logger.setThreshold( currentThreshold );
         }
@@ -107,7 +102,7 @@ public abstract class BaseLoggerManager
 
     public final int getActiveLoggerCount()
     {
-        return activeLoggers.size();
+        return activeLoggers.values().size();
     }
 
     // ----------------------------------------------------------------------

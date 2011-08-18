@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-final class SoftMapping<K, V>
+public final class SoftMapping<K, V>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -34,7 +34,7 @@ final class SoftMapping<K, V>
     // Constructors
     // ----------------------------------------------------------------------
 
-    SoftMapping( final int initialCapacity, final float loadFactor, final int concurrencyLevel )
+    public SoftMapping( final int initialCapacity, final float loadFactor, final int concurrencyLevel )
     {
         referenceMap = new ConcurrentHashMap<K, EntryReference<K, V>>( initialCapacity, loadFactor, concurrencyLevel );
     }
@@ -54,6 +54,14 @@ final class SoftMapping<K, V>
         compact();
 
         final EntryReference<K, V> ref = referenceMap.put( key, new EntryReference<K, V>( key, value, queue ) );
+        return null != ref ? ref.get() : null;
+    }
+
+    public V remove( final K key )
+    {
+        compact();
+
+        final EntryReference<K, V> ref = referenceMap.remove( key );
         return null != ref ? ref.get() : null;
     }
 
