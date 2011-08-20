@@ -89,13 +89,13 @@ final class MildElements<T>
     /**
      * Compacts collection by replacing evicted elements with ones from the end.
      */
-    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    @SuppressWarnings( "unchecked" )
     private void compact()
     {
         Reference<? extends T> ref;
         while ( ( ref = queue.poll() ) != null )
         {
-            ( (Index) ref ).compact( list );
+            ( (Index<Reference<T>>) ref ).compact( list );
         }
     }
 
@@ -202,18 +202,17 @@ final class MildElements<T>
 
         public void compact( final List<Soft<T>> list )
         {
-            final int size;
-            if ( index >= 0 && index < ( size = list.size() ) )
+            if ( index >= 0 )
             {
-                // swap the element at the end into our old position
-                final Soft<T> lastElement = list.remove( size - 1 );
+                // swap the last element in the list into our old position
+                final Soft<T> lastElement = list.remove( list.size() - 1 );
                 if ( this != lastElement )
                 {
                     lastElement.index = index;
                     list.set( index, lastElement );
                 }
+                index = -1;
             }
-            index = -1;
         }
     }
 
@@ -246,18 +245,17 @@ final class MildElements<T>
 
         public void compact( final List<Weak<T>> list )
         {
-            final int size;
-            if ( index >= 0 && index < ( size = list.size() ) )
+            if ( index >= 0 )
             {
-                // swap the element at the end into our old position
-                final Weak<T> lastElement = list.remove( size - 1 );
+                // swap the last element in the list into our old position
+                final Weak<T> lastElement = list.remove( list.size() - 1 );
                 if ( this != lastElement )
                 {
                     lastElement.index = index;
                     list.set( index, lastElement );
                 }
+                index = -1;
             }
-            index = -1;
         }
     }
 }
