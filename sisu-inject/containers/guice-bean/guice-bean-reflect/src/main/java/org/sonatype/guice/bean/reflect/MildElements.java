@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * Simple collection of elements held by soft/weak {@link Reference}s; automatically compacts on read/write.
+ * Simple collection of elements held by soft/weak {@link Reference}s; automatically compacts on read/write.<br>
+ * Note: this class is not synchronized and all methods (including iterators) may silently remove elements.
  */
 final class MildElements<T>
     extends AbstractCollection<T>
