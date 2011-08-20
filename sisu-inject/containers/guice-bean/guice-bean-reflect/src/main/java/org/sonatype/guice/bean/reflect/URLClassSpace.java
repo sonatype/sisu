@@ -281,27 +281,32 @@ public final class URLClassSpace
         throws IOException
     {
         final Manifest manifest;
-        InputStream in = null;
-        try
+        if ( url.getPath().endsWith( "/" ) )
         {
-            if ( url.getPath().endsWith( "/" ) )
+            final InputStream in = Streams.open( new URL( url, MANIFEST_ENTRY ) );
+            try
             {
-                manifest = new Manifest( in = Streams.open( new URL( url, MANIFEST_ENTRY ) ) );
+                manifest = new Manifest( in );
             }
-            else if ( "file".equals( url.getProtocol() ) )
-            {
-                manifest = new JarFile( FileEntryIterator.toFile( url ) ).getManifest();
-            }
-            else
-            {
-                manifest = new JarInputStream( in = Streams.open( url ) ).getManifest();
-            }
-        }
-        finally
-        {
-            if ( null != in )
+            finally
             {
                 in.close();
+            }
+        }
+        else if ( "file".equals( url.getProtocol() ) )
+        {
+            manifest = new JarFile( FileEntryIterator.toFile( url ) ).getManifest();
+        }
+        else
+        {
+            final JarInputStream jin = new JarInputStream( Streams.open( url ) );
+            try
+            {
+                manifest = jin.getManifest();
+            }
+            finally
+            {
+                jin.close();
             }
         }
         if ( null != manifest )
