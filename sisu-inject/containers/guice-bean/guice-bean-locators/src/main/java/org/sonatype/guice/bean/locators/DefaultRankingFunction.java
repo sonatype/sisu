@@ -16,7 +16,8 @@ import javax.inject.Inject;
 import com.google.inject.Binding;
 
 /**
- * Simple {@link RankingFunction} that partitions qualified bindings into two main groups.<br>
+ * Simple {@link RankingFunction} that partitions qualified bindings into two main groups.
+ * <p>
  * Default bindings are given zero or positive ranks; the rest are given negative ranks.
  */
 public final class DefaultRankingFunction

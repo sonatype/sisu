@@ -22,7 +22,8 @@ import com.google.inject.spi.Element;
 import com.google.inject.spi.Elements;
 
 /**
- * Utility methods for dealing with internal debug and warning messages.<br>
+ * Utility methods for dealing with internal debug and warning messages.
+ * <p>
  * Set <b>-Dorg.sonatype.inject.debug=true</b> to send debug to the console.
  */
 public final class Logs

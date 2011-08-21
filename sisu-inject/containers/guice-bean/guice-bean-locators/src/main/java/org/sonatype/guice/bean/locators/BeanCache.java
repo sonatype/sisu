@@ -24,7 +24,8 @@ import org.sonatype.inject.BeanEntry;
 import com.google.inject.Binding;
 
 /**
- * Atomic cache mapping {@link Binding}s to {@link BeanEntry}s; optimized for common case of single entries.<br>
+ * Atomic cache mapping {@link Binding}s to {@link BeanEntry}s; optimized for common case of single entries.
+ * <p>
  * Uses {@code ==} instead of {@code equals} to compare {@link Binding}s because we want referential equality.
  */
 @SuppressWarnings( { "rawtypes", "unchecked" } )

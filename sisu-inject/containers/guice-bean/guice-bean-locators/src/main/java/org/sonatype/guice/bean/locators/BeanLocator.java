@@ -36,7 +36,8 @@ public interface BeanLocator
     <Q extends Annotation, T> Iterable<BeanEntry<Q, T>> locate( Key<T> key );
 
     /**
-     * Tracks bean implementations that match the given qualified binding {@link Key}. <br>
+     * Tracks bean implementations that match the given qualified binding {@link Key}.
+     * <p>
      * Uses the {@link Mediator} pattern to send events to an arbitrary watcher object.
      * 
      * @param key The qualified key

@@ -52,7 +52,8 @@ final class RankedSequence<T>
     // ----------------------------------------------------------------------
 
     /**
-     * Inserts the given element into the ordered list, using the assigned rank as a guide.<br>
+     * Inserts the given element into the ordered list, using the assigned rank as a guide.
+     * <p>
      * The rank can be any value from {@link Integer#MIN_VALUE} to {@link Integer#MAX_VALUE}.
      * 
      * @param element The element to insert
@@ -184,7 +185,8 @@ final class RankedSequence<T>
     }
 
     /**
-     * Finds the insertion point with the nearest UID, regardless of whether the UID is in the list or not.<br>
+     * Finds the insertion point with the nearest UID, regardless of whether the UID is in the list or not.
+     * <p>
      * Unlike {@link Arrays#binarySearch} this will always return a number from zero to {@link #size()} inclusive.
      * 
      * @param uids The UIDs array
