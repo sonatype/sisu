@@ -16,32 +16,29 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * {@link Map} whose values are kept alive by soft/weak {@link Reference}s; automatically compacts on read/write
+ * {@link Map} whose keys are kept alive by soft/weak {@link Reference}s; automatically compacts on read/write
  * <p>
  * Note: this class is not synchronized and all methods except {@link #get(Object)} (including iterators) may silently
  * remove elements. Concurrent access is only supported when the supplied backing map is a {@link ConcurrentMap}.
  */
-final class MildValues<K, V>
+final class MildKeys<K, V>
     extends AbstractMap<K, V>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final ReferenceQueue<V> queue = new ReferenceQueue<V>();
+    private final ReferenceQueue<K> queue = new ReferenceQueue<K>();
 
-    private final ConcurrentMap<K, Reference<V>> concurrentView;
-
-    private final Map<K, Reference<V>> map;
+    private final Map<Reference<K>, V> map;
 
     private final boolean soft;
 
@@ -49,13 +46,10 @@ final class MildValues<K, V>
     // Constructors
     // ----------------------------------------------------------------------
 
-    MildValues( final Map<K, Reference<V>> map, final boolean soft )
+    MildKeys( final Map<Reference<K>, V> map, final boolean soft )
     {
         this.map = map;
         this.soft = soft;
-
-        // only do this check once: if the supplied backing map is concurrent then we are also concurrent
-        concurrentView = map instanceof ConcurrentMap<?, ?> ? (ConcurrentMap<K, Reference<V>>) map : null;
     }
 
     // ----------------------------------------------------------------------
@@ -67,8 +61,7 @@ final class MildValues<K, V>
     {
         // skip compact for performance reasons
 
-        final Reference<V> ref = map.get( key );
-        return null != ref ? ref.get() : null;
+        return map.get( mild( key ) );
     }
 
     @Override
@@ -76,8 +69,7 @@ final class MildValues<K, V>
     {
         compact();
 
-        final Reference<V> ref = map.put( key, mild( key, value ) );
-        return null != ref ? ref.get() : null;
+        return map.put( mild( key ), value );
     }
 
     @Override
@@ -85,8 +77,7 @@ final class MildValues<K, V>
     {
         compact();
 
-        final Reference<V> ref = map.remove( key );
-        return null != ref ? ref.get() : null;
+        return map.remove( mild( key ) );
     }
 
     @Override
@@ -110,7 +101,17 @@ final class MildValues<K, V>
     {
         compact();
 
-        return map.keySet();
+        // avoid passing back null/cleared keys
+        final Set<K> set = new HashSet<K>();
+        for ( final Reference<K> ref : map.keySet() )
+        {
+            final K key = ref.get();
+            if ( null != key )
+            {
+                set.add( key );
+            }
+        }
+        return set;
     }
 
     @Override
@@ -118,17 +119,7 @@ final class MildValues<K, V>
     {
         compact();
 
-        // avoid passing back null/cleared values
-        final List<V> list = new ArrayList<V>();
-        for ( final Reference<V> ref : map.values() )
-        {
-            final V value = ref.get();
-            if ( null != value )
-            {
-                list.add( value );
-            }
-        }
-        return list;
+        return map.values();
     }
 
     @Override
@@ -138,12 +129,12 @@ final class MildValues<K, V>
 
         // avoid passing back null/cleared entries
         final Map<K, V> entries = new HashMap<K, V>();
-        for ( final Entry<K, Reference<V>> entry : map.entrySet() )
+        for ( final Entry<Reference<K>, V> entry : map.entrySet() )
         {
-            final V value = entry.getValue().get();
-            if ( null != value )
+            final K key = entry.getKey().get();
+            if ( null != key )
             {
-                entries.put( entry.getKey(), value );
+                entries.put( key, entry.getValue() );
             }
         }
         return entries.entrySet();
@@ -154,32 +145,46 @@ final class MildValues<K, V>
     // ----------------------------------------------------------------------
 
     /**
-     * @return Soft or weak {@link Reference} item for the given key:value mapping.
+     * @return Soft or weak {@link Reference} item for the given key.
      */
-    private Reference<V> mild( final K key, final V value )
+    @SuppressWarnings( "unchecked" )
+    private Reference<K> mild( final Object key )
     {
-        return soft ? new Soft<K, V>( key, value, queue ) : new Weak<K, V>( key, value, queue );
+        return soft ? new Soft<K>( (K) key, queue ) : new Weak<K>( (K) key, queue );
     }
 
     /**
-     * Compacts the map by removing cleared items.
+     * Compacts the map by removing cleared keys.
      */
     private void compact()
     {
-        Reference<? extends V> ref;
+        Reference<? extends K> ref;
         while ( ( ref = queue.poll() ) != null )
         {
-            // only remove value if it still matches
-            final Object key = ( (Item) ref ).key();
-            if ( null != concurrentView )
-            {
-                concurrentView.remove( key, ref );
-            }
-            else if ( map.get( key ) == ref )
-            {
-                map.remove( key );
-            }
+            map.remove( ref );
         }
+    }
+
+    /**
+     * Compares a sample {@link Reference} to a given object using referential equality.
+     * 
+     * @param lhs The sample reference
+     * @param rhs The object to compare
+     * @return {@code true} if same reference or same referent; otherwise {@code false}
+     */
+    static <K> boolean same( final Reference<K> lhs, final Object rhs )
+    {
+        if ( lhs == rhs )
+        {
+            return true; // exact same reference
+        }
+        final K key = lhs.get();
+        if ( null != key && rhs instanceof Reference<?> )
+        {
+            // different reference, but same referent
+            return key == ( (Reference<?>) rhs ).get();
+        }
+        return false;
     }
 
     // ----------------------------------------------------------------------
@@ -187,79 +192,80 @@ final class MildValues<K, V>
     // ----------------------------------------------------------------------
 
     /**
-     * Common functionality shared by both soft and weak items in the map.
+     * Soft key that maintains a constant hash and uses referential equality.
      */
-    private static interface Item
-    {
-        /**
-         * @return The owning key
-         */
-        Object key();
-    }
-
-    /**
-     * Soft {@link Item} that keeps track of its key so it can be removed when the value is unreachable.
-     */
-    private static final class Soft<K, V>
-        extends SoftReference<V>
-        implements Item
+    private static final class Soft<K>
+        extends SoftReference<K>
     {
         // ----------------------------------------------------------------------
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final K key;
+        private final int hash;
 
         // ----------------------------------------------------------------------
         // Constructors
         // ----------------------------------------------------------------------
 
-        Soft( final K key, final V value, final ReferenceQueue<V> queue )
+        Soft( final K key, final ReferenceQueue<K> queue )
         {
-            super( value, queue );
-            this.key = key;
+            super( key, queue );
+            hash = key.hashCode();
         }
 
         // ----------------------------------------------------------------------
         // Public methods
         // ----------------------------------------------------------------------
 
-        public Object key()
+        @Override
+        public int hashCode()
         {
-            return key;
+            return hash;
+        }
+
+        @Override
+        public boolean equals( final Object rhs )
+        {
+            return MildKeys.same( this, rhs );
         }
     }
 
     /**
-     * Weak {@link Item} that keeps track of its key so it can be removed when the value is unreachable.
+     * Weak key that maintains a constant hash and uses referential equality.
      */
-    private static final class Weak<K, V>
-        extends WeakReference<V>
-        implements Item
+    private static final class Weak<K>
+        extends WeakReference<K>
     {
         // ----------------------------------------------------------------------
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private final K key;
+        private final int hash;
 
         // ----------------------------------------------------------------------
         // Constructors
         // ----------------------------------------------------------------------
 
-        Weak( final K key, final V value, final ReferenceQueue<V> queue )
+        Weak( final K key, final ReferenceQueue<K> queue )
         {
-            super( value, queue );
-            this.key = key;
+            super( key, queue );
+            hash = key.hashCode();
         }
 
         // ----------------------------------------------------------------------
         // Public methods
         // ----------------------------------------------------------------------
 
-        public Object key()
+        @Override
+        public int hashCode()
         {
-            return key;
+            return hash;
+        }
+
+        @Override
+        public boolean equals( final Object rhs )
+        {
+            return MildKeys.same( this, rhs );
         }
     }
 }
