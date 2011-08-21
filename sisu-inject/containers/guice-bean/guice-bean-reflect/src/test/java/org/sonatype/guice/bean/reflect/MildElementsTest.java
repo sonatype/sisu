@@ -15,6 +15,8 @@ import java.lang.ref.Reference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
@@ -22,9 +24,19 @@ import junit.framework.TestCase;
 public class MildElementsTest
     extends TestCase
 {
+    public void testSoftElements()
+    {
+        testElements( true );
+    }
+
     public void testWeakElements()
     {
-        final Collection<String> names = new MildElements<String>( new ArrayList<Reference<String>>(), false );
+        testElements( false );
+    }
+
+    private static void testElements( final boolean soft )
+    {
+        final Collection<String> names = new MildElements<String>( new ArrayList<Reference<String>>(), soft );
 
         String a = new String( "A" ), b = new String( "B" ), c = new String( "C" );
 
@@ -82,17 +94,9 @@ public class MildElementsTest
         {
         }
 
-        char[] buf;
-
         c = null; // clear so element can be evicted
 
-        System.gc();
-        buf = new char[8 * 1024 * 1024];
-        System.gc();
-        buf = new char[8 * 1024 * 1024];
-        System.gc();
-        buf = new char[8 * 1024 * 1024];
-        System.gc();
+        gc( names );
 
         itr = names.iterator();
 
@@ -103,13 +107,7 @@ public class MildElementsTest
 
         a = null; // clear so element can be evicted
 
-        System.gc();
-        buf = new char[8 * 1024 * 1024];
-        System.gc();
-        buf = new char[8 * 1024 * 1024];
-        System.gc();
-        buf = new char[8 * 1024 * 1024];
-        System.gc();
+        gc( names );
 
         itr = names.iterator();
 
@@ -119,18 +117,42 @@ public class MildElementsTest
 
         b = null; // clear so element can be evicted
 
-        System.gc();
-        buf = new char[8 * 1024 * 1024];
-        System.gc();
-        buf = new char[8 * 1024 * 1024];
-        System.gc();
-        buf = new char[8 * 1024 * 1024];
-        System.gc();
+        gc( names );
 
         itr = names.iterator();
 
         assertFalse( itr.hasNext() );
+    }
 
-        buf.toString();
+    private static int gc( final Collection<?> elements )
+    {
+        /*
+         * Keep forcing GC until the collection compacts itself
+         */
+        final int size = elements.size();
+        int gcCount = 0, hash = 0;
+        do
+        {
+            try
+            {
+                final List<byte[]> buf = new LinkedList<byte[]>();
+                for ( int i = 0; i < 1024 * 1024; i++ )
+                {
+                    // try to trigger aggressive GC
+                    buf.add( new byte[1024 * 1024] );
+                }
+                hash += buf.hashCode(); // so JIT doesn't optimize this away
+            }
+            catch ( final OutOfMemoryError e )
+            {
+                // ignore...
+            }
+
+            System.gc();
+            gcCount++;
+        }
+        while ( elements.size() == size && gcCount < 1024 );
+
+        return hash;
     }
 }

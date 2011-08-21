@@ -16,12 +16,13 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.AbstractCollection;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * Simple collection of elements held by soft/weak {@link Reference}s; automatically compacts on read/write.<br>
+ * {@link Collection} of elements kept alive by soft/weak {@link Reference}s; automatically compacts on read/write.<br>
  * Note: this class is not synchronized and all methods (including iterators) may silently remove elements.
  */
 final class MildElements<T>
@@ -80,7 +81,7 @@ final class MildElements<T>
     // ----------------------------------------------------------------------
 
     /**
-     * @return Indexed soft or weak {@link Reference} for the given element.
+     * @return Soft or weak {@link Reference} item for the given element.
      */
     private Reference<T> mild( final T element )
     {
@@ -88,7 +89,7 @@ final class MildElements<T>
     }
 
     /**
-     * Compacts collection by replacing evicted elements with ones from the end.
+     * Compacts the list by replacing cleared items with ones from the end.
      */
     @SuppressWarnings( "unchecked" )
     private void compact()
@@ -96,7 +97,7 @@ final class MildElements<T>
         Reference<? extends T> ref;
         while ( ( ref = queue.poll() ) != null )
         {
-            ( (Index<Reference<T>>) ref ).compact( list );
+            ( (Item<Reference<T>>) ref ).compact( list );
         }
     }
 
@@ -105,12 +106,12 @@ final class MildElements<T>
     // ----------------------------------------------------------------------
 
     /**
-     * Represents the indexed position of an element in the list.
+     * Common functionality shared by both soft and weak items in the list.
      */
-    private static interface Index<T>
+    private interface Item<T>
     {
         /**
-         * Compacts list by swapping the last element with the one in this position.
+         * Compacts the list by replacing this item with one from the end of the list.
          * 
          * @param list The containing list
          */
@@ -129,7 +130,9 @@ final class MildElements<T>
 
         private int index;
 
-        private T nextElement, element;
+        private T nextElement;
+
+        private boolean haveElement;
 
         // ----------------------------------------------------------------------
         // Public methods
@@ -147,25 +150,25 @@ final class MildElements<T>
 
         public T next()
         {
-            if ( hasNext() )
+            haveElement = hasNext();
+            if ( haveElement )
             {
                 // populated by hasNext()
-                element = nextElement;
+                final T element = nextElement;
                 nextElement = null;
                 return element;
             }
-            element = null; // nothing to remove
             throw new NoSuchElementException();
         }
 
         @SuppressWarnings( "unchecked" )
         public void remove()
         {
-            if ( null != element )
+            if ( haveElement )
             {
                 // backtrack to previous position and remove it from the list
-                ( (Index<Reference<T>>) list.get( --index ) ).compact( list );
-                element = null;
+                ( (Item<Reference<T>>) list.get( --index ) ).compact( list );
+                haveElement = false;
             }
             else
             {
@@ -175,11 +178,11 @@ final class MildElements<T>
     }
 
     /**
-     * {@link SoftReference} that remembers its position so it can be quickly evicted.
+     * Soft {@link Item} that keeps track of its index so it can be swapped out.
      */
     private static final class Soft<T>
         extends SoftReference<T>
-        implements Index<Soft<T>>
+        implements Item<Soft<T>>
     {
         // ----------------------------------------------------------------------
         // Implementation fields
@@ -218,11 +221,11 @@ final class MildElements<T>
     }
 
     /**
-     * {@link WeakReference} that remembers its position so it can be quickly evicted.
+     * Weak {@link Item} that keeps track of its index so it can be swapped out.
      */
     private static final class Weak<T>
         extends WeakReference<T>
-        implements Index<Weak<T>>
+        implements Item<Weak<T>>
     {
         // ----------------------------------------------------------------------
         // Implementation fields
