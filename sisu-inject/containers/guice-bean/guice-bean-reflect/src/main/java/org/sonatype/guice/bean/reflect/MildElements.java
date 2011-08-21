@@ -22,7 +22,8 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * {@link Collection} of elements kept alive by soft/weak {@link Reference}s; automatically compacts on read/write.<br>
+ * {@link Collection} of elements kept alive by soft/weak {@link Reference}s; automatically compacts on read/write.
+ * <p>
  * Note: this class is not synchronized and all methods (including iterators) may silently remove elements.
  */
 final class MildElements<T>
