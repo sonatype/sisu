@@ -40,13 +40,13 @@ final class RankedBindings<T>
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    final RankedSequence<Binding<T>> bindings = new RankedSequence<Binding<T>>();
+    final transient RankedSequence<Binding<T>> bindings = new RankedSequence<Binding<T>>();
+
+    final transient TypeLiteral<T> type;
+
+    final transient RankedSequence<BindingPublisher> pendingPublishers;
 
     final Collection<BeanCache<?, T>> cachedBeans = Weak.elements();
-
-    final TypeLiteral<T> type;
-
-    final RankedSequence<BindingPublisher> pendingPublishers;
 
     volatile int topRank;
 
