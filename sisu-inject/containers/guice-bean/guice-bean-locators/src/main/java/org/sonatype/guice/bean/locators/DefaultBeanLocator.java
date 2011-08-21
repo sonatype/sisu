@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -19,7 +20,9 @@ import javax.inject.Singleton;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.reflect.Logs;
+import org.sonatype.guice.bean.reflect.Soft;
 import org.sonatype.guice.bean.reflect.TypeParameters;
+import org.sonatype.guice.bean.reflect.Weak;
 import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Mediator;
 
@@ -43,10 +46,10 @@ public final class DefaultBeanLocator
 
     private final RankedSequence<BindingPublisher> publishers = new RankedSequence<BindingPublisher>();
 
-    private final SoftMapping<TypeLiteral, RankedBindings> cachedBindings =
-        new SoftMapping<TypeLiteral, RankedBindings>( 256, 0.75f, 8 );
+    private final Map<TypeLiteral, RankedBindings> cachedBindings = Soft.concurrentValues( 256, 8 );
 
-    private final WeakSequence<WatchedBeans> watchedBeans = new WeakSequence<WatchedBeans>();
+    // reverse mapping; can't use watcher as key since it may not be unique
+    private final Map<WatchedBeans, Object> cachedWatchers = Weak.values();
 
     private final ImplicitBindings implicitBindings = new ImplicitBindings( publishers );
 
@@ -87,7 +90,7 @@ public final class DefaultBeanLocator
             {
                 p.subscribe( beans );
             }
-            watchedBeans.link( beans, watcher );
+            cachedWatchers.put( beans, watcher );
         }
         finally
         {
@@ -118,7 +121,7 @@ public final class DefaultBeanLocator
                 {
                     bindings.add( publisher, rank );
                 }
-                for ( final WatchedBeans beans : watchedBeans )
+                for ( final WatchedBeans beans : cachedWatchers.keySet() )
                 {
                     publisher.subscribe( beans );
                 }
@@ -142,7 +145,7 @@ public final class DefaultBeanLocator
                 {
                     bindings.remove( publisher );
                 }
-                for ( final WatchedBeans beans : watchedBeans )
+                for ( final WatchedBeans beans : cachedWatchers.keySet() )
                 {
                     publisher.unsubscribe( beans );
                 }

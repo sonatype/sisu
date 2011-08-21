@@ -12,11 +12,13 @@
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
+import org.sonatype.guice.bean.reflect.Weak;
 
 import com.google.inject.Binding;
 import com.google.inject.TypeLiteral;
@@ -40,7 +42,7 @@ final class RankedBindings<T>
 
     final RankedSequence<Binding<T>> bindings = new RankedSequence<Binding<T>>();
 
-    final WeakSequence<BeanCache<?, T>> cachedBeans = new WeakSequence<BeanCache<?, T>>();
+    final Collection<BeanCache<?, T>> cachedBeans = Weak.elements();
 
     final TypeLiteral<T> type;
 
