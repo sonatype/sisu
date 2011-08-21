@@ -12,65 +12,66 @@
 package org.sonatype.guice.bean.reflect;
 
 import java.lang.ref.Reference;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
 
-public class MildElementsTest
+public class MildKeysTest
     extends TestCase
 {
-    public void testSoftElements()
+    public void testSoftKeys()
     {
-        testElements( true );
+        testKeys( true );
     }
 
-    public void testWeakElements()
+    public void testWeakKeys()
     {
-        testElements( false );
+        testKeys( false );
     }
 
-    private static void testElements( final boolean soft )
+    private static void testKeys( final boolean soft )
     {
-        final Collection<String> names = new MildElements<String>( new ArrayList<Reference<String>>(), soft );
+        final Map<String, String> names =
+            new MildKeys<String, String>( new LinkedHashMap<Reference<String>, String>(), soft );
 
         String a = new String( "A" ), b = new String( "B" ), c = new String( "C" );
 
         assertTrue( names.isEmpty() );
         assertEquals( 0, names.size() );
 
-        names.add( a );
+        names.put( a, "1" );
 
         assertFalse( names.isEmpty() );
         assertEquals( 1, names.size() );
 
-        names.add( b );
+        names.put( b, "2" );
 
         assertFalse( names.isEmpty() );
         assertEquals( 2, names.size() );
 
-        names.add( c );
+        names.put( c, "3" );
 
         assertFalse( names.isEmpty() );
         assertEquals( 3, names.size() );
 
-        Iterator<String> itr = names.iterator();
+        Iterator<String> itr = names.values().iterator();
 
         assertTrue( itr.hasNext() );
-        assertEquals( "A", itr.next() );
-        assertEquals( "B", itr.next() );
+        assertEquals( "1", itr.next() );
+        assertEquals( "2", itr.next() );
         itr.remove();
         assertTrue( itr.hasNext() );
-        assertEquals( "C", itr.next() );
+        assertEquals( "3", itr.next() );
         assertFalse( itr.hasNext() );
 
-        names.add( b = new String( "b2b" ) );
+        names.put( b = new String( "b2b" ), "2" );
 
-        itr = names.iterator();
+        itr = names.keySet().iterator();
 
         assertEquals( "A", itr.next() );
         assertEquals( "C", itr.next() );
@@ -85,15 +86,6 @@ public class MildElementsTest
         {
         }
 
-        try
-        {
-            itr.remove();
-            fail( "Expected IllegalStateException" );
-        }
-        catch ( final IllegalStateException e )
-        {
-        }
-
         itr = null;
         int size;
 
@@ -101,7 +93,7 @@ public class MildElementsTest
         c = null; // clear so element can be evicted
         gc( names, size );
 
-        itr = names.iterator();
+        itr = names.keySet().iterator();
 
         assertEquals( "A", itr.next() );
         assertEquals( "b2b", itr.next() );
@@ -112,7 +104,7 @@ public class MildElementsTest
         a = null; // clear so element can be evicted
         gc( names, size );
 
-        itr = names.iterator();
+        itr = names.keySet().iterator();
 
         assertEquals( "b2b", itr.next() );
         assertFalse( itr.hasNext() );
@@ -122,12 +114,12 @@ public class MildElementsTest
         b = null; // clear so element can be evicted
         gc( names, size );
 
-        itr = names.iterator();
+        itr = names.keySet().iterator();
 
         assertFalse( itr.hasNext() );
     }
 
-    private static int gc( final Collection<?> elements, final int size )
+    private static int gc( final Map<?, ?> map, final int size )
     {
         /*
          * Keep forcing GC until the collection compacts itself
@@ -153,7 +145,7 @@ public class MildElementsTest
             System.gc();
             gcCount++;
         }
-        while ( elements.size() == size && gcCount < 1024 );
+        while ( map.size() == size && gcCount < 1024 );
 
         return hash;
     }
