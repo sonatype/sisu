@@ -8,14 +8,13 @@
 package org.sonatype.guice.plexus.locators;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
+import org.sonatype.guice.bean.reflect.Weak;
 
 public final class ClassRealmUtils
 {
@@ -57,8 +56,7 @@ public final class ClassRealmUtils
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private static Map<ClassRealm, Set<String>> namesCache =
-        Collections.synchronizedMap( new WeakHashMap<ClassRealm, Set<String>>() );
+    private static Map<ClassRealm, Set<String>> namesCache = Weak.concurrentKeys();
 
     // ----------------------------------------------------------------------
     // Utility methods
