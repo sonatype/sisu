@@ -7,8 +7,10 @@
  *******************************************************************************/
 package org.codehaus.plexus.logging;
 
+import java.util.Map;
+
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
-import org.sonatype.guice.bean.locators.SoftMapping;
+import org.sonatype.guice.bean.reflect.Weak;
 import org.sonatype.guice.plexus.config.Roles;
 
 public abstract class BaseLoggerManager
@@ -19,7 +21,7 @@ public abstract class BaseLoggerManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final SoftMapping<String, Logger> activeLoggers = new SoftMapping<String, Logger>( 16, 0.75f, 4 );
+    private final Map<String, Logger> activeLoggers = Weak.values();
 
     String threshold = "INFO";
 
@@ -47,7 +49,7 @@ public abstract class BaseLoggerManager
         return logger;
     }
 
-    public final void returnComponentLogger( final String role, final String hint )
+    public final synchronized void returnComponentLogger( final String role, final String hint )
     {
         activeLoggers.remove( Roles.canonicalRoleHint( role, hint ) );
     }
@@ -62,7 +64,7 @@ public abstract class BaseLoggerManager
         this.currentThreshold = currentThreshold;
     }
 
-    public final void setThresholds( final int currentThreshold )
+    public final synchronized void setThresholds( final int currentThreshold )
     {
         this.currentThreshold = currentThreshold;
         for ( final Logger logger : activeLoggers.values() )
@@ -100,9 +102,9 @@ public abstract class BaseLoggerManager
         return Logger.LEVEL_DEBUG;
     }
 
-    public final int getActiveLoggerCount()
+    public final synchronized int getActiveLoggerCount()
     {
-        return activeLoggers.values().size();
+        return activeLoggers.size();
     }
 
     // ----------------------------------------------------------------------
