@@ -67,7 +67,7 @@ final class DependencyVerifier
             try
             {
                 InjectionPoint.forInstanceMethodsAndFields( type );
-                InjectionPoint.forConstructorOf( type ).getDependencies();
+                InjectionPoint.forConstructorOf( type );
             }
             catch ( final Throwable e )
             {
