@@ -12,6 +12,7 @@
 package org.sonatype.guice.bean.binders;
 
 import java.lang.annotation.Annotation;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,8 @@ import org.sonatype.guice.bean.locators.EntryListAdapter;
 import org.sonatype.guice.bean.locators.EntryMapAdapter;
 import org.sonatype.guice.bean.locators.EntrySetAdapter;
 import org.sonatype.guice.bean.locators.NamedIterableAdapter;
+import org.sonatype.guice.bean.locators.ProviderIterableAdapter;
+import org.sonatype.guice.bean.reflect.TypeParameters;
 import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Parameters;
 
@@ -45,7 +48,7 @@ import com.google.inject.spi.TypeConverterBinding;
 // ----------------------------------------------------------------------
 
 /**
- * Provides a {@link Iterable} sequence of {@link BeanEntry}s.
+ * Provides an {@link Iterable} sequence of {@link BeanEntry}s.
  */
 final class BeanEntryProvider<K extends Annotation, V>
     implements Provider<Iterable<BeanEntry<K, V>>>
@@ -81,10 +84,9 @@ final class BeanEntryProvider<K extends Annotation, V>
 // ----------------------------------------------------------------------
 
 /**
- * Provides a {@link List} of qualified beans.
+ * Base class for {@link Collection}s of qualified beans.
  */
-final class BeanListProvider<K extends Annotation, V>
-    implements Provider<List<V>>
+class AbstractBeans<K extends Annotation, V>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
@@ -93,15 +95,57 @@ final class BeanListProvider<K extends Annotation, V>
     @Inject
     private BeanLocator locator;
 
-    private final Key<V> key;
+    private final Key<?> key;
 
+    private final boolean isProvider;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    AbstractBeans( final Key<V> key )
+    {
+        final TypeLiteral<V> type = key.getTypeLiteral();
+        final Class<?> clazz = type.getRawType();
+        isProvider = javax.inject.Provider.class == clazz || com.google.inject.Provider.class == clazz;
+        if ( isProvider )
+        {
+            this.key = key.ofType( TypeParameters.get( type, 0 ) );
+        }
+        else
+        {
+            this.key = key;
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
+    protected final Iterable<Entry<K, V>> beans()
+    {
+        final Iterable beans = locator.locate( key );
+        return isProvider ? new ProviderIterableAdapter( beans ) : beans;
+    }
+}
+
+// ----------------------------------------------------------------------
+
+/**
+ * Provides a {@link List} of qualified beans.
+ */
+final class BeanListProvider<K extends Annotation, V>
+    extends AbstractBeans<K, V>
+    implements Provider<List<V>>
+{
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
     BeanListProvider( final Key<V> key )
     {
-        this.key = key;
+        super( key );
     }
 
     // ----------------------------------------------------------------------
@@ -110,7 +154,7 @@ final class BeanListProvider<K extends Annotation, V>
 
     public List<V> get()
     {
-        return new EntryListAdapter<Annotation, V>( locator.locate( key ) );
+        return new EntryListAdapter<K, V>( beans() );
     }
 }
 
@@ -120,24 +164,16 @@ final class BeanListProvider<K extends Annotation, V>
  * Provides a {@link Set} of qualified beans.
  */
 final class BeanSetProvider<K extends Annotation, V>
+    extends AbstractBeans<K, V>
     implements Provider<Set<V>>
 {
-    // ----------------------------------------------------------------------
-    // Implementation fields
-    // ----------------------------------------------------------------------
-
-    @Inject
-    private BeanLocator locator;
-
-    private final Key<V> key;
-
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
     BeanSetProvider( final Key<V> key )
     {
-        this.key = key;
+        super( key );
     }
 
     // ----------------------------------------------------------------------
@@ -146,7 +182,7 @@ final class BeanSetProvider<K extends Annotation, V>
 
     public Set<V> get()
     {
-        return new EntrySetAdapter<Annotation, V>( locator.locate( key ) );
+        return new EntrySetAdapter<K, V>( beans() );
     }
 }
 
@@ -155,26 +191,17 @@ final class BeanSetProvider<K extends Annotation, V>
 /**
  * Provides a {@link Map} of qualified beans.
  */
-@SuppressWarnings( { "unchecked", "rawtypes" } )
 final class BeanMapProvider<K extends Annotation, V>
+    extends AbstractBeans<K, V>
     implements Provider<Map<K, V>>
 {
-    // ----------------------------------------------------------------------
-    // Implementation fields
-    // ----------------------------------------------------------------------
-
-    @Inject
-    private BeanLocator locator;
-
-    private final Key<V> key;
-
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
     BeanMapProvider( final Key<V> key )
     {
-        this.key = key;
+        super( key );
     }
 
     // ----------------------------------------------------------------------
@@ -183,7 +210,7 @@ final class BeanMapProvider<K extends Annotation, V>
 
     public Map<K, V> get()
     {
-        return new EntryMapAdapter( locator.locate( key ) );
+        return new EntryMapAdapter<K, V>( beans() );
     }
 }
 
@@ -192,26 +219,17 @@ final class BeanMapProvider<K extends Annotation, V>
 /**
  * Provides a {@link Map} of named beans.
  */
-@SuppressWarnings( { "unchecked", "rawtypes" } )
 final class NamedBeanMapProvider<V>
+    extends AbstractBeans<Named, V>
     implements Provider<Map<String, V>>
 {
-    // ----------------------------------------------------------------------
-    // Implementation fields
-    // ----------------------------------------------------------------------
-
-    @Inject
-    private BeanLocator locator;
-
-    private final Key key;
-
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
 
-    NamedBeanMapProvider( final TypeLiteral<?> valueType )
+    NamedBeanMapProvider( final TypeLiteral<V> type )
     {
-        this.key = Key.get( valueType, Named.class );
+        super( Key.get( type, Named.class ) );
     }
 
     // ----------------------------------------------------------------------
@@ -220,7 +238,7 @@ final class NamedBeanMapProvider<V>
 
     public Map<String, V> get()
     {
-        return new EntryMapAdapter( new NamedIterableAdapter( locator.locate( key ) ) );
+        return new EntryMapAdapter<String, V>( new NamedIterableAdapter<V>( beans() ) );
     }
 }
 

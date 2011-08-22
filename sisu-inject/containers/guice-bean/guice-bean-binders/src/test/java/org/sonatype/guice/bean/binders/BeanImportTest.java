@@ -17,7 +17,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -161,11 +160,14 @@ public class BeanImportTest
         Y fuzzy;
 
         @Inject
-        @Named( "local" )
-        Y local;
+        @Named( "fixed" )
+        Y fixed;
 
         @Inject
         Map<Named, Y> namedMap;
+
+        @Inject
+        Map<Named, Provider<Y>> namedProviderMap;
     }
 
     static class UnrestrictedInstance
@@ -174,10 +176,10 @@ public class BeanImportTest
         final Y single;
 
         @Inject
-        UnrestrictedInstance( @Nullable final Y single, @Named( "local" ) final Y local )
+        UnrestrictedInstance( @Nullable final Y single, @Named( "fixed" ) final Y fixed )
         {
             this.single = single;
-            this.local = local;
+            this.fixed = fixed;
         }
     }
 
@@ -189,6 +191,9 @@ public class BeanImportTest
 
         @Inject
         Iterable<Y> iterable;
+
+        @Inject
+        List<Provider<Y>> providerList;
     }
 
     static class UnrestrictedSet
@@ -196,6 +201,9 @@ public class BeanImportTest
     {
         @Inject
         Set<Y> set;
+
+        @Inject
+        Set<Provider<Y>> providerSet;
     }
 
     static class NamedType
@@ -204,10 +212,10 @@ public class BeanImportTest
         final Y single;
 
         @Inject
-        NamedType( @Named( "local" ) final Y local, @Nullable @Named final Y single )
+        NamedType( @Named( "fixed" ) final Y fixed, @Nullable @Named final Y single )
         {
             this.single = single;
-            this.local = local;
+            this.fixed = fixed;
         }
     }
 
@@ -223,9 +231,9 @@ public class BeanImportTest
         }
 
         @Inject
-        void setLocal( final @Named( "local" ) Y local )
+        void setFixed( final @Named( "fixed" ) Y fixed )
         {
-            this.local = local;
+            this.fixed = fixed;
         }
     }
 
@@ -234,6 +242,9 @@ public class BeanImportTest
     {
         @Inject
         Map<String, Y> map;
+
+        @Inject
+        Map<String, Provider<Y>> providerMap;
     }
 
     static class BeanEntries
@@ -364,7 +375,8 @@ public class BeanImportTest
 
             bind( X.class ).annotatedWith( Names.named( "GI" ) ).to( GenericInstance.class );
 
-            bind( Y.class ).annotatedWith( Names.named( "local" ) ).toInstance( new YImpl() );
+            bind( Y.class ).annotatedWith( Names.named( "fixed" ) ).toInstance( new YImpl() );
+            bind( Y.class ).annotatedWith( Names.named( "unscoped" ) ).to( YImpl.class );
             bind( Y.class ).annotatedWith( new FuzzyImpl() ).toInstance( new YImpl() );
 
             bind( Z.class ).annotatedWith( Names.named( "integer" ) ).toInstance( new ZImpl<Integer>()
@@ -386,35 +398,36 @@ public class BeanImportTest
         final UnrestrictedInstance unrestrictedInstance =
             (UnrestrictedInstance) injector.getInstance( Key.get( X.class, Names.named( "UI" ) ) );
 
-        assertSame( unrestrictedInstance.local, unrestrictedInstance.single );
+        assertSame( unrestrictedInstance.fixed, unrestrictedInstance.single );
 
         final UnrestrictedList unrestrictedList =
             (UnrestrictedList) injector.getInstance( Key.get( X.class, Names.named( "UL" ) ) );
 
-        assertEquals( 2, unrestrictedList.list.size() );
+        assertEquals( 3, unrestrictedList.list.size() );
 
-        assertSame( unrestrictedInstance.local, unrestrictedList.list.get( 0 ) );
-        assertSame( unrestrictedList.local, unrestrictedList.list.get( 0 ) );
+        assertSame( unrestrictedInstance.fixed, unrestrictedList.list.get( 0 ) );
+        assertSame( unrestrictedList.fixed, unrestrictedList.list.get( 0 ) );
 
-        assertSame( unrestrictedInstance.fuzzy, unrestrictedList.list.get( 1 ) );
-        assertSame( unrestrictedList.fuzzy, unrestrictedList.list.get( 1 ) );
+        assertSame( unrestrictedInstance.fuzzy, unrestrictedList.list.get( 2 ) );
+        assertSame( unrestrictedList.fuzzy, unrestrictedList.list.get( 2 ) );
 
-        assertNotSame( unrestrictedList.list.get( 0 ), unrestrictedList.list.get( 1 ) );
+        assertNotSame( unrestrictedList.list.get( 0 ), unrestrictedList.list.get( 2 ) );
 
         final Iterator<?> iterator = unrestrictedList.iterable.iterator();
 
         assertTrue( iterator.hasNext() );
         assertSame( unrestrictedList.list.get( 0 ), iterator.next() );
-        assertSame( unrestrictedList.list.get( 1 ), iterator.next() );
+        iterator.next();
+        assertSame( unrestrictedList.list.get( 2 ), iterator.next() );
         assertFalse( iterator.hasNext() );
 
         final UnrestrictedSet unrestrictedSet =
             (UnrestrictedSet) injector.getInstance( Key.get( X.class, Names.named( "US" ) ) );
 
-        assertEquals( 2, unrestrictedSet.set.size() );
+        assertEquals( 3, unrestrictedSet.set.size() );
 
-        assertTrue( unrestrictedSet.set.contains( unrestrictedInstance.local ) );
-        assertTrue( unrestrictedSet.set.contains( unrestrictedList.local ) );
+        assertTrue( unrestrictedSet.set.contains( unrestrictedInstance.fixed ) );
+        assertTrue( unrestrictedSet.set.contains( unrestrictedList.fixed ) );
 
         assertTrue( unrestrictedSet.set.contains( unrestrictedInstance.fuzzy ) );
         assertTrue( unrestrictedSet.set.contains( unrestrictedList.fuzzy ) );
@@ -429,14 +442,68 @@ public class BeanImportTest
             (NamedInstance) injector.getInstance( Key.get( X.class, Names.named( "NI" ) ) );
 
         assertNotNull( namedType.single );
-        assertSame( namedType.local, namedType.single );
+        assertSame( namedType.fixed, namedType.single );
         assertNull( namedInstance.single );
 
         final HintMap hintMap = (HintMap) injector.getInstance( Key.get( X.class, Names.named( "HM" ) ) );
-        assertEquals( Collections.singletonMap( Names.named( "local" ), hintMap.local ), hintMap.namedMap );
-        assertSame( namedType.local, hintMap.map.get( "local" ) );
-        assertSame( hintMap.local, hintMap.map.get( "local" ) );
-        assertEquals( 1, hintMap.map.size() );
+        assertSame( namedType.fixed, hintMap.map.get( "fixed" ) );
+        assertSame( hintMap.fixed, hintMap.map.get( "fixed" ) );
+        assertNotSame( namedType.fixed, hintMap.map.get( "unscoped" ) );
+        assertNotSame( hintMap.fixed, hintMap.map.get( "unscoped" ) );
+        assertEquals( 2, hintMap.map.size() );
+    }
+
+    public void testProviderImports()
+    {
+        final Injector injector = Guice.createInjector( new WireModule( new TestModule() ) );
+
+        final UnrestrictedList unrestrictedList =
+            (UnrestrictedList) injector.getInstance( Key.get( X.class, Names.named( "UL" ) ) );
+
+        final UnrestrictedSet unrestrictedSet =
+            (UnrestrictedSet) injector.getInstance( Key.get( X.class, Names.named( "US" ) ) );
+
+        final HintMap hintMap = (HintMap) injector.getInstance( Key.get( X.class, Names.named( "HM" ) ) );
+
+        Provider<Y> provider;
+
+        provider = unrestrictedList.providerList.get( 0 );
+        assertTrue( provider.get() instanceof YImpl );
+        assertSame( provider.get(), provider.get() );
+        provider = unrestrictedList.providerList.get( 1 );
+        assertTrue( provider.get() instanceof YImpl );
+        assertNotSame( provider.get(), provider.get() );
+        assertEquals( 3, unrestrictedList.providerList.size() );
+
+        Iterator<Provider<Y>> itr = unrestrictedSet.providerSet.iterator();
+
+        provider = itr.next();
+        assertTrue( provider.get() instanceof YImpl );
+        assertSame( provider.get(), provider.get() );
+        provider = itr.next();
+        assertTrue( provider.get() instanceof YImpl );
+        assertNotSame( provider.get(), provider.get() );
+        assertEquals( 3, unrestrictedList.providerList.size() );
+
+        provider = hintMap.providerMap.get( "unscoped" );
+        assertTrue( provider.get() instanceof YImpl );
+        assertNotSame( provider.get(), provider.get() );
+        assertEquals( 2, hintMap.providerMap.size() );
+
+        provider = hintMap.namedProviderMap.get( Names.named( "unscoped" ) );
+        assertTrue( provider.get() instanceof YImpl );
+        assertNotSame( provider.get(), provider.get() );
+        assertEquals( 2, hintMap.namedProviderMap.size() );
+
+        provider = hintMap.providerMap.get( "fixed" );
+        assertTrue( provider.get() instanceof YImpl );
+        assertSame( provider.get(), provider.get() );
+        assertEquals( 2, hintMap.providerMap.size() );
+
+        provider = hintMap.namedProviderMap.get( Names.named( "fixed" ) );
+        assertTrue( provider.get() instanceof YImpl );
+        assertSame( provider.get(), provider.get() );
+        assertEquals( 2, hintMap.namedProviderMap.size() );
     }
 
     public void testBeanEntries()
@@ -449,7 +516,8 @@ public class BeanImportTest
         final Iterator<BeanEntry<Named, Y>> i = beans.entries.iterator();
 
         assertTrue( i.hasNext() );
-        assertSame( hintMap.map.get( "local" ), i.next().getValue() );
+        assertSame( hintMap.map.get( "fixed" ), i.next().getValue() );
+        assertNotSame( hintMap.map.get( "unscoped" ), i.next().getValue() );
         assertFalse( i.hasNext() );
     }
 
@@ -467,10 +535,10 @@ public class BeanImportTest
         placeholderInstance = (PlaceholderInstance) injector.getInstance( Key.get( X.class, Names.named( "PI" ) ) );
         assertSame( why, placeholderInstance.single );
 
-        PROPS.put( "name", "local" );
+        PROPS.put( "name", "fixed" );
 
         placeholderInstance = (PlaceholderInstance) injector.getInstance( Key.get( X.class, Names.named( "PI" ) ) );
-        assertSame( placeholderInstance.local, placeholderInstance.single );
+        assertSame( placeholderInstance.fixed, placeholderInstance.single );
 
         PlaceholderString placeholderString;
         placeholderString = (PlaceholderString) injector.getInstance( Key.get( X.class, Names.named( "PS" ) ) );
@@ -693,7 +761,7 @@ public class BeanImportTest
             @Override
             protected void configure()
             {
-                bind( Y.class ).annotatedWith( Names.named( "local" ) ).toInstance( y );
+                bind( Y.class ).annotatedWith( Names.named( "fixed" ) ).toInstance( y );
             }
         } );
 
@@ -708,7 +776,7 @@ public class BeanImportTest
 
         final Injector grandchild = child.createChildInjector( new ChildWireModule( child, new TestModule() ) );
 
-        assertSame( y, ( (PlaceholderString) grandchild.getInstance( Key.get( X.class, Names.named( "PS" ) ) ) ).local );
+        assertSame( y, ( (PlaceholderString) grandchild.getInstance( Key.get( X.class, Names.named( "PS" ) ) ) ).fixed );
         assertSame( y, ( (PlaceholderString) grandchild.getInstance( Key.get( X.class, Names.named( "PS" ) ) ) ).fuzzy );
     }
 }
