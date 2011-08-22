@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+  <meta name="description" content="Javadoc API documentation for Sisu-Inject-Bean : Aggregate OSGi bundle." />
+
+<link rel="shortcut icon" type="image/x-icon" href="../../favicon.ico" />
+<title>
+
+  javax.inject
+
+
+| Sisu-Inject-Bean : Aggregate OSGi bundle
+
+</title>
+<link href="../../../assets/doclava-developer-docs.css" rel="stylesheet" type="text/css" />
+<link href="../../../assets/customizations.css" rel="stylesheet" type="text/css" />
+<script src="../../../assets/search_autocomplete.js" type="text/javascript"></script>
+<script src="../../../assets/jquery-resizable.min.js" type="text/javascript"></script>
+<script src="../../../assets/doclava-developer-docs.js" type="text/javascript"></script>
+<script src="../../../assets/prettify.js" type="text/javascript"></script>
+<script type="text/javascript">
+  setToRoot("../../", "../../../assets/");
+</script>
+<script src="../../../assets/doclava-developer-reference.js" type="text/javascript"></script>
+<script src="../../../assets/navtree_data.js" type="text/javascript"></script>
+<script src="../../../assets/customizations.js" type="text/javascript"></script>
+<noscript>
+  <style type="text/css">
+    html,body{overflow:auto;}
+    #body-content{position:relative; top:0;}
+    #doc-content{overflow:visible;border-left:3px solid #666;}
+    #side-nav{padding:0;}
+    #side-nav .toggle-list ul {display:block;}
+    #resize-packages-nav{border-bottom:3px solid #666;}
+  </style>
+</noscript>
+</head>
+
+<body class="">
+
+<div id="header">
+    <div id="headerLeft">
+    
+      <span id="masthead-title">Sisu-Inject-Bean : Aggregate OSGi bundle</span>
+    
+    </div>
+    <div id="headerRight">
+      
+  <div id="search" >
+      <div id="searchForm">
+          <form accept-charset="utf-8" class="gsc-search-box" 
+                onsubmit="return submit_search()">
+            <table class="gsc-search-box" cellpadding="0" cellspacing="0"><tbody>
+                <tr>
+                  <td class="gsc-input">
+                    <input id="search_autocomplete" class="gsc-input" type="text" size="33" autocomplete="off"
+                      title="search developer docs" name="q"
+                      value="search developer docs"
+                      onFocus="search_focus_changed(this, true)"
+                      onBlur="search_focus_changed(this, false)"
+                      onkeydown="return search_changed(event, true, '../../')"
+                      onkeyup="return search_changed(event, false, '../../')" />
+                  <div id="search_filtered_div" class="no-display">
+                      <table id="search_filtered" cellspacing=0>
+                      </table>
+                  </div>
+                  </td>
+                  <td class="gsc-search-button">
+                    <input type="submit" value="Search" title="search" id="search-button" class="gsc-search-button" />
+                  </td>
+                  <td class="gsc-clear-button">
+                    <div title="clear results" class="gsc-clear-button">&nbsp;</div>
+                  </td>
+                </tr></tbody>
+              </table>
+          </form>
+      </div><!-- searchForm -->
+  </div><!-- search -->
+      
+    </div>
+</div><!-- header -->
+
+
+  <div class="g-section g-tpl-240" id="body-content">
+    <div class="g-unit g-first side-nav-resizable" id="side-nav">
+      <div id="swapper">
+        <div id="nav-panels">
+          <div id="resize-packages-nav">
+            <div id="packages-nav">
+              <div id="index-links"><nobr>
+                <a href="../../packages.html"  >Package Index</a> | 
+                <a href="../../classes.html" >Class Index</a></nobr>
+              </div>
+              <ul>
+                
+    <li class="api apilevel-">
+  <a href="../../javax/enterprise/inject/package-summary.html">javax.enterprise.inject</a></li>
+    <li class="selected api apilevel-">
+  <a href="../../javax/inject/package-summary.html">javax.inject</a></li>
+    <li class="api apilevel-">
+  <a href="../../org/aopalliance/aop/package-summary.html">org.aopalliance.aop</a></li>
+    <li class="api apilevel-">
+  <a href="../../org/aopalliance/intercept/package-summary.html">org.aopalliance.intercept</a></li>
+    <li class="api apilevel-">
+  <a href="../../org/sonatype/guice/bean/binders/package-summary.html">org.sonatype.guice.bean.binders</a></li>
+    <li class="api apilevel-">
+  <a href="../../org/sonatype/guice/bean/containers/package-summary.html">org.sonatype.guice.bean.containers</a></li>
+    <li class="api apilevel-">
+  <a href="../../org/sonatype/guice/bean/converters/package-summary.html">org.sonatype.guice.bean.converters</a></li>
+    <li class="api apilevel-">
+  <a href="../../org/sonatype/guice/bean/inject/package-summary.html">org.sonatype.guice.bean.inject</a></li>
+    <li class="api apilevel-">
+  <a href="../../org/sonatype/guice/bean/locators/package-summary.html">org.sonatype.guice.bean.locators</a></li>
+    <li class="api apilevel-">
+  <a href="../../org/sonatype/guice/bean/locators/spi/package-summary.html">org.sonatype.guice.bean.locators.spi</a></li>
+    <li class="api apilevel-">
+  <a href="../../org/sonatype/guice/bean/reflect/package-summary.html">org.sonatype.guice.bean.reflect</a></li>
+    <li class="api apilevel-">
+  <a href="../../org/sonatype/guice/bean/scanners/package-summary.html">org.sonatype.guice.bean.scanners</a></li>
+    <li class="api apilevel-">
+  <a href="../../org/sonatype/guice/bean/scanners/asm/package-summary.html">org.sonatype.guice.bean.scanners.asm</a></li>
+    <li class="api apilevel-">
+  <a href="../../org/sonatype/guice/bean/scanners/index/package-summary.html">org.sonatype.guice.bean.scanners.index</a></li>
+    <li class="api apilevel-">
+  <a href="../../org/sonatype/inject/package-summary.html">org.sonatype.inject</a></li>
+              </ul><br/>
+            </div> <!-- end packages -->
+          </div> <!-- end resize-packages -->
+          <div id="classes-nav">
+            <ul>
+              
+    <li><h2>Interfaces</h2>
+      <ul>
+        <li class="api apilevel-"><a href="../../javax/inject/Provider.html">Provider</a>&lt;T&gt;</li>
+      </ul>
+    </li>
+              
+              
+    <li><h2>Annotations</h2>
+      <ul>
+        <li class="api apilevel-"><a href="../../javax/inject/Inject.html">Inject</a></li>
+        <li class="api apilevel-"><a href="../../javax/inject/Named.html">Named</a></li>
+        <li class="api apilevel-"><a href="../../javax/inject/Qualifier.html">Qualifier</a></li>
+        <li class="api apilevel-"><a href="../../javax/inject/Scope.html">Scope</a></li>
+        <li class="api apilevel-"><a href="../../javax/inject/Singleton.html">Singleton</a></li>
+      </ul>
+    </li>
+              
+              
+              
+            </ul><br/>
+          </div><!-- end classes -->
+        </div><!-- end nav-panels -->
+        <div id="nav-tree" style="display:none">
+          <div id="index-links"><nobr>
+            <a href="../../packages.html"  >Package Index</a> | 
+            <a href="../../classes.html" >Class Index</a></nobr>
+          </div>
+        </div><!-- end nav-tree -->
+      </div><!-- end swapper -->
+    </div> <!-- end side-nav -->
+    <script>
+      if (!isMobile) {
+        $("<a href='#' id='nav-swap' onclick='swapNav();return false;' style='font-size:10px;line-height:9px;margin-left:1em;text-decoration:none;'><span id='tree-link'>Use Tree Navigation</span><span id='panel-link' style='display:none'>Use Panel Navigation</span></a>").appendTo("#side-nav");
+        chooseDefaultNav();
+        if ($("#nav-tree").is(':visible')) {
+          init_default_navtree("../../");
+        } else {
+          addLoadEvent(function() {
+            scrollIntoView("packages-nav");
+            scrollIntoView("classes-nav");
+          });
+        }
+        $("#swapper").css({borderBottom:"2px solid #aaa"});
+      } else {
+        swapNav(); // tree view should be used on mobile
+      }
+    </script>
+
+
+
+<div class="g-unit" id="doc-content">
+
+<div id="api-info-block">
+<div class="api-level">
+  
+
+
+  
+  
+
+</div>
+</div>
+
+<div id="jd-header">
+  package
+  <h1>javax.inject</h1>
+</div><!-- end header -->
+
+<div id="naMessage"></div>
+
+<div id="jd-content" class="api apilevel-">
+
+
+  <div class="jd-descr">
+    This package specifies a means for obtaining objects in such a way as to
+ maximize reusability, testability and maintainability compared to
+ traditional approaches such as constructors, factories, and service
+ locators (e.g., JNDI).&nbsp;This process, known as <i>dependency
+ injection</i>, is beneficial to most nontrivial applications.
+
+ <p>Many types depend on other types. For example, a <tt>Stopwatch</tt> might
+ depend on a <tt>TimeSource</tt>. The types on which a type depends are
+ known as its <i>dependencies</i>. The process of finding an instance of a
+ dependency to use at run time is known as <i>resolving</i> the dependency.
+ If no such instance can be found, the dependency is said to be
+ <i>unsatisfied</i>, and the application is broken.
+
+ <p>In the absence of dependency injection, an object can resolve its
+ dependencies in a few ways. It can invoke a constructor, hard-wiring an
+ object directly to its dependency's implementation and life cycle:
+
+ <pre>   class Stopwatch {
+     final TimeSource timeSource;
+     Stopwatch () {
+       timeSource = <b>new AtomicClock(...)</b>;
+     }
+     void start() { ... }
+     long stop() { ... }
+   }</pre>
+
+ <p>If more flexibility is needed, the object can call out to a factory or
+ service locator:
+
+ <pre>   class Stopwatch {
+     final TimeSource timeSource;
+     Stopwatch () {
+       timeSource = <b>DefaultTimeSource.getInstance()</b>;
+     }
+     void start() { ... }
+     long stop() { ... }
+   }</pre>
+
+ <p>In deciding between these traditional approaches to dependency
+ resolution, a programmer must make trade-offs. Constructors are more
+ concise but restrictive. Factories decouple the client and implementation
+ to some extent but require boilerplate code. Service locators decouple even
+ further but reduce compile time type safety. All three approaches inhibit
+ unit testing. For example, if the programmer uses a factory, each test
+ against code that depends on the factory will have to mock out the factory
+ and remember to clean up after itself or else risk side effects:
+
+ <pre>   void testStopwatch() {
+     <b>TimeSource original = DefaultTimeSource.getInstance();
+     DefaultTimeSource.setInstance(new MockTimeSource());
+     try {</b>
+       // Now, we can actually test Stopwatch.
+       Stopwatch sw = new Stopwatch();
+       ...
+     <b>} finally {
+       DefaultTimeSource.setInstance(original);
+     }</b>
+   }</pre>
+
+ <p>In practice, supporting this ability to mock out a factory results in
+ even more boilerplate code. Tests that mock out and clean up after multiple
+ dependencies quickly get out of hand. To make matters worse, a programmer
+ must predict accurately how much flexibility will be needed in the future
+ or else suffer the consequences. If a programmer initially elects to use a
+ constructor but later decides that more flexibility is required, the
+ programmer must replace every call to the constructor. If the programmer
+ errs on the side of caution and write factories up front, it may result in
+ a lot of unnecessary boilerplate code, adding noise, complexity, and
+ error-proneness.
+
+ <p><i>Dependency injection</i> addresses all of these issues. Instead of
+ the programmer calling a constructor or factory, a tool called a
+ <i>dependency injector</i> passes dependencies to objects:
+
+ <pre>   class Stopwatch {
+     final TimeSource timeSource;
+     <b>@Inject Stopwatch(TimeSource TimeSource)</b> {
+       this.TimeSource = TimeSource;
+     }
+     void start() { ... }
+     long stop() { ... }
+   }</pre>
+
+ <p>The injector further passes dependencies to other dependencies until it
+ constructs the entire object graph. For example, suppose the programmer
+ asked an injector to create a <tt>StopwatchWidget</tt> instance:
+
+ <pre>   /** GUI for a Stopwatch &#42;/
+   class StopwatchWidget {
+     &#64;Inject StopwatchWidget(Stopwatch sw) { ... }
+     ...
+   }</pre>
+
+ <p>The injector might:
+ <ol>
+   <li>Find a <tt>TimeSource</tt>
+   <li>Construct a <tt>Stopwatch</tt> with the <tt>TimeSource</tt>
+   <li>Construct a <tt>StopwatchWidget</tt> with the <tt>Stopwatch</tt>
+ </ol>
+
+ <p>This leaves the programmer's code clean, flexible, and relatively free
+ of dependency-related infrastructure.
+
+ <p>In unit tests, the programmer can now construct objects directly
+ (without an injector) and pass in mock dependencies. The programmer no
+ longer needs to set up and tear down factories or service locators in each
+ test. This greatly simplifies our unit test:
+
+ <pre>   void testStopwatch() {
+     Stopwatch sw = new Stopwatch(new MockTimeSource());
+     ...
+   }</pre>
+
+ <p>The total decrease in unit-test complexity is proportional to the
+ product of the number of unit tests and the number of dependencies.
+
+ <p><b>This package provides dependency injection annotations that enable
+ portable classes</b>, but it leaves external dependency configuration up to
+ the injector implementation. Programmers annotate constructors, methods,
+ and fields to advertise their injectability (constructor injection is
+ demonstrated in the examples above). A dependency injector identifies a
+ class's dependencies by inspecting these annotations, and injects the
+ dependencies at run time. Moreover, the injector can verify that all
+ dependencies have been satisfied at <i>build time</i>. A service locator,
+ by contrast, cannot detect unsatisfied dependencies until run time.
+
+ <p>Injector implementations can take many forms. An injector could
+ configure itself using XML, annotations, a DSL (domain-specific language),
+ or even plain Java code. An injector could rely on reflection or code
+ generation. An injector that uses compile-time code generation may not even
+ have its own run time representation. Other injectors may not be able to
+ generate code at all, neither at compile nor run time. A "container", for
+ some definition, can be an injector, but this package specification aims to
+ minimize restrictions on injector implementations.
+  </div>
+
+
+
+
+
+  
+    <h2>Interfaces</h2>
+    <div class="jd-sumtable">
+    
+  <table class="jd-sumtable-expando">
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../javax/inject/Provider.html">Provider</a>&lt;T&gt;</td>
+              <td class="jd-descrcol" width="100%">Provides instances of <code>T</code>.&nbsp;</td>
+          </tr>
+  </table>
+    </div>
+  
+
+
+  
+
+
+  
+
+
+  
+
+
+  
+
+
+<div id="footer">
+Generated by <a href="http://code.google.com/p/doclava/">Doclava</a>.
+</div> <!-- end footer -->
+
+</div><!-- end jd-content -->
+</div><!-- doc-content -->
+
+</div> <!-- end body-content --> 
+
+<script type="text/javascript">
+init(); /* initialize doclava-developer-docs.js */
+</script>
+
+</body>
+</html>

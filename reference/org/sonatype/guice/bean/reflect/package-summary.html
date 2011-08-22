@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+  <meta name="description" content="Javadoc API documentation for Sisu-Inject-Bean : Aggregate OSGi bundle." />
+
+<link rel="shortcut icon" type="image/x-icon" href="../../../../../favicon.ico" />
+<title>
+
+  org.sonatype.guice.bean.reflect
+
+
+| Sisu-Inject-Bean : Aggregate OSGi bundle
+
+</title>
+<link href="../../../../../../assets/doclava-developer-docs.css" rel="stylesheet" type="text/css" />
+<link href="../../../../../../assets/customizations.css" rel="stylesheet" type="text/css" />
+<script src="../../../../../../assets/search_autocomplete.js" type="text/javascript"></script>
+<script src="../../../../../../assets/jquery-resizable.min.js" type="text/javascript"></script>
+<script src="../../../../../../assets/doclava-developer-docs.js" type="text/javascript"></script>
+<script src="../../../../../../assets/prettify.js" type="text/javascript"></script>
+<script type="text/javascript">
+  setToRoot("../../../../../", "../../../../../../assets/");
+</script>
+<script src="../../../../../../assets/doclava-developer-reference.js" type="text/javascript"></script>
+<script src="../../../../../../assets/navtree_data.js" type="text/javascript"></script>
+<script src="../../../../../../assets/customizations.js" type="text/javascript"></script>
+<noscript>
+  <style type="text/css">
+    html,body{overflow:auto;}
+    #body-content{position:relative; top:0;}
+    #doc-content{overflow:visible;border-left:3px solid #666;}
+    #side-nav{padding:0;}
+    #side-nav .toggle-list ul {display:block;}
+    #resize-packages-nav{border-bottom:3px solid #666;}
+  </style>
+</noscript>
+</head>
+
+<body class="">
+
+<div id="header">
+    <div id="headerLeft">
+    
+      <span id="masthead-title">Sisu-Inject-Bean : Aggregate OSGi bundle</span>
+    
+    </div>
+    <div id="headerRight">
+      
+  <div id="search" >
+      <div id="searchForm">
+          <form accept-charset="utf-8" class="gsc-search-box" 
+                onsubmit="return submit_search()">
+            <table class="gsc-search-box" cellpadding="0" cellspacing="0"><tbody>
+                <tr>
+                  <td class="gsc-input">
+                    <input id="search_autocomplete" class="gsc-input" type="text" size="33" autocomplete="off"
+                      title="search developer docs" name="q"
+                      value="search developer docs"
+                      onFocus="search_focus_changed(this, true)"
+                      onBlur="search_focus_changed(this, false)"
+                      onkeydown="return search_changed(event, true, '../../../../../')"
+                      onkeyup="return search_changed(event, false, '../../../../../')" />
+                  <div id="search_filtered_div" class="no-display">
+                      <table id="search_filtered" cellspacing=0>
+                      </table>
+                  </div>
+                  </td>
+                  <td class="gsc-search-button">
+                    <input type="submit" value="Search" title="search" id="search-button" class="gsc-search-button" />
+                  </td>
+                  <td class="gsc-clear-button">
+                    <div title="clear results" class="gsc-clear-button">&nbsp;</div>
+                  </td>
+                </tr></tbody>
+              </table>
+          </form>
+      </div><!-- searchForm -->
+  </div><!-- search -->
+      
+    </div>
+</div><!-- header -->
+
+
+  <div class="g-section g-tpl-240" id="body-content">
+    <div class="g-unit g-first side-nav-resizable" id="side-nav">
+      <div id="swapper">
+        <div id="nav-panels">
+          <div id="resize-packages-nav">
+            <div id="packages-nav">
+              <div id="index-links"><nobr>
+                <a href="../../../../../packages.html"  >Package Index</a> | 
+                <a href="../../../../../classes.html" >Class Index</a></nobr>
+              </div>
+              <ul>
+                
+    <li class="api apilevel-">
+  <a href="../../../../../javax/enterprise/inject/package-summary.html">javax.enterprise.inject</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../javax/inject/package-summary.html">javax.inject</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/aopalliance/aop/package-summary.html">org.aopalliance.aop</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/aopalliance/intercept/package-summary.html">org.aopalliance.intercept</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/binders/package-summary.html">org.sonatype.guice.bean.binders</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/containers/package-summary.html">org.sonatype.guice.bean.containers</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/converters/package-summary.html">org.sonatype.guice.bean.converters</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/inject/package-summary.html">org.sonatype.guice.bean.inject</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/locators/package-summary.html">org.sonatype.guice.bean.locators</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/locators/spi/package-summary.html">org.sonatype.guice.bean.locators.spi</a></li>
+    <li class="selected api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/reflect/package-summary.html">org.sonatype.guice.bean.reflect</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/scanners/package-summary.html">org.sonatype.guice.bean.scanners</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/scanners/asm/package-summary.html">org.sonatype.guice.bean.scanners.asm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/scanners/index/package-summary.html">org.sonatype.guice.bean.scanners.index</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/inject/package-summary.html">org.sonatype.inject</a></li>
+              </ul><br/>
+            </div> <!-- end packages -->
+          </div> <!-- end resize-packages -->
+          <div id="classes-nav">
+            <ul>
+              
+    <li><h2>Interfaces</h2>
+      <ul>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/BeanProperty.html">BeanProperty</a>&lt;T&gt;</li>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/ClassSpace.html">ClassSpace</a></li>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/DeferredClass.html">DeferredClass</a>&lt;T&gt;</li>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/DeferredProvider.html">DeferredProvider</a>&lt;T&gt;</li>
+      </ul>
+    </li>
+              
+    <li><h2>Classes</h2>
+      <ul>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/BeanProperties.html">BeanProperties</a></li>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/BundleClassSpace.html">BundleClassSpace</a></li>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/DeclaredMembers.html">DeclaredMembers</a></li>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/LoadedClass.html">LoadedClass</a>&lt;T&gt;</li>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/Logs.html">Logs</a></li>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/Soft.html">Soft</a></li>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/Streams.html">Streams</a></li>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/TypeParameters.html">TypeParameters</a></li>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/URLClassSpace.html">URLClassSpace</a></li>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/Weak.html">Weak</a></li>
+      </ul>
+    </li>
+              
+    <li><h2>Annotations</h2>
+      <ul>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/IgnoreSetters.html">IgnoreSetters</a></li>
+      </ul>
+    </li>
+              
+    <li><h2>Enums</h2>
+      <ul>
+        <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/reflect/DeclaredMembers.View.html">DeclaredMembers.View</a></li>
+      </ul>
+    </li>
+              
+              
+            </ul><br/>
+          </div><!-- end classes -->
+        </div><!-- end nav-panels -->
+        <div id="nav-tree" style="display:none">
+          <div id="index-links"><nobr>
+            <a href="../../../../../packages.html"  >Package Index</a> | 
+            <a href="../../../../../classes.html" >Class Index</a></nobr>
+          </div>
+        </div><!-- end nav-tree -->
+      </div><!-- end swapper -->
+    </div> <!-- end side-nav -->
+    <script>
+      if (!isMobile) {
+        $("<a href='#' id='nav-swap' onclick='swapNav();return false;' style='font-size:10px;line-height:9px;margin-left:1em;text-decoration:none;'><span id='tree-link'>Use Tree Navigation</span><span id='panel-link' style='display:none'>Use Panel Navigation</span></a>").appendTo("#side-nav");
+        chooseDefaultNav();
+        if ($("#nav-tree").is(':visible')) {
+          init_default_navtree("../../../../../");
+        } else {
+          addLoadEvent(function() {
+            scrollIntoView("packages-nav");
+            scrollIntoView("classes-nav");
+          });
+        }
+        $("#swapper").css({borderBottom:"2px solid #aaa"});
+      } else {
+        swapNav(); // tree view should be used on mobile
+      }
+    </script>
+
+
+
+<div class="g-unit" id="doc-content">
+
+<div id="api-info-block">
+<div class="api-level">
+  
+
+
+  
+  
+
+</div>
+</div>
+
+<div id="jd-header">
+  package
+  <h1>org.sonatype.guice.bean.reflect</h1>
+</div><!-- end header -->
+
+<div id="naMessage"></div>
+
+<div id="jd-content" class="api apilevel-">
+
+
+  <div class="jd-descr">
+    Bean reflection and introspection.
+
+ <p>The principal members of this package are:
+ <dl>
+ <dt><code><a href="../../../../../org/sonatype/guice/bean/reflect/ClassSpace.html">ClassSpace</a></code>
+ <dd>Represents a source of classes and resources that can be scanned.
+ <dt><code><a href="../../../../../org/sonatype/guice/bean/reflect/BeanProperties.html">BeanProperties</a></code>
+ <dd>Picks out potential bean properties from declared class members.
+ <dt><code><a href="../../../../../org/sonatype/guice/bean/reflect/Logs.html">Logs</a></code>
+ <dd>Utility methods for logging internal debug and warning messages.
+ <dt><code><a href="../../../../../org/sonatype/guice/bean/reflect/TypeParameters.html">TypeParameters</a></code>
+ <dd>Utility methods for dealing with generic type parameters.
+ </dl>
+
+  </div>
+
+
+
+
+
+  
+    <h2>Interfaces</h2>
+    <div class="jd-sumtable">
+    
+  <table class="jd-sumtable-expando">
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/BeanProperty.html">BeanProperty</a>&lt;T&gt;</td>
+              <td class="jd-descrcol" width="100%">Represents a bean property such as a field or setter method.&nbsp;</td>
+          </tr>
+        <tr class=" api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/ClassSpace.html">ClassSpace</a></td>
+              <td class="jd-descrcol" width="100%">Represents an abstract collection of related classes and resources.&nbsp;</td>
+          </tr>
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/DeferredClass.html">DeferredClass</a>&lt;T&gt;</td>
+              <td class="jd-descrcol" width="100%">Placeholder Class; postpones classloading until absolutely necessary.&nbsp;</td>
+          </tr>
+        <tr class=" api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/DeferredProvider.html">DeferredProvider</a>&lt;T&gt;</td>
+              <td class="jd-descrcol" width="100%">Provider backed by a <code><a href="../../../../../org/sonatype/guice/bean/reflect/DeferredClass.html">DeferredClass</a></code>.&nbsp;</td>
+          </tr>
+  </table>
+    </div>
+  
+
+
+  
+    <h2>Classes</h2>
+    <div class="jd-sumtable">
+    
+  <table class="jd-sumtable-expando">
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/BeanProperties.html">BeanProperties</a></td>
+              <td class="jd-descrcol" width="100%">Iterable that iterates over potential bean properties in a class hierarchy.&nbsp;</td>
+          </tr>
+        <tr class=" api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/BundleClassSpace.html">BundleClassSpace</a></td>
+              <td class="jd-descrcol" width="100%"><code><a href="../../../../../org/sonatype/guice/bean/reflect/ClassSpace.html">ClassSpace</a></code> backed by a strongly-referenced Bundle.&nbsp;</td>
+          </tr>
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/DeclaredMembers.html">DeclaredMembers</a></td>
+              <td class="jd-descrcol" width="100%">Iterable that iterates over declared members of a class hierarchy.&nbsp;</td>
+          </tr>
+        <tr class=" api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/LoadedClass.html">LoadedClass</a>&lt;T&gt;</td>
+              <td class="jd-descrcol" width="100%">Pseudo <code><a href="../../../../../org/sonatype/guice/bean/reflect/DeferredClass.html">DeferredClass</a></code> backed by an already loaded Class.&nbsp;</td>
+          </tr>
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/Logs.html">Logs</a></td>
+              <td class="jd-descrcol" width="100%">Utility methods for dealing with internal debug and warning messages.&nbsp;</td>
+          </tr>
+        <tr class=" api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/Soft.html">Soft</a></td>
+              <td class="jd-descrcol" width="100%">Utility methods for dealing with SoftReference collections.&nbsp;</td>
+          </tr>
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/Streams.html">Streams</a></td>
+              <td class="jd-descrcol" width="100%">Utility methods for dealing with streams.&nbsp;</td>
+          </tr>
+        <tr class=" api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/TypeParameters.html">TypeParameters</a></td>
+              <td class="jd-descrcol" width="100%">Utility methods for dealing with generic type parameters and arguments.&nbsp;</td>
+          </tr>
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/URLClassSpace.html">URLClassSpace</a></td>
+              <td class="jd-descrcol" width="100%"><code><a href="../../../../../org/sonatype/guice/bean/reflect/ClassSpace.html">ClassSpace</a></code> backed by a strongly-referenced ClassLoader and a URL class path.&nbsp;</td>
+          </tr>
+        <tr class=" api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/Weak.html">Weak</a></td>
+              <td class="jd-descrcol" width="100%">Utility methods for dealing with WeakReference collections.&nbsp;</td>
+          </tr>
+  </table>
+    </div>
+  
+
+
+  
+    <h2>Enums</h2>
+    <div class="jd-sumtable">
+    
+  <table class="jd-sumtable-expando">
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/reflect/DeclaredMembers.View.html">DeclaredMembers.View</a></td>
+              <td class="jd-descrcol" width="100%">Enum implementation that provides different views of a class's members.&nbsp;</td>
+          </tr>
+  </table>
+    </div>
+  
+
+
+  
+
+
+  
+
+
+<div id="footer">
+Generated by <a href="http://code.google.com/p/doclava/">Doclava</a>.
+</div> <!-- end footer -->
+
+</div><!-- end jd-content -->
+</div><!-- doc-content -->
+
+</div> <!-- end body-content --> 
+
+<script type="text/javascript">
+init(); /* initialize doclava-developer-docs.js */
+</script>
+
+</body>
+</html>

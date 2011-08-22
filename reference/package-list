@@ -1,0 +1,16 @@
+javax.enterprise.inject
+javax.inject
+org.aopalliance.aop
+org.aopalliance.intercept
+org.sonatype.guice.bean.binders
+org.sonatype.guice.bean.containers
+org.sonatype.guice.bean.converters
+org.sonatype.guice.bean.inject
+org.sonatype.guice.bean.locators
+org.sonatype.guice.bean.locators.spi
+org.sonatype.guice.bean.reflect
+org.sonatype.guice.bean.scanners
+org.sonatype.guice.bean.scanners.asm
+org.sonatype.guice.bean.scanners.index
+org.sonatype.inject
+

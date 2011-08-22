@@ -1,0 +1,2134 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+  <meta name="description" content="Javadoc API documentation for Sisu-Inject-Bean : Aggregate OSGi bundle." />
+
+<link rel="shortcut icon" type="image/x-icon" href="../../../../../../favicon.ico" />
+<title>
+
+  MethodVisitor
+
+
+| Sisu-Inject-Bean : Aggregate OSGi bundle
+
+</title>
+<link href="../../../../../../../assets/doclava-developer-docs.css" rel="stylesheet" type="text/css" />
+<link href="../../../../../../../assets/customizations.css" rel="stylesheet" type="text/css" />
+<script src="../../../../../../../assets/search_autocomplete.js" type="text/javascript"></script>
+<script src="../../../../../../../assets/jquery-resizable.min.js" type="text/javascript"></script>
+<script src="../../../../../../../assets/doclava-developer-docs.js" type="text/javascript"></script>
+<script src="../../../../../../../assets/prettify.js" type="text/javascript"></script>
+<script type="text/javascript">
+  setToRoot("../../../../../../", "../../../../../../../assets/");
+</script>
+<script src="../../../../../../../assets/doclava-developer-reference.js" type="text/javascript"></script>
+<script src="../../../../../../../assets/navtree_data.js" type="text/javascript"></script>
+<script src="../../../../../../../assets/customizations.js" type="text/javascript"></script>
+<noscript>
+  <style type="text/css">
+    html,body{overflow:auto;}
+    #body-content{position:relative; top:0;}
+    #doc-content{overflow:visible;border-left:3px solid #666;}
+    #side-nav{padding:0;}
+    #side-nav .toggle-list ul {display:block;}
+    #resize-packages-nav{border-bottom:3px solid #666;}
+  </style>
+</noscript>
+</head>
+
+<body class="">
+
+<div id="header">
+    <div id="headerLeft">
+    
+      <span id="masthead-title">Sisu-Inject-Bean : Aggregate OSGi bundle</span>
+    
+    </div>
+    <div id="headerRight">
+      
+  <div id="search" >
+      <div id="searchForm">
+          <form accept-charset="utf-8" class="gsc-search-box" 
+                onsubmit="return submit_search()">
+            <table class="gsc-search-box" cellpadding="0" cellspacing="0"><tbody>
+                <tr>
+                  <td class="gsc-input">
+                    <input id="search_autocomplete" class="gsc-input" type="text" size="33" autocomplete="off"
+                      title="search developer docs" name="q"
+                      value="search developer docs"
+                      onFocus="search_focus_changed(this, true)"
+                      onBlur="search_focus_changed(this, false)"
+                      onkeydown="return search_changed(event, true, '../../../../../../')"
+                      onkeyup="return search_changed(event, false, '../../../../../../')" />
+                  <div id="search_filtered_div" class="no-display">
+                      <table id="search_filtered" cellspacing=0>
+                      </table>
+                  </div>
+                  </td>
+                  <td class="gsc-search-button">
+                    <input type="submit" value="Search" title="search" id="search-button" class="gsc-search-button" />
+                  </td>
+                  <td class="gsc-clear-button">
+                    <div title="clear results" class="gsc-clear-button">&nbsp;</div>
+                  </td>
+                </tr></tbody>
+              </table>
+          </form>
+      </div><!-- searchForm -->
+  </div><!-- search -->
+      
+    </div>
+</div><!-- header -->
+
+
+  <div class="g-section g-tpl-240" id="body-content">
+    <div class="g-unit g-first side-nav-resizable" id="side-nav">
+      <div id="swapper">
+        <div id="nav-panels">
+          <div id="resize-packages-nav">
+            <div id="packages-nav">
+              <div id="index-links"><nobr>
+                <a href="../../../../../../packages.html"  >Package Index</a> | 
+                <a href="../../../../../../classes.html" >Class Index</a></nobr>
+              </div>
+              <ul>
+                
+    <li class="api apilevel-">
+  <a href="../../../../../../javax/enterprise/inject/package-summary.html">javax.enterprise.inject</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../javax/inject/package-summary.html">javax.inject</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../org/aopalliance/aop/package-summary.html">org.aopalliance.aop</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../org/aopalliance/intercept/package-summary.html">org.aopalliance.intercept</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../org/sonatype/guice/bean/binders/package-summary.html">org.sonatype.guice.bean.binders</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../org/sonatype/guice/bean/containers/package-summary.html">org.sonatype.guice.bean.containers</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../org/sonatype/guice/bean/converters/package-summary.html">org.sonatype.guice.bean.converters</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../org/sonatype/guice/bean/inject/package-summary.html">org.sonatype.guice.bean.inject</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../org/sonatype/guice/bean/locators/package-summary.html">org.sonatype.guice.bean.locators</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../org/sonatype/guice/bean/locators/spi/package-summary.html">org.sonatype.guice.bean.locators.spi</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../org/sonatype/guice/bean/reflect/package-summary.html">org.sonatype.guice.bean.reflect</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../org/sonatype/guice/bean/scanners/package-summary.html">org.sonatype.guice.bean.scanners</a></li>
+    <li class="selected api apilevel-">
+  <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/package-summary.html">org.sonatype.guice.bean.scanners.asm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../org/sonatype/guice/bean/scanners/index/package-summary.html">org.sonatype.guice.bean.scanners.index</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../../org/sonatype/inject/package-summary.html">org.sonatype.inject</a></li>
+              </ul><br/>
+            </div> <!-- end packages -->
+          </div> <!-- end resize-packages -->
+          <div id="classes-nav">
+            <ul>
+              
+    <li><h2>Interfaces</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/AnnotationVisitor.html">AnnotationVisitor</a></li>
+          <li class="api apilevel-"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/ClassVisitor.html">ClassVisitor</a></li>
+          <li class="api apilevel-"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/FieldVisitor.html">FieldVisitor</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html">MethodVisitor</a></li>
+          <li class="api apilevel-"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html">Opcodes</a></li>
+      </ul>
+    </li>
+              
+    <li><h2>Classes</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Attribute.html">Attribute</a></li>
+          <li class="api apilevel-"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/ByteVector.html">ByteVector</a></li>
+          <li class="api apilevel-"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/ClassReader.html">ClassReader</a></li>
+          <li class="api apilevel-"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/ClassWriter.html">ClassWriter</a></li>
+          <li class="api apilevel-"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a></li>
+          <li class="api apilevel-"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Type.html">Type</a></li>
+      </ul>
+    </li>
+              
+              
+              
+              
+            </ul><br/>
+          </div><!-- end classes -->
+        </div><!-- end nav-panels -->
+        <div id="nav-tree" style="display:none">
+          <div id="index-links"><nobr>
+            <a href="../../../../../../packages.html"  >Package Index</a> | 
+            <a href="../../../../../../classes.html" >Class Index</a></nobr>
+          </div>
+        </div><!-- end nav-tree -->
+      </div><!-- end swapper -->
+    </div> <!-- end side-nav -->
+    <script>
+      if (!isMobile) {
+        $("<a href='#' id='nav-swap' onclick='swapNav();return false;' style='font-size:10px;line-height:9px;margin-left:1em;text-decoration:none;'><span id='tree-link'>Use Tree Navigation</span><span id='panel-link' style='display:none'>Use Panel Navigation</span></a>").appendTo("#side-nav");
+        chooseDefaultNav();
+        if ($("#nav-tree").is(':visible')) {
+          init_default_navtree("../../../../../../");
+        } else {
+          addLoadEvent(function() {
+            scrollIntoView("packages-nav");
+            scrollIntoView("classes-nav");
+          });
+        }
+        $("#swapper").css({borderBottom:"2px solid #aaa"});
+      } else {
+        swapNav(); // tree view should be used on mobile
+      }
+    </script>
+
+
+
+<div class="g-unit" id="doc-content">
+
+<div id="api-info-block">
+
+
+
+
+<div class="sum-details-links">
+
+
+</div><!-- end sum-details-links -->
+<div class="api-level">
+  
+
+
+  
+  
+
+</div>
+</div><!-- end api-info-block -->
+
+
+<!-- ======== START OF CLASS DATA ======== -->
+
+<div id="jd-header">
+    public
+     
+     
+    
+    interface
+<h1>MethodVisitor</h1>
+
+
+
+  
+  
+  
+
+
+</div><!-- end header -->
+
+<div id="naMessage"></div>
+
+<div id="jd-content" class="api apilevel-">
+<table class="jd-inheritance-table">
+
+
+    <tr>
+         	
+        <td colspan="1" class="jd-inheritance-class-cell">org.sonatype.guice.bean.scanners.asm.MethodVisitor</td>
+    </tr>
+    
+
+</table>
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Class Overview</h2>
+<p>A visitor to visit a Java method. The methods of this interface must be
+ called in the following order: [ <tt>visitAnnotationDefault</tt> ] (
+ <tt>visitAnnotation</tt> | <tt>visitParameterAnnotation</tt> |
+ <tt>visitAttribute</tt> )* [ <tt>visitCode</tt> ( <tt>visitFrame</tt> |
+ <tt>visit</tt><i>X</i>Insn</tt> | <tt>visitLabel</tt> | <tt>visitTryCatchBlock</tt> |
+ <tt>visitLocalVariable</tt> | <tt>visitLineNumber</tt>)* <tt>visitMaxs</tt> ]
+ <tt>visitEnd</tt>. In addition, the <tt>visit</tt><i>X</i>Insn</tt>
+ and <tt>visitLabel</tt> methods must be called in the sequential order of
+ the bytecode instructions of the visited code, <tt>visitTryCatchBlock</tt>
+ must be called <i>before</i> the labels passed as arguments have been
+ visited, and the <tt>visitLocalVariable</tt> and <tt>visitLineNumber</tt>
+ methods must be called <i>after</i> the labels passed as arguments have been
+ visited.</p>
+
+
+
+
+
+</div><!-- jd-descr -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Summary</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/AnnotationVisitor.html">AnnotationVisitor</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitAnnotation(java.lang.String, boolean)">visitAnnotation</a></span>(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, boolean visible)</nobr>
+        
+        <div class="jd-descrdiv">Visits an annotation of this method.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/AnnotationVisitor.html">AnnotationVisitor</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitAnnotationDefault()">visitAnnotationDefault</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Visits the default value of this annotation interface method.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitAttribute(org.sonatype.guice.bean.scanners.asm.Attribute)">visitAttribute</a></span>(<a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Attribute.html">Attribute</a> attr)</nobr>
+        
+        <div class="jd-descrdiv">Visits a non standard attribute of this method.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitCode()">visitCode</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Starts the visit of the method's code, if any (i.e.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitEnd()">visitEnd</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Visits the end of the method.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitFieldInsn(int, java.lang.String, java.lang.String, java.lang.String)">visitFieldInsn</a></span>(int opcode, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> owner, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc)</nobr>
+        
+        <div class="jd-descrdiv">Visits a field instruction.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitFrame(int, int, java.lang.Object[], int, java.lang.Object[])">visitFrame</a></span>(int type, int nLocal, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object[]</a> local, int nStack, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object[]</a> stack)</nobr>
+        
+        <div class="jd-descrdiv">Visits the current state of the local variables and operand stack
+ elements.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitIincInsn(int, int)">visitIincInsn</a></span>(int var, int increment)</nobr>
+        
+        <div class="jd-descrdiv">Visits an IINC instruction.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitInsn(int)">visitInsn</a></span>(int opcode)</nobr>
+        
+        <div class="jd-descrdiv">Visits a zero operand instruction.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitIntInsn(int, int)">visitIntInsn</a></span>(int opcode, int operand)</nobr>
+        
+        <div class="jd-descrdiv">Visits an instruction with a single int operand.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitJumpInsn(int, org.sonatype.guice.bean.scanners.asm.Label)">visitJumpInsn</a></span>(int opcode, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> label)</nobr>
+        
+        <div class="jd-descrdiv">Visits a jump instruction.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitLabel(org.sonatype.guice.bean.scanners.asm.Label)">visitLabel</a></span>(<a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> label)</nobr>
+        
+        <div class="jd-descrdiv">Visits a label.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitLdcInsn(java.lang.Object)">visitLdcInsn</a></span>(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object</a> cst)</nobr>
+        
+        <div class="jd-descrdiv">Visits a LDC instruction.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitLineNumber(int, org.sonatype.guice.bean.scanners.asm.Label)">visitLineNumber</a></span>(int line, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> start)</nobr>
+        
+        <div class="jd-descrdiv">Visits a line number declaration.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitLocalVariable(java.lang.String, java.lang.String, java.lang.String, org.sonatype.guice.bean.scanners.asm.Label, org.sonatype.guice.bean.scanners.asm.Label, int)">visitLocalVariable</a></span>(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> signature, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> start, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> end, int index)</nobr>
+        
+        <div class="jd-descrdiv">Visits a local variable declaration.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitLookupSwitchInsn(org.sonatype.guice.bean.scanners.asm.Label, int[], org.sonatype.guice.bean.scanners.asm.Label[])">visitLookupSwitchInsn</a></span>(<a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> dflt, int[] keys, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label[]</a> labels)</nobr>
+        
+        <div class="jd-descrdiv">Visits a LOOKUPSWITCH instruction.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitMaxs(int, int)">visitMaxs</a></span>(int maxStack, int maxLocals)</nobr>
+        
+        <div class="jd-descrdiv">Visits the maximum stack size and the maximum number of local variables
+ of the method.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)">visitMethodInsn</a></span>(int opcode, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> owner, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc)</nobr>
+        
+        <div class="jd-descrdiv">Visits a method instruction.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitMultiANewArrayInsn(java.lang.String, int)">visitMultiANewArrayInsn</a></span>(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, int dims)</nobr>
+        
+        <div class="jd-descrdiv">Visits a MULTIANEWARRAY instruction.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/AnnotationVisitor.html">AnnotationVisitor</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitParameterAnnotation(int, java.lang.String, boolean)">visitParameterAnnotation</a></span>(int parameter, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, boolean visible)</nobr>
+        
+        <div class="jd-descrdiv">Visits an annotation of a parameter this method.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitTableSwitchInsn(int, int, org.sonatype.guice.bean.scanners.asm.Label, org.sonatype.guice.bean.scanners.asm.Label[])">visitTableSwitchInsn</a></span>(int min, int max, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> dflt, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label[]</a> labels)</nobr>
+        
+        <div class="jd-descrdiv">Visits a TABLESWITCH instruction.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitTryCatchBlock(org.sonatype.guice.bean.scanners.asm.Label, org.sonatype.guice.bean.scanners.asm.Label, org.sonatype.guice.bean.scanners.asm.Label, java.lang.String)">visitTryCatchBlock</a></span>(<a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> start, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> end, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> handler, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> type)</nobr>
+        
+        <div class="jd-descrdiv">Visits a try catch block.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitTypeInsn(int, java.lang.String)">visitTypeInsn</a></span>(int opcode, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> type)</nobr>
+        
+        <div class="jd-descrdiv">Visits a type instruction.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitVarInsn(int, int)">visitVarInsn</a></span>(int opcode, int var)</nobr>
+        
+        <div class="jd-descrdiv">Visits a local variable instruction.</div>
+  
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+</div><!-- jd-descr (summary) -->
+
+<!-- Details -->
+
+
+
+
+
+
+
+
+<!-- XML Attributes -->
+
+
+<!-- Enum Values -->
+
+
+<!-- Constants -->
+
+
+<!-- Fields -->
+
+
+<!-- Public ctors -->
+
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<!-- Protected ctors -->
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+<!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="visitAnnotation(java.lang.String, boolean)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/AnnotationVisitor.html">AnnotationVisitor</a>
+      </span>
+      <span class="sympad">visitAnnotation</span>
+      <span class="normal">(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, boolean visible)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits an annotation of this method.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>desc</td>
+          <td>the class descriptor of the annotation class.</td>
+        </tr>
+        <tr>
+          <th>visible</td>
+          <td><tt>true</tt> if the annotation is visible at runtime.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>a visitor to visit the annotation values, or <tt>null</tt> if
+         this visitor is not interested in visiting this annotation.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitAnnotationDefault()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/AnnotationVisitor.html">AnnotationVisitor</a>
+      </span>
+      <span class="sympad">visitAnnotationDefault</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits the default value of this annotation interface method.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>a visitor to the visit the actual default value of this
+         annotation interface method, or <tt>null</tt> if this visitor
+         is not interested in visiting this default value. The 'name'
+         parameters passed to the methods of this annotation visitor are
+         ignored. Moreover, exacly one visit method must be called on this
+         annotation visitor, followed by visitEnd.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitAttribute(org.sonatype.guice.bean.scanners.asm.Attribute)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitAttribute</span>
+      <span class="normal">(<a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Attribute.html">Attribute</a> attr)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a non standard attribute of this method.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>attr</td>
+          <td>an attribute.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitCode()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitCode</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Starts the visit of the method's code, if any (i.e. non abstract method).
+</p></div>
+
+    </div>
+</div>
+
+
+<A NAME="visitEnd()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitEnd</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits the end of the method. This method, which is the last one to be
+ called, is used to inform the visitor that all the annotations and
+ attributes of the method have been visited.
+</p></div>
+
+    </div>
+</div>
+
+
+<A NAME="visitFieldInsn(int, java.lang.String, java.lang.String, java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitFieldInsn</span>
+      <span class="normal">(int opcode, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> owner, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a field instruction. A field instruction is an instruction that
+ loads or stores the value of a field of an object.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>opcode</td>
+          <td>the opcode of the type instruction to be visited. This
+        opcode is either GETSTATIC, PUTSTATIC, GETFIELD or PUTFIELD.</td>
+        </tr>
+        <tr>
+          <th>owner</td>
+          <td>the internal name of the field's owner class (see <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Type.html#getInternalName()">getInternalName</a></code>).</td>
+        </tr>
+        <tr>
+          <th>name</td>
+          <td>the field's name.</td>
+        </tr>
+        <tr>
+          <th>desc</td>
+          <td>the field's descriptor (see <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Type.html">Type</a></code>).
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitFrame(int, int, java.lang.Object[], int, java.lang.Object[])"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitFrame</span>
+      <span class="normal">(int type, int nLocal, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object[]</a> local, int nStack, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object[]</a> stack)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits the current state of the local variables and operand stack
+ elements. This method must(*) be called <i>just before</i> any
+ instruction <b>i</b> that follows an unconditional branch instruction
+ such as GOTO or THROW, that is the target of a jump instruction, or that
+ starts an exception handler block. The visited types must describe the
+ values of the local variables and of the operand stack elements <i>just
+ before</i> <b>i</b> is executed. <br> <br> (*) this is mandatory only
+ for classes whose version is greater than or equal to
+ <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#V1_6">V1_6</a></code>. <br> <br> Packed frames are basically
+ "deltas" from the state of the previous frame (very first frame is
+ implicitly defined by the method's parameters and access flags): <ul>
+ <li><code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#F_SAME">F_SAME</a></code> representing frame with exactly the same
+ locals as the previous frame and with the empty stack.</li> <li><code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#F_SAME1">F_SAME1</a></code>
+ representing frame with exactly the same locals as the previous frame and
+ with single value on the stack (<code>nStack</code> is 1 and
+ <code>stack[0]</code> contains value for the type of the stack item).</li>
+ <li><code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#F_APPEND">F_APPEND</a></code> representing frame with current locals are
+ the same as the locals in the previous frame, except that additional
+ locals are defined (<code>nLocal</code> is 1, 2 or 3 and
+ <code>local</code> elements contains values representing added types).</li>
+ <li><code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#F_CHOP">F_CHOP</a></code> representing frame with current locals are
+ the same as the locals in the previous frame, except that the last 1-3
+ locals are absent and with the empty stack (<code>nLocals</code> is 1,
+ 2 or 3). </li> <li><code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#F_FULL">F_FULL</a></code> representing complete frame
+ data.</li> </li> </ul></p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>type</td>
+          <td>the type of this stack map frame. Must be
+        <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#F_NEW">F_NEW</a></code> for expanded frames, or
+        <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#F_FULL">F_FULL</a></code>, <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#F_APPEND">F_APPEND</a></code>,
+        <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#F_CHOP">F_CHOP</a></code>, <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#F_SAME">F_SAME</a></code> or
+        <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#F_APPEND">F_APPEND</a></code>, <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#F_SAME1">F_SAME1</a></code> for compressed
+        frames.</td>
+        </tr>
+        <tr>
+          <th>nLocal</td>
+          <td>the number of local variables in the visited frame.</td>
+        </tr>
+        <tr>
+          <th>local</td>
+          <td>the local variable types in this frame. This array must not
+        be modified. Primitive types are represented by
+        <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#TOP">TOP</a></code>, <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#INTEGER">INTEGER</a></code>,
+        <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#FLOAT">FLOAT</a></code>, <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#LONG">LONG</a></code>,
+        <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#DOUBLE">DOUBLE</a></code>,<code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#NULL">NULL</a></code> or
+        <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#UNINITIALIZED_THIS">UNINITIALIZED_THIS</a></code> (long and double are
+        represented by a single element). Reference types are represented
+        by String objects (representing internal names), and uninitialized 
+        types by Label objects (this label designates the NEW instruction 
+        that created this uninitialized value).</td>
+        </tr>
+        <tr>
+          <th>nStack</td>
+          <td>the number of operand stack elements in the visited frame.</td>
+        </tr>
+        <tr>
+          <th>stack</td>
+          <td>the operand stack types in this frame. This array must not
+        be modified. Its content has the same format as the "local" array.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/IllegalStateException.html">IllegalStateException</a></td>
+            <td>if a frame is visited just after another
+        one, without any instruction between the two (unless this frame
+        is a Opcodes#F_SAME frame, in which case it is silently ignored).
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitIincInsn(int, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitIincInsn</span>
+      <span class="normal">(int var, int increment)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits an IINC instruction.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>var</td>
+          <td>index of the local variable to be incremented.</td>
+        </tr>
+        <tr>
+          <th>increment</td>
+          <td>amount to increment the local variable by.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitInsn(int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitInsn</span>
+      <span class="normal">(int opcode)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a zero operand instruction.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>opcode</td>
+          <td>the opcode of the instruction to be visited. This opcode is
+        either NOP, ACONST_NULL, ICONST_M1, ICONST_0, ICONST_1, ICONST_2,
+        ICONST_3, ICONST_4, ICONST_5, LCONST_0, LCONST_1, FCONST_0,
+        FCONST_1, FCONST_2, DCONST_0, DCONST_1, IALOAD, LALOAD, FALOAD,
+        DALOAD, AALOAD, BALOAD, CALOAD, SALOAD, IASTORE, LASTORE, FASTORE,
+        DASTORE, AASTORE, BASTORE, CASTORE, SASTORE, POP, POP2, DUP,
+        DUP_X1, DUP_X2, DUP2, DUP2_X1, DUP2_X2, SWAP, IADD, LADD, FADD,
+        DADD, ISUB, LSUB, FSUB, DSUB, IMUL, LMUL, FMUL, DMUL, IDIV, LDIV,
+        FDIV, DDIV, IREM, LREM, FREM, DREM, INEG, LNEG, FNEG, DNEG, ISHL,
+        LSHL, ISHR, LSHR, IUSHR, LUSHR, IAND, LAND, IOR, LOR, IXOR, LXOR,
+        I2L, I2F, I2D, L2I, L2F, L2D, F2I, F2L, F2D, D2I, D2L, D2F, I2B,
+        I2C, I2S, LCMP, FCMPL, FCMPG, DCMPL, DCMPG, IRETURN, LRETURN,
+        FRETURN, DRETURN, ARETURN, RETURN, ARRAYLENGTH, ATHROW,
+        MONITORENTER, or MONITOREXIT.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitIntInsn(int, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitIntInsn</span>
+      <span class="normal">(int opcode, int operand)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits an instruction with a single int operand.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>opcode</td>
+          <td>the opcode of the instruction to be visited. This opcode is
+        either BIPUSH, SIPUSH or NEWARRAY.</td>
+        </tr>
+        <tr>
+          <th>operand</td>
+          <td>the operand of the instruction to be visited.<br> When
+        opcode is BIPUSH, operand value should be between Byte.MIN_VALUE
+        and Byte.MAX_VALUE.<br> When opcode is SIPUSH, operand value
+        should be between Short.MIN_VALUE and Short.MAX_VALUE.<br> When
+        opcode is NEWARRAY, operand value should be one of
+        <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#T_BOOLEAN">T_BOOLEAN</a></code>, <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#T_CHAR">T_CHAR</a></code>,
+        <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#T_FLOAT">T_FLOAT</a></code>, <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#T_DOUBLE">T_DOUBLE</a></code>,
+        <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#T_BYTE">T_BYTE</a></code>, <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#T_SHORT">T_SHORT</a></code>,
+        <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#T_INT">T_INT</a></code> or <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#T_LONG">T_LONG</a></code>.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitJumpInsn(int, org.sonatype.guice.bean.scanners.asm.Label)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitJumpInsn</span>
+      <span class="normal">(int opcode, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> label)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a jump instruction. A jump instruction is an instruction that may
+ jump to another instruction.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>opcode</td>
+          <td>the opcode of the type instruction to be visited. This
+        opcode is either IFEQ, IFNE, IFLT, IFGE, IFGT, IFLE, IF_ICMPEQ,
+        IF_ICMPNE, IF_ICMPLT, IF_ICMPGE, IF_ICMPGT, IF_ICMPLE, IF_ACMPEQ,
+        IF_ACMPNE, GOTO, JSR, IFNULL or IFNONNULL.</td>
+        </tr>
+        <tr>
+          <th>label</td>
+          <td>the operand of the instruction to be visited. This operand
+        is a label that designates the instruction to which the jump
+        instruction may jump.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitLabel(org.sonatype.guice.bean.scanners.asm.Label)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitLabel</span>
+      <span class="normal">(<a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> label)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a label. A label designates the instruction that will be visited
+ just after it.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>label</td>
+          <td>a <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a></code> object.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitLdcInsn(java.lang.Object)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitLdcInsn</span>
+      <span class="normal">(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object</a> cst)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a LDC instruction.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>cst</td>
+          <td>the constant to be loaded on the stack. This parameter must be
+        a non null Integer, a Float, a Long, a
+        Double a <code><a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a></code> (or a <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Type.html">Type</a></code> for
+        <tt>.class</tt> constants, for classes whose version is 49.0 or
+        more).
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitLineNumber(int, org.sonatype.guice.bean.scanners.asm.Label)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitLineNumber</span>
+      <span class="normal">(int line, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> start)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a line number declaration.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>line</td>
+          <td>a line number. This number refers to the source file from
+        which the class was compiled.</td>
+        </tr>
+        <tr>
+          <th>start</td>
+          <td>the first instruction corresponding to this line number.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/IllegalArgumentException.html">IllegalArgumentException</a></td>
+            <td>if <tt>start</tt> has not already been
+         visited by this visitor (by the <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitLabel(org.sonatype.guice.bean.scanners.asm.Label)">visitLabel</a></code>
+         method).
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitLocalVariable(java.lang.String, java.lang.String, java.lang.String, org.sonatype.guice.bean.scanners.asm.Label, org.sonatype.guice.bean.scanners.asm.Label, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitLocalVariable</span>
+      <span class="normal">(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> signature, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> start, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> end, int index)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a local variable declaration.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>name</td>
+          <td>the name of a local variable.</td>
+        </tr>
+        <tr>
+          <th>desc</td>
+          <td>the type descriptor of this local variable.</td>
+        </tr>
+        <tr>
+          <th>signature</td>
+          <td>the type signature of this local variable. May be
+        <tt>null</tt> if the local variable type does not use generic
+        types.</td>
+        </tr>
+        <tr>
+          <th>start</td>
+          <td>the first instruction corresponding to the scope of this
+        local variable (inclusive).</td>
+        </tr>
+        <tr>
+          <th>end</td>
+          <td>the last instruction corresponding to the scope of this local
+        variable (exclusive).</td>
+        </tr>
+        <tr>
+          <th>index</td>
+          <td>the local variable's index.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/IllegalArgumentException.html">IllegalArgumentException</a></td>
+            <td>if one of the labels has not already
+         been visited by this visitor (by the
+         <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitLabel(org.sonatype.guice.bean.scanners.asm.Label)">visitLabel</a></code> method).
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitLookupSwitchInsn(org.sonatype.guice.bean.scanners.asm.Label, int[], org.sonatype.guice.bean.scanners.asm.Label[])"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitLookupSwitchInsn</span>
+      <span class="normal">(<a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> dflt, int[] keys, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label[]</a> labels)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a LOOKUPSWITCH instruction.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>dflt</td>
+          <td>beginning of the default handler block.</td>
+        </tr>
+        <tr>
+          <th>keys</td>
+          <td>the values of the keys.</td>
+        </tr>
+        <tr>
+          <th>labels</td>
+          <td>beginnings of the handler blocks. <tt>labels[i]</tt> is
+        the beginning of the handler block for the <tt>keys[i]</tt> key.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitMaxs(int, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitMaxs</span>
+      <span class="normal">(int maxStack, int maxLocals)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits the maximum stack size and the maximum number of local variables
+ of the method.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>maxStack</td>
+          <td>maximum stack size of the method.</td>
+        </tr>
+        <tr>
+          <th>maxLocals</td>
+          <td>maximum number of local variables for the method.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitMethodInsn</span>
+      <span class="normal">(int opcode, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> owner, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a method instruction. A method instruction is an instruction that
+ invokes a method.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>opcode</td>
+          <td>the opcode of the type instruction to be visited. This
+        opcode is either INVOKEVIRTUAL, INVOKESPECIAL, INVOKESTATIC,
+        INVOKEINTERFACE or INVOKEDYNAMIC.</td>
+        </tr>
+        <tr>
+          <th>owner</td>
+          <td>the internal name of the method's owner class (see <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Type.html#getInternalName()">getInternalName</a></code>)
+        or <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Opcodes.html#INVOKEDYNAMIC_OWNER">INVOKEDYNAMIC_OWNER</a></code>.</td>
+        </tr>
+        <tr>
+          <th>name</td>
+          <td>the method's name.</td>
+        </tr>
+        <tr>
+          <th>desc</td>
+          <td>the method's descriptor (see <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Type.html">Type</a></code>).
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitMultiANewArrayInsn(java.lang.String, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitMultiANewArrayInsn</span>
+      <span class="normal">(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, int dims)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a MULTIANEWARRAY instruction.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>desc</td>
+          <td>an array type descriptor (see <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Type.html">Type</a></code>).</td>
+        </tr>
+        <tr>
+          <th>dims</td>
+          <td>number of dimensions of the array to allocate.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitParameterAnnotation(int, java.lang.String, boolean)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/AnnotationVisitor.html">AnnotationVisitor</a>
+      </span>
+      <span class="sympad">visitParameterAnnotation</span>
+      <span class="normal">(int parameter, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, boolean visible)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits an annotation of a parameter this method.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>parameter</td>
+          <td>the parameter index.</td>
+        </tr>
+        <tr>
+          <th>desc</td>
+          <td>the class descriptor of the annotation class.</td>
+        </tr>
+        <tr>
+          <th>visible</td>
+          <td><tt>true</tt> if the annotation is visible at runtime.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>a visitor to visit the annotation values, or <tt>null</tt> if
+         this visitor is not interested in visiting this annotation.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitTableSwitchInsn(int, int, org.sonatype.guice.bean.scanners.asm.Label, org.sonatype.guice.bean.scanners.asm.Label[])"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitTableSwitchInsn</span>
+      <span class="normal">(int min, int max, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> dflt, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label[]</a> labels)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a TABLESWITCH instruction.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>min</td>
+          <td>the minimum key value.</td>
+        </tr>
+        <tr>
+          <th>max</td>
+          <td>the maximum key value.</td>
+        </tr>
+        <tr>
+          <th>dflt</td>
+          <td>beginning of the default handler block.</td>
+        </tr>
+        <tr>
+          <th>labels</td>
+          <td>beginnings of the handler blocks. <tt>labels[i]</tt> is
+        the beginning of the handler block for the <tt>min + i</tt> key.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitTryCatchBlock(org.sonatype.guice.bean.scanners.asm.Label, org.sonatype.guice.bean.scanners.asm.Label, org.sonatype.guice.bean.scanners.asm.Label, java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitTryCatchBlock</span>
+      <span class="normal">(<a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> start, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> end, <a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Label.html">Label</a> handler, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> type)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a try catch block.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>start</td>
+          <td>beginning of the exception handler's scope (inclusive).</td>
+        </tr>
+        <tr>
+          <th>end</td>
+          <td>end of the exception handler's scope (exclusive).</td>
+        </tr>
+        <tr>
+          <th>handler</td>
+          <td>beginning of the exception handler's code.</td>
+        </tr>
+        <tr>
+          <th>type</td>
+          <td>internal name of the type of exceptions handled by the
+        handler, or <tt>null</tt> to catch any exceptions (for "finally"
+        blocks).</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/IllegalArgumentException.html">IllegalArgumentException</a></td>
+            <td>if one of the labels has already been
+         visited by this visitor (by the <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html#visitLabel(org.sonatype.guice.bean.scanners.asm.Label)">visitLabel</a></code>
+         method).
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitTypeInsn(int, java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitTypeInsn</span>
+      <span class="normal">(int opcode, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> type)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a type instruction. A type instruction is an instruction that
+ takes the internal name of a class as parameter.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>opcode</td>
+          <td>the opcode of the type instruction to be visited. This
+        opcode is either NEW, ANEWARRAY, CHECKCAST or INSTANCEOF.</td>
+        </tr>
+        <tr>
+          <th>type</td>
+          <td>the operand of the instruction to be visited. This operand
+        must be the internal name of an object or array class (see <code><a href="../../../../../../org/sonatype/guice/bean/scanners/asm/Type.html#getInternalName()">getInternalName</a></code>).
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitVarInsn(int, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        void
+      </span>
+      <span class="sympad">visitVarInsn</span>
+      <span class="normal">(int opcode, int var)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a local variable instruction. A local variable instruction is an
+ instruction that loads or stores the value of a local variable.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>opcode</td>
+          <td>the opcode of the local variable instruction to be visited.
+        This opcode is either ILOAD, LLOAD, FLOAD, DLOAD, ALOAD, ISTORE,
+        LSTORE, FSTORE, DSTORE, ASTORE or RET.</td>
+        </tr>
+        <tr>
+          <th>var</td>
+          <td>the operand of the instruction to be visited. This operand is
+        the index of a local variable.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+
+
+
+<!-- ========= END OF CLASS DATA ========= -->
+<A NAME="navbar_top"></A>
+
+<div id="footer">
+Generated by <a href="http://code.google.com/p/doclava/">Doclava</a>.
+</div> <!-- end footer -->
+
+</div> <!-- jd-content -->
+
+</div><!-- end doc-content -->
+
+</div> <!-- end body-content --> 
+
+<script type="text/javascript">
+init(); /* initialize doclava-developer-docs.js */
+</script>
+
+</body>
+</html>

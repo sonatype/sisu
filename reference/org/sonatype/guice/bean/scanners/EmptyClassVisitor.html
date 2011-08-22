@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+  <meta name="description" content="Javadoc API documentation for Sisu-Inject-Bean : Aggregate OSGi bundle." />
+
+<link rel="shortcut icon" type="image/x-icon" href="../../../../../favicon.ico" />
+<title>
+
+  EmptyClassVisitor
+
+
+| Sisu-Inject-Bean : Aggregate OSGi bundle
+
+</title>
+<link href="../../../../../../assets/doclava-developer-docs.css" rel="stylesheet" type="text/css" />
+<link href="../../../../../../assets/customizations.css" rel="stylesheet" type="text/css" />
+<script src="../../../../../../assets/search_autocomplete.js" type="text/javascript"></script>
+<script src="../../../../../../assets/jquery-resizable.min.js" type="text/javascript"></script>
+<script src="../../../../../../assets/doclava-developer-docs.js" type="text/javascript"></script>
+<script src="../../../../../../assets/prettify.js" type="text/javascript"></script>
+<script type="text/javascript">
+  setToRoot("../../../../../", "../../../../../../assets/");
+</script>
+<script src="../../../../../../assets/doclava-developer-reference.js" type="text/javascript"></script>
+<script src="../../../../../../assets/navtree_data.js" type="text/javascript"></script>
+<script src="../../../../../../assets/customizations.js" type="text/javascript"></script>
+<noscript>
+  <style type="text/css">
+    html,body{overflow:auto;}
+    #body-content{position:relative; top:0;}
+    #doc-content{overflow:visible;border-left:3px solid #666;}
+    #side-nav{padding:0;}
+    #side-nav .toggle-list ul {display:block;}
+    #resize-packages-nav{border-bottom:3px solid #666;}
+  </style>
+</noscript>
+</head>
+
+<body class="">
+
+<div id="header">
+    <div id="headerLeft">
+    
+      <span id="masthead-title">Sisu-Inject-Bean : Aggregate OSGi bundle</span>
+    
+    </div>
+    <div id="headerRight">
+      
+  <div id="search" >
+      <div id="searchForm">
+          <form accept-charset="utf-8" class="gsc-search-box" 
+                onsubmit="return submit_search()">
+            <table class="gsc-search-box" cellpadding="0" cellspacing="0"><tbody>
+                <tr>
+                  <td class="gsc-input">
+                    <input id="search_autocomplete" class="gsc-input" type="text" size="33" autocomplete="off"
+                      title="search developer docs" name="q"
+                      value="search developer docs"
+                      onFocus="search_focus_changed(this, true)"
+                      onBlur="search_focus_changed(this, false)"
+                      onkeydown="return search_changed(event, true, '../../../../../')"
+                      onkeyup="return search_changed(event, false, '../../../../../')" />
+                  <div id="search_filtered_div" class="no-display">
+                      <table id="search_filtered" cellspacing=0>
+                      </table>
+                  </div>
+                  </td>
+                  <td class="gsc-search-button">
+                    <input type="submit" value="Search" title="search" id="search-button" class="gsc-search-button" />
+                  </td>
+                  <td class="gsc-clear-button">
+                    <div title="clear results" class="gsc-clear-button">&nbsp;</div>
+                  </td>
+                </tr></tbody>
+              </table>
+          </form>
+      </div><!-- searchForm -->
+  </div><!-- search -->
+      
+    </div>
+</div><!-- header -->
+
+
+  <div class="g-section g-tpl-240" id="body-content">
+    <div class="g-unit g-first side-nav-resizable" id="side-nav">
+      <div id="swapper">
+        <div id="nav-panels">
+          <div id="resize-packages-nav">
+            <div id="packages-nav">
+              <div id="index-links"><nobr>
+                <a href="../../../../../packages.html"  >Package Index</a> | 
+                <a href="../../../../../classes.html" >Class Index</a></nobr>
+              </div>
+              <ul>
+                
+    <li class="api apilevel-">
+  <a href="../../../../../javax/enterprise/inject/package-summary.html">javax.enterprise.inject</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../javax/inject/package-summary.html">javax.inject</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/aopalliance/aop/package-summary.html">org.aopalliance.aop</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/aopalliance/intercept/package-summary.html">org.aopalliance.intercept</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/binders/package-summary.html">org.sonatype.guice.bean.binders</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/containers/package-summary.html">org.sonatype.guice.bean.containers</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/converters/package-summary.html">org.sonatype.guice.bean.converters</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/inject/package-summary.html">org.sonatype.guice.bean.inject</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/locators/package-summary.html">org.sonatype.guice.bean.locators</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/locators/spi/package-summary.html">org.sonatype.guice.bean.locators.spi</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/reflect/package-summary.html">org.sonatype.guice.bean.reflect</a></li>
+    <li class="selected api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/scanners/package-summary.html">org.sonatype.guice.bean.scanners</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/scanners/asm/package-summary.html">org.sonatype.guice.bean.scanners.asm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/guice/bean/scanners/index/package-summary.html">org.sonatype.guice.bean.scanners.index</a></li>
+    <li class="api apilevel-">
+  <a href="../../../../../org/sonatype/inject/package-summary.html">org.sonatype.inject</a></li>
+              </ul><br/>
+            </div> <!-- end packages -->
+          </div> <!-- end resize-packages -->
+          <div id="classes-nav">
+            <ul>
+              
+    <li><h2>Interfaces</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/scanners/ClassFinder.html">ClassFinder</a></li>
+          <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/scanners/ClassSpaceVisitor.html">ClassSpaceVisitor</a></li>
+          <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/scanners/QualifiedTypeListener.html">QualifiedTypeListener</a></li>
+      </ul>
+    </li>
+              
+    <li><h2>Classes</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/scanners/ClassSpaceScanner.html">ClassSpaceScanner</a></li>
+          <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/scanners/EmptyAnnotationVisitor.html">EmptyAnnotationVisitor</a></li>
+          <li class="selected api apilevel-"><a href="../../../../../org/sonatype/guice/bean/scanners/EmptyClassVisitor.html">EmptyClassVisitor</a></li>
+          <li class="api apilevel-"><a href="../../../../../org/sonatype/guice/bean/scanners/QualifiedTypeVisitor.html">QualifiedTypeVisitor</a></li>
+      </ul>
+    </li>
+              
+              
+              
+              
+            </ul><br/>
+          </div><!-- end classes -->
+        </div><!-- end nav-panels -->
+        <div id="nav-tree" style="display:none">
+          <div id="index-links"><nobr>
+            <a href="../../../../../packages.html"  >Package Index</a> | 
+            <a href="../../../../../classes.html" >Class Index</a></nobr>
+          </div>
+        </div><!-- end nav-tree -->
+      </div><!-- end swapper -->
+    </div> <!-- end side-nav -->
+    <script>
+      if (!isMobile) {
+        $("<a href='#' id='nav-swap' onclick='swapNav();return false;' style='font-size:10px;line-height:9px;margin-left:1em;text-decoration:none;'><span id='tree-link'>Use Tree Navigation</span><span id='panel-link' style='display:none'>Use Panel Navigation</span></a>").appendTo("#side-nav");
+        chooseDefaultNav();
+        if ($("#nav-tree").is(':visible')) {
+          init_default_navtree("../../../../../");
+        } else {
+          addLoadEvent(function() {
+            scrollIntoView("packages-nav");
+            scrollIntoView("classes-nav");
+          });
+        }
+        $("#swapper").css({borderBottom:"2px solid #aaa"});
+      } else {
+        swapNav(); // tree view should be used on mobile
+      }
+    </script>
+
+
+
+<div class="g-unit" id="doc-content">
+
+<div id="api-info-block">
+
+
+
+  
+   
+  
+  
+  
+  
+
+  
+   
+  
+  
+  
+  
+
+
+<div class="sum-details-links">
+
+
+Summary:
+
+
+
+
+
+
+
+
+
+  <a href="#pubctors">Ctors</a>
+  
+
+
+
+  &#124; <a href="#pubmethods">Methods</a>
+  
+
+
+
+  &#124; <a href="#inhmethods">Inherited Methods</a>
+
+&#124; <a href="#" onclick="return toggleAllClassInherited()" id="toggleAllClassInherited">[Expand All]</a>
+
+</div><!-- end sum-details-links -->
+<div class="api-level">
+  
+
+
+  
+  
+
+</div>
+</div><!-- end api-info-block -->
+
+
+<!-- ======== START OF CLASS DATA ======== -->
+
+<div id="jd-header">
+    public
+     
+     
+    
+    class
+<h1>EmptyClassVisitor</h1>
+
+
+
+  
+    extends <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object</a><br/>
+  
+  
+  
+
+  
+  
+      implements 
+      
+        <a href="../../../../../org/sonatype/guice/bean/scanners/asm/ClassVisitor.html">ClassVisitor</a> 
+      
+  
+  
+
+
+</div><!-- end header -->
+
+<div id="naMessage"></div>
+
+<div id="jd-content" class="api apilevel-">
+<table class="jd-inheritance-table">
+
+
+    <tr>
+         	
+        <td colspan="2" class="jd-inheritance-class-cell"><a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">java.lang.Object</a></td>
+    </tr>
+    
+
+    <tr>
+        
+            <td class="jd-inheritance-space">&nbsp;&nbsp;&nbsp;&#x21b3;</td>
+         	
+        <td colspan="1" class="jd-inheritance-class-cell">org.sonatype.guice.bean.scanners.EmptyClassVisitor</td>
+    </tr>
+    
+
+</table>
+
+
+
+
+<table class="jd-sumtable jd-sumtable-subclasses"><tr><td colspan="12" style="border:none;margin:0;padding:0;">
+
+  <a href="#" onclick="return toggleInherited(this, null)" id="subclasses-direct" class="jd-expando-trigger closed"
+          ><img id="subclasses-direct-trigger"
+          src="../../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>Known Direct Subclasses
+
+  <div id="subclasses-direct">
+      <div id="subclasses-direct-list"
+              class="jd-inheritedlinks"
+              
+              >
+          
+            
+              <a href="../../../../../org/sonatype/guice/bean/scanners/QualifiedTypeVisitor.html">QualifiedTypeVisitor</a>
+            
+          
+      </div>
+      <div id="subclasses-direct-summary"
+              style="display: none;"
+              >
+  <table class="jd-sumtable-expando">
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../../../org/sonatype/guice/bean/scanners/QualifiedTypeVisitor.html">QualifiedTypeVisitor</a></td>
+              <td class="jd-descrcol" width="100%"><code><a href="../../../../../org/sonatype/guice/bean/scanners/ClassSpaceVisitor.html">ClassSpaceVisitor</a></code> that reports types annotated with <code><a href="../../../../../javax/inject/Qualifier.html">Qualifier</a></code> annotations.&nbsp;</td>
+          </tr>
+  </table>
+      </div>
+  </div>
+</td></tr></table>
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Class Overview</h2>
+<p>Skeletal <code><a href="../../../../../org/sonatype/guice/bean/scanners/asm/ClassVisitor.html">ClassVisitor</a></code> that helps minimize the effort required to implement bytecode scanners.
+</p>
+
+
+
+
+
+</div><!-- jd-descr -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Summary</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<table id="pubctors" class="jd-sumtable"><tr><th colspan="12">Public Constructors</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            </nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/EmptyClassVisitor.html#EmptyClassVisitor()">EmptyClassVisitor</a></span>()</nobr>
+        
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/EmptyClassVisitor.html#visit(int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])">visit</a></span>(int version, int access, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> signature, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> superName, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String[]</a> interfaces)</nobr>
+        
+        <div class="jd-descrdiv">Visits the header of the class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="../../../../../org/sonatype/guice/bean/scanners/asm/AnnotationVisitor.html">AnnotationVisitor</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/EmptyClassVisitor.html#visitAnnotation(java.lang.String, boolean)">visitAnnotation</a></span>(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, boolean visible)</nobr>
+        
+        <div class="jd-descrdiv">Visits an annotation of the class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/EmptyClassVisitor.html#visitAttribute(org.sonatype.guice.bean.scanners.asm.Attribute)">visitAttribute</a></span>(<a href="../../../../../org/sonatype/guice/bean/scanners/asm/Attribute.html">Attribute</a> attr)</nobr>
+        
+        <div class="jd-descrdiv">Visits a non standard attribute of the class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/EmptyClassVisitor.html#visitEnd()">visitEnd</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Visits the end of the class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="../../../../../org/sonatype/guice/bean/scanners/asm/FieldVisitor.html">FieldVisitor</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/EmptyClassVisitor.html#visitField(int, java.lang.String, java.lang.String, java.lang.String, java.lang.Object)">visitField</a></span>(int access, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> signature, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object</a> value)</nobr>
+        
+        <div class="jd-descrdiv">Visits a field of the class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/EmptyClassVisitor.html#visitInnerClass(java.lang.String, java.lang.String, java.lang.String, int)">visitInnerClass</a></span>(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> outerName, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> innerName, int access)</nobr>
+        
+        <div class="jd-descrdiv">Visits information about an inner class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html">MethodVisitor</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/EmptyClassVisitor.html#visitMethod(int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])">visitMethod</a></span>(int access, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> signature, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String[]</a> exceptions)</nobr>
+        
+        <div class="jd-descrdiv">Visits a method of the class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/EmptyClassVisitor.html#visitOuterClass(java.lang.String, java.lang.String, java.lang.String)">visitOuterClass</a></span>(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> owner, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc)</nobr>
+        
+        <div class="jd-descrdiv">Visits the enclosing class of the class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/EmptyClassVisitor.html#visitSource(java.lang.String, java.lang.String)">visitSource</a></span>(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> source, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> debug)</nobr>
+        
+        <div class="jd-descrdiv">Visits the source of the class.</div>
+  
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="inhmethods" class="jd-sumtable"><tr><th>
+  <a href="#" class="toggle-all" onclick="return toggleAllInherited(this, null)">[Expand]</a>
+  <div style="clear:left;">Inherited Methods</div></th></tr>
+
+
+<tr class="api apilevel-" >
+<td colspan="12">
+  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-java.lang.Object" class="jd-expando-trigger closed"
+          ><img id="inherited-methods-java.lang.Object-trigger"
+          src="../../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>
+From class
+
+  <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">java.lang.Object</a>
+
+<div id="inherited-methods-java.lang.Object">
+  <div id="inherited-methods-java.lang.Object-list"
+        class="jd-inheritedlinks">
+  </div>
+  <div id="inherited-methods-java.lang.Object-summary" style="display: none;">
+    <table class="jd-sumtable-expando">
+    
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">clone</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            boolean</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">equals</span>(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object</a> arg0)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">finalize</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Class.html">Class</a>&lt;?&gt;</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">getClass</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            int</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">hashCode</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">notify</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">notifyAll</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            
+            
+            
+            <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">toString</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>()</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>(long arg0, int arg1)</nobr>
+        
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            
+            
+            final
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad">wait</span>(long arg0)</nobr>
+        
+  </td></tr>
+
+
+</table>
+  </div>
+</div>
+</td></tr>
+
+
+
+<tr class="api apilevel-" >
+<td colspan="12">
+  <a href="#" onclick="return toggleInherited(this, null)" id="inherited-methods-org.sonatype.guice.bean.scanners.asm.ClassVisitor" class="jd-expando-trigger closed"
+          ><img id="inherited-methods-org.sonatype.guice.bean.scanners.asm.ClassVisitor-trigger"
+          src="../../../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>
+From interface
+
+  <a href="../../../../../org/sonatype/guice/bean/scanners/asm/ClassVisitor.html">org.sonatype.guice.bean.scanners.asm.ClassVisitor</a>
+
+<div id="inherited-methods-org.sonatype.guice.bean.scanners.asm.ClassVisitor">
+  <div id="inherited-methods-org.sonatype.guice.bean.scanners.asm.ClassVisitor-list"
+        class="jd-inheritedlinks">
+  </div>
+  <div id="inherited-methods-org.sonatype.guice.bean.scanners.asm.ClassVisitor-summary" style="display: none;">
+    <table class="jd-sumtable-expando">
+    
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/asm/ClassVisitor.html#visit(int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])">visit</a></span>(int version, int access, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> signature, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> superName, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String[]</a> interfaces)</nobr>
+        
+        <div class="jd-descrdiv">Visits the header of the class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="../../../../../org/sonatype/guice/bean/scanners/asm/AnnotationVisitor.html">AnnotationVisitor</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/asm/ClassVisitor.html#visitAnnotation(java.lang.String, boolean)">visitAnnotation</a></span>(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, boolean visible)</nobr>
+        
+        <div class="jd-descrdiv">Visits an annotation of the class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/asm/ClassVisitor.html#visitAttribute(org.sonatype.guice.bean.scanners.asm.Attribute)">visitAttribute</a></span>(<a href="../../../../../org/sonatype/guice/bean/scanners/asm/Attribute.html">Attribute</a> attr)</nobr>
+        
+        <div class="jd-descrdiv">Visits a non standard attribute of the class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/asm/ClassVisitor.html#visitEnd()">visitEnd</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Visits the end of the class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="../../../../../org/sonatype/guice/bean/scanners/asm/FieldVisitor.html">FieldVisitor</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/asm/ClassVisitor.html#visitField(int, java.lang.String, java.lang.String, java.lang.String, java.lang.Object)">visitField</a></span>(int access, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> signature, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object</a> value)</nobr>
+        
+        <div class="jd-descrdiv">Visits a field of the class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/asm/ClassVisitor.html#visitInnerClass(java.lang.String, java.lang.String, java.lang.String, int)">visitInnerClass</a></span>(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> outerName, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> innerName, int access)</nobr>
+        
+        <div class="jd-descrdiv">Visits information about an inner class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html">MethodVisitor</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/asm/ClassVisitor.html#visitMethod(int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])">visitMethod</a></span>(int access, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> signature, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String[]</a> exceptions)</nobr>
+        
+        <div class="jd-descrdiv">Visits a method of the class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/asm/ClassVisitor.html#visitOuterClass(java.lang.String, java.lang.String, java.lang.String)">visitOuterClass</a></span>(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> owner, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc)</nobr>
+        
+        <div class="jd-descrdiv">Visits the enclosing class of the class.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            void</nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../../../org/sonatype/guice/bean/scanners/asm/ClassVisitor.html#visitSource(java.lang.String, java.lang.String)">visitSource</a></span>(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> source, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> debug)</nobr>
+        
+        <div class="jd-descrdiv">Visits the source of the class.</div>
+  
+  </td></tr>
+
+
+</table>
+  </div>
+</div>
+</td></tr>
+
+
+</table>
+
+
+</div><!-- jd-descr (summary) -->
+
+<!-- Details -->
+
+
+
+
+
+
+
+
+<!-- XML Attributes -->
+
+
+<!-- Enum Values -->
+
+
+<!-- Constants -->
+
+
+<!-- Fields -->
+
+
+<!-- Public ctors -->
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<h2>Public Constructors</h2>
+
+
+
+<A NAME="EmptyClassVisitor()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        
+      </span>
+      <span class="sympad">EmptyClassVisitor</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p></p></div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<!-- Protected ctors -->
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+<!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="visit(int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">visit</span>
+      <span class="normal">(int version, int access, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> signature, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> superName, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String[]</a> interfaces)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits the header of the class.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>version</td>
+          <td>the class version.</td>
+        </tr>
+        <tr>
+          <th>access</td>
+          <td>the class's access flags (see Opcodes). This
+        parameter also indicates if the class is deprecated.</td>
+        </tr>
+        <tr>
+          <th>name</td>
+          <td>the internal name of the class (see
+        Type#getInternalName() getInternalName).</td>
+        </tr>
+        <tr>
+          <th>signature</td>
+          <td>the signature of this class. May be <tt>null</tt> if
+        the class is not a generic one, and does not extend or implement
+        generic classes or interfaces.</td>
+        </tr>
+        <tr>
+          <th>superName</td>
+          <td>the internal of name of the super class (see
+        Type#getInternalName() getInternalName). For interfaces,
+        the super class is <code><a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object</a></code>. May be <tt>null</tt>, but
+        only for the <code><a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object</a></code> class.</td>
+        </tr>
+        <tr>
+          <th>interfaces</td>
+          <td>the internal names of the class's interfaces (see
+        Type#getInternalName() getInternalName). May be
+        <tt>null</tt>.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitAnnotation(java.lang.String, boolean)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        <a href="../../../../../org/sonatype/guice/bean/scanners/asm/AnnotationVisitor.html">AnnotationVisitor</a>
+      </span>
+      <span class="sympad">visitAnnotation</span>
+      <span class="normal">(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, boolean visible)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits an annotation of the class.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>desc</td>
+          <td>the class descriptor of the annotation class.</td>
+        </tr>
+        <tr>
+          <th>visible</td>
+          <td><tt>true</tt> if the annotation is visible at runtime.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>a visitor to visit the annotation values, or <tt>null</tt> if
+         this visitor is not interested in visiting this annotation.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitAttribute(org.sonatype.guice.bean.scanners.asm.Attribute)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">visitAttribute</span>
+      <span class="normal">(<a href="../../../../../org/sonatype/guice/bean/scanners/asm/Attribute.html">Attribute</a> attr)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a non standard attribute of the class.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>attr</td>
+          <td>an attribute.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitEnd()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">visitEnd</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits the end of the class. This method, which is the last one to be
+ called, is used to inform the visitor that all the fields and methods of
+ the class have been visited.
+</p></div>
+
+    </div>
+</div>
+
+
+<A NAME="visitField(int, java.lang.String, java.lang.String, java.lang.String, java.lang.Object)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        <a href="../../../../../org/sonatype/guice/bean/scanners/asm/FieldVisitor.html">FieldVisitor</a>
+      </span>
+      <span class="sympad">visitField</span>
+      <span class="normal">(int access, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> signature, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object</a> value)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a field of the class.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>access</td>
+          <td>the field's access flags (see Opcodes). This
+        parameter also indicates if the field is synthetic and/or
+        deprecated.</td>
+        </tr>
+        <tr>
+          <th>name</td>
+          <td>the field's name.</td>
+        </tr>
+        <tr>
+          <th>desc</td>
+          <td>the field's descriptor (see Type Type).</td>
+        </tr>
+        <tr>
+          <th>signature</td>
+          <td>the field's signature. May be <tt>null</tt> if the
+        field's type does not use generic types.</td>
+        </tr>
+        <tr>
+          <th>value</td>
+          <td>the field's initial value. This parameter, which may be
+        <tt>null</tt> if the field does not have an initial value, must
+        be an <code><a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Integer.html">Integer</a></code>, a Float, a Long, a
+        Double or a <code><a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a></code> (for <tt>int</tt>,
+        <tt>float</tt>, <tt>long</tt> or <tt>String</tt> fields
+        respectively). <i>This parameter is only used for static fields</i>.
+        Its value is ignored for non static fields, which must be
+        initialized through bytecode instructions in constructors or
+        methods.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>a visitor to visit field annotations and attributes, or
+         <tt>null</tt> if this class visitor is not interested in
+         visiting these annotations and attributes.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitInnerClass(java.lang.String, java.lang.String, java.lang.String, int)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">visitInnerClass</span>
+      <span class="normal">(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> outerName, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> innerName, int access)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits information about an inner class. This inner class is not
+ necessarily a member of the class being visited.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>name</td>
+          <td>the internal name of an inner class (see
+        Type#getInternalName() getInternalName).</td>
+        </tr>
+        <tr>
+          <th>outerName</td>
+          <td>the internal name of the class to which the inner class
+        belongs (see Type#getInternalName() getInternalName). May
+        be <tt>null</tt> for not member classes.</td>
+        </tr>
+        <tr>
+          <th>innerName</td>
+          <td>the (simple) name of the inner class inside its
+        enclosing class. May be <tt>null</tt> for anonymous inner
+        classes.</td>
+        </tr>
+        <tr>
+          <th>access</td>
+          <td>the access flags of the inner class as originally declared
+        in the enclosing class.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitMethod(int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        <a href="../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html">MethodVisitor</a>
+      </span>
+      <span class="sympad">visitMethod</span>
+      <span class="normal">(int access, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> signature, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String[]</a> exceptions)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits a method of the class. This method <i>must</i> return a new
+ <code><a href="../../../../../org/sonatype/guice/bean/scanners/asm/MethodVisitor.html">MethodVisitor</a></code> instance (or <tt>null</tt>) each time it is
+ called, i.e., it should not return a previously returned visitor.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>access</td>
+          <td>the method's access flags (see Opcodes). This
+        parameter also indicates if the method is synthetic and/or
+        deprecated.</td>
+        </tr>
+        <tr>
+          <th>name</td>
+          <td>the method's name.</td>
+        </tr>
+        <tr>
+          <th>desc</td>
+          <td>the method's descriptor (see Type Type).</td>
+        </tr>
+        <tr>
+          <th>signature</td>
+          <td>the method's signature. May be <tt>null</tt> if the
+        method parameters, return type and exceptions do not use generic
+        types.</td>
+        </tr>
+        <tr>
+          <th>exceptions</td>
+          <td>the internal names of the method's exception classes
+        (see Type#getInternalName() getInternalName). May be
+        <tt>null</tt>.</td>
+        </tr>
+      </table>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>an object to visit the byte code of the method, or <tt>null</tt>
+         if this class visitor is not interested in visiting the code of
+         this method.
+</li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitOuterClass(java.lang.String, java.lang.String, java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">visitOuterClass</span>
+      <span class="normal">(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> owner, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> name, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> desc)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits the enclosing class of the class. This method must be called only
+ if the class has an enclosing class.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>owner</td>
+          <td>internal name of the enclosing class of the class.</td>
+        </tr>
+        <tr>
+          <th>name</td>
+          <td>the name of the method that contains the class, or
+        <tt>null</tt> if the class is not enclosed in a method of its
+        enclosing class.</td>
+        </tr>
+        <tr>
+          <th>desc</td>
+          <td>the descriptor of the method that contains the class, or
+        <tt>null</tt> if the class is not enclosed in a method of its
+        enclosing class.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="visitSource(java.lang.String, java.lang.String)"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+         
+         
+        void
+      </span>
+      <span class="sympad">visitSource</span>
+      <span class="normal">(<a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> source, <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/String.html">String</a> debug)</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Visits the source of the class.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Parameters</h5>
+      <table class="jd-tagtable">
+        <tr>
+          <th>source</td>
+          <td>the name of the source file from which the class was
+        compiled. May be <tt>null</tt>.</td>
+        </tr>
+        <tr>
+          <th>debug</td>
+          <td>additional debug information to compute the correspondance
+        between source and compiled elements of the class. May be
+        <tt>null</tt>.
+</td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+
+
+
+<!-- ========= END OF CLASS DATA ========= -->
+<A NAME="navbar_top"></A>
+
+<div id="footer">
+Generated by <a href="http://code.google.com/p/doclava/">Doclava</a>.
+</div> <!-- end footer -->
+
+</div> <!-- jd-content -->
+
+</div><!-- end doc-content -->
+
+</div> <!-- end body-content --> 
+
+<script type="text/javascript">
+init(); /* initialize doclava-developer-docs.js */
+</script>
+
+</body>
+</html>

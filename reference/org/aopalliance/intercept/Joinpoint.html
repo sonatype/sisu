@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+  <meta name="description" content="Javadoc API documentation for Sisu-Inject-Bean : Aggregate OSGi bundle." />
+
+<link rel="shortcut icon" type="image/x-icon" href="../../../favicon.ico" />
+<title>
+
+  Joinpoint
+
+
+| Sisu-Inject-Bean : Aggregate OSGi bundle
+
+</title>
+<link href="../../../../assets/doclava-developer-docs.css" rel="stylesheet" type="text/css" />
+<link href="../../../../assets/customizations.css" rel="stylesheet" type="text/css" />
+<script src="../../../../assets/search_autocomplete.js" type="text/javascript"></script>
+<script src="../../../../assets/jquery-resizable.min.js" type="text/javascript"></script>
+<script src="../../../../assets/doclava-developer-docs.js" type="text/javascript"></script>
+<script src="../../../../assets/prettify.js" type="text/javascript"></script>
+<script type="text/javascript">
+  setToRoot("../../../", "../../../../assets/");
+</script>
+<script src="../../../../assets/doclava-developer-reference.js" type="text/javascript"></script>
+<script src="../../../../assets/navtree_data.js" type="text/javascript"></script>
+<script src="../../../../assets/customizations.js" type="text/javascript"></script>
+<noscript>
+  <style type="text/css">
+    html,body{overflow:auto;}
+    #body-content{position:relative; top:0;}
+    #doc-content{overflow:visible;border-left:3px solid #666;}
+    #side-nav{padding:0;}
+    #side-nav .toggle-list ul {display:block;}
+    #resize-packages-nav{border-bottom:3px solid #666;}
+  </style>
+</noscript>
+</head>
+
+<body class="">
+
+<div id="header">
+    <div id="headerLeft">
+    
+      <span id="masthead-title">Sisu-Inject-Bean : Aggregate OSGi bundle</span>
+    
+    </div>
+    <div id="headerRight">
+      
+  <div id="search" >
+      <div id="searchForm">
+          <form accept-charset="utf-8" class="gsc-search-box" 
+                onsubmit="return submit_search()">
+            <table class="gsc-search-box" cellpadding="0" cellspacing="0"><tbody>
+                <tr>
+                  <td class="gsc-input">
+                    <input id="search_autocomplete" class="gsc-input" type="text" size="33" autocomplete="off"
+                      title="search developer docs" name="q"
+                      value="search developer docs"
+                      onFocus="search_focus_changed(this, true)"
+                      onBlur="search_focus_changed(this, false)"
+                      onkeydown="return search_changed(event, true, '../../../')"
+                      onkeyup="return search_changed(event, false, '../../../')" />
+                  <div id="search_filtered_div" class="no-display">
+                      <table id="search_filtered" cellspacing=0>
+                      </table>
+                  </div>
+                  </td>
+                  <td class="gsc-search-button">
+                    <input type="submit" value="Search" title="search" id="search-button" class="gsc-search-button" />
+                  </td>
+                  <td class="gsc-clear-button">
+                    <div title="clear results" class="gsc-clear-button">&nbsp;</div>
+                  </td>
+                </tr></tbody>
+              </table>
+          </form>
+      </div><!-- searchForm -->
+  </div><!-- search -->
+      
+    </div>
+</div><!-- header -->
+
+
+  <div class="g-section g-tpl-240" id="body-content">
+    <div class="g-unit g-first side-nav-resizable" id="side-nav">
+      <div id="swapper">
+        <div id="nav-panels">
+          <div id="resize-packages-nav">
+            <div id="packages-nav">
+              <div id="index-links"><nobr>
+                <a href="../../../packages.html"  >Package Index</a> | 
+                <a href="../../../classes.html" >Class Index</a></nobr>
+              </div>
+              <ul>
+                
+    <li class="api apilevel-">
+  <a href="../../../javax/enterprise/inject/package-summary.html">javax.enterprise.inject</a></li>
+    <li class="api apilevel-">
+  <a href="../../../javax/inject/package-summary.html">javax.inject</a></li>
+    <li class="api apilevel-">
+  <a href="../../../org/aopalliance/aop/package-summary.html">org.aopalliance.aop</a></li>
+    <li class="selected api apilevel-">
+  <a href="../../../org/aopalliance/intercept/package-summary.html">org.aopalliance.intercept</a></li>
+    <li class="api apilevel-">
+  <a href="../../../org/sonatype/guice/bean/binders/package-summary.html">org.sonatype.guice.bean.binders</a></li>
+    <li class="api apilevel-">
+  <a href="../../../org/sonatype/guice/bean/containers/package-summary.html">org.sonatype.guice.bean.containers</a></li>
+    <li class="api apilevel-">
+  <a href="../../../org/sonatype/guice/bean/converters/package-summary.html">org.sonatype.guice.bean.converters</a></li>
+    <li class="api apilevel-">
+  <a href="../../../org/sonatype/guice/bean/inject/package-summary.html">org.sonatype.guice.bean.inject</a></li>
+    <li class="api apilevel-">
+  <a href="../../../org/sonatype/guice/bean/locators/package-summary.html">org.sonatype.guice.bean.locators</a></li>
+    <li class="api apilevel-">
+  <a href="../../../org/sonatype/guice/bean/locators/spi/package-summary.html">org.sonatype.guice.bean.locators.spi</a></li>
+    <li class="api apilevel-">
+  <a href="../../../org/sonatype/guice/bean/reflect/package-summary.html">org.sonatype.guice.bean.reflect</a></li>
+    <li class="api apilevel-">
+  <a href="../../../org/sonatype/guice/bean/scanners/package-summary.html">org.sonatype.guice.bean.scanners</a></li>
+    <li class="api apilevel-">
+  <a href="../../../org/sonatype/guice/bean/scanners/asm/package-summary.html">org.sonatype.guice.bean.scanners.asm</a></li>
+    <li class="api apilevel-">
+  <a href="../../../org/sonatype/guice/bean/scanners/index/package-summary.html">org.sonatype.guice.bean.scanners.index</a></li>
+    <li class="api apilevel-">
+  <a href="../../../org/sonatype/inject/package-summary.html">org.sonatype.inject</a></li>
+              </ul><br/>
+            </div> <!-- end packages -->
+          </div> <!-- end resize-packages -->
+          <div id="classes-nav">
+            <ul>
+              
+    <li><h2>Interfaces</h2>
+      <ul>
+          <li class="api apilevel-"><a href="../../../org/aopalliance/intercept/ConstructorInterceptor.html">ConstructorInterceptor</a></li>
+          <li class="api apilevel-"><a href="../../../org/aopalliance/intercept/ConstructorInvocation.html">ConstructorInvocation</a></li>
+          <li class="api apilevel-"><a href="../../../org/aopalliance/intercept/FieldAccess.html">FieldAccess</a></li>
+          <li class="api apilevel-"><a href="../../../org/aopalliance/intercept/FieldInterceptor.html">FieldInterceptor</a></li>
+          <li class="api apilevel-"><a href="../../../org/aopalliance/intercept/Interceptor.html">Interceptor</a></li>
+          <li class="api apilevel-"><a href="../../../org/aopalliance/intercept/Invocation.html">Invocation</a></li>
+          <li class="selected api apilevel-"><a href="../../../org/aopalliance/intercept/Joinpoint.html">Joinpoint</a></li>
+          <li class="api apilevel-"><a href="../../../org/aopalliance/intercept/MethodInterceptor.html">MethodInterceptor</a></li>
+          <li class="api apilevel-"><a href="../../../org/aopalliance/intercept/MethodInvocation.html">MethodInvocation</a></li>
+      </ul>
+    </li>
+              
+              
+              
+              
+              
+            </ul><br/>
+          </div><!-- end classes -->
+        </div><!-- end nav-panels -->
+        <div id="nav-tree" style="display:none">
+          <div id="index-links"><nobr>
+            <a href="../../../packages.html"  >Package Index</a> | 
+            <a href="../../../classes.html" >Class Index</a></nobr>
+          </div>
+        </div><!-- end nav-tree -->
+      </div><!-- end swapper -->
+    </div> <!-- end side-nav -->
+    <script>
+      if (!isMobile) {
+        $("<a href='#' id='nav-swap' onclick='swapNav();return false;' style='font-size:10px;line-height:9px;margin-left:1em;text-decoration:none;'><span id='tree-link'>Use Tree Navigation</span><span id='panel-link' style='display:none'>Use Panel Navigation</span></a>").appendTo("#side-nav");
+        chooseDefaultNav();
+        if ($("#nav-tree").is(':visible')) {
+          init_default_navtree("../../../");
+        } else {
+          addLoadEvent(function() {
+            scrollIntoView("packages-nav");
+            scrollIntoView("classes-nav");
+          });
+        }
+        $("#swapper").css({borderBottom:"2px solid #aaa"});
+      } else {
+        swapNav(); // tree view should be used on mobile
+      }
+    </script>
+
+
+
+<div class="g-unit" id="doc-content">
+
+<div id="api-info-block">
+
+
+
+
+<div class="sum-details-links">
+
+
+Summary:
+
+
+
+
+
+
+
+
+
+
+
+  <a href="#pubmethods">Methods</a>
+  
+
+
+
+&#124; <a href="#" onclick="return toggleAllClassInherited()" id="toggleAllClassInherited">[Expand All]</a>
+
+</div><!-- end sum-details-links -->
+<div class="api-level">
+  
+
+
+  
+  
+
+</div>
+</div><!-- end api-info-block -->
+
+
+<!-- ======== START OF CLASS DATA ======== -->
+
+<div id="jd-header">
+    public
+     
+     
+    
+    interface
+<h1>Joinpoint</h1>
+
+
+
+  
+  
+  
+
+
+</div><!-- end header -->
+
+<div id="naMessage"></div>
+
+<div id="jd-content" class="api apilevel-">
+<table class="jd-inheritance-table">
+
+
+    <tr>
+         	
+        <td colspan="1" class="jd-inheritance-class-cell">org.aopalliance.intercept.Joinpoint</td>
+    </tr>
+    
+
+</table>
+
+
+
+
+
+
+<table class="jd-sumtable jd-sumtable-subclasses"><tr><td colspan="12" style="border:none;margin:0;padding:0;">
+
+  <a href="#" onclick="return toggleInherited(this, null)" id="subclasses-indirect" class="jd-expando-trigger closed"
+          ><img id="subclasses-indirect-trigger"
+          src="../../../../assets/images/triangle-closed.png"
+          class="jd-expando-trigger-img" /></a>Known Indirect Subclasses
+
+  <div id="subclasses-indirect">
+      <div id="subclasses-indirect-list"
+              class="jd-inheritedlinks"
+              
+              >
+          
+            
+              <a href="../../../org/aopalliance/intercept/ConstructorInvocation.html">ConstructorInvocation</a>,
+            
+              <a href="../../../org/aopalliance/intercept/FieldAccess.html">FieldAccess</a>,
+            
+              <a href="../../../org/aopalliance/intercept/Invocation.html">Invocation</a>,
+            
+              <a href="../../../org/aopalliance/intercept/MethodInvocation.html">MethodInvocation</a>
+            
+          
+      </div>
+      <div id="subclasses-indirect-summary"
+              style="display: none;"
+              >
+  <table class="jd-sumtable-expando">
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../org/aopalliance/intercept/ConstructorInvocation.html">ConstructorInvocation</a></td>
+              <td class="jd-descrcol" width="100%">Description of an invocation to a constuctor, given to an
+ interceptor upon construtor-call.&nbsp;</td>
+          </tr>
+        <tr class=" api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../org/aopalliance/intercept/FieldAccess.html">FieldAccess</a></td>
+              <td class="jd-descrcol" width="100%">This interface represents a field access in the program.&nbsp;</td>
+          </tr>
+        <tr class="alt-color api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../org/aopalliance/intercept/Invocation.html">Invocation</a></td>
+              <td class="jd-descrcol" width="100%">This interface represents an invocation in the program.&nbsp;</td>
+          </tr>
+        <tr class=" api apilevel-" >
+              <td class="jd-linkcol"><a href="../../../org/aopalliance/intercept/MethodInvocation.html">MethodInvocation</a></td>
+              <td class="jd-descrcol" width="100%">Description of an invocation to a method, given to an interceptor
+ upon method-call.&nbsp;</td>
+          </tr>
+  </table>
+      </div>
+  </div>
+</td></tr></table>
+
+
+<div class="jd-descr">
+
+
+<h2>Class Overview</h2>
+<p>This interface represents a generic runtime joinpoint (in the AOP
+ terminology).
+
+ <p>A runtime joinpoint is an <i>event</i> that occurs on a static
+ joinpoint (i.e. a location in a the program). For instance, an
+ invocation is the runtime joinpoint on a method (static joinpoint).
+ The static part of a given joinpoint can be generically retrieved
+ using the <code><a href="../../../org/aopalliance/intercept/Joinpoint.html#getStaticPart()">getStaticPart()</a></code> method.
+
+ <p>In the context of an interception framework, a runtime joinpoint
+ is then the reification of an access to an accessible object (a
+ method, a constructor, a field), i.e. the static part of the
+ joinpoint. It is passed to the interceptors that are installed on
+ the static joinpoint.</p>
+
+
+
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">See Also</h5>
+      <ul class="nolist"><li><code><a href="../../../org/aopalliance/intercept/Interceptor.html">Interceptor</a></code></li>
+      </ul>
+  </div>
+
+
+</div><!-- jd-descr -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="jd-descr">
+
+
+<h2>Summary</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- ========== METHOD SUMMARY =========== -->
+<table id="pubmethods" class="jd-sumtable"><tr><th colspan="12">Public Methods</th></tr>
+
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/reflect/AccessibleObject.html">AccessibleObject</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../org/aopalliance/intercept/Joinpoint.html#getStaticPart()">getStaticPart</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Returns the static part of this joinpoint.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class=" api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../org/aopalliance/intercept/Joinpoint.html#getThis()">getThis</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Returns the object that holds the current joinpoint's static
+ part.</div>
+  
+  </td></tr>
+
+
+	 
+    <tr class="alt-color api apilevel-" >
+        <td class="jd-typecol"><nobr>
+            abstract
+            
+            
+            
+            
+            <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object</a></nobr>
+        </td>
+        <td class="jd-linkcol" width="100%"><nobr>
+        <span class="sympad"><a href="../../../org/aopalliance/intercept/Joinpoint.html#proceed()">proceed</a></span>()</nobr>
+        
+        <div class="jd-descrdiv">Proceeds to the next interceptor in the chain.</div>
+  
+  </td></tr>
+
+
+
+</table>
+
+
+
+
+
+
+
+</div><!-- jd-descr (summary) -->
+
+<!-- Details -->
+
+
+
+
+
+
+
+
+<!-- XML Attributes -->
+
+
+<!-- Enum Values -->
+
+
+<!-- Constants -->
+
+
+<!-- Fields -->
+
+
+<!-- Public ctors -->
+
+
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<!-- Protected ctors -->
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+<!-- Public methdos -->
+
+<h2>Public Methods</h2>
+
+
+
+<A NAME="getStaticPart()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/reflect/AccessibleObject.html">AccessibleObject</a>
+      </span>
+      <span class="sympad">getStaticPart</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the static part of this joinpoint.
+
+ <p>The static part is an accessible object on which a chain of
+ interceptors are installed. </p></div>
+
+    </div>
+</div>
+
+
+<A NAME="getThis()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object</a>
+      </span>
+      <span class="sympad">getThis</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Returns the object that holds the current joinpoint's static
+ part.
+
+ <p>For instance, the target object for an invocation.</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>the object (can be null if the accessible object is
+ static). </li></ul>
+  </div>
+
+    </div>
+</div>
+
+
+<A NAME="proceed()"></A>
+
+<div class="jd-details api apilevel-"> 
+    <h4 class="jd-details-title">
+      <span class="normal">
+        public 
+         
+         
+        abstract 
+         
+        <a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Object.html">Object</a>
+      </span>
+      <span class="sympad">proceed</span>
+      <span class="normal">()</span>
+    </h4>
+      <div class="api-level">
+        <div>
+
+</div>
+        
+  
+
+      </div>
+    <div class="jd-details-descr">
+      
+  <div class="jd-tagdata jd-tagdescr"><p>Proceeds to the next interceptor in the chain.
+
+ <p>The implementation and the semantics of this method depends
+ on the actual joinpoint type (see the children interfaces).</p></div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Returns</h5>
+      <ul class="nolist"><li>see the children interfaces' proceed definition.</li></ul>
+  </div>
+  <div class="jd-tagdata">
+      <h5 class="jd-tagtitle">Throws</h5>
+      <table class="jd-tagtable">  
+        <tr>
+            <th><a href="http://download.oracle.com/javase/6/docs/api/index.html?java/lang/Throwable.html">Throwable</a></td>
+            <td>if the joinpoint throws an exception. </td>
+        </tr>
+      </table>
+  </div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- ========= METHOD DETAIL ======== -->
+
+
+
+<!-- ========= END OF CLASS DATA ========= -->
+<A NAME="navbar_top"></A>
+
+<div id="footer">
+Generated by <a href="http://code.google.com/p/doclava/">Doclava</a>.
+</div> <!-- end footer -->
+
+</div> <!-- jd-content -->
+
+</div><!-- end doc-content -->
+
+</div> <!-- end body-content --> 
+
+<script type="text/javascript">
+init(); /* initialize doclava-developer-docs.js */
+</script>
+
+</body>
+</html>
