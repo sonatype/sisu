@@ -43,9 +43,18 @@ final class LazyBeanEntry<Q extends Annotation, T>
     // Constructors
     // ----------------------------------------------------------------------
 
+    @SuppressWarnings( "unchecked" )
     LazyBeanEntry( final Q qualifier, final Binding<T> binding, final int rank )
     {
-        this.qualifier = qualifier;
+        if ( null != qualifier && com.google.inject.name.Named.class == qualifier.annotationType() )
+        {
+            this.qualifier = (Q) new JsrNamed( (com.google.inject.name.Named) qualifier );
+        }
+        else
+        {
+            this.qualifier = qualifier;
+        }
+
         this.binding = binding;
         this.rank = rank;
 
@@ -64,13 +73,8 @@ final class LazyBeanEntry<Q extends Annotation, T>
     // Public methods
     // ----------------------------------------------------------------------
 
-    @SuppressWarnings( "unchecked" )
     public Q getKey()
     {
-        if ( com.google.inject.name.Named.class == qualifier.annotationType() )
-        {
-            return (Q) new JsrNamed( (com.google.inject.name.Named) qualifier );
-        }
         return qualifier;
     }
 
