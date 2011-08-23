@@ -11,5 +11,6 @@
     <module>component-c</module>    
     <module>plugin0</module>
     <module>plugin1</module>        
+    <module>component-with-configuration</module>    
   </modules>
 </project>

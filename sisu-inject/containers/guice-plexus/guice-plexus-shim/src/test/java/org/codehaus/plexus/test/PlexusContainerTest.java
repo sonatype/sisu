@@ -27,6 +27,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.inject.Inject;
+
 import junit.framework.TestCase;
 
 import org.codehaus.plexus.ContainerConfiguration;
@@ -42,6 +44,11 @@ import org.codehaus.plexus.test.list.ValveThree;
 import org.codehaus.plexus.test.list.ValveTwo;
 import org.codehaus.plexus.test.map.Activity;
 import org.codehaus.plexus.test.map.ActivityManager;
+import org.sonatype.guice.plexus.config.PlexusBeanConverter;
+import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.TypeLiteral;
 
 public class PlexusContainerTest
     extends TestCase
@@ -806,4 +813,64 @@ public class PlexusContainerTest
         assertTrue( exceptions.toString(), exceptions.isEmpty() );
     }
 
+    public void testComponentConfigurationEvaluation()
+        throws Exception
+    {
+        /**
+         * <pre>
+         * Inject component configuration provided via user-editable text file, similar in nature to pom.xml
+         * Immediately need to support two cases
+         * 
+         * 1. Injecting well-known "external" objects, like org.apache.maven.settings.Settings instance
+         * 2. Inject string constants, like repository URLs or credentials.
+         * 
+         * There is probably more than one way to implement this, but I will attempt logic similar to ${parameter}
+         * Maven plugin parameter substitution, with actual substitution logic provided by the client.
+         * 
+         * IMPLEMENTATION QUESTION: instead of passing PlexusBeanConverter as explicit parameter, is there a way to
+         * push Provider<PlexusBeanConverter> instance as thread/request scoped bean?
+         * </pre>
+         */
+
+        final ClassRealm realmA = container.createChildRealm( "realm-with-configuration" );
+        realmA.addURL( new File( "src/test/test-components/component-with-configuration-1.0-SNAPSHOT.jar" ).toURI().toURL() );
+
+        final String stringValue = "string value";
+        final Object objectValue = new Object();
+
+        final PlexusBeanConverter converter = new PlexusBeanConverter()
+        {
+            @Inject
+            private PlexusXmlBeanConverter xmlConverter;
+
+            @SuppressWarnings( { "unchecked", "rawtypes" } )
+            public Object convert( final TypeLiteral role, final String value )
+            {
+                if ( "${stringValue}".equals( value ) )
+                {
+                    return stringValue;
+                }
+                if ( "${objectValue}".equals( value ) )
+                {
+                    return objectValue;
+                }
+                return xmlConverter.convert( role, value );
+            }
+        };
+
+        container.discoverComponents( realmA, new AbstractModule()
+        {
+            @Override
+            protected void configure()
+            {
+                bind( PlexusBeanConverter.class ).toInstance( converter );
+            }
+        } );
+
+        Object c = container.lookup( "org.codehaus.plexus.components.withconfiguration.C" );
+
+        assertEquals( stringValue, c.getClass().getField( "stringValue" ).get( c ) );
+        assertSame( objectValue, c.getClass().getField( "objectValue" ).get( c ) );
+        assertEquals( "default value", c.getClass().getField( "defaultValue" ).get( c ) );
+    }
 }
