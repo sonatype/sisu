@@ -29,6 +29,7 @@ import org.sonatype.guice.bean.locators.EntryMapAdapter;
 import org.sonatype.guice.bean.locators.EntrySetAdapter;
 import org.sonatype.guice.bean.locators.NamedIterableAdapter;
 import org.sonatype.guice.bean.locators.ProviderIterableAdapter;
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.bean.reflect.TypeParameters;
 import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Parameters;
@@ -283,8 +284,20 @@ final class BeanProvider<V>
 
     static <T> T get( final BeanLocator locator, final Key<T> key )
     {
-        final Iterator<? extends Entry<Annotation, T>> i = locator.locate( key ).iterator();
-        return i.hasNext() ? i.next().getValue() : null; // TODO: dynamic proxy??
+        final Iterator<BeanEntry<Annotation, T>> itr = locator.locate( key ).iterator();
+        while ( itr.hasNext() )
+        {
+            try
+            {
+                // find first valid instance
+                return itr.next().getValue();
+            }
+            catch ( final Throwable e )
+            {
+                Logs.debug( "Problem locating: {}", key, e );
+            }
+        }
+        return null;
     }
 }
 
