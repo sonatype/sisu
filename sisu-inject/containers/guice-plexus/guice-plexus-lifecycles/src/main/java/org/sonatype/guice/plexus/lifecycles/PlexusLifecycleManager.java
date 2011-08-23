@@ -28,12 +28,13 @@ import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 
 import com.google.inject.ProvisionException;
+import com.google.inject.spi.ProvisionListener;
 
 /**
  * {@link PlexusBeanManager} that manages Plexus components requiring lifecycle management.
  */
 public final class PlexusLifecycleManager
-    implements PlexusBeanManager
+    implements PlexusBeanManager, ProvisionListener
 {
     // ----------------------------------------------------------------------
     // Constants
@@ -45,6 +46,15 @@ public final class PlexusLifecycleManager
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
+
+    private static final ThreadLocal<List<Object>> pendingContext = new ThreadLocal<List<Object>>()
+    {
+        @Override
+        protected List<Object> initialValue()
+        {
+            return new ArrayList<Object>();
+        }
+    };
 
     private final List<Startable> startableBeans = new ArrayList<Startable>();
 
@@ -116,6 +126,32 @@ public final class PlexusLifecycleManager
         return null;
     }
 
+    public <T> void onProvision( final ProvisionInvocation<T> pi )
+    {
+        final List<Object> pending = pendingContext.get();
+        if ( pending.isEmpty() )
+        {
+            pending.add( null ); // must add NULL place-holder before provisioning starts
+            pi.provision(); // because this step may involve further calls to onProvision
+
+            if ( pending.size() == 1 )
+            {
+                pending.clear(); // nothing to manage here, so we can bail out early
+                return;
+            }
+
+            // cache+clear to avoid blocking later on
+            final Object[] beans = pending.toArray();
+            pending.clear();
+
+            // process in order of creation; but skip the NULL place-holder at the start
+            for ( int i = 1; i < beans.length; i++ )
+            {
+                manageLifecycle( beans[i] ); // may also involve more onProvision calls
+            }
+        }
+    }
+
     public boolean manage( final Object bean )
     {
         if ( bean instanceof Disposable )
@@ -128,7 +164,7 @@ public final class PlexusLifecycleManager
         }
         if ( bean instanceof Contextualizable || bean instanceof Initializable || bean instanceof Startable )
         {
-            manageLifecycle( bean );
+            pendingContext.get().add( bean );
         }
         return true;
     }

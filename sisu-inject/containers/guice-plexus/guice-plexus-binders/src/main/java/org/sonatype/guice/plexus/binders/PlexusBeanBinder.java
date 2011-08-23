@@ -7,7 +7,6 @@
  *******************************************************************************/
 package org.sonatype.guice.plexus.binders;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.sonatype.guice.bean.inject.BeanBinder;
@@ -17,27 +16,17 @@ import org.sonatype.guice.plexus.config.PlexusBeanSource;
 
 import com.google.inject.TypeLiteral;
 import com.google.inject.spi.InjectionListener;
-import com.google.inject.spi.ProvisionListener;
 import com.google.inject.spi.TypeEncounter;
 
 /**
  * {@link BeanBinder} that binds bean properties according to Plexus metadata.
  */
 final class PlexusBeanBinder
-    implements BeanBinder, InjectionListener<Object>, ProvisionListener
+    implements BeanBinder, InjectionListener<Object>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
-
-    private static final ThreadLocal<List<Object>> PENDING = new ThreadLocal<List<Object>>()
-    {
-        @Override
-        protected List<Object> initialValue()
-        {
-            return new ArrayList<Object>();
-        }
-    };
 
     private final PlexusBeanManager manager;
 
@@ -76,34 +65,8 @@ final class PlexusBeanBinder
         return null; // no need to auto-bind
     }
 
-    public <T> void onProvision( final ProvisionInvocation<T> pi )
-    {
-        final List<Object> pending = PENDING.get();
-        if ( pending.isEmpty() )
-        {
-            pending.add( null ); // must add NULL place-holder before provisioning starts
-            pi.provision(); // because this step may involve further calls to onProvision
-
-            if ( pending.size() == 1 )
-            {
-                pending.clear(); // nothing to manage here, so we can bail out early
-                return;
-            }
-
-            // cache+clear to avoid blocking later on
-            final Object[] beans = pending.toArray();
-            pending.clear();
-
-            // process in order of creation; but skip the NULL place-holder at the start
-            for ( int i = 1; i < beans.length; i++ )
-            {
-                manager.manage( beans[i] ); // may also involve more onProvision calls
-            }
-        }
-    }
-
     public void afterInjection( final Object bean )
     {
-        PENDING.get().add( bean );
+        manager.manage( bean );
     }
 }

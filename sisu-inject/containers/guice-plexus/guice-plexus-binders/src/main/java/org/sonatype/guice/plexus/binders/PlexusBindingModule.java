@@ -69,9 +69,9 @@ public final class PlexusBindingModule
         // attach custom logic to support Plexus requirements/configuration/lifecycle
         final PlexusBeanBinder plexusBinder = new PlexusBeanBinder( manager, sources );
         binder.bindListener( Matchers.any(), new BeanListener( plexusBinder ) );
-        if ( null != manager )
+        if ( manager instanceof ProvisionListener )
         {
-            binder.bindListener( Matchers.any(), (ProvisionListener) plexusBinder );
+            binder.bindListener( Matchers.any(), (ProvisionListener) manager );
         }
     }
 }
