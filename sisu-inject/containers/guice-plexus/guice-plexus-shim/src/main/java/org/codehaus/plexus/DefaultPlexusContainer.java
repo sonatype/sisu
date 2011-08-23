@@ -99,6 +99,8 @@ public final class DefaultPlexusContainer
 
     private static final String DEFAULT_REALM_NAME = "plexus.core";
 
+    private static final Module[] NO_CUSTOM_MODULES = {};
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -155,7 +157,7 @@ public final class DefaultPlexusContainer
     public DefaultPlexusContainer( final ContainerConfiguration configuration )
         throws PlexusContainerException
     {
-        this( configuration, new Module[0] );
+        this( configuration, NO_CUSTOM_MODULES );
     }
 
     @SuppressWarnings( "finally" )
@@ -420,6 +422,11 @@ public final class DefaultPlexusContainer
 
     public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm realm )
     {
+        return discoverComponents( realm, NO_CUSTOM_MODULES );
+    }
+
+    public List<ComponentDescriptor<?>> discoverComponents( final ClassRealm realm, final Module... customModules )
+    {
         try
         {
             final List<PlexusBeanModule> beanModules = new ArrayList<PlexusBeanModule>();
@@ -440,7 +447,7 @@ public final class DefaultPlexusContainer
             }
             if ( !beanModules.isEmpty() )
             {
-                addPlexusInjector( beanModules );
+                addPlexusInjector( beanModules, customModules );
             }
         }
         catch ( final Throwable e )
@@ -782,20 +789,12 @@ public final class DefaultPlexusContainer
     final class ContainerModule
         implements Module
     {
-        final PlexusDateTypeConverter dateConverter = new PlexusDateTypeConverter();
-
-        final PlexusXmlBeanConverter beanConverter = new PlexusXmlBeanConverter();
-
         public void configure( final Binder binder )
         {
             binder.bind( Context.class ).toInstance( context );
             binder.bind( ParameterKeys.PROPERTIES ).toInstance( variables );
 
-            binder.install( dateConverter );
-
             binder.bind( MutableBeanLocator.class ).toInstance( qualifiedBeanLocator );
-
-            binder.bind( PlexusBeanConverter.class ).toInstance( beanConverter );
             binder.bind( PlexusBeanLocator.class ).toInstance( plexusBeanLocator );
             binder.bind( PlexusBeanManager.class ).toInstance( plexusBeanManager );
 
@@ -810,7 +809,11 @@ public final class DefaultPlexusContainer
     final class DefaultsModule
         implements Module
     {
-        final LoggerProvider loggerProvider = new LoggerProvider();
+        private final LoggerProvider loggerProvider = new LoggerProvider();
+
+        private final PlexusDateTypeConverter dateConverter = new PlexusDateTypeConverter();
+
+        private final PlexusXmlBeanConverter beanConverter = new PlexusXmlBeanConverter();
 
         public void configure( final Binder binder )
         {
@@ -821,6 +824,10 @@ public final class DefaultPlexusContainer
             final Key<RankingFunction> plexusRankingKey = Key.get( RankingFunction.class, Names.named( "plexus" ) );
             binder.bind( plexusRankingKey ).toInstance( new DefaultRankingFunction( plexusRank.incrementAndGet() ) );
             binder.bind( RankingFunction.class ).to( plexusRankingKey );
+
+            binder.install( dateConverter );
+
+            binder.bind( PlexusBeanConverter.class ).toInstance( beanConverter );
         }
     }
 
