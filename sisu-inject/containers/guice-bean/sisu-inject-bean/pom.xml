@@ -132,6 +132,11 @@
   <profiles>
     <profile>
       <id>release</id>
+      <activation>
+        <property>
+          <name>aggregate-sources</name>
+        </property>
+      </activation>
       <build>
         <plugins>
           <plugin>
