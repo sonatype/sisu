@@ -475,7 +475,7 @@ public class BeanImportTest
         assertNotSame( provider.get(), provider.get() );
         assertEquals( 3, unrestrictedList.providerList.size() );
 
-        Iterator<Provider<Y>> itr = unrestrictedSet.providerSet.iterator();
+        final Iterator<Provider<Y>> itr = unrestrictedSet.providerSet.iterator();
 
         provider = itr.next();
         assertTrue( provider.get() instanceof YImpl );

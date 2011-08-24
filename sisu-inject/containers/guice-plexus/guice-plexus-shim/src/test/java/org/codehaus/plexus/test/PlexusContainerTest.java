@@ -867,7 +867,7 @@ public class PlexusContainerTest
             }
         } );
 
-        Object c = container.lookup( "org.codehaus.plexus.components.withconfiguration.C" );
+        final Object c = container.lookup( "org.codehaus.plexus.components.withconfiguration.C" );
 
         assertEquals( stringValue, c.getClass().getField( "stringValue" ).get( c ) );
         assertSame( objectValue, c.getClass().getField( "objectValue" ).get( c ) );
