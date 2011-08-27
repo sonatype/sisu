@@ -97,12 +97,12 @@ final class RankedBindings<T>
 
     <Q extends Annotation> BeanCache<Q, T> newBeanCache()
     {
+        final BeanCache<Q, T> beans = new BeanCache<Q, T>();
         synchronized ( cachedBeans )
         {
-            final BeanCache<Q, T> beans = new BeanCache<Q, T>();
             cachedBeans.add( beans );
-            return beans;
         }
+        return beans;
     }
 
     void add( final BindingPublisher publisher, final int rank )

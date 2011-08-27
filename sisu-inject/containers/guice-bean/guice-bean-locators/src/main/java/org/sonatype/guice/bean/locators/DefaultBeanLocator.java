@@ -12,6 +12,7 @@
 package org.sonatype.guice.bean.locators;
 
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -34,8 +35,15 @@ import com.google.inject.TypeLiteral;
 @Singleton
 @SuppressWarnings( { "rawtypes", "unchecked" } )
 public final class DefaultBeanLocator
+    extends ReentrantLock
     implements MutableBeanLocator
 {
+    // ----------------------------------------------------------------------
+    // Constants
+    // ----------------------------------------------------------------------
+
+    private static final long serialVersionUID = 1L;
+
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -59,12 +67,17 @@ public final class DefaultBeanLocator
         RankedBindings bindings = cachedBindings.get( type );
         if ( null == bindings )
         {
-            synchronized ( publishers )
+            lock();
+            try
             {
                 if ( null == ( bindings = cachedBindings.get( type ) ) )
                 {
                     cachedBindings.put( type, bindings = new RankedBindings( type, publishers ) );
                 }
+            }
+            finally
+            {
+                unlock();
             }
         }
         final boolean isImplicit = key.getAnnotationType() == null && TypeParameters.isImplicit( type );
@@ -73,7 +86,8 @@ public final class DefaultBeanLocator
 
     public void watch( final Key key, final Mediator mediator, final Object watcher )
     {
-        synchronized ( publishers )
+        lock();
+        try
         {
             final WatchedBeans beans = new WatchedBeans( key, mediator, watcher );
             for ( final BindingPublisher p : publishers.snapshot() )
@@ -81,6 +95,10 @@ public final class DefaultBeanLocator
                 p.subscribe( beans );
             }
             cachedWatchers.put( beans, watcher );
+        }
+        finally
+        {
+            unlock();
         }
     }
 
@@ -96,7 +114,8 @@ public final class DefaultBeanLocator
 
     public void add( final BindingPublisher publisher, final int rank )
     {
-        synchronized ( publishers )
+        lock();
+        try
         {
             if ( !publishers.contains( publisher ) )
             {
@@ -112,11 +131,16 @@ public final class DefaultBeanLocator
                 }
             }
         }
+        finally
+        {
+            unlock();
+        }
     }
 
     public void remove( final BindingPublisher publisher )
     {
-        synchronized ( publishers )
+        lock();
+        try
         {
             if ( publishers.remove( publisher ) )
             {
@@ -131,16 +155,25 @@ public final class DefaultBeanLocator
                 }
             }
         }
+        finally
+        {
+            unlock();
+        }
     }
 
     public void clear()
     {
-        synchronized ( publishers )
+        lock();
+        try
         {
             for ( final BindingPublisher p : publishers.snapshot() )
             {
                 remove( p );
             }
+        }
+        finally
+        {
+            unlock();
         }
     }
 
