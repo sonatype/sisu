@@ -14,7 +14,6 @@ package org.sonatype.guice.bean.locators;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
@@ -27,15 +26,8 @@ import com.google.inject.TypeLiteral;
  * Ordered sequence of {@link Binding}s of a given type; subscribes to {@link BindingPublisher}s on demand.
  */
 final class RankedBindings<T>
-    extends ReentrantLock
     implements Iterable<Binding<T>>, BindingSubscriber<T>
 {
-    // ----------------------------------------------------------------------
-    // Constants
-    // ----------------------------------------------------------------------
-
-    private static final long serialVersionUID = 1L;
-
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
@@ -79,17 +71,12 @@ final class RankedBindings<T>
     {
         if ( bindings.removeThis( binding ) )
         {
-            lock();
-            try
+            synchronized ( cachedBeans )
             {
                 for ( final BeanCache<?, T> beans : cachedBeans )
                 {
                     beans.remove( binding );
                 }
-            }
-            finally
-            {
-                unlock();
             }
         }
     }
@@ -110,16 +97,11 @@ final class RankedBindings<T>
 
     <Q extends Annotation> BeanCache<Q, T> newBeanCache()
     {
-        lock();
-        try
+        synchronized ( cachedBeans )
         {
             final BeanCache<Q, T> beans = new BeanCache<Q, T>();
             cachedBeans.add( beans );
             return beans;
-        }
-        finally
-        {
-            unlock();
         }
     }
 
@@ -140,17 +122,12 @@ final class RankedBindings<T>
         /*
          * Lock to prevent race condition with subscriptions.
          */
-        lock();
-        try
+        synchronized ( pendingPublishers )
         {
             if ( !pendingPublishers.remove( publisher ) )
             {
                 publisher.unsubscribe( this );
             }
-        }
-        finally
-        {
-            unlock();
         }
     }
 
@@ -179,8 +156,7 @@ final class RankedBindings<T>
             int rank = topRank;
             if ( rank > Integer.MIN_VALUE && rank > itr.peekNextRank() )
             {
-                lock();
-                try
+                synchronized ( pendingPublishers )
                 {
                     rank = topRank;
                     while ( rank > Integer.MIN_VALUE && rank > itr.peekNextRank() )
@@ -188,10 +164,6 @@ final class RankedBindings<T>
                         pendingPublishers.poll().subscribe( RankedBindings.this );
                         rank = topRank = pendingPublishers.topRank();
                     }
-                }
-                finally
-                {
-                    unlock();
                 }
             }
             return itr.hasNext();
