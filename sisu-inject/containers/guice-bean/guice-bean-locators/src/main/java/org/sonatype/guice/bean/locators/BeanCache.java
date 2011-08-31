@@ -29,18 +29,19 @@ import com.google.inject.Binding;
  */
 @SuppressWarnings( { "rawtypes", "unchecked" } )
 final class BeanCache<Q extends Annotation, T>
+    extends AtomicReference<Object>
 {
     // ----------------------------------------------------------------------
     // Constants
     // ----------------------------------------------------------------------
+
+    private static final long serialVersionUID = 1L;
 
     private static final long REFRESH_MILLIS = 888L;
 
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
-
-    private final AtomicReference<Object> cache = new AtomicReference();
 
     private Map<Binding<T>, BeanEntry<Q, T>> readCache;
 
@@ -71,7 +72,7 @@ final class BeanCache<Q extends Annotation, T>
          */
         do
         {
-            o = cache.get();
+            o = get();
             if ( null == o )
             {
                 // most common case: adding the one (and-only) entry
@@ -88,7 +89,7 @@ final class BeanCache<Q extends Annotation, T>
             }
             else
             {
-                synchronized ( cache )
+                synchronized ( this )
                 {
                     final Map<Binding, LazyBeanEntry> map = (Map) o;
                     if ( null == ( newBean = map.get( binding ) ) )
@@ -100,7 +101,7 @@ final class BeanCache<Q extends Annotation, T>
                 }
             }
         }
-        while ( !cache.compareAndSet( o, n ) );
+        while ( !compareAndSet( o, n ) );
 
         return newBean;
     }
@@ -110,11 +111,11 @@ final class BeanCache<Q extends Annotation, T>
         long now = 0;
         if ( mutated && ( null == readCache || ( now = System.currentTimeMillis() ) - lastTimeMillis > REFRESH_MILLIS ) )
         {
-            synchronized ( cache )
+            synchronized ( this )
             {
                 if ( mutated )
                 {
-                    readCache = (Map) ( (IdentityHashMap) cache.get() ).clone();
+                    readCache = (Map) ( (IdentityHashMap) get() ).clone();
                     lastTimeMillis = now == 0 ? System.currentTimeMillis() : now;
                     mutated = false;
                 }
@@ -130,7 +131,7 @@ final class BeanCache<Q extends Annotation, T>
      */
     public Iterable<Binding<T>> bindings()
     {
-        final Object o = cache.get();
+        final Object o = get();
         if ( null == o )
         {
             return Collections.EMPTY_SET;
@@ -139,7 +140,7 @@ final class BeanCache<Q extends Annotation, T>
         {
             return Collections.singleton( ( (LazyBeanEntry<?, T>) o ).binding );
         }
-        synchronized ( cache )
+        synchronized ( this )
         {
             return new ArrayList( ( (Map<Binding, BeanEntry>) o ).keySet() );
         }
@@ -162,7 +163,7 @@ final class BeanCache<Q extends Annotation, T>
          */
         do
         {
-            o = cache.get();
+            o = get();
             if ( null == o )
             {
                 return null;
@@ -178,7 +179,7 @@ final class BeanCache<Q extends Annotation, T>
             }
             else
             {
-                synchronized ( cache )
+                synchronized ( this )
                 {
                     oldBean = ( (Map<?, LazyBeanEntry>) o ).remove( binding );
                     if ( null != oldBean )
@@ -190,7 +191,7 @@ final class BeanCache<Q extends Annotation, T>
                 }
             }
         }
-        while ( !cache.compareAndSet( o, n ) );
+        while ( !compareAndSet( o, n ) );
 
         return oldBean;
     }

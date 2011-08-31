@@ -22,13 +22,14 @@ import java.util.concurrent.atomic.AtomicReference;
  * Ordered {@link List} that arranges elements by descending rank; supports concurrent iteration and modification.
  */
 final class RankedSequence<T>
+    extends AtomicReference<RankedSequence.Content>
     implements Iterable<T>
 {
     // ----------------------------------------------------------------------
-    // Implementation fields
+    // Constants
     // ----------------------------------------------------------------------
 
-    final AtomicReference<Contents> cache = new AtomicReference<Contents>();
+    private static final long serialVersionUID = 1L;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -43,7 +44,7 @@ final class RankedSequence<T>
     {
         if ( null != sequence )
         {
-            cache.set( sequence.cache.get() );
+            set( sequence.get() );
         }
     }
 
@@ -61,70 +62,70 @@ final class RankedSequence<T>
      */
     public void insert( final T element, final int rank )
     {
-        Contents o, n;
+        Content o, n;
         do
         {
-            n = null != ( o = cache.get() ) ? o.insert( element, rank ) : new Contents( element, rank );
+            n = null != ( o = get() ) ? o.insert( element, rank ) : new Content( element, rank );
         }
-        while ( !cache.compareAndSet( o, n ) );
+        while ( !compareAndSet( o, n ) );
     }
 
     @SuppressWarnings( "unchecked" )
     public T poll()
     {
-        final Contents contents = cache.get();
-        cache.set( contents.remove( 0 ) );
-        return (T) contents.objs[0];
+        final Content content = get();
+        set( content.remove( 0 ) );
+        return (T) content.objs[0];
     }
 
     public int topRank()
     {
-        final Contents contents = cache.get();
-        return null != contents ? uid2rank( contents.uids[0] ) : Integer.MIN_VALUE;
+        final Content content = get();
+        return null != content ? uid2rank( content.uids[0] ) : Integer.MIN_VALUE;
     }
 
     public boolean contains( final Object element )
     {
-        final Contents contents = cache.get();
-        return null != contents && contents.indexOf( element ) >= 0;
+        final Content content = get();
+        return null != content && content.indexOf( element ) >= 0;
     }
 
     public boolean containsThis( final Object element )
     {
-        final Contents contents = cache.get();
-        return null != contents && contents.indexOfThis( element ) >= 0;
+        final Content content = get();
+        return null != content && content.indexOfThis( element ) >= 0;
     }
 
     public boolean remove( final Object element )
     {
-        Contents o, n;
+        Content o, n;
         do
         {
             final int index;
-            if ( null == ( o = cache.get() ) || ( index = o.indexOf( element ) ) < 0 )
+            if ( null == ( o = get() ) || ( index = o.indexOf( element ) ) < 0 )
             {
                 return false;
             }
             n = o.remove( index );
         }
-        while ( !cache.compareAndSet( o, n ) );
+        while ( !compareAndSet( o, n ) );
 
         return true;
     }
 
     public boolean removeThis( final T element )
     {
-        Contents o, n;
+        Content o, n;
         do
         {
             final int index;
-            if ( null == ( o = cache.get() ) || ( index = o.indexOfThis( element ) ) < 0 )
+            if ( null == ( o = get() ) || ( index = o.indexOfThis( element ) ) < 0 )
             {
                 return false;
             }
             n = o.remove( index );
         }
-        while ( !cache.compareAndSet( o, n ) );
+        while ( !compareAndSet( o, n ) );
 
         return true;
     }
@@ -132,24 +133,24 @@ final class RankedSequence<T>
     @SuppressWarnings( { "rawtypes", "unchecked" } )
     public Iterable<T> snapshot()
     {
-        final Contents contents = cache.get();
-        return null != contents ? (List) Arrays.asList( contents.objs ) : Collections.EMPTY_SET;
+        final Content content = get();
+        return null != content ? (List) Arrays.asList( content.objs ) : Collections.EMPTY_SET;
     }
 
     public void clear()
     {
-        cache.set( null );
+        set( null );
     }
 
     public boolean isEmpty()
     {
-        return null == cache.get();
+        return null == get();
     }
 
     public int size()
     {
-        final Contents contents = cache.get();
-        return null != contents ? contents.objs.length : 0;
+        final Content content = get();
+        return null != content ? content.objs.length : 0;
     }
 
     public Itr iterator()
@@ -224,7 +225,7 @@ final class RankedSequence<T>
     // Implementation types
     // ----------------------------------------------------------------------
 
-    private static final class Contents
+    static final class Content
     {
         // ----------------------------------------------------------------------
         // Implementation fields
@@ -240,14 +241,14 @@ final class RankedSequence<T>
         // Constructors
         // ----------------------------------------------------------------------
 
-        Contents( final Object element, final int rank )
+        Content( final Object element, final int rank )
         {
             objs = new Object[] { element };
             uids = new long[] { rank2uid( rank, 0 ) };
             uniq = 1;
         }
 
-        Contents( final Object[] objs, final long[] uids, final int uniq )
+        Content( final Object[] objs, final long[] uids, final int uniq )
         {
             this.objs = objs;
             this.uids = uids;
@@ -282,7 +283,7 @@ final class RankedSequence<T>
             return -1;
         }
 
-        public Contents insert( final Object element, final int rank )
+        public Content insert( final Object element, final int rank )
         {
             final int size = objs.length + 1;
 
@@ -307,10 +308,10 @@ final class RankedSequence<T>
                 System.arraycopy( uids, index, newUIDs, destPos, len );
             }
 
-            return new Contents( newObjs, newUIDs, uniq + 1 );
+            return new Content( newObjs, newUIDs, uniq + 1 );
         }
 
-        public Contents remove( final int index )
+        public Content remove( final int index )
         {
             if ( objs.length == 1 )
             {
@@ -334,7 +335,7 @@ final class RankedSequence<T>
                 System.arraycopy( uids, srcPos, newUIDs, index, len );
             }
 
-            return new Contents( newObjs, newUIDs, uniq );
+            return new Content( newObjs, newUIDs, uniq );
         }
     }
 
@@ -348,7 +349,7 @@ final class RankedSequence<T>
         // Implementation fields
         // ----------------------------------------------------------------------
 
-        private Contents contents;
+        private Content content;
 
         private T nextObj;
 
@@ -367,16 +368,16 @@ final class RankedSequence<T>
             {
                 return true;
             }
-            final Contents newContents = cache.get();
-            if ( contents != newContents )
+            final Content newContent = get();
+            if ( content != newContent )
             {
-                index = null != newContents ? safeBinarySearch( newContents.uids, nextUID ) : -1;
-                contents = newContents;
+                index = null != newContent ? safeBinarySearch( newContent.uids, nextUID ) : -1;
+                content = newContent;
             }
-            if ( index >= 0 && index < contents.objs.length )
+            if ( index >= 0 && index < content.objs.length )
             {
-                nextObj = (T) contents.objs[index];
-                nextUID = contents.uids[index];
+                nextObj = (T) content.objs[index];
+                nextUID = content.uids[index];
                 return true;
             }
             return false;
@@ -391,15 +392,15 @@ final class RankedSequence<T>
             {
                 return uid2rank( nextUID );
             }
-            final Contents newContents = cache.get();
-            if ( contents != newContents )
+            final Content newContent = get();
+            if ( content != newContent )
             {
-                index = null != newContents ? safeBinarySearch( newContents.uids, nextUID ) : -1;
-                contents = newContents;
+                index = null != newContent ? safeBinarySearch( newContent.uids, nextUID ) : -1;
+                content = newContent;
             }
-            if ( index >= 0 && index < contents.objs.length )
+            if ( index >= 0 && index < content.objs.length )
             {
-                return uid2rank( contents.uids[index] );
+                return uid2rank( content.uids[index] );
             }
             return Integer.MIN_VALUE;
         }
