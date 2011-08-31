@@ -13,6 +13,7 @@ package org.sonatype.guice.bean.reflect;
 
 import javax.inject.Inject;
 
+import com.google.common.base.Throwables;
 import com.google.inject.Injector;
 import com.google.inject.ProvisionException;
 
@@ -48,6 +49,9 @@ abstract class AbstractDeferredClass<T>
         }
         catch ( final Throwable e )
         {
+            for ( Throwable t = e; t != null; t = t.getCause() ) {
+                Throwables.propagateIfInstanceOf( t, ThreadDeath.class );
+            }
             try
             {
                 Logs.warn( "Error injecting: {}", getName(), e );

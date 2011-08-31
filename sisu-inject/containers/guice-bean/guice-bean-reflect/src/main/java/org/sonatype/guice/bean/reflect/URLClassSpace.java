@@ -26,6 +26,8 @@ import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
+import com.google.common.base.Throwables;
+
 /**
  * {@link ClassSpace} backed by a strongly-referenced {@link ClassLoader} and a {@link URL} class path.
  */
@@ -102,6 +104,7 @@ public final class URLClassSpace
         }
         catch ( final Throwable e )
         {
+            Throwables.propagateIfInstanceOf( e, ThreadDeath.class );
             throw new TypeNotPresentException( name, e );
         }
     }
