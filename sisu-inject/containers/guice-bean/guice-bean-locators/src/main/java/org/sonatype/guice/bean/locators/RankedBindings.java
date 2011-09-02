@@ -40,7 +40,7 @@ final class RankedBindings<T>
 
     final Collection<BeanCache<?, T>> cachedBeans = Weak.elements();
 
-    volatile int topRank;
+    volatile int topRank = Integer.MAX_VALUE;
 
     // ----------------------------------------------------------------------
     // Constructors
@@ -50,7 +50,6 @@ final class RankedBindings<T>
     {
         this.type = type;
         this.pendingPublishers = new RankedSequence<BindingPublisher>( publishers );
-        topRank = pendingPublishers.topRank();
     }
 
     // ----------------------------------------------------------------------
@@ -120,7 +119,7 @@ final class RankedBindings<T>
     void remove( final BindingPublisher publisher )
     {
         /*
-         * Lock to prevent race condition with subscriptions.
+         * Lock just to prevent subscription race condition.
          */
         synchronized ( pendingPublishers )
         {
@@ -158,12 +157,11 @@ final class RankedBindings<T>
             {
                 synchronized ( pendingPublishers )
                 {
-                    rank = topRank;
-                    while ( rank > Integer.MIN_VALUE && rank > itr.peekNextRank() )
+                    while ( ( rank = pendingPublishers.topRank() ) > Integer.MIN_VALUE && rank > itr.peekNextRank() )
                     {
                         pendingPublishers.poll().subscribe( RankedBindings.this );
-                        rank = topRank = pendingPublishers.topRank();
                     }
+                    topRank = rank;
                 }
             }
             return itr.hasNext();

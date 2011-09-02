@@ -398,7 +398,7 @@ final class RankedSequence<T>
                 index = null != newContent ? safeBinarySearch( newContent.uids, nextUID ) : -1;
                 content = newContent;
             }
-            if ( index >= 0 && index < content.objs.length )
+            if ( index >= 0 && index < content.uids.length )
             {
                 return uid2rank( content.uids[index] );
             }
