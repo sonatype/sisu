@@ -12,6 +12,7 @@
 package org.sonatype.guice.bean.locators;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.inject.Inject;
@@ -50,7 +51,7 @@ public final class DefaultBeanLocator
 
     private final RankedSequence<BindingPublisher> publishers = new RankedSequence<BindingPublisher>();
 
-    private final Map<TypeLiteral, RankedBindings> cachedBindings = Soft.concurrentValues( 256, 8 );
+    private final ConcurrentMap<TypeLiteral, RankedBindings> cachedBindings = Soft.concurrentValues( 256, 8 );
 
     // reverse mapping; can't use watcher as key since it may not be unique
     private final Map<WatchedBeans, Object> cachedWatchers = Weak.values();
@@ -70,9 +71,11 @@ public final class DefaultBeanLocator
             lock();
             try
             {
-                if ( null == ( bindings = cachedBindings.get( type ) ) )
+                bindings = new RankedBindings( type, publishers );
+                final RankedBindings oldBindings = cachedBindings.putIfAbsent( type, bindings );
+                if ( null != oldBindings )
                 {
-                    cachedBindings.put( type, bindings = new RankedBindings( type, publishers ) );
+                    bindings = oldBindings;
                 }
             }
             finally
@@ -100,16 +103,6 @@ public final class DefaultBeanLocator
         {
             unlock();
         }
-    }
-
-    public void add( final Injector injector, final int rank )
-    {
-        add( new InjectorPublisher( injector, new DefaultRankingFunction( rank ) ), rank );
-    }
-
-    public void remove( final Injector injector )
-    {
-        remove( new InjectorPublisher( injector, null ) );
     }
 
     public void add( final BindingPublisher publisher, final int rank )
@@ -175,6 +168,16 @@ public final class DefaultBeanLocator
         {
             unlock();
         }
+    }
+
+    public void add( final Injector injector, final int rank )
+    {
+        add( new InjectorPublisher( injector, new DefaultRankingFunction( rank ) ), rank );
+    }
+
+    public void remove( final Injector injector )
+    {
+        remove( new InjectorPublisher( injector, null ) );
     }
 
     // ----------------------------------------------------------------------
