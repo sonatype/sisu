@@ -13,9 +13,6 @@ package org.sonatype.guice.bean.reflect;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
-import java.lang.ref.SoftReference;
-import java.lang.ref.WeakReference;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,21 +22,16 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * {@link Map} whose values are kept alive by soft/weak {@link Reference}s; automatically compacts on read/write
- * <p>
- * Note: this class is not synchronized and all methods except {@link #get(Object)} (including iterators) may silently
- * remove elements. Concurrent access is only supported when the supplied backing map is a {@link ConcurrentMap}.
+ * NON-thread-safe {@link Map} whose values are kept alive by soft/weak {@link Reference}s.
  */
-final class MildValues<K, V>
-    extends AbstractMap<K, V>
+class MildValues<K, V>
+    implements Map<K, V>
 {
     // ----------------------------------------------------------------------
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private final ReferenceQueue<V> queue = new ReferenceQueue<V>();
-
-    private final ConcurrentMap<K, Reference<V>> concurrentView;
+    final ReferenceQueue<V> queue = new ReferenceQueue<V>();
 
     private final Map<K, Reference<V>> map;
 
@@ -53,17 +45,27 @@ final class MildValues<K, V>
     {
         this.map = map;
         this.soft = soft;
-
-        // only do this check once: if the supplied backing map is concurrent then we are also concurrent
-        concurrentView = map instanceof ConcurrentMap<?, ?> ? (ConcurrentMap<K, Reference<V>>) map : null;
     }
 
     // ----------------------------------------------------------------------
     // Public methods
     // ----------------------------------------------------------------------
 
-    @Override
-    public V get( final Object key )
+    public final boolean containsKey( final Object key )
+    {
+        // skip compact for performance reasons
+
+        return map.containsKey( key );
+    }
+
+    public final boolean containsValue( final Object value )
+    {
+        // skip compact for performance reasons
+
+        return map.containsValue( tempValue( value ) );
+    }
+
+    public final V get( final Object key )
     {
         // skip compact for performance reasons
 
@@ -71,17 +73,25 @@ final class MildValues<K, V>
         return null != ref ? ref.get() : null;
     }
 
-    @Override
-    public V put( final K key, final V value )
+    public final V put( final K key, final V value )
     {
         compact();
 
-        final Reference<V> ref = map.put( key, mild( key, value ) );
+        final Reference<V> ref = map.put( key, mildValue( key, value ) );
         return null != ref ? ref.get() : null;
     }
 
-    @Override
-    public V remove( final Object key )
+    public final void putAll( final Map<? extends K, ? extends V> m )
+    {
+        compact();
+
+        for ( final Entry<? extends K, ? extends V> e : m.entrySet() )
+        {
+            map.put( e.getKey(), mildValue( e.getKey(), e.getValue() ) );
+        }
+    }
+
+    public final V remove( final Object key )
     {
         compact();
 
@@ -89,61 +99,71 @@ final class MildValues<K, V>
         return null != ref ? ref.get() : null;
     }
 
-    @Override
-    public void clear()
+    public final void clear()
     {
         map.clear();
 
         compact();
     }
 
-    @Override
-    public int size()
+    public final boolean isEmpty()
+    {
+        compact();
+
+        return map.isEmpty();
+    }
+
+    public final int size()
     {
         compact();
 
         return map.size();
     }
 
-    @Override
-    public Set<K> keySet()
+    public final Set<K> keySet()
     {
         compact();
 
         return map.keySet();
     }
 
-    @Override
-    public Collection<V> values()
+    /**
+     * WARNING: this view is a snapshot; updates to it are <em>not</em> reflected in the original map, or vice-versa.
+     * <hr>
+     * {@inheritDoc}
+     */
+    public final Collection<V> values()
     {
         compact();
 
-        // avoid passing back null/cleared values
-        final List<V> list = new ArrayList<V>();
-        for ( final Reference<V> ref : map.values() )
+        final List<V> values = new ArrayList<V>();
+        for ( final Reference<V> r : map.values() )
         {
-            final V value = ref.get();
+            final V value = r.get();
             if ( null != value )
             {
-                list.add( value );
+                values.add( value );
             }
         }
-        return list;
+        return values;
     }
 
-    @Override
-    public Set<Entry<K, V>> entrySet()
+    /**
+     * WARNING: this view is a snapshot; updates to it are <em>not</em> reflected in the original map, or vice-versa.
+     * <hr>
+     * {@inheritDoc}
+     */
+    public final Set<Entry<K, V>> entrySet()
     {
         compact();
 
-        // avoid passing back null/cleared entries
         final Map<K, V> entries = new HashMap<K, V>();
-        for ( final Entry<K, Reference<V>> entry : map.entrySet() )
+        for ( final Entry<K, Reference<V>> e : map.entrySet() )
         {
-            final V value = entry.getValue().get();
+            final V value = e.getValue().get();
             if ( null != value )
             {
-                entries.put( entry.getKey(), value );
+                entries.put( e.getKey(), value );
             }
         }
         return entries.entrySet();
@@ -154,28 +174,32 @@ final class MildValues<K, V>
     // ----------------------------------------------------------------------
 
     /**
-     * @return Soft or weak {@link Reference} item for the given key:value mapping.
+     * @return Soft or weak {@link Reference} for the given key-value mapping.
      */
-    private Reference<V> mild( final K key, final V value )
+    final Reference<V> mildValue( final K key, final V value )
     {
         return soft ? new Soft<K, V>( key, value, queue ) : new Weak<K, V>( key, value, queue );
     }
 
     /**
-     * Compacts the map by removing cleared items.
+     * @return Temporary {@link Reference} for the given value; used in queries.
      */
-    private void compact()
+    static final Reference<?> tempValue( final Object value )
+    {
+        return new Weak<Object, Object>( null, value, null );
+    }
+
+    /**
+     * Compacts the map by removing cleared values.
+     */
+    void compact()
     {
         Reference<? extends V> ref;
         while ( ( ref = queue.poll() ) != null )
         {
-            // only remove value if it still matches
-            final Object key = ( (Item) ref ).key();
-            if ( null != concurrentView )
-            {
-                concurrentView.remove( key, ref );
-            }
-            else if ( map.get( key ) == ref )
+            // only remove this specific key-value mapping
+            final Object key = ( (InverseMapping) ref ).key();
+            if ( map.get( key ) == ref )
             {
                 map.remove( key );
             }
@@ -187,22 +211,19 @@ final class MildValues<K, V>
     // ----------------------------------------------------------------------
 
     /**
-     * Common functionality shared by both soft and weak items in the map.
+     * Represents an inverse mapping from a value to its key.
      */
-    private static interface Item
+    interface InverseMapping
     {
-        /**
-         * @return The owning key
-         */
         Object key();
     }
 
     /**
-     * Soft {@link Item} that keeps track of its key so it can be removed when the value is unreachable.
+     * Soft value with an {@link InverseMapping} back to its key.
      */
-    private static final class Soft<K, V>
-        extends SoftReference<V>
-        implements Item
+    private final static class Soft<K, V>
+        extends MildKeys.Soft<V>
+        implements InverseMapping
     {
         // ----------------------------------------------------------------------
         // Implementation fields
@@ -231,11 +252,11 @@ final class MildValues<K, V>
     }
 
     /**
-     * Weak {@link Item} that keeps track of its key so it can be removed when the value is unreachable.
+     * Weak value with an {@link InverseMapping} back to its key.
      */
-    private static final class Weak<K, V>
-        extends WeakReference<V>
-        implements Item
+    private final static class Weak<K, V>
+        extends MildKeys.Weak<V>
+        implements InverseMapping
     {
         // ----------------------------------------------------------------------
         // Implementation fields
@@ -260,6 +281,93 @@ final class MildValues<K, V>
         public Object key()
         {
             return key;
+        }
+    }
+}
+
+/**
+ * Thread-safe {@link Map} whose values are kept alive by soft/weak {@link Reference}s.
+ */
+final class MildConcurrentValues<K, V>
+    extends MildValues<K, V>
+    implements ConcurrentMap<K, V>
+{
+    // ----------------------------------------------------------------------
+    // Implementation fields
+    // ----------------------------------------------------------------------
+
+    private final ConcurrentMap<K, Reference<V>> concurrentMap;
+
+    // ----------------------------------------------------------------------
+    // Constructors
+    // ----------------------------------------------------------------------
+
+    MildConcurrentValues( final ConcurrentMap<K, Reference<V>> map, final boolean soft )
+    {
+        super( map, soft );
+        this.concurrentMap = map;
+    }
+
+    // ----------------------------------------------------------------------
+    // Public methods
+    // ----------------------------------------------------------------------
+
+    public V putIfAbsent( final K key, final V value )
+    {
+        compact();
+
+        final Reference<V> ref = mildValue( key, value );
+
+        /*
+         * We must either add our value to the map, or return a non-null existing value.
+         */
+        Reference<V> oldRef;
+        while ( ( oldRef = concurrentMap.putIfAbsent( key, ref ) ) != null )
+        {
+            final V oldValue = oldRef.get();
+            if ( null != oldValue )
+            {
+                return oldValue;
+            }
+            concurrentMap.remove( key, oldRef ); // gone AWOL; remove entry and try again
+        }
+        return null;
+    }
+
+    public V replace( final K key, final V value )
+    {
+        compact();
+
+        final Reference<V> ref = concurrentMap.replace( key, mildValue( key, value ) );
+        return null != ref ? ref.get() : null;
+    }
+
+    public boolean replace( final K key, final V oldValue, final V newValue )
+    {
+        compact();
+
+        return concurrentMap.replace( key, mildValue( null, oldValue ), mildValue( key, newValue ) );
+    }
+
+    public boolean remove( final Object key, final Object value )
+    {
+        compact();
+
+        return concurrentMap.remove( key, tempValue( value ) );
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    @Override
+    void compact()
+    {
+        Reference<? extends V> ref;
+        while ( ( ref = queue.poll() ) != null )
+        {
+            // only remove this specific key-value mapping; thread-safe
+            concurrentMap.remove( ( (InverseMapping) ref ).key(), ref );
         }
     }
 }
