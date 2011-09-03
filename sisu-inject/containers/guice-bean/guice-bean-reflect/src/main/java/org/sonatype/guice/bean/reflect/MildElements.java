@@ -22,9 +22,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
- * {@link Collection} of elements kept alive by soft/weak {@link Reference}s; automatically compacts on read/write.
- * <p>
- * Note: this class is not synchronized and all methods (including iterators) may silently remove elements.
+ * NON-thread-safe {@link Collection} of elements kept alive by soft/weak {@link Reference}s.
  */
 final class MildElements<T>
     extends AbstractCollection<T>
@@ -58,7 +56,7 @@ final class MildElements<T>
     {
         compact();
 
-        return list.add( mild( element ) );
+        return list.add( soft ? new Soft<T>( element, queue, list.size() ) : new Weak<T>( element, queue, list.size() ) );
     }
 
     @Override
@@ -82,23 +80,33 @@ final class MildElements<T>
     // ----------------------------------------------------------------------
 
     /**
-     * @return Soft or weak {@link Reference} item for the given element.
+     * Compacts the list by replacing unreachable {@link Reference}s with ones from the end.
      */
-    private Reference<T> mild( final T element )
-    {
-        return soft ? new Soft<T>( element, queue, list.size() ) : new Weak<T>( element, queue, list.size() );
-    }
-
-    /**
-     * Compacts the list by replacing cleared items with ones from the end.
-     */
-    @SuppressWarnings( "unchecked" )
     private void compact()
     {
         Reference<? extends T> ref;
         while ( ( ref = queue.poll() ) != null )
         {
-            ( (Item<Reference<T>>) ref ).compact( list );
+            evict( ref );
+        }
+    }
+
+    /**
+     * Evicts a single {@link Reference} from the list; replacing it with one from the end.
+     * 
+     * @param ref The reference to evict
+     */
+    void evict( final Reference<? extends T> ref )
+    {
+        final int index = ( (Indexable) ref ).index( -1 );
+        if ( index >= 0 )
+        {
+            final Reference<T> last = list.remove( list.size() - 1 );
+            if ( ref != last )
+            {
+                ( (Indexable) last ).index( index );
+                list.set( index, last );
+            }
         }
     }
 
@@ -107,20 +115,15 @@ final class MildElements<T>
     // ----------------------------------------------------------------------
 
     /**
-     * Common functionality shared by both soft and weak items in the list.
+     * Represents an element that can be indexed.
      */
-    private interface Item<T>
+    private interface Indexable
     {
-        /**
-         * Compacts the list by replacing this item with one from the end of the list.
-         * 
-         * @param list The containing list
-         */
-        void compact( List<T> list );
+        int index( int index );
     }
 
     /**
-     * {@link Iterator} that iterates over uncleared {@link Reference}s in the list.
+     * {@link Iterator} that iterates over reachable {@link Reference}s in the list.
      */
     final class Itr
         implements Iterator<T>
@@ -141,7 +144,7 @@ final class MildElements<T>
 
         public boolean hasNext()
         {
-            // find the next element that has yet to be cleared
+            // find next element that is still reachable
             while ( null == nextElement && index < list.size() )
             {
                 nextElement = list.get( index++ ).get();
@@ -162,13 +165,11 @@ final class MildElements<T>
             throw new NoSuchElementException();
         }
 
-        @SuppressWarnings( "unchecked" )
         public void remove()
         {
             if ( haveElement )
             {
-                // backtrack to previous position and remove it from the list
-                ( (Item<Reference<T>>) list.get( --index ) ).compact( list );
+                evict( list.get( --index ) );
                 haveElement = false;
             }
             else
@@ -179,11 +180,11 @@ final class MildElements<T>
     }
 
     /**
-     * Soft {@link Item} that keeps track of its index so it can be swapped out.
+     * Soft {@link Indexable} element.
      */
     private static final class Soft<T>
         extends SoftReference<T>
-        implements Item<Soft<T>>
+        implements Indexable
     {
         // ----------------------------------------------------------------------
         // Implementation fields
@@ -205,28 +206,20 @@ final class MildElements<T>
         // Public methods
         // ----------------------------------------------------------------------
 
-        public void compact( final List<Soft<T>> list )
+        public int index( final int newIndex )
         {
-            if ( index >= 0 )
-            {
-                // swap the last element in the list into our old position
-                final Soft<T> lastElement = list.remove( list.size() - 1 );
-                if ( this != lastElement )
-                {
-                    lastElement.index = index;
-                    list.set( index, lastElement );
-                }
-                index = -1;
-            }
+            final int oldIndex = index;
+            index = newIndex;
+            return oldIndex;
         }
     }
 
     /**
-     * Weak {@link Item} that keeps track of its index so it can be swapped out.
+     * Weak {@link Indexable} element.
      */
     private static final class Weak<T>
         extends WeakReference<T>
-        implements Item<Weak<T>>
+        implements Indexable
     {
         // ----------------------------------------------------------------------
         // Implementation fields
@@ -248,19 +241,11 @@ final class MildElements<T>
         // Public methods
         // ----------------------------------------------------------------------
 
-        public void compact( final List<Weak<T>> list )
+        public int index( final int newIndex )
         {
-            if ( index >= 0 )
-            {
-                // swap the last element in the list into our old position
-                final Weak<T> lastElement = list.remove( list.size() - 1 );
-                if ( this != lastElement )
-                {
-                    lastElement.index = index;
-                    list.set( index, lastElement );
-                }
-                index = -1;
-            }
+            final int oldIndex = index;
+            index = newIndex;
+            return oldIndex;
         }
     }
 }
