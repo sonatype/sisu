@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.reflect;
 
-import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,6 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * Utility methods for dealing with {@link SoftReference} collections.
  */
+@SuppressWarnings( { "rawtypes", "unchecked" } )
 public final class Soft
 {
     // ----------------------------------------------------------------------
@@ -52,7 +52,7 @@ public final class Soft
      */
     public static <T> Collection<T> elements( final int capacity )
     {
-        return new MildElements<T>( new ArrayList<Reference<T>>( capacity ), true );
+        return new MildElements( new ArrayList( capacity ), true );
     }
 
     /**
@@ -69,13 +69,13 @@ public final class Soft
      */
     public static <K, V> Map<K, V> keys( final int capacity )
     {
-        return new MildKeys<K, V>( new HashMap<Reference<K>, V>( capacity ), true );
+        return new MildKeys( new HashMap( capacity ), true );
     }
 
     /**
      * @return {@link ConcurrentMap} whose keys are kept alive with {@link SoftReference}s
      */
-    public static <K, V> Map<K, V> concurrentKeys()
+    public static <K, V> ConcurrentMap<K, V> concurrentKeys()
     {
         return concurrentKeys( 16, 4 );
     }
@@ -85,9 +85,9 @@ public final class Soft
      * @param concurrency The concurrency level
      * @return {@link ConcurrentMap} whose keys are kept alive with {@link SoftReference}s
      */
-    public static <K, V> Map<K, V> concurrentKeys( final int capacity, final int concurrency )
+    public static <K, V> ConcurrentMap<K, V> concurrentKeys( final int capacity, final int concurrency )
     {
-        return new MildKeys<K, V>( new ConcurrentHashMap<Reference<K>, V>( capacity, 0.75f, concurrency ), true );
+        return new MildConcurrentKeys( new ConcurrentHashMap( capacity, 0.75f, concurrency ), true );
     }
 
     /**
@@ -104,13 +104,13 @@ public final class Soft
      */
     public static <K, V> Map<K, V> values( final int capacity )
     {
-        return new MildValues<K, V>( new HashMap<K, Reference<V>>( capacity ), true );
+        return new MildValues( new HashMap( capacity ), true );
     }
 
     /**
      * @return {@link ConcurrentMap} whose values are kept alive with {@link SoftReference}s
      */
-    public static <K, V> Map<K, V> concurrentValues()
+    public static <K, V> ConcurrentMap<K, V> concurrentValues()
     {
         return concurrentValues( 16, 4 );
     }
@@ -120,8 +120,8 @@ public final class Soft
      * @param concurrency The concurrency level
      * @return {@link ConcurrentMap} whose values are kept alive with {@link SoftReference}s
      */
-    public static <K, V> Map<K, V> concurrentValues( final int capacity, final int concurrency )
+    public static <K, V> ConcurrentMap<K, V> concurrentValues( final int capacity, final int concurrency )
     {
-        return new MildValues<K, V>( new ConcurrentHashMap<K, Reference<V>>( capacity, 0.75f, concurrency ), true );
+        return new MildConcurrentValues( new ConcurrentHashMap( capacity, 0.75f, concurrency ), true );
     }
 }
