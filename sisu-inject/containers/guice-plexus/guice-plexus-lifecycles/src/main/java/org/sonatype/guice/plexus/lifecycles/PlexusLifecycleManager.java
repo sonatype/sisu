@@ -131,23 +131,30 @@ public final class PlexusLifecycleManager
         final List<Object> pending = pendingContext.get();
         if ( pending.isEmpty() )
         {
-            pending.add( null ); // must add NULL place-holder before provisioning starts
-            pi.provision(); // because this step may involve further calls to onProvision
-
-            if ( pending.size() == 1 )
+            /*
+             * Starting a new provisioning sequence...
+             */
+            try
             {
-                pending.clear(); // nothing to manage here, so we can bail out early
-                return;
+                pending.add( null ); // must add NULL place-holder before provisioning starts
+                pi.provision(); // because this step may involve further calls to onProvision
+
+                if ( pending.size() > 1 )
+                {
+                    // reset before calling manageLifecycle, so we can handle nested sequences
+                    final Object[] beans = pending.toArray();
+                    pending.clear();
+
+                    // process in order of creation; but skip the NULL place-holder at the start
+                    for ( int i = 1; i < beans.length; i++ )
+                    {
+                        manageLifecycle( beans[i] ); // may also involve more onProvision calls
+                    }
+                }
             }
-
-            // cache+clear to avoid blocking later on
-            final Object[] beans = pending.toArray();
-            pending.clear();
-
-            // process in order of creation; but skip the NULL place-holder at the start
-            for ( int i = 1; i < beans.length; i++ )
+            finally
             {
-                manageLifecycle( beans[i] ); // may also involve more onProvision calls
+                pendingContext.remove();
             }
         }
     }

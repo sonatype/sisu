@@ -579,6 +579,8 @@ public final class DefaultPlexusContainer
         plexusBeanManager.unmanage();
         containerRealm.setParentRealm( null );
         qualifiedBeanLocator.clear();
+
+        lookupRealm.remove();
     }
 
     // ----------------------------------------------------------------------
