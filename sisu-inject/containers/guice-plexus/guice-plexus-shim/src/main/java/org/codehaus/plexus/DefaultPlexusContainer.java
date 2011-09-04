@@ -487,14 +487,7 @@ public final class DefaultPlexusContainer
     public ClassRealm setLookupRealm( final ClassRealm realm )
     {
         final ClassRealm oldRealm = lookupRealm.get();
-        if ( null != realm )
-        {
-            lookupRealm.set( realm );
-        }
-        else
-        {
-            lookupRealm.remove();
-        }
+        lookupRealm.set( realm );
         return oldRealm;
     }
 
