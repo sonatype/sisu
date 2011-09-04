@@ -131,30 +131,24 @@ public final class PlexusLifecycleManager
         final List<Object> pending = pendingContext.get();
         if ( pending.isEmpty() )
         {
-            /*
-             * Starting a new provisioning sequence...
-             */
-            try
+            pending.add( null ); // must add NULL place-holder before provisioning starts
+            pi.provision(); // because this step may involve further calls to onProvision
+
+            if ( pending.size() > 1 )
             {
-                pending.add( null ); // must add NULL place-holder before provisioning starts
-                pi.provision(); // because this step may involve further calls to onProvision
+                // reset before calling manageLifecycle, so we can handle nested sequences
+                final Object[] beans = pending.toArray();
+                pending.clear();
 
-                if ( pending.size() > 1 )
+                // process in order of creation; but skip the NULL place-holder at the start
+                for ( int i = 1; i < beans.length; i++ )
                 {
-                    // reset before calling manageLifecycle, so we can handle nested sequences
-                    final Object[] beans = pending.toArray();
-                    pending.clear();
-
-                    // process in order of creation; but skip the NULL place-holder at the start
-                    for ( int i = 1; i < beans.length; i++ )
-                    {
-                        manageLifecycle( beans[i] ); // may also involve more onProvision calls
-                    }
+                    manageLifecycle( beans[i] ); // may also involve more onProvision calls
                 }
             }
-            finally
+            else
             {
-                pendingContext.remove();
+                pending.clear(); // nothing to manage; just clear the place-holder element
             }
         }
     }
@@ -199,6 +193,7 @@ public final class PlexusLifecycleManager
         {
             dispose( bean );
         }
+        pendingContext.remove();
         return true;
     }
 
