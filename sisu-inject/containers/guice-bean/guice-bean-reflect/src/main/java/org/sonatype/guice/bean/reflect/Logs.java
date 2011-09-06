@@ -42,7 +42,7 @@ public final class Logs
             final String debug = System.getProperty( "org.sonatype.inject.debug", "false" );
             isDebug = "".equals( debug ) || "true".equalsIgnoreCase( debug );
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
         {
             newLine = "\n";
             isDebug = false;
@@ -53,7 +53,11 @@ public final class Logs
         {
             sink = isDebug ? new ConsoleSink() : new SLF4JSink();
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
+        {
+            sink = new JULSink();
+        }
+        catch ( final LinkageError e )
         {
             sink = new JULSink();
         }
@@ -176,23 +180,6 @@ public final class Logs
         return buf.append( "-------------------------------------------------------------------------------" ).append( NEW_LINE ).toString();
     }
 
-    /**
-     * Swallows any {@link Throwable} except severe {@link Error}s that must be propagated.
-     * 
-     * @param e The error to suppress
-     */
-    public static void swallow( final Throwable e )
-    {
-        if ( e instanceof ThreadDeath )
-        {
-            throw (ThreadDeath) e;
-        }
-        if ( e instanceof VirtualMachineError )
-        {
-            throw (VirtualMachineError) e;
-        }
-    }
-
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
@@ -225,9 +212,13 @@ public final class Logs
         {
             buf.append( detailed ? arg : identityToString( arg ) );
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
         {
-            buf.append( arg.getClass() );
+            buf.append( identityToString( arg ) );
+        }
+        catch ( final LinkageError e )
+        {
+            buf.append( identityToString( arg ) );
         }
         cursor += 2;
         if ( cursor < format.length() )

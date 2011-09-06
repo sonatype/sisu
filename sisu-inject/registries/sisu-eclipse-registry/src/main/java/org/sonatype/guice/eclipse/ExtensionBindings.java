@@ -27,7 +27,6 @@ import org.osgi.framework.Bundle;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
-import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.inject.EagerSingleton;
 
 import com.google.inject.Binder;
@@ -177,9 +176,12 @@ final class ExtensionBindings
         {
             return bundle.loadClass( n < 0 ? value : value.substring( 0, n ) );
         }
-        catch ( final Throwable e )
+        catch ( final Exception e )
         {
-            Logs.swallow( e );
+            return Void.class;
+        }
+        catch ( final LinkageError e )
+        {
             return Void.class;
         }
     }

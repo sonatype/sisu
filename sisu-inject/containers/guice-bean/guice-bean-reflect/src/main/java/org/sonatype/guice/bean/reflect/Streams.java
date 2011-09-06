@@ -33,7 +33,7 @@ public final class Streams
         {
             onWindows = System.getProperty( "os.name" ).toLowerCase( Locale.US ).contains( "windows" );
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
         {
             onWindows = false;
         }

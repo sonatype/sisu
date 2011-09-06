@@ -13,6 +13,7 @@ package org.sonatype.guice.bean.reflect;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 
@@ -72,7 +73,12 @@ final class BeanPropertyField<T>
         {
             field.set( bean, value );
         }
-        catch ( final Throwable e )
+        catch ( final Exception e )
+        {
+            final Throwable cause = e instanceof InvocationTargetException ? e.getCause() : e;
+            throw new ProvisionException( "Error injecting: " + field, cause );
+        }
+        catch ( final LinkageError e )
         {
             throw new ProvisionException( "Error injecting: " + field, e );
         }
