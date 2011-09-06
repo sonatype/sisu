@@ -38,6 +38,8 @@ public final class SisuGuice
 
     private static final ThreadLocal<BeanLocator> LOCATOR = new InheritableThreadLocal<BeanLocator>();
 
+    private static volatile BeanLocator latest;
+
     // ----------------------------------------------------------------------
     // Constructors
     // ----------------------------------------------------------------------
@@ -62,11 +64,13 @@ public final class SisuGuice
         {
             LOCATOR.remove();
         }
+        latest = locator;
     }
 
     public static BeanLocator getBeanLocator()
     {
-        return LOCATOR.get();
+        final BeanLocator locator = LOCATOR.get();
+        return null != locator ? locator : latest;
     }
 
     public static <T> T lookup( final Key<T> key )
