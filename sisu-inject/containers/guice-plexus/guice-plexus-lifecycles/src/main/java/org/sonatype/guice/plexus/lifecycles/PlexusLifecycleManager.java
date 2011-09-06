@@ -9,6 +9,7 @@ package org.sonatype.guice.plexus.lifecycles;
 
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Provider;
@@ -47,12 +48,12 @@ public final class PlexusLifecycleManager
     // Implementation fields
     // ----------------------------------------------------------------------
 
-    private static final ThreadLocal<List<Object>> pendingContext = new ThreadLocal<List<Object>>()
+    private static final ThreadLocal<List<?>[]> pendingHolder = new ThreadLocal<List<?>[]>()
     {
         @Override
-        protected List<Object> initialValue()
+        protected List<?>[] initialValue()
         {
-            return new ArrayList<Object>();
+            return new List[1];
         }
     };
 
@@ -128,31 +129,29 @@ public final class PlexusLifecycleManager
 
     public <T> void onProvision( final ProvisionInvocation<T> pi )
     {
-        final List<Object> pending = pendingContext.get();
-        if ( pending.isEmpty() )
+        final List<?>[] holder = pendingHolder.get();
+        if ( null == holder[0] )
         {
-            pending.add( null ); // must add NULL place-holder before provisioning starts
-            pi.provision(); // because this step may involve further calls to onProvision
-
-            if ( pending.size() > 1 )
+            List<?> beans;
+            holder[0] = Collections.EMPTY_LIST;
+            try
             {
-                // reset before calling manageLifecycle, so we can handle nested sequences
-                final Object[] beans = pending.toArray();
-                pending.clear();
-
-                // process in order of creation; but skip the NULL place-holder at the start
-                for ( int i = 1; i < beans.length; i++ )
-                {
-                    manageLifecycle( beans[i] ); // may also involve more onProvision calls
-                }
+                pi.provision();
             }
-            else
+            finally
             {
-                pending.clear(); // nothing to manage; just clear the place-holder element
+                beans = holder[0];
+                holder[0] = null;
+            }
+
+            for ( int i = 0, size = beans.size(); i < size; i++ )
+            {
+                manageLifecycle( beans.get( i ) );
             }
         }
     }
 
+    @SuppressWarnings( { "rawtypes", "unchecked" } )
     public boolean manage( final Object bean )
     {
         if ( bean instanceof Disposable )
@@ -165,7 +164,13 @@ public final class PlexusLifecycleManager
         }
         if ( bean instanceof Contextualizable || bean instanceof Initializable || bean instanceof Startable )
         {
-            pendingContext.get().add( bean );
+            final List<?>[] holder = pendingHolder.get();
+            List beans = holder[0];
+            if ( null == beans || beans.isEmpty() )
+            {
+                holder[0] = beans = new ArrayList<Object>();
+            }
+            beans.add( bean );
         }
         return true;
     }
@@ -193,7 +198,7 @@ public final class PlexusLifecycleManager
         {
             dispose( bean );
         }
-        pendingContext.remove();
+        pendingHolder.remove();
         return true;
     }
 
