@@ -27,6 +27,7 @@ import org.osgi.framework.Bundle;
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.locators.spi.BindingPublisher;
 import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
+import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.inject.EagerSingleton;
 
 import com.google.inject.Binder;
@@ -65,20 +66,13 @@ final class ExtensionBindings
         final String pointId = clazz.getPackage().getName(); // FIXME
         for ( final IConfigurationElement config : registry.getConfigurationElementsFor( pointId ) )
         {
-            try
+            final String name = config.getAttribute( "class" );
+            if ( null != name )
             {
-                final String name = config.getAttribute( "class" );
-                if ( null != name )
+                if ( type.getRawType().isAssignableFrom( loadExtensionClass( config, name ) ) )
                 {
-                    if ( type.getRawType().isAssignableFrom( loadExtensionClass( config, name ) ) )
-                    {
-                        subscriber.add( new ExtensionBinding<T>( type, config ), 0 );
-                    }
+                    subscriber.add( new ExtensionBinding<T>( type, config ), 0 );
                 }
-            }
-            catch ( final Throwable e )
-            {
-                // ignore
             }
         }
     }
@@ -173,13 +167,20 @@ final class ExtensionBindings
     }
 
     static Class<?> loadExtensionClass( final IConfigurationElement config, final String clazzName )
-        throws ClassNotFoundException
     {
         final Bundle bundle = ContributorFactoryOSGi.resolve( config.getContributor() );
 
         final String value = clazzName;
         final int n = value.indexOf( ':' );
 
-        return bundle.loadClass( n < 0 ? value : value.substring( 0, n ) );
+        try
+        {
+            return bundle.loadClass( n < 0 ? value : value.substring( 0, n ) );
+        }
+        catch ( final Throwable e )
+        {
+            Logs.swallow( e );
+            return Void.class;
+        }
     }
 }

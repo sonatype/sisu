@@ -176,6 +176,23 @@ public final class Logs
         return buf.append( "-------------------------------------------------------------------------------" ).append( NEW_LINE ).toString();
     }
 
+    /**
+     * Swallows any {@link Throwable} except severe {@link Error}s that must be propagated.
+     * 
+     * @param e The error to suppress
+     */
+    public static void swallow( final Throwable e )
+    {
+        if ( e instanceof ThreadDeath )
+        {
+            throw (ThreadDeath) e;
+        }
+        if ( e instanceof VirtualMachineError )
+        {
+            throw (VirtualMachineError) e;
+        }
+    }
+
     // ----------------------------------------------------------------------
     // Implementation methods
     // ----------------------------------------------------------------------
