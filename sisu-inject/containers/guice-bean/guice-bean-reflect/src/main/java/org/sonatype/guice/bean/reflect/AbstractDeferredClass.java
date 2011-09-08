@@ -14,7 +14,6 @@ package org.sonatype.guice.bean.reflect;
 import javax.inject.Inject;
 
 import com.google.inject.Injector;
-import com.google.inject.ProvisionException;
 
 /**
  * Abstract combination of {@link DeferredClass} and {@link DeferredProvider}.
@@ -38,7 +37,6 @@ abstract class AbstractDeferredClass<T>
         return this;
     }
 
-    @SuppressWarnings( "finally" )
     public final T get()
     {
         try
@@ -46,25 +44,45 @@ abstract class AbstractDeferredClass<T>
             // load class and bootstrap injection
             return injector.getInstance( load() );
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
         {
-            try
-            {
-                Logs.warn( "Error injecting: {}", getName(), e );
-            }
-            finally
-            {
-                if ( e instanceof RuntimeException )
-                {
-                    throw (RuntimeException) e;
-                }
-                throw new ProvisionException( "Error injecting: " + getName(), e );
-            }
+            logAndRethrow( getName(), e );
         }
+        catch ( final Error e )
+        {
+            logAndRethrow( getName(), e );
+        }
+        return null; // not used
     }
 
     public final DeferredClass<T> getImplementationClass()
     {
         return this;
+    }
+
+    // ----------------------------------------------------------------------
+    // Implementation methods
+    // ----------------------------------------------------------------------
+
+    @SuppressWarnings( "finally" )
+    private static final <X extends Throwable> void logAndRethrow( final String clazz, final X e )
+        throws X
+    {
+        try
+        {
+            Logs.warn( "Error injecting: {}", clazz, e );
+        }
+        finally
+        {
+            for ( Throwable cause = e; cause != null; cause = cause.getCause() )
+            {
+                // is this actually a severe error masquerading as a runtime exception?
+                if ( cause instanceof ThreadDeath || cause instanceof VirtualMachineError )
+                {
+                    throw (Error) cause; // unwrap
+                }
+            }
+            throw e;
+        }
     }
 }

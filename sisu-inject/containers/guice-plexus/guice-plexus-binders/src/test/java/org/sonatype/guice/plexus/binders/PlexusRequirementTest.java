@@ -317,9 +317,9 @@ public class PlexusRequirementTest
         try
         {
             values.next();
-            fail( "Expected ProvisionException" );
+            fail( "Expected NoClassDefFoundError" );
         }
-        catch ( final ProvisionException e )
+        catch ( final NoClassDefFoundError e )
         {
         }
         assertEquals( ABImpl.class, values.next().getClass() );
@@ -360,9 +360,9 @@ public class PlexusRequirementTest
         try
         {
             i.next();
-            fail( "Expected ProvisionException" );
+            fail( "Expected NoClassDefFoundError" );
         }
-        catch ( final ProvisionException e )
+        catch ( final NoClassDefFoundError e )
         {
         }
         assertEquals( ABImpl.class, i.next().getClass() );
@@ -452,9 +452,9 @@ public class PlexusRequirementTest
         try
         {
             i.next();
-            fail( "Expected ProvisionException" );
+            fail( "Expected NoClassDefFoundError" );
         }
-        catch ( final ProvisionException e )
+        catch ( final NoClassDefFoundError e )
         {
         }
         assertEquals( ABImpl.class, i.next().getClass() );

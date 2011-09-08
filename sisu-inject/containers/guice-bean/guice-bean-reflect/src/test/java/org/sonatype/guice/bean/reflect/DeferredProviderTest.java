@@ -138,9 +138,33 @@ public class DeferredProviderTest
                 }
             } ).getInstance( C.class );
 
-            fail( "Expected ProvisionException" );
+            fail( "Expected LinkageError" );
         }
-        catch ( final ProvisionException e )
+        catch ( final LinkageError e )
+        {
+        }
+
+        try
+        {
+            Guice.createInjector( new AbstractModule()
+            {
+                @Override
+                protected void configure()
+                {
+                    bind( C.class ).toProvider( new LoadedClass<C>( CImpl.class ).asProvider() );
+                    bind( CImpl.class ).toProvider( new Provider<CImpl>()
+                    {
+                        public CImpl get()
+                        {
+                            throw new IllegalArgumentException( new IllegalStateException( new ThreadDeath() ) );
+                        }
+                    } );
+                }
+            } ).getInstance( C.class );
+
+            fail( "Expected ThreadDeath" );
+        }
+        catch ( final ThreadDeath e )
         {
         }
 
