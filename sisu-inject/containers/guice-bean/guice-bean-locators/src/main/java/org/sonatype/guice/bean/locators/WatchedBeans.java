@@ -82,7 +82,11 @@ final class WatchedBeans<Q extends Annotation, T, W>
                 {
                     mediator.add( bean, watcher );
                 }
-                catch ( final Throwable e )
+                catch ( final Exception e )
+                {
+                    Logs.warn( "Problem adding: <> to: " + detail( watcher ), bean, e );
+                }
+                catch ( final LinkageError e )
                 {
                     Logs.warn( "Problem adding: <> to: " + detail( watcher ), bean, e );
                 }
@@ -102,7 +106,11 @@ final class WatchedBeans<Q extends Annotation, T, W>
                 {
                     mediator.remove( bean, watcher );
                 }
-                catch ( final Throwable e )
+                catch ( final Exception e )
+                {
+                    Logs.warn( "Problem removing: <> from: " + detail( watcher ), bean, e );
+                }
+                catch ( final LinkageError e )
                 {
                     Logs.warn( "Problem removing: <> from: " + detail( watcher ), bean, e );
                 }
