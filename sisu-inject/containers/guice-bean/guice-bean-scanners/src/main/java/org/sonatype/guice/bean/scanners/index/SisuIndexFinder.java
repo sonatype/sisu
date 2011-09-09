@@ -12,7 +12,6 @@
 package org.sonatype.guice.bean.scanners.index;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
@@ -93,7 +92,7 @@ public final class SisuIndexFinder
                     reader.close();
                 }
             }
-            catch ( final IOException e )
+            catch ( final Throwable e )
             {
                 Logs.warn( "Problem reading: {}", url, e );
             }

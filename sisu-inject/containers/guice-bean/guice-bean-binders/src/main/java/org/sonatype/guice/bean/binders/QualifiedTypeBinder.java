@@ -257,13 +257,12 @@ public final class QualifiedTypeBinder
             ctor.setAccessible( true );
             return ctor.newInstance();
         }
-        catch ( final Exception e )
+        catch ( final InvocationTargetException e )
         {
-            final Throwable cause = e instanceof InvocationTargetException ? e.getCause() : e;
-            binder.addError( "Error creating instance of: " + type + " reason: " + cause );
+            binder.addError( "Error creating instance of: " + type + " reason: " + e.getTargetException() );
             return null;
         }
-        catch ( final LinkageError e )
+        catch ( final Throwable e )
         {
             binder.addError( "Error creating instance of: " + type + " reason: " + e );
             return null;

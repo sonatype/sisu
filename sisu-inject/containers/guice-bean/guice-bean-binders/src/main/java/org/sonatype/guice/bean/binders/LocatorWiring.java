@@ -229,11 +229,7 @@ final class LocatorWiring
                 }
             }
         }
-        catch ( final RuntimeException e ) // NOPMD
-        {
-            // can safely ignore
-        }
-        catch ( final LinkageError e ) // NOPMD
+        catch ( final Throwable e ) // NOPMD
         {
             // can safely ignore
         }

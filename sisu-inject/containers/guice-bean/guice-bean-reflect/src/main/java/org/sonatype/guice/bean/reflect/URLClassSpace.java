@@ -100,11 +100,7 @@ public final class URLClassSpace
         {
             return loader.loadClass( name );
         }
-        catch ( final Exception e )
-        {
-            throw new TypeNotPresentException( name, e );
-        }
-        catch ( final LinkageError e )
+        catch ( final Throwable e )
         {
             throw new TypeNotPresentException( name, e );
         }

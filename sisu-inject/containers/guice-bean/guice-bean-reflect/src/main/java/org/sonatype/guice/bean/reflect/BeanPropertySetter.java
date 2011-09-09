@@ -76,12 +76,11 @@ final class BeanPropertySetter<T>
         {
             method.invoke( bean, value );
         }
-        catch ( final Exception e )
+        catch ( final InvocationTargetException e )
         {
-            final Throwable cause = e instanceof InvocationTargetException ? e.getCause() : e;
-            throw new ProvisionException( "Error injecting: " + method, cause );
+            throw new ProvisionException( "Error injecting: " + method, e.getTargetException() );
         }
-        catch ( final LinkageError e )
+        catch ( final Throwable e )
         {
             throw new ProvisionException( "Error injecting: " + method, e );
         }

@@ -189,7 +189,7 @@ final class ResourceEnumeration
                 // but still need to check resource actually exists!
                 Streams.open( findResource( nextEntryName ) ).close();
             }
-            catch ( final Exception e ) // IOException + RuntimeExceptions from NestedJarURLHandler
+            catch ( final Throwable e )
             {
                 nextEntryName = null;
             }

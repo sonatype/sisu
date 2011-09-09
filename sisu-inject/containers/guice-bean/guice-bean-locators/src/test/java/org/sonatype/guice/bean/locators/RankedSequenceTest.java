@@ -26,7 +26,7 @@ public class RankedSequenceTest
 {
     static final AtomicBoolean active = new AtomicBoolean( true );
 
-    static final List<Exception> errors = Collections.synchronizedList( new ArrayList<Exception>() );
+    static final List<Throwable> errors = Collections.synchronizedList( new ArrayList<Throwable>() );
 
     static final Random random = new Random( System.currentTimeMillis() );
 
@@ -183,7 +183,7 @@ public class RankedSequenceTest
             }
         }
 
-        for ( final Exception e : errors )
+        for ( final Throwable e : errors )
         {
             e.printStackTrace();
         }
@@ -231,7 +231,7 @@ public class RankedSequenceTest
                     Thread.yield();
                 }
             }
-            catch ( final Exception e )
+            catch ( final Throwable e )
             {
                 errors.add( e );
             }
@@ -261,7 +261,7 @@ public class RankedSequenceTest
                     Thread.yield();
                 }
             }
-            catch ( final Exception e )
+            catch ( final Throwable e )
             {
                 errors.add( e );
             }

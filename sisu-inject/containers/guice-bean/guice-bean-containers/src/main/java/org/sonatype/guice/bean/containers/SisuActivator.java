@@ -105,11 +105,7 @@ public final class SisuActivator
             {
                 new BundleInjector( bundle );
             }
-            catch ( final RuntimeException e )
-            {
-                Logs.warn( "Error starting {}", bundle, e );
-            }
-            catch ( final LinkageError e )
+            catch ( final Throwable e )
             {
                 Logs.warn( "Error starting {}", bundle, e );
             }

@@ -129,7 +129,7 @@ public abstract class AbstractSisuIndex
                 reader.close();
             }
         }
-        catch ( final IOException e ) // NOPMD
+        catch ( final Throwable e ) // NOPMD
         {
             // ignore missing files
         }
@@ -160,7 +160,7 @@ public abstract class AbstractSisuIndex
                 writer.close();
             }
         }
-        catch ( final IOException e )
+        catch ( final Throwable e )
         {
             warn( e.toString() );
         }

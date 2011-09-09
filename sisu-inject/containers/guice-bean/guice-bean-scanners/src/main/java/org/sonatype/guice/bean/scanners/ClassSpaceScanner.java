@@ -111,11 +111,7 @@ public final class ClassSpaceScanner
         {
             // ignore broken class constant pool in icu4j
         }
-        catch ( final Exception e )
-        {
-            Logs.debug( "Problem scanning: {}", url, e );
-        }
-        catch ( final LinkageError e )
+        catch ( final Throwable e )
         {
             Logs.debug( "Problem scanning: {}", url, e );
         }
@@ -133,19 +129,13 @@ public final class ClassSpaceScanner
                     Logs.warn( "Inconsistent ClassLoader for: {} in: {}", expectedClazz, space );
                     Logs.warn( "Expected: {} saw: {}", expectedClazz.getClassLoader(), spaceClazz.getClassLoader() );
                 }
-                continue;
             }
-            catch ( final RuntimeException e )
+            catch ( final Throwable e )
             {
-                // drop-through...
-            }
-            catch ( final LinkageError e )
-            {
-                // drop-through...
-            }
-            if ( expectedClazz.isAnnotation() )
-            {
-                Logs.debug( "Potential problem: {} is not visible from: {}", expectedClazz, space );
+                if ( expectedClazz.isAnnotation() )
+                {
+                    Logs.debug( "Potential problem: {} is not visible from: {}", expectedClazz, space );
+                }
             }
         }
         return true;

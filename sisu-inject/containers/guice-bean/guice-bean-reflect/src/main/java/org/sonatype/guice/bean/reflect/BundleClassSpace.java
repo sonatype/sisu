@@ -65,11 +65,7 @@ public final class BundleClassSpace
         {
             return bundle.loadClass( name );
         }
-        catch ( final Exception e )
-        {
-            throw new TypeNotPresentException( name, e );
-        }
-        catch ( final LinkageError e )
+        catch ( final Throwable e )
         {
             throw new TypeNotPresentException( name, e );
         }

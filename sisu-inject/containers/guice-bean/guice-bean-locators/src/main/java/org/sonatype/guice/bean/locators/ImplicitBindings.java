@@ -64,11 +64,7 @@ final class ImplicitBindings
                         return binding;
                     }
                 }
-                catch ( final RuntimeException e )
-                {
-                    continue; // no luck, move onto next injector
-                }
-                catch ( final LinkageError e )
+                catch ( final Throwable e )
                 {
                     continue; // no luck, move onto next injector
                 }
@@ -91,11 +87,7 @@ final class ImplicitBindings
                         return binding;
                     }
                 }
-                catch ( final RuntimeException e )
-                {
-                    continue; // no luck, move onto next injector
-                }
-                catch ( final LinkageError e )
+                catch ( final Throwable e )
                 {
                     continue; // no luck, move onto next injector
                 }

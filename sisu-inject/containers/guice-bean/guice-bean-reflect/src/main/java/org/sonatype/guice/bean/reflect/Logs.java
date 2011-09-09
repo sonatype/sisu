@@ -42,7 +42,7 @@ public final class Logs
             final String debug = System.getProperty( "org.sonatype.inject.debug", "false" );
             isDebug = "".equals( debug ) || "true".equalsIgnoreCase( debug );
         }
-        catch ( final RuntimeException e )
+        catch ( final Throwable e )
         {
             newLine = "\n";
             isDebug = false;
@@ -53,11 +53,7 @@ public final class Logs
         {
             sink = isDebug ? new ConsoleSink() : new SLF4JSink();
         }
-        catch ( final RuntimeException e )
-        {
-            sink = new JULSink();
-        }
-        catch ( final LinkageError e )
+        catch ( final Throwable e )
         {
             sink = new JULSink();
         }
@@ -212,13 +208,9 @@ public final class Logs
         {
             buf.append( detailed ? arg : identityToString( arg ) );
         }
-        catch ( final RuntimeException e )
+        catch ( final Throwable e )
         {
-            buf.append( identityToString( arg ) );
-        }
-        catch ( final LinkageError e )
-        {
-            buf.append( identityToString( arg ) );
+            buf.append( arg.getClass() );
         }
         cursor += 2;
         if ( cursor < format.length() )
