@@ -28,7 +28,6 @@ import org.sonatype.guice.bean.reflect.BeanProperty;
 import org.sonatype.guice.bean.reflect.Logs;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 
-import com.google.inject.ProvisionException;
 import com.google.inject.spi.ProvisionListener;
 
 /**
@@ -218,7 +217,7 @@ public final class PlexusLifecycleManager
         {
             return plexusLoggerManagerProvider.get().getLoggerForComponent( name, null );
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
         {
             return consoleLogger;
         }
@@ -231,7 +230,7 @@ public final class PlexusLifecycleManager
         {
             return ( (org.slf4j.ILoggerFactory) slf4jLoggerFactoryProvider.get() ).getLogger( name );
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
         {
             return org.slf4j.LoggerFactory.getLogger( name );
         }
@@ -319,13 +318,15 @@ public final class PlexusLifecycleManager
         }
         catch ( final Throwable e )
         {
-            final String message = "Error contextualizing: " + Logs.identityToString( bean );
-            warn( message, e );
-            if ( e instanceof RuntimeException )
+            Logs.catchThrowable( e );
+            try
             {
-                throw (RuntimeException) e;
+                getPlexusLogger( this ).warn( "Error contextualizing: " + Logs.identityToString( bean ), e );
             }
-            throw new ProvisionException( message, e );
+            finally
+            {
+                Logs.throwUnchecked( e );
+            }
         }
     }
 
@@ -338,13 +339,15 @@ public final class PlexusLifecycleManager
         }
         catch ( final Throwable e )
         {
-            final String message = "Error initializing: " + Logs.identityToString( bean );
-            warn( message, e );
-            if ( e instanceof RuntimeException )
+            Logs.catchThrowable( e );
+            try
             {
-                throw (RuntimeException) e;
+                getPlexusLogger( this ).warn( "Error initializing: " + Logs.identityToString( bean ), e );
             }
-            throw new ProvisionException( message, e );
+            finally
+            {
+                Logs.throwUnchecked( e );
+            }
         }
     }
 
@@ -357,16 +360,19 @@ public final class PlexusLifecycleManager
         }
         catch ( final Throwable e )
         {
-            final String message = "Error starting: " + Logs.identityToString( bean );
-            warn( message, e );
-            if ( e instanceof RuntimeException )
+            Logs.catchThrowable( e );
+            try
             {
-                throw (RuntimeException) e;
+                getPlexusLogger( this ).warn( "Error starting: " + Logs.identityToString( bean ), e );
             }
-            throw new ProvisionException( message, e );
+            finally
+            {
+                Logs.throwUnchecked( e );
+            }
         }
     }
 
+    @SuppressWarnings( "finally" )
     private void stop( final Startable bean )
     {
         Logs.debug( "Stop: <>", bean, null );
@@ -376,10 +382,19 @@ public final class PlexusLifecycleManager
         }
         catch ( final Throwable e )
         {
-            warn( "Problem stopping: " + Logs.identityToString( bean ), e );
+            Logs.catchThrowable( e );
+            try
+            {
+                getPlexusLogger( this ).warn( "Problem stopping: " + Logs.identityToString( bean ), e );
+            }
+            finally
+            {
+                return; // ignore any logging exceptions and continue with shutdown
+            }
         }
     }
 
+    @SuppressWarnings( "finally" )
     private void dispose( final Disposable bean )
     {
         Logs.debug( "Dispose: <>", bean, null );
@@ -389,20 +404,15 @@ public final class PlexusLifecycleManager
         }
         catch ( final Throwable e )
         {
-            warn( "Problem disposing: " + Logs.identityToString( bean ), e );
-        }
-    }
-
-    private void warn( final String message, final Throwable cause )
-    {
-        try
-        {
-            getPlexusLogger( this ).warn( message, cause );
-        }
-        catch ( final Throwable ignore )
-        {
-            System.err.println( message );
-            cause.printStackTrace();
+            Logs.catchThrowable( e );
+            try
+            {
+                getPlexusLogger( this ).warn( "Problem disposing: " + Logs.identityToString( bean ), e );
+            }
+            finally
+            {
+                return; // ignore any logging exceptions and continue with shutdown
+            }
         }
     }
 }

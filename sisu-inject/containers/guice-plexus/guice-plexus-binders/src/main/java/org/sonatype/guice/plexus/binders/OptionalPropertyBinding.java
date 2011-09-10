@@ -46,7 +46,7 @@ final class OptionalPropertyBinding<T>
         {
             property.set( bean, provider.get() );
         }
-        catch ( final Throwable e ) // NOPMD
+        catch ( final RuntimeException e ) // NOPMD
         {
             // binding is optional, ignore failures
         }

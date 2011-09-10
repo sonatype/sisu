@@ -64,7 +64,7 @@ final class ImplicitBindings
                         return binding;
                     }
                 }
-                catch ( final Throwable e )
+                catch ( final RuntimeException e )
                 {
                     continue; // no luck, move onto next injector
                 }
@@ -87,7 +87,7 @@ final class ImplicitBindings
                         return binding;
                     }
                 }
-                catch ( final Throwable e )
+                catch ( final RuntimeException e )
                 {
                     continue; // no luck, move onto next injector
                 }

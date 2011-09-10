@@ -252,7 +252,7 @@ public final class DefaultPlexusContainer
         {
             return locate( role, type, hint ).iterator().next().getValue();
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
         {
             throw new ComponentLookupException( e, null != type ? type.getName() : role, hint );
         }
@@ -450,7 +450,7 @@ public final class DefaultPlexusContainer
                 addPlexusInjector( beanModules, customModules );
             }
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
         {
             getLogger().warn( realm.toString(), e );
         }
@@ -707,9 +707,13 @@ public final class DefaultPlexusContainer
                     }
                 }
             }
-            catch ( final Throwable e ) // NOPMD
+            catch ( final Exception e )
             {
-                // continue...
+                // drop through...
+            }
+            catch ( final LinkageError e )
+            {
+                // drop through...
             }
         }
         return Collections.EMPTY_SET;

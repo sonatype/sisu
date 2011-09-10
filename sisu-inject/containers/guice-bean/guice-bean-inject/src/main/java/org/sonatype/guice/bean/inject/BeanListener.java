@@ -81,7 +81,7 @@ public final class BeanListener
                         visited.remove( name );
                     }
                 }
-                catch ( final Throwable e )
+                catch ( final RuntimeException e )
                 {
                     encounter.addError( new ProvisionException( "Error binding: " + property, e ) );
                 }

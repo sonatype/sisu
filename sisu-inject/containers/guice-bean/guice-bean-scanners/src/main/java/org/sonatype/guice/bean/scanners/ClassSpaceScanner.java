@@ -111,7 +111,7 @@ public final class ClassSpaceScanner
         {
             // ignore broken class constant pool in icu4j
         }
-        catch ( final Throwable e )
+        catch ( final Exception e )
         {
             Logs.debug( "Problem scanning: {}", url, e );
         }
@@ -130,7 +130,7 @@ public final class ClassSpaceScanner
                     Logs.warn( "Expected: {} saw: {}", expectedClazz.getClassLoader(), spaceClazz.getClassLoader() );
                 }
             }
-            catch ( final Throwable e )
+            catch ( final TypeNotPresentException e )
             {
                 if ( expectedClazz.isAnnotation() )
                 {

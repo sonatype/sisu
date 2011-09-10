@@ -192,7 +192,11 @@ public class ComponentDescriptor<T>
         {
             return classRealm.loadClass( getRole() );
         }
-        catch ( final Throwable e )
+        catch ( final Exception e )
+        {
+            throw new TypeNotPresentException( getRole(), e );
+        }
+        catch ( final LinkageError e )
         {
             throw new TypeNotPresentException( getRole(), e );
         }
@@ -232,7 +236,11 @@ public class ComponentDescriptor<T>
             {
                 implementationClass = classRealm.loadClass( implementation );
             }
-            catch ( final Throwable e ) // NOPMD
+            catch ( final Exception e )
+            {
+                throw new TypeNotPresentException( implementation, e );
+            }
+            catch ( final LinkageError e )
             {
                 throw new TypeNotPresentException( implementation, e );
             }

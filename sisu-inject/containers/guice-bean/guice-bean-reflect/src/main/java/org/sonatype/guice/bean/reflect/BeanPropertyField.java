@@ -72,7 +72,11 @@ final class BeanPropertyField<T>
         {
             field.set( bean, value );
         }
-        catch ( final Throwable e )
+        catch ( final Exception e )
+        {
+            throw new ProvisionException( "Error injecting: " + field, e );
+        }
+        catch ( final LinkageError e )
         {
             throw new ProvisionException( "Error injecting: " + field, e );
         }

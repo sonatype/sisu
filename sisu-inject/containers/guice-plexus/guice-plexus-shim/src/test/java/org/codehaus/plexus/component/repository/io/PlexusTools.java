@@ -114,7 +114,7 @@ public class PlexusTools
                 cd.setImplementation( implementation );
             }
         }
-        catch ( final Throwable e )
+        catch ( final Exception e )
         {
             throw new PlexusConfigurationException( "Can not load implementation class " + implementation
                 + " from realm " + realm, e );

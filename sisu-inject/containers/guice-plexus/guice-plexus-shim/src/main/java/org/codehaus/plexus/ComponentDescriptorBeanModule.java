@@ -63,7 +63,7 @@ final class ComponentDescriptorBeanModule
                 {
                     componentMap.put( component, new LoadedClass<Object>( cd.getImplementationClass() ) );
                 }
-                catch ( final Throwable e )
+                catch ( final TypeNotPresentException e )
                 {
                     componentMap.put( component, space.deferLoadClass( cd.getImplementation() ) );
                 }
@@ -159,7 +159,7 @@ final class ComponentDescriptorBeanModule
                 }
                 return o;
             }
-            catch ( final Throwable e )
+            catch ( final Exception e )
             {
                 throw new ProvisionException( "Error in ComponentFactory:" + hint, e );
             }

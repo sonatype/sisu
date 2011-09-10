@@ -150,7 +150,7 @@ public class ObjectWithFieldsConverter
             {
                 implementation = getClassForImplementationHint( null, childConfiguration, classLoader );
             }
-            catch ( final Throwable e )
+            catch ( final Exception e )
             {
                 implementation = null; // fall back to original behavior
             }

@@ -189,7 +189,7 @@ final class ResourceEnumeration
                 // but still need to check resource actually exists!
                 Streams.open( findResource( nextEntryName ) ).close();
             }
-            catch ( final Throwable e )
+            catch ( final Exception e ) // IOException + SecurityException + etc...
             {
                 nextEntryName = null;
             }

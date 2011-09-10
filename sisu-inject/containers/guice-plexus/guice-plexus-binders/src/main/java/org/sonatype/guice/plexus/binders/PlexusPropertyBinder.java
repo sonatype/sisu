@@ -36,7 +36,11 @@ final class PlexusPropertyBinder
             // support both old and new forms of @Requirement
             Requirement.class.getDeclaredMethod( "optional" );
         }
-        catch ( final Throwable e )
+        catch ( final Exception e )
+        {
+            optionalSupported = false;
+        }
+        catch ( final LinkageError e )
         {
             optionalSupported = false;
         }

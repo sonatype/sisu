@@ -136,7 +136,7 @@ final class LazyBeanEntry<Q extends Annotation, T>
         {
             buf.append( getValue() );
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
         {
             buf.append( e );
         }

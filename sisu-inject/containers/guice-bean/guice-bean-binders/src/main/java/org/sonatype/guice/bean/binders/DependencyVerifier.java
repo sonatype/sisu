@@ -69,7 +69,12 @@ final class DependencyVerifier
                 InjectionPoint.forInstanceMethodsAndFields( type );
                 InjectionPoint.forConstructorOf( type );
             }
-            catch ( final Throwable e )
+            catch ( final RuntimeException e )
+            {
+                Logs.debug( "Potential problem: {}", type, e );
+                return Boolean.FALSE;
+            }
+            catch ( final LinkageError e )
             {
                 Logs.debug( "Potential problem: {}", type, e );
                 return Boolean.FALSE;

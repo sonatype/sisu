@@ -155,7 +155,7 @@ final class DependencyAnalyzer
                 final Class<?> clazz = ( (DeferredProvider<?>) provider ).getImplementationClass().load();
                 analyzeImplementation( TypeLiteral.get( clazz ), false );
             }
-            catch ( final Throwable e ) // NOPMD
+            catch ( final TypeNotPresentException e ) // NOPMD
             {
                 // deferred provider, so we also defer any errors until someone actually tries to use it
             }
@@ -227,7 +227,15 @@ final class DependencyAnalyzer
                         applyBinding = Boolean.FALSE;
                     }
                 }
-                catch ( final Throwable e )
+                catch ( final RuntimeException e )
+                {
+                    if ( reportErrors )
+                    {
+                        Logs.debug( "Potential problem: {}", type, e );
+                    }
+                    applyBinding = Boolean.FALSE;
+                }
+                catch ( final LinkageError e )
                 {
                     if ( reportErrors )
                     {

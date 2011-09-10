@@ -18,6 +18,7 @@ import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.ProvisionException;
 import com.google.inject.spi.Element;
 import com.google.inject.spi.Elements;
 
@@ -42,7 +43,7 @@ public final class Logs
             final String debug = System.getProperty( "org.sonatype.inject.debug", "false" );
             isDebug = "".equals( debug ) || "true".equalsIgnoreCase( debug );
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
         {
             newLine = "\n";
             isDebug = false;
@@ -53,7 +54,11 @@ public final class Logs
         {
             sink = isDebug ? new ConsoleSink() : new SLF4JSink();
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
+        {
+            sink = new JULSink();
+        }
+        catch ( final LinkageError e )
         {
             sink = new JULSink();
         }
@@ -110,6 +115,40 @@ public final class Logs
     public static void warn( final String format, final Object arg1, final Object arg2 )
     {
         SINK.warn( format( format( format, arg1 ), arg2 ), arg2 instanceof Throwable ? (Throwable) arg2 : null );
+    }
+
+    /**
+     * Helper method for catching {@link Throwable}s; severe errors such as {@link ThreadDeath} are always re-thrown.
+     * 
+     * @param problem The problem
+     */
+    public static void catchThrowable( final Throwable problem )
+    {
+        for ( Throwable cause = problem; cause != null; cause = cause.getCause() )
+        {
+            if ( cause instanceof ThreadDeath || cause instanceof VirtualMachineError )
+            {
+                throw (Error) cause; // must immediately re-throw severe errors
+            }
+        }
+    }
+
+    /**
+     * Helper method for throwing {@link Throwable}s; checked exceptions are wrapped as {@link ProvisionException}s.
+     * 
+     * @param problem The problem
+     */
+    public static void throwUnchecked( final Throwable problem )
+    {
+        if ( problem instanceof RuntimeException )
+        {
+            throw (RuntimeException) problem;
+        }
+        if ( problem instanceof Error )
+        {
+            throw (Error) problem;
+        }
+        throw new ProvisionException( problem.toString(), problem );
     }
 
     /**
@@ -208,9 +247,9 @@ public final class Logs
         {
             buf.append( detailed ? arg : identityToString( arg ) );
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
         {
-            buf.append( arg.getClass() );
+            buf.append( e );
         }
         cursor += 2;
         if ( cursor < format.length() )

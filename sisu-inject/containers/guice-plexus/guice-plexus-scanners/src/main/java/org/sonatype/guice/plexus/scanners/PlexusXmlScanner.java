@@ -166,7 +166,7 @@ public final class PlexusXmlScanner
                 IOUtil.close( in );
             }
         }
-        catch ( final Throwable e )
+        catch ( final Exception e )
         {
             Logs.debug( "Problem parsing: {}", url, e );
         }
@@ -203,7 +203,7 @@ public final class PlexusXmlScanner
                 IOUtil.close( in );
             }
         }
-        catch ( final Throwable e )
+        catch ( final Exception e )
         {
             Logs.debug( "Problem parsing: {}", url, e );
         }

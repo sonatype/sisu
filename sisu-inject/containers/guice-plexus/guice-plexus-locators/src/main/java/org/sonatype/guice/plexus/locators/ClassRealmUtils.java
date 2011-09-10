@@ -30,7 +30,11 @@ public final class ClassRealmUtils
             // support both old and new forms of Plexus class realms
             ClassRealm.class.getDeclaredMethod( "getImportRealms" );
         }
-        catch ( final Throwable e )
+        catch ( final Exception e )
+        {
+            getImportRealmsSupported = false;
+        }
+        catch ( final LinkageError e )
         {
             getImportRealmsSupported = false;
         }

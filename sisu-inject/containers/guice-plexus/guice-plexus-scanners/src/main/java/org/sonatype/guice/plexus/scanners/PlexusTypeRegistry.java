@@ -189,7 +189,7 @@ final class PlexusTypeRegistry
         {
             return space.loadClass( role );
         }
-        catch ( final Throwable e )
+        catch ( final TypeNotPresentException e )
         {
             Logs.debug( "Ignoring Plexus role: {}", role, e );
         }

@@ -100,7 +100,7 @@ final class PseudoPlexusContainer
         {
             return locate( role, type, hint ).iterator().next().getValue();
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
         {
             throw new ComponentLookupException( e, null != role ? role : type.getName(), hint );
         }
@@ -287,9 +287,13 @@ final class PseudoPlexusContainer
                 return beans;
             }
         }
-        catch ( final Throwable e ) // NOPMD
+        catch ( final Exception e )
         {
-            // continue...
+            // drop through...
+        }
+        catch ( final LinkageError e )
+        {
+            // drop through...
         }
         return Collections.EMPTY_SET;
     }

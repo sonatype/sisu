@@ -14,7 +14,6 @@ package org.sonatype.guice.bean.reflect;
 import javax.inject.Inject;
 
 import com.google.inject.Injector;
-import com.google.inject.ProvisionException;
 
 /**
  * Abstract combination of {@link DeferredClass} and {@link DeferredProvider}.
@@ -38,7 +37,6 @@ abstract class AbstractDeferredClass<T>
         return this;
     }
 
-    @SuppressWarnings( "finally" )
     public final T get()
     {
         try
@@ -48,19 +46,17 @@ abstract class AbstractDeferredClass<T>
         }
         catch ( final Throwable e )
         {
+            Logs.catchThrowable( e );
             try
             {
                 Logs.warn( "Error injecting: {}", getName(), e );
             }
             finally
             {
-                if ( e instanceof RuntimeException )
-                {
-                    throw (RuntimeException) e;
-                }
-                throw new ProvisionException( "Error injecting: " + getName(), e );
+                Logs.throwUnchecked( e );
             }
         }
+        return null; // not used
     }
 
     public final DeferredClass<T> getImplementationClass()

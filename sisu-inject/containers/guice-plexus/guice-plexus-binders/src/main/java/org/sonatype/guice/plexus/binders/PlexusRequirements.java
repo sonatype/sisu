@@ -80,7 +80,7 @@ final class PlexusRequirements
 
             return new RequirementProvider( locatorProvider, roleType, hints );
         }
-        catch ( final Throwable e )
+        catch ( final RuntimeException e )
         {
             // defer until later...
             return new Provider<T>()
