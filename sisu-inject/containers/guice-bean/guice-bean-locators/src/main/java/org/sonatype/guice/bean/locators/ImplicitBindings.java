@@ -53,20 +53,13 @@ final class ImplicitBindings
         {
             if ( p instanceof InjectorPublisher )
             {
+                // first round: check for any re-written implicit bindings
                 final Injector i = ( (InjectorPublisher) p ).getInjector();
-                try
+                final Binding binding = i.getBindings().get( implicitKey );
+                if ( null != binding )
                 {
-                    // first round: check for any re-written implicit bindings
-                    final Binding binding = i.getBindings().get( implicitKey );
-                    if ( null != binding )
-                    {
-                        Logs.debug( "Using implicit binding: {} from: <>", binding, i );
-                        return binding;
-                    }
-                }
-                catch ( final RuntimeException e )
-                {
-                    continue; // no luck, move onto next injector
+                    Logs.debug( "Using implicit binding: {} from: <>", binding, i );
+                    return binding;
                 }
             }
         }
@@ -76,10 +69,10 @@ final class ImplicitBindings
         {
             if ( p instanceof InjectorPublisher )
             {
+                // second round: fall back to just-in-time binding lookup
                 final Injector i = ( (InjectorPublisher) p ).getInjector();
                 try
                 {
-                    // second round: fall back to just-in-time lookup
                     final Binding binding = i.getBinding( justInTimeKey );
                     if ( InjectorPublisher.isVisible( binding ) )
                     {
@@ -87,9 +80,13 @@ final class ImplicitBindings
                         return binding;
                     }
                 }
-                catch ( final RuntimeException e )
+                catch ( final RuntimeException e ) // NOPMD
                 {
-                    continue; // no luck, move onto next injector
+                    // no luck, move onto next injector
+                }
+                catch ( final LinkageError e ) // NOPMD
+                {
+                    // no luck, move onto next injector
                 }
             }
         }

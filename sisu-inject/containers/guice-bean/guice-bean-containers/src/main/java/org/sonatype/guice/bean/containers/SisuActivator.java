@@ -107,7 +107,7 @@ public final class SisuActivator
             }
             catch ( final RuntimeException e )
             {
-                Logs.warn( "Error starting: {}", bundle, e );
+                Logs.warn( "Problem starting: {}", bundle, e );
             }
         }
         return null;
