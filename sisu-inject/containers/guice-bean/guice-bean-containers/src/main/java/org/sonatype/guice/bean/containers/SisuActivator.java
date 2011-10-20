@@ -205,13 +205,16 @@ public final class SisuActivator
 
         private final Injector injector;
 
+        private final BundleContext extendedBundleContext;
+
         // ----------------------------------------------------------------------
         // Constructors
         // ----------------------------------------------------------------------
 
         BundleInjector( final Bundle bundle )
         {
-            properties = new BundleProperties( bundle.getBundleContext() );
+            extendedBundleContext = bundle.getBundleContext();
+            properties = new BundleProperties( extendedBundleContext );
 
             final ClassSpace space = new BundleClassSpace( bundle );
             final BeanScanning scanning = Main.selectScanning( properties );
@@ -220,7 +223,7 @@ public final class SisuActivator
 
             final Dictionary<Object, Object> metadata = new Hashtable<Object, Object>();
             metadata.put( Constants.SERVICE_PID, CONTAINER_SYMBOLIC_NAME );
-            bundle.getBundleContext().registerService( API, this, metadata );
+            extendedBundleContext.registerService( API, this, metadata );
         }
 
         // ----------------------------------------------------------------------
@@ -232,6 +235,7 @@ public final class SisuActivator
             binder.requestStaticInjection( SisuGuice.class );
             binder.bind( ParameterKeys.PROPERTIES ).toInstance( properties );
             binder.bind( MutableBeanLocator.class ).toInstance( locator );
+            binder.bind( BundleContext.class ).toInstance( extendedBundleContext );
         }
 
         public Injector getInjector()
