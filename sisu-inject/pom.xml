@@ -33,6 +33,8 @@
 
   <name>Sisu Inject</name>
 
+  <url>http://www.eclipse.org/sisu/</url>
+
   <scm>
     <connection>scm:git:git://git.eclipse.org/gitroot/sisu/org.eclipse.sisu.inject.git</connection>
     <developerConnection>scm:git:ssh://git.eclipse.org/gitroot/sisu/org.eclipse.sisu.inject.git</developerConnection>

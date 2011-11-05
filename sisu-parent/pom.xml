@@ -236,7 +236,7 @@
           <version>2.3.5</version>
           <configuration>
             <instructions>
-              <Bundle-DocURL>http://www.eclipse.org/sisu/</Bundle-DocURL>
+              <Bundle-DocURL>${project.url}</Bundle-DocURL>
               <Bundle-Copyright>
                 Copyright (c) 2010, 2011 Sonatype, Inc. and others
               </Bundle-Copyright>
@@ -258,6 +258,11 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>clirr-maven-plugin</artifactId>
           <version>2.3</version>
+          <configuration>
+            <excludes>
+              <exclude>**/internal/**</exclude>
+            </excludes>
+          </configuration>
           <executions>
             <execution>
               <id>check-api-compat</id>
