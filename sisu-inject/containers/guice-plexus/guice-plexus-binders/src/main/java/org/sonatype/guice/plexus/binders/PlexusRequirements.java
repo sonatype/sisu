@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.sonatype.guice.plexus.binders;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +74,7 @@ final class PlexusRequirements
             {
                 return new RequirementMapProvider( locatorProvider, roleType, hints );
             }
-            else if ( List.class == rawType )
+            else if ( List.class == rawType || Collection.class == rawType )
             {
                 return new RequirementListProvider( locatorProvider, roleType, hints );
             }

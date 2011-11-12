@@ -8,6 +8,7 @@
 package org.sonatype.guice.plexus.config;
 
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -80,7 +81,7 @@ public final class Roles
     public static TypeLiteral<?> roleType( final Requirement requirement, final TypeLiteral<?> asType )
     {
         final Type role = requirement.role();
-        if ( role != Object.class && role != Map.class && role != List.class )
+        if ( role != Object.class && role != Map.class && role != List.class && role != Collection.class )
         {
             return TypeLiteral.get( role );
         }
@@ -90,9 +91,9 @@ public final class Roles
             // Map<String, T> --> T
             return TypeParameters.get( asType, 1 );
         }
-        if ( List.class == rawType )
+        if ( List.class == rawType || Collection.class == rawType )
         {
-            // List<T> --> T
+            // List<T>|Collection<T> --> T
             return TypeParameters.get( asType, 0 );
         }
         return asType;

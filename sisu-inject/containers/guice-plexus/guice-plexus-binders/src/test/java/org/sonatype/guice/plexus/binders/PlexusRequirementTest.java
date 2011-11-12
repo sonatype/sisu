@@ -11,6 +11,7 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -202,6 +203,15 @@ public class PlexusRequirementTest
         @Requirement
         List<C> testEmptyList;
 
+        @Requirement( role = A.class )
+        Collection<?> testCollection;
+
+        @Requirement( hints = { "AC", "AA" } )
+        Collection<? extends A> testSubCollection;
+
+        @Requirement
+        Collection<C> testEmptyCollection;
+
         @Requirement
         B testWildcard;
 
@@ -376,6 +386,39 @@ public class PlexusRequirementTest
 
         // check ordering is same as hints
         final Iterator<? extends A> i = component.testSubList.iterator();
+        assertEquals( ACImpl.class, i.next().getClass() );
+        assertEquals( AAImpl.class, i.next().getClass() );
+        assertFalse( i.hasNext() );
+    }
+
+    public void testRequirementCollection()
+    {
+        assertEquals( 5, component.testCollection.size() );
+        assertEquals( 0, component.testEmptyCollection.size() );
+
+        // check ordering is same as original map-binder
+        final Iterator<?> i = component.testCollection.iterator();
+        assertEquals( AImpl.class, i.next().getClass() );
+        assertEquals( AAImpl.class, i.next().getClass() );
+        try
+        {
+            i.next();
+            fail( "Expected NoClassDefFoundError" );
+        }
+        catch ( final NoClassDefFoundError e )
+        {
+        }
+        assertEquals( ABImpl.class, i.next().getClass() );
+        assertEquals( ACImpl.class, i.next().getClass() );
+        assertFalse( i.hasNext() );
+    }
+
+    public void testRequirementSubCollection()
+    {
+        assertEquals( 2, component.testSubCollection.size() );
+
+        // check ordering is same as hints
+        final Iterator<? extends A> i = component.testSubCollection.iterator();
         assertEquals( ACImpl.class, i.next().getClass() );
         assertEquals( AAImpl.class, i.next().getClass() );
         assertFalse( i.hasNext() );
