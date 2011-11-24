@@ -2072,7 +2072,7 @@
 </method>
 </interface>
 <class name="DefaultBeanLocator"
- extends="java.lang.Object"
+ extends="java.util.concurrent.locks.ReentrantLock"
  abstract="false"
  static="false"
  final="true"
@@ -2099,7 +2099,7 @@
  deprecated="not deprecated"
  visibility="public"
 >
-<parameter name="injector" type="com.google.inject.Injector">
+<parameter name="publisher" type="org.sonatype.guice.bean.locators.spi.BindingPublisher">
 </parameter>
 <parameter name="rank" type="int">
 </parameter>
@@ -2114,7 +2114,7 @@
  deprecated="not deprecated"
  visibility="public"
 >
-<parameter name="publisher" type="org.sonatype.guice.bean.locators.spi.BindingPublisher">
+<parameter name="injector" type="com.google.inject.Injector">
 </parameter>
 <parameter name="rank" type="int">
 </parameter>
@@ -2153,7 +2153,7 @@
  deprecated="not deprecated"
  visibility="public"
 >
-<parameter name="injector" type="com.google.inject.Injector">
+<parameter name="publisher" type="org.sonatype.guice.bean.locators.spi.BindingPublisher">
 </parameter>
 </method>
 <method name="remove"
@@ -2166,7 +2166,7 @@
  deprecated="not deprecated"
  visibility="public"
 >
-<parameter name="publisher" type="org.sonatype.guice.bean.locators.spi.BindingPublisher">
+<parameter name="injector" type="com.google.inject.Injector">
 </parameter>
 </method>
 <method name="watch"
@@ -3136,6 +3136,19 @@
  deprecated="not deprecated"
  visibility="public"
 >
+<method name="catchThrowable"
+ return="void"
+ abstract="false"
+ native="false"
+ synchronized="false"
+ static="true"
+ final="false"
+ deprecated="not deprecated"
+ visibility="public"
+>
+<parameter name="problem" type="java.lang.Throwable">
+</parameter>
+</method>
 <method name="debug"
  return="void"
  abstract="false"
@@ -3164,6 +3177,19 @@
  visibility="public"
 >
 <parameter name="object" type="java.lang.Object">
+</parameter>
+</method>
+<method name="throwUnchecked"
+ return="void"
+ abstract="false"
+ native="false"
+ synchronized="false"
+ static="true"
+ final="false"
+ deprecated="not deprecated"
+ visibility="public"
+>
+<parameter name="problem" type="java.lang.Throwable">
 </parameter>
 </method>
 <method name="toString"
@@ -3239,7 +3265,7 @@
  visibility="public"
 >
 <method name="concurrentKeys"
- return="java.util.Map&lt;K, V&gt;"
+ return="java.util.concurrent.ConcurrentMap&lt;K, V&gt;"
  abstract="false"
  native="false"
  synchronized="false"
@@ -3250,7 +3276,7 @@
 >
 </method>
 <method name="concurrentKeys"
- return="java.util.Map&lt;K, V&gt;"
+ return="java.util.concurrent.ConcurrentMap&lt;K, V&gt;"
  abstract="false"
  native="false"
  synchronized="false"
@@ -3265,7 +3291,7 @@
 </parameter>
 </method>
 <method name="concurrentValues"
- return="java.util.Map&lt;K, V&gt;"
+ return="java.util.concurrent.ConcurrentMap&lt;K, V&gt;"
  abstract="false"
  native="false"
  synchronized="false"
@@ -3276,7 +3302,7 @@
 >
 </method>
 <method name="concurrentValues"
- return="java.util.Map&lt;K, V&gt;"
+ return="java.util.concurrent.ConcurrentMap&lt;K, V&gt;"
  abstract="false"
  native="false"
  synchronized="false"
@@ -3613,7 +3639,7 @@
  visibility="public"
 >
 <method name="concurrentKeys"
- return="java.util.Map&lt;K, V&gt;"
+ return="java.util.concurrent.ConcurrentMap&lt;K, V&gt;"
  abstract="false"
  native="false"
  synchronized="false"
@@ -3624,7 +3650,7 @@
 >
 </method>
 <method name="concurrentKeys"
- return="java.util.Map&lt;K, V&gt;"
+ return="java.util.concurrent.ConcurrentMap&lt;K, V&gt;"
  abstract="false"
  native="false"
  synchronized="false"
@@ -3639,7 +3665,7 @@
 </parameter>
 </method>
 <method name="concurrentValues"
- return="java.util.Map&lt;K, V&gt;"
+ return="java.util.concurrent.ConcurrentMap&lt;K, V&gt;"
  abstract="false"
  native="false"
  synchronized="false"
@@ -3650,7 +3676,7 @@
 >
 </method>
 <method name="concurrentValues"
- return="java.util.Map&lt;K, V&gt;"
+ return="java.util.concurrent.ConcurrentMap&lt;K, V&gt;"
  abstract="false"
  native="false"
  synchronized="false"
