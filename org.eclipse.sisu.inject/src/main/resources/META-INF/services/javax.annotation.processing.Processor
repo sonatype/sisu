@@ -1,1 +1,1 @@
-org.sonatype.guice.bean.scanners.index.SisuIndexAPT6
+org.eclipse.sisu.scanners.index.SisuIndexAPT6

@@ -41,6 +41,10 @@
     <url>http://www.eclipse.org/</url>
   </organization>
 
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
+
   <mailingLists>
     <mailingList>
       <name>Sisu Developers List</name>
@@ -147,11 +151,6 @@
         <artifactId>slf4j-api</artifactId>
         <version>1.6.0</version>
       </dependency>
-      <dependency>
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>1.0.0</version>
-      </dependency>
 
       <!-- Testing -->
 
@@ -195,6 +194,25 @@
           </executions>
         </plugin>
         <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>2.3.2</version>
+          <configuration>
+            <compilerId>eclipse</compilerId>
+          </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.eclipse.jdt.core.compiler</groupId>
+              <artifactId>ecj</artifactId>
+              <version>3.7.1</version>
+            </dependency>
+            <dependency>
+              <groupId>org.codehaus.plexus</groupId>
+              <artifactId>plexus-compiler-eclipse</artifactId>
+              <version>1.8.4</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>animal-sniffer-maven-plugin</artifactId>
           <version>1.7</version>
@@ -225,10 +243,22 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.12</version>
           <configuration>
+            <forkMode>always</forkMode>
             <systemPropertyVariables>
               <java.io.tmpdir>${project.build.directory}/surefire-tmp</java.io.tmpdir>
             </systemPropertyVariables>
+            <includes>
+              <include>**/*TestCase.java</include>
+              <include>**/*Test.java</include>
+            </includes>
           </configuration>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.maven.surefire</groupId>
+              <artifactId>surefire-junit4</artifactId>
+              <version>2.12</version>
+            </dependency>
+          </dependencies>
         </plugin>
         <plugin>
           <groupId>org.apache.felix</groupId>
@@ -296,5 +326,28 @@
       </plugins>
     </pluginManagement>
   </build>
+
+  <profiles>
+    <profile>
+      <id>m2e</id>
+      <activation>
+        <property>
+          <name>m2e.version</name>
+        </property>
+      </activation>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <artifactId>maven-compiler-plugin</artifactId>
+              <configuration>
+                <compilerId>javac</compilerId>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
