@@ -10,7 +10,7 @@
  * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
- *    Sonatype, Inc. - initial API and implementation
+ *   Sonatype, Inc. - initial API and implementation
  *******************************************************************************/
 package org.eclipse.sisu.locators.spi;
 

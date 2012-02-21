@@ -10,7 +10,7 @@
  * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
- *    Sonatype, Inc. - initial API and implementation
+ *   Sonatype, Inc. - initial API and implementation
  *******************************************************************************/
 /**
  * SPI for contributing {@link com.google.inject.Binding}s to the {@link org.eclipse.sisu.locators.MutableBeanLocator}.

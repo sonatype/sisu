@@ -10,7 +10,7 @@
  * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
- *    Sonatype, Inc. - initial API and implementation
+ *   Sonatype, Inc. - initial API and implementation
  *******************************************************************************/
 /**
  * Optional Sonatype extensions to <a href="http://jcp.org/en/jsr/detail?id=330">JSR330</a>.

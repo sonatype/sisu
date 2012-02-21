@@ -10,7 +10,7 @@
  * You may elect to redistribute this code under either of these licenses.
  *
  * Contributors:
- *    Sonatype, Inc. - initial API and implementation
+ *   Sonatype, Inc. - initial API and implementation
  *******************************************************************************/
 /**
  * <a href="http://asm.ow2.org/">ASM</a>-based bean scanning.
