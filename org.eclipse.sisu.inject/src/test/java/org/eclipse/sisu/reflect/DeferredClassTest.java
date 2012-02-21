@@ -19,13 +19,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.eclipse.sisu.reflect.ClassSpace;
-import org.eclipse.sisu.reflect.DeferredClass;
-import org.eclipse.sisu.reflect.DeferredProvider;
-import org.eclipse.sisu.reflect.LoadedClass;
-import org.eclipse.sisu.reflect.NamedClass;
-import org.eclipse.sisu.reflect.URLClassSpace;
-
 import junit.framework.TestCase;
 
 public class DeferredClassTest

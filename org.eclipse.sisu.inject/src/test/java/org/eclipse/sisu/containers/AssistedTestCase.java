@@ -19,7 +19,6 @@ import java.util.Properties;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.eclipse.sisu.containers.InjectedTestCase;
 import org.eclipse.sisu.locators.BeanLocator;
 
 import com.google.inject.Binder;

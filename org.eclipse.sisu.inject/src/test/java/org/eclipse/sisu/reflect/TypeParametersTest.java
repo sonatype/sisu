@@ -26,8 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import org.eclipse.sisu.reflect.TypeParameters;
-
 import junit.framework.TestCase;
 
 import com.google.inject.ImplementedBy;

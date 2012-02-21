@@ -20,8 +20,6 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.eclipse.sisu.containers.InjectedTestCase;
-
 import com.google.inject.name.Names;
 
 public final class ExampleTestCase

@@ -19,8 +19,6 @@ import java.util.Properties;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.eclipse.sisu.containers.InjectedTestCase;
-
 public final class Custom3TestCase
     extends InjectedTestCase
 {

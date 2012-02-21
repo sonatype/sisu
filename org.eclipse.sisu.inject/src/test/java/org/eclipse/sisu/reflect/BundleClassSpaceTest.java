@@ -27,9 +27,6 @@ import java.util.jar.Manifest;
 import junit.framework.TestCase;
 
 import org.apache.felix.framework.FrameworkFactory;
-import org.eclipse.sisu.reflect.BundleClassSpace;
-import org.eclipse.sisu.reflect.ClassSpace;
-import org.eclipse.sisu.reflect.DeferredClass;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;

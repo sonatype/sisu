@@ -16,8 +16,6 @@ package org.eclipse.sisu.converters;
 
 import java.io.File;
 
-import org.eclipse.sisu.converters.FileTypeConverter;
-
 import junit.framework.TestCase;
 
 import com.google.inject.AbstractModule;

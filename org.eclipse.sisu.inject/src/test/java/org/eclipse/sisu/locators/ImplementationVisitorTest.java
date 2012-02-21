@@ -18,7 +18,6 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 
-import org.eclipse.sisu.locators.ImplementationVisitor;
 import org.eclipse.sisu.locators.RankedBindingsTest.Bean;
 import org.eclipse.sisu.locators.RankedBindingsTest.BeanImpl;
 import org.eclipse.sisu.reflect.DeferredClass;

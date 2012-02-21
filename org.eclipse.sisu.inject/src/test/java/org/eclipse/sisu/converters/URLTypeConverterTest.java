@@ -16,8 +16,6 @@ package org.eclipse.sisu.converters;
 
 import java.net.URL;
 
-import org.eclipse.sisu.converters.URLTypeConverter;
-
 import junit.framework.TestCase;
 
 import com.google.inject.AbstractModule;

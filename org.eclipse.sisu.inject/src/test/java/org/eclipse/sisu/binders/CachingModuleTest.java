@@ -21,7 +21,6 @@ import javax.inject.Named;
 import junit.framework.TestCase;
 
 import org.eclipse.sisu.BeanScanning;
-import org.eclipse.sisu.binders.SpaceModule;
 import org.eclipse.sisu.reflect.ClassSpace;
 import org.eclipse.sisu.reflect.URLClassSpace;
 
@@ -45,7 +44,8 @@ public class CachingModuleTest
 
     public void testQualifiedModule()
     {
-        final ClassSpace space = new URLClassSpace( getClass().getClassLoader(), new URL[] { getClass().getResource( "" ) } );
+        final ClassSpace space =
+            new URLClassSpace( getClass().getClassLoader(), new URL[] { getClass().getResource( "" ) } );
 
         Guice.createInjector( new SpaceModule( space, BeanScanning.CACHE ) );
         Guice.createInjector( new SpaceModule( space, BeanScanning.CACHE ) );

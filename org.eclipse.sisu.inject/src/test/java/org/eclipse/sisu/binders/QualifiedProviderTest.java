@@ -24,7 +24,6 @@ import javax.inject.Provider;
 
 import junit.framework.TestCase;
 
-import org.eclipse.sisu.binders.SpaceModule;
 import org.eclipse.sisu.reflect.ClassSpace;
 import org.eclipse.sisu.reflect.URLClassSpace;
 
@@ -90,7 +89,8 @@ public class QualifiedProviderTest
 
     public void testQualifiedProvider()
     {
-        final ClassSpace space = new URLClassSpace( getClass().getClassLoader(), new URL[] { getClass().getResource( "" ) } );
+        final ClassSpace space =
+            new URLClassSpace( getClass().getClassLoader(), new URL[] { getClass().getResource( "" ) } );
         Guice.createInjector( new SpaceModule( space ) ).injectMembers( this );
 
         final Thread[] ts = new Thread[8];

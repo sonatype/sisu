@@ -26,9 +26,6 @@ import javax.inject.Qualifier;
 import junit.framework.TestCase;
 
 import org.eclipse.sisu.BeanEntry;
-import org.eclipse.sisu.locators.LocatedBeans;
-import org.eclipse.sisu.locators.QualifyingStrategy;
-import org.eclipse.sisu.locators.RankedBindings;
 import org.eclipse.sisu.locators.RankedBindingsTest.Bean;
 import org.eclipse.sisu.locators.RankedBindingsTest.BeanImpl;
 

@@ -33,8 +33,6 @@ import junit.framework.TestCase;
 import org.eclipse.sisu.BeanEntry;
 import org.eclipse.sisu.EagerSingleton;
 import org.eclipse.sisu.Mediator;
-import org.eclipse.sisu.binders.QualifiedTypeBinder;
-import org.eclipse.sisu.binders.SpaceModule;
 import org.eclipse.sisu.locators.BeanLocator;
 import org.eclipse.sisu.reflect.ClassSpace;
 import org.eclipse.sisu.reflect.URLClassSpace;
@@ -239,7 +237,8 @@ public class QualifiedTypesTest
     protected void setUp()
         throws Exception
     {
-        final ClassSpace space = new URLClassSpace( getClass().getClassLoader(), new URL[] { getClass().getResource( "" ) } );
+        final ClassSpace space =
+            new URLClassSpace( getClass().getClassLoader(), new URL[] { getClass().getResource( "" ) } );
         injector = Guice.createInjector( new SpaceModule( space ) );
         locator = injector.getInstance( BeanLocator.class );
 

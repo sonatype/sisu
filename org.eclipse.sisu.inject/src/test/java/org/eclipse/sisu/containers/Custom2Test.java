@@ -16,7 +16,6 @@ package org.eclipse.sisu.containers;
 
 import javax.inject.Inject;
 
-import org.eclipse.sisu.containers.InjectedTest;
 import org.testng.Assert;
 
 import com.google.inject.Binder;

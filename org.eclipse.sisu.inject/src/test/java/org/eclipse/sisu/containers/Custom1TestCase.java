@@ -16,8 +16,6 @@ package org.eclipse.sisu.containers;
 
 import javax.inject.Inject;
 
-import org.eclipse.sisu.containers.InjectedTestCase;
-
 import com.google.inject.Binder;
 
 public final class Custom1TestCase

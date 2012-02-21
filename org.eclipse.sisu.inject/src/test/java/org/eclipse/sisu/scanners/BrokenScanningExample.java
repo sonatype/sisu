@@ -21,15 +21,14 @@ import java.util.Enumeration;
 import org.eclipse.sisu.reflect.ClassSpace;
 import org.eclipse.sisu.reflect.DeferredClass;
 import org.eclipse.sisu.reflect.URLClassSpace;
-import org.eclipse.sisu.scanners.ClassSpaceScanner;
-import org.eclipse.sisu.scanners.QualifiedTypeVisitor;
 
 public class BrokenScanningExample
 {
     public BrokenScanningExample()
         throws MalformedURLException
     {
-        final ClassSpace space = new URLClassSpace( getClass().getClassLoader(), new URL[] { getClass().getResource( "" ) } );
+        final ClassSpace space =
+            new URLClassSpace( getClass().getClassLoader(), new URL[] { getClass().getResource( "" ) } );
 
         final URL badURL = new URL( "oops:bad/" );
         final ClassSpace brokenResourceSpace = new ClassSpace()

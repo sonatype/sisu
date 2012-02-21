@@ -28,7 +28,6 @@ import junit.framework.TestCase;
 import org.eclipse.sisu.BeanEntry;
 import org.eclipse.sisu.EagerSingleton;
 import org.eclipse.sisu.Mediator;
-import org.eclipse.sisu.binders.SpaceModule;
 import org.eclipse.sisu.locators.MutableBeanLocator;
 import org.eclipse.sisu.reflect.ClassSpace;
 import org.eclipse.sisu.reflect.URLClassSpace;
@@ -146,7 +145,8 @@ public class BeanWatcherTest
     protected void setUp()
         throws Exception
     {
-        final ClassSpace space = new URLClassSpace( getClass().getClassLoader(), new URL[] { getClass().getResource( "" ) } );
+        final ClassSpace space =
+            new URLClassSpace( getClass().getClassLoader(), new URL[] { getClass().getResource( "" ) } );
         Guice.createInjector( new SpaceModule( space ) ).injectMembers( this );
     }
 

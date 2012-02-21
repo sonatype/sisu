@@ -19,12 +19,6 @@ import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
 
-import org.eclipse.sisu.locators.DefaultRankingFunction;
-import org.eclipse.sisu.locators.ImplementationVisitor;
-import org.eclipse.sisu.locators.InjectorPublisher;
-import org.eclipse.sisu.locators.RankedBindings;
-import org.eclipse.sisu.locators.RankedSequence;
-import org.eclipse.sisu.locators.RankingFunction;
 import org.eclipse.sisu.locators.spi.BindingPublisher;
 
 import com.google.inject.AbstractModule;

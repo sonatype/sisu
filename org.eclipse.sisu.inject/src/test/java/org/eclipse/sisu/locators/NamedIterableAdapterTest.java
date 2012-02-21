@@ -19,9 +19,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.sisu.locators.EntryMapAdapter;
-import org.eclipse.sisu.locators.NamedIterableAdapter;
-
 import junit.framework.TestCase;
 
 import com.google.inject.name.Named;

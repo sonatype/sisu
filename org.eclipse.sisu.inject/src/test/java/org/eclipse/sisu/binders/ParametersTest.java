@@ -22,7 +22,6 @@ import javax.inject.Inject;
 import junit.framework.TestCase;
 
 import org.eclipse.sisu.Parameters;
-import org.eclipse.sisu.binders.WireModule;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;

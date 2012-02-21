@@ -34,10 +34,6 @@ import junit.framework.TestCase;
 
 import org.eclipse.sisu.BeanEntry;
 import org.eclipse.sisu.Nullable;
-import org.eclipse.sisu.binders.ChildWireModule;
-import org.eclipse.sisu.binders.LocatorWiring;
-import org.eclipse.sisu.binders.ParameterKeys;
-import org.eclipse.sisu.binders.WireModule;
 import org.eclipse.sisu.reflect.ClassSpace;
 import org.eclipse.sisu.reflect.TypeParameters;
 import org.eclipse.sisu.reflect.URLClassSpace;

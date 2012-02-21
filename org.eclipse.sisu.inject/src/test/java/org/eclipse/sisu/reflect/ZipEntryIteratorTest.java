@@ -19,8 +19,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 
-import org.eclipse.sisu.reflect.ZipEntryIterator;
-
 import junit.framework.TestCase;
 
 public class ZipEntryIteratorTest

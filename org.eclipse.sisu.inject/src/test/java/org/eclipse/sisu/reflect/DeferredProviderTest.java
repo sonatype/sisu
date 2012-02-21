@@ -16,13 +16,6 @@ package org.eclipse.sisu.reflect;
 
 import javax.inject.Inject;
 
-import org.eclipse.sisu.reflect.ClassSpace;
-import org.eclipse.sisu.reflect.DeferredClass;
-import org.eclipse.sisu.reflect.DeferredProvider;
-import org.eclipse.sisu.reflect.LoadedClass;
-import org.eclipse.sisu.reflect.NamedClass;
-import org.eclipse.sisu.reflect.URLClassSpace;
-
 import junit.framework.TestCase;
 
 import com.google.inject.AbstractModule;

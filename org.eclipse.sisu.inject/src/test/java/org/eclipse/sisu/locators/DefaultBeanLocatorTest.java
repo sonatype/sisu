@@ -20,13 +20,6 @@ import java.util.NoSuchElementException;
 
 import junit.framework.TestCase;
 
-import org.eclipse.sisu.locators.BeanLocator;
-import org.eclipse.sisu.locators.DefaultBeanLocator;
-import org.eclipse.sisu.locators.DefaultRankingFunction;
-import org.eclipse.sisu.locators.HiddenBinding;
-import org.eclipse.sisu.locators.InjectorPublisher;
-import org.eclipse.sisu.locators.MutableBeanLocator;
-import org.eclipse.sisu.locators.RankingFunction;
 import org.eclipse.sisu.locators.RankedBindingsTest.Bean;
 import org.eclipse.sisu.locators.RankedBindingsTest.BeanImpl;
 import org.eclipse.sisu.locators.RankedBindingsTest.BeanImpl2;

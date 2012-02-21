@@ -31,12 +31,6 @@ import java.util.NoSuchElementException;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.eclipse.sisu.reflect.BeanProperties;
-import org.eclipse.sisu.reflect.BeanProperty;
-import org.eclipse.sisu.reflect.BeanPropertyField;
-import org.eclipse.sisu.reflect.BeanPropertySetter;
-import org.eclipse.sisu.reflect.IgnoreSetters;
-
 import junit.framework.TestCase;
 
 import com.google.inject.TypeLiteral;

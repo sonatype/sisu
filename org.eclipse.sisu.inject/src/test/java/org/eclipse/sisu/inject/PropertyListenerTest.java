@@ -16,10 +16,6 @@ package org.eclipse.sisu.inject;
 
 import junit.framework.TestCase;
 
-import org.eclipse.sisu.inject.BeanBinder;
-import org.eclipse.sisu.inject.BeanListener;
-import org.eclipse.sisu.inject.PropertyBinder;
-import org.eclipse.sisu.inject.PropertyBinding;
 import org.eclipse.sisu.reflect.BeanProperty;
 
 import com.google.inject.AbstractModule;

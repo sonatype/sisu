@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.eclipse.sisu.reflect.MildKeys;
-
 import junit.framework.TestCase;
 
 public class MildKeysTest

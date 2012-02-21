@@ -17,8 +17,6 @@ package org.eclipse.sisu.locators;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.sisu.locators.EntryMapAdapter;
-
 import junit.framework.TestCase;
 
 public class EntryMapAdapterTest

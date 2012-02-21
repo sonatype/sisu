@@ -21,8 +21,6 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
-import org.eclipse.sisu.reflect.ResourceEnumeration;
-
 import junit.framework.TestCase;
 
 public class ResourceEnumerationTest

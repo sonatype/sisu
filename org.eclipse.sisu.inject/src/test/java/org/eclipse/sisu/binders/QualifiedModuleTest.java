@@ -20,7 +20,6 @@ import javax.inject.Inject;
 
 import junit.framework.TestCase;
 
-import org.eclipse.sisu.binders.SpaceModule;
 import org.eclipse.sisu.reflect.ClassSpace;
 import org.eclipse.sisu.reflect.URLClassSpace;
 
@@ -51,7 +50,8 @@ public class QualifiedModuleTest
 
     public void testQualifiedModule()
     {
-        final ClassSpace space = new URLClassSpace( getClass().getClassLoader(), new URL[] { getClass().getResource( "" ) } );
+        final ClassSpace space =
+            new URLClassSpace( getClass().getClassLoader(), new URL[] { getClass().getResource( "" ) } );
         Guice.createInjector( new SpaceModule( space ) ).injectMembers( this );
         assertEquals( surroundingSpace, space );
         assertEquals( "CustomValue", value );

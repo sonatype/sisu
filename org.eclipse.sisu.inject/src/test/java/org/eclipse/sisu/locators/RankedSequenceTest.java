@@ -22,8 +22,6 @@ import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.eclipse.sisu.locators.RankedSequence;
-
 import junit.framework.TestCase;
 
 public class RankedSequenceTest

@@ -26,9 +26,6 @@ import java.util.jar.Manifest;
 
 import junit.framework.TestCase;
 
-import org.eclipse.sisu.reflect.ClassSpace;
-import org.eclipse.sisu.reflect.DeferredClass;
-import org.eclipse.sisu.reflect.URLClassSpace;
 import org.eclipse.sisu.reflect.oops.Handler;
 
 public class URLClassSpaceTest

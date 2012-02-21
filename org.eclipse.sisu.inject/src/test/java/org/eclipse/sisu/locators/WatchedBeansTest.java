@@ -22,9 +22,6 @@ import junit.framework.TestCase;
 
 import org.eclipse.sisu.BeanEntry;
 import org.eclipse.sisu.Mediator;
-import org.eclipse.sisu.locators.DefaultBeanLocator;
-import org.eclipse.sisu.locators.MutableBeanLocator;
-import org.eclipse.sisu.locators.RankedSequence;
 import org.eclipse.sisu.locators.LocatedBeansTest.Marked;
 import org.eclipse.sisu.locators.RankedBindingsTest.Bean;
 import org.eclipse.sisu.locators.RankedBindingsTest.BeanImpl;

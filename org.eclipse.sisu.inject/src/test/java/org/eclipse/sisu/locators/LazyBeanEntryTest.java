@@ -20,8 +20,6 @@ import java.util.Map.Entry;
 import junit.framework.TestCase;
 
 import org.eclipse.sisu.Description;
-import org.eclipse.sisu.locators.BeanDescription;
-import org.eclipse.sisu.locators.LazyBeanEntry;
 import org.eclipse.sisu.locators.RankedBindingsTest.Bean;
 import org.eclipse.sisu.locators.RankedBindingsTest.BeanImpl;
 

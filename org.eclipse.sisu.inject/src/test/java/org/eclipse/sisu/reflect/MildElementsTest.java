@@ -22,8 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.eclipse.sisu.reflect.MildElements;
-
 import junit.framework.TestCase;
 
 public class MildElementsTest

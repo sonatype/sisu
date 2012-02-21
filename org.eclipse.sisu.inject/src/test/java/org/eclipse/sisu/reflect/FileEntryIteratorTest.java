@@ -30,8 +30,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.eclipse.sisu.reflect.FileEntryIterator;
-
 import junit.framework.TestCase;
 
 public class FileEntryIteratorTest

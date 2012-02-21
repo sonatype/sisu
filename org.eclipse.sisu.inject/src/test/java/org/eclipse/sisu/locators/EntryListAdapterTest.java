@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
-import org.eclipse.sisu.locators.EntryListAdapter;
-
 import junit.framework.TestCase;
 
 public class EntryListAdapterTest

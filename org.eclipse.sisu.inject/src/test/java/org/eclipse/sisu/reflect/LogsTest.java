@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
-import org.eclipse.sisu.reflect.Logs;
 import org.slf4j.LoggerFactory;
 
 public class LogsTest
