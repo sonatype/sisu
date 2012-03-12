@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Sonatype, Inc. - initial API and implementation
+ *    Stuart McCulloch (Sonatype, Inc.) - initial API and implementation
  *******************************************************************************/
 /**
  * Optional Sonatype extensions to <a href="http://jcp.org/en/jsr/detail?id=330">JSR330</a>.

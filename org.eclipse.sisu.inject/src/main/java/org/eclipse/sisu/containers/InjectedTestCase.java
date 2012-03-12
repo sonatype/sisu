@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Sonatype, Inc. - initial API and implementation
+ *    Stuart McCulloch (Sonatype, Inc.) - initial API and implementation
  *******************************************************************************/
 package org.eclipse.sisu.containers;
 
