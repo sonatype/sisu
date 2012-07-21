@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.sonatype.guice.bean.reflect.BeanProperty;
+import org.eclipse.sisu.reflect.BeanProperty;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 
 /**

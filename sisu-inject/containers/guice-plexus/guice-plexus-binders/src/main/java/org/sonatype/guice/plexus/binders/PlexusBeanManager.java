@@ -7,8 +7,8 @@
  *******************************************************************************/
 package org.sonatype.guice.plexus.binders;
 
-import org.sonatype.guice.bean.inject.PropertyBinding;
-import org.sonatype.guice.bean.reflect.BeanProperty;
+import org.eclipse.sisu.inject.PropertyBinding;
+import org.eclipse.sisu.reflect.BeanProperty;
 
 /**
  * Service that manages the lifecycle of Plexus beans.

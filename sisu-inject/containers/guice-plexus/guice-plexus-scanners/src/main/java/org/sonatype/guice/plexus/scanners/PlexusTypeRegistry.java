@@ -16,10 +16,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.reflect.Logs;
-import org.sonatype.guice.bean.reflect.URLClassSpace;
+import org.eclipse.sisu.reflect.ClassSpace;
+import org.eclipse.sisu.reflect.DeferredClass;
+import org.eclipse.sisu.reflect.Logs;
+import org.eclipse.sisu.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.annotations.ComponentImpl;
 import org.sonatype.guice.plexus.config.Hints;
 import org.sonatype.guice.plexus.config.Roles;

@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.reflect.DeferredClass;
+import org.eclipse.sisu.reflect.ClassSpace;
+import org.eclipse.sisu.reflect.DeferredClass;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;

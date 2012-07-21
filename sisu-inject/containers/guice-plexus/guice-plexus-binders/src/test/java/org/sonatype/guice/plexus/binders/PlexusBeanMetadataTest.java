@@ -14,10 +14,10 @@ import junit.framework.TestCase;
 
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.sonatype.guice.bean.inject.PropertyBinding;
-import org.sonatype.guice.bean.reflect.BeanProperty;
-import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.reflect.URLClassSpace;
+import org.eclipse.sisu.inject.PropertyBinding;
+import org.eclipse.sisu.reflect.BeanProperty;
+import org.eclipse.sisu.reflect.DeferredClass;
+import org.eclipse.sisu.reflect.URLClassSpace;
 import org.sonatype.guice.plexus.annotations.ConfigurationImpl;
 import org.sonatype.guice.plexus.annotations.RequirementImpl;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;

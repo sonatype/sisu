@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.codehaus.plexus.logging;
 
-import org.sonatype.guice.bean.reflect.IgnoreSetters;
+import org.eclipse.sisu.reflect.IgnoreSetters;
 import org.sonatype.guice.plexus.config.Hints;
 
 @IgnoreSetters

@@ -10,7 +10,7 @@ package org.sonatype.guice.plexus.binders;
 import javax.inject.Provider;
 
 import org.codehaus.plexus.component.annotations.Configuration;
-import org.sonatype.guice.bean.reflect.BeanProperty;
+import org.eclipse.sisu.reflect.BeanProperty;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 
 import com.google.inject.TypeLiteral;

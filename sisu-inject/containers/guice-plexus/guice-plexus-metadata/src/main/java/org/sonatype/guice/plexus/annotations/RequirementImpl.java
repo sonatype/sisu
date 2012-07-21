@@ -12,8 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.reflect.LoadedClass;
+import org.eclipse.sisu.reflect.DeferredClass;
+import org.eclipse.sisu.reflect.LoadedClass;
 import org.sonatype.guice.plexus.config.Hints;
 
 /**

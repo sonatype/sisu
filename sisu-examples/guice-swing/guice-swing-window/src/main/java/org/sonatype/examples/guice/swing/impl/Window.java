@@ -19,7 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-import org.sonatype.inject.EagerSingleton;
+import org.eclipse.sisu.EagerSingleton;
 
 @EagerSingleton
 @Named( "default" )

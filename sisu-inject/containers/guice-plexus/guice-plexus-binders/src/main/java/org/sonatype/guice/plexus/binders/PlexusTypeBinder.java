@@ -10,10 +10,10 @@ package org.sonatype.guice.plexus.binders;
 import java.lang.annotation.Annotation;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.sonatype.guice.bean.binders.QualifiedTypeBinder;
-import org.sonatype.guice.bean.locators.BeanDescription;
-import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
+import org.eclipse.sisu.binders.QualifiedTypeBinder;
+import org.eclipse.sisu.locators.BeanDescription;
+import org.eclipse.sisu.reflect.DeferredClass;
+import org.eclipse.sisu.scanners.QualifiedTypeListener;
 import org.sonatype.guice.plexus.config.Roles;
 import org.sonatype.guice.plexus.config.Strategies;
 import org.sonatype.guice.plexus.scanners.PlexusTypeListener;

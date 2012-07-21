@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.sonatype.guice.plexus.config.PlexusBean;
-import org.sonatype.inject.BeanEntry;
+import org.eclipse.sisu.BeanEntry;
 
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Named;

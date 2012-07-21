@@ -41,24 +41,8 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-bean-reflect</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-bean-inject</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-bean-scanners</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-bean-locators</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-bean-binders</artifactId>
+      <groupId>org.eclipse.sisu</groupId>
+      <artifactId>org.eclipse.sisu.inject</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonatype.sisu.inject</groupId>

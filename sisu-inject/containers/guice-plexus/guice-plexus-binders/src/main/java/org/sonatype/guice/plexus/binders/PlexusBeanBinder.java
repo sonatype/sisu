@@ -9,8 +9,8 @@ package org.sonatype.guice.plexus.binders;
 
 import java.util.List;
 
-import org.sonatype.guice.bean.inject.BeanBinder;
-import org.sonatype.guice.bean.inject.PropertyBinder;
+import org.eclipse.sisu.inject.BeanBinder;
+import org.eclipse.sisu.inject.PropertyBinder;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 

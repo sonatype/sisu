@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.sonatype.guice.bean.reflect.TypeParameters;
+import org.eclipse.sisu.reflect.TypeParameters;
 
 import com.google.inject.Key;
 import com.google.inject.ProvisionException;

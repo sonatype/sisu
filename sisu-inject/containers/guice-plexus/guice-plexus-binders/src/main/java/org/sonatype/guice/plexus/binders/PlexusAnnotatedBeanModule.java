@@ -10,15 +10,15 @@ package org.sonatype.guice.plexus.binders;
 import java.util.Map;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.sonatype.guice.bean.binders.SpaceModule;
-import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.scanners.ClassSpaceVisitor;
+import org.eclipse.sisu.binders.SpaceModule;
+import org.eclipse.sisu.reflect.ClassSpace;
+import org.eclipse.sisu.scanners.ClassSpaceVisitor;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
 import org.sonatype.guice.plexus.scanners.PlexusAnnotatedMetadata;
 import org.sonatype.guice.plexus.scanners.PlexusTypeVisitor;
-import org.sonatype.inject.BeanScanning;
+import org.eclipse.sisu.BeanScanning;
 
 import com.google.inject.Binder;
 

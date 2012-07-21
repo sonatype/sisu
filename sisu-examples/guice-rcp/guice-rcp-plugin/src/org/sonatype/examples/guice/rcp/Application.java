@@ -22,7 +22,7 @@ import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
-import org.sonatype.inject.Sisu;
+import org.eclipse.sisu.Sisu;
 
 /**
  * This class controls all aspects of the application's execution

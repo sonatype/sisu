@@ -11,9 +11,9 @@ import javax.inject.Provider;
 
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.sonatype.guice.bean.inject.PropertyBinder;
-import org.sonatype.guice.bean.inject.PropertyBinding;
-import org.sonatype.guice.bean.reflect.BeanProperty;
+import org.eclipse.sisu.inject.PropertyBinder;
+import org.eclipse.sisu.inject.PropertyBinding;
+import org.eclipse.sisu.reflect.BeanProperty;
 import org.sonatype.guice.plexus.config.PlexusBeanMetadata;
 
 import com.google.inject.spi.TypeEncounter;

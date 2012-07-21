@@ -17,7 +17,7 @@ import org.codehaus.plexus.context.Context;
 import org.codehaus.plexus.context.ContextMapAdapter;
 import org.codehaus.plexus.context.DefaultContext;
 import org.codehaus.plexus.logging.LoggerManager;
-import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.eclipse.sisu.reflect.ClassSpace;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 import org.sonatype.guice.plexus.binders.PlexusBindingModule;
 import org.sonatype.guice.plexus.binders.PlexusXmlBeanModule;
@@ -27,7 +27,7 @@ import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 import org.sonatype.guice.plexus.lifecycles.PlexusLifecycleManager;
 import org.sonatype.guice.plexus.locators.DefaultPlexusBeanLocator;
-import org.sonatype.inject.Parameters;
+import org.eclipse.sisu.Parameters;
 
 import com.google.inject.Binder;
 import com.google.inject.Module;

@@ -32,8 +32,8 @@
       <artifactId>sisu-guice</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-bean-reflect</artifactId>
+      <groupId>org.eclipse.sisu</groupId>
+      <artifactId>org.eclipse.sisu.inject</artifactId>
     </dependency>
   </dependencies>
 

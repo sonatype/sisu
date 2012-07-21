@@ -23,9 +23,9 @@ import org.codehaus.plexus.personality.plexus.lifecycle.phase.Contextualizable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Disposable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Initializable;
 import org.codehaus.plexus.personality.plexus.lifecycle.phase.Startable;
-import org.sonatype.guice.bean.inject.PropertyBinding;
-import org.sonatype.guice.bean.reflect.BeanProperty;
-import org.sonatype.guice.bean.reflect.Logs;
+import org.eclipse.sisu.inject.PropertyBinding;
+import org.eclipse.sisu.reflect.BeanProperty;
+import org.eclipse.sisu.reflect.Logs;
 import org.sonatype.guice.plexus.binders.PlexusBeanManager;
 
 import com.google.inject.spi.ProvisionListener;

@@ -9,8 +9,8 @@ package org.sonatype.guice.plexus.binders;
 
 import javax.inject.Provider;
 
-import org.sonatype.guice.bean.inject.PropertyBinding;
-import org.sonatype.guice.bean.reflect.BeanProperty;
+import org.eclipse.sisu.inject.PropertyBinding;
+import org.eclipse.sisu.reflect.BeanProperty;
 
 /**
  * Represents a {@link BeanProperty} bound to a {@link Provider}.

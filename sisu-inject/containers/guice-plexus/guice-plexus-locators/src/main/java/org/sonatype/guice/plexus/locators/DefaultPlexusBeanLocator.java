@@ -10,10 +10,10 @@ package org.sonatype.guice.plexus.locators;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.sonatype.guice.bean.locators.BeanLocator;
+import org.eclipse.sisu.locators.BeanLocator;
 import org.sonatype.guice.plexus.config.PlexusBean;
 import org.sonatype.guice.plexus.config.PlexusBeanLocator;
-import org.sonatype.inject.BeanEntry;
+import org.eclipse.sisu.BeanEntry;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;

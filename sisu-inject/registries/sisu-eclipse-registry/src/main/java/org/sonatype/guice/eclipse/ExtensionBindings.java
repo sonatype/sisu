@@ -24,10 +24,10 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.RegistryFactory;
 import org.osgi.framework.Bundle;
-import org.sonatype.guice.bean.locators.MutableBeanLocator;
-import org.sonatype.guice.bean.locators.spi.BindingPublisher;
-import org.sonatype.guice.bean.locators.spi.BindingSubscriber;
-import org.sonatype.inject.EagerSingleton;
+import org.eclipse.sisu.locators.MutableBeanLocator;
+import org.eclipse.sisu.locators.spi.BindingPublisher;
+import org.eclipse.sisu.locators.spi.BindingSubscriber;
+import org.eclipse.sisu.EagerSingleton;
 
 import com.google.inject.Binder;
 import com.google.inject.Binding;

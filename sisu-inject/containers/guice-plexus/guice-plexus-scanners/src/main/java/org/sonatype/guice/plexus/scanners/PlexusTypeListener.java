@@ -8,8 +8,8 @@
 package org.sonatype.guice.plexus.scanners;
 
 import org.codehaus.plexus.component.annotations.Component;
-import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
+import org.eclipse.sisu.reflect.DeferredClass;
+import org.eclipse.sisu.scanners.QualifiedTypeListener;
 
 /**
  * {@link QualifiedTypeListener} that also listens for Plexus components.

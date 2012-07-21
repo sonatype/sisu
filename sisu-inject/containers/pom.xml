@@ -30,7 +30,6 @@
   <name>Sisu-Inject : Containers</name>
 
   <modules>
-    <module>guice-bean</module>
     <module>guice-plexus</module>
   </modules>
 

@@ -22,10 +22,10 @@ import javax.inject.Singleton;
 import org.codehaus.plexus.util.xml.pull.MXParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParser;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.sonatype.guice.bean.reflect.BeanProperties;
-import org.sonatype.guice.bean.reflect.BeanProperty;
-import org.sonatype.guice.bean.reflect.Logs;
-import org.sonatype.guice.bean.reflect.TypeParameters;
+import org.eclipse.sisu.reflect.BeanProperties;
+import org.eclipse.sisu.reflect.BeanProperty;
+import org.eclipse.sisu.reflect.Logs;
+import org.eclipse.sisu.reflect.TypeParameters;
 import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 import org.sonatype.guice.plexus.config.Roles;
 

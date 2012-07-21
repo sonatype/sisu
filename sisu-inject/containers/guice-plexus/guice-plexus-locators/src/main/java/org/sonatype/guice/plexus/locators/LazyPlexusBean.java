@@ -10,7 +10,7 @@ package org.sonatype.guice.plexus.locators;
 import java.util.Map.Entry;
 
 import org.sonatype.guice.plexus.config.PlexusBean;
-import org.sonatype.inject.BeanEntry;
+import org.eclipse.sisu.BeanEntry;
 
 import com.google.inject.name.Named;
 

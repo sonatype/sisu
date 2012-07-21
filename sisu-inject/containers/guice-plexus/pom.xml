@@ -13,9 +13,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <relativePath>../guice-bean</relativePath>
     <groupId>org.sonatype.sisu.inject</groupId>
-    <artifactId>guice-bean</artifactId>
+    <artifactId>containers</artifactId>
     <version>2.3.1-SNAPSHOT</version>
   </parent>
 

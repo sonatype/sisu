@@ -7,8 +7,8 @@
  *******************************************************************************/
 package org.sonatype.guice.plexus.scanners;
 
-import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.reflect.URLClassSpace;
+import org.eclipse.sisu.reflect.ClassSpace;
+import org.eclipse.sisu.reflect.URLClassSpace;
 
 public class SimpleScanningExample
 {

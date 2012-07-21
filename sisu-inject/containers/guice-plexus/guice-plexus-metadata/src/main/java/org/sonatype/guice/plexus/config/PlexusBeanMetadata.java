@@ -9,7 +9,7 @@ package org.sonatype.guice.plexus.config;
 
 import org.codehaus.plexus.component.annotations.Configuration;
 import org.codehaus.plexus.component.annotations.Requirement;
-import org.sonatype.guice.bean.reflect.BeanProperty;
+import org.eclipse.sisu.reflect.BeanProperty;
 
 /**
  * Supplies metadata associated with a particular Plexus bean implementation.

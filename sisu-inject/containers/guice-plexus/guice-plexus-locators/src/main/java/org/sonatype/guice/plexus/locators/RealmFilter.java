@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.sonatype.inject.BeanEntry;
+import org.eclipse.sisu.BeanEntry;
 
 import com.google.inject.name.Named;
 
