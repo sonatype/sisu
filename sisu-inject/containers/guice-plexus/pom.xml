@@ -25,12 +25,6 @@
   <name>Sisu-Inject : Containers : Plexus</name>
 
   <modules>
-    <module>guice-plexus-metadata</module>
-    <module>guice-plexus-scanners</module>
-    <module>guice-plexus-converters</module>
-    <module>guice-plexus-locators</module>
-    <module>guice-plexus-binders</module>
-    <module>guice-plexus-lifecycles</module>
     <module>guice-plexus-shim</module>
     <module>sisu-inject-plexus</module>
   </modules>
@@ -63,43 +57,14 @@
       </dependency>
 
       <dependency>
-        <groupId>org.sonatype.sisu.inject</groupId>
-        <artifactId>guice-plexus-metadata</artifactId>
+        <groupId>org.eclipse.sisu</groupId>
+        <artifactId>org.eclipse.sisu.plexus</artifactId>
         <version>${project.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.sonatype.sisu.inject</groupId>
-        <artifactId>guice-plexus-scanners</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.sisu.inject</groupId>
-        <artifactId>guice-plexus-converters</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.sisu.inject</groupId>
-        <artifactId>guice-plexus-locators</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.sisu.inject</groupId>
-        <artifactId>guice-plexus-binders</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.sisu.inject</groupId>
-        <artifactId>guice-plexus-lifecycles</artifactId>
-        <version>${project.version}</version>
-      </dependency>
+
       <dependency>
         <groupId>org.sonatype.sisu.inject</groupId>
         <artifactId>guice-plexus-shim</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonatype.sisu.inject</groupId>
-        <artifactId>guice-plexus-tck</artifactId>
         <version>${project.version}</version>
       </dependency>
 

@@ -41,28 +41,16 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.eclipse.sisu</groupId>
       <artifactId>org.eclipse.sisu.inject</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-plexus-metadata</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-plexus-converters</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-plexus-locators</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-plexus-binders</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-plexus-lifecycles</artifactId>
+      <groupId>org.eclipse.sisu</groupId>
+      <artifactId>org.eclipse.sisu.plexus</artifactId>
     </dependency>
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
