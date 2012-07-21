@@ -7,7 +7,7 @@
  *******************************************************************************/
 package org.codehaus.plexus;
 
-import org.sonatype.guice.plexus.config.Hints;
+import org.eclipse.sisu.plexus.config.Hints;
 
 public interface PlexusConstants
 {

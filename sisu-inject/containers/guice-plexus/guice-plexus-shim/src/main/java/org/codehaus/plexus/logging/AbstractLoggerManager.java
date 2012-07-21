@@ -8,7 +8,7 @@
 package org.codehaus.plexus.logging;
 
 import org.eclipse.sisu.reflect.IgnoreSetters;
-import org.sonatype.guice.plexus.config.Hints;
+import org.eclipse.sisu.plexus.config.Hints;
 
 @IgnoreSetters
 public abstract class AbstractLoggerManager

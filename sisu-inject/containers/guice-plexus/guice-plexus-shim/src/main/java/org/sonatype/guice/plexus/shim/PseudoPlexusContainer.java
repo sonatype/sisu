@@ -22,10 +22,10 @@ import org.codehaus.plexus.component.repository.exception.ComponentLookupExcepti
 import org.codehaus.plexus.context.Context;
 import org.eclipse.sisu.locators.EntryListAdapter;
 import org.eclipse.sisu.locators.EntryMapAdapter;
-import org.sonatype.guice.plexus.binders.PlexusBeanManager;
-import org.sonatype.guice.plexus.config.Hints;
-import org.sonatype.guice.plexus.config.PlexusBean;
-import org.sonatype.guice.plexus.config.PlexusBeanLocator;
+import org.eclipse.sisu.plexus.binders.PlexusBeanManager;
+import org.eclipse.sisu.plexus.config.Hints;
+import org.eclipse.sisu.plexus.config.PlexusBean;
+import org.eclipse.sisu.plexus.config.PlexusBeanLocator;
 
 import com.google.inject.TypeLiteral;
 
