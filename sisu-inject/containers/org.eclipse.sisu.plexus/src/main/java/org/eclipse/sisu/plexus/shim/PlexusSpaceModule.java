@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at
  *   http://www.eclipse.org/legal/epl-v10.html
  *******************************************************************************/
-package org.sonatype.guice.plexus.shim;
+package org.eclipse.sisu.plexus.shim;
 
 import java.util.Map;
 
