@@ -30,7 +30,6 @@
   <name>Sisu-Inject : Containers</name>
 
   <modules>
-    <module>org.eclipse.sisu.plexus</module>
     <module>guice-plexus</module>
   </modules>
 

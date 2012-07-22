@@ -90,6 +90,7 @@
   </licenses>
 
   <modules>
+    <module>CQs/sisu-plexus</module>
     <module>sisu-inject</module>
   </modules>
 
