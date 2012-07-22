@@ -104,18 +104,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.google.inject</groupId>
-      <artifactId>guice</artifactId>
-      <version>3.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>asm</groupId>
-      <artifactId>asm</artifactId>
-      <version>3.3.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.eclipse.sisu</groupId>
       <artifactId>org.eclipse.sisu.inject</artifactId>
       <version>${project.version}</version>
