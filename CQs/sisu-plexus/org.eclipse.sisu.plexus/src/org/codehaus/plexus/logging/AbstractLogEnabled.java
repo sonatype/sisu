@@ -48,6 +48,7 @@ public abstract class AbstractLogEnabled
         setupLogger( component, logger.getChildLogger( category ) );
     }
 
+    @SuppressWarnings( "static-method" )
     protected final void setupLogger( final Object component, final Logger logger )
     {
         if ( component instanceof LogEnabled )
