@@ -25,6 +25,12 @@
 
   <build>
     <testSourceDirectory>src</testSourceDirectory>
+    <testResources>
+      <testResource>
+        <directory>${basedir}/META-INF/plexus</directory>
+        <targetPath>META-INF/plexus</targetPath>
+      </testResource>
+    </testResources>
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -36,6 +42,50 @@
             <version>2.12</version>
           </dependency>
         </dependencies>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-old-annotations</id>
+            <phase>process-test-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.codehaus.plexus</groupId>
+                  <artifactId>plexus-component-annotations</artifactId>
+                  <version>1.2.1</version>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>remove-missing-class</id>
+            <phase>process-test-classes</phase>
+            <goals>
+              <goal>clean</goal>
+            </goals>
+            <configuration>
+              <excludeDefaultDirectories>true</excludeDefaultDirectories>
+              <filesets>
+                <fileset>
+                  <directory>${project.build.testOutputDirectory}</directory>
+                  <includes>
+                    <include>**/*MissingClass.class</include>
+                  </includes>
+                </fileset>
+              </filesets>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -78,5 +128,52 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>m2e</id>
+      <activation>
+        <property>
+          <name>m2e.version</name>
+        </property>
+      </activation>
+      <build>
+        <!-- ignore some test-specific plugin executions that aren't covered by m2e -->
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.eclipse.m2e</groupId>
+              <artifactId>lifecycle-mapping</artifactId>
+              <version>1.0.0</version>
+              <configuration>
+                <lifecycleMappingMetadata>
+                  <pluginExecutions>
+                    <pluginExecution>
+                      <pluginExecutionFilter>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <versionRange>[2.2,)</versionRange>
+                        <goals><goal>copy</goal></goals>
+                      </pluginExecutionFilter>
+                      <action><ignore /></action>
+                    </pluginExecution>
+                    <pluginExecution>
+                      <pluginExecutionFilter>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <versionRange>[2.4.1,)</versionRange>
+                        <goals><goal>clean</goal></goals>
+                      </pluginExecutionFilter>
+                      <action><ignore /></action>
+                    </pluginExecution>
+                  </pluginExecutions>
+                </lifecycleMappingMetadata>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
