@@ -14,39 +14,66 @@
 
   <parent>
     <groupId>org.sonatype.sisu.inject</groupId>
-    <artifactId>guice-plexus</artifactId>
+    <artifactId>containers</artifactId>
     <version>2.3.1-SNAPSHOT</version>
   </parent>
 
   <packaging>bundle</packaging>
 
   <groupId>org.sonatype.sisu</groupId>
-  <artifactId>sisu-inject-plexus</artifactId>
+  <artifactId>sisu-inject-bean</artifactId>
 
-  <name>Sisu-Inject-Plexus : Aggregate OSGi bundle</name>
+  <name>Sisu-Inject-Bean : Aggregate OSGi bundle</name>
+
+  <licenses>
+    <license>
+      <name>Eclipse Public License, Version 1.0</name>
+      <url>http://www.eclipse.org/legal/epl-v10.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <dependencies>
     <!-- external dependencies -->
     <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-component-annotations</artifactId>
+      <groupId>org.sonatype.sisu</groupId>
+      <artifactId>sisu-guice</artifactId>
+      <classifier>no_aop</classifier>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.inject</groupId>
+          <artifactId>javax.inject</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>aopalliance</groupId>
+          <artifactId>aopalliance</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <!-- embedded dependencies -->
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-classworlds</artifactId>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-utils</artifactId>
+      <groupId>aopalliance</groupId>
+      <artifactId>aopalliance</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.eclipse.sisu</groupId>
       <artifactId>org.eclipse.sisu.inject</artifactId>
-    </dependency>
-    <!-- embedded dependencies -->
-    <dependency>
-      <groupId>org.sonatype.sisu.inject</groupId>
-      <artifactId>guice-plexus-shim</artifactId>
       <optional>true</optional>
     </dependency>
     <!-- optional dependencies -->
@@ -56,8 +83,23 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
       <optional>true</optional>
     </dependency>
   </dependencies>
@@ -69,39 +111,42 @@
         <artifactId>maven-bundle-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
-          <excludeDependencies>
-            <!-- external dependencies -->
-            *;groupId=org.codehaus.plexus
-          </excludeDependencies>
           <instructions>
+            <Main-Class>
+              org.eclipse.sisu.containers.Main
+            </Main-Class>
             <Bundle-SymbolicName>
-              org.sonatype.inject.plexus;singleton:=true
+              org.sonatype.inject;singleton:=true
             </Bundle-SymbolicName>
+            <Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
+            <Bundle-Activator>
+              org.eclipse.sisu.containers.SisuActivator
+            </Bundle-Activator>
             <DynamicImport-Package>
               org.slf4j
             </DynamicImport-Package>
             <Export-Package>
-              <!-- our Plexus shim API -->
-              org.codehaus.plexus.*;-split-package:=merge-first,
+              <!-- provide these APIs as a convenience -->
+              javax.inject;javax.enterprise.inject;version=1,
+              org.aopalliance.aop;org.aopalliance.intercept;version=1,
+              <!-- our JRS330 extension API -->
+              org.eclipse.sisu;-split-package:=merge-first;version=${project.version},
               <!-- our implementation APIs -->
-              org.eclipse.sisu.plexus.*;x-internal:=true;version=${project.version}
+              org.objectweb.asm;org.eclipse.sisu.*;x-internal:=true;version=${project.version}
             </Export-Package>
             <Require-Bundle>
               org.sonatype.sisu.guava,
-              org.sonatype.sisu.guice,
-              org.eclipse.sisu.inject
+              org.sonatype.sisu.guice
             </Require-Bundle>
             <Import-Package>
-              <!-- Plexus APIs -->
-              org.codehaus.*,
+              <!-- these APIs are substitutable -->
+              javax.inject;javax.enterprise.inject,
+              org.aopalliance.aop;org.aopalliance.intercept,
               <!-- available via Require-Bundle -->
-              !com.google.*,!org.eclipse.sisu.*,
+              !com.google.*,
               <!-- optional generated imports -->
               *;resolution:=optional
             </Import-Package>
-            <Private-Package>
-              META-INF.plexus
-            </Private-Package>
           </instructions>
         </configuration>
       </plugin>
@@ -131,9 +176,10 @@
                   <classifier>sources</classifier>
                   <failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
                   <outputDirectory>${project.build.directory}/aggregate-sources</outputDirectory>
-                  <excludeGroupIds>org.codehaus.plexus</excludeGroupIds>
                   <includes>
-                    org/codehaus/plexus/**,org/eclipse/sisu/plexus/**
+                    javax/inject/*,javax/enterprise/inject/*,
+                    org/aopalliance/aop/*,org/aopalliance/intercept/*,
+                    org/eclipse/sisu/**
                   </includes>
                 </configuration>
               </execution>
@@ -180,8 +226,18 @@
       </activation>
       <dependencies>
         <dependency>
-          <groupId>org.sonatype.sisu.inject</groupId>
-          <artifactId>guice-plexus-shim</artifactId>
+          <groupId>javax.inject</groupId>
+          <artifactId>javax.inject</artifactId>
+          <optional>false</optional>
+        </dependency>
+        <dependency>
+          <groupId>aopalliance</groupId>
+          <artifactId>aopalliance</artifactId>
+          <optional>false</optional>
+        </dependency>
+        <dependency>
+          <groupId>org.eclipse.sisu</groupId>
+          <artifactId>org.eclipse.sisu.inject</artifactId>
           <optional>false</optional>
         </dependency>
       </dependencies>

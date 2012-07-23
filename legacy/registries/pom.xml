@@ -25,12 +25,45 @@
   <packaging>pom</packaging>
 
   <groupId>org.sonatype.sisu.inject</groupId>
-  <artifactId>containers</artifactId>
+  <artifactId>registries</artifactId>
 
-  <name>Sisu-Inject : Containers</name>
+  <name>Sisu-Inject : Registries</name>
 
   <modules>
-    <module>guice-plexus</module>
+    <module>sisu-eclipse-registry</module>
   </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.sonatype.sisu</groupId>
+      <artifactId>sisu-guice</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>asm</groupId>
+      <artifactId>asm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.sisu</groupId>
+      <artifactId>org.eclipse.sisu.inject</artifactId>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <configuration>
+                <skip>true</skip>
+              </configuration>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+  </profiles>
 
 </project>

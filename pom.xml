@@ -91,7 +91,7 @@
 
   <modules>
     <module>CQs/sisu-plexus</module>
-    <module>sisu-inject</module>
+    <module>legacy</module>
   </modules>
 
   <properties>
