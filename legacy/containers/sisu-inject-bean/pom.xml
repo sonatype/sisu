@@ -147,6 +147,9 @@
               <!-- optional generated imports -->
               *;resolution:=optional
             </Import-Package>
+            <Private-Package>
+              META-INF.services
+            </Private-Package>
           </instructions>
         </configuration>
       </plugin>
