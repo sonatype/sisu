@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    Stuart McCulloch (Sonatype, Inc.) - initial API and implementation
+ *    Stuart McCulloch (Sonatype, Inc.) - initial implementation
  *******************************************************************************/
 package org.codehaus.plexus.component.composition;
 
