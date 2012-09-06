@@ -1,4 +1,5 @@
-The Sisu project has moved to Eclipse!
+* The Sisu project has moved to Eclipse! *
+==========================================
 
 Homepage
 ========
