@@ -15,6 +15,7 @@ Issue Tracker
 Mailing Lists
 =============
 <http://dev.eclipse.org/mhonarc/lists/sisu-users/>
+
 <http://dev.eclipse.org/mhonarc/lists/sisu-dev/>
 
 Development
