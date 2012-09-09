@@ -46,7 +46,7 @@ public final class Main
         static void launch()
             throws Exception
         {
-            final Class<?> mainClazz = Class.forName( "org.sonatype.guice.bean.containers.Main" );
+            final Class<?> mainClazz = Class.forName( "org.eclipse.sisu.containers.Main" );
             mainClazz.getMethod( "main", String[].class ).invoke( null, (Object) new String[0] );
         }
     }

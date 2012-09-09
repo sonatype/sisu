@@ -16,8 +16,8 @@ import javax.inject.Singleton;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.sonatype.inject.BeanEntry;
-import org.sonatype.inject.Mediator;
+import org.eclipse.sisu.BeanEntry;
+import org.eclipse.sisu.Mediator;
 
 @Named
 @Singleton

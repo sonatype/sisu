@@ -40,12 +40,12 @@
   
   <dependencies>
     <dependency>
-      <groupId>org.sonatype.sisu</groupId>
-      <artifactId>sisu-inject-bean</artifactId>
+      <groupId>org.eclipse.sisu</groupId>
+      <artifactId>org.eclipse.sisu.inject</artifactId>
     </dependency>
     <dependency>
       <groupId>org.sonatype.sisu</groupId>
-      <artifactId>sisu-inject-eclipse</artifactId>
+      <artifactId>sisu-eclipse-registry</artifactId>
     </dependency>
   </dependencies>
 
@@ -89,7 +89,12 @@
   <repositories>
     <repository>
       <id>helios</id>
-      <url>http://download.eclipse.org/eclipse/updates/3.6</url>
+      <url>http://download.eclipse.org/eclipse/updates/3.6/</url>
+      <layout>p2</layout>
+    </repository>
+    <repository>
+      <id>orbit</id>
+      <url>http://download.eclipse.org/tools/orbit/downloads/drops/R20120526062928/repository/</url>
       <layout>p2</layout>
     </repository>
   </repositories>

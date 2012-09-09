@@ -1,7 +1,0 @@
-<plexus>
-
-  <load-on-start>
-    <component/>
-  </load-on-start>
-
-</plexus>

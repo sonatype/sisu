@@ -1,23 +1,23 @@
+* The Sisu project has moved to Eclipse! *
+==========================================
+
 Homepage
 ========
-<http://sisu.sonatype.org/>
+<http://eclipse.org/sisu>
 
 Wiki
 ====
-<https://docs.sonatype.org/display/SISU/Home>
+<http://wiki.eclipse.org/Sisu>
 
 Issue Tracker
 =============
-<https://issues.sonatype.org/browse/SISU>
+<https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Sisu&format=guided>
 
 Mailing Lists
 =============
-- Development of sisu:  
-  <sisu-dev@sonatype.org> to post mails  
-  <sisu-dev-subscribe@sonatype.org> to subscribe to the list
-- Usage of sisu:  
-  <sisu-user@sonatype.org> to post mails  
-  <sisu-user-subscribe@sonatype.org> to subscribe to the list
+<http://dev.eclipse.org/mhonarc/lists/sisu-users/>
+
+<http://dev.eclipse.org/mhonarc/lists/sisu-dev/>
 
 Development
 ===========
@@ -25,6 +25,6 @@ Source code uses the Maven code style: <http://maven.apache.org/developers/maven
 
 License
 =======
-[Apache License, v2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
+The Eclipse Sisu bundles are licensed under the [Eclipse Public License, v1.0](http://www.eclipse.org/legal/epl-v10.html)
 
-[Eclipse Public License, v1.0](http://www.eclipse.org/legal/epl-v10.html)
+This repository contains some additional legacy Plexus components (configurator support) licensed under the [Apache License, v2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)

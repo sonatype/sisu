@@ -16,10 +16,9 @@
    </vm>
 
    <plugins>
-      <plugin id="org.sonatype.sisu.guava"/>
       <plugin id="org.sonatype.sisu.guice"/>
       <plugin id="org.sonatype.inject.eclipse"/>
-      <plugin id="org.sonatype.inject"/>
+      <plugin id="org.eclipse.sisu.inject"/>
       <plugin id="guice-rcp"/>
       <plugin id="com.ibm.icu"/>
       <plugin id="org.eclipse.core.commands"/>
@@ -48,7 +47,7 @@
    </plugins>
 
    <configurations>
-      <plugin id="org.sonatype.inject" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.sisu.inject" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.app" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="0" />
