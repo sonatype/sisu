@@ -107,13 +107,6 @@
             </goals>
             <configuration>
               <outputDirectory>${project.build.directory}/aggregate-sources</outputDirectory>
-              <includes>
-                org/eclipse/sisu/**,
-                org/objectweb/asm/*.java
-              </includes>
-              <excludes>
-                org/objectweb/asm/*Adapter.java
-              </excludes>
               <artifactItems>
                 <artifactItem>
                   <groupId>org.eclipse.sisu</groupId>
@@ -124,6 +117,8 @@
                   <groupId>asm</groupId>
                   <artifactId>asm-all</artifactId>
                   <classifier>sources</classifier>
+                  <includes>org/objectweb/asm/*.java</includes>
+                  <excludes>org/objectweb/asm/*Adapter.java</excludes>
                 </artifactItem>
               </artifactItems>
             </configuration>
