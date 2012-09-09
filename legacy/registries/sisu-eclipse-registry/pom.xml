@@ -49,7 +49,7 @@
               org.sonatype.inject.eclipse
             </Bundle-SymbolicName>
             <Fragment-Host>
-              org.eclipse.sisu.inject
+              org.sonatype.inject
             </Fragment-Host>
             <Export-Package />
             <Require-Bundle>org.eclipse.equinox.registry</Require-Bundle>
