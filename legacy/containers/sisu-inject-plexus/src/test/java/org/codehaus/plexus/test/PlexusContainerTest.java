@@ -44,8 +44,8 @@ import org.codehaus.plexus.test.list.ValveThree;
 import org.codehaus.plexus.test.list.ValveTwo;
 import org.codehaus.plexus.test.map.Activity;
 import org.codehaus.plexus.test.map.ActivityManager;
-import org.eclipse.sisu.plexus.config.PlexusBeanConverter;
-import org.eclipse.sisu.plexus.converters.PlexusXmlBeanConverter;
+import org.sonatype.guice.plexus.config.PlexusBeanConverter;
+import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
