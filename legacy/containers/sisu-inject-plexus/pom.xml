@@ -114,9 +114,8 @@
               org.eclipse.sisu.plexus.*;x-internal:=true;version=${project.version}
             </Export-Package>
             <Require-Bundle>
-              org.sonatype.sisu.guava,
               org.sonatype.sisu.guice,
-              org.eclipse.sisu.inject
+              org.sonatype.inject
             </Require-Bundle>
             <Import-Package>
               <!-- Plexus APIs -->

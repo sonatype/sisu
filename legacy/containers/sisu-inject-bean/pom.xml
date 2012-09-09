@@ -135,7 +135,6 @@
               org.objectweb.asm;org.eclipse.sisu.*;x-internal:=true;version=${project.version}
             </Export-Package>
             <Require-Bundle>
-              org.sonatype.sisu.guava,
               org.sonatype.sisu.guice
             </Require-Bundle>
             <Import-Package>

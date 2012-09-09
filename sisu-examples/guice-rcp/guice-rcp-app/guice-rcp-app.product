@@ -16,7 +16,6 @@
    </vm>
 
    <plugins>
-      <plugin id="org.sonatype.sisu.guava"/>
       <plugin id="org.sonatype.sisu.guice"/>
       <plugin id="org.sonatype.inject.eclipse"/>
       <plugin id="org.eclipse.sisu.inject"/>
