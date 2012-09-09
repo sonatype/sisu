@@ -66,16 +66,6 @@
       <artifactId>aopalliance</artifactId>
       <optional>true</optional>
     </dependency>
-    <dependency>
-      <groupId>asm</groupId>
-      <artifactId>asm</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.sisu</groupId>
-      <artifactId>org.eclipse.sisu.inject</artifactId>
-      <optional>true</optional>
-    </dependency>
     <!-- optional dependencies -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -107,20 +97,111 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-aggregate-sources</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/aggregate-sources</outputDirectory>
+              <includes>
+                org/eclipse/sisu/**,
+                org/objectweb/asm/*.java
+              </includes>
+              <excludes>
+                org/objectweb/asm/*Adapter.java
+              </excludes>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.eclipse.sisu</groupId>
+                  <artifactId>org.eclipse.sisu.inject</artifactId>
+                  <classifier>sources</classifier>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>asm</groupId>
+                  <artifactId>asm-all</artifactId>
+                  <classifier>sources</classifier>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <configuration>
+              <target>
+                <property name="target" value="${project.build.directory}"/>
+                <property name="src" value="${target}/aggregate-sources"/>
+                <replace dir="${src}">
+                  <replacefilter token="eclipse.sisu;" value="sonatype.inject;"/>
+                  <replacefilter token="eclipse.sisu.BeanEntry" value="sonatype.inject.BeanEntry"/>
+                  <replacefilter token="eclipse.sisu.BeanScanning" value="sonatype.inject.BeanScanning"/>
+                  <replacefilter token="eclipse.sisu.Description" value="sonatype.inject.Description"/>
+                  <replacefilter token="eclipse.sisu.EagerSingleton" value="sonatype.inject.EagerSingleton"/>
+                  <replacefilter token="eclipse.sisu.Mediator" value="sonatype.inject.Mediator"/>
+                  <replacefilter token="eclipse.sisu.Nullable" value="sonatype.inject.Nullable"/>
+                  <replacefilter token="eclipse.sisu.Parameters" value="sonatype.inject.Parameters"/>
+                  <replacefilter token="eclipse.sisu.Sisu" value="sonatype.inject.Sisu"/>
+                  <replacefilter token="eclipse.sisu" value="sonatype.guice.bean"/>
+                  <replacefilter token="objectweb.asm" value="sonatype.guice.bean.scanners.asm"/>
+                </replace>
+                <move todir="${src}/org/sonatype/inject">
+                  <fileset dir="${src}/org/eclipse/sisu">
+                    <include name="*.java"/>
+                  </fileset>
+                </move>
+                <move tofile="${src}/org/sonatype/guice/bean" file="${src}/org/eclipse/sisu"/>
+                <move todir="${src}/org/sonatype/guice/bean/scanners" file="${src}/org/objectweb/asm"/>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <id>add-aggregate-sources</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/aggregate-sources</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
           <instructions>
             <Main-Class>
-              org.eclipse.sisu.containers.Main
+              org.sonatype.guice.bean.containers.Main
             </Main-Class>
             <Bundle-SymbolicName>
               org.sonatype.inject;singleton:=true
             </Bundle-SymbolicName>
             <Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
             <Bundle-Activator>
-              org.eclipse.sisu.containers.SisuActivator
+              org.sonatype.guice.bean.containers.SisuActivator
             </Bundle-Activator>
             <DynamicImport-Package>
               org.slf4j
@@ -130,10 +211,13 @@
               javax.inject;javax.enterprise.inject;version=1,
               org.aopalliance.aop;org.aopalliance.intercept;version=1,
               <!-- our JRS330 extension API -->
-              org.eclipse.sisu;-split-package:=merge-first;version=${project.version},
+              org.sonatype.inject;-split-package:=merge-first;version=${project.version},
               <!-- our implementation APIs -->
-              org.objectweb.asm;org.eclipse.sisu.*;x-internal:=true;version=${project.version}
+              org.sonatype.guice.*;x-internal:=true;version=${project.version}
             </Export-Package>
+            <Include-Resource>
+              ${basedir}/eclipse
+            </Include-Resource>
             <Require-Bundle>
               org.sonatype.sisu.guice
             </Require-Bundle>
@@ -146,104 +230,26 @@
               <!-- optional generated imports -->
               *;resolution:=optional
             </Import-Package>
-            <Private-Package>
-              META-INF.services
-            </Private-Package>
           </instructions>
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classifier>sources</classifier>
+              <classesDirectory>${project.build.directory}/aggregate-sources</classesDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>release</id>
-      <activation>
-        <property>
-          <name>aggregate-sources</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>aggregate-sources</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>unpack-dependencies</goal>
-                </goals>
-                <configuration>
-                  <classifier>sources</classifier>
-                  <failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
-                  <outputDirectory>${project.build.directory}/aggregate-sources</outputDirectory>
-                  <includes>
-                    javax/inject/*,javax/enterprise/inject/*,
-                    org/aopalliance/aop/*,org/aopalliance/intercept/*,
-                    org/eclipse/sisu/**
-                  </includes>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>attach-sources</id>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-                <configuration>
-                  <classifier>sources</classifier>
-                  <classesDirectory>${project.build.directory}/aggregate-sources</classesDirectory>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-        <pluginManagement>
-          <plugins>
-            <plugin>
-              <artifactId>maven-javadoc-plugin</artifactId>
-              <configuration>
-                <sourcepath>${project.build.directory}/aggregate-sources</sourcepath>
-              </configuration>
-            </plugin>
-          </plugins>
-        </pluginManagement>
-      </build>
-    </profile>
-    <profile>
-      <!--
-       | m2e profile - expose embedded dependencies
-      -->
-      <id>m2e</id>
-      <activation>
-        <property>
-          <name>m2e.version</name>
-        </property>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>javax.inject</groupId>
-          <artifactId>javax.inject</artifactId>
-          <optional>false</optional>
-        </dependency>
-        <dependency>
-          <groupId>aopalliance</groupId>
-          <artifactId>aopalliance</artifactId>
-          <optional>false</optional>
-        </dependency>
-        <dependency>
-          <groupId>org.eclipse.sisu</groupId>
-          <artifactId>org.eclipse.sisu.inject</artifactId>
-          <optional>false</optional>
-        </dependency>
-      </dependencies>
-    </profile>
-  </profiles>
 
 </project>
