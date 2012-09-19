@@ -115,6 +115,8 @@
                 <replace dir="${src}">
                   <replacefilter token="eclipse.sisu.plexus" value="sonatype.guice.plexus"/>
                   <replacefilter token="eclipse.sisu;" value="sonatype.inject;"/>
+                  <replacefilter token="eclipse.sisu&quot;" value="sonatype.inject&quot;"/>
+                  <replacefilter token="eclipse.sisu.debug" value="sonatype.inject.debug"/>
                   <replacefilter token="eclipse.sisu.BeanEntry" value="sonatype.inject.BeanEntry"/>
                   <replacefilter token="eclipse.sisu.BeanScanning" value="sonatype.inject.BeanScanning"/>
                   <replacefilter token="eclipse.sisu.Description" value="sonatype.inject.Description"/>
