@@ -93,7 +93,7 @@
               -federationxml JDK http://doclava.googlecode.com/svn/static/api/openjdk-6.xml
               -federate Guice http://google-guice.googlecode.com/svn/trunk/javadoc/
               -federate OSGi http://osgi.org/javadoc/r4v42/index.html?
-              -federationxml OSGi https://raw.github.com/sonatype/sisu/master/sisu-inject/lib/osgi.xml
+              -federationxml OSGi https://raw.github.com/sonatype/sisu/master/legacy/lib/osgi.xml
               -hdf project.name "${project.name}"
               -d ${project.build.directory}/apidocs
             </additionalparam>

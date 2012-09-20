@@ -119,6 +119,22 @@
               </artifactItems>
             </configuration>
           </execution>
+          <execution>
+            <id>unpack-embedded-sources</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/aggregate-sources</outputDirectory>
+              <failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
+              <classifier>sources</classifier>
+              <includes>
+                javax/inject/*,javax/enterprise/inject/*,
+                org/aopalliance/aop/*,org/aopalliance/intercept/*
+              </includes>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>
