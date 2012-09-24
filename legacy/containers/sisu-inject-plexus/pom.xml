@@ -18,7 +18,7 @@
   <parent>
     <groupId>org.sonatype.sisu.inject</groupId>
     <artifactId>containers</artifactId>
-    <version>2.4.0-SNAPSHOT</version>
+    <version>2.3.1</version>
   </parent>
 
   <packaging>bundle</packaging>
@@ -122,25 +122,25 @@
             <phase>generate-sources</phase>
             <configuration>
               <target>
-                <property name="target" value="${project.build.directory}"/>
-                <property name="src" value="${target}/aggregate-sources"/>
+                <property name="target" value="${project.build.directory}" />
+                <property name="src" value="${target}/aggregate-sources" />
                 <replace dir="${src}">
-                  <replacefilter token="eclipse.sisu.plexus" value="sonatype.guice.plexus"/>
-                  <replacefilter token="eclipse.sisu;" value="sonatype.inject;"/>
-                  <replacefilter token="eclipse.sisu.debug" value="sonatype.inject.debug"/>
-                  <replacefilter token="eclipse.sisu.inject&quot;" value="sonatype.inject&quot;"/>
-                  <replacefilter token="eclipse.sisu.BeanEntry" value="sonatype.inject.BeanEntry"/>
-                  <replacefilter token="eclipse.sisu.BeanScanning" value="sonatype.inject.BeanScanning"/>
-                  <replacefilter token="eclipse.sisu.Description" value="sonatype.inject.Description"/>
-                  <replacefilter token="eclipse.sisu.EagerSingleton" value="sonatype.inject.EagerSingleton"/>
-                  <replacefilter token="eclipse.sisu.Mediator" value="sonatype.inject.Mediator"/>
-                  <replacefilter token="eclipse.sisu.Nullable" value="sonatype.inject.Nullable"/>
-                  <replacefilter token="eclipse.sisu.Parameters" value="sonatype.inject.Parameters"/>
-                  <replacefilter token="eclipse.sisu.Sisu" value="sonatype.inject.Sisu"/>
-                  <replacefilter token="eclipse.sisu" value="sonatype.guice.bean"/>
-                  <replacefilter token="objectweb.asm" value="sonatype.guice.bean.scanners.asm"/>
+                  <replacefilter token="eclipse.sisu.plexus" value="sonatype.guice.plexus" />
+                  <replacefilter token="eclipse.sisu;" value="sonatype.inject;" />
+                  <replacefilter token="eclipse.sisu.debug" value="sonatype.inject.debug" />
+                  <replacefilter token="eclipse.sisu.inject&quot;" value="sonatype.inject&quot;" />
+                  <replacefilter token="eclipse.sisu.BeanEntry" value="sonatype.inject.BeanEntry" />
+                  <replacefilter token="eclipse.sisu.BeanScanning" value="sonatype.inject.BeanScanning" />
+                  <replacefilter token="eclipse.sisu.Description" value="sonatype.inject.Description" />
+                  <replacefilter token="eclipse.sisu.EagerSingleton" value="sonatype.inject.EagerSingleton" />
+                  <replacefilter token="eclipse.sisu.Mediator" value="sonatype.inject.Mediator" />
+                  <replacefilter token="eclipse.sisu.Nullable" value="sonatype.inject.Nullable" />
+                  <replacefilter token="eclipse.sisu.Parameters" value="sonatype.inject.Parameters" />
+                  <replacefilter token="eclipse.sisu.Sisu" value="sonatype.inject.Sisu" />
+                  <replacefilter token="eclipse.sisu" value="sonatype.guice.bean" />
+                  <replacefilter token="objectweb.asm" value="sonatype.guice.bean.scanners.asm" />
                 </replace>
-                <move tofile="${src}/org/sonatype/guice/plexus" file="${src}/org/eclipse/sisu/plexus"/>
+                <move tofile="${src}/org/sonatype/guice/plexus" file="${src}/org/eclipse/sisu/plexus" />
               </target>
             </configuration>
             <goals>
@@ -190,7 +190,7 @@
               <!-- our implementation APIs -->
               org.sonatype.guice.plexus.*;x-internal:=true;version=${project.version}
             </Export-Package>
-            <Private-Package/>
+            <Private-Package />
             <Require-Bundle>
               org.sonatype.sisu.guice,
               org.sonatype.inject
