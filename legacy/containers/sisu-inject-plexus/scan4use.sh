@@ -33,7 +33,7 @@ function scan
   }"
 }
 
-SCRATCH=`mktemp --tmpdir -d "scan4use.XXXXXXXXXX"`
+SCRATCH=`mktemp -d "$TMPDIR/scan4use.XXXXXXXXXX"`
 LISTING=$SCRATCH.lst
 
 for f in $JARS
