@@ -114,7 +114,6 @@
                 **/DefaultConverterLookup.java,
                 **/AbstractConfigurationConverter.java,
                 **/ObjectWithFieldsConverter.java,
-                **/ClassRealmConverter.java,
                 **/MapConverter.java
               </excludes>
             </configuration>
