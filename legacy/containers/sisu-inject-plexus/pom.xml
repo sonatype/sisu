@@ -113,8 +113,7 @@
               <excludes>
                 **/DefaultConverterLookup.java,
                 **/AbstractConfigurationConverter.java,
-                **/ObjectWithFieldsConverter.java,
-                **/MapConverter.java
+                **/ObjectWithFieldsConverter.java
               </excludes>
             </configuration>
           </execution>
