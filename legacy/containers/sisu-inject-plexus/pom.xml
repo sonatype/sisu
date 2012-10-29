@@ -110,6 +110,13 @@
                   <classifier>sources</classifier>
                 </artifactItem>
               </artifactItems>
+              <excludes>
+                **/DefaultConverterLookup.java,
+                **/AbstractConfigurationConverter.java,
+                **/ObjectWithFieldsConverter.java,
+                **/ClassRealmConverter.java,
+                **/MapConverter.java
+              </excludes>
             </configuration>
           </execution>
         </executions>
