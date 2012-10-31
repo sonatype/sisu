@@ -29,6 +29,7 @@
   <name>Sisu - Examples</name>
 
   <modules>
+    <module>sisu-peaberry</module>
     <module>guice-swing</module>
     <module>guice-rcp</module>
   </modules>
