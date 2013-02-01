@@ -30,7 +30,7 @@
   </modules>
 
   <properties>
-    <sisu.guice.version>3.1.2</sisu.guice.version>
+    <sisu.guice.version>3.1.3</sisu.guice.version>
   </properties>
 
   <dependencyManagement>
