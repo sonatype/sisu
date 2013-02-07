@@ -112,7 +112,6 @@
               </artifactItems>
               <excludes>
                 **/DefaultConverterLookup.java,
-                **/AbstractConfigurationConverter.java,
                 **/ObjectWithFieldsConverter.java
               </excludes>
             </configuration>
