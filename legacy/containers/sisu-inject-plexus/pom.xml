@@ -111,8 +111,6 @@
                 </artifactItem>
               </artifactItems>
               <excludes>
-                **/ArrayConverter.java,
-                **/CollectionConverter.java,
                 **/DefaultConverterLookup.java
               </excludes>
             </configuration>
