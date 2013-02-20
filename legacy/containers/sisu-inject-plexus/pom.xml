@@ -110,9 +110,6 @@
                   <classifier>sources</classifier>
                 </artifactItem>
               </artifactItems>
-              <excludes>
-                **/DefaultConverterLookup.java
-              </excludes>
             </configuration>
           </execution>
         </executions>
