@@ -158,9 +158,18 @@
             <id>add-aggregate-sources</id>
             <phase>generate-sources</phase>
             <goals>
+              <goal>add-resource</goal>
               <goal>add-source</goal>
             </goals>
             <configuration>
+              <resources>
+                <resource>
+                  <directory>${project.build.directory}/aggregate-sources</directory>
+                  <excludes>
+                    <exclude>**/*.java</exclude>
+                  </excludes>
+                </resource>
+              </resources>
               <sources>
                 <source>${project.build.directory}/aggregate-sources</source>
               </sources>
