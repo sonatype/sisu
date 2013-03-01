@@ -83,6 +83,7 @@
             </goals>
             <configuration>
               <outputDirectory>${project.build.directory}/aggregate-sources</outputDirectory>
+              <includes>**/*.java</includes>
               <artifactItems>
                 <artifactItem>
                   <groupId>javax.inject</groupId>
@@ -111,6 +112,13 @@
                   <excludes>
                     org/aopalliance/intercept/Field*.java
                   </excludes>
+                </artifactItem>
+                <artifactItem>
+                  <groupId>org.eclipse.sisu</groupId>
+                  <artifactId>org.eclipse.sisu.inject</artifactId>
+                  <includes>
+                    META-INF/services/**,about.html,plugin.xml
+                  </includes>
                 </artifactItem>
                 <artifactItem>
                   <groupId>org.eclipse.sisu</groupId>
@@ -182,9 +190,18 @@
             <id>add-aggregate-sources</id>
             <phase>generate-sources</phase>
             <goals>
+              <goal>add-resource</goal>
               <goal>add-source</goal>
             </goals>
             <configuration>
+              <resources>
+                <resource>
+                  <directory>${project.build.directory}/aggregate-sources</directory>
+                  <excludes>
+                    <exclude>**/*.java</exclude>
+                  </excludes>
+                </resource>
+              </resources>
               <sources>
                 <source>${project.build.directory}/aggregate-sources</source>
               </sources>
