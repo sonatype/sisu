@@ -95,9 +95,9 @@
                   <artifactId>cdi-api</artifactId>
                   <classifier>sources</classifier>
                   <includes>
-                    javax/enterprise/context/*.java
-                    javax/enterprise/context/spi/*.java
-                    javax/enterprise/inject/*.java
+                    javax/enterprise/context/*.java,
+                    javax/enterprise/context/spi/*.java,
+                    javax/enterprise/inject/*.java,
                     javax/enterprise/util/*.java
                   </includes>
                 </artifactItem>
