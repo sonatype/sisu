@@ -90,7 +90,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <forgeReleaseUrl>https://repository.sonatype.org/service/local/staging/deploy/maven2</forgeReleaseUrl>
   </properties>
 
   <dependencies>
@@ -264,7 +263,7 @@
         <plugin>
           <groupId>org.sonatype.plugins</groupId>
           <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>1.3</version>
+          <version>1.4</version>
         </plugin>
       </plugins>
     </pluginManagement>
