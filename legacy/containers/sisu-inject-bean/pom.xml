@@ -154,6 +154,7 @@
                 <replace dir="${src}">
                   <replacefilter token="eclipse.sisu;" value="sonatype.inject;" />
                   <replacefilter token="eclipse.sisu.log&quot;" value="sonatype.inject.debug&quot;" />
+                  <replacefilter token="console&quot;.eq" value="&quot;.equals(sink)||&quot;true&quot;.eq" />
                   <replacefilter token="eclipse.sisu.inject&quot;" value="sonatype.inject&quot;" />
                   <replacefilter token="eclipse.sisu.BeanEntry" value="sonatype.inject.BeanEntry" />
                   <replacefilter token="eclipse.sisu.BeanScanning" value="sonatype.inject.BeanScanning" />
