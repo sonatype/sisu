@@ -18,12 +18,10 @@
     <version>2.4.0-SNAPSHOT</version>
   </parent>
 
-  <packaging>bundle</packaging>
-
   <groupId>org.sonatype.sisu</groupId>
   <artifactId>sisu-inject-plexus</artifactId>
 
-  <name>Sisu-Inject-Plexus : Aggregate OSGi bundle</name>
+  <name>Sisu-Inject-Plexus : legacy wrapper</name>
 
   <dependencies>
     <!-- external dependencies -->
@@ -46,6 +44,16 @@
       <groupId>org.sonatype.sisu</groupId>
       <artifactId>sisu-inject-bean</artifactId>
       <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.sisu</groupId>
+      <artifactId>org.eclipse.sisu.plexus</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.sonatype.sisu</groupId>
+          <artifactId>sisu-guice</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- optional dependencies -->
     <dependency>
@@ -75,138 +83,6 @@
         </plugin>
       </plugins>
     </pluginManagement>
-    <plugins>
-      <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>unpack-aggregate-sources</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${project.build.directory}/aggregate-sources</outputDirectory>
-              <includes>**/*.java</includes>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.eclipse.sisu</groupId>
-                  <artifactId>org.eclipse.sisu.plexus</artifactId>
-                  <classifier>sources</classifier>
-                  <includes>
-                    META-INF/plexus/**,about.html,**/*.java
-                  </includes>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <phase>generate-sources</phase>
-            <configuration>
-              <target>
-                <property name="target" value="${project.build.directory}" />
-                <property name="src" value="${target}/aggregate-sources" />
-                <replace dir="${src}">
-                  <replacefilter token="eclipse.sisu.plexus" value="sonatype.guice.plexus" />
-                  <replacefilter token="eclipse.sisu;" value="sonatype.inject;" />
-                  <replacefilter token="eclipse.sisu.debug" value="sonatype.inject.debug" />
-                  <replacefilter token="eclipse.sisu.inject&quot;" value="sonatype.inject&quot;" />
-                  <replacefilter token="eclipse.sisu.BeanEntry" value="sonatype.inject.BeanEntry" />
-                  <replacefilter token="eclipse.sisu.BeanScanning" value="sonatype.inject.BeanScanning" />
-                  <replacefilter token="eclipse.sisu.Description" value="sonatype.inject.Description" />
-                  <replacefilter token="eclipse.sisu.EagerSingleton" value="sonatype.inject.EagerSingleton" />
-                  <replacefilter token="eclipse.sisu.Mediator" value="sonatype.inject.Mediator" />
-                  <replacefilter token="eclipse.sisu.Nullable" value="sonatype.inject.Nullable" />
-                  <replacefilter token="eclipse.sisu.Parameters" value="sonatype.inject.Parameters" />
-                  <replacefilter token="eclipse.sisu.Sisu" value="sonatype.inject.Sisu" />
-                  <replacefilter token="eclipse.sisu" value="sonatype.guice.bean" />
-                  <replacefilter token="objectweb.asm" value="sonatype.guice.bean.scanners.asm" />
-                </replace>
-                <move tofile="${src}/org/sonatype/guice/plexus" file="${src}/org/eclipse/sisu/plexus" />
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <id>add-aggregate-sources</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-resource</goal>
-              <goal>add-source</goal>
-            </goals>
-            <configuration>
-              <resources>
-                <resource>
-                  <directory>${project.build.directory}/aggregate-sources</directory>
-                  <excludes>
-                    <exclude>**/*.java</exclude>
-                  </excludes>
-                </resource>
-              </resources>
-              <sources>
-                <source>${project.build.directory}/aggregate-sources</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <excludeDependencies>
-            <!-- external dependencies -->
-            *;groupId=org.codehaus.plexus
-          </excludeDependencies>
-          <instructions>
-            <Bundle-SymbolicName>
-              org.sonatype.inject.plexus;singleton:=true
-            </Bundle-SymbolicName>
-            <DynamicImport-Package>
-              org.slf4j
-            </DynamicImport-Package>
-            <Export-Package>
-              <!-- our Plexus shim API -->
-              org.codehaus.plexus.*;-split-package:=merge-first,
-              <!-- our implementation APIs -->
-              org.sonatype.guice.plexus.*;x-internal:=true;version=${project.version}
-            </Export-Package>
-            <Private-Package />
-            <Require-Bundle>
-              org.sonatype.sisu.guice,
-              org.sonatype.inject
-            </Require-Bundle>
-            <Import-Package>
-              <!-- Plexus APIs -->
-              org.codehaus.*,
-              <!-- available via Require-Bundle -->
-              !com.google.*,!org.sonatype.*,
-              <!-- optional generated imports -->
-              *;resolution:=optional
-            </Import-Package>
-            <Private-Package>
-              META-INF.plexus
-            </Private-Package>
-          </instructions>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
 
 </project>
