@@ -44,8 +44,8 @@ import org.codehaus.plexus.test.list.ValveThree;
 import org.codehaus.plexus.test.list.ValveTwo;
 import org.codehaus.plexus.test.map.Activity;
 import org.codehaus.plexus.test.map.ActivityManager;
-import org.sonatype.guice.plexus.config.PlexusBeanConverter;
-import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
+//import org.sonatype.guice.plexus.config.PlexusBeanConverter;
+//import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
@@ -813,10 +813,10 @@ public class PlexusContainerTest
         assertTrue( exceptions.toString(), exceptions.isEmpty() );
     }
 
-    public void testComponentConfigurationEvaluation()
+    /*public void testComponentConfigurationEvaluation()
         throws Exception
     {
-        /**
+        |**
          * <pre>
          * Inject component configuration provided via user-editable text file, similar in nature to pom.xml
          * Immediately need to support two cases
@@ -830,7 +830,7 @@ public class PlexusContainerTest
          * IMPLEMENTATION QUESTION: instead of passing PlexusBeanConverter as explicit parameter, is there a way to
          * push Provider<PlexusBeanConverter> instance as thread/request scoped bean?
          * </pre>
-         */
+         *|
 
         final ClassRealm realmA = container.createChildRealm( "realm-with-configuration" );
         realmA.addURL( new File( "src/test/test-components/component-with-configuration-1.0-SNAPSHOT.jar" ).toURI().toURL() );
@@ -872,5 +872,5 @@ public class PlexusContainerTest
         assertEquals( stringValue, c.getClass().getField( "stringValue" ).get( c ) );
         assertSame( objectValue, c.getClass().getField( "objectValue" ).get( c ) );
         assertEquals( "default value", c.getClass().getField( "defaultValue" ).get( c ) );
-    }
+    }*/
 }
