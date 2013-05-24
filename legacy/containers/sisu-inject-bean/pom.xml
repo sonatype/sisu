@@ -26,6 +26,10 @@
   <dependencies>
     <!-- external dependencies -->
     <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.sonatype.sisu</groupId>
       <artifactId>sisu-guice</artifactId>
       <classifier>no_aop</classifier>
