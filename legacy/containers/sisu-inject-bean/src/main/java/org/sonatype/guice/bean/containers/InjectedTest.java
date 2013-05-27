@@ -28,7 +28,7 @@ import com.google.inject.Module;
 public abstract class InjectedTest
     implements Module
 {
-    private org.eclipse.sisu.launch.InjectedTest delegate = new org.eclipse.sisu.launch.InjectedTest()
+    private final org.eclipse.sisu.launch.InjectedTest delegate = new org.eclipse.sisu.launch.InjectedTest()
     {
         @Override
         public org.eclipse.sisu.space.ClassSpace space()
@@ -43,14 +43,14 @@ public abstract class InjectedTest
         }
 
         @Override
-        public void configure( Binder binder )
+        public void configure( final Binder binder )
         {
             binder.install( InjectedTest.this );
             binder.requestInjection( InjectedTest.this );
         }
 
         @Override
-        public void configure( Properties properties )
+        public void configure( final Properties properties )
         {
             InjectedTest.this.configure( properties );
         }
@@ -86,6 +86,9 @@ public abstract class InjectedTest
     {
     }
 
+    /**
+     * @param properties Custom test properties
+     */
     public void configure( final Properties properties )
     {
     }
