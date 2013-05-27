@@ -18,9 +18,9 @@ import java.util.Map.Entry;
 
 import javax.inject.Inject;
 
-import org.sonatype.guice.bean.binders.WireModule;
-import org.sonatype.guice.bean.locators.BeanLocator;
-import org.sonatype.guice.bean.reflect.Logs;
+import org.eclipse.sisu.inject.BeanLocator;
+import org.eclipse.sisu.inject.Logs;
+import org.eclipse.sisu.wire.WireModule;
 
 import com.google.inject.Binder;
 import com.google.inject.Guice;
@@ -73,7 +73,7 @@ public final class SisuGuice
         }
         else
         {
-            Logs.debug( "No BeanLocator found for thread {}", Thread.currentThread(), null );
+            Logs.trace( "No BeanLocator found for thread {}", Thread.currentThread(), null );
         }
         return null;
     }
@@ -95,7 +95,7 @@ public final class SisuGuice
         }
         else
         {
-            Logs.debug( "No BeanLocator found for thread {}", Thread.currentThread(), null );
+            Logs.trace( "No BeanLocator found for thread {}", Thread.currentThread(), null );
         }
     }
 

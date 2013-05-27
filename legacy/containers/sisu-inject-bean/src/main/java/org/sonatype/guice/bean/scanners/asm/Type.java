@@ -11,13 +11,18 @@
 package org.sonatype.guice.bean.scanners.asm;
 
 @Deprecated
-public class Type
+public final class Type
 {
     private final org.eclipse.sisu.space.asm.Type delegate;
 
     private Type( final org.eclipse.sisu.space.asm.Type delegate )
     {
         this.delegate = delegate;
+    }
+
+    public String getClassName()
+    {
+        return delegate.getClassName();
     }
 
     public static String getDescriptor( final Class<?> c )
@@ -30,8 +35,8 @@ public class Type
         return new Type( org.eclipse.sisu.space.asm.Type.getObjectType( internalName ) );
     }
 
-    public org.eclipse.sisu.space.asm.Type unwrap()
+    public static org.eclipse.sisu.space.asm.Type adapt( final Type type )
     {
-        return delegate;
+        return type.delegate;
     }
 }

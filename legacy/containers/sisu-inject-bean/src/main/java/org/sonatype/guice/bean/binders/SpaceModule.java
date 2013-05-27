@@ -11,19 +11,48 @@
 package org.sonatype.guice.bean.binders;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
+import org.sonatype.guice.bean.scanners.ClassSpaceVisitor;
 import org.sonatype.inject.BeanScanning;
+
+import com.google.inject.Binder;
+import com.google.inject.Module;
 
 @Deprecated
 public class SpaceModule
-    extends org.eclipse.sisu.space.SpaceModule
+    implements Module
 {
+    private final ClassSpace space;
+
+    private final org.eclipse.sisu.BeanScanning scanning;
+
     public SpaceModule( final ClassSpace space )
     {
-        super( space, org.eclipse.sisu.BeanScanning.ON );
+        this.space = space;
+        this.scanning = org.eclipse.sisu.BeanScanning.ON;
     }
 
     public SpaceModule( final ClassSpace space, final BeanScanning scanning )
     {
-        super( space, org.eclipse.sisu.BeanScanning.valueOf( scanning.name() ) );
+        this.space = space;
+        this.scanning = org.eclipse.sisu.BeanScanning.valueOf( scanning.name() );
+    }
+
+    public void configure( final Binder binder )
+    {
+        binder.install( new org.eclipse.sisu.space.SpaceModule( space, scanning )
+        {
+            @Override
+            protected org.eclipse.sisu.space.ClassSpaceVisitor visitor( final Binder _binder )
+            {
+                final ClassSpaceVisitor visitor = SpaceModule.this.visitor( _binder );
+                return null != visitor ? ClassSpaceScanner.adapt( visitor ) : super.visitor( _binder );
+            }
+        } );
+    }
+
+    protected ClassSpaceVisitor visitor( @SuppressWarnings( "unused" ) final Binder binder )
+    {
+        return null;
     }
 }
