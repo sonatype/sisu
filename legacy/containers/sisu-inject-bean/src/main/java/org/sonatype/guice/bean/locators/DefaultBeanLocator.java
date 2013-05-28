@@ -20,19 +20,20 @@ import javax.inject.Singleton;
 import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Mediator;
 
+import com.google.inject.Injector;
 import com.google.inject.Key;
 
 @Deprecated
 @Singleton
 public final class DefaultBeanLocator
-    implements BeanLocator
+    implements MutableBeanLocator
 {
     @Inject
-    private org.eclipse.sisu.inject.BeanLocator locator;
+    private org.eclipse.sisu.inject.MutableBeanLocator delegate;
 
     public <Q extends Annotation, T> Iterable<BeanEntry<Q, T>> locate( final Key<T> key )
     {
-        final Iterable<org.eclipse.sisu.BeanEntry<Q, T>> i = locator.locate( key );
+        final Iterable<org.eclipse.sisu.BeanEntry<Q, T>> i = delegate.locate( key );
         return new Iterable<BeanEntry<Q, T>>()
         {
             public Iterator<BeanEntry<Q, T>> iterator()
@@ -61,20 +62,35 @@ public final class DefaultBeanLocator
 
     public <Q extends Annotation, T, W> void watch( final Key<T> key, final Mediator<Q, T, W> mediator, final W watcher )
     {
-        locator.watch( key, new org.eclipse.sisu.Mediator<Q, T, W>()
+        delegate.watch( key, new org.eclipse.sisu.Mediator<Q, T, W>()
         {
-            public void add( org.eclipse.sisu.BeanEntry<Q, T> entry, W w )
+            public void add( final org.eclipse.sisu.BeanEntry<Q, T> entry, final W w )
                 throws Exception
             {
                 mediator.add( adapt( entry ), w );
             }
 
-            public void remove( org.eclipse.sisu.BeanEntry<Q, T> entry, W w )
+            public void remove( final org.eclipse.sisu.BeanEntry<Q, T> entry, final W w )
                 throws Exception
             {
                 mediator.remove( adapt( entry ), w );
             }
         }, watcher );
+    }
+
+    public void add( final Injector injector, final int rank )
+    {
+        delegate.add( injector, rank );
+    }
+
+    public void remove( final Injector injector )
+    {
+        delegate.remove( injector );
+    }
+
+    public void clear()
+    {
+        delegate.clear();
     }
 
     static <Q extends Annotation, T> BeanEntry<Q, T> adapt( final org.eclipse.sisu.BeanEntry<Q, T> delegate )
@@ -91,7 +107,7 @@ public final class DefaultBeanLocator
                 return delegate.getValue();
             }
 
-            public T setValue( T value )
+            public T setValue( final T value )
             {
                 return delegate.setValue( value );
             }

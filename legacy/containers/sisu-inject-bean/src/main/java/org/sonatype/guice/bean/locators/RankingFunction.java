@@ -10,19 +10,12 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
-import java.lang.annotation.Annotation;
-
-import org.sonatype.inject.BeanEntry;
-import org.sonatype.inject.Mediator;
-
 import com.google.inject.ImplementedBy;
-import com.google.inject.Key;
 
 @Deprecated
-@ImplementedBy( MutableBeanLocator.class )
-public interface BeanLocator
+@SuppressWarnings( "deprecation" )
+@ImplementedBy( DefaultRankingFunction.class )
+public interface RankingFunction
+    extends org.eclipse.sisu.inject.RankingFunction
 {
-    <Q extends Annotation, T> Iterable<BeanEntry<Q, T>> locate( Key<T> key );
-
-    <Q extends Annotation, T, W> void watch( Key<T> key, Mediator<Q, T, W> mediator, W watcher );
 }

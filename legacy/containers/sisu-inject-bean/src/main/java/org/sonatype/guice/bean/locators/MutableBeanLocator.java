@@ -10,19 +10,17 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.locators;
 
-import java.lang.annotation.Annotation;
-
-import org.sonatype.inject.BeanEntry;
-import org.sonatype.inject.Mediator;
-
 import com.google.inject.ImplementedBy;
-import com.google.inject.Key;
+import com.google.inject.Injector;
 
 @Deprecated
-@ImplementedBy( MutableBeanLocator.class )
-public interface BeanLocator
+@ImplementedBy( DefaultBeanLocator.class )
+public interface MutableBeanLocator
+    extends BeanLocator
 {
-    <Q extends Annotation, T> Iterable<BeanEntry<Q, T>> locate( Key<T> key );
+    void add( Injector injector, int rank );
 
-    <Q extends Annotation, T, W> void watch( Key<T> key, Mediator<Q, T, W> mediator, W watcher );
+    void remove( Injector injector );
+
+    void clear();
 }
