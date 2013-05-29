@@ -12,19 +12,32 @@ package org.sonatype.guice.bean.locators;
 
 import javax.inject.Inject;
 
+import com.google.inject.Binding;
+
 @Deprecated
 public final class DefaultRankingFunction
-    extends org.eclipse.sisu.inject.DefaultRankingFunction
     implements RankingFunction
 {
+    private final org.eclipse.sisu.inject.RankingFunction delegate;
+
     public DefaultRankingFunction( final int primaryRank )
     {
-        super( primaryRank );
+        delegate = new org.eclipse.sisu.inject.DefaultRankingFunction( primaryRank );
     }
 
     @Inject
     public DefaultRankingFunction()
     {
         this( 0 );
+    }
+
+    public int maxRank()
+    {
+        return delegate.maxRank();
+    }
+
+    public <T> int rank( final Binding<T> binding )
+    {
+        return delegate.rank( binding );
     }
 }

@@ -48,6 +48,12 @@
     <dependency>
       <groupId>org.eclipse.sisu</groupId>
       <artifactId>org.eclipse.sisu.plexus</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.sonatype.sisu</groupId>
+          <artifactId>sisu-guice</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- optional dependencies -->
     <dependency>

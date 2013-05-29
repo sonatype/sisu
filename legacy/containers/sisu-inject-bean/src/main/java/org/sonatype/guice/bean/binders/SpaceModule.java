@@ -44,8 +44,8 @@ public class SpaceModule
             @Override
             protected org.eclipse.sisu.space.ClassSpaceVisitor visitor( final Binder _binder )
             {
-                final ClassSpaceVisitor visitor = SpaceModule.this.visitor( _binder );
-                return null != visitor ? ClassSpaceScanner.adapt( visitor ) : super.visitor( _binder );
+                final ClassSpaceVisitor v = SpaceModule.this.visitor( _binder );
+                return null != v ? ClassSpaceScanner.adapt( v ) : super.visitor( _binder );
             }
         } );
     }
