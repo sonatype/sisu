@@ -13,7 +13,6 @@ package org.sonatype.guice.bean.locators;
 import com.google.inject.ImplementedBy;
 
 @Deprecated
-@SuppressWarnings( "deprecation" )
 @ImplementedBy( DefaultRankingFunction.class )
 public interface RankingFunction
     extends org.eclipse.sisu.inject.RankingFunction

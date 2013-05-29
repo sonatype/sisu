@@ -28,8 +28,7 @@ public class SpaceModule
 
     public SpaceModule( final ClassSpace space )
     {
-        this.space = space;
-        this.scanning = org.eclipse.sisu.BeanScanning.ON;
+        this( space, BeanScanning.ON );
     }
 
     public SpaceModule( final ClassSpace space, final BeanScanning scanning )

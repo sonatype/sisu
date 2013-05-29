@@ -14,9 +14,9 @@ import java.lang.annotation.Annotation;
 import java.util.Iterator;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import org.sonatype.guice.bean.reflect.Down;
 import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.Mediator;
 
@@ -25,6 +25,7 @@ import com.google.inject.Key;
 
 @Deprecated
 @Singleton
+@SuppressWarnings( "unchecked" )
 public final class DefaultBeanLocator
     implements MutableBeanLocator
 {
@@ -33,12 +34,12 @@ public final class DefaultBeanLocator
 
     public <Q extends Annotation, T> Iterable<BeanEntry<Q, T>> locate( final Key<T> key )
     {
-        final Iterable<org.eclipse.sisu.BeanEntry<Q, T>> i = delegate.locate( key );
+        final Iterable<org.eclipse.sisu.BeanEntry<Q, T>> beans = delegate.locate( key );
         return new Iterable<BeanEntry<Q, T>>()
         {
             public Iterator<BeanEntry<Q, T>> iterator()
             {
-                final Iterator<org.eclipse.sisu.BeanEntry<Q, T>> itr = i.iterator();
+                final Iterator<org.eclipse.sisu.BeanEntry<Q, T>> itr = beans.iterator();
                 return new Iterator<BeanEntry<Q, T>>()
                 {
                     public boolean hasNext()
@@ -48,7 +49,7 @@ public final class DefaultBeanLocator
 
                     public BeanEntry<Q, T> next()
                     {
-                        return adapt( itr.next() );
+                        return Down.cast( BeanEntry.class, itr.next() );
                     }
 
                     public void remove()
@@ -67,13 +68,13 @@ public final class DefaultBeanLocator
             public void add( final org.eclipse.sisu.BeanEntry<Q, T> entry, final W w )
                 throws Exception
             {
-                mediator.add( adapt( entry ), w );
+                mediator.add( Down.cast( BeanEntry.class, entry ), w );
             }
 
             public void remove( final org.eclipse.sisu.BeanEntry<Q, T> entry, final W w )
                 throws Exception
             {
-                mediator.remove( adapt( entry ), w );
+                mediator.remove( Down.cast( BeanEntry.class, entry ), w );
             }
         }, watcher );
     }
@@ -91,51 +92,5 @@ public final class DefaultBeanLocator
     public void clear()
     {
         delegate.clear();
-    }
-
-    static <Q extends Annotation, T> BeanEntry<Q, T> adapt( final org.eclipse.sisu.BeanEntry<Q, T> delegate )
-    {
-        return new BeanEntry<Q, T>()
-        {
-            public Q getKey()
-            {
-                return delegate.getKey();
-            }
-
-            public T getValue()
-            {
-                return delegate.getValue();
-            }
-
-            public T setValue( final T value )
-            {
-                return delegate.setValue( value );
-            }
-
-            public Provider<T> getProvider()
-            {
-                return delegate.getProvider();
-            }
-
-            public String getDescription()
-            {
-                return delegate.getDescription();
-            }
-
-            public Class<T> getImplementationClass()
-            {
-                return delegate.getImplementationClass();
-            }
-
-            public Object getSource()
-            {
-                return delegate.getSource();
-            }
-
-            public int getRank()
-            {
-                return delegate.getRank();
-            }
-        };
     }
 }

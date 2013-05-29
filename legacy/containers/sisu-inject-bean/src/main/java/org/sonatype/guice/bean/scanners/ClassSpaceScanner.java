@@ -11,11 +11,10 @@
 package org.sonatype.guice.bean.scanners;
 
 import java.net.URL;
-import java.util.Enumeration;
 
-import org.eclipse.sisu.inject.DeferredClass;
 import org.eclipse.sisu.space.asm.Opcodes;
 import org.sonatype.guice.bean.reflect.ClassSpace;
+import org.sonatype.guice.bean.reflect.Down;
 import org.sonatype.guice.bean.scanners.asm.AnnotationVisitor;
 import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
 
@@ -46,14 +45,14 @@ public final class ClassSpaceScanner
 
     public static org.eclipse.sisu.space.ClassSpaceVisitor adapt( final ClassSpaceVisitor delegate )
     {
-        return new org.eclipse.sisu.space.ClassSpaceVisitor()
+        return null == delegate ? null : new org.eclipse.sisu.space.ClassSpaceVisitor()
         {
-            public void enter( org.eclipse.sisu.space.ClassSpace space )
+            public void enter( final org.eclipse.sisu.space.ClassSpace space )
             {
-                delegate.visit( adapt( space ) );
+                delegate.visit( Down.cast( ClassSpace.class, space ) );
             }
 
-            public org.eclipse.sisu.space.ClassVisitor visitClass( URL url )
+            public org.eclipse.sisu.space.ClassVisitor visitClass( final URL url )
             {
                 return adapt( delegate.visitClass( url ) );
             }
@@ -69,12 +68,12 @@ public final class ClassSpaceScanner
     {
         return null == delegate ? null : new org.eclipse.sisu.space.ClassVisitor()
         {
-            public void enter( int modifiers, String name, String _extends, String[] _implements )
+            public void enter( final int modifiers, final String name, final String _extends, final String[] _implements )
             {
                 delegate.visit( Opcodes.V1_5, modifiers, name, null, _extends, _implements );
             }
 
-            public org.eclipse.sisu.space.AnnotationVisitor visitAnnotation( String desc )
+            public org.eclipse.sisu.space.AnnotationVisitor visitAnnotation( final String desc )
             {
                 return adapt( delegate.visitAnnotation( desc, true ) );
             }
@@ -95,7 +94,7 @@ public final class ClassSpaceScanner
                 // no-op
             }
 
-            public void visitElement( String name, Object value )
+            public void visitElement( final String name, final Object value )
             {
                 delegate.visit( name, value );
             }
@@ -103,38 +102,6 @@ public final class ClassSpaceScanner
             public void leave()
             {
                 delegate.visitEnd();
-            }
-        };
-    }
-
-    static ClassSpace adapt( final org.eclipse.sisu.space.ClassSpace delegate )
-    {
-        return new ClassSpace()
-        {
-            public Class<?> loadClass( String name )
-                throws TypeNotPresentException
-            {
-                return delegate.loadClass( name );
-            }
-
-            public DeferredClass<?> deferLoadClass( String name )
-            {
-                return delegate.deferLoadClass( name );
-            }
-
-            public URL getResource( String name )
-            {
-                return delegate.getResource( name );
-            }
-
-            public Enumeration<URL> getResources( String name )
-            {
-                return delegate.getResources( name );
-            }
-
-            public Enumeration<URL> findEntries( String path, String glob, boolean recurse )
-            {
-                return delegate.findEntries( path, glob, recurse );
             }
         };
     }
