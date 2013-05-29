@@ -47,7 +47,8 @@ public final class PlexusTypeVisitor
         return this;
     }
 
-    public void visit( int version, int access, String name, String signature, String superName, String[] interfaces )
+    public void visit( final int version, final int access, final String name, final String signature,
+                       final String superName, final String[] interfaces )
     {
         if ( null != visitor )
         {
@@ -55,7 +56,7 @@ public final class PlexusTypeVisitor
         }
     }
 
-    public AnnotationVisitor visitAnnotation( String desc, boolean visible )
+    public AnnotationVisitor visitAnnotation( final String desc, final boolean visible )
     {
         return null != visitor ? visitor.visitAnnotation( desc, visible ) : null;
     }
