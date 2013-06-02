@@ -16,17 +16,20 @@ import java.net.URL;
 import org.codehaus.plexus.component.annotations.Component;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
-import org.sonatype.guice.bean.reflect.Down;
 import org.sonatype.guice.bean.scanners.ClassSpaceVisitor;
 import org.sonatype.guice.bean.scanners.asm.AnnotationVisitor;
 import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
 import org.sonatype.guice.bean.scanners.asm.Type;
+import org.sonatype.inject.Legacy;
 
 @Deprecated
-@SuppressWarnings( "unchecked" )
 public final class PlexusTypeVisitor
     implements ClassSpaceVisitor, ClassVisitor
 {
+    @SuppressWarnings( "rawtypes" )
+    static final Legacy<org.eclipse.sisu.inject.DeferredClass<?>> LEGACY_DEFERRED_CLASS =
+        Legacy.<org.eclipse.sisu.inject.DeferredClass<?>, DeferredClass> as( DeferredClass.class );
+
     private final org.eclipse.sisu.plexus.PlexusTypeVisitor delegate;
 
     private ClassVisitor visitor;
@@ -86,7 +89,7 @@ public final class PlexusTypeVisitor
             public void hear( final Component component, final org.eclipse.sisu.inject.DeferredClass<?> implementation,
                               final Object source )
             {
-                delegate.hear( component, Down.cast( DeferredClass.class, implementation ), source );
+                delegate.hear( component, (DeferredClass<?>) LEGACY_DEFERRED_CLASS.proxy( implementation ), source );
             }
         };
     }

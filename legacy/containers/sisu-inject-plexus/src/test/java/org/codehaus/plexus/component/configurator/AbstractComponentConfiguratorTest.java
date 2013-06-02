@@ -887,6 +887,7 @@ public abstract class AbstractComponentConfiguratorTest
 
         final ExpressionEvaluator evaluator = new DefaultExpressionEvaluator()
         {
+            @Override
             public Object evaluate( final String expression )
             {
                 if ( "${collection}".equals( expression ) )
@@ -914,6 +915,7 @@ public abstract class AbstractComponentConfiguratorTest
 
         final ExpressionEvaluator evaluator = new DefaultExpressionEvaluator()
         {
+            @Override
             public Object evaluate( final String expression )
             {
                 if ( "${array}".equals( expression ) )
@@ -943,6 +945,7 @@ public abstract class AbstractComponentConfiguratorTest
 
         final ExpressionEvaluator evaluator = new DefaultExpressionEvaluator()
         {
+            @Override
             public Object evaluate( final String expression )
             {
                 if ( "${arr0}".equals( expression ) )
@@ -977,6 +980,7 @@ public abstract class AbstractComponentConfiguratorTest
 
         final ExpressionEvaluator evaluator = new DefaultExpressionEvaluator()
         {
+            @Override
             public Object evaluate( final String expression )
             {
                 if ( "${list}".equals( expression ) )

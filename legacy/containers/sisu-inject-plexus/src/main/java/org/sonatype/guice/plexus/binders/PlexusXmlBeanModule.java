@@ -14,9 +14,9 @@ import java.net.URL;
 import java.util.Map;
 
 import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.reflect.Down;
 import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
+import org.sonatype.inject.Legacy;
 
 import com.google.inject.Binder;
 
@@ -24,6 +24,9 @@ import com.google.inject.Binder;
 public final class PlexusXmlBeanModule
     implements PlexusBeanModule
 {
+    private static final Legacy<org.eclipse.sisu.plexus.PlexusBeanSource> LEGACY_PLEXUS_BEAN_SOURCE =
+        Legacy.<org.eclipse.sisu.plexus.PlexusBeanSource, PlexusBeanSource> as( PlexusBeanSource.class );
+
     private final org.eclipse.sisu.plexus.PlexusBeanModule delegate;
 
     public PlexusXmlBeanModule( final ClassSpace space, final Map<?, ?> variables, final URL plexusXml )
@@ -38,6 +41,6 @@ public final class PlexusXmlBeanModule
 
     public PlexusBeanSource configure( final Binder binder )
     {
-        return Down.cast( PlexusBeanSource.class, delegate.configure( binder ) );
+        return LEGACY_PLEXUS_BEAN_SOURCE.proxy( delegate.configure( binder ) );
     }
 }

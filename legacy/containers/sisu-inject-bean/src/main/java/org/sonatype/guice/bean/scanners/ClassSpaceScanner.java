@@ -14,13 +14,16 @@ import java.net.URL;
 
 import org.eclipse.sisu.space.asm.Opcodes;
 import org.sonatype.guice.bean.reflect.ClassSpace;
-import org.sonatype.guice.bean.reflect.Down;
 import org.sonatype.guice.bean.scanners.asm.AnnotationVisitor;
 import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
+import org.sonatype.inject.Legacy;
 
 @Deprecated
 public final class ClassSpaceScanner
 {
+    static final Legacy<org.eclipse.sisu.space.ClassSpace> LEGACY_CLASS_SPACE =
+        Legacy.<org.eclipse.sisu.space.ClassSpace, ClassSpace> as( ClassSpace.class );
+
     private final org.eclipse.sisu.space.ClassSpaceScanner delegate;
 
     public ClassSpaceScanner( final ClassSpace space )
@@ -49,7 +52,7 @@ public final class ClassSpaceScanner
         {
             public void enter( final org.eclipse.sisu.space.ClassSpace space )
             {
-                delegate.visit( Down.cast( ClassSpace.class, space ) );
+                delegate.visit( (ClassSpace) LEGACY_CLASS_SPACE.proxy( space ) );
             }
 
             public org.eclipse.sisu.space.ClassVisitor visitClass( final URL url )
