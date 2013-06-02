@@ -64,12 +64,7 @@
       <dependency>
         <groupId>org.sonatype.sisu</groupId>
         <artifactId>sisu-guice</artifactId>
-        <version>3.1.3</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.asm</artifactId>
-        <version>3.3.1_1</version>
+        <version>3.1.4</version>
       </dependency>
       <dependency>
         <groupId>org.eclipse.sisu</groupId>
