@@ -26,6 +26,11 @@ public final class DefaultRankingFunction
     }
 
     @Inject
+    public DefaultRankingFunction( final org.eclipse.sisu.inject.RankingFunction delegate )
+    {
+        this.delegate = delegate;
+    }
+
     public DefaultRankingFunction()
     {
         this( 0 );
