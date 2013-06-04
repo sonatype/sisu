@@ -14,13 +14,13 @@ import java.lang.annotation.Annotation;
 import java.net.URL;
 
 import org.codehaus.plexus.component.annotations.Component;
+import org.eclipse.sisu.inject.Legacy;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.DeferredClass;
 import org.sonatype.guice.bean.scanners.ClassSpaceVisitor;
 import org.sonatype.guice.bean.scanners.asm.AnnotationVisitor;
 import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
 import org.sonatype.guice.bean.scanners.asm.Type;
-import org.sonatype.inject.Legacy;
 
 @Deprecated
 public final class PlexusTypeVisitor

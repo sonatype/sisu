@@ -13,10 +13,10 @@ package org.sonatype.guice.plexus.binders;
 import java.net.URL;
 import java.util.Map;
 
+import org.eclipse.sisu.inject.Legacy;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.plexus.config.PlexusBeanModule;
 import org.sonatype.guice.plexus.config.PlexusBeanSource;
-import org.sonatype.inject.Legacy;
 
 import com.google.inject.Binder;
 

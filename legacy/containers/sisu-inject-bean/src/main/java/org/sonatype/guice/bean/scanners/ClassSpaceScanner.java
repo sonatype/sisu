@@ -12,11 +12,11 @@ package org.sonatype.guice.bean.scanners;
 
 import java.net.URL;
 
+import org.eclipse.sisu.inject.Legacy;
 import org.eclipse.sisu.space.asm.Opcodes;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.scanners.asm.AnnotationVisitor;
 import org.sonatype.guice.bean.scanners.asm.ClassVisitor;
-import org.sonatype.inject.Legacy;
 
 @Deprecated
 public final class ClassSpaceScanner

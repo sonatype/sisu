@@ -15,8 +15,8 @@ import java.lang.annotation.Annotation;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.eclipse.sisu.inject.Legacy;
 import org.sonatype.inject.BeanEntry;
-import org.sonatype.inject.Legacy;
 import org.sonatype.inject.Mediator;
 
 import com.google.inject.Injector;
