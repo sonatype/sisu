@@ -27,13 +27,8 @@ import com.google.inject.Key;
 public final class DefaultBeanLocator
     implements MutableBeanLocator
 {
-    private final org.eclipse.sisu.inject.MutableBeanLocator delegate;
-
     @Inject
-    public DefaultBeanLocator( final org.eclipse.sisu.inject.MutableBeanLocator delegate )
-    {
-        this.delegate = delegate;
-    }
+    private org.eclipse.sisu.inject.MutableBeanLocator delegate;
 
     public <Q extends Annotation, T> Iterable<BeanEntry<Q, T>> locate( final Key<T> key )
     {
