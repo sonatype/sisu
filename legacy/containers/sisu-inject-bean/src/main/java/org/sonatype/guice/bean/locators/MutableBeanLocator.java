@@ -16,7 +16,7 @@ import com.google.inject.Injector;
 @Deprecated
 @ImplementedBy( DefaultBeanLocator.class )
 public interface MutableBeanLocator
-    extends BeanLocator
+    extends BeanLocator, org.eclipse.sisu.inject.MutableBeanLocator
 {
     void add( Injector injector, int rank );
 

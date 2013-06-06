@@ -21,6 +21,7 @@ import com.google.inject.Key;
 @Deprecated
 @ImplementedBy( MutableBeanLocator.class )
 public interface BeanLocator
+    extends org.eclipse.sisu.inject.BeanLocator
 {
     <Q extends Annotation, T> Iterable<BeanEntry<Q, T>> locate( Key<T> key );
 

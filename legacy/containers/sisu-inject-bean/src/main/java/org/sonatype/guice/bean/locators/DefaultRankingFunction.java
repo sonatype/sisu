@@ -20,15 +20,15 @@ public final class DefaultRankingFunction
 {
     private final org.eclipse.sisu.inject.RankingFunction delegate;
 
-    public DefaultRankingFunction( final int primaryRank )
-    {
-        delegate = new org.eclipse.sisu.inject.DefaultRankingFunction( primaryRank );
-    }
-
     @Inject
     public DefaultRankingFunction( final org.eclipse.sisu.inject.RankingFunction delegate )
     {
         this.delegate = delegate;
+    }
+
+    public DefaultRankingFunction( final int primaryRank )
+    {
+        delegate = new org.eclipse.sisu.inject.DefaultRankingFunction( primaryRank );
     }
 
     public DefaultRankingFunction()
