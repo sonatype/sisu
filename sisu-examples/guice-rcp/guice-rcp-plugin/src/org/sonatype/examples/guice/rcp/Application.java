@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2012 Sonatype, Inc.
+ * Copyright (c) 2010, 2013 Sonatype, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@ import org.eclipse.ui.application.WorkbenchAdvisor;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
-import org.eclipse.sisu.Sisu;
+//FIXME: import org.eclipse.sisu.Sisu;
 
 /**
  * This class controls all aspects of the application's execution
@@ -35,10 +35,12 @@ public class Application implements IApplication {
 	public Object start(IApplicationContext context) {
 		Display display = PlatformUI.createDisplay();
 		try {
+/* FIXME: the static Sisu.lookup utility is currently being reworked...
 			int returnCode = PlatformUI.createAndRunWorkbench(display, Sisu.lookup(WorkbenchAdvisor.class));
 			if (returnCode == PlatformUI.RETURN_RESTART) {
 				return IApplication.EXIT_RESTART;
 			}
+*/
 			return IApplication.EXIT_OK;
 		} finally {
 			display.dispose();

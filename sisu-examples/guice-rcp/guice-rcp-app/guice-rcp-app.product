@@ -20,7 +20,6 @@
       <plugin id="org.aopalliance"/>
       <plugin id="com.google.inject"/>
       <plugin id="org.sonatype.inject.eclipse"/>
-      <plugin id="org.objectweb.asm"/>
       <plugin id="org.eclipse.sisu.inject"/>
       <plugin id="guice-rcp"/>
       <plugin id="com.ibm.icu"/>
