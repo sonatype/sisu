@@ -31,7 +31,7 @@ public final class PlexusTypeBinder
 
     public void hear( final Annotation qualifier, final Class<?> qualifiedType, final Object source )
     {
-        delegate.hear( qualifier, qualifiedType, source );
+        delegate.hear( qualifiedType, source );
     }
 
     public void hear( final Component component, final DeferredClass<?> implementation, final Object source )

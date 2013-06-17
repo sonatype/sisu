@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.sonatype.guice.plexus.scanners;
 
-import java.lang.annotation.Annotation;
 import java.net.URL;
 
 import org.codehaus.plexus.component.annotations.Component;
@@ -81,9 +80,9 @@ public final class PlexusTypeVisitor
     {
         return new org.eclipse.sisu.plexus.PlexusTypeListener()
         {
-            public void hear( @Deprecated final Annotation qualifier, final Class<?> qualifiedType, final Object source )
+            public void hear( final Class<?> qualifiedType, final Object source )
             {
-                delegate.hear( qualifier, qualifiedType, source );
+                delegate.hear( null, qualifiedType, source );
             }
 
             public void hear( final Component component, final org.eclipse.sisu.inject.DeferredClass<?> implementation,
