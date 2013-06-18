@@ -19,8 +19,9 @@
       <plugin id="javax.inject"/>
       <plugin id="org.aopalliance"/>
       <plugin id="com.google.inject"/>
-      <plugin id="org.sonatype.inject.eclipse"/>
       <plugin id="org.eclipse.sisu.inject"/>
+      <plugin id="org.eclipse.sisu.inject.extender"/>
+      <plugin id="org.sonatype.inject.eclipse"/>
       <plugin id="guice-rcp"/>
       <plugin id="com.ibm.icu"/>
       <plugin id="org.eclipse.core.commands"/>
@@ -49,7 +50,7 @@
    </plugins>
 
    <configurations>
-      <plugin id="org.eclipse.sisu.inject" autoStart="true" startLevel="0" />
+      <plugin id="org.eclipse.sisu.inject.extender" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.app" autoStart="true" startLevel="0" />
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="0" />
