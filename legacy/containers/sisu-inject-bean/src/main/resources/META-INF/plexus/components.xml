@@ -1,0 +1,12 @@
+<component-set>
+  <components>
+    <component>
+      <implementation>org.sonatype.guice.bean.locators.DefaultBeanLocator</implementation>
+      <role>org.sonatype.guice.bean.locators.MutableBeanLocator</role>
+    </component>
+    <component>
+      <implementation>org.sonatype.guice.bean.locators.MutableBeanLocator</implementation>
+      <role>org.sonatype.guice.bean.locators.BeanLocator</role>
+    </component>
+  </components>
+</component-set>
