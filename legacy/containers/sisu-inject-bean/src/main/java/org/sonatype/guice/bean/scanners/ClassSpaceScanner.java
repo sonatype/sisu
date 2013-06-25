@@ -50,7 +50,7 @@ public final class ClassSpaceScanner
     {
         return null == delegate ? null : new org.eclipse.sisu.space.ClassSpaceVisitor()
         {
-            public void enter( final org.eclipse.sisu.space.ClassSpace space )
+            public void enterSpace( final org.eclipse.sisu.space.ClassSpace space )
             {
                 delegate.visit( (ClassSpace) LEGACY_CLASS_SPACE.proxy( space ) );
             }
@@ -60,7 +60,7 @@ public final class ClassSpaceScanner
                 return adapt( delegate.visitClass( url ) );
             }
 
-            public void leave()
+            public void leaveSpace()
             {
                 delegate.visitEnd();
             }
@@ -71,7 +71,8 @@ public final class ClassSpaceScanner
     {
         return null == delegate ? null : new org.eclipse.sisu.space.ClassVisitor()
         {
-            public void enter( final int modifiers, final String name, final String _extends, final String[] _implements )
+            public void enterClass( final int modifiers, final String name, final String _extends,
+                                    final String[] _implements )
             {
                 delegate.visit( Opcodes.V1_5, modifiers, name, null, _extends, _implements );
             }
@@ -81,7 +82,7 @@ public final class ClassSpaceScanner
                 return adapt( delegate.visitAnnotation( desc, true ) );
             }
 
-            public void leave()
+            public void leaveClass()
             {
                 delegate.visitEnd();
             }
@@ -92,7 +93,7 @@ public final class ClassSpaceScanner
     {
         return null == delegate ? null : new org.eclipse.sisu.space.AnnotationVisitor()
         {
-            public void enter()
+            public void enterAnnotation()
             {
                 // no-op
             }
@@ -102,7 +103,7 @@ public final class ClassSpaceScanner
                 delegate.visit( name, value );
             }
 
-            public void leave()
+            public void leaveAnnotation()
             {
                 delegate.visitEnd();
             }

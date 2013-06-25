@@ -40,7 +40,7 @@ public final class PlexusTypeVisitor
 
     public void visit( final ClassSpace space )
     {
-        delegate.enter( space );
+        delegate.enterSpace( space );
     }
 
     public ClassVisitor visitClass( final URL url )
@@ -72,7 +72,7 @@ public final class PlexusTypeVisitor
         }
         else
         {
-            delegate.leave();
+            delegate.leaveSpace();
         }
     }
 
@@ -100,7 +100,7 @@ public final class PlexusTypeVisitor
             public void visit( final int version, final int access, final String name, final String signature,
                                final String superName, final String[] interfaces )
             {
-                delegate.enter( access, name, superName, interfaces );
+                delegate.enterClass( access, name, superName, interfaces );
             }
 
             public AnnotationVisitor visitAnnotation( final String desc, final boolean visible )
@@ -110,7 +110,7 @@ public final class PlexusTypeVisitor
 
             public void visitEnd()
             {
-                delegate.leave();
+                delegate.leaveClass();
             }
         };
     }
@@ -120,7 +120,7 @@ public final class PlexusTypeVisitor
         return null == delegate ? null : new AnnotationVisitor()
         {
             {
-                delegate.enter();
+                delegate.enterAnnotation();
             }
 
             public void visit( final String name, final Object value )
@@ -130,7 +130,7 @@ public final class PlexusTypeVisitor
 
             public void visitEnd()
             {
-                delegate.leave();
+                delegate.leaveAnnotation();
             }
         };
     }
