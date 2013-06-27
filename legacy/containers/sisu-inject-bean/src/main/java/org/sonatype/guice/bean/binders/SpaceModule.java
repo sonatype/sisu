@@ -42,7 +42,7 @@ public class SpaceModule
         binder.install( new org.eclipse.sisu.space.SpaceModule( space, scanning )
         {
             @Override
-            protected org.eclipse.sisu.space.ClassSpaceVisitor visitor( final Binder _binder )
+            protected org.eclipse.sisu.space.SpaceVisitor visitor( final Binder _binder )
             {
                 final ClassSpaceVisitor v = SpaceModule.this.visitor( _binder );
                 return null != v ? ClassSpaceScanner.adapt( v ) : super.visitor( _binder );

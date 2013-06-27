@@ -24,11 +24,11 @@ public final class ClassSpaceScanner
     static final Legacy<org.eclipse.sisu.space.ClassSpace> LEGACY_CLASS_SPACE =
         Legacy.<org.eclipse.sisu.space.ClassSpace, ClassSpace> as( ClassSpace.class );
 
-    private final org.eclipse.sisu.space.ClassSpaceScanner delegate;
+    private final org.eclipse.sisu.space.SpaceScanner delegate;
 
     public ClassSpaceScanner( final ClassSpace space )
     {
-        delegate = new org.eclipse.sisu.space.ClassSpaceScanner( space );
+        delegate = new org.eclipse.sisu.space.SpaceScanner( space );
     }
 
     public void accept( final ClassSpaceVisitor visitor )
@@ -38,7 +38,7 @@ public final class ClassSpaceScanner
 
     public static void accept( final ClassVisitor visitor, final URL url )
     {
-        org.eclipse.sisu.space.ClassSpaceScanner.accept( adapt( visitor ), url );
+        org.eclipse.sisu.space.SpaceScanner.accept( adapt( visitor ), url );
     }
 
     public static boolean verify( final ClassSpace space, final Class<?>... specification )
@@ -46,9 +46,9 @@ public final class ClassSpaceScanner
         return org.eclipse.sisu.space.QualifiedTypeVisitor.verify( space, specification );
     }
 
-    public static org.eclipse.sisu.space.ClassSpaceVisitor adapt( final ClassSpaceVisitor delegate )
+    public static org.eclipse.sisu.space.SpaceVisitor adapt( final ClassSpaceVisitor delegate )
     {
-        return null == delegate ? null : new org.eclipse.sisu.space.ClassSpaceVisitor()
+        return null == delegate ? null : new org.eclipse.sisu.space.SpaceVisitor()
         {
             public void enterSpace( final org.eclipse.sisu.space.ClassSpace space )
             {
