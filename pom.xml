@@ -9,7 +9,6 @@
 -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -18,25 +17,25 @@
     <version>35</version>
   </parent>
 
-  <packaging>pom</packaging>
-
   <groupId>org.sonatype.sisu</groupId>
   <artifactId>sisu-parent</artifactId>
   <version>2.4.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
 
   <name>Sisu</name>
-
   <url>http://sisu.sonatype.org/</url>
   <inceptionYear>2010</inceptionYear>
-
   <organization>
     <name>Sonatype, Inc.</name>
     <url>http://www.sonatype.com/</url>
   </organization>
-
-  <prerequisites>
-    <maven>3.0</maven>
-  </prerequisites>
+  <licenses>
+    <license>
+      <name>Eclipse Public License, Version 1.0</name>
+      <url>http://www.eclipse.org/legal/epl-v10.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <mailingLists>
     <mailingList>
@@ -60,51 +59,45 @@
     </mailingList>
   </mailingLists>
 
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
+
+  <modules>
+    <module>legacy</module>
+  </modules>
+
   <scm>
     <connection>scm:git:git@github.com:sonatype/sisu.git</connection>
     <developerConnection>scm:git:git@github.com:sonatype/sisu.git</developerConnection>
     <url>git@github.com:sonatype/sisu.git</url>
     <tag>HEAD</tag>
   </scm>
-
   <issueManagement>
     <system>jira</system>
     <url>https://issues.sonatype.org/browse/SISU</url>
   </issueManagement>
-
   <ciManagement>
     <system>Hudson</system>
     <url>https://builds.sonatype.org/job/sisu/</url>
   </ciManagement>
 
-  <licenses>
-    <license>
-      <name>Eclipse Public License, Version 1.0</name>
-      <url>http://www.eclipse.org/legal/epl-v10.html</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-
-  <modules>
-    <module>legacy</module>
-  </modules>
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
+  <repositories>
+    <repository>
+      <id>ossrh-snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 
   <dependencyManagement>
     <dependencies>
@@ -184,6 +177,18 @@
 
     </dependencies>
   </dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
   <build>
     <pluginManagement>
@@ -342,18 +347,5 @@
       </plugin>
     </plugins>
   </reporting>
-
-  <repositories>
-    <repository>
-      <id>ossrh-snapshots</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
 
 </project>
