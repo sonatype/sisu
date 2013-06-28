@@ -87,41 +87,4 @@
     </dependencies>
   </dependencyManagement>
 
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-javadoc-plugin</artifactId>
-          <configuration>
-            <doclet>com.google.doclava.Doclava</doclet>
-            <docletPath>
-              ${project.basedir}/../../lib/doclava.jar:
-              ${project.basedir}/../../../lib/doclava.jar
-            </docletPath>
-            <!--
-             | bootclasspath required by Sun's JVM
-            -->
-            <bootclasspath>${sun.boot.class.path}</bootclasspath>
-            <excludePackageNames>*.internal</excludePackageNames>
-            <additionalparam>
-              -quiet
-              -federate JDK http://download.oracle.com/javase/6/docs/api/index.html?
-              -federationxml JDK http://doclava.googlecode.com/svn/static/api/openjdk-6.xml
-              -federate Guice http://google-guice.googlecode.com/svn/trunk/javadoc/
-              -federate OSGi http://osgi.org/javadoc/r4v42/index.html?
-              -federationxml OSGi https://raw.github.com/sonatype/sisu/master/legacy/lib/osgi.xml
-              -hdf project.name "${project.name}"
-              -d ${project.build.directory}/apidocs
-            </additionalparam>
-            <useStandardDocletOptions>false</useStandardDocletOptions>
-            <!--
-             | Apple's JVM sometimes requires more memory
-            -->
-            <additionalJOption>-J-Xmx1024m</additionalJOption>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-  </build>
-
 </project>
