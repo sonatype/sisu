@@ -83,15 +83,14 @@ public final class SisuGuice
         final BeanLocator locator = getBeanLocator();
         if ( null != locator )
         {
-            Guice.createInjector( new WireModule()
+            Guice.createInjector( new WireModule( new Module()
             {
-                @Override
                 public void configure( final Binder binder )
                 {
                     binder.bind( BeanLocator.class ).toProvider( Providers.of( locator ) );
                     binder.requestInjection( that );
                 }
-            } );
+            } ) );
         }
         else
         {
