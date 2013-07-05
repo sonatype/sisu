@@ -19,15 +19,15 @@ import com.google.inject.Module;
 public final class PlexusSpaceModule
     implements Module
 {
-    private final ClassSpace space;
+    private final Module delegate;
 
     public PlexusSpaceModule( final ClassSpace space )
     {
-        this.space = space;
+        delegate = new org.eclipse.sisu.plexus.PlexusSpaceModule( space );
     }
 
     public void configure( final Binder binder )
     {
-        binder.install( new org.eclipse.sisu.plexus.PlexusSpaceModule( space ) );
+        delegate.configure( binder );
     }
 }

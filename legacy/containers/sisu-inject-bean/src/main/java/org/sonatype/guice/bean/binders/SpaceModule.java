@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.binders;
 
+import org.eclipse.sisu.space.SpaceVisitor;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
 import org.sonatype.guice.bean.scanners.ClassSpaceVisitor;
@@ -22,9 +23,7 @@ import com.google.inject.Module;
 public class SpaceModule
     implements Module
 {
-    private final ClassSpace space;
-
-    private final org.eclipse.sisu.BeanScanning scanning;
+    private final Module delegate;
 
     public SpaceModule( final ClassSpace space )
     {
@@ -33,25 +32,27 @@ public class SpaceModule
 
     public SpaceModule( final ClassSpace space, final BeanScanning scanning )
     {
-        this.space = space;
-        this.scanning = org.eclipse.sisu.BeanScanning.valueOf( scanning.name() );
+        final org.eclipse.sisu.BeanScanning _scanning = org.eclipse.sisu.BeanScanning.valueOf( scanning.name() );
+        delegate = new org.eclipse.sisu.space.SpaceModule( space, _scanning ).with( new LegacyStrategy() );
     }
 
     public void configure( final Binder binder )
     {
-        binder.install( new org.eclipse.sisu.space.SpaceModule( space, scanning )
-        {
-            @Override
-            protected org.eclipse.sisu.space.SpaceVisitor visitor( final Binder _binder )
-            {
-                final ClassSpaceVisitor v = SpaceModule.this.visitor( _binder );
-                return null != v ? ClassSpaceScanner.adapt( v ) : super.visitor( _binder );
-            }
-        } );
+        delegate.configure( binder );
     }
 
     protected ClassSpaceVisitor visitor( @SuppressWarnings( "unused" ) final Binder binder )
     {
         return null;
+    }
+
+    final class LegacyStrategy
+        implements org.eclipse.sisu.space.SpaceModule.Strategy
+    {
+        public SpaceVisitor visitor( final Binder binder )
+        {
+            final ClassSpaceVisitor v = SpaceModule.this.visitor( binder );
+            return null != v ? ClassSpaceScanner.adapt( v ) : DEFAULT.visitor( binder );
+        }
     }
 }
