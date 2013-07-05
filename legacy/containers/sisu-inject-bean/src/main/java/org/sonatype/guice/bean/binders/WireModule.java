@@ -10,21 +10,30 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.binders;
 
+import java.util.Arrays;
 import java.util.List;
 
+import com.google.inject.Binder;
 import com.google.inject.Module;
 
 @Deprecated
 public class WireModule
-    extends org.eclipse.sisu.wire.WireModule
+    implements Module
 {
+    private final Module delegate;
+
     public WireModule( final Module... modules )
     {
-        super( modules );
+        this( Arrays.asList( modules ) );
     }
 
     public WireModule( final List<Module> modules )
     {
-        super( modules );
+        delegate = new org.eclipse.sisu.wire.WireModule( modules );
+    }
+
+    public void configure( final Binder binder )
+    {
+        delegate.configure( binder );
     }
 }
