@@ -1,5 +1,9 @@
 <component-set>
   <components>
+    <!--
+     ~ @ImplementedBy annotations may not be visible when legacy wrapper is deployed in Maven.
+     ~ This file provides the same bindings in a form that can be consumed by Maven or Plexus.
+     -->
     <component>
       <implementation>org.sonatype.guice.bean.locators.DefaultBeanLocator</implementation>
       <role>org.sonatype.guice.bean.locators.MutableBeanLocator</role>
