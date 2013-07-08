@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.sonatype.guice.bean.binders;
 
-import org.eclipse.sisu.space.SpaceVisitor;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.scanners.ClassSpaceScanner;
 import org.sonatype.guice.bean.scanners.ClassSpaceVisitor;
@@ -49,7 +48,7 @@ public class SpaceModule
     final class LegacyStrategy
         implements org.eclipse.sisu.space.SpaceModule.Strategy
     {
-        public SpaceVisitor visitor( final Binder binder )
+        public org.eclipse.sisu.space.SpaceVisitor visitor( final Binder binder )
         {
             final ClassSpaceVisitor v = SpaceModule.this.visitor( binder );
             return null != v ? ClassSpaceScanner.adapt( v ) : DEFAULT.visitor( binder );
