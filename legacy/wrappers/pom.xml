@@ -18,10 +18,10 @@
   </parent>
 
   <groupId>org.sonatype.sisu.inject</groupId>
-  <artifactId>containers</artifactId>
+  <artifactId>wrappers</artifactId>
   <packaging>pom</packaging>
 
-  <name>Sisu-Inject : Containers</name>
+  <name>Sisu-Inject : wrappers</name>
 
   <modules>
     <module>sisu-inject-bean</module>

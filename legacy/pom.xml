@@ -23,7 +23,7 @@
   <name>Sisu-Inject</name>
 
   <modules>
-    <module>containers</module>
+    <module>wrappers</module>
   </modules>
 
   <properties>
