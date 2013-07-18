@@ -1,6 +1,8 @@
 * Sisu has moved to Eclipse! *
 ==============================
 
+This repository contains wrappers that allow legacy Sonatype/Sisu applications to work with Eclipse/Sisu.
+
 Homepage
 ========
 <http://eclipse.org/sisu>
@@ -26,5 +28,3 @@ Source code uses the Maven code style: <http://maven.apache.org/developers/maven
 License
 =======
 Eclipse/Sisu is licensed under the [Eclipse Public License, v1.0](http://www.eclipse.org/legal/epl-v10.html)
-
-This repository contains wrappers that allow legacy Sonatype/Sisu applications to work with Eclipse/Sisu.
