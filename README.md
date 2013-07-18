@@ -1,5 +1,5 @@
-* The Sisu project has moved to Eclipse! *
-==========================================
+* Sisu has moved to Eclipse! *
+==============================
 
 Homepage
 ========
@@ -25,6 +25,6 @@ Source code uses the Maven code style: <http://maven.apache.org/developers/maven
 
 License
 =======
-The Eclipse Sisu bundles are licensed under the [Eclipse Public License, v1.0](http://www.eclipse.org/legal/epl-v10.html)
+Eclipse/Sisu is licensed under the [Eclipse Public License, v1.0](http://www.eclipse.org/legal/epl-v10.html)
 
-This repository contains some additional legacy Plexus components (configurator support) licensed under the [Apache License, v2.0](http://www.apache.org/licenses/LICENSE-2.0.txt)
+This repository contains wrappers that allow legacy Sonatype/Sisu applications to work with Eclipse/Sisu.
