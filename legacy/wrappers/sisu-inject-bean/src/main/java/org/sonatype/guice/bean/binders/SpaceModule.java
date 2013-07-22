@@ -31,7 +31,9 @@ public class SpaceModule
 
     public SpaceModule( final ClassSpace space, final BeanScanning scanning )
     {
-        final org.eclipse.sisu.BeanScanning _scanning = org.eclipse.sisu.BeanScanning.valueOf( scanning.name() );
+        final org.eclipse.sisu.space.BeanScanning _scanning =
+            org.eclipse.sisu.space.BeanScanning.valueOf( scanning.name() );
+
         delegate = new org.eclipse.sisu.space.SpaceModule( space, _scanning ).with( new LegacyStrategy() );
     }
 

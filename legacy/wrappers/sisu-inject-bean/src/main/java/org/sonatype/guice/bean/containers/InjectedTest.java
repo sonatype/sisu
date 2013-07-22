@@ -37,9 +37,9 @@ public abstract class InjectedTest
         }
 
         @Override
-        public org.eclipse.sisu.BeanScanning scanning()
+        public org.eclipse.sisu.space.BeanScanning scanning()
         {
-            return org.eclipse.sisu.BeanScanning.valueOf( InjectedTest.this.scanning().name() );
+            return org.eclipse.sisu.space.BeanScanning.valueOf( InjectedTest.this.scanning().name() );
         }
 
         @Override

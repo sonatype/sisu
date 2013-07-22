@@ -37,6 +37,9 @@ public final class Main
 
     public static Module wire( final BeanScanning scanning, final Module... bindings )
     {
-        return org.eclipse.sisu.launch.Main.wire( org.eclipse.sisu.BeanScanning.valueOf( scanning.name() ), bindings );
+        final org.eclipse.sisu.space.BeanScanning _scanning =
+            org.eclipse.sisu.space.BeanScanning.valueOf( scanning.name() );
+
+        return org.eclipse.sisu.launch.Main.wire( _scanning, bindings );
     }
 }
