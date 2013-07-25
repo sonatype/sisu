@@ -269,7 +269,7 @@
         <plugin>
           <groupId>org.sonatype.plugins</groupId>
           <artifactId>nexus-staging-maven-plugin</artifactId>
-          <version>1.4.5</version>
+          <version>1.4.4</version>
         </plugin>
       </plugins>
     </pluginManagement>
