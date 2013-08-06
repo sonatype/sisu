@@ -8,15 +8,27 @@
  * Contributors:
  *    Stuart McCulloch (Sonatype, Inc.) - initial API and implementation
  *******************************************************************************/
-package org.sonatype.guice.plexus.scanners;
+package org.sonatype.guice.bean.binders;
 
-import org.codehaus.plexus.component.annotations.Component;
-import org.sonatype.guice.bean.reflect.DeferredClass;
+import java.lang.annotation.Annotation;
+
 import org.sonatype.guice.bean.scanners.QualifiedTypeListener;
 
+import com.google.inject.Binder;
+
 @Deprecated
-public interface PlexusTypeListener
-    extends QualifiedTypeListener
+public final class QualifiedTypeBinder
+    implements QualifiedTypeListener
 {
-    void hear( Component component, DeferredClass<?> implementation, Object source );
+    private final org.eclipse.sisu.space.QualifiedTypeBinder delegate;
+
+    public QualifiedTypeBinder( final Binder binder )
+    {
+        delegate = new org.eclipse.sisu.space.QualifiedTypeBinder( binder );
+    }
+
+    public void hear( final Annotation qualifier, final Class<?> qualifiedType, final Object source )
+    {
+        delegate.hear( qualifiedType, source );
+    }
 }
