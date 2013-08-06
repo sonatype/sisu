@@ -28,7 +28,7 @@
 
   <properties>
     <guava.version>11.0.2</guava.version>
-    <sisu.guice.version>3.1.5</sisu.guice.version>
+    <sisu-guice.version>3.1.5</sisu-guice.version>
   </properties>
 
   <dependencyManagement>
@@ -62,12 +62,12 @@
       <dependency>
         <groupId>org.sonatype.sisu</groupId>
         <artifactId>sisu-guice</artifactId>
-        <version>${sisu.guice.version}</version>
+        <version>${sisu-guice.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonatype.sisu</groupId>
         <artifactId>sisu-guice</artifactId>
-        <version>${sisu.guice.version}</version>
+        <version>${sisu-guice.version}</version>
         <classifier>no_aop</classifier>
       </dependency>
 
