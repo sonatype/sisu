@@ -45,8 +45,6 @@ import com.google.inject.Key;
 import com.google.inject.ProvidedBy;
 import com.google.inject.Provider;
 import com.google.inject.ProvisionException;
-import com.google.inject.TypeLiteral;
-import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
 
 public class BeanImportTest

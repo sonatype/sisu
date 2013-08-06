@@ -164,7 +164,7 @@ public class WatchedBeansTest
     {
         final MutableBeanLocator locator = new DefaultBeanLocator();
 
-        Object keepAlive = new Object();
+        final Object keepAlive = new Object();
 
         locator.add( parent, 0 );
         locator.watch( Key.get( Bean.class, Named.class ), new BrokenMediator(), keepAlive );

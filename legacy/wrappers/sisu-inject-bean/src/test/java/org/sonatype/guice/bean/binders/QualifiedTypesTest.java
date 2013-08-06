@@ -29,17 +29,12 @@ import junit.framework.TestCase;
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
-import org.sonatype.inject.BeanEntry;
 import org.sonatype.inject.EagerSingleton;
-import org.sonatype.inject.Mediator;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Binder;
 import com.google.inject.Guice;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
 import com.google.inject.Key;
-import com.google.inject.Module;
 import com.google.inject.name.Names;
 
 public class QualifiedTypesTest
