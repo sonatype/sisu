@@ -23,7 +23,9 @@
   <name>Sisu-Inject-Bean : legacy wrapper</name>
 
   <dependencies>
-    <!-- external dependencies -->
+    <!--
+     | external dependencies
+    -->
     <dependency>
       <groupId>javax.enterprise</groupId>
       <artifactId>cdi-api</artifactId>
@@ -36,14 +38,10 @@
     <dependency>
       <groupId>org.eclipse.sisu</groupId>
       <artifactId>org.eclipse.sisu.inject</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>com.google.inject</groupId>
-          <artifactId>guice</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
-    <!-- optional dependencies -->
+    <!--
+     | optional dependencies
+    -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>

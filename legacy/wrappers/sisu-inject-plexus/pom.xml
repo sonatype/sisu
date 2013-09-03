@@ -23,7 +23,9 @@
   <name>Sisu-Inject-Plexus : legacy wrapper</name>
 
   <dependencies>
-    <!-- external dependencies -->
+    <!--
+     | external dependencies
+    -->
     <dependency>
       <groupId>org.codehaus.plexus</groupId>
       <artifactId>plexus-component-annotations</artifactId>
@@ -47,14 +49,10 @@
     <dependency>
       <groupId>org.eclipse.sisu</groupId>
       <artifactId>org.eclipse.sisu.plexus</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.sonatype.sisu</groupId>
-          <artifactId>sisu-guice</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
-    <!-- optional dependencies -->
+    <!--
+     | optional dependencies
+    -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
