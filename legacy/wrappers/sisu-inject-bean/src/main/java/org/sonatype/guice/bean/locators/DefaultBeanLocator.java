@@ -11,7 +11,6 @@
 package org.sonatype.guice.bean.locators;
 
 import java.lang.annotation.Annotation;
-import java.util.Iterator;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -88,9 +87,9 @@ public final class DefaultBeanLocator
         return delegate.remove( publisher );
     }
 
-    public Iterator<BindingPublisher> iterator()
+    public Iterable<BindingPublisher> publishers()
     {
-        return delegate.iterator();
+        return delegate.publishers();
     }
 
     @Inject
