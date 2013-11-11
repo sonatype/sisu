@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.sonatype.sisu</groupId>
     <artifactId>sisu-parent</artifactId>
-    <version>2.5.0</version>
+    <version>2.5.1-SNAPSHOT</version>
   </parent>
 
   <artifactId>sisu-inject</artifactId>
