@@ -62,19 +62,24 @@
         <version>1.0_6</version>
       </dependency>
       <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>15.0</version>
+      </dependency>
+      <dependency>
         <groupId>org.sonatype.sisu</groupId>
         <artifactId>sisu-guice</artifactId>
-        <version>3.1.6</version>
+        <version>3.1.8</version>
       </dependency>
       <dependency>
         <groupId>org.eclipse.sisu</groupId>
         <artifactId>org.eclipse.sisu.inject</artifactId>
-        <version>0.0.0.M5</version>
+        <version>0.1.0</version>
       </dependency>
       <dependency>
         <groupId>org.eclipse.sisu</groupId>
         <artifactId>org.eclipse.sisu.inject.extender</artifactId>
-        <version>0.0.0.M5</version>
+        <version>0.1.0</version>
       </dependency>
       <dependency>
         <groupId>org.sonatype.sisu</groupId>
