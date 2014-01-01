@@ -585,6 +585,28 @@ public abstract class AbstractComponentConfiguratorTest
         assertEquals( "value", map.get( "key" ) );
     }
 
+    public void testComponentConfigurationWithParameterizedMapField()
+        throws Exception
+    {
+        final String xml =
+            "<configuration>" + "  <parameterizedMap>" + "     <Apache>http://www.apache.org/</Apache>"
+                + "     <Maven>http://maven.apache.org/</Maven>" + "  </parameterizedMap>" + "</configuration>";
+
+        final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
+
+        final ComponentWithMapField component = new ComponentWithMapField();
+
+        configureComponent( component, configuration );
+
+        final Map<String, URL> map = component.getParameterizedMap();
+
+        assertNotNull( map );
+
+        assertEquals( new URL( "http://www.apache.org/" ), map.get( "Apache" ) );
+
+        assertEquals( new URL( "http://maven.apache.org/" ), map.get( "Maven" ) );
+    }
+
     public void testComponentConfigurationWhereFieldIsBadArray()
         throws Exception
     {

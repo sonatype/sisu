@@ -24,6 +24,7 @@ package org.codehaus.plexus.component.configurator;
  * SOFTWARE.
  */
 
+import java.net.URL;
 import java.util.Map;
 
 /**
@@ -34,8 +35,15 @@ public class ComponentWithMapField
 {
     private Map map;
 
+    private Map<String, URL> parameterizedMap;
+
     public Map getMap()
     {
         return map;
+    }
+
+    public Map<String, URL> getParameterizedMap()
+    {
+        return parameterizedMap;
     }
 }
