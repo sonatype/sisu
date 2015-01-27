@@ -77,9 +77,9 @@ public final class DefaultBeanLocator
         delegate.clear();
     }
 
-    public boolean add( final BindingPublisher publisher, final int rank )
+    public boolean add( final BindingPublisher publisher )
     {
-        return delegate.add( publisher, rank );
+        return delegate.add( publisher );
     }
 
     public boolean remove( final BindingPublisher publisher )
@@ -98,7 +98,7 @@ public final class DefaultBeanLocator
         if ( decoupledDelegate )
         {
             final RankingFunction function = injector.getInstance( RankingFunction.class );
-            delegate.add( new InjectorPublisher( injector, function ), function.maxRank() );
+            delegate.add( new InjectorPublisher( injector, function ) );
         }
     }
 }
