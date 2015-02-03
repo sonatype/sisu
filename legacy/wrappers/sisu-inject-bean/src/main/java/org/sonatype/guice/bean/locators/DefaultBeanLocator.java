@@ -13,7 +13,6 @@ package org.sonatype.guice.bean.locators;
 import java.lang.annotation.Annotation;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import org.eclipse.sisu.inject.BindingPublisher;
 import org.eclipse.sisu.inject.InjectorPublisher;
@@ -23,6 +22,7 @@ import org.sonatype.inject.Mediator;
 
 import com.google.inject.Injector;
 import com.google.inject.Key;
+import com.google.inject.Singleton;
 
 @Deprecated
 @Singleton
