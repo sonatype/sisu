@@ -29,7 +29,6 @@ import javax.inject.Named;
 
 import junit.framework.TestCase;
 
-import org.slf4j.Logger;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.inject.BeanEntry;
@@ -135,9 +134,6 @@ public class BeanImportTest
     {
         @Inject
         Injector injector;
-
-        @Inject
-        Logger logger;
 
         @Inject
         ImplicitX implicitX;
