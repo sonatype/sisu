@@ -15,6 +15,7 @@ import java.lang.annotation.Annotation;
 import javax.inject.Inject;
 
 import org.eclipse.sisu.inject.BindingPublisher;
+import org.eclipse.sisu.inject.DefaultRankingFunction;
 import org.eclipse.sisu.inject.InjectorBindings;
 import org.eclipse.sisu.inject.Legacy;
 import org.sonatype.inject.BeanEntry;
