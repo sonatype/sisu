@@ -18,9 +18,9 @@ package org.codehaus.plexus.configuration;
 
 import java.io.StringReader;
 
-import junit.framework.TestCase;
-
 import org.codehaus.plexus.component.repository.io.PlexusTools;
+
+import junit.framework.TestCase;
 
 /**
  * @author Jason van Zyl

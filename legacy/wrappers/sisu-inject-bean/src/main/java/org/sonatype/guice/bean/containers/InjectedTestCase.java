@@ -13,14 +13,14 @@ package org.sonatype.guice.bean.containers;
 import java.lang.annotation.Annotation;
 import java.util.Properties;
 
-import junit.framework.TestCase;
-
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.inject.BeanScanning;
 
 import com.google.inject.Binder;
 import com.google.inject.Module;
+
+import junit.framework.TestCase;
 
 @Deprecated
 public abstract class InjectedTestCase

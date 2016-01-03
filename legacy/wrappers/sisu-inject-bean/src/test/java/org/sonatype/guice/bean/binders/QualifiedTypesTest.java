@@ -24,8 +24,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Qualifier;
 
-import junit.framework.TestCase;
-
 import org.sonatype.guice.bean.locators.BeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
@@ -36,6 +34,8 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
+
+import junit.framework.TestCase;
 
 public class QualifiedTypesTest
     extends TestCase

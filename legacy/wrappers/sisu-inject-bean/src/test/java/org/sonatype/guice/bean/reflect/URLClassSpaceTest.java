@@ -21,9 +21,9 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.jar.Manifest;
 
-import junit.framework.TestCase;
-
 import org.sonatype.guice.bean.reflect.barf.Handler;
+
+import junit.framework.TestCase;
 
 public class URLClassSpaceTest
     extends TestCase

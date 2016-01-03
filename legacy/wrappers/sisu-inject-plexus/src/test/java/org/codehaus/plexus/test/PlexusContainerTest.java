@@ -27,8 +27,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import junit.framework.TestCase;
-
 import org.codehaus.plexus.ContainerConfiguration;
 import org.codehaus.plexus.DefaultContainerConfiguration;
 import org.codehaus.plexus.DefaultPlexusContainer;
@@ -44,6 +42,8 @@ import org.codehaus.plexus.test.map.Activity;
 import org.codehaus.plexus.test.map.ActivityManager;
 //import org.sonatype.guice.plexus.config.PlexusBeanConverter;
 //import org.sonatype.guice.plexus.converters.PlexusXmlBeanConverter;
+
+import junit.framework.TestCase;
 
 public class PlexusContainerTest
     extends TestCase

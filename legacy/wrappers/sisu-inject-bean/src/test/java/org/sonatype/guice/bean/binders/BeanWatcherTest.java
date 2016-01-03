@@ -19,8 +19,6 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
 
-import junit.framework.TestCase;
-
 import org.sonatype.guice.bean.locators.MutableBeanLocator;
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
@@ -30,6 +28,8 @@ import org.sonatype.inject.Mediator;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
+import junit.framework.TestCase;
 
 public class BeanWatcherTest
     extends TestCase

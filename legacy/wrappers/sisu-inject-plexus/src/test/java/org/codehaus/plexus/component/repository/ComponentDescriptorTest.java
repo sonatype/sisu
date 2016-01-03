@@ -18,11 +18,11 @@ package org.codehaus.plexus.component.repository;
 
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.codehaus.plexus.component.repository.io.PlexusTools;
+
+import junit.framework.TestCase;
 
 /**
  * @author Jason van Zyl

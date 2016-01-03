@@ -13,14 +13,14 @@ package org.sonatype.guice.bean.binders;
 
 import javax.inject.Inject;
 
-import junit.framework.TestCase;
-
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.name.Names;
+
+import junit.framework.TestCase;
 
 public class QualifiedModuleTest
     extends TestCase

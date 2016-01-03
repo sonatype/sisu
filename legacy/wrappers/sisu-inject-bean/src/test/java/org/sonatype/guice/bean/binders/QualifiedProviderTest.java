@@ -18,12 +18,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 
-import junit.framework.TestCase;
-
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 
 import com.google.inject.Guice;
+
+import junit.framework.TestCase;
 
 public class QualifiedProviderTest
     extends TestCase

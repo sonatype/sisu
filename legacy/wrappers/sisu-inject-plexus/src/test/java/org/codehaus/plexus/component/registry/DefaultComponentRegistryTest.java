@@ -4,13 +4,13 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import junit.framework.TestCase;
-
 import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.repository.ComponentDescriptor;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.codehaus.plexus.components.A;
+
+import junit.framework.TestCase;
 
 public class DefaultComponentRegistryTest
     extends TestCase

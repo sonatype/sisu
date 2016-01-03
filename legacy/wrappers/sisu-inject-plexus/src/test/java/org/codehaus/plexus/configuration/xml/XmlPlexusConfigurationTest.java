@@ -16,10 +16,10 @@ package org.codehaus.plexus.configuration.xml;
  * limitations under the License.
  */
 
-import junit.framework.TestCase;
-
 import org.codehaus.plexus.configuration.ConfigurationTestHelper;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
+
+import junit.framework.TestCase;
 
 /**
  * @author <a href="mailto:rantene@hotmail.com">Ran Tene</a>

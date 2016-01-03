@@ -2,10 +2,10 @@ package org.codehaus.plexus.configuration.io;
 
 import java.io.StringReader;
 
-import junit.framework.TestCase;
-
 import org.codehaus.plexus.configuration.ConfigurationTestHelper;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
+
+import junit.framework.TestCase;
 
 public class XmlPlexusConfigurationReaderTest
     extends TestCase

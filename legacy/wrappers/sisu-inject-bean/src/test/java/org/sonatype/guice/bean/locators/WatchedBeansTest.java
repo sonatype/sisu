@@ -17,8 +17,6 @@ import java.util.List;
 
 import javax.inject.Named;
 
-import junit.framework.TestCase;
-
 import org.sonatype.guice.bean.locators.DefaultBeanLocatorTest.Bean;
 import org.sonatype.guice.bean.locators.DefaultBeanLocatorTest.BeanImpl;
 import org.sonatype.guice.bean.locators.DefaultBeanLocatorTest.Marked;
@@ -30,6 +28,8 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.name.Names;
+
+import junit.framework.TestCase;
 
 public class WatchedBeansTest
     extends TestCase

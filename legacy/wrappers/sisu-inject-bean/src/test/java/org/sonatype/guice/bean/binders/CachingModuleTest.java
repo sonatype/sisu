@@ -13,14 +13,14 @@ package org.sonatype.guice.bean.binders;
 
 import javax.inject.Named;
 
-import junit.framework.TestCase;
-
 import org.sonatype.guice.bean.reflect.ClassSpace;
 import org.sonatype.guice.bean.reflect.URLClassSpace;
 import org.sonatype.inject.BeanScanning;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
+
+import junit.framework.TestCase;
 
 public class CachingModuleTest
     extends TestCase

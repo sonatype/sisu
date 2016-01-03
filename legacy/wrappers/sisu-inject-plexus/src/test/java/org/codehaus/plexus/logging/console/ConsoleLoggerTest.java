@@ -19,10 +19,10 @@ package org.codehaus.plexus.logging.console;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
-import junit.framework.TestCase;
-
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.util.StringUtils;
+
+import junit.framework.TestCase;
 
 /**
  * @author Jason van Zyl
