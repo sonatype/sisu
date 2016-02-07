@@ -48,5 +48,19 @@
         </requirement>
       </requirements>
     </component>
+    <component>
+      <!-- unscoped component used to test parallel requests involving the same cycle -->
+      <role>org.codehaus.plexus.test.cycle.CycleComponent</role>
+      <role-hint>parallel</role-hint>
+      <instantiation-strategy>per-lookup</instantiation-strategy>
+      <implementation>org.codehaus.plexus.test.cycle.DefaultCycleComponentA</implementation>
+      <requirements>
+        <requirement>
+          <role>org.codehaus.plexus.test.cycle.CycleComponent</role>
+          <role-hint>B</role-hint>
+          <field-name>b</field-name>
+        </requirement>
+      </requirements>
+    </component>
   </components>
 </plexus>
