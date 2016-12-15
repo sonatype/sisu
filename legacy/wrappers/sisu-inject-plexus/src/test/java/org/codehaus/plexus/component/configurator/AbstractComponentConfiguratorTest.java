@@ -446,6 +446,29 @@ public abstract class AbstractComponentConfiguratorTest
         assertEquals( "maczka", properties.get( "lastname" ) );
     }
 
+    public void testComponentConfigurationWithPropertiesFieldsUsingAlternativeNames()
+        throws Exception
+    {
+        final String xml = "<configuration>" + "  <someProperties>" + "     <someProperty>"
+            + "        <name>firstname</name>" + "        <value>michal</value>" + "     </someProperty>"
+            + "     <someProperty>" + "        <name>lastname</name>" + "        <value>maczka</value>"
+            + "     </someProperty>" + "  </someProperties>" + "</configuration>";
+
+        final PlexusConfiguration configuration = PlexusTools.buildConfiguration( "<Test>", new StringReader( xml ) );
+
+        final ComponentWithPropertiesField component = new ComponentWithPropertiesField();
+
+        configureComponent( component, configuration );
+
+        final Properties properties = component.getSomeProperties();
+
+        assertNotNull( properties );
+
+        assertEquals( "michal", properties.get( "firstname" ) );
+
+        assertEquals( "maczka", properties.get( "lastname" ) );
+    }
+
     public void testComponentConfigurationWithPropertiesFieldsUsingMapStyleConfig()
         throws Exception
     {
