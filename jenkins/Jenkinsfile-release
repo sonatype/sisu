@@ -1,0 +1,12 @@
+
+library('private-pipeline-library')
+library('jenkins-shared')
+
+mavenReleasePipeline(
+    onSuccess: { build, env ->
+      notifyChat(env: env, currentBuild: build, room: 'nexus')
+    },
+    onFailure: { build, env ->
+      notifyChat(env: env, currentBuild: build, room: 'nexus')
+    }
+)
