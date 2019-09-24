@@ -3,9 +3,9 @@ library('jenkins-shared')
 
 mavenSnapshotPipeline(usePublicSettingsXmlFile: true,
     onSuccess: { build, env ->
-      notifyChat(env: env, currentBuild: build, room: 'nexus')
+      notifyChat(env: env, currentBuild: build, room: 'nxrm-jenkins')
     },
     onFailure: { build, env ->
-      notifyChat(env: env, currentBuild: build, room: 'nexus')
+      notifyChat(env: env, currentBuild: build, room: 'nxrm-jenkins')
     }
 )
